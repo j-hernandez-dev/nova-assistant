@@ -1,0 +1,1400 @@
+"""Stdin/stdout JSON-line server for desktop GUI integration.
+
+Reads newline-delimited JSON requests from stdin and writes
+newline-delimited JSON responses to stdout. This avoids any
+network dependency and lets Electron spawn the Python process
+directly.
+
+Protocol
+--------
+Request (one JSON object per line on stdin)::
+
+    {"id": 1, "type": "chat", "content": "explain this code"}
+    {"id": 2, "type": "command", "command": "/status"}
+    {"id": 3, "type": "models"}
+
+Response (newline-delimited JSON on stdout)::
+
+    {"id": 1, "type": "stream", "content": "The"}
+    {"id": 1, "type": "stream", "content": " code"}
+    {"id": 1, "type": "tool_call", "name": "read", "args": {"file_path": "x"}}
+    {"id": 1, "type": "tool_result", "name": "read", "output": "..."}
+    {"id": 1, "type": "done"}
+    {"id": 2, "type": "status", "data": {...}}
+    {"id": 3, "type": "models", "data": [...]}
+"""
+
+import json
+import os
+import sys
+import threading
+from typing import Any
+
+from local_cli import __version__
+from local_cli.agent import (
+    _COMPACT_TOKEN_THRESHOLD,
+    _estimate_tokens,
+    _needs_compaction,
+    run_agent,
+    truncate_tool_output,
+)
+from local_cli.harness import AgentEvent, HarnessConfig
+from local_cli.clipboard import (
+    ClipboardError,
+    ClipboardUnavailableError,
+    copy_to_clipboard,
+)
+from local_cli.config import Config
+from local_cli.context_sizing import resolve_num_ctx
+from local_cli.conversation_store import ConversationStore
+from local_cli.git_ops import GitError, GitNotInstalledError, GitOps
+from local_cli.git_capability import GitCapability, detect_git_capability
+from local_cli.knowledge import KnowledgeStore
+from local_cli.model_catalog import get_merged_catalog, update_catalog
+from local_cli.model_presets import SUPPORTS_THINKING, get_model_family, get_model_preset
+from local_cli.model_search import search_models
+from local_cli.ollama_client import OllamaClient, OllamaConnectionError
+from local_cli.plan_manager import PlanManager
+from local_cli.providers import LLMProvider, ProviderConnectionError, ProviderRequestError, ProviderStreamError
+from local_cli.providers.claude_provider import ClaudeProvider
+from local_cli.providers.ollama_provider import OllamaProvider
+from local_cli.project_instructions import (
+    build_instruction_message,
+    load_project_instructions,
+)
+from local_cli.project_map import project_map_message
+from local_cli.security import validate_model_name
+from local_cli.session_log import SessionLogger
+from local_cli.skills import SkillsLoader
+from local_cli.sub_agent import SubAgentRunner
+from local_cli.token_tracker import TokenTracker
+from local_cli.tool_cache import ToolCache
+from local_cli.tools import create_tools
+from local_cli.updater import get_project_root
+from local_cli.prompts import build_skill_messages, build_system_prompt
+from local_cli.tools.agent_tool import AgentTool
+from local_cli.tools.base import Tool
+
+
+_send_lock = threading.Lock()
+
+
+def _send(obj: dict[str, Any]) -> None:
+    """Write a JSON line to stdout (thread-safe)."""
+    line = json.dumps(obj, ensure_ascii=False) + "\n"
+    with _send_lock:
+        sys.stdout.write(line)
+        sys.stdout.flush()
+
+
+# How long the GUI has to answer a risky-command confirmation before it
+# is refused (module-level so tests can shrink it).
+_CONFIRM_TIMEOUT_S = 180.0
+
+
+class JsonLineServer:
+    """Stdin/stdout server for desktop integration."""
+
+    def __init__(self) -> None:
+        self._config = Config()
+        try:
+            self._client = OllamaClient(base_url=self._config.ollama_host)
+        except ValueError:
+            self._client = OllamaClient()
+
+        # Wrap the client in a provider for normalized chat operations.
+        # Keep self._client for Ollama-specific ops (pull, delete, catalog, search).
+        self._provider: LLMProvider = OllamaProvider(client=self._client)
+
+        # Risky-command gate for the GUI path.  The CLI wires a stdin
+        # prompt; the desktop asks over the JSON-line protocol and the
+        # chat thread waits (deny on timeout).  Without this, risky
+        # commands (sudo, recursive rm, kill, ...) ran unconfirmed.
+        self._confirm_lock = threading.Lock()
+        self._confirm_event = threading.Event()
+        self._confirm_result = False
+        self._confirm_seq = 0
+        self._tools = create_tools(
+            "server", auto_approve=self._config.auto_approve,
+            confirm=self._gui_confirm, preference=self._config.shell_backend,
+        )
+
+        # 007: Sub-agent support — inject AgentTool into tools list.
+        self._sub_agent_runner: SubAgentRunner | None = None
+        try:
+            self._sub_agent_runner = SubAgentRunner()
+            agent_tool = AgentTool(
+                runner=self._sub_agent_runner,
+                provider=self._provider,
+                model=self._config.model,
+                sub_agent_tools=create_tools("sub_agent", preference=self._config.shell_backend),
+            )
+            self._tools.append(agent_tool)
+        except Exception as exc:
+            # Non-fatal: continue without sub-agents, but surface the
+            # reason on stderr (stdout is the JSON-line channel) so a
+            # missing 'agent' tool can be diagnosed.
+            sys.stderr.write(f"[server] sub-agent setup failed: {exc}\n")
+
+        # 008: Plan manager, knowledge store, skills loader.
+        self._plan_manager: PlanManager | None = None
+        try:
+            self._plan_manager = PlanManager(plans_dir=self._config.plan_dir)
+        except Exception as exc:
+            sys.stderr.write(f"[server] plan manager init failed: {exc}\n")
+
+        self._knowledge_store: KnowledgeStore | None = None
+        try:
+            self._knowledge_store = KnowledgeStore(
+                knowledge_dir=self._config.knowledge_dir,
+            )
+        except Exception as exc:
+            sys.stderr.write(f"[server] knowledge store init failed: {exc}\n")
+
+        self._skills_loader: SkillsLoader | None = None
+        try:
+            self._skills_loader = SkillsLoader(
+                skills_dir=self._config.skills_dir,
+            )
+            self._skills_loader.discover_skills()
+        except Exception as exc:
+            sys.stderr.write(f"[server] skills loader init failed: {exc}\n")
+
+        self._system_prompt = build_system_prompt(self._tools)
+        self._messages: list[dict[str, Any]] = [
+            {"role": "system", "content": self._system_prompt},
+        ]
+
+        # Project instruction file (LOCAL_CLI.md / AGENTS.md / CLAUDE.md):
+        # the per-project steering lever, injected right after the system
+        # prompt and re-injected on /clear.
+        self._instruction_source: str | None = None
+        self._instruction_message: dict[str, Any] | None = None
+        loaded_instructions = load_project_instructions()
+        if loaded_instructions is not None:
+            self._instruction_source, instruction_text = loaded_instructions
+            self._instruction_message = build_instruction_message(
+                self._instruction_source, instruction_text,
+            )
+            self._messages.append(self._instruction_message)
+
+        # Project map: exact paths up front so the model reads instead
+        # of exploring.  Rebuilt on /clear, resume and folder change.
+        self._map_message = project_map_message()
+        if self._map_message is not None:
+            self._messages.append(self._map_message)
+
+        self._tool_defs = self._provider.format_tools(self._tools)
+        self._tool_map = {t.name: t for t in self._tools}
+        self._stop_flag = threading.Event()
+        self._pending_switch: tuple[int, str] | None = None
+        self._tool_cache = ToolCache()
+        self._token_tracker = TokenTracker()
+        self._git_ops = GitOps()
+        self._ideation_active = False
+
+        # Flight recorder: the session leaves a JSONL transcript under
+        # <state_dir>/projects/<cwd-slug>/ from the moment the folder is
+        # opened (LOCAL_CLI_SESSION_LOG=0 disables).  Fail-open: a write
+        # error silences the logger, never the session.
+        self._session_log = SessionLogger(self._config.state_dir)
+        self._session_log.log_session_start(
+            model=self._config.model,
+            provider=self._provider.name,
+            app_version=__version__,
+            frontend="server",
+        )
+        if self._instruction_source is not None:
+            self._session_log.log(
+                "project_instructions", source=self._instruction_source,
+            )
+
+        # Last-conversation autosave: quit no longer loses the chat.
+        # Saved after every turn; restored via the "resume" request.
+        self._conversation_store = ConversationStore(self._config.state_dir)
+
+    def _gui_confirm(self, command: str) -> bool:
+        """Ask the GUI to approve a risky command; deny on timeout.
+
+        Called from the chat thread (bash tool).  Sends a
+        ``confirm_request`` and blocks until the main stdin loop routes
+        back a ``confirm_response`` — or the timeout elapses, in which
+        case the command is refused: a risky command must never run
+        just because nobody was watching.
+        """
+        if getattr(self._config, "auto_approve", False):
+            return True
+        with self._confirm_lock:
+            self._confirm_seq += 1
+            self._confirm_result = False
+            self._confirm_event.clear()
+            _send({
+                "type": "confirm_request",
+                "confirm_id": self._confirm_seq,
+                "command": command,
+            })
+        if self._confirm_event.wait(timeout=_CONFIRM_TIMEOUT_S):
+            return bool(self._confirm_result)
+        return False
+
+    def run(self) -> None:
+        """Main loop: read stdin lines, dispatch, write responses."""
+        # Send ready signal.
+        tool_names = [t.name for t in self._tools]
+        has_claude = bool(os.environ.get("ANTHROPIC_API_KEY"))
+        _send({
+            "type": "ready",
+            "model": self._config.model,
+            "tools": tool_names,
+            "git_capability": self._git_ops.capability().value,
+            "backend_git_capability": detect_git_capability(get_project_root()).value,
+            "provider": getattr(self._config, "provider", "ollama"),
+            "has_claude": has_claude,
+            # Offer to restore this folder's previous conversation.
+            "resumable": self._conversation_store.info(),
+        })
+
+        # Background auto-update check.
+        def _bg_update_check() -> None:
+            try:
+                from local_cli.updater import check_for_updates
+                has_updates, message = check_for_updates()
+                if has_updates:
+                    _send({"type": "update_available", "message": message})
+            except Exception:
+                pass
+
+        update_thread = threading.Thread(target=_bg_update_check, daemon=True)
+        update_thread.start()
+
+        self._chat_thread: threading.Thread | None = None
+
+        for line in sys.stdin:
+            line = line.strip()
+            if not line:
+                continue
+
+            try:
+                req = json.loads(line)
+            except json.JSONDecodeError:
+                _send({"type": "error", "message": "Invalid JSON"})
+                continue
+
+            req_id = req.get("id", 0)
+            req_type = req.get("type", "")
+
+            # Stop can arrive while chat is running in a thread.
+            if req_type == "stop":
+                self._handle_stop(req_id)
+                continue
+
+            # Confirm responses arrive while the chat thread is blocked
+            # inside _gui_confirm — never join on these.
+            if req_type == "confirm_response":
+                self._confirm_result = bool(req.get("approved"))
+                self._confirm_event.set()
+                continue
+
+            # Model switch can arrive while chat is streaming.
+            # Interrupt the stream and defer the switch until the
+            # chat thread exits cleanly.
+            if req_type == "switch_model":
+                if self._chat_thread and self._chat_thread.is_alive():
+                    self._pending_switch = (req_id, req.get("model", ""))
+                    self._stop_flag.set()
+                    continue
+                # No active stream — fall through to normal dispatch.
+
+            # Wait for any running chat to finish before processing
+            # non-stop requests (except stop which is handled above).
+            if self._chat_thread and self._chat_thread.is_alive():
+                self._chat_thread.join()
+
+            # Process any deferred model switch that was waiting for
+            # the chat thread to finish.
+            if self._pending_switch is not None:
+                switch_id, switch_model = self._pending_switch
+                self._pending_switch = None
+                try:
+                    self._handle_switch_model(switch_id, switch_model)
+                except Exception as exc:
+                    _send({"id": switch_id, "type": "error", "message": str(exc)})
+                continue
+
+            try:
+                if req_type == "chat":
+                    # Run chat in a thread so stdin can still read stop.
+                    self._stop_flag.clear()
+                    self._chat_thread = threading.Thread(
+                        target=self._handle_chat,
+                        args=(req_id, req.get("content", "")),
+                        daemon=True,
+                    )
+                    self._chat_thread.start()
+                elif req_type == "command":
+                    self._handle_command(req_id, req.get("command", ""))
+                elif req_type == "models":
+                    self._handle_models(req_id)
+                elif req_type == "catalog":
+                    self._handle_catalog(req_id)
+                elif req_type == "pull_model":
+                    # Run pull in a background thread so it doesn't block
+                    # the stdin loop (allows model switch, catalog, etc.).
+                    threading.Thread(
+                        target=self._handle_pull_model,
+                        args=(req_id, req.get("model", "")),
+                        daemon=True,
+                    ).start()
+                elif req_type == "delete_model":
+                    self._handle_delete_model(req_id, req.get("model", ""))
+                elif req_type == "update_catalog":
+                    self._handle_update_catalog(req_id)
+                elif req_type == "search_models":
+                    self._handle_search_models(
+                        req_id,
+                        req.get("query", ""),
+                        req.get("sort", "popular"),
+                        req.get("capability", ""),
+                    )
+                elif req_type == "status":
+                    self._handle_status(req_id)
+                elif req_type == "switch_model":
+                    self._handle_switch_model(req_id, req.get("model", ""))
+                elif req_type == "clear":
+                    self._handle_clear(req_id)
+                elif req_type == "resume":
+                    self._handle_resume(req_id)
+                elif req_type == "switch_provider":
+                    self._handle_switch_provider(req_id, req.get("provider", ""))
+                elif req_type == "check_update":
+                    self._handle_check_update(req_id)
+                elif req_type == "do_update":
+                    self._handle_do_update(req_id)
+                elif req_type == "set_api_key":
+                    self._handle_set_api_key(req_id, req.get("api_key", ""))
+                elif req_type == "claude_logout":
+                    self._handle_claude_logout(req_id)
+                elif req_type == "recommend":
+                    self._handle_recommend(req_id)
+                elif req_type == "set_cwd":
+                    self._handle_set_cwd(req_id, req.get("path", ""))
+                elif req_type == "spawn_agent":
+                    threading.Thread(
+                        target=self._handle_spawn_agent,
+                        args=(req_id, req.get("prompt", ""),
+                              req.get("description", ""),
+                              req.get("run_in_background", False)),
+                        daemon=True,
+                    ).start()
+                else:
+                    _send({"id": req_id, "type": "error", "message": f"Unknown type: {req_type}"})
+            except Exception as exc:
+                _send({"id": req_id, "type": "error", "message": str(exc)})
+
+    def _handle_stop(self, req_id: int) -> None:
+        """Signal the current chat to stop."""
+        self._stop_flag.set()
+        _send({"id": req_id, "type": "stopped"})
+
+    def _handle_chat(self, req_id: int, content: str) -> None:
+        if not content.strip():
+            _send({"id": req_id, "type": "error", "message": "Empty message"})
+            return
+
+        self._stop_flag.clear()
+
+        # Inject matching skills (same behaviour as the CLI REPL —
+        # previously the GUI paths silently skipped skill injection).
+        self._messages.extend(
+            build_skill_messages(self._skills_loader, content)
+        )
+        self._messages.append({"role": "user", "content": content})
+        self._session_log.log_user(content)
+
+        # Build merged inference options: defaults < presets < user config.
+        default_options: dict[str, Any] = {"num_ctx": 8192}
+        preset_options = get_model_preset(self._config.model)
+        # Adaptive window (config "auto"): model capability x machine RAM,
+        # instead of pinning a 256k model to the historical 8k.
+        resolved_ctx = resolve_num_ctx(
+            self._client, self._config.model, self._config.num_ctx,
+            estimated_tokens=_estimate_tokens(self._messages),
+        )
+        if resolved_ctx != getattr(self, "_last_ctx_logged", None):
+            self._session_log.log("context_window", num_ctx=resolved_ctx)
+            self._last_ctx_logged = resolved_ctx
+        user_options: dict[str, Any] = {"num_ctx": resolved_ctx}
+        if self._config.temperature is not None:
+            user_options["temperature"] = self._config.temperature
+        if self._config.top_p is not None:
+            user_options["top_p"] = self._config.top_p
+        if self._config.top_k is not None:
+            user_options["top_k"] = self._config.top_k
+        inference_options = {**default_options, **preset_options, **user_options}
+
+        # Determine think mode (only for models that support it).  For
+        # thinking-capable families the flag is passed EXPLICITLY (True or
+        # False, matching the CLI) — leaving it unset lets e.g. qwen3.5
+        # default to thinking, which swallows the reply into the thinking
+        # channel: the GUI then shows tool calls followed by nothing
+        # (observed live on the desktop app, 0.12.0).
+        family = get_model_family(self._config.model)
+        think = (
+            bool(self._config.think_mode)
+            if family in SUPPORTS_THINKING
+            else None
+        )
+
+        # Provider-specific kwargs: only Ollama accepts inference
+        # options / think / keep_alive.
+        options: dict[str, Any] | None = None
+        think_flag: bool | None = None
+        chat_extra: dict[str, Any] | None = None
+        if self._provider.name == "ollama":
+            options = inference_options
+            think_flag = think
+            if self._config.keep_alive is not None:
+                chat_extra = {"keep_alive": self._config.keep_alive}
+
+        error_seen = False
+
+        def _emit(event: AgentEvent) -> None:
+            nonlocal error_seen
+            kind = event.kind
+            data = event.data
+            if kind == "content_delta":
+                _send({"id": req_id, "type": "stream", "content": data["text"]})
+            elif kind == "tool_start":
+                _send({
+                    "id": req_id,
+                    "type": "tool_call",
+                    "name": data["tool_name"],
+                    "args": data["arguments"],
+                })
+            elif kind == "tool_result":
+                _send({
+                    "id": req_id,
+                    "type": "tool_result",
+                    "name": data["tool_name"],
+                    "output": truncate_tool_output(data["result"]),
+                })
+            elif kind == "error":
+                error_seen = True
+                prefix = {
+                    "request": "API error",
+                    "connection": "Connection error",
+                    "stream": "Stream error",
+                }.get(data.get("source", ""), "Error")
+                detail = data.get("detail") or data.get("message", "")
+                _send({
+                    "id": req_id,
+                    "type": "error",
+                    "message": f"{prefix}: {detail}",
+                })
+            elif kind == "thinking_delta":
+                # Surface thinking so the GUI can show progress instead
+                # of dead air during long reasoning stretches.
+                _send({
+                    "id": req_id,
+                    "type": "thinking",
+                    "content": data.get("text", ""),
+                })
+            elif kind in (
+                "rescue", "loop_warning", "loop_break", "limit",
+                "reminder", "verify_warning", "compaction", "retry",
+                "nudge", "error_stop", "empty_response",
+                "tools_fallback", "write_deferred", "deliverable_nudge",
+                "read_gate",
+            ):
+                # Harness interventions, surfaced for UIs that want them.
+                _send({
+                    "id": req_id,
+                    "type": "harness",
+                    "event": kind,
+                    "data": data,
+                })
+
+        # The unified agent loop (shared with the CLI, web monitor and
+        # sub-agents) brings compaction, tool-name resolution, text
+        # tool-call rescue, loop detection, the verification gate and
+        # overload retry to this path — previously a hand-rolled copy
+        # with none of those.
+        try:
+            run_agent(
+                self._provider,
+                self._config.model,
+                self._tools,
+                self._messages,
+                emit=self._session_log.wrap_emit(_emit),
+                harness=HarnessConfig(
+                    max_iterations=self._config.max_iterations,
+                    compact_mode=self._config.compact_mode,
+                ),
+                cache=self._tool_cache,
+                tracker=self._token_tracker,
+                options=options,
+                think=think_flag,
+                chat_extra=chat_extra,
+                should_stop=self._stop_flag.is_set,
+            )
+        except Exception as exc:
+            self._session_log.log("error", source="fatal", message=str(exc))
+            self._session_log.log_turn_end(error=True)
+            self._conversation_store.save(self._messages)
+            _send({"id": req_id, "type": "error", "message": str(exc)})
+            return
+
+        # Persist BEFORE signalling done: a client that quits the moment
+        # it sees "done" (or crashes right after) must not lose the turn.
+        self._session_log.log_turn_end(error=error_seen)
+        self._conversation_store.save(self._messages)
+        # Preserve the historical contract: no "done" after an error.
+        if not error_seen:
+            _send({"id": req_id, "type": "done"})
+
+    def _handle_command(self, req_id: int, command: str) -> None:
+        parts = command.strip().split(maxsplit=1)
+        cmd = parts[0].lower() if parts else ""
+
+        if cmd == "/clear":
+            self._handle_clear(req_id)
+        elif cmd == "/model":
+            if len(parts) > 1:
+                self._handle_switch_model(req_id, parts[1].strip())
+            else:
+                _send({"id": req_id, "type": "status", "data": {"model": self._config.model}})
+        elif cmd == "/status":
+            self._handle_status(req_id)
+        elif cmd == "/models":
+            self._handle_models(req_id)
+        elif cmd == "/undo":
+            self._handle_undo(req_id)
+        elif cmd == "/diff":
+            self._handle_diff(req_id)
+        elif cmd == "/usage":
+            self._handle_usage(req_id)
+        elif cmd == "/context":
+            self._handle_context(req_id)
+        elif cmd == "/copy":
+            self._handle_copy(req_id)
+        # --- 007: Sub-agent status ---
+        elif cmd == "/agents":
+            self._handle_agents(req_id)
+        # --- 008: Plan / Ideate / Knowledge / Skills ---
+        elif cmd == "/plan":
+            self._handle_plan(req_id, parts[1].strip() if len(parts) > 1 else "")
+        elif cmd == "/ideate":
+            sub = parts[1].strip() if len(parts) > 1 else ""
+            self._handle_ideate(req_id, sub)
+        elif cmd == "/knowledge":
+            self._handle_knowledge(req_id, parts[1].strip() if len(parts) > 1 else "")
+        elif cmd == "/skills":
+            self._handle_skills(req_id)
+        else:
+            _send({"id": req_id, "type": "error", "message": f"Unknown command: {command}"})
+
+    def _handle_models(self, req_id: int) -> None:
+        try:
+            models = self._client.list_models()
+            model_list = []
+            for m in models:
+                name = m.get("name", "")
+                size = m.get("size", 0)
+                model_list.append({"name": name, "size": size})
+            _send({"id": req_id, "type": "models", "data": model_list})
+        except OllamaConnectionError:
+            _send({"id": req_id, "type": "error", "message": "Cannot connect to Ollama"})
+
+    def _handle_status(self, req_id: int) -> None:
+        user_msgs = sum(1 for m in self._messages if m.get("role") == "user")
+        connected = False
+        version = ""
+        try:
+            info = self._client.get_version()
+            connected = True
+            version = info.get("version", "")
+        except OllamaConnectionError:
+            pass
+
+        _send({
+            "id": req_id,
+            "type": "status",
+            "data": {
+                "model": self._config.model,
+                "provider": self._provider.name,
+                "messages": user_msgs,
+                "connected": connected,
+                "ollama_version": version,
+            },
+        })
+
+    def _handle_switch_model(self, req_id: int, model: str) -> None:
+        if not model:
+            _send({"id": req_id, "type": "error", "message": "No model specified"})
+            return
+
+        if not validate_model_name(model):
+            _send({"id": req_id, "type": "error", "message": f"Invalid model name: {model}"})
+            return
+
+        # Verify the model is installed on Ollama (when using Ollama provider).
+        # If not installed, auto-pull it instead of erroring.
+        if self._provider.name == "ollama":
+            try:
+                models = self._client.list_models()
+                installed = {m.get("name", "") for m in models}
+                installed_bases = {n.split(":")[0] for n in installed}
+                if model not in installed and model not in installed_bases:
+                    # Auto-pull, then switch on completion.
+                    self._auto_pull_and_switch(req_id, model)
+                    return
+            except OllamaConnectionError:
+                pass  # Can't verify, proceed anyway.
+
+        self._finish_switch_model(req_id, model)
+
+    def _finish_switch_model(self, req_id: int, model: str) -> None:
+        """Complete model switch: update config, sanitize history, notify.
+
+        Preserves the conversation history so the user does not lose
+        context.  Orphaned tool-result messages and dangling tool_calls
+        from the previous model are stripped to keep the history valid.
+        """
+        self._session_log.log("model_changed", model=model)
+        self._config.model = model
+
+        # Remove trailing orphaned tool-result messages.
+        while (
+            len(self._messages) > 1
+            and self._messages[-1].get("role") == "tool"
+        ):
+            self._messages.pop()
+
+        # Strip tool_calls from the last assistant message to avoid
+        # sending schemas the new model does not recognise.
+        for msg in reversed(self._messages):
+            if msg.get("role") == "assistant":
+                msg.pop("tool_calls", None)
+                break
+            if msg.get("role") != "tool":
+                break
+
+        _send({"id": req_id, "type": "model_changed", "model": model})
+
+    def _auto_pull_and_switch(self, req_id: int, model: str) -> None:
+        """Pull a model and switch to it on success."""
+        _send({"id": req_id, "type": "pull_start", "model": model})
+        try:
+            for chunk in self._client.pull_model(model):
+                status = chunk.get("status", "")
+                completed = chunk.get("completed")
+                total = chunk.get("total")
+                _send({
+                    "id": req_id,
+                    "type": "pull_progress",
+                    "model": model,
+                    "status": status,
+                    "completed": completed,
+                    "total": total,
+                })
+        except (OllamaConnectionError, Exception) as exc:
+            _send({"id": req_id, "type": "error",
+                   "message": f"Failed to pull model '{model}': {exc}"})
+            return
+
+        _send({"id": req_id, "type": "pull_done", "model": model})
+        # The frontend's pull_done handler will send switch_model,
+        # which will now succeed since the model is installed.
+
+    def _handle_switch_provider(self, req_id: int, provider: str) -> None:
+        """Switch the active LLM provider (ollama or claude)."""
+        if provider not in ("ollama", "claude"):
+            _send({
+                "id": req_id,
+                "type": "error",
+                "message": f"Unknown provider: {provider}. Must be 'ollama' or 'claude'.",
+            })
+            return
+
+        if provider == "claude":
+            api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+            if not api_key:
+                _send({
+                    "id": req_id,
+                    "type": "error",
+                    "message": "ANTHROPIC_API_KEY environment variable is not set.",
+                })
+                return
+            self._provider = ClaudeProvider(api_key=api_key)
+        else:
+            self._provider = OllamaProvider(client=self._client)
+
+        self._tool_defs = self._provider.format_tools(self._tools)
+        self._messages.clear()
+        self._messages.append({"role": "system", "content": self._system_prompt})
+
+        _send({"id": req_id, "type": "provider_changed", "provider": provider})
+
+    def _handle_catalog(self, req_id: int) -> None:
+        """Return merged model catalog (built-in + cache) + installed status."""
+        catalog, categories = get_merged_catalog()
+
+        # Get installed models to mark which are available.
+        installed_names: set[str] = set()
+        try:
+            models = self._client.list_models()
+            for m in models:
+                name = m.get("name", "")
+                installed_names.add(name)
+                base = name.split(":")[0]
+                if base:
+                    installed_names.add(base)
+        except OllamaConnectionError:
+            pass
+
+        # Mark installed status on catalog entries.
+        for entry in catalog:
+            name = entry["name"]
+            if ":" in name:
+                # Exact tag specified — require exact match.
+                entry["installed"] = name in installed_names
+            else:
+                # Bare name (e.g. "qwen3") — match if any tag is installed.
+                entry["installed"] = name in installed_names
+
+        # Include locally installed models not in the catalog.
+        catalog_names = {e["name"] for e in catalog}
+        try:
+            models = self._client.list_models()
+            for m in models:
+                name = m.get("name", "")
+                if name and name not in catalog_names:
+                    details = m.get("details", {})
+                    params = details.get("parameter_size", "")
+                    family = details.get("family", "")
+                    quant = details.get("quantization_level", "")
+                    desc_parts = []
+                    if family:
+                        desc_parts.append(family)
+                    if quant:
+                        desc_parts.append(quant)
+                    desc = " · ".join(desc_parts) if desc_parts else "Locally installed model."
+                    catalog.append({
+                        "name": name,
+                        "display": name,
+                        "category": "Installed",
+                        "params": params,
+                        "size_gb": round(m.get("size", 0) / (1024**3), 1),
+                        "description": desc,
+                        "tags": [],
+                        "installed": True,
+                    })
+        except OllamaConnectionError:
+            pass
+
+        if any(e.get("category") == "Installed" for e in catalog):
+            categories = ["Installed"] + [c for c in categories if c != "Installed"]
+
+        _send({
+            "id": req_id,
+            "type": "catalog",
+            "data": {"categories": categories, "models": catalog},
+        })
+
+    def _handle_update_catalog(self, req_id: int) -> None:
+        """Fetch latest models from ollama.com and update local cache."""
+        _send({"id": req_id, "type": "catalog_updating"})
+
+        try:
+            result = update_catalog()
+            _send({
+                "id": req_id,
+                "type": "catalog_updated",
+                "data": result,
+            })
+        except Exception as exc:
+            _send({"id": req_id, "type": "error", "message": f"Catalog update failed: {exc}"})
+
+    def _handle_pull_model(self, req_id: int, model: str) -> None:
+        """Pull/download a model with streaming progress."""
+        if not model:
+            _send({"id": req_id, "type": "error", "message": "No model specified"})
+            return
+        if not validate_model_name(model):
+            _send({"id": req_id, "type": "error", "message": f"Invalid model name: {model}"})
+            return
+
+        _send({"id": req_id, "type": "pull_start", "model": model})
+
+        try:
+            for chunk in self._client.pull_model(model):
+                status = chunk.get("status", "")
+                completed = chunk.get("completed")
+                total = chunk.get("total")
+                _send({
+                    "id": req_id,
+                    "type": "pull_progress",
+                    "model": model,
+                    "status": status,
+                    "completed": completed,
+                    "total": total,
+                })
+        except OllamaConnectionError as exc:
+            _send({"id": req_id, "type": "error", "message": f"Connection error: {exc}"})
+            return
+        except Exception as exc:
+            _send({"id": req_id, "type": "error", "message": f"Pull failed: {exc}"})
+            return
+
+        _send({"id": req_id, "type": "pull_done", "model": model})
+
+    def _handle_delete_model(self, req_id: int, model: str) -> None:
+        """Delete an installed model."""
+        if not model:
+            _send({"id": req_id, "type": "error", "message": "No model specified"})
+            return
+        if not validate_model_name(model):
+            _send({"id": req_id, "type": "error", "message": f"Invalid model name: {model}"})
+            return
+
+        try:
+            self._client.delete_model(model)
+            _send({"id": req_id, "type": "delete_done", "model": model})
+        except OllamaConnectionError as exc:
+            _send({"id": req_id, "type": "error", "message": f"Connection error: {exc}"})
+        except Exception as exc:
+            _send({"id": req_id, "type": "error", "message": f"Delete failed: {exc}"})
+
+    def _handle_search_models(
+        self, req_id: int, query: str, sort: str, capability: str,
+    ) -> None:
+        """Search Ollama library for models."""
+        try:
+            results = search_models(query=query, sort=sort, capability=capability)
+
+            # Mark installed status.
+            installed_names: set[str] = set()
+            try:
+                models = self._client.list_models()
+                for m in models:
+                    name = m.get("name", "")
+                    installed_names.add(name)
+                    installed_names.add(name.split(":")[0])
+            except OllamaConnectionError:
+                pass
+
+            for r in results:
+                name = r["name"]
+                if ":" in name:
+                    r["installed"] = name in installed_names
+                else:
+                    r["installed"] = name in installed_names
+
+            _send({"id": req_id, "type": "search_results", "data": results})
+        except Exception as exc:
+            _send({"id": req_id, "type": "error", "message": f"Search failed: {exc}"})
+
+    def _handle_check_update(self, req_id: int) -> None:
+        """Check if updates are available."""
+        from local_cli.updater import check_for_updates
+
+        has_updates, message = check_for_updates()
+        _send({
+            "id": req_id,
+            "type": "update_status",
+            "has_updates": has_updates,
+            "message": message,
+        })
+
+    def _handle_do_update(self, req_id: int) -> None:
+        """Perform the update (git pull)."""
+        from local_cli.updater import perform_update
+
+        _send({"id": req_id, "type": "updating"})
+        success, message = perform_update()
+        _send({
+            "id": req_id,
+            "type": "update_done",
+            "success": success,
+            "message": message,
+        })
+
+    def _handle_set_api_key(self, req_id: int, api_key: str) -> None:
+        """Set the Anthropic API key at runtime (from desktop login)."""
+        if not api_key:
+            _send({"id": req_id, "type": "error", "message": "No API key provided."})
+            return
+        os.environ["ANTHROPIC_API_KEY"] = api_key
+        _send({"id": req_id, "type": "api_key_set", "has_claude": True})
+
+    def _handle_claude_logout(self, req_id: int) -> None:
+        """Clear the stored API key and revert to Ollama if active."""
+        os.environ.pop("ANTHROPIC_API_KEY", None)
+        if self._provider.name == "claude":
+            self._provider = OllamaProvider(client=self._client)
+            self._tool_defs = self._provider.format_tools(self._tools)
+            self._messages.clear()
+            self._messages.append({"role": "system", "content": self._system_prompt})
+            _send({"id": req_id, "type": "provider_changed", "provider": "ollama"})
+        _send({"id": req_id, "type": "api_key_set", "has_claude": False})
+
+    def _handle_recommend(self, req_id: int) -> None:
+        """Return model recommendations based on system specs."""
+        from local_cli.system_info import get_system_info, recommend_models
+
+        info = get_system_info()
+        recommendations = recommend_models(ram_gb=info.get("ram_gb"))
+
+        # Mark installed status.
+        installed_names: set[str] = set()
+        try:
+            models = self._client.list_models()
+            for m in models:
+                name = m.get("name", "")
+                installed_names.add(name)
+                installed_names.add(name.split(":")[0])
+        except OllamaConnectionError:
+            pass
+
+        for rec in recommendations:
+            rec["installed"] = (
+                rec["name"] in installed_names
+                or rec["name"].split(":")[0] in installed_names
+            )
+
+        _send({
+            "id": req_id,
+            "type": "recommend",
+            "system": info,
+            "models": recommendations,
+        })
+
+    def _handle_set_cwd(self, req_id: int, path: str) -> None:
+        """Change the working directory and update the system prompt."""
+        if not path:
+            _send({"id": req_id, "type": "error", "message": "No path specified"})
+            return
+        try:
+            os.chdir(path)
+            # Rebuild system prompt with new cwd.
+            self._system_prompt = build_system_prompt(self._tools)
+            # Update system message in conversation history.
+            if self._messages and self._messages[0].get("role") == "system":
+                self._messages[0] = {"role": "system", "content": self._system_prompt}
+
+            # Re-anchor the project-bound subsystems: a new folder means
+            # a new transcript, its own instruction file, and its own
+            # resumable conversation.
+            self._session_log.close()
+            self._session_log = SessionLogger(self._config.state_dir)
+            self._session_log.log_session_start(
+                model=self._config.model,
+                provider=self._provider.name,
+                app_version=__version__,
+                frontend="server",
+                reason="cwd_change",
+            )
+            if (
+                self._instruction_message is not None
+                and self._instruction_message in self._messages
+            ):
+                self._messages.remove(self._instruction_message)
+            self._instruction_source = None
+            self._instruction_message = None
+            loaded_instructions = load_project_instructions()
+            if loaded_instructions is not None:
+                self._instruction_source, instruction_text = loaded_instructions
+                self._instruction_message = build_instruction_message(
+                    self._instruction_source, instruction_text,
+                )
+                self._messages.insert(1, self._instruction_message)
+                self._session_log.log(
+                    "project_instructions", source=self._instruction_source,
+                )
+            if (
+                self._map_message is not None
+                and self._map_message in self._messages
+            ):
+                self._messages.remove(self._map_message)
+            self._map_message = project_map_message()
+            if self._map_message is not None:
+                insert_at = 2 if self._instruction_message is not None else 1
+                self._messages.insert(insert_at, self._map_message)
+            self._conversation_store = ConversationStore(
+                self._config.state_dir,
+            )
+
+            _send({
+                "id": req_id,
+                "type": "cwd_changed",
+                "path": path,
+                "git_capability": self._git_ops.capability().value,
+                "resumable": self._conversation_store.info(),
+            })
+        except OSError as exc:
+            _send({"id": req_id, "type": "error", "message": f"Cannot change directory: {exc}"})
+
+    def _handle_undo(self, req_id: int) -> None:
+        """Undo the most recent file modifications via git checkout."""
+        try:
+            if self._git_ops.capability() is GitCapability.UNAVAILABLE:
+                _send({"id": req_id, "type": "error", "message": "Git is not installed. Cannot undo."})
+                return
+            if not self._git_ops.is_git_repo():
+                _send({"id": req_id, "type": "error", "message": "Not a git repository. Cannot undo."})
+                return
+            result = self._git_ops.undo_last_change(confirmed=True)
+            _send({"id": req_id, "type": "undo", "data": {"message": result}})
+        except GitNotInstalledError:
+            _send({"id": req_id, "type": "error", "message": "git is not installed. Cannot undo."})
+        except GitError as exc:
+            _send({"id": req_id, "type": "error", "message": f"Undo failed: {exc}"})
+
+    def _handle_diff(self, req_id: int) -> None:
+        """Show uncommitted changes in the working tree."""
+        try:
+            if self._git_ops.capability() is GitCapability.UNAVAILABLE:
+                _send({"id": req_id, "type": "error", "message": "Git is not installed. Cannot show diff."})
+                return
+            if not self._git_ops.is_git_repo():
+                _send({"id": req_id, "type": "error", "message": "Not a git repository. Cannot show diff."})
+                return
+            result = self._git_ops.diff_working_tree(color=False)
+            _send({"id": req_id, "type": "diff", "data": {"diff": result}})
+        except GitNotInstalledError:
+            _send({"id": req_id, "type": "error", "message": "git is not installed. Cannot show diff."})
+        except GitError as exc:
+            _send({"id": req_id, "type": "error", "message": f"Diff failed: {exc}"})
+
+    def _handle_usage(self, req_id: int) -> None:
+        """Return per-message token usage and session totals."""
+        _send({
+            "id": req_id,
+            "type": "usage",
+            "data": self._token_tracker.to_dict(),
+            "summary": self._token_tracker.format_summary(),
+        })
+
+    def _handle_context(self, req_id: int) -> None:
+        """Return context window usage stats."""
+        msg_count = len(self._messages)
+        est_tokens = _estimate_tokens(self._messages)
+        token_limit = _COMPACT_TOKEN_THRESHOLD
+        compaction_triggered = _needs_compaction(self._messages)
+        _send({
+            "id": req_id,
+            "type": "context",
+            "data": {
+                "messages": msg_count,
+                "estimated_tokens": est_tokens,
+                "token_limit": token_limit,
+                "compaction_triggered": compaction_triggered,
+            },
+        })
+
+    def _handle_copy(self, req_id: int) -> None:
+        """Copy the last assistant response to the system clipboard."""
+        # Find the last assistant message.
+        last_assistant = None
+        for msg in reversed(self._messages):
+            if msg.get("role") == "assistant":
+                content = msg.get("content")
+                if content:
+                    last_assistant = content
+                    break
+
+        if last_assistant is None:
+            _send({"id": req_id, "type": "error", "message": "Nothing to copy."})
+            return
+
+        try:
+            copy_to_clipboard(last_assistant)
+            _send({"id": req_id, "type": "copied"})
+        except ClipboardUnavailableError:
+            _send({"id": req_id, "type": "error", "message": "Clipboard not available."})
+        except ClipboardError as exc:
+            _send({"id": req_id, "type": "error", "message": f"Copy failed: {exc}"})
+
+
+    def _handle_clear(self, req_id: int) -> None:
+        self._messages.clear()
+        self._messages.append({"role": "system", "content": self._system_prompt})
+        if self._instruction_message is not None:
+            self._messages.append(self._instruction_message)
+        # Fresh snapshot: files created during the conversation show up.
+        self._map_message = project_map_message()
+        if self._map_message is not None:
+            self._messages.append(self._map_message)
+        self._tool_cache.clear()
+        self._token_tracker.clear()
+        # A cleared conversation is a new session — start a fresh transcript
+        # and discard the resume copy (there is nothing left to restore).
+        self._session_log.log("cleared")
+        self._session_log.rotate()
+        self._session_log.log_session_start(
+            model=self._config.model,
+            provider=self._provider.name,
+            app_version=__version__,
+            frontend="server",
+            reason="clear",
+        )
+        self._conversation_store.clear()
+        _send({"id": req_id, "type": "cleared"})
+
+    def _handle_resume(self, req_id: int) -> None:
+        """Restore this folder's last saved conversation."""
+        saved = self._conversation_store.load()
+        if not saved:
+            _send({
+                "id": req_id,
+                "type": "error",
+                "message": "No saved conversation to resume",
+            })
+            return
+        self._messages.clear()
+        self._messages.append(
+            {"role": "system", "content": self._system_prompt},
+        )
+        if self._instruction_message is not None:
+            self._messages.append(self._instruction_message)
+        self._map_message = project_map_message()
+        if self._map_message is not None:
+            self._messages.append(self._map_message)
+        self._messages.extend(saved)
+        self._session_log.log("resumed", count=len(saved))
+        # Replay the visible history so the GUI can rebuild the chat:
+        # user/assistant text only (tool plumbing stays internal).
+        display = [
+            {"role": m["role"], "content": str(m.get("content", ""))}
+            for m in saved
+            if m.get("role") in ("user", "assistant")
+            and str(m.get("content", "")).strip()
+        ]
+        _send({
+            "id": req_id,
+            "type": "restored",
+            "messages": display,
+            "count": len(saved),
+        })
+
+    # ------------------------------------------------------------------
+    # 007: Sub-agent handlers
+    # ------------------------------------------------------------------
+
+    def _handle_agents(self, req_id: int) -> None:
+        """Return sub-agent runner status and background agent results."""
+        if self._sub_agent_runner is None:
+            _send({"id": req_id, "type": "command_result", "command": "/agents",
+                   "output": "Sub-agent runner not available."})
+            return
+
+        has_agent_tool = any(t.name == "agent" for t in self._tools)
+        bg_agents = self._sub_agent_runner.list_background_agents()
+        output_parts = [
+            f"Sub-agent runner: active",
+            f"AgentTool registered: {has_agent_tool}",
+            f"Max workers: {self._sub_agent_runner._max_workers}",
+            f"Background agents: {len(bg_agents)}",
+        ]
+        for a in bg_agents:
+            output_parts.append(f"  [{a['agent_id']}] {a['status']}")
+        _send({"id": req_id, "type": "command_result", "command": "/agents",
+               "output": "\n".join(output_parts)})
+
+    # ------------------------------------------------------------------
+    # 008: Plan / Knowledge / Skills / Ideation handlers
+    # ------------------------------------------------------------------
+
+    def _handle_plan(self, req_id: int, args: str) -> None:
+        """Manage plans via /plan [list|create|show] subcommands."""
+        if self._plan_manager is None:
+            _send({"id": req_id, "type": "error",
+                   "message": "Plan manager not initialized."})
+            return
+
+        sub_parts = args.split(maxsplit=1) if args else []
+        sub_cmd = sub_parts[0].lower() if sub_parts else "list"
+        sub_arg = sub_parts[1].strip() if len(sub_parts) > 1 else ""
+
+        if sub_cmd == "list" or not args:
+            plans = self._plan_manager.list_plans()
+            if not plans:
+                output = "No plans found. Use /plan create <title> to create one."
+            else:
+                lines = [f"{len(plans)} plan(s):"]
+                for p in plans:
+                    lines.append(f"  [{p.plan_id}] {p.title} ({p.status})")
+                output = "\n".join(lines)
+            _send({"id": req_id, "type": "command_result",
+                   "command": "/plan", "output": output})
+
+        elif sub_cmd == "create":
+            if not sub_arg:
+                _send({"id": req_id, "type": "error",
+                       "message": "Usage: /plan create <title>"})
+                return
+            plan = self._plan_manager.create_plan(
+                title=sub_arg, model=self._config.model,
+            )
+            _send({"id": req_id, "type": "command_result",
+                   "command": "/plan create",
+                   "output": f"Plan [{plan.plan_id}] '{plan.title}' created ({plan.status})."})
+
+        elif sub_cmd == "show":
+            plan_id = sub_arg or "001"
+            try:
+                plan = self._plan_manager.get_plan(plan_id)
+                lines = [
+                    f"Plan [{plan.plan_id}]: {plan.title}",
+                    f"Status: {plan.status}  Model: {plan.model}",
+                    f"Created: {plan.created}",
+                ]
+                if plan.steps:
+                    lines.append("Steps:")
+                    for done, text in plan.steps:
+                        mark = "[x]" if done else "[ ]"
+                        lines.append(f"  {mark} {text}")
+                _send({"id": req_id, "type": "command_result",
+                       "command": "/plan show",
+                       "output": "\n".join(lines)})
+            except Exception as exc:
+                _send({"id": req_id, "type": "error", "message": str(exc)})
+        else:
+            _send({"id": req_id, "type": "error",
+                   "message": f"Unknown /plan subcommand: {sub_cmd}"})
+
+    def _handle_ideate(self, req_id: int, args: str) -> None:
+        """Handle ideation mode toggle."""
+        sub = args.lower().strip() if args else ""
+        if sub == "exit":
+            self._ideation_active = False
+            _send({"id": req_id, "type": "command_result",
+                   "command": "/ideate exit",
+                   "output": "Returned to agent mode."})
+        else:
+            self._ideation_active = True
+            _send({"id": req_id, "type": "command_result",
+                   "command": "/ideate",
+                   "output": "Entered ideation mode (tool-free brainstorming). "
+                            "Type /ideate exit to return to agent mode."})
+
+    def _handle_knowledge(self, req_id: int, args: str) -> None:
+        """Manage knowledge items via /knowledge [list|save|show]."""
+        if self._knowledge_store is None:
+            _send({"id": req_id, "type": "error",
+                   "message": "Knowledge store not initialized."})
+            return
+
+        sub_parts = args.split(maxsplit=1) if args else []
+        sub_cmd = sub_parts[0].lower() if sub_parts else "list"
+        sub_arg = sub_parts[1].strip() if len(sub_parts) > 1 else ""
+
+        if sub_cmd == "list" or not args:
+            items = self._knowledge_store.list_items()
+            if not items:
+                output = "No knowledge items. Use /knowledge save <name> to add one."
+            else:
+                lines = [f"{len(items)} knowledge item(s):"]
+                for item in items:
+                    lines.append(f"  - {item.get('name', '?')}: "
+                                 f"{item.get('description', '')[:60]}")
+                output = "\n".join(lines)
+            _send({"id": req_id, "type": "command_result",
+                   "command": "/knowledge", "output": output})
+
+        elif sub_cmd == "save":
+            if not sub_arg:
+                _send({"id": req_id, "type": "error",
+                       "message": "Usage: /knowledge save <name>"})
+                return
+            item = self._knowledge_store.save_item(
+                name=sub_arg, description=f"Saved from server session",
+                content=f"Knowledge item '{sub_arg}' created via server.",
+            )
+            _send({"id": req_id, "type": "command_result",
+                   "command": "/knowledge save",
+                   "output": f"Knowledge item '{sub_arg}' saved."})
+        else:
+            _send({"id": req_id, "type": "error",
+                   "message": f"Unknown /knowledge subcommand: {sub_cmd}"})
+
+    def _handle_skills(self, req_id: int) -> None:
+        """List discovered skills."""
+        if self._skills_loader is None:
+            _send({"id": req_id, "type": "error",
+                   "message": "Skills loader not initialized."})
+            return
+
+        skills = self._skills_loader.discover_skills()
+        if not skills:
+            output = ("Skills loader active (scanning: "
+                      f"{self._skills_loader._skills_dir}). "
+                      "No SKILL.md files discovered yet.")
+        else:
+            lines = [f"{len(skills)} skill(s) discovered:"]
+            for s in skills:
+                triggers = ", ".join(s.triggers[:3])
+                lines.append(f"  - {s.name}: {s.description[:50]} "
+                             f"[triggers: {triggers}]")
+            output = "\n".join(lines)
+        _send({"id": req_id, "type": "command_result",
+               "command": "/skills", "output": output})
+
+
+    def _handle_spawn_agent(
+        self, req_id: int, prompt: str, description: str, background: bool,
+    ) -> None:
+        """Spawn a real sub-agent to execute a task."""
+        if self._sub_agent_runner is None:
+            _send({"id": req_id, "type": "error",
+                   "message": "Sub-agent runner not available."})
+            return
+        if not prompt.strip():
+            _send({"id": req_id, "type": "error",
+                   "message": "Prompt is required."})
+            return
+
+        from local_cli.sub_agent import SubAgent
+
+        try:
+            from local_cli.providers import get_provider
+            fresh_provider = get_provider(
+                "ollama", base_url=self._client.base_url,
+            )
+        except Exception as exc:
+            _send({"id": req_id, "type": "error",
+                   "message": f"Failed to create provider: {exc}"})
+            return
+
+        sub_agent = SubAgent(
+            provider=fresh_provider,
+            model=self._config.model,
+            tools=create_tools("sub_agent", preference=self._config.shell_backend),
+            prompt=prompt.strip(),
+            description=description or "sub-agent task",
+        )
+
+        if background:
+            agent_id = self._sub_agent_runner.submit_background(sub_agent)
+            _send({"id": req_id, "type": "agent_started",
+                   "agent_id": agent_id, "description": description})
+        else:
+            _send({"id": req_id, "type": "agent_running",
+                   "description": description})
+            result = self._sub_agent_runner.submit(sub_agent)
+            _send({
+                "id": req_id,
+                "type": "agent_done",
+                "agent_id": result.agent_id,
+                "status": result.status,
+                "content": result.content,
+                "duration": result.duration_seconds,
+                "tool_calls": result.tool_calls_count,
+                "error": result.error_message,
+            })
+
+
+def run_server() -> None:
+    """Entry point for the JSON-line server."""
+    server = JsonLineServer()
+    server.run()

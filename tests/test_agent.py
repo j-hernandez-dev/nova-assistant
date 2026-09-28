@@ -1,0 +1,2097 @@
+"""Tests for local_cli.agent module."""
+
+import sys
+import unittest
+from io import StringIO
+from typing import Any
+from unittest.mock import MagicMock, patch
+
+from local_cli.agent import (
+    _COMPACT_ASSISTANT_MAX,
+    _COMPACT_KEEP_RECENT,
+    _COMPACT_MESSAGE_THRESHOLD,
+    _COMPACT_TOKEN_THRESHOLD,
+    _COMPACT_TOOL_RESULT_MAX,
+    _MAX_DISPLAY_RESULT,
+    _compact_message,
+    _estimate_tokens,
+    _execute_tool,
+    _extract_file_path,
+    _needs_compaction,
+    _should_nudge_to_use_tools,
+    _truncate,
+    agent_loop,
+    collect_streaming_response,
+    compact_messages,
+    normalize_arguments,
+    parse_tool_call,
+    resolve_tool_name,
+    run_tool,
+)
+from local_cli.ollama_client import OllamaStreamError
+from local_cli.tool_cache import ToolCache
+from local_cli.tools.base import Tool
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+class _DummyTool(Tool):
+    """Minimal concrete tool for testing."""
+
+    def __init__(
+        self,
+        name: str = "dummy",
+        result: str = "ok",
+        *,
+        side_effect: Exception | None = None,
+    ) -> None:
+        self._name = name
+        self._result = result
+        self._side_effect = side_effect
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def description(self) -> str:
+        return "A dummy tool for testing."
+
+    @property
+    def parameters(self) -> dict:
+        return {
+            "type": "object",
+            "properties": {
+                "arg": {"type": "string", "description": "An argument."},
+            },
+            "required": [],
+        }
+
+    def execute(self, **kwargs: object) -> str:
+        if self._side_effect is not None:
+            raise self._side_effect
+        return self._result
+
+
+def _make_chunks(
+    content_parts: list[str],
+    tool_calls: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    """Build a list of NDJSON-style chunks for streaming tests.
+
+    All chunks except the last have ``done: False``.  Tool calls (if any)
+    appear in the final ``done: True`` chunk.
+    """
+    chunks: list[dict[str, Any]] = []
+    for i, text in enumerate(content_parts):
+        is_last = i == len(content_parts) - 1
+        msg: dict[str, Any] = {"role": "assistant", "content": text}
+        if is_last and tool_calls:
+            msg["tool_calls"] = tool_calls
+        chunks.append({"message": msg, "done": is_last})
+    return chunks
+
+
+# ---------------------------------------------------------------------------
+# collect_streaming_response
+# ---------------------------------------------------------------------------
+
+
+class TestCollectStreamingResponse(unittest.TestCase):
+    """Tests for collect_streaming_response()."""
+
+    def setUp(self) -> None:
+        # Suppress stdout writes during streaming tests.
+        self._orig_stdout = sys.stdout
+        sys.stdout = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+
+    def test_accumulates_content(self) -> None:
+        """Content deltas across chunks are concatenated."""
+        chunks = _make_chunks(["Hello", " ", "world"])
+        result = collect_streaming_response(iter(chunks))
+
+        self.assertEqual(result["message"]["content"], "Hello world")
+        self.assertEqual(result["message"]["role"], "assistant")
+
+    def test_empty_content(self) -> None:
+        """A single empty-content chunk produces empty content string."""
+        chunks = _make_chunks([""])
+        result = collect_streaming_response(iter(chunks))
+        self.assertEqual(result["message"]["content"], "")
+
+    def test_tool_calls_accumulated(self) -> None:
+        """Tool calls from the final chunk are collected."""
+        tc = [{"function": {"name": "read", "arguments": {"path": "a.py"}}}]
+        chunks = _make_chunks([""], tool_calls=tc)
+        result = collect_streaming_response(iter(chunks))
+
+        self.assertIn("tool_calls", result["message"])
+        self.assertEqual(len(result["message"]["tool_calls"]), 1)
+        self.assertEqual(
+            result["message"]["tool_calls"][0]["function"]["name"], "read"
+        )
+
+    def test_tool_calls_across_multiple_chunks(self) -> None:
+        """Tool calls appearing in multiple chunks are accumulated."""
+        tc1 = [{"function": {"name": "read", "arguments": {}}}]
+        tc2 = [{"function": {"name": "write", "arguments": {}}}]
+        chunks = [
+            {"message": {"role": "assistant", "content": "", "tool_calls": tc1}, "done": False},
+            {"message": {"role": "assistant", "content": "", "tool_calls": tc2}, "done": True},
+        ]
+        result = collect_streaming_response(iter(chunks))
+
+        self.assertEqual(len(result["message"]["tool_calls"]), 2)
+        names = [tc["function"]["name"] for tc in result["message"]["tool_calls"]]
+        self.assertIn("read", names)
+        self.assertIn("write", names)
+
+    def test_no_tool_calls_omits_key(self) -> None:
+        """When no tool calls are present, 'tool_calls' is not in the message."""
+        chunks = _make_chunks(["Hello"])
+        result = collect_streaming_response(iter(chunks))
+        self.assertNotIn("tool_calls", result["message"])
+
+    def test_final_chunk_fields_preserved(self) -> None:
+        """Top-level fields from the final chunk (model, done) are preserved."""
+        chunks = [
+            {"message": {"role": "assistant", "content": "Hi"}, "done": True, "model": "qwen3:8b"},
+        ]
+        result = collect_streaming_response(iter(chunks))
+        self.assertTrue(result["done"])
+        self.assertEqual(result["model"], "qwen3:8b")
+
+    def test_content_printed_to_stdout(self) -> None:
+        """Content tokens are printed to stdout as they arrive."""
+        chunks = _make_chunks(["Hello", " world"])
+        collect_streaming_response(iter(chunks))
+
+        output = sys.stdout.getvalue()
+        self.assertIn("Hello", output)
+        self.assertIn(" world", output)
+
+    def test_stream_error_reraised(self) -> None:
+        """OllamaStreamError from the stream is re-raised."""
+
+        def error_stream():
+            yield {"message": {"role": "assistant", "content": "partial"}, "done": False}
+            raise OllamaStreamError("model not found")
+
+        with self.assertRaises(OllamaStreamError) as ctx:
+            collect_streaming_response(error_stream())
+
+        self.assertIn("model not found", str(ctx.exception))
+
+    def test_empty_stream(self) -> None:
+        """An empty stream produces empty content and empty last_chunk."""
+        result = collect_streaming_response(iter([]))
+        self.assertEqual(result["message"]["content"], "")
+        self.assertNotIn("tool_calls", result["message"])
+
+    def test_thinking_not_in_content(self) -> None:
+        """Thinking content is accumulated separately from message content."""
+        chunks = [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": "Hello",
+                    "thinking": "Let me think...",
+                },
+                "done": False,
+            },
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": " world",
+                    "thinking": " more thoughts",
+                },
+                "done": True,
+            },
+        ]
+        result = collect_streaming_response(iter(chunks))
+
+        # Content should NOT include thinking tokens.
+        self.assertEqual(result["message"]["content"], "Hello world")
+        self.assertNotIn("thinking", result["message"])
+
+        # Thinking should be a separate top-level key in the result.
+        self.assertIn("thinking", result)
+        self.assertEqual(result["thinking"], "Let me think... more thoughts")
+
+
+# ---------------------------------------------------------------------------
+# _truncate
+# ---------------------------------------------------------------------------
+
+
+class TestTruncate(unittest.TestCase):
+    """Tests for _truncate()."""
+
+    def test_short_string_unchanged(self) -> None:
+        """Strings within the limit are returned unchanged."""
+        text = "short"
+        self.assertEqual(_truncate(text, 100), text)
+
+    def test_exact_length_unchanged(self) -> None:
+        """Strings at exactly the limit are not truncated."""
+        text = "a" * _MAX_DISPLAY_RESULT
+        self.assertEqual(_truncate(text, _MAX_DISPLAY_RESULT), text)
+
+    def test_long_string_truncated(self) -> None:
+        """Strings exceeding the limit are truncated with '...'."""
+        text = "a" * 300
+        result = _truncate(text, 100)
+        self.assertEqual(len(result), 103)  # 100 + len("...")
+        self.assertTrue(result.endswith("..."))
+
+    def test_default_max_len(self) -> None:
+        """Uses _MAX_DISPLAY_RESULT as default."""
+        text = "a" * (_MAX_DISPLAY_RESULT + 50)
+        result = _truncate(text)
+        self.assertEqual(len(result), _MAX_DISPLAY_RESULT + 3)
+
+
+# ---------------------------------------------------------------------------
+# _execute_tool
+# ---------------------------------------------------------------------------
+
+
+class TestExecuteTool(unittest.TestCase):
+    """Tests for _execute_tool()."""
+
+    def test_successful_execution(self) -> None:
+        """Tool returns its result string."""
+        tool = _DummyTool(result="file contents here")
+        result = _execute_tool(tool, {})
+        self.assertEqual(result, "file contents here")
+
+    def test_tool_with_arguments(self) -> None:
+        """Arguments are passed through to the tool."""
+
+        class ArgTool(_DummyTool):
+            def execute(self, **kwargs: object) -> str:
+                return f"got: {kwargs.get('arg', '')}"
+
+        tool = ArgTool()
+        result = _execute_tool(tool, {"arg": "hello"})
+        self.assertEqual(result, "got: hello")
+
+    def test_exception_returns_error_string(self) -> None:
+        """Tool exceptions are caught and returned as error strings."""
+        tool = _DummyTool(side_effect=FileNotFoundError("no such file"))
+        result = _execute_tool(tool, {})
+        self.assertIn("Error:", result)
+        self.assertIn("FileNotFoundError", result)
+        self.assertIn("no such file", result)
+
+    def test_runtime_error_returns_error_string(self) -> None:
+        """RuntimeError from tool is converted to error string."""
+        tool = _DummyTool(side_effect=RuntimeError("something broke"))
+        result = _execute_tool(tool, {})
+        self.assertIn("RuntimeError", result)
+        self.assertIn("something broke", result)
+
+    @patch("sys.stderr", new_callable=StringIO)
+    def test_debug_prints_arguments(self, mock_stderr: StringIO) -> None:
+        """Debug mode prints tool arguments to stderr."""
+        tool = _DummyTool()
+        _execute_tool(tool, {"arg": "test_value"}, debug=True)
+        output = mock_stderr.getvalue()
+        self.assertIn("dummy", output)
+        self.assertIn("test_value", output)
+
+
+# ---------------------------------------------------------------------------
+# Context compaction helpers
+# ---------------------------------------------------------------------------
+
+
+class TestEstimateTokens(unittest.TestCase):
+    """Tests for _estimate_tokens()."""
+
+    def test_empty_messages(self) -> None:
+        """Empty message list returns 0."""
+        self.assertEqual(_estimate_tokens([]), 0)
+
+    def test_single_message(self) -> None:
+        """Estimate based on content length."""
+        messages = [{"role": "user", "content": "Hello world"}]
+        tokens = _estimate_tokens(messages)
+        self.assertGreater(tokens, 0)
+
+    def test_tool_call_arguments_counted(self) -> None:
+        """Tool call arguments are included in the estimate."""
+        messages = [
+            {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                    {"function": {"name": "read", "arguments": {"path": "a" * 100}}},
+                ],
+            },
+        ]
+        tokens = _estimate_tokens(messages)
+        self.assertGreater(tokens, 0)
+
+
+class TestCompactMessage(unittest.TestCase):
+    """Tests for _compact_message()."""
+
+    def test_system_message_never_compacted(self) -> None:
+        """System messages are always returned unchanged."""
+        msg = {"role": "system", "content": "x" * 10000}
+        result = _compact_message(msg)
+        self.assertIs(result, msg)
+
+    def test_user_message_never_compacted(self) -> None:
+        """User messages are returned unchanged."""
+        msg = {"role": "user", "content": "x" * 10000}
+        result = _compact_message(msg)
+        self.assertIs(result, msg)
+
+    def test_short_tool_message_unchanged(self) -> None:
+        """Short tool messages are returned as-is."""
+        msg = {"role": "tool", "tool_name": "read", "content": "short"}
+        result = _compact_message(msg)
+        self.assertIs(result, msg)
+
+    def test_long_tool_message_truncated(self) -> None:
+        """Long tool results are truncated."""
+        long_content = "x" * (_COMPACT_TOOL_RESULT_MAX + 500)
+        msg = {"role": "tool", "tool_name": "read", "content": long_content}
+        result = _compact_message(msg)
+        self.assertIsNot(result, msg)
+        self.assertIn("[truncated for context]", result["content"])
+        self.assertLessEqual(
+            len(result["content"]),
+            _COMPACT_TOOL_RESULT_MAX + 50,  # truncated text + suffix
+        )
+
+    def test_long_assistant_message_truncated(self) -> None:
+        """Long assistant messages are truncated."""
+        long_content = "x" * (_COMPACT_ASSISTANT_MAX + 500)
+        msg = {"role": "assistant", "content": long_content}
+        result = _compact_message(msg)
+        self.assertIsNot(result, msg)
+        self.assertIn("[truncated for context]", result["content"])
+
+    def test_assistant_tool_calls_stripped(self) -> None:
+        """Tool calls are stripped from compacted assistant messages."""
+        long_content = "x" * (_COMPACT_ASSISTANT_MAX + 500)
+        msg = {
+            "role": "assistant",
+            "content": long_content,
+            "tool_calls": [
+                {"function": {"name": "read", "arguments": {}}},
+                {"function": {"name": "write", "arguments": {}}},
+            ],
+        }
+        result = _compact_message(msg)
+        self.assertNotIn("tool_calls", result)
+        self.assertIn("2 tool call(s) omitted", result["content"])
+
+
+class TestNeedsCompaction(unittest.TestCase):
+    """Tests for _needs_compaction()."""
+
+    def test_below_thresholds(self) -> None:
+        """Small message list does not need compaction."""
+        messages = [{"role": "user", "content": "hi"}] * 5
+        self.assertFalse(_needs_compaction(messages))
+
+    def test_message_count_threshold(self) -> None:
+        """Exceeding message count threshold triggers compaction."""
+        messages = [{"role": "user", "content": "hi"}] * (
+            _COMPACT_MESSAGE_THRESHOLD + 1
+        )
+        self.assertTrue(_needs_compaction(messages))
+
+    def test_token_threshold(self) -> None:
+        """Exceeding token count threshold triggers compaction."""
+        # Create messages with enough content to exceed the token threshold.
+        big_content = "x" * (_COMPACT_TOKEN_THRESHOLD * 5)
+        messages = [{"role": "user", "content": big_content}]
+        self.assertTrue(_needs_compaction(messages))
+
+
+class TestCompactMessages(unittest.TestCase):
+    """Tests for compact_messages()."""
+
+    def test_small_list_unchanged(self) -> None:
+        """Lists smaller than _COMPACT_KEEP_RECENT are not modified."""
+        messages = [{"role": "user", "content": "hi"}] * 3
+        original = [dict(m) for m in messages]
+        compact_messages(messages)
+        self.assertEqual(messages, original)
+
+    def test_system_messages_preserved(self) -> None:
+        """System messages at the start are never compacted."""
+        system_msg = {"role": "system", "content": "x" * 10000}
+        messages = [system_msg]
+        # Add enough messages to trigger compaction.
+        for i in range(_COMPACT_KEEP_RECENT + 20):
+            messages.append(
+                {"role": "tool", "tool_name": "t", "content": "x" * 1000}
+            )
+        compact_messages(messages)
+        # System message content unchanged.
+        self.assertEqual(messages[0]["content"], "x" * 10000)
+
+    def test_recent_messages_preserved(self) -> None:
+        """The most recent messages are not compacted."""
+        messages = [{"role": "system", "content": "sys"}]
+        # Old messages (will be compacted).
+        for _ in range(20):
+            messages.append(
+                {"role": "tool", "tool_name": "t", "content": "x" * 1000}
+            )
+        # Recent messages.
+        for _ in range(_COMPACT_KEEP_RECENT):
+            messages.append(
+                {"role": "user", "content": "recent " + "y" * 1000}
+            )
+
+        compact_messages(messages)
+
+        # Recent messages should still contain "recent".
+        for msg in messages[-_COMPACT_KEEP_RECENT:]:
+            self.assertIn("recent", msg["content"])
+
+
+# ---------------------------------------------------------------------------
+# agent_loop
+# ---------------------------------------------------------------------------
+
+
+class TestAgentLoopNoToolCalls(unittest.TestCase):
+    """Tests for agent_loop when the LLM responds without tool calls."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+        sys.stderr = self._orig_stderr
+
+    def test_simple_response_appended_to_messages(self) -> None:
+        """LLM response without tool calls appends assistant message and exits."""
+        client = MagicMock()
+        chunks = _make_chunks(["Hello!"])
+        client.chat_stream.return_value = iter(chunks)
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hi"},
+        ]
+        agent_loop(client, "qwen3:8b", [], messages)
+
+        # Assistant message should have been appended.
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(messages[1]["role"], "assistant")
+        self.assertEqual(messages[1]["content"], "Hello!")
+
+    def test_no_tool_calls_means_single_iteration(self) -> None:
+        """Without tool calls, chat_stream is called exactly once."""
+        client = MagicMock()
+        chunks = _make_chunks(["Done."])
+        client.chat_stream.return_value = iter(chunks)
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Say done"},
+        ]
+        agent_loop(client, "test-model", [], messages)
+
+        client.chat_stream.assert_called_once()
+
+
+class TestAgentLoopWithToolCalls(unittest.TestCase):
+    """Tests for agent_loop when the LLM requests tool calls."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+        sys.stderr = self._orig_stderr
+
+    def test_tool_call_then_final_response(self) -> None:
+        """LLM calls a tool, gets result, then responds without tools."""
+        tool = _DummyTool(name="read", result="file content here")
+
+        # First call: LLM requests a tool call.
+        tc = [{"function": {"name": "read", "arguments": {"arg": "test"}}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+
+        # Second call: LLM responds without tool calls.
+        second_chunks = _make_chunks(["I read the file."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Read the file"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages)
+
+        # Expected messages: user, assistant(tool_call), tool(result), assistant(final)
+        self.assertEqual(len(messages), 4)
+        self.assertEqual(messages[0]["role"], "user")
+        self.assertEqual(messages[1]["role"], "assistant")
+        self.assertIn("tool_calls", messages[1])
+        self.assertEqual(messages[2]["role"], "tool")
+        self.assertEqual(messages[2]["tool_name"], "read")
+        self.assertEqual(messages[2]["content"], "file content here")
+        self.assertEqual(messages[3]["role"], "assistant")
+        self.assertEqual(messages[3]["content"], "I read the file.")
+
+    def test_multiple_tool_calls_in_single_response(self) -> None:
+        """LLM requests multiple tool calls in a single response."""
+        tool_a = _DummyTool(name="read", result="content_a")
+        tool_b = _DummyTool(name="write", result="written")
+
+        tc = [
+            {"function": {"name": "read", "arguments": {}}},
+            {"function": {"name": "write", "arguments": {}}},
+        ]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["All done."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Do both"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool_a, tool_b], messages)
+
+        # user + assistant(tc) + tool(read) + tool(write) + assistant(final)
+        self.assertEqual(len(messages), 5)
+        self.assertEqual(messages[2]["role"], "tool")
+        self.assertEqual(messages[2]["tool_name"], "read")
+        self.assertEqual(messages[3]["role"], "tool")
+        self.assertEqual(messages[3]["tool_name"], "write")
+
+    def test_chained_tool_calls(self) -> None:
+        """LLM requests tools in two consecutive rounds."""
+        tool = _DummyTool(name="bash", result="output")
+
+        # Round 1: one tool call.
+        tc1 = [{"function": {"name": "bash", "arguments": {}}}]
+        chunks1 = _make_chunks([""], tool_calls=tc1)
+
+        # Round 2: another tool call.
+        tc2 = [{"function": {"name": "bash", "arguments": {}}}]
+        chunks2 = _make_chunks([""], tool_calls=tc2)
+
+        # Round 3: final text response.
+        chunks3 = _make_chunks(["Done."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(chunks1),
+            iter(chunks2),
+            iter(chunks3),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Run commands"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages)
+
+        # user + assistant + tool + assistant + tool + assistant
+        self.assertEqual(len(messages), 6)
+        self.assertEqual(client.chat_stream.call_count, 3)
+
+
+class TestAgentLoopErrorHandling(unittest.TestCase):
+    """Tests for agent_loop error handling."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+        sys.stderr = self._orig_stderr
+
+    def test_unknown_tool_returns_error_string(self) -> None:
+        """Calling an unknown tool appends an error tool message."""
+        tc = [{"function": {"name": "nonexistent", "arguments": {}}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["I see the error."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Do something"},
+        ]
+        agent_loop(client, "qwen3:8b", [], messages)
+
+        # The tool message should contain an error.
+        tool_msg = messages[2]
+        self.assertEqual(tool_msg["role"], "tool")
+        self.assertEqual(tool_msg["tool_name"], "nonexistent")
+        self.assertIn("Error", tool_msg["content"])
+        self.assertIn("unknown tool", tool_msg["content"])
+
+    def test_tool_exception_returns_error_string(self) -> None:
+        """Tool raising an exception produces an error tool message."""
+        tool = _DummyTool(
+            name="failing",
+            side_effect=ValueError("bad input"),
+        )
+
+        tc = [{"function": {"name": "failing", "arguments": {}}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Noted the error."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Try this"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages)
+
+        tool_msg = messages[2]
+        self.assertEqual(tool_msg["role"], "tool")
+        self.assertIn("Error", tool_msg["content"])
+        self.assertIn("ValueError", tool_msg["content"])
+        self.assertIn("bad input", tool_msg["content"])
+
+    def test_stream_error_breaks_loop(self) -> None:
+        """OllamaStreamError during streaming breaks the loop gracefully."""
+
+        def error_stream():
+            yield {"message": {"role": "assistant", "content": ""}, "done": False}
+            raise OllamaStreamError("server error")
+
+        client = MagicMock()
+        client.chat_stream.return_value = error_stream()
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hi"},
+        ]
+        # Should not raise -- the error is caught and the loop exits.
+        agent_loop(client, "qwen3:8b", [], messages)
+
+        # Only the original user message should remain (no assistant appended
+        # because the error was caught before building the response).
+        stderr_output = sys.stderr.getvalue()
+        self.assertIn("Error from Ollama", stderr_output)
+
+    def test_tool_defs_passed_to_chat_stream(self) -> None:
+        """Tool definitions are converted and passed to chat_stream."""
+        tool = _DummyTool(name="mytool")
+
+        chunks = _make_chunks(["Hello"])
+        client = MagicMock()
+        client.chat_stream.return_value = iter(chunks)
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hi"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages)
+
+        call_args = client.chat_stream.call_args
+        tool_defs = call_args[1].get("tools") or call_args[0][2] if len(call_args[0]) > 2 else call_args[1].get("tools")
+        self.assertIsNotNone(tool_defs)
+        self.assertEqual(len(tool_defs), 1)
+        self.assertEqual(tool_defs[0]["type"], "function")
+        self.assertEqual(tool_defs[0]["function"]["name"], "mytool")
+
+    def test_tool_call_with_missing_function_key(self) -> None:
+        """Tool call with missing 'function' key is handled gracefully."""
+        tc = [{"not_function": {}}]  # malformed tool call
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Ok."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Do it"},
+        ]
+        # Should not crash.
+        agent_loop(client, "qwen3:8b", [], messages)
+
+        # A tool message with error for the unknown/empty tool name should be added.
+        tool_msg = messages[2]
+        self.assertEqual(tool_msg["role"], "tool")
+        self.assertIn("Error", tool_msg["content"])
+
+
+# ---------------------------------------------------------------------------
+# _extract_file_path
+# ---------------------------------------------------------------------------
+
+
+class TestExtractFilePath(unittest.TestCase):
+    """Tests for _extract_file_path()."""
+
+    def test_read_tool_returns_file_path(self) -> None:
+        """Returns file_path argument for 'read' tool."""
+        result = _extract_file_path("read", {"file_path": "/tmp/test.py"})
+        self.assertEqual(result, "/tmp/test.py")
+
+    def test_read_tool_missing_file_path(self) -> None:
+        """Returns None when 'read' tool has no file_path argument."""
+        result = _extract_file_path("read", {})
+        self.assertIsNone(result)
+
+    def test_read_tool_non_string_file_path(self) -> None:
+        """Returns None when file_path is not a string."""
+        result = _extract_file_path("read", {"file_path": 123})
+        self.assertIsNone(result)
+
+    def test_glob_tool_returns_none(self) -> None:
+        """Returns None for 'glob' tool (directory-based, no single file)."""
+        result = _extract_file_path("glob", {"pattern": "*.py"})
+        self.assertIsNone(result)
+
+    def test_grep_tool_returns_none(self) -> None:
+        """Returns None for 'grep' tool (may search multiple files)."""
+        result = _extract_file_path("grep", {"pattern": "def", "path": "/tmp"})
+        self.assertIsNone(result)
+
+    def test_unknown_tool_returns_none(self) -> None:
+        """Returns None for unrecognized tool names."""
+        result = _extract_file_path("bash", {"command": "ls"})
+        self.assertIsNone(result)
+
+
+# ---------------------------------------------------------------------------
+# Cacheable dummy tool
+# ---------------------------------------------------------------------------
+
+
+class _CacheableDummyTool(_DummyTool):
+    """A cacheable tool for testing cache integration."""
+
+    @property
+    def cacheable(self) -> bool:
+        return True
+
+
+# ---------------------------------------------------------------------------
+# agent_loop cache integration
+# ---------------------------------------------------------------------------
+
+
+class TestAgentLoopCacheHit(unittest.TestCase):
+    """Tests for cache hit behaviour in agent_loop."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+        sys.stderr = self._orig_stderr
+
+    def test_cache_hit_skips_execution(self) -> None:
+        """When cache has result, tool execution is skipped."""
+        tool = _CacheableDummyTool(name="read", result="SHOULD NOT SEE THIS")
+
+        cache = ToolCache()
+        args = {"file_path": "/tmp/test.py"}
+        cache.put("read", args, "cached file content")
+
+        # LLM calls the read tool.
+        tc = [{"function": {"name": "read", "arguments": args}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Done."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Read the file"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages, cache=cache)
+
+        # The tool message should contain the cached result, not the tool's
+        # default result.
+        tool_msg = messages[2]
+        self.assertEqual(tool_msg["role"], "tool")
+        self.assertEqual(tool_msg["content"], "cached file content")
+
+    def test_cache_hit_logs_debug(self) -> None:
+        """In debug mode, cache hits are logged to stderr."""
+        tool = _CacheableDummyTool(name="read", result="live result")
+
+        cache = ToolCache()
+        cache.put("read", {"file_path": "/tmp/a.py"}, "cached")
+
+        tc = [{"function": {"name": "read", "arguments": {"file_path": "/tmp/a.py"}}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Ok."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Read"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages, debug=True, cache=cache)
+
+        stderr = sys.stderr.getvalue()
+        self.assertIn("cache hit", stderr)
+        self.assertIn("read", stderr)
+
+
+class TestAgentLoopCacheMiss(unittest.TestCase):
+    """Tests for cache miss and store behaviour in agent_loop."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        self._orig_stdout = sys.stdout
+        sys.stderr = self._orig_stderr
+
+    def test_cache_miss_executes_and_stores(self) -> None:
+        """On cache miss, tool is executed and result stored in cache."""
+        tool = _CacheableDummyTool(name="read", result="file contents here")
+
+        cache = ToolCache()
+        args = {"file_path": "/tmp/test.py"}
+
+        tc = [{"function": {"name": "read", "arguments": args}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Done."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Read file"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages, cache=cache)
+
+        # Tool result should be in messages.
+        tool_msg = messages[2]
+        self.assertEqual(tool_msg["content"], "file contents here")
+
+        # Result should now be in cache.
+        cached = cache.get("read", args)
+        self.assertEqual(cached, "file contents here")
+
+    def test_cache_miss_logs_debug(self) -> None:
+        """In debug mode, cache misses are logged to stderr."""
+        tool = _CacheableDummyTool(name="read", result="content")
+
+        cache = ToolCache()
+        tc = [{"function": {"name": "read", "arguments": {"file_path": "/tmp/x.py"}}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Ok."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Read"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages, debug=True, cache=cache)
+
+        stderr = sys.stderr.getvalue()
+        self.assertIn("cache miss", stderr)
+        self.assertIn("read", stderr)
+
+    def test_error_result_not_cached(self) -> None:
+        """Error results from tools are not stored in cache."""
+        tool = _CacheableDummyTool(
+            name="read",
+            side_effect=FileNotFoundError("no such file"),
+        )
+
+        cache = ToolCache()
+        args = {"file_path": "/nonexistent"}
+        tc = [{"function": {"name": "read", "arguments": args}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Noted."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Read file"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages, cache=cache)
+
+        # Tool result is an error.
+        tool_msg = messages[2]
+        self.assertIn("Error:", tool_msg["content"])
+
+        # Error should NOT be cached.
+        cached = cache.get("read", args)
+        self.assertIsNone(cached)
+
+    def test_second_call_uses_cache(self) -> None:
+        """Second identical tool call uses cached result from first call."""
+        call_count = 0
+
+        class CountingTool(_CacheableDummyTool):
+            def execute(self, **kwargs: object) -> str:
+                nonlocal call_count
+                call_count += 1
+                return "file content"
+
+        tool = CountingTool(name="read")
+        cache = ToolCache()
+        args = {"file_path": "/tmp/test.py"}
+
+        # Round 1: read tool call -> miss -> execute.
+        tc1 = [{"function": {"name": "read", "arguments": args}}]
+        chunks1 = _make_chunks([""], tool_calls=tc1)
+
+        # Round 2: same read tool call -> hit -> skip execution.
+        tc2 = [{"function": {"name": "read", "arguments": args}}]
+        chunks2 = _make_chunks([""], tool_calls=tc2)
+
+        # Round 3: final text response.
+        chunks3 = _make_chunks(["All done."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(chunks1),
+            iter(chunks2),
+            iter(chunks3),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Read file twice"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages, cache=cache)
+
+        # The tool should have been executed only once.
+        self.assertEqual(call_count, 1)
+
+        # Both tool messages should have the same content.
+        self.assertEqual(messages[2]["content"], "file content")
+        self.assertEqual(messages[4]["content"], "file content")
+
+
+class TestAgentLoopCacheNonCacheable(unittest.TestCase):
+    """Tests that non-cacheable tools bypass the cache."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+        sys.stderr = self._orig_stderr
+
+    def test_non_cacheable_tool_not_cached(self) -> None:
+        """Non-cacheable tool results are not stored in cache."""
+        tool = _DummyTool(name="bash", result="command output")
+
+        cache = ToolCache()
+        args = {"command": "ls"}
+        tc = [{"function": {"name": "bash", "arguments": args}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Done."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Run ls"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages, cache=cache)
+
+        # Cache should be empty — bash is not cacheable.
+        self.assertEqual(cache.size, 0)
+
+    def test_no_cache_parameter_backward_compatible(self) -> None:
+        """agent_loop works without cache parameter (backward compatible)."""
+        tool = _CacheableDummyTool(name="read", result="content")
+
+        tc = [{"function": {"name": "read", "arguments": {"file_path": "/a"}}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Ok."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Read"},
+        ]
+        # Should work fine with no cache argument.
+        agent_loop(client, "qwen3:8b", [tool], messages)
+
+        self.assertEqual(messages[2]["role"], "tool")
+        self.assertEqual(messages[2]["content"], "content")
+
+
+class TestAgentLoopCacheInvalidation(unittest.TestCase):
+    """Tests for cache invalidation when mutating tools run."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+        sys.stderr = self._orig_stderr
+
+    def test_write_tool_invalidates_cache(self) -> None:
+        """Non-cacheable tool with file_path argument invalidates cache entries."""
+        read_tool = _CacheableDummyTool(name="read", result="content")
+        write_tool = _DummyTool(name="write", result="Successfully wrote 10 bytes")
+
+        cache = ToolCache()
+        file_args = {"file_path": "/tmp/test.py"}
+
+        # Pre-populate cache with a read result.
+        cache.put("read", file_args, "old content", file_path="/tmp/test.py")
+        self.assertEqual(cache.size, 1)
+
+        # LLM calls the write tool with the same file_path.
+        tc = [{"function": {"name": "write", "arguments": {"file_path": "/tmp/test.py", "content": "new"}}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Written."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Write file"},
+        ]
+        agent_loop(client, "qwen3:8b", [read_tool, write_tool], messages, cache=cache)
+
+        # The cached read entry for that file should have been invalidated.
+        cached = cache.get("read", file_args)
+        self.assertIsNone(cached)
+
+    def test_error_write_does_not_invalidate(self) -> None:
+        """Error results from mutating tools do not invalidate cache."""
+        read_tool = _CacheableDummyTool(name="read", result="content")
+        write_tool = _DummyTool(
+            name="write",
+            side_effect=PermissionError("denied"),
+        )
+
+        cache = ToolCache()
+        file_args = {"file_path": "/tmp/test.py"}
+        cache.put("read", file_args, "cached content", file_path="/tmp/test.py")
+
+        tc = [{"function": {"name": "write", "arguments": {"file_path": "/tmp/test.py", "content": "x"}}}]
+        first_chunks = _make_chunks([""], tool_calls=tc)
+        second_chunks = _make_chunks(["Failed."])
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [
+            iter(first_chunks),
+            iter(second_chunks),
+            # Reply to a possible error-stop push-back (unused otherwise).
+            iter(_make_chunks(["Done."])),
+        ]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Write file"},
+        ]
+        agent_loop(client, "qwen3:8b", [read_tool, write_tool], messages, cache=cache)
+
+        # Cache should NOT be invalidated since the write failed.
+        cached = cache.get("read", file_args)
+        self.assertEqual(cached, "cached content")
+
+
+# ---------------------------------------------------------------------------
+# Token tracker integration
+# ---------------------------------------------------------------------------
+
+
+class TestCollectStreamingResponseTracker(unittest.TestCase):
+    """Tests for token tracker integration in collect_streaming_response()."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        sys.stdout = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+
+    def test_ollama_tokens_recorded(self) -> None:
+        """Ollama prompt_eval_count and eval_count are recorded via tracker."""
+        from local_cli.token_tracker import TokenTracker
+
+        tracker = TokenTracker()
+        chunks = [
+            {"message": {"role": "assistant", "content": "Hi"}, "done": False},
+            {
+                "message": {"role": "assistant", "content": ""},
+                "done": True,
+                "prompt_eval_count": 150,
+                "eval_count": 75,
+            },
+        ]
+        collect_streaming_response(iter(chunks), tracker=tracker)
+
+        self.assertEqual(tracker.message_count, 1)
+        record = tracker.records[0]
+        self.assertEqual(record.input_tokens, 150)
+        self.assertEqual(record.output_tokens, 75)
+        self.assertEqual(record.provider, "ollama")
+
+    def test_claude_usage_recorded(self) -> None:
+        """Claude usage metadata is recorded via tracker."""
+        from local_cli.token_tracker import TokenTracker
+
+        tracker = TokenTracker()
+        chunks = [
+            {"message": {"role": "assistant", "content": "Hello"}, "done": False},
+            {
+                "message": {"role": "assistant", "content": ""},
+                "done": True,
+                "usage": {"input_tokens": 500, "output_tokens": 200},
+            },
+        ]
+        collect_streaming_response(iter(chunks), tracker=tracker)
+
+        self.assertEqual(tracker.message_count, 1)
+        record = tracker.records[0]
+        self.assertEqual(record.input_tokens, 500)
+        self.assertEqual(record.output_tokens, 200)
+        self.assertEqual(record.provider, "claude")
+
+    def test_no_tracker_does_not_record(self) -> None:
+        """When tracker is None, no recording occurs (backward compatible)."""
+        chunks = [
+            {
+                "message": {"role": "assistant", "content": "Hi"},
+                "done": True,
+                "prompt_eval_count": 100,
+                "eval_count": 50,
+            },
+        ]
+        # Should work fine without tracker.
+        result = collect_streaming_response(iter(chunks))
+        self.assertEqual(result["message"]["content"], "Hi")
+
+    def test_empty_stream_with_tracker(self) -> None:
+        """Empty stream with tracker records zero tokens."""
+        from local_cli.token_tracker import TokenTracker
+
+        tracker = TokenTracker()
+        collect_streaming_response(iter([]), tracker=tracker)
+
+        # Should record from the empty result (zero tokens).
+        self.assertEqual(tracker.message_count, 1)
+        record = tracker.records[0]
+        self.assertEqual(record.input_tokens, 0)
+        self.assertEqual(record.output_tokens, 0)
+
+    def test_stream_error_does_not_record(self) -> None:
+        """ProviderStreamError prevents token recording (re-raises before)."""
+        from local_cli.token_tracker import TokenTracker
+
+        tracker = TokenTracker()
+
+        def error_stream():
+            yield {"message": {"role": "assistant", "content": "partial"}, "done": False}
+            raise OllamaStreamError("server error")
+
+        with self.assertRaises(OllamaStreamError):
+            collect_streaming_response(error_stream(), tracker=tracker)
+
+        # Tracker should NOT have recorded anything since the error
+        # is raised before the recording logic.
+        self.assertEqual(tracker.message_count, 0)
+
+    def test_keyboard_interrupt_still_records(self) -> None:
+        """KeyboardInterrupt during streaming still records partial usage."""
+        from local_cli.token_tracker import TokenTracker
+
+        tracker = TokenTracker()
+
+        def interrupt_stream():
+            yield {
+                "message": {"role": "assistant", "content": "par"},
+                "done": False,
+                "prompt_eval_count": 50,
+            }
+            raise KeyboardInterrupt
+
+        result = collect_streaming_response(interrupt_stream(), tracker=tracker)
+
+        # KeyboardInterrupt is caught, partial content returned, and
+        # tracker records from whatever last_chunk data is available.
+        self.assertEqual(tracker.message_count, 1)
+        self.assertEqual(result["message"]["content"], "par")
+
+    def test_missing_token_fields_recorded_as_zero(self) -> None:
+        """Missing prompt_eval_count/eval_count defaults to zero."""
+        from local_cli.token_tracker import TokenTracker
+
+        tracker = TokenTracker()
+        chunks = [
+            {
+                "message": {"role": "assistant", "content": "Done"},
+                "done": True,
+                "model": "qwen3:8b",
+            },
+        ]
+        collect_streaming_response(iter(chunks), tracker=tracker)
+
+        self.assertEqual(tracker.message_count, 1)
+        record = tracker.records[0]
+        self.assertEqual(record.input_tokens, 0)
+        self.assertEqual(record.output_tokens, 0)
+
+
+class TestAgentLoopTokenTracker(unittest.TestCase):
+    """Tests for token tracker integration in agent_loop()."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+        sys.stderr = self._orig_stderr
+
+    def test_tracker_records_each_llm_call(self) -> None:
+        """Tracker records token usage for each LLM call in the loop."""
+        from local_cli.token_tracker import TokenTracker
+
+        tracker = TokenTracker()
+        tool = _DummyTool(name="bash", result="output")
+
+        # Round 1: tool call with token counts.
+        tc = [{"function": {"name": "bash", "arguments": {}}}]
+        chunks1 = [
+            {"message": {"role": "assistant", "content": "", "tool_calls": tc}, "done": True, "prompt_eval_count": 100, "eval_count": 30},
+        ]
+        # Round 2: final response with token counts.
+        chunks2 = [
+            {"message": {"role": "assistant", "content": "Done."}, "done": True, "prompt_eval_count": 200, "eval_count": 50},
+        ]
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [iter(chunks1), iter(chunks2)]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Run it"},
+        ]
+        agent_loop(client, "qwen3:8b", [tool], messages, tracker=tracker)
+
+        # Two LLM calls = two records.
+        self.assertEqual(tracker.message_count, 2)
+        self.assertEqual(tracker.records[0].input_tokens, 100)
+        self.assertEqual(tracker.records[0].output_tokens, 30)
+        self.assertEqual(tracker.records[1].input_tokens, 200)
+        self.assertEqual(tracker.records[1].output_tokens, 50)
+        self.assertEqual(tracker.total_tokens, 380)
+
+    def test_no_tracker_backward_compatible(self) -> None:
+        """agent_loop works without tracker parameter (backward compatible)."""
+        chunks = [
+            {"message": {"role": "assistant", "content": "Hello"}, "done": True, "prompt_eval_count": 50, "eval_count": 10},
+        ]
+        client = MagicMock()
+        client.chat_stream.return_value = iter(chunks)
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hi"},
+        ]
+        # Should work fine without tracker.
+        agent_loop(client, "qwen3:8b", [], messages)
+        self.assertEqual(messages[1]["content"], "Hello")
+
+    def test_tracker_with_stream_error(self) -> None:
+        """Stream errors do not record to tracker."""
+        from local_cli.token_tracker import TokenTracker
+
+        tracker = TokenTracker()
+
+        def error_stream():
+            yield {"message": {"role": "assistant", "content": ""}, "done": False}
+            raise OllamaStreamError("fail")
+
+        client = MagicMock()
+        client.chat_stream.return_value = error_stream()
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hi"},
+        ]
+        agent_loop(client, "qwen3:8b", [], messages, tracker=tracker)
+
+        # Stream error means no token recording.
+        self.assertEqual(tracker.message_count, 0)
+
+    def test_tracker_with_cache_and_tools(self) -> None:
+        """Tracker works alongside cache in the agent loop."""
+        from local_cli.token_tracker import TokenTracker
+
+        tracker = TokenTracker()
+        cache = ToolCache()
+        tool = _CacheableDummyTool(name="read", result="content")
+
+        tc = [{"function": {"name": "read", "arguments": {"file_path": "/a"}}}]
+        chunks1 = [
+            {"message": {"role": "assistant", "content": "", "tool_calls": tc}, "done": True, "prompt_eval_count": 80, "eval_count": 20},
+        ]
+        chunks2 = [
+            {"message": {"role": "assistant", "content": "Got it."}, "done": True, "prompt_eval_count": 150, "eval_count": 40},
+        ]
+
+        client = MagicMock()
+        client.chat_stream.side_effect = [iter(chunks1), iter(chunks2)]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Read file"},
+        ]
+        agent_loop(
+            client, "qwen3:8b", [tool], messages,
+            cache=cache, tracker=tracker,
+        )
+
+        # Both LLM calls recorded.
+        self.assertEqual(tracker.message_count, 2)
+        self.assertEqual(tracker.total_input_tokens, 230)  # 80 + 150
+        self.assertEqual(tracker.total_output_tokens, 60)   # 20 + 40
+
+        # Cache should also have the result.
+        self.assertIsNotNone(cache.get("read", {"file_path": "/a"}))
+
+
+# ---------------------------------------------------------------------------
+# Agent loop: thinking mode, options, and dynamic compaction
+# ---------------------------------------------------------------------------
+
+
+class TestAgentLoopThinkingAndOptions(unittest.TestCase):
+    """Tests for thinking mode handling, options passthrough, and dynamic compaction."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+        sys.stderr = self._orig_stderr
+
+    def test_thinking_not_in_history(self) -> None:
+        """After agent_loop, messages list has no thinking key."""
+        client = MagicMock()
+        # Build chunks with thinking content in the message.
+        chunks = [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": "Answer",
+                    "thinking": "internal reasoning",
+                },
+                "done": True,
+            },
+        ]
+        client.chat_stream.return_value = iter(chunks)
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Question"},
+        ]
+        agent_loop(client, "qwen3:8b", [], messages)
+
+        # No message in the history should contain a "thinking" key.
+        for msg in messages:
+            self.assertNotIn("thinking", msg)
+
+        # The assistant content should still be recorded.
+        self.assertEqual(messages[1]["role"], "assistant")
+        self.assertEqual(messages[1]["content"], "Answer")
+
+    def test_thinking_debug_output(self) -> None:
+        """Thinking content is shown in stderr when debug=True."""
+        client = MagicMock()
+        chunks = [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": "Answer",
+                    "thinking": "my deep reasoning",
+                },
+                "done": True,
+            },
+        ]
+        client.chat_stream.return_value = iter(chunks)
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Question"},
+        ]
+        agent_loop(client, "qwen3:8b", [], messages, debug=True)
+
+        stderr_output = sys.stderr.getvalue()
+        self.assertIn("Thinking", stderr_output)
+        self.assertIn("my deep reasoning", stderr_output)
+
+    def test_agent_loop_with_options(self) -> None:
+        """Options dict is passed through to client.chat_stream."""
+        client = MagicMock()
+        chunks = _make_chunks(["Done."])
+        client.chat_stream.return_value = iter(chunks)
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hi"},
+        ]
+        opts = {"temperature": 0.5, "num_ctx": 8192}
+        agent_loop(client, "qwen3:8b", [], messages, options=opts)
+
+        # Verify options were forwarded as a keyword argument.
+        call_kwargs = client.chat_stream.call_args[1]
+        self.assertIn("options", call_kwargs)
+        self.assertEqual(call_kwargs["options"], opts)
+
+    def test_dynamic_compaction_threshold(self) -> None:
+        """Compaction threshold adjusts with num_ctx via _needs_compaction."""
+        # Create messages with ~5000 estimated tokens (20000 chars / 4).
+        messages = [{"role": "user", "content": "x" * 20000}]
+
+        # Default threshold is 24_000 tokens — 5000 < 24000 → no compaction.
+        self.assertFalse(_needs_compaction(messages))
+
+        # Simulating num_ctx=4096 → threshold would be int(4096 * 0.75) = 3072.
+        # 5000 > 3072 → compaction needed.
+        self.assertTrue(_needs_compaction(messages, token_threshold=3072))
+
+        # Verify the threshold computation inside agent_loop by checking that
+        # compact_messages is called when num_ctx is small enough.
+        client = MagicMock()
+        chunks = _make_chunks(["Ok."])
+        client.chat_stream.return_value = iter(chunks)
+
+        # Enough messages to make compaction meaningful.
+        big_messages: list[dict[str, Any]] = [
+            {"role": "system", "content": "sys"},
+        ]
+        for _ in range(20):
+            big_messages.append(
+                {"role": "tool", "tool_name": "t", "content": "y" * 2000}
+            )
+        big_messages.append({"role": "user", "content": "go"})
+
+        opts = {"num_ctx": 4096}
+        with patch("local_cli.agent.compact_messages") as mock_compact:
+            agent_loop(client, "qwen3:8b", [], big_messages, options=opts)
+
+        # compact_messages should have been triggered due to the low threshold.
+        mock_compact.assert_called()
+
+
+# ---------------------------------------------------------------------------
+# Integration: full options pipeline (Config → agent_loop → _stream_request)
+# ---------------------------------------------------------------------------
+
+
+def _dummy_stream_chunks() -> list[dict[str, Any]]:
+    """Return minimal streaming chunks that make agent_loop complete."""
+    return [
+        {"message": {"role": "assistant", "content": "Done."}, "done": True},
+    ]
+
+
+class TestConfigToAgentOptionsPipeline(unittest.TestCase):
+    """Integration tests verifying Config values reach _stream_request payload."""
+
+    def setUp(self) -> None:
+        self._orig_stdout = sys.stdout
+        self._orig_stderr = sys.stderr
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
+
+    def tearDown(self) -> None:
+        sys.stdout = self._orig_stdout
+        sys.stderr = self._orig_stderr
+
+    def test_config_to_agent_options_pipeline(self) -> None:
+        """Config values flow through merge logic to the Ollama payload."""
+        from local_cli.config import Config
+        from local_cli.model_presets import get_model_preset
+        from local_cli.ollama_client import OllamaClient
+
+        # Create a Config with explicit temperature and top_p.
+        config = Config.__new__(Config)
+        config.model = "qwen3:8b"
+        config.num_ctx = 4096
+        config.temperature = 0.3
+        config.top_p = 0.8
+        config.top_k = None
+        config.think_mode = False
+
+        # Build merged inference options (same logic as cli.py run_repl).
+        default_options: dict = {"num_ctx": 8192}
+        preset_options = get_model_preset(config.model)
+        user_options: dict = {"num_ctx": config.num_ctx}
+        if config.temperature is not None:
+            user_options["temperature"] = config.temperature
+        if config.top_p is not None:
+            user_options["top_p"] = config.top_p
+        if config.top_k is not None:
+            user_options["top_k"] = config.top_k
+        inference_options = {**default_options, **preset_options, **user_options}
+
+        # Create a real OllamaClient and mock _stream_request.
+        client = OllamaClient("http://localhost:11434")
+        captured_payloads: list[dict[str, Any]] = []
+
+        def fake_stream(path: str, data: dict, timeout: int = 120):
+            captured_payloads.append(data)
+            yield from _dummy_stream_chunks()
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hello"},
+        ]
+
+        with patch.object(client, "_stream_request", side_effect=fake_stream):
+            agent_loop(client, config.model, [], messages, options=inference_options)
+
+        # Verify the payload sent to _stream_request.
+        self.assertEqual(len(captured_payloads), 1)
+        payload = captured_payloads[0]
+        self.assertEqual(payload["model"], "qwen3:8b")
+        self.assertTrue(payload["stream"])
+
+        opts = payload["options"]
+        # User config overrides preset and defaults.
+        self.assertEqual(opts["temperature"], 0.3)
+        self.assertEqual(opts["top_p"], 0.8)
+        self.assertEqual(opts["num_ctx"], 4096)
+        # Preset value that wasn't overridden by user should remain.
+        self.assertEqual(opts["top_k"], 20)
+
+    def test_preset_applied_by_default(self) -> None:
+        """Using qwen3:8b without user overrides applies preset temp=0.6."""
+        from local_cli.model_presets import get_model_preset
+        from local_cli.ollama_client import OllamaClient
+
+        # Build options with no user overrides (simulate default config).
+        default_options: dict = {"num_ctx": 8192}
+        preset_options = get_model_preset("qwen3:8b")
+        user_options: dict = {"num_ctx": 8192}
+        # No temperature/top_p/top_k overrides.
+        inference_options = {**default_options, **preset_options, **user_options}
+
+        client = OllamaClient("http://localhost:11434")
+        captured_payloads: list[dict[str, Any]] = []
+
+        def fake_stream(path: str, data: dict, timeout: int = 120):
+            captured_payloads.append(data)
+            yield from _dummy_stream_chunks()
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hello"},
+        ]
+
+        with patch.object(client, "_stream_request", side_effect=fake_stream):
+            agent_loop(client, "qwen3:8b", [], messages, options=inference_options)
+
+        self.assertEqual(len(captured_payloads), 1)
+        opts = captured_payloads[0]["options"]
+        # Qwen3 preset values should be present.
+        self.assertEqual(opts["temperature"], 0.6)
+        self.assertEqual(opts["top_p"], 0.95)
+        self.assertEqual(opts["top_k"], 20)
+        self.assertEqual(opts["num_ctx"], 8192)
+
+    def test_user_config_overrides_preset(self) -> None:
+        """Setting temperature in config overrides the qwen3 preset."""
+        from local_cli.model_presets import get_model_preset
+        from local_cli.ollama_client import OllamaClient
+
+        # Build options with user temperature=0.9 (overriding preset 0.6).
+        default_options: dict = {"num_ctx": 8192}
+        preset_options = get_model_preset("qwen3:8b")
+        user_options: dict = {"num_ctx": 8192, "temperature": 0.9}
+        inference_options = {**default_options, **preset_options, **user_options}
+
+        client = OllamaClient("http://localhost:11434")
+        captured_payloads: list[dict[str, Any]] = []
+
+        def fake_stream(path: str, data: dict, timeout: int = 120):
+            captured_payloads.append(data)
+            yield from _dummy_stream_chunks()
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hello"},
+        ]
+
+        with patch.object(client, "_stream_request", side_effect=fake_stream):
+            agent_loop(client, "qwen3:8b", [], messages, options=inference_options)
+
+        self.assertEqual(len(captured_payloads), 1)
+        opts = captured_payloads[0]["options"]
+        # User temperature should override preset.
+        self.assertEqual(opts["temperature"], 0.9)
+        # Other preset values should remain.
+        self.assertEqual(opts["top_p"], 0.95)
+        self.assertEqual(opts["top_k"], 20)
+
+    def test_think_mode_only_for_supported_models(self) -> None:
+        """think=True is only sent in the payload for models that support it."""
+        from local_cli.model_presets import SUPPORTS_THINKING, get_model_family
+        from local_cli.ollama_client import OllamaClient
+
+        client = OllamaClient("http://localhost:11434")
+        captured_payloads: list[dict[str, Any]] = []
+
+        def fake_stream(path: str, data: dict, timeout: int = 120):
+            captured_payloads.append(data)
+            yield from _dummy_stream_chunks()
+
+        # --- qwen3:8b supports thinking ---
+        family = get_model_family("qwen3:8b")
+        self.assertIn(family, SUPPORTS_THINKING)
+        think_qwen = True  # would be set by server/cli code
+
+        with patch.object(client, "_stream_request", side_effect=fake_stream):
+            # Call chat_stream directly to test the payload building.
+            for _ in client.chat_stream(
+                "qwen3:8b",
+                [{"role": "user", "content": "Hi"}],
+                think=think_qwen,
+            ):
+                pass
+
+        self.assertEqual(len(captured_payloads), 1)
+        self.assertIn("think", captured_payloads[0])
+        self.assertTrue(captured_payloads[0]["think"])
+
+        # --- llama3.2 does NOT support thinking ---
+        captured_payloads.clear()
+        family_llama = get_model_family("llama3.2:latest")
+        think_llama = (
+            True
+            if family_llama is not None and family_llama in SUPPORTS_THINKING
+            else None
+        )
+        # llama family is not in SUPPORTS_THINKING, so think should be None.
+        self.assertIsNone(think_llama)
+
+        with patch.object(client, "_stream_request", side_effect=fake_stream):
+            for _ in client.chat_stream(
+                "llama3.2:latest",
+                [{"role": "user", "content": "Hi"}],
+                think=think_llama,
+            ):
+                pass
+
+        self.assertEqual(len(captured_payloads), 1)
+        # When think=None, it should NOT appear in the payload.
+        self.assertNotIn("think", captured_payloads[0])
+
+    def test_unknown_model_gets_default_preset(self) -> None:
+        """An unknown model family gets safe default preset values."""
+        from local_cli.model_presets import get_model_preset
+        from local_cli.ollama_client import OllamaClient
+
+        default_options: dict = {"num_ctx": 8192}
+        preset_options = get_model_preset("unknown-model:latest")
+        user_options: dict = {"num_ctx": 8192}
+        inference_options = {**default_options, **preset_options, **user_options}
+
+        client = OllamaClient("http://localhost:11434")
+        captured_payloads: list[dict[str, Any]] = []
+
+        def fake_stream(path: str, data: dict, timeout: int = 120):
+            captured_payloads.append(data)
+            yield from _dummy_stream_chunks()
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "Hello"},
+        ]
+
+        with patch.object(client, "_stream_request", side_effect=fake_stream):
+            agent_loop(
+                client, "unknown-model:latest", [], messages,
+                options=inference_options,
+            )
+
+        self.assertEqual(len(captured_payloads), 1)
+        opts = captured_payloads[0]["options"]
+        # Default preset values for unknown models.
+        self.assertEqual(opts["temperature"], 0.7)
+        self.assertEqual(opts["num_ctx"], 8192)
+
+
+class TestParseToolCall(unittest.TestCase):
+    """Tests for parse_tool_call — the shared tool-call normalizer."""
+
+    def test_dict_arguments_passthrough(self) -> None:
+        """Arguments already shaped as a dict are returned unchanged."""
+        tc = {
+            "function": {"name": "read", "arguments": {"file_path": "/x"}},
+            "id": "call_1",
+        }
+        name, args, call_id = parse_tool_call(tc)
+        self.assertEqual(name, "read")
+        self.assertEqual(args, {"file_path": "/x"})
+        self.assertEqual(call_id, "call_1")
+
+    def test_json_string_arguments_parsed(self) -> None:
+        """Arguments encoded as a JSON string are parsed into a dict."""
+        tc = {"function": {"name": "edit", "arguments": '{"old": "a", "new": "b"}'}}
+        name, args, call_id = parse_tool_call(tc)
+        self.assertEqual(name, "edit")
+        self.assertEqual(args, {"old": "a", "new": "b"})
+        self.assertIsNone(call_id)
+
+    def test_malformed_json_string_becomes_empty(self) -> None:
+        """A non-parseable JSON string degrades to an empty dict."""
+        tc = {"function": {"name": "bash", "arguments": "{not valid json"}}
+        name, args, _ = parse_tool_call(tc)
+        self.assertEqual(name, "bash")
+        self.assertEqual(args, {})
+
+    def test_non_dict_arguments_become_empty(self) -> None:
+        """Arguments that parse to a non-dict (e.g. a JSON list) degrade to {}."""
+        tc = {"function": {"name": "bash", "arguments": "[1, 2, 3]"}}
+        _, args, _ = parse_tool_call(tc)
+        self.assertEqual(args, {})
+
+    def test_missing_function_yields_empty(self) -> None:
+        """An empty tool call yields an empty name/args and no id."""
+        name, args, call_id = parse_tool_call({})
+        self.assertEqual(name, "")
+        self.assertEqual(args, {})
+        self.assertIsNone(call_id)
+
+
+class TestRunTool(unittest.TestCase):
+    """Tests for run_tool — the shared tool dispatcher."""
+
+    def test_known_tool_executes(self) -> None:
+        """A known tool is executed and its result returned."""
+        tool = _DummyTool(name="dummy", result="done")
+        result = run_tool("dummy", {"arg": "x"}, {"dummy": tool})
+        self.assertEqual(result, "done")
+
+    def test_unknown_tool_returns_error(self) -> None:
+        """An unknown tool name returns an explicit error string."""
+        result = run_tool("nope", {}, {})
+        self.assertEqual(result, "Error: unknown tool 'nope'")
+
+    def test_tool_exception_becomes_error_string(self) -> None:
+        """A tool that raises is converted to an 'Error: ...' string."""
+        tool = _DummyTool(name="boom", side_effect=ValueError("bad"))
+        result = run_tool("boom", {}, {"boom": tool})
+        self.assertTrue(result.startswith("Error: ValueError"))
+        self.assertIn("bad", result)
+
+    def test_resolves_near_miss_name(self) -> None:
+        """run_tool resolves an aliased name and runs the real tool."""
+        tool = _DummyTool(name="write", result="written")
+        result = run_tool("write_file", {"x": 1}, {"write": tool})
+        self.assertEqual(result, "written")
+
+    def test_normalizes_arguments_before_dispatch(self) -> None:
+        """run_tool renames alias arg keys to the tool's canonical keys."""
+        captured: dict = {}
+
+        class _Capture(_DummyTool):
+            def execute(self, **kwargs: object) -> str:
+                captured.update(kwargs)
+                return "ok"
+
+        tool = _Capture(name="write")
+        run_tool("write_file", {"path": "/a", "text": "hi"}, {"write": tool})
+        self.assertEqual(captured, {"file_path": "/a", "content": "hi"})
+
+
+class TestResolveToolName(unittest.TestCase):
+    """Tests for resolve_tool_name — near-miss tool name resolution."""
+
+    def setUp(self) -> None:
+        self.tool_map = {
+            name: _DummyTool(name=name)
+            for name in ("write", "read", "bash", "grep", "web_fetch", "todo_write")
+        }
+
+    def test_exact_match(self) -> None:
+        self.assertEqual(resolve_tool_name("write", self.tool_map), "write")
+
+    def test_known_alias(self) -> None:
+        self.assertEqual(resolve_tool_name("write_file", self.tool_map), "write")
+        self.assertEqual(resolve_tool_name("run", self.tool_map), "bash")
+        self.assertEqual(resolve_tool_name("search", self.tool_map), "grep")
+
+    def test_case_and_separator_insensitive(self) -> None:
+        self.assertEqual(resolve_tool_name("WebFetch", self.tool_map), "web_fetch")
+        self.assertEqual(resolve_tool_name("web-fetch", self.tool_map), "web_fetch")
+        self.assertEqual(resolve_tool_name("TODO_WRITE", self.tool_map), "todo_write")
+
+    def test_create_file_alias(self) -> None:
+        self.assertEqual(resolve_tool_name("create_file", self.tool_map), "write")
+
+    def test_unresolvable_returns_none(self) -> None:
+        self.assertIsNone(resolve_tool_name("frobnicate", self.tool_map))
+
+    def test_alias_target_absent_returns_none(self) -> None:
+        # 'subagent' aliases 'agent', which isn't in this tool_map.
+        self.assertIsNone(resolve_tool_name("subagent", self.tool_map))
+
+
+class TestNormalizeArguments(unittest.TestCase):
+    """Tests for normalize_arguments — argument-key alias resolution."""
+
+    def test_renames_alias_keys(self) -> None:
+        args = normalize_arguments("write", {"path": "/a", "text": "hi"})
+        self.assertEqual(args, {"file_path": "/a", "content": "hi"})
+
+    def test_canonical_key_wins_over_alias(self) -> None:
+        # When the canonical key is already present, the alias is left as-is.
+        args = normalize_arguments(
+            "write", {"file_path": "/correct", "path": "/wrong"},
+        )
+        self.assertEqual(args["file_path"], "/correct")
+
+    def test_edit_aliases(self) -> None:
+        args = normalize_arguments(
+            "edit", {"file": "/f", "old": "a", "new": "b"},
+        )
+        self.assertEqual(args, {"file_path": "/f", "old_text": "a", "new_text": "b"})
+
+    def test_bash_alias(self) -> None:
+        self.assertEqual(
+            normalize_arguments("bash", {"cmd": "ls"}), {"command": "ls"},
+        )
+
+    def test_unknown_tool_unchanged(self) -> None:
+        self.assertEqual(normalize_arguments("mystery", {"foo": 1}), {"foo": 1})
+
+    def test_non_dict_unchanged(self) -> None:
+        self.assertEqual(normalize_arguments("write", "notadict"), "notadict")
+
+
+class TestShouldNudgeToUseTools(unittest.TestCase):
+    """Tests for the 'use the tools' nudge heuristic."""
+
+    @staticmethod
+    def _user(text: str) -> list:
+        return [{"role": "user", "content": text}]
+
+    def test_fires_on_code_only_build_request(self) -> None:
+        msgs = self._user("create a hello.py script")
+        asst = {"role": "assistant", "content": "Here:\n```python\nprint(1)\n```"}
+        self.assertTrue(_should_nudge_to_use_tools(msgs, asst, False))
+
+    def test_suppressed_when_already_nudged(self) -> None:
+        msgs = self._user("create a hello.py script")
+        asst = {"role": "assistant", "content": "```python\nprint(1)\n```"}
+        self.assertFalse(_should_nudge_to_use_tools(msgs, asst, True))
+
+    def test_suppressed_without_code_fence(self) -> None:
+        msgs = self._user("create a hello.py script")
+        asst = {"role": "assistant", "content": "I created the file."}
+        self.assertFalse(_should_nudge_to_use_tools(msgs, asst, False))
+
+    def test_suppressed_without_build_keyword(self) -> None:
+        msgs = self._user("explain how this code works")
+        asst = {"role": "assistant", "content": "```python\nprint(1)\n```"}
+        self.assertFalse(_should_nudge_to_use_tools(msgs, asst, False))
+
+    def test_suppressed_when_file_written_this_turn(self) -> None:
+        msgs = [
+            {"role": "user", "content": "create hello.py"},
+            {"role": "assistant", "content": "",
+             "tool_calls": [{"function": {"name": "write"}}]},
+            {"role": "tool", "tool_name": "write", "content": "wrote"},
+        ]
+        asst = {"role": "assistant", "content": "Done:\n```python\nprint(1)\n```"}
+        self.assertFalse(_should_nudge_to_use_tools(msgs, asst, False))
+
+    def test_japanese_build_keyword(self) -> None:
+        msgs = self._user("hello.py を作って")
+        asst = {"role": "assistant", "content": "```python\nprint(1)\n```"}
+        self.assertTrue(_should_nudge_to_use_tools(msgs, asst, False))
+
+    def test_substring_false_positive_suppressed(self) -> None:
+        # "address" contains "add", "prefix" contains "fix" — must NOT nudge.
+        msgs = self._user("explain the address parsing in this prefix code")
+        asst = {"role": "assistant", "content": "```python\nx=1\n```"}
+        self.assertFalse(_should_nudge_to_use_tools(msgs, asst, False))
+
+    def test_whole_word_keyword_still_fires(self) -> None:
+        msgs = self._user("fix the bug in main")
+        asst = {"role": "assistant", "content": "```python\nx=1\n```"}
+        self.assertTrue(_should_nudge_to_use_tools(msgs, asst, False))
+
+
+class TestAgentLoopNudge(unittest.TestCase):
+    """Integration: agent_loop nudges once on a code-only build answer."""
+
+    def test_nudges_then_completes(self) -> None:
+        client = MagicMock()
+        chunks1 = _make_chunks(["```python\nprint(1)\n```"])  # code, no tool
+        chunks2 = _make_chunks(["No file change needed."])     # plain → done
+        client.chat_stream.side_effect = [iter(chunks1), iter(chunks2)]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "create a script"},
+        ]
+        agent_loop(client, "m", [], messages)
+
+        nudges = [
+            m for m in messages
+            if m.get("role") == "user" and "did not create" in m.get("content", "")
+        ]
+        self.assertEqual(len(nudges), 1)
+        self.assertEqual(client.chat_stream.call_count, 2)
+
+    def test_no_nudge_on_plain_explanation(self) -> None:
+        client = MagicMock()
+        chunks1 = _make_chunks(["```python\nprint(1)\n```"])
+        client.chat_stream.side_effect = [iter(chunks1)]
+
+        messages: list[dict[str, Any]] = [
+            {"role": "user", "content": "explain this snippet"},
+        ]
+        agent_loop(client, "m", [], messages)
+
+        nudges = [
+            m for m in messages
+            if m.get("role") == "user" and "did not create" in m.get("content", "")
+        ]
+        self.assertEqual(len(nudges), 0)
+        self.assertEqual(client.chat_stream.call_count, 1)
+
+
+class TestAgentLoopAliasIntegration(unittest.TestCase):
+    """End-to-end: a near-miss tool name + alias arg keys still write a file.
+
+    agent_loop dispatches via its own cache path (not run_tool), so this
+    verifies that resolve_tool_name + normalize_arguments are correctly
+    wired into the loop and a real WriteTool actually runs.
+    """
+
+    def test_near_miss_write_actually_writes_file(self) -> None:
+        import os
+        import tempfile
+
+        from local_cli.tools.write_tool import WriteTool
+
+        fd, path = tempfile.mkstemp(suffix=".txt")
+        os.close(fd)
+        try:
+            # The model emits a near-miss name ("write_file") and alias arg
+            # keys ("path"/"text") rather than write / file_path / content.
+            tc = [{
+                "function": {
+                    "name": "write_file",
+                    "arguments": {"path": path, "text": "hello from alias"},
+                },
+                "id": "c1",
+            }]
+            client = MagicMock()
+            client.chat_stream.side_effect = [
+                iter(_make_chunks([""], tool_calls=tc)),
+                iter(_make_chunks(["done"])),
+            ]
+
+            messages: list[dict[str, Any]] = [
+                {"role": "user", "content": "write the file"},
+            ]
+            agent_loop(client, "m", [WriteTool()], messages)
+
+            with open(path, encoding="utf-8") as f:
+                self.assertEqual(f.read(), "hello from alias")
+        finally:
+            if os.path.exists(path):
+                os.unlink(path)
+
+
+if __name__ == "__main__":
+    unittest.main()

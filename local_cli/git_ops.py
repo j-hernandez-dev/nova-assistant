@@ -1,0 +1,455 @@
+"""Git checkpoint and rollback operations for local-cli.
+
+Provides :class:`GitOps` for creating tagged checkpoint commits and
+rolling back to previous checkpoints.  Uses ``subprocess.run`` with
+``['git', ...]`` for all git operations.
+"""
+
+import subprocess
+from datetime import datetime, timezone
+from local_cli.git_capability import GitCapability, detect_git_capability
+
+
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+
+# Prefix for auto-generated checkpoint tag names.
+_TAG_PREFIX = "local-cli-checkpoint-"
+
+
+# ---------------------------------------------------------------------------
+# Exceptions
+# ---------------------------------------------------------------------------
+
+
+class GitNotInstalledError(Exception):
+    """Raised when the ``git`` executable is not found."""
+
+
+class GitError(Exception):
+    """Raised when a git command fails."""
+
+
+# ---------------------------------------------------------------------------
+# GitOps
+# ---------------------------------------------------------------------------
+
+
+class GitOps:
+    """Git checkpoint and rollback operations.
+
+    Wraps common git commands via ``subprocess.run(['git', ...])`` to
+    provide checkpoint creation (tagged commits) and rollback
+    functionality.  All operations target the current working directory.
+
+    Example::
+
+        ops = GitOps()
+        if ops.is_git_repo():
+            tag = ops.create_checkpoint("before refactor")
+            # ... make risky changes ...
+            ops.rollback_to_checkpoint(tag)
+    """
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _check_git_available(self) -> None:
+        """Verify that ``git`` is installed and accessible.
+
+        Raises:
+            GitNotInstalledError: If ``git`` is not found on the system.
+        """
+        if self.capability() is GitCapability.UNAVAILABLE:
+            raise GitNotInstalledError(
+                "git is not installed or not found in PATH. "
+                "Install git to use checkpoint/rollback features."
+            )
+
+    def _run_git(self, *args: str) -> subprocess.CompletedProcess[str]:
+        """Run a git command and return the result.
+
+        Args:
+            *args: Arguments to pass to ``git`` (e.g. ``'status'``,
+                ``'--porcelain'``).
+
+        Returns:
+            The completed process result.
+
+        Raises:
+            GitNotInstalledError: If git is not available.
+            GitError: If the git command exits with a non-zero status.
+        """
+        self._check_git_available()
+
+        try:
+            result = subprocess.run(
+                ["git", *args], capture_output=True, text=True, timeout=30,
+            )
+        except FileNotFoundError as exc:
+            raise GitNotInstalledError("git is not installed or not found in PATH.") from exc
+
+        if result.returncode != 0:
+            stderr = result.stderr.strip()
+            raise GitError(
+                f"git {' '.join(args)} failed: {stderr}"
+            )
+
+        return result
+
+    def _generate_tag_name(self) -> str:
+        """Generate a unique checkpoint tag name based on the current time.
+
+        Format: ``local-cli-checkpoint-YYYYMMDD-HHMMSS-ffffff`` (UTC).
+        Includes microseconds to avoid collisions on rapid calls.
+
+        Returns:
+            A tag name string.
+        """
+        now = datetime.now(timezone.utc)
+        timestamp = now.strftime("%Y%m%d-%H%M%S-%f")
+        return f"{_TAG_PREFIX}{timestamp}"
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def capability(self) -> GitCapability:
+        return detect_git_capability()
+
+    def is_git_repo(self) -> bool:
+        """Check whether the current working directory is inside a git repo.
+
+        Returns:
+            True if the cwd is inside a git repository, False otherwise.
+            Also returns False if git is not installed.
+        """
+        return self.capability() is GitCapability.AVAILABLE_REPOSITORY
+
+    def create_checkpoint(self, message: str = "") -> str:
+        """Stage all changes and create a tagged checkpoint commit.
+
+        Stages all tracked and untracked files (``git add -A``), creates
+        a commit, and tags it with an auto-generated tag name.
+
+        If there are no changes to commit, creates an empty commit so
+        that the checkpoint tag still marks a known state.
+
+        Args:
+            message: Optional message to include in the commit.  If empty,
+                a default checkpoint message is used.
+
+        Returns:
+            The tag name of the created checkpoint.
+
+        Raises:
+            GitNotInstalledError: If git is not available.
+            GitError: If a git command fails.
+        """
+        tag_name = self._generate_tag_name()
+
+        commit_message = message if message else f"Checkpoint: {tag_name}"
+
+        # Stage all changes.
+        self._run_git("add", "-A")
+
+        # Create commit (allow empty in case there are no changes).
+        try:
+            self._run_git("commit", "-m", commit_message)
+        except GitError:
+            # If commit fails (e.g. nothing to commit), create an empty
+            # commit so the tag still marks a point in history.
+            self._run_git("commit", "--allow-empty", "-m", commit_message)
+
+        # Tag the commit.
+        self._run_git("tag", tag_name)
+
+        return tag_name
+
+    def undo_last_change(self, confirmed: bool = False) -> str:
+        """Undo the most recent file modifications using git checkout HEAD.
+
+        Reverts both staged and unstaged changes to tracked files.
+        Does NOT remove untracked (new) files — includes a note in the
+        summary if untracked files exist.
+
+        If more than 3 files are affected and *confirmed* is ``False``,
+        returns a preview summary listing the files without reverting,
+        so the caller can prompt for confirmation.
+
+        Args:
+            confirmed: When ``True``, always perform the revert even if
+                more than 3 files are affected.  When ``False`` (default),
+                returns a confirmation-needed message if >3 files.
+
+        Returns:
+            A human-readable summary of what was (or would be) undone.
+
+        Raises:
+            GitNotInstalledError: If git is not available.
+            GitError: If a git command fails.
+        """
+        # Collect unstaged changes.
+        unstaged_result = self._run_git("diff", "--name-only")
+        unstaged_files = [
+            f.strip()
+            for f in unstaged_result.stdout.splitlines()
+            if f.strip()
+        ]
+
+        # Collect staged changes.
+        staged_result = self._run_git("diff", "--name-only", "--cached")
+        staged_files = [
+            f.strip()
+            for f in staged_result.stdout.splitlines()
+            if f.strip()
+        ]
+
+        # Combine unique changed files (preserving order).
+        seen: set[str] = set()
+        changed_files: list[str] = []
+        for f in unstaged_files + staged_files:
+            if f not in seen:
+                seen.add(f)
+                changed_files.append(f)
+
+        # Check for untracked files.
+        untracked_result = self._run_git(
+            "ls-files", "--others", "--exclude-standard"
+        )
+        untracked_files = [
+            f.strip()
+            for f in untracked_result.stdout.splitlines()
+            if f.strip()
+        ]
+
+        # Nothing to undo.
+        if not changed_files:
+            msg = "No changes to undo."
+            if untracked_files:
+                msg += (
+                    f"\nNote: {len(untracked_files)} untracked file(s) exist"
+                    " (not removed by undo)."
+                )
+            return msg
+
+        # Confirmation check for >3 files.
+        if len(changed_files) > 3 and not confirmed:
+            file_list = "\n".join(f"  {f}" for f in changed_files)
+            msg = (
+                f"{len(changed_files)} files have changes:\n"
+                f"{file_list}\n"
+                "Run with confirmation to revert all."
+            )
+            if untracked_files:
+                msg += (
+                    f"\nNote: {len(untracked_files)} untracked file(s) exist"
+                    " (not removed by undo)."
+                )
+            return msg
+
+        # Revert all changed files to HEAD.
+        self._run_git("checkout", "HEAD", "--", *changed_files)
+
+        # Build summary.
+        file_list = "\n".join(f"  {f}" for f in changed_files)
+        msg = f"Reverted {len(changed_files)} file(s):\n{file_list}"
+        if untracked_files:
+            msg += (
+                f"\nNote: {len(untracked_files)} untracked file(s) exist"
+                " (not removed by undo)."
+            )
+        return msg
+
+    def diff_working_tree(
+        self,
+        color: bool = True,
+        max_lines: int = 500,
+    ) -> str:
+        """Generate a unified diff of all uncommitted changes.
+
+        Collects modified (unstaged + staged) and untracked files, then
+        produces a unified diff using :mod:`local_cli.diff_preview`.
+        Binary files are represented with a placeholder string.
+
+        Args:
+            color: Whether to apply ANSI colour codes to the output.
+            max_lines: Maximum number of output lines before truncation.
+                Set to ``0`` to disable truncation.
+
+        Returns:
+            A formatted diff string, or a message indicating no changes.
+
+        Raises:
+            GitNotInstalledError: If git is not available.
+            GitError: If a git command fails unexpectedly.
+        """
+        from local_cli.diff_preview import (
+            binary_file_placeholder,
+            generate_multi_file_diff,
+            is_binary_content,
+        )
+
+        # Collect unstaged changes.
+        unstaged_result = self._run_git("diff", "--name-only")
+        unstaged_files = [
+            f.strip()
+            for f in unstaged_result.stdout.splitlines()
+            if f.strip()
+        ]
+
+        # Collect staged changes.
+        staged_result = self._run_git("diff", "--name-only", "--cached")
+        staged_files = [
+            f.strip()
+            for f in staged_result.stdout.splitlines()
+            if f.strip()
+        ]
+
+        # Collect untracked files.
+        untracked_result = self._run_git(
+            "ls-files", "--others", "--exclude-standard"
+        )
+        untracked_files = [
+            f.strip()
+            for f in untracked_result.stdout.splitlines()
+            if f.strip()
+        ]
+        untracked_set: set[str] = set(untracked_files)
+
+        # Combine unique changed files (preserving order).
+        seen: set[str] = set()
+        changed_files: list[str] = []
+        for f in unstaged_files + staged_files + untracked_files:
+            if f not in seen:
+                seen.add(f)
+                changed_files.append(f)
+
+        if not changed_files:
+            return "No uncommitted changes."
+
+        # Build file_changes for the diff generator.
+        file_changes: list[tuple[str, list[str], list[str]]] = []
+        binary_parts: list[str] = []
+
+        for file_path in changed_files:
+            # Read current working tree version as raw bytes.
+            try:
+                with open(file_path, "rb") as fh:
+                    current_bytes = fh.read()
+            except (FileNotFoundError, OSError):
+                # File was deleted from the working tree.
+                current_bytes = b""
+
+            # Check if current version is binary.
+            if current_bytes and is_binary_content(current_bytes):
+                binary_parts.append(binary_file_placeholder(file_path))
+                continue
+
+            # Determine HEAD version.
+            if file_path in untracked_set:
+                # New untracked file — no HEAD version.
+                head_lines: list[str] = []
+            else:
+                try:
+                    head_result = self._run_git(
+                        "show", f"HEAD:{file_path}"
+                    )
+                    head_lines = head_result.stdout.splitlines()
+                except GitError:
+                    # File may not exist in HEAD (newly added to index).
+                    head_lines = []
+                except UnicodeDecodeError:
+                    # HEAD version is binary.
+                    binary_parts.append(
+                        binary_file_placeholder(file_path)
+                    )
+                    continue
+
+            # Decode current bytes to text lines.
+            try:
+                current_text = current_bytes.decode("utf-8")
+            except UnicodeDecodeError:
+                current_text = current_bytes.decode(
+                    "utf-8", errors="replace"
+                )
+
+            current_lines = current_text.splitlines()
+
+            file_changes.append((file_path, head_lines, current_lines))
+
+        # Generate the combined diff.
+        diff_output = generate_multi_file_diff(
+            file_changes, color=color, max_lines=max_lines
+        )
+
+        # Append binary file placeholders.
+        if binary_parts:
+            diff_output += "".join(binary_parts)
+
+        if not diff_output:
+            return "No uncommitted changes."
+
+        return diff_output
+
+    def rollback_to_checkpoint(self, tag: str) -> None:
+        """Roll back the repository to a checkpoint tag.
+
+        Performs a hard reset (``git reset --hard <tag>``) to restore
+        the working directory to the state at the given checkpoint.
+
+        Args:
+            tag: The checkpoint tag name to roll back to.
+
+        Raises:
+            GitNotInstalledError: If git is not available.
+            GitError: If the tag does not exist or the reset fails.
+        """
+        # Verify the tag exists.
+        try:
+            self._run_git("rev-parse", tag)
+        except GitError:
+            raise GitError(f"Checkpoint tag '{tag}' not found.")
+
+        self._run_git("reset", "--hard", tag)
+
+    def list_checkpoints(self) -> list[str]:
+        """List available checkpoint tags.
+
+        Returns tags matching the ``local-cli-checkpoint-*`` pattern,
+        sorted newest first (lexicographic descending on the timestamp
+        portion).
+
+        Returns:
+            A list of checkpoint tag name strings.  Returns an empty
+            list if git is not available or the cwd is not a git repo.
+        """
+        try:
+            self._check_git_available()
+        except GitNotInstalledError:
+            return []
+
+        try:
+            result = subprocess.run(
+                ["git", "tag", "-l", f"{_TAG_PREFIX}*"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            return []
+
+        if result.returncode != 0:
+            return []
+
+        tags = [
+            line.strip()
+            for line in result.stdout.splitlines()
+            if line.strip()
+        ]
+
+        # Sort descending (newest first by timestamp in tag name).
+        tags.sort(reverse=True)
+        return tags

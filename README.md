@@ -1,0 +1,473 @@
+<p align="center">
+  <img src="assets/banner.svg" alt="local-cli" width="700"/>
+</p>
+
+<p align="center">
+  <strong>Local-first AI coding agent. Zero dependencies. Runs entirely on your machine.</strong>
+</p>
+
+<p align="center">
+  <a href="#download">Download</a> &nbsp;·&nbsp;
+  <a href="#features">Features</a> &nbsp;·&nbsp;
+  <a href="#desktop-app">Desktop App</a> &nbsp;·&nbsp;
+  <a href="#cli-usage">CLI Usage</a> &nbsp;·&nbsp;
+  <a href="#configuration">Configuration</a>
+</p>
+
+---
+
+<p align="center">
+  <img src="assets/demo.gif" alt="Local CLI in action" width="700"/>
+</p>
+
+<p align="center">
+  <img src="assets/demo-2048.gif" alt="Building 2048 with Local CLI" width="700"/>
+</p>
+<p align="center"><em>AI agent autonomously creates a 2048 game — write tool in action</em></p>
+
+<p align="center">
+  <img src="assets/demo-2048-solver.gif" alt="AI creating a 2048 solver" width="700"/>
+</p>
+<p align="center"><em>AI builds a 2048 solver with 3 strategies and benchmarks them</em></p>
+
+<p align="center">
+  <img src="assets/demo-2048-compare.gif" alt="3 AI strategies playing 2048 side by side" width="700"/>
+</p>
+<p align="center"><em>3 AI strategies compared: Random vs Heuristic vs Lookahead — game over side by side</em></p>
+
+---
+
+## What is this?
+
+Local CLI is an AI coding agent that runs locally using [Ollama](https://ollama.com). It can read, write, and edit files, run shell commands, search code, and fetch web pages — all through natural language.
+
+It also supports [Claude API](https://console.anthropic.com/) as an alternative provider, with seamless runtime switching between local and cloud models.
+
+Think of it as a local, offline-capable alternative to cloud-based AI coding assistants.
+
+---
+
+## Features
+
+### Agent Loop
+The LLM autonomously calls tools to complete tasks. It reads files, writes code, runs commands, and iterates until the task is done — no manual step-by-step prompting required.
+
+### Deterministic Harness
+A single unified loop (shared by the CLI, server, web monitor, and sub-agents) wraps the model with deterministic interventions that repair the failure modes of small local models — so a 1-9B model can sustain agentic sessions that would otherwise need a frontier model:
+
+| Intervention | What it fixes |
+|--------------|---------------|
+| **Text tool-call rescue** | Models that print their tool call as text instead of a structured call still act — `<tool_call>` tags, fenced JSON, bare JSON, inlined arguments (`{"name": "write", "file_path": ...}`), tool-name-as-key (`{"write": {...}}`), and Python call syntax (`write(file_path=...)`) |
+| **No-tool-support fallback** | Models whose endpoint rejects `tools` entirely (e.g. Japanese-specialized models) are taught a fenced-JSON call format and driven by text — they still work as agents |
+| **Tool-name / argument repair** | Near-miss names (`write_file` → `write`, `run` → `bash`) and keys (`path` → `file_path`) are resolved instead of erroring |
+| **Loop detection** | Repeated identical calls draw a corrective reminder, then a forced wrap-up — no more infinite retry loops |
+| **Post-write verification** | `.py`/`.json`/`.toml` files are syntax-checked immediately after write/edit, and unresolved merge-conflict markers are flagged in files of any type; errors are fed straight back to the model |
+| **Finish guards** | An empty reply, or finishing right after a failed tool call — including a bash command that exited non-zero (`[exit code: N]`) — draws one deterministic push-back instead of ending the turn half-done |
+| **Read-before-edit gate** | An `edit` of an existing file that nothing has read in the conversation is deferred once — a blind `old_text` is a guess that never matches. Files the model has read (or itself wrote) pass straight through |
+| **Edit recovery hints** | A failed `edit` shows the closest matching block from the file (with line numbers) so the next attempt copies the exact text |
+| **Todo staleness reminders** | A half-finished todo list is re-surfaced so multi-step work is not silently abandoned |
+| **Step limit** | After `max_iterations` the model gets one tool-free turn to summarize instead of running forever |
+| **Overload retry** | HTTP 503s retry with exponential backoff |
+| **Context compaction** | Truncation (default) or LLM summarization (`compact_mode=summarize`) with automatic fallback |
+
+### 10 Built-in Tools
+
+| Tool | Description |
+|------|-------------|
+| `bash` | Run commands in the host-selected shell; the public name is kept for compatibility |
+| `read` | Read file contents with line numbers |
+| `write` | Create or overwrite files (with path validation) |
+| `edit` | Find-and-replace editing |
+| `glob` | Find files by pattern (`*.py`, `**/*.ts`) |
+| `grep` | Search file contents with regex |
+| `web_fetch` | Fetch and parse web pages |
+| `ask_user` | Ask the user a question |
+| `todo_write` | Track a structured task list (pending / in-progress / done) |
+| `agent` | Spawn sub-agents for parallel task execution |
+
+The command tool selects `pwsh.exe` then `powershell.exe` on Windows,
+`bash` then `sh` on Linux, and `zsh`, `bash`, then `sh` on macOS. It does
+not require Git Bash on Windows. If Git Bash is installed, a user can opt in
+with `--shell-backend git-bash` or `LOCAL_CLI_SHELL=git-bash`; the model
+cannot choose a different executable through a tool call. The system prompt
+reports the selected OS, shell, version, and capabilities. Risky commands
+retain their CLI/desktop confirmation flow; unattended sub-agents and the
+web monitor decline them unless auto-approval was explicitly selected.
+
+Git is a separate optional executable. Reading, editing, shell commands,
+the project map, and ordinary sub-agents work without it. Checkpoints,
+rollback, undo/diff, Git worktree isolation, and backend `git pull` updates
+require Git and report when it is unavailable.
+
+### Multi-Provider
+- **Ollama** — Local inference, no API key, full privacy
+- **Claude API** — Anthropic's cloud models (Opus, Sonnet, Haiku)
+- Switch providers at runtime with `/provider` command or the desktop UI
+
+### Model Management
+- **40+ curated models** across 6 categories: Code, General, Small, Reasoning, Japanese, Multilingual
+- **Live search** from ollama.com with filters (tools, vision, thinking, code)
+- Install, delete, and switch models from CLI or desktop app
+- Interactive TUI model picker (`/models` or `--select-model`)
+
+### RAG Engine
+Index your codebase for context-aware responses. Uses SQLite + embeddings with automatic re-indexing on file changes.
+
+### Git Checkpoints
+Create tagged snapshots before risky edits. Roll back instantly with `/rollback`.
+
+### Session Persistence
+Save conversations as JSONL files. Resume where you left off.
+
+### Conversation Autosave & Resume
+The conversation is autosaved after every turn, per project. Quitting
+the app no longer loses your chat: the CLI offers `/resume` on startup,
+and the desktop app shows a Restore button when the folder has a
+previous conversation (`/clear` discards it). Save happens *before* the
+done signal, so even an instant quit keeps the last turn.
+
+### Adaptive Context Window (grow-on-demand)
+`num_ctx` defaults to `auto` and grows with the conversation: it starts
+at a fast 8k floor and steps up (16k, 32k, capped by the model's native
+window and a RAM tier) only when the chat actually approaches the
+current window. Measured on qwen3.5:9b, a short turn runs ~2x faster at
+8k than at 32k, so blanket-maxing the window taxed every everyday turn
+for a working-memory benefit only large conversations use — grow-on-
+demand keeps short sessions fast and still gives long ones the room.
+Pin a fixed size with `LOCAL_CLI_NUM_CTX=<int>`.
+
+### Project Map
+A capped, sorted file listing (git-aware, 120 entries / 2KB max) is
+injected at session start, so small models start with exact paths
+instead of burning their first iterations exploring. Rebuilt on /clear,
+resume and folder change. Disable with `LOCAL_CLI_PROJECT_MAP=0`.
+
+### Project Instructions (LOCAL_CLI.md)
+Drop a `LOCAL_CLI.md` (or `AGENTS.md` / `CLAUDE.md`) into your project
+and it is injected into every session as system instructions — the
+per-project steering lever small models need most. Nearest directory
+wins, the lookup stops at the git root, content is clipped to 8KB.
+Live-verified: a filename mandate in LOCAL_CLI.md flips the model's
+output from its own choice to the mandated name. Disable with
+`LOCAL_CLI_PROJECT_INSTRUCTIONS=0`.
+
+### Session Transcripts (flight recorder)
+Every session is automatically recorded as JSONL under
+`~/.local/state/local-cli/projects/<cwd-slug>/` from the moment a folder
+is opened — user messages, tool calls, harness interventions, and
+per-turn visible/thinking character counts. A field failure can be
+diagnosed from the transcript alone. Disable with
+`LOCAL_CLI_SESSION_LOG=0`.
+
+### Security
+- Dangerous command blocking (`rm -rf /` and its variants, fork bombs, `dd` to a device, etc.)
+- Risky-command confirmation — recursive `rm`, `sudo`, force push, `kill`, `shutdown`, etc. prompt for approval in the REPL (pass `--yes` to auto-approve)
+- Environment sanitization (strips API keys, tokens from subprocesses)
+- Path traversal prevention
+- Ollama host validation (localhost only)
+
+### Desktop GUI
+Electron app with terminal-style UI, model picker, file explorer, and settings panel.
+
+### Zero Dependencies
+Python stdlib only. No `pip install` needed for the core CLI.
+
+### Mascot — Loca 🐈
+An optional terminal companion. Pass `--mascot` (or `LOCAL_CLI_MASCOT=cat`) and the spinner becomes Loca, the local cat, blinking on one line while it thinks:
+
+```
+  (=･ω･=)  Thinking...      (=-ω-=)  blink      (=･ω-=)  wink
+```
+
+Pass `--mascot pixel` for an animated pixel-art Loca — a five-row cat sprite (orange fur, pink ears and cheeks, big highlighted eyes, an ω mouth) that blinks and twitches its ears via ANSI cursor control. It automatically falls back to the one-line face when output is piped or not a TTY, so cursor codes never end up in your logs. Pure decoration, default off, still zero-dependency.
+
+---
+
+## Download
+
+### Desktop App (pre-built)
+
+Download the latest release from **[GitHub Releases](https://github.com/lutelute/local-cli/releases)**:
+
+| Platform | File |
+|----------|------|
+| macOS (Apple Silicon) | `Local CLI-x.x.x-arm64.dmg` |
+| Windows | `Local CLI Setup x.x.x.exe` |
+| Linux | `Local CLI-x.x.x.AppImage` |
+
+> [Ollama](https://ollama.com) must be installed and running on your machine.
+
+#### macOS: "App is damaged" warning
+
+The app is not code-signed. To allow it:
+
+```bash
+xattr -cr /Applications/Local\ CLI.app
+```
+
+Or: **System Settings > Privacy & Security > Open Anyway**.
+
+### CLI (from source)
+
+```bash
+# Core requirements: Python 3.10+ and Ollama; Git is needed to clone this example
+git clone https://github.com/lutelute/local-cli.git
+cd local-cli
+
+# Run directly
+python -m local_cli
+
+# Or install as a command
+pip install -e .
+local-cli
+```
+
+---
+
+## CLI Usage
+
+### Quick Start
+
+```bash
+# Default model (qwen3.5:9b-q4_K_M)
+local-cli
+
+# Choose a model at startup
+local-cli --select-model
+
+# Use a specific model
+local-cli --model qwen3:8b
+
+# Enable RAG for codebase-aware responses
+local-cli --rag --rag-path ./src
+
+# Use Claude API
+export ANTHROPIC_API_KEY=sk-ant-...
+local-cli --provider claude
+```
+
+### Slash Commands
+
+| Command | Description |
+|---------|-------------|
+| `/help` | Show available commands |
+| `/model <name>` | Switch model |
+| `/models` | Open interactive model selector (TUI) |
+| `/provider [name]` | Switch or show LLM provider |
+| `/status` | Show connection and model info |
+| `/install <model>` | Download a model from Ollama registry |
+| `/uninstall <model>` | Delete a model |
+| `/info <model>` | Show model details and capabilities |
+| `/running` | List models currently loaded in VRAM |
+| `/checkpoint [msg]` | Create a git checkpoint |
+| `/rollback [tag]` | Roll back to a checkpoint |
+| `/save` | Save current session |
+| `/brain [model]` | Set orchestrator brain model |
+| `/registry` | Show task-to-model routing |
+| `/update` | Check for and install updates |
+| `/agents` | List background sub-agent status |
+| `/plan` | Show, create, or manage structured plans |
+| `/ideate` | Enter brainstorming / ideation mode |
+| `/knowledge` | Save, load, or list knowledge items |
+| `/skills` | List or show discovered skills |
+| `/clear` | Clear conversation |
+| `/exit` | Quit |
+
+> See **[docs/prompts.md](docs/prompts.md)** for copy-paste prompt examples.
+
+---
+
+## Skills
+
+Local CLI has a skills system that auto-injects contextual instructions based on trigger keywords. Create `SKILL.md` files in `.agents/skills/` to encode team conventions, framework guides, or domain knowledge.
+
+```
+.agents/skills/
+├── django-api/
+│   └── SKILL.md      # triggers: [django, REST API, DRF]
+└── code-review/
+    └── SKILL.md      # triggers: [review, PR, code quality]
+```
+
+> See **[docs/skills.md](docs/skills.md)** for the full guide.
+
+---
+
+## Desktop App
+
+Terminal-style GUI with streaming chat, model management, and file browsing.
+
+### Features
+- **Streaming chat** with real-time tool call display
+- **Markdown rendering** — headings, code blocks, lists, tables and links render properly (zero-dependency renderer; text stays text nodes so output cannot inject markup; links open in the system browser)
+- **Harness intervention chips** — rescue / nudge / deliverable_nudge and friends show as purple chips instead of dead air
+- **Conversation restore bar** — reopen a folder and pick up the previous chat
+- **Thinking indicator** — see when the AI is processing
+- **Model picker** — Catalog (curated) + Discover (live search from ollama.com)
+- **Provider switching** — Toggle between Ollama and Claude
+- **File explorer** — Browse project files in the sidebar
+- **File viewer** — Preview files without leaving the app
+- **Settings panel** — App and backend updates, keyboard shortcuts
+- **Copyable output** — Select and copy any text from the terminal
+- **Stop generation** — Interrupt AI responses mid-stream
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd/Ctrl + ,` | Settings |
+| `Cmd/Ctrl + B` | Toggle file explorer |
+| `Escape` | Stop generation / Close dialog |
+| `Shift + Enter` | New line in input |
+| `Enter` | Send message |
+
+### Auto-Update
+
+The desktop app updates automatically on startup:
+
+1. Checks GitHub Releases for new versions
+2. Downloads the update in the background
+3. Closes the app, replaces itself, and relaunches — zero user interaction
+
+Manual update is also available from the Settings panel (`Cmd/Ctrl + ,`).
+
+### Run from Source
+
+```bash
+cd desktop
+npm install
+npm run dev          # Development mode (hot reload)
+```
+
+### Build Installers
+
+```bash
+cd desktop
+npm run build        # Build for current platform
+npm run build:mac    # macOS (.dmg + .zip)
+npm run build:win    # Windows (NSIS installer)
+npm run build:linux  # Linux (AppImage + .deb)
+```
+
+---
+
+## Configuration
+
+Configuration is resolved in order: **CLI flags > environment variables > config file > defaults**.
+
+| Flag | Env Var | Default | Description |
+|------|---------|---------|-------------|
+| `--model` | `LOCAL_CLI_MODEL` | `qwen3.5:9b-q4_K_M` | Model to use |
+| `--provider` | `LOCAL_CLI_PROVIDER` | `ollama` | LLM provider |
+| `--debug` | `LOCAL_CLI_DEBUG` | `false` | Debug output |
+| `--rag` | — | `false` | Enable RAG |
+| `--rag-path` | — | `.` | Directory to index |
+| `--rag-topk` | — | `5` | RAG results per query |
+| `--rag-model` | — | `all-minilm` | Embedding model |
+| `--select-model` | — | `false` | Interactive model picker |
+| `--server` | — | `false` | JSON-line server mode |
+| `--yes` / `-y` | — | `false` | Auto-approve risky commands (skip confirmation) |
+| `--update` | — | `false` | Check for updates now (git pull + reinstall) |
+| `--auto-update` | `LOCAL_CLI_AUTO_UPDATE` | `false` | Install available updates automatically on startup, then restart |
+| — | `LOCAL_CLI_COMPACT_MODE` | `truncate` | Context compaction: `truncate` or `summarize` |
+| — | `LOCAL_CLI_MAX_ITERATIONS` | `40` | Agent step limit per turn (`0` = unlimited) |
+| — | `LOCAL_CLI_SESSION_LOG` | `1` | Session transcripts (`0` disables). Written to `<state_dir>/projects/<cwd-slug>/` |
+| — | `LOCAL_CLI_PROJECT_INSTRUCTIONS` | `1` | Auto-inject project instruction files (`0` disables) |
+| — | `LOCAL_CLI_NUM_CTX` | `auto` | Context window: auto = per model x RAM (8k-32k); an integer pins it |
+| — | `LOCAL_CLI_PROJECT_MAP` | `1` | Inject the project file map at session start (`0` disables) |
+| `--mascot [style]` | `LOCAL_CLI_MASCOT` | `off` | Loca the local cat: `--mascot` for the one-line face `(=･ω･=)`, `--mascot pixel` for animated pixel art (TTY only; falls back to the face in pipes) |
+
+Config file location: `~/.config/local-cli/config` (key=value format).
+
+### Claude API
+
+Set the `ANTHROPIC_API_KEY` environment variable to enable Claude as a provider:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-api03-...
+local-cli --provider claude
+```
+
+Switch at runtime with `/provider claude` or `/provider ollama`.
+
+---
+
+## Recommended Models
+
+| Model | Size | Best For |
+|-------|------|----------|
+| `qwen3:8b` | 5.2 GB | General use, tool calling |
+| `qwen2.5-coder:7b` | 4.7 GB | Code generation |
+| `qwen3:30b` | 18.5 GB | Complex reasoning |
+| `deepseek-r1:14b` | 9.0 GB | Chain-of-thought |
+| `gemma3:12b` | 8.1 GB | Multilingual, Japanese |
+| `qwen3:0.6b` | 0.5 GB | Quick testing |
+
+**Agent-quality guidance** (measured with `scripts/harness_eval.py`): tool-trained models from ~4B up complete multi-step agent tasks reliably, in English and Japanese (qwen3.5:4b scored 7/7 on the eval suite). Sub-1B models handle simple create/run tasks but fail multi-step edits even with the harness pushing back. Chat-specialized models without tool training (e.g. Japanese conversation models) run via the text-driven fallback and manage single tool calls, but tend to go silent mid-task — prefer tool-trained models for real agent work.
+
+---
+
+## Architecture
+
+```
+local-cli/
+├── local_cli/
+│   ├── __main__.py              # Entry point (decomposed startup steps)
+│   ├── agent.py                 # Unified agent loop (run_agent + emitters)
+│   ├── harness.py               # Deterministic harness interventions
+│   ├── cli.py                   # REPL + slash commands
+│   ├── config.py                # Configuration (CLI > env > file > defaults)
+│   ├── server.py                # JSON-line server for desktop GUI
+│   ├── ollama_client.py         # Ollama REST API client
+│   ├── orchestrator.py          # Multi-provider orchestration
+│   ├── model_catalog.py         # 40+ curated models + cache
+│   ├── model_search.py          # Live search from ollama.com
+│   ├── model_manager.py         # Install / delete / info
+│   ├── model_registry.py        # Task-to-model routing
+│   ├── model_selector.py        # Interactive TUI picker
+│   ├── rag.py                   # RAG engine (SQLite + embeddings)
+│   ├── git_ops.py               # Git checkpoint / rollback
+│   ├── session.py               # Session persistence (JSONL)
+│   ├── security.py              # Input validation + sanitization
+│   ├── updater.py               # Self-update (git pull)
+│   ├── sub_agent.py             # Sub-agent runner (thread pool)
+│   ├── plan_manager.py          # Structured plan management
+│   ├── knowledge.py             # Persistent knowledge store
+│   ├── skills.py                # Skill discovery & matching
+│   ├── providers/
+│   │   ├── base.py              # Abstract LLMProvider
+│   │   ├── ollama_provider.py   # Ollama adapter
+│   │   ├── claude_provider.py   # Claude API adapter
+│   │   ├── message_converter.py # Format normalization
+│   │   └── sse_parser.py        # SSE streaming parser
+│   └── tools/                   # 10 agent tools
+│       ├── bash_tool.py         # Shell execution
+│       ├── read_tool.py         # File reading
+│       ├── write_tool.py        # File creation
+│       ├── edit_tool.py         # String replacement
+│       ├── glob_tool.py         # File pattern search
+│       ├── grep_tool.py         # Content search (regex)
+│       ├── web_fetch_tool.py    # URL fetching
+│       ├── ask_user_tool.py     # User prompts
+│       ├── todo_tool.py         # Structured task tracking
+│       └── agent_tool.py        # Sub-agent spawning
+├── desktop/                     # Electron + React + Vite
+│   ├── electron/                # Main process + preload
+│   ├── src/                     # React UI components
+│   └── build/                   # App icons
+├── tests/                       # 2351 tests
+└── pyproject.toml               # Zero dependencies
+```
+
+## Tests
+
+```bash
+python -m pytest tests/ -q
+# 2351 passed
+```
+
+---
+
+## License
+
+MIT

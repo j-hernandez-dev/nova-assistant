@@ -1,0 +1,1715 @@
+"""Argument parsing and interactive REPL for local-cli.
+
+Provides :func:`build_parser` for CLI argument parsing using ``argparse``,
+and :func:`run_repl` for the interactive read-eval-print loop.
+"""
+
+import argparse
+import readline  # noqa: F401 — imported for side-effect (line editing/history)
+import sys
+
+from local_cli import __version__
+from local_cli.agent import (
+    _COMPACT_MESSAGE_THRESHOLD,
+    _COMPACT_TOKEN_THRESHOLD,
+    _estimate_tokens,
+    _is_complex_request,
+    _needs_compaction,
+    agent_loop,
+    build_plan_context,
+    ideation_loop,
+)
+from local_cli.clipboard import (
+    ClipboardError,
+    ClipboardUnavailableError,
+    copy_to_clipboard,
+)
+from local_cli.config import Config
+from local_cli.git_ops import GitError, GitNotInstalledError, GitOps
+from local_cli.git_capability import GitCapability
+from local_cli.harness import HarnessConfig
+from local_cli.ideation import IdeationEngine
+from local_cli.knowledge import KnowledgeError, KnowledgeNotFoundError, KnowledgeStore
+from local_cli.model_presets import SUPPORTS_THINKING, get_model_family, get_model_preset
+from local_cli.ollama_client import OllamaClient, OllamaConnectionError
+from local_cli.plan_manager import PlanError, PlanManager, PlanNotFoundError
+from local_cli.prompts import build_skill_messages, build_system_prompt
+from local_cli.context_sizing import resolve_num_ctx
+from local_cli.conversation_store import ConversationStore
+from local_cli.project_instructions import (
+    build_instruction_message,
+    load_project_instructions,
+)
+from local_cli.project_map import project_map_message
+from local_cli.session import SessionManager
+from local_cli.session_log import SessionLogger
+from local_cli.skills import SkillsLoader
+from local_cli.spinner import set_spinner_style
+from local_cli.token_tracker import TokenTracker
+from local_cli.tool_cache import ToolCache
+from local_cli.tools.base import Tool
+
+# ---------------------------------------------------------------------------
+# Slash commands
+# ---------------------------------------------------------------------------
+
+_SLASH_COMMANDS: dict[str, str] = {
+    "/help": "Show this help message.",
+    "/exit": "Exit the REPL.",
+    "/quit": "Exit the REPL (alias for /exit).",
+    "/clear": "Clear conversation history.",
+    "/resume": "Restore this folder's last conversation.",
+    "/model <name>": "Switch to a different model.",
+    "/status": "Show current model, message count, connection status.",
+    "/save": "Save the current session.",
+    "/models": "Open interactive model selector.",
+    "/checkpoint": "Create a git checkpoint (tagged commit).",
+    "/rollback [tag]": "Roll back to a checkpoint (latest if no tag given).",
+    "/install <model>": "Pull/install a model from Ollama registry.",
+    "/uninstall <model>": "Delete a model from Ollama.",
+    "/info <model>": "Show model details and capabilities.",
+    "/running": "List models currently loaded in VRAM.",
+    "/provider [name]": "Switch or show the active LLM provider.",
+    "/brain [model]": "Set or show the orchestrator brain model.",
+    "/registry": "Show current model-to-task routing registry.",
+    "/update": "Check for updates and pull the latest version.",
+    "/undo": "Undo the most recent file modifications (git checkout).",
+    "/diff": "Show uncommitted changes in the working tree.",
+    "/context": "Show context window usage (messages, tokens, compaction).",
+    "/copy": "Copy last assistant response to clipboard.",
+    "/usage": "Show per-message token usage and session totals.",
+    "/agents": "List background sub-agent status.",
+    "/plan": "Show, create, or update plans.",
+    "/ideate": "Enter ideation (brainstorming) mode.",
+    "/knowledge": "Save, load, or list knowledge items.",
+    "/skills": "List or show discovered skills.",
+}
+
+
+class _ReplContext:
+    """Mutable state shared between the REPL loop and slash command handler.
+
+    Attributes:
+        config: Application configuration.
+        client: The Ollama client instance.
+        tools: Available tool instances.
+        messages: Conversation message history (mutated in place).
+        session_manager: Session persistence manager.
+        system_prompt: The system prompt string used to reset on /clear.
+        rag_engine: Optional RAG engine for context augmentation.
+        rag_topk: Number of RAG results per query.
+        git_ops: GitOps instance for checkpoint/rollback commands.
+        orchestrator: Optional orchestrator for provider/brain management.
+        model_manager: Optional model manager for install/delete operations.
+        token_tracker: Optional token usage tracker for /usage command.
+        tool_cache: Optional tool result cache for read/glob/grep caching.
+        sub_agent_runner: Optional SubAgentRunner for background agent
+            status queries.
+        plan_manager: Optional plan manager for plan CRUD operations.
+        knowledge_store: Optional knowledge store for persistent knowledge.
+        skills_loader: Optional skills loader for auto-discovered skills.
+        ideation_engine: Optional ideation engine for brainstorming mode.
+        active_plan_id: ID of the currently active plan (or None).
+        current_mode: Current REPL mode ('agent' or 'ideate').
+        ideation_messages: Separate message history for ideation mode.
+    """
+
+    __slots__ = (
+        "config",
+        "client",
+        "tools",
+        "messages",
+        "session_manager",
+        "system_prompt",
+        "rag_engine",
+        "rag_topk",
+        "git_ops",
+        "orchestrator",
+        "model_manager",
+        "token_tracker",
+        "tool_cache",
+        "sub_agent_runner",
+        "plan_manager",
+        "knowledge_store",
+        "skills_loader",
+        "ideation_engine",
+        "session_log",
+        "instruction_message",
+        "map_message",
+        "conversation_store",
+        "active_plan_id",
+        "current_mode",
+        "ideation_messages",
+    )
+
+    def __init__(
+        self,
+        config: Config,
+        client: OllamaClient,
+        tools: list[Tool],
+        messages: list[dict],
+        session_manager: SessionManager,
+        system_prompt: str,
+        rag_engine: object | None = None,
+        rag_topk: int = 5,
+        orchestrator: object | None = None,
+        model_manager: object | None = None,
+        token_tracker: object | None = None,
+        tool_cache: object | None = None,
+        sub_agent_runner: object | None = None,
+        plan_manager: PlanManager | None = None,
+        knowledge_store: KnowledgeStore | None = None,
+        skills_loader: SkillsLoader | None = None,
+        ideation_engine: IdeationEngine | None = None,
+        session_log: SessionLogger | None = None,
+        instruction_message: dict | None = None,
+        map_message: dict | None = None,
+        conversation_store: ConversationStore | None = None,
+    ) -> None:
+        self.config = config
+        self.client = client
+        self.tools = tools
+        self.messages = messages
+        self.session_manager = session_manager
+        self.system_prompt = system_prompt
+        self.rag_engine = rag_engine
+        self.rag_topk = rag_topk
+        self.git_ops = GitOps()
+        self.orchestrator = orchestrator
+        self.model_manager = model_manager
+        self.token_tracker = token_tracker
+        self.tool_cache = tool_cache
+        self.sub_agent_runner = sub_agent_runner
+        self.plan_manager = plan_manager
+        self.knowledge_store = knowledge_store
+        self.skills_loader = skills_loader
+        self.ideation_engine = ideation_engine
+        self.session_log = session_log
+        self.instruction_message = instruction_message
+        self.map_message = map_message
+        self.conversation_store = conversation_store
+        self.active_plan_id: str | None = None
+        self.current_mode: str = "agent"
+        self.ideation_messages: list[dict] = []
+
+
+def _handle_slash_command(command: str, ctx: _ReplContext) -> bool:
+    """Handle a slash command.
+
+    Args:
+        command: The raw user input starting with ``/``.
+        ctx: The REPL context containing shared state.
+
+    Returns:
+        True if the REPL should continue, False if it should exit.
+    """
+    stripped = command.strip()
+    parts = stripped.split(maxsplit=1)
+    cmd = parts[0].lower()
+
+    # -- /exit, /quit -------------------------------------------------------
+    if cmd in ("/exit", "/quit"):
+        print(
+            "(=^ω^=)ﾉｼ  Goodbye!" if ctx.config.mascot != "off"
+            else "Goodbye!"
+        )
+        return False
+
+    # -- /help --------------------------------------------------------------
+    if cmd == "/help":
+        print("\nAvailable commands:")
+        for name, description in _SLASH_COMMANDS.items():
+            print(f"  {name:<20} {description}")
+        print()
+        return True
+
+    # -- /clear -------------------------------------------------------------
+    if cmd == "/clear":
+        ctx.messages.clear()
+        ctx.messages.append({"role": "system", "content": ctx.system_prompt})
+        if ctx.instruction_message is not None:
+            ctx.messages.append(ctx.instruction_message)
+        # Fresh snapshot: files created during the conversation show up.
+        ctx.map_message = project_map_message()
+        if ctx.map_message is not None:
+            ctx.messages.append(ctx.map_message)
+        if ctx.session_log is not None:
+            # A cleared conversation is a new session — new transcript.
+            ctx.session_log.log("cleared")
+            ctx.session_log.rotate()
+            ctx.session_log.log_session_start(
+                model=ctx.config.model, frontend="cli", reason="clear",
+            )
+        if ctx.conversation_store is not None:
+            ctx.conversation_store.clear()
+        print("Conversation history cleared.")
+        return True
+
+    # -- /resume ------------------------------------------------------------
+    if cmd == "/resume":
+        if ctx.conversation_store is None:
+            print("Resume is not available in this session.")
+            return True
+        saved = ctx.conversation_store.load()
+        if not saved:
+            print("No saved conversation to resume in this folder.")
+            return True
+        ctx.messages.clear()
+        ctx.messages.append({"role": "system", "content": ctx.system_prompt})
+        if ctx.instruction_message is not None:
+            ctx.messages.append(ctx.instruction_message)
+        ctx.map_message = project_map_message()
+        if ctx.map_message is not None:
+            ctx.messages.append(ctx.map_message)
+        ctx.messages.extend(saved)
+        if ctx.session_log is not None:
+            ctx.session_log.log("resumed", count=len(saved))
+        user_turns = sum(1 for m in saved if m.get("role") == "user")
+        print(
+            f"Restored {len(saved)} messages "
+            f"({user_turns} user turns). Continue where you left off."
+        )
+        return True
+
+    # -- /model <name> ------------------------------------------------------
+    if cmd == "/model":
+        if len(parts) < 2 or not parts[1].strip():
+            print("Usage: /model <name>")
+            return True
+
+        new_model = parts[1].strip()
+
+        # Validate the model exists on the Ollama server.
+        try:
+            models = ctx.client.list_models()
+            model_names = [m.get("name", "") for m in models]
+            model_found = any(
+                new_model == name or new_model == name.split(":")[0]
+                for name in model_names
+            )
+            if not model_found:
+                print(f"Model '{new_model}' not found on Ollama server.")
+                if model_names:
+                    print(f"Available models: {', '.join(model_names)}")
+                return True
+        except OllamaConnectionError:
+            print("Warning: could not connect to Ollama to validate model.")
+            print(f"Switching to '{new_model}' anyway.")
+
+        ctx.config.model = new_model
+        if ctx.session_log is not None:
+            ctx.session_log.log("model_changed", model=new_model)
+        print(f"Switched to model: {new_model}")
+        return True
+
+    # -- /status ------------------------------------------------------------
+    if cmd == "/status":
+        # Count user messages (exclude system and tool messages).
+        user_msg_count = sum(
+            1 for m in ctx.messages if m.get("role") == "user"
+        )
+        print(f"\nModel: {ctx.config.model}")
+        print(f"Messages: {user_msg_count}")
+        print(f"Mode: {ctx.current_mode}")
+
+        # Show active plan if any.
+        if ctx.active_plan_id is not None:
+            print(f"Active plan: {ctx.active_plan_id}")
+
+        # Check Ollama connection status.
+        try:
+            version_info = ctx.client.get_version()
+            version = version_info.get("version", "unknown")
+            print(f"Ollama: connected (v{version})")
+        except OllamaConnectionError:
+            print("Ollama: disconnected")
+
+        print()
+        return True
+
+    # -- /models ------------------------------------------------------------
+    if cmd == "/models":
+        try:
+            from local_cli.model_selector import select_model_interactive
+
+            result = select_model_interactive(ctx.client, ctx.config.model)
+            if result is not None:
+                ctx.config.model = result
+                print(f"Switched to model: {result}")
+        except Exception as exc:
+            print(f"Model selection failed: {exc}")
+        return True
+
+    # -- /save --------------------------------------------------------------
+    if cmd == "/save":
+        try:
+            session_id = ctx.session_manager.save_session(ctx.messages)
+            print(f"Session saved: {session_id}")
+        except OSError as exc:
+            print(f"Failed to save session: {exc}")
+        return True
+
+    # -- /checkpoint --------------------------------------------------------
+    if cmd == "/checkpoint":
+        # Optional message from the rest of the input.
+        checkpoint_msg = parts[1].strip() if len(parts) > 1 else ""
+        try:
+            if ctx.git_ops.capability() is GitCapability.UNAVAILABLE:
+                print("Git is not installed. Cannot create checkpoint.")
+                return True
+            if not ctx.git_ops.is_git_repo():
+                print("Not a git repository. Cannot create checkpoint.")
+                return True
+            tag = ctx.git_ops.create_checkpoint(checkpoint_msg)
+            print(f"Checkpoint created: {tag}")
+        except GitNotInstalledError:
+            print("git is not installed. Cannot create checkpoint.")
+        except GitError as exc:
+            print(f"Checkpoint failed: {exc}")
+        return True
+
+    # -- /rollback [tag] ----------------------------------------------------
+    if cmd == "/rollback":
+        try:
+            if ctx.git_ops.capability() is GitCapability.UNAVAILABLE:
+                print("Git is not installed. Cannot rollback.")
+                return True
+            if not ctx.git_ops.is_git_repo():
+                print("Not a git repository. Cannot rollback.")
+                return True
+
+            # Determine which tag to roll back to.
+            if len(parts) > 1 and parts[1].strip():
+                target_tag = parts[1].strip()
+            else:
+                # Use the most recent checkpoint.
+                checkpoints = ctx.git_ops.list_checkpoints()
+                if not checkpoints:
+                    print("No checkpoints found. Use /checkpoint first.")
+                    return True
+                target_tag = checkpoints[0]
+
+            ctx.git_ops.rollback_to_checkpoint(target_tag)
+            print(f"Rolled back to checkpoint: {target_tag}")
+        except GitNotInstalledError:
+            print("git is not installed. Cannot rollback.")
+        except GitError as exc:
+            print(f"Rollback failed: {exc}")
+        return True
+
+    # -- /undo --------------------------------------------------------------
+    if cmd == "/undo":
+        try:
+            if ctx.git_ops.capability() is GitCapability.UNAVAILABLE:
+                print("Git is not installed. Cannot undo.")
+                return True
+            if not ctx.git_ops.is_git_repo():
+                print("Not a git repository. Cannot undo.")
+                return True
+            result = ctx.git_ops.undo_last_change()
+            print(result)
+        except GitNotInstalledError:
+            print("git is not installed. Cannot undo.")
+        except GitError as exc:
+            print(f"Undo failed: {exc}")
+        return True
+
+    # -- /diff --------------------------------------------------------------
+    if cmd == "/diff":
+        try:
+            if ctx.git_ops.capability() is GitCapability.UNAVAILABLE:
+                print("Git is not installed. Cannot show diff.")
+                return True
+            if not ctx.git_ops.is_git_repo():
+                print("Not a git repository. Cannot show diff.")
+                return True
+            result = ctx.git_ops.diff_working_tree()
+            print(result)
+        except GitNotInstalledError:
+            print("git is not installed. Cannot show diff.")
+        except GitError as exc:
+            print(f"Diff failed: {exc}")
+        return True
+
+    # -- /install <model> ---------------------------------------------------
+    if cmd == "/install":
+        if len(parts) < 2 or not parts[1].strip():
+            print("Usage: /install <model>")
+            return True
+
+        if ctx.model_manager is None:
+            print("Model management not available.")
+            return True
+
+        model_name = parts[1].strip()
+
+        def _print_progress(
+            status: str, completed: int | None, total: int | None
+        ) -> None:
+            if completed is not None and total is not None and total > 0:
+                pct = completed * 100 // total
+                print(f"\r  {status}: {pct}%", end="", flush=True)
+            else:
+                print(f"\r  {status}", end="", flush=True)
+
+        try:
+            print(f"Installing {model_name}...")
+            ctx.model_manager.install_model(
+                model_name, progress_callback=_print_progress
+            )
+            print(f"\nModel '{model_name}' installed successfully.")
+        except ValueError as exc:
+            print(f"Invalid model name: {exc}")
+        except Exception as exc:
+            print(f"\nInstallation failed: {exc}")
+        return True
+
+    # -- /uninstall <model> -------------------------------------------------
+    if cmd == "/uninstall":
+        if len(parts) < 2 or not parts[1].strip():
+            print("Usage: /uninstall <model>")
+            return True
+
+        if ctx.model_manager is None:
+            print("Model management not available.")
+            return True
+
+        model_name = parts[1].strip()
+        try:
+            ctx.model_manager.delete_model(model_name)
+            print(f"Model '{model_name}' deleted.")
+        except ValueError as exc:
+            print(f"Invalid model name: {exc}")
+        except Exception as exc:
+            print(f"Deletion failed: {exc}")
+        return True
+
+    # -- /info <model> ------------------------------------------------------
+    if cmd == "/info":
+        if len(parts) < 2 or not parts[1].strip():
+            print("Usage: /info <model>")
+            return True
+
+        if ctx.model_manager is None:
+            print("Model management not available.")
+            return True
+
+        model_name = parts[1].strip()
+        try:
+            info = ctx.model_manager.get_model_info(model_name)
+            print(f"\nModel: {model_name}")
+            details = info.get("details", {})
+            if isinstance(details, dict):
+                for key, value in details.items():
+                    print(f"  {key}: {value}")
+            capabilities = info.get("capabilities")
+            if capabilities:
+                print(f"  capabilities: {', '.join(capabilities)}")
+            license_text = info.get("license")
+            if license_text:
+                # Show only the first line of the license.
+                first_line = license_text.strip().split("\n")[0]
+                print(f"  license: {first_line}")
+            print()
+        except ValueError as exc:
+            print(f"Invalid model name: {exc}")
+        except Exception as exc:
+            print(f"Failed to get model info: {exc}")
+        return True
+
+    # -- /running -----------------------------------------------------------
+    if cmd == "/running":
+        if ctx.model_manager is None:
+            print("Model management not available.")
+            return True
+
+        try:
+            running = ctx.model_manager.list_running()
+            if not running:
+                print("No models currently loaded in VRAM.")
+            else:
+                print(f"\nModels loaded in VRAM ({len(running)}):")
+                for model_info in running:
+                    name = model_info.get("name", "unknown")
+                    size = model_info.get("size", 0)
+                    size_gb = size / (1024 ** 3) if size else 0
+                    print(f"  {name} ({size_gb:.1f} GB)")
+                print()
+        except Exception as exc:
+            print(f"Failed to list running models: {exc}")
+        return True
+
+    # -- /provider [name] ---------------------------------------------------
+    if cmd == "/provider":
+        if ctx.orchestrator is None:
+            print("Provider management not available.")
+            return True
+
+        if len(parts) < 2 or not parts[1].strip():
+            # Show current provider.
+            current = ctx.orchestrator.get_active_provider_name()
+            print(f"Active provider: {current}")
+            return True
+
+        new_provider = parts[1].strip().lower()
+        try:
+            ctx.orchestrator.switch_provider(new_provider)
+            print(f"Switched to provider: {new_provider}")
+        except ValueError as exc:
+            print(f"Failed to switch provider: {exc}")
+        return True
+
+    # -- /brain [model] -----------------------------------------------------
+    if cmd == "/brain":
+        if ctx.orchestrator is None:
+            print("Orchestrator not available.")
+            return True
+
+        if len(parts) < 2 or not parts[1].strip():
+            # Show current brain model.
+            brain = ctx.orchestrator.get_brain_model()
+            print(f"Brain model: {brain}")
+            return True
+
+        new_brain = parts[1].strip()
+        try:
+            ctx.orchestrator.set_brain_model(new_brain)
+            print(f"Brain model set to: {new_brain}")
+        except ValueError as exc:
+            print(f"Invalid brain model: {exc}")
+        return True
+
+    # -- /registry ----------------------------------------------------------
+    if cmd == "/registry":
+        if ctx.orchestrator is None:
+            print("Orchestrator not available.")
+            return True
+
+        registry = ctx.orchestrator.registry
+        if registry is None:
+            print("No model registry configured.")
+            return True
+
+        routes = registry.list_routes()
+        if not routes:
+            print("Model registry is empty (using defaults).")
+            default_provider, default_model = registry.get_default()
+            print(f"Default: {default_provider}/{default_model}")
+        else:
+            print(f"\nModel Registry:")
+            default_provider, default_model = registry.get_default()
+            print(f"  Default: {default_provider}/{default_model}")
+            for task_type, entries in routes.items():
+                print(f"  {task_type}:")
+                for entry in entries:
+                    provider = entry.get("provider", "?")
+                    model = entry.get("model", "?")
+                    priority = entry.get("priority", "?")
+                    print(f"    [{priority}] {provider}/{model}")
+            print()
+        return True
+
+    # -- /update ------------------------------------------------------------
+    if cmd == "/update":
+        from local_cli.updater import check_for_updates, perform_update
+
+        print("Checking for updates...")
+        has_updates, check_msg = check_for_updates()
+        if not has_updates:
+            print(check_msg)
+            return True
+
+        print(check_msg)
+        print("Updating...")
+        success, update_msg = perform_update()
+        print(update_msg)
+        return True
+
+    # -- /context -----------------------------------------------------------
+    if cmd == "/context":
+        msg_count = len(ctx.messages)
+        est_tokens = _estimate_tokens(ctx.messages)
+        token_limit = _COMPACT_TOKEN_THRESHOLD
+        compaction_triggered = _needs_compaction(ctx.messages)
+        compaction_status = "triggered" if compaction_triggered else "not triggered"
+        print(
+            f"Messages: {msg_count} | "
+            f"Est. tokens: ~{est_tokens} / {token_limit} | "
+            f"Compaction: {compaction_status}"
+        )
+        return True
+
+    # -- /copy --------------------------------------------------------------
+    if cmd == "/copy":
+        # Find the last assistant message in the conversation history.
+        last_assistant = None
+        for msg in reversed(ctx.messages):
+            if msg.get("role") == "assistant":
+                content = msg.get("content")
+                if content:
+                    last_assistant = content
+                    break
+
+        if last_assistant is None:
+            print("Nothing to copy.")
+            return True
+
+        try:
+            copy_to_clipboard(last_assistant)
+            print("Copied to clipboard.")
+        except ClipboardUnavailableError:
+            print("Clipboard not available.")
+        except ClipboardError as exc:
+            print(f"Copy failed: {exc}")
+        return True
+
+    # -- /usage -------------------------------------------------------------
+    if cmd == "/usage":
+        if ctx.token_tracker is None:
+            print("Token tracking not available.")
+            return True
+
+        print(ctx.token_tracker.format_table())
+        return True
+
+    # -- /agents ------------------------------------------------------------
+    if cmd == "/agents":
+        if ctx.sub_agent_runner is None:
+            print("Sub-agent support not available.")
+            return True
+
+        agents = ctx.sub_agent_runner.list_background_agents()
+        if not agents:
+            print("No background agents.")
+        else:
+            print(f"\nBackground agents ({len(agents)}):")
+            for info in agents:
+                agent_id = info.get("agent_id", "?")
+                status = info.get("status", "?")
+                print(f"  {agent_id}  {status}")
+            print()
+        return True
+
+    # -- /plan [subcommand] -------------------------------------------------
+    if cmd == "/plan":
+        return _handle_plan_command(parts, ctx)
+
+    # -- /ideate [subcommand] -----------------------------------------------
+    if cmd == "/ideate":
+        return _handle_ideate_command(parts, ctx)
+
+    # -- /knowledge [subcommand] --------------------------------------------
+    if cmd == "/knowledge":
+        return _handle_knowledge_command(parts, ctx)
+
+    # -- /skills [subcommand] -----------------------------------------------
+    if cmd == "/skills":
+        return _handle_skills_command(parts, ctx)
+
+    # -- Unknown command ----------------------------------------------------
+    print(f"Unknown command: {stripped}")
+    print("Type /help for a list of commands.")
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Plan command handler
+# ---------------------------------------------------------------------------
+
+
+def _handle_plan_command(parts: list[str], ctx: _ReplContext) -> bool:
+    """Handle /plan slash command and its subcommands.
+
+    Subcommands:
+        - ``/plan`` or ``/plan list`` — list all plans.
+        - ``/plan create <title>`` — create a new plan.
+        - ``/plan show <id>`` — show a plan's details.
+        - ``/plan activate <id>`` — set a plan as the active plan.
+        - ``/plan update <id> <step> done|undone`` — mark a step.
+        - ``/plan review <id>`` — request an LLM review of a plan.
+        - ``/plan abandon <id>`` — abandon a plan.
+
+    Args:
+        parts: The split command parts (``["/plan", ...]``).
+        ctx: The REPL context containing shared state.
+
+    Returns:
+        True to continue the REPL.
+    """
+    if ctx.plan_manager is None:
+        print("Plan management not available.")
+        return True
+
+    # No subcommand or "list" → list plans.
+    if len(parts) < 2 or not parts[1].strip():
+        return _plan_list(ctx)
+
+    sub_parts = parts[1].strip().split(maxsplit=1)
+    subcmd = sub_parts[0].lower()
+    sub_arg = sub_parts[1].strip() if len(sub_parts) > 1 else ""
+
+    if subcmd == "list":
+        return _plan_list(ctx)
+
+    if subcmd == "create":
+        if not sub_arg:
+            print("Usage: /plan create <title>")
+            return True
+        try:
+            plan = ctx.plan_manager.create_plan(
+                title=sub_arg,
+                model=ctx.config.model,
+            )
+            print(f"Plan {plan.plan_id} created: {plan.title}")
+        except PlanError as exc:
+            print(f"Failed to create plan: {exc}")
+        return True
+
+    if subcmd == "show":
+        if not sub_arg:
+            print("Usage: /plan show <id>")
+            return True
+        try:
+            plan = ctx.plan_manager.show_plan(sub_arg)
+            _print_plan(plan)
+        except PlanNotFoundError:
+            print(f"Plan '{sub_arg}' not found.")
+        except PlanError as exc:
+            print(f"Failed to show plan: {exc}")
+        return True
+
+    if subcmd == "activate":
+        if not sub_arg:
+            print("Usage: /plan activate <id>")
+            return True
+        try:
+            plan = ctx.plan_manager.activate_plan(sub_arg)
+            ctx.active_plan_id = plan.plan_id
+            print(f"Plan {plan.plan_id} activated: {plan.title}")
+        except PlanNotFoundError:
+            print(f"Plan '{sub_arg}' not found.")
+        except PlanError as exc:
+            print(f"Failed to activate plan: {exc}")
+        return True
+
+    if subcmd == "update":
+        # Expected format: /plan update <id> <step> done|undone
+        update_parts = sub_arg.split(maxsplit=2)
+        if len(update_parts) < 3:
+            print("Usage: /plan update <id> <step> done|undone")
+            return True
+        plan_id = update_parts[0]
+        try:
+            step_num = int(update_parts[1])
+        except ValueError:
+            print("Step number must be an integer.")
+            return True
+        done_str = update_parts[2].lower()
+        if done_str not in ("done", "undone"):
+            print("Status must be 'done' or 'undone'.")
+            return True
+        done = done_str == "done"
+        try:
+            plan = ctx.plan_manager.update_step(plan_id, step_num, done)
+            mark = "done" if done else "undone"
+            print(f"Step {step_num} marked as {mark}.")
+            if plan.status == "complete":
+                print(f"Plan {plan.plan_id} is now complete!")
+        except PlanNotFoundError:
+            print(f"Plan '{plan_id}' not found.")
+        except PlanError as exc:
+            print(f"Failed to update step: {exc}")
+        return True
+
+    if subcmd == "review":
+        if not sub_arg:
+            print("Usage: /plan review <id>")
+            return True
+        try:
+            content = ctx.plan_manager.get_plan_content(sub_arg)
+        except PlanNotFoundError:
+            print(f"Plan '{sub_arg}' not found.")
+            return True
+        except PlanError as exc:
+            print(f"Failed to read plan: {exc}")
+            return True
+
+        # Send plan content to LLM for review via ideation-style loop.
+        review_prompt = (
+            "Please review and critique the following plan. "
+            "Identify risks, suggest improvements, and assess feasibility.\n\n"
+            f"{content}"
+        )
+        review_messages: list[dict] = [
+            {"role": "system", "content": ctx.system_prompt},
+            {"role": "user", "content": review_prompt},
+        ]
+        try:
+            ideation_loop(
+                client=ctx.client,
+                model=ctx.config.model,
+                messages=review_messages,
+                think=True,
+            )
+        except KeyboardInterrupt:
+            print("\nReview interrupted.")
+        return True
+
+    if subcmd == "abandon":
+        if not sub_arg:
+            print("Usage: /plan abandon <id>")
+            return True
+        try:
+            plan = ctx.plan_manager.abandon_plan(sub_arg)
+            print(f"Plan {plan.plan_id} abandoned.")
+            if ctx.active_plan_id == plan.plan_id:
+                ctx.active_plan_id = None
+        except PlanNotFoundError:
+            print(f"Plan '{sub_arg}' not found.")
+        except PlanError as exc:
+            print(f"Failed to abandon plan: {exc}")
+        return True
+
+    print(f"Unknown plan subcommand: {subcmd}")
+    print("Usage: /plan [list|create|show|activate|update|review|abandon]")
+    return True
+
+
+def _plan_list(ctx: _ReplContext) -> bool:
+    """List all plans with their status.
+
+    Args:
+        ctx: The REPL context.
+
+    Returns:
+        True to continue the REPL.
+    """
+    try:
+        plans = ctx.plan_manager.list_plans()
+    except PlanError as exc:
+        print(f"Failed to list plans: {exc}")
+        return True
+
+    if not plans:
+        print("No plans found.")
+        return True
+
+    print("\nPlans:")
+    for plan in plans:
+        active_marker = " *" if plan.plan_id == ctx.active_plan_id else ""
+        done_count = sum(1 for done, _ in plan.steps if done)
+        total = len(plan.steps)
+        progress = f"[{done_count}/{total}]" if total > 0 else ""
+        print(
+            f"  {plan.plan_id}  {plan.status:<10}  "
+            f"{plan.title}  {progress}{active_marker}"
+        )
+    print()
+    return True
+
+
+def _print_plan(plan: "object") -> None:
+    """Pretty-print a plan to stdout.
+
+    Args:
+        plan: A :class:`Plan` instance.
+    """
+    print(f"\n# Plan {plan.plan_id}: {plan.title}")
+    print(f"  Status:  {plan.status}")
+    print(f"  Created: {plan.created}")
+    if plan.model:
+        print(f"  Model:   {plan.model}")
+    if plan.description:
+        print(f"\n  {plan.description}")
+    if plan.steps:
+        print("\n  Steps:")
+        for i, (done, text) in enumerate(plan.steps, 1):
+            checkbox = "[x]" if done else "[ ]"
+            print(f"    {i}. {checkbox} {text}")
+    if plan.notes:
+        print(f"\n  Notes: {plan.notes}")
+    print()
+
+
+# ---------------------------------------------------------------------------
+# Ideate command handler
+# ---------------------------------------------------------------------------
+
+
+def _handle_ideate_command(parts: list[str], ctx: _ReplContext) -> bool:
+    """Handle /ideate slash command and its subcommands.
+
+    Subcommands:
+        - ``/ideate`` — enter ideation (brainstorming) mode.
+        - ``/ideate exit`` — return to normal agent mode.
+        - ``/ideate clear`` — clear ideation history.
+        - ``/ideate once <prompt>`` — single-shot ideation via /api/generate.
+
+    Args:
+        parts: The split command parts (``["/ideate", ...]``).
+        ctx: The REPL context containing shared state.
+
+    Returns:
+        True to continue the REPL.
+    """
+    if ctx.ideation_engine is None:
+        print("Ideation engine not available.")
+        return True
+
+    # No subcommand → enter ideation mode.
+    if len(parts) < 2 or not parts[1].strip():
+        ctx.current_mode = "ideate"
+        if not ctx.ideation_engine.has_session:
+            ctx.ideation_engine.start_session()
+        print("Entered ideation mode. Type /ideate exit to return.")
+        return True
+
+    sub_parts = parts[1].strip().split(maxsplit=1)
+    subcmd = sub_parts[0].lower()
+    sub_arg = sub_parts[1].strip() if len(sub_parts) > 1 else ""
+
+    if subcmd == "exit":
+        ctx.current_mode = "agent"
+        print("Returned to agent mode.")
+        return True
+
+    if subcmd == "clear":
+        ctx.ideation_engine.clear_history()
+        print("Ideation history cleared.")
+        return True
+
+    if subcmd == "once":
+        if not sub_arg:
+            print("Usage: /ideate once <prompt>")
+            return True
+        try:
+            ctx.ideation_engine.single_shot(
+                prompt=sub_arg,
+                model=ctx.config.model,
+            )
+        except Exception as exc:
+            print(f"Ideation failed: {exc}")
+        return True
+
+    print(f"Unknown ideate subcommand: {subcmd}")
+    print("Usage: /ideate [exit|clear|once <prompt>]")
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Knowledge command handler
+# ---------------------------------------------------------------------------
+
+
+def _handle_knowledge_command(parts: list[str], ctx: _ReplContext) -> bool:
+    """Handle /knowledge slash command and its subcommands.
+
+    Subcommands:
+        - ``/knowledge`` or ``/knowledge list`` — list all knowledge items.
+        - ``/knowledge save <name>`` — save a knowledge item.
+        - ``/knowledge load <name>`` — load a knowledge item into context.
+        - ``/knowledge delete <name>`` — delete a knowledge item.
+
+    Args:
+        parts: The split command parts (``["/knowledge", ...]``).
+        ctx: The REPL context containing shared state.
+
+    Returns:
+        True to continue the REPL.
+    """
+    if ctx.knowledge_store is None:
+        print("Knowledge store not available.")
+        return True
+
+    # No subcommand or "list" → list items.
+    if len(parts) < 2 or not parts[1].strip():
+        return _knowledge_list(ctx)
+
+    sub_parts = parts[1].strip().split(maxsplit=1)
+    subcmd = sub_parts[0].lower()
+    sub_arg = sub_parts[1].strip() if len(sub_parts) > 1 else ""
+
+    if subcmd == "list":
+        return _knowledge_list(ctx)
+
+    if subcmd == "save":
+        if not sub_arg:
+            print("Usage: /knowledge save <name>")
+            return True
+        # Save with description from last assistant message if available.
+        description = ""
+        content = ""
+        for msg in reversed(ctx.messages):
+            if msg.get("role") == "assistant":
+                content = msg.get("content", "")
+                description = content[:100] if content else ""
+                break
+        try:
+            ctx.knowledge_store.save_item(
+                name=sub_arg,
+                description=description,
+                content=content,
+            )
+            print(f"Knowledge item '{sub_arg}' saved.")
+        except KnowledgeError as exc:
+            print(f"Failed to save knowledge: {exc}")
+        return True
+
+    if subcmd == "load":
+        if not sub_arg:
+            print("Usage: /knowledge load <name>")
+            return True
+        try:
+            item = ctx.knowledge_store.load_item(sub_arg)
+            # Inject knowledge content into the conversation as a system message.
+            artifacts = item.get("artifacts_content", {})
+            content_parts = []
+            for artifact_name, artifact_content in artifacts.items():
+                content_parts.append(
+                    f"--- {artifact_name} ---\n{artifact_content}"
+                )
+            if content_parts:
+                knowledge_content = "\n\n".join(content_parts)
+                ctx.messages.append({
+                    "role": "system",
+                    "content": (
+                        f"Knowledge item '{sub_arg}' loaded:\n\n"
+                        f"{knowledge_content}"
+                    ),
+                })
+            print(f"Knowledge item '{sub_arg}' loaded into context.")
+        except KnowledgeNotFoundError:
+            print(f"Knowledge item '{sub_arg}' not found.")
+        except KnowledgeError as exc:
+            print(f"Failed to load knowledge: {exc}")
+        return True
+
+    if subcmd == "delete":
+        if not sub_arg:
+            print("Usage: /knowledge delete <name>")
+            return True
+        try:
+            ctx.knowledge_store.delete_item(sub_arg)
+            print(f"Knowledge item '{sub_arg}' deleted.")
+        except KnowledgeNotFoundError:
+            print(f"Knowledge item '{sub_arg}' not found.")
+        except KnowledgeError as exc:
+            print(f"Failed to delete knowledge: {exc}")
+        return True
+
+    print(f"Unknown knowledge subcommand: {subcmd}")
+    print("Usage: /knowledge [list|save|load|delete] <name>")
+    return True
+
+
+def _knowledge_list(ctx: _ReplContext) -> bool:
+    """List all knowledge items.
+
+    Args:
+        ctx: The REPL context.
+
+    Returns:
+        True to continue the REPL.
+    """
+    try:
+        items = ctx.knowledge_store.list_items()
+    except KnowledgeError as exc:
+        print(f"Failed to list knowledge: {exc}")
+        return True
+
+    if not items:
+        print("No knowledge items found.")
+        return True
+
+    print("\nKnowledge items:")
+    for item in items:
+        name = item.get("name", "?")
+        desc = item.get("description", "")
+        tags = item.get("tags", [])
+        tag_str = f"  [{', '.join(tags)}]" if tags else ""
+        print(f"  {name}: {desc[:60]}{tag_str}")
+    print()
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Skills command handler
+# ---------------------------------------------------------------------------
+
+
+def _handle_skills_command(parts: list[str], ctx: _ReplContext) -> bool:
+    """Handle /skills slash command and its subcommands.
+
+    Subcommands:
+        - ``/skills`` or ``/skills list`` — list all discovered skills.
+        - ``/skills show <name>`` — show a skill's content.
+
+    Args:
+        parts: The split command parts (``["/skills", ...]``).
+        ctx: The REPL context containing shared state.
+
+    Returns:
+        True to continue the REPL.
+    """
+    if ctx.skills_loader is None:
+        print("Skills system not available.")
+        return True
+
+    # No subcommand or "list" → list skills.
+    if len(parts) < 2 or not parts[1].strip():
+        return _skills_list(ctx)
+
+    sub_parts = parts[1].strip().split(maxsplit=1)
+    subcmd = sub_parts[0].lower()
+    sub_arg = sub_parts[1].strip() if len(sub_parts) > 1 else ""
+
+    if subcmd == "list":
+        return _skills_list(ctx)
+
+    if subcmd == "show":
+        if not sub_arg:
+            print("Usage: /skills show <name>")
+            return True
+        try:
+            content = ctx.skills_loader.get_skill_content(sub_arg)
+            print(f"\n{content}\n")
+        except Exception:
+            print(f"Skill '{sub_arg}' not found.")
+        return True
+
+    print(f"Unknown skills subcommand: {subcmd}")
+    print("Usage: /skills [list|show <name>]")
+    return True
+
+
+def _skills_list(ctx: _ReplContext) -> bool:
+    """List all discovered skills.
+
+    Args:
+        ctx: The REPL context.
+
+    Returns:
+        True to continue the REPL.
+    """
+    skills = ctx.skills_loader.list_skills()
+    if not skills:
+        print("No skills discovered.")
+        return True
+
+    print("\nSkills:")
+    for skill in skills:
+        triggers = ", ".join(skill.triggers) if skill.triggers else ""
+        print(f"  {skill.name}: {skill.description}")
+        if triggers:
+            print(f"    triggers: {triggers}")
+    print()
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Argument parser
+# ---------------------------------------------------------------------------
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """Build the CLI argument parser.
+
+    Returns:
+        An :class:`argparse.ArgumentParser` configured with all
+        supported flags.
+    """
+    parser = argparse.ArgumentParser(
+        prog="local-cli",
+        description="Local-first AI coding agent powered by Ollama.",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
+    )
+    parser.add_argument(
+        "--model",
+        type=str,
+        default=None,
+        help="Ollama model to use (default: qwen3.5:9b-q4_K_M).",
+    )
+    parser.add_argument(
+        "--shell-backend", choices=["native", "git-bash"], default=None,
+        help="Host-selected shell backend (Git Bash is optional on Windows).",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=None,
+        help="Enable debug output.",
+    )
+    parser.add_argument(
+        "--mascot",
+        nargs="?",
+        const="cat",
+        default=None,
+        choices=["cat", "pixel"],
+        help="Replace the spinner with Loca, the local cat mascot "
+             "(--mascot for the one-line face, --mascot pixel for "
+             "animated pixel art).",
+    )
+    parser.add_argument(
+        "--rag",
+        action="store_true",
+        default=None,
+        help="Enable RAG (retrieval-augmented generation) engine.",
+    )
+    parser.add_argument(
+        "--rag-path",
+        type=str,
+        default=None,
+        help="Directory to index for RAG (default: current directory).",
+    )
+    parser.add_argument(
+        "--rag-topk",
+        type=int,
+        default=None,
+        help="Number of RAG results per query (default: 5).",
+    )
+    parser.add_argument(
+        "--rag-model",
+        type=str,
+        default=None,
+        help="Embedding model for RAG (default: all-minilm).",
+    )
+    parser.add_argument(
+        "--select-model",
+        action="store_true",
+        default=None,
+        help="Interactively select a model from available Ollama models at startup.",
+    )
+    parser.add_argument(
+        "--provider",
+        type=str,
+        default=None,
+        help="Set the LLM provider (ollama or claude).",
+    )
+    parser.add_argument(
+        "--brain-model",
+        type=str,
+        default=None,
+        help="Set the orchestrator brain model.",
+    )
+    parser.add_argument(
+        "--registry-file",
+        type=str,
+        default=None,
+        help="Path to model registry JSON file.",
+    )
+    parser.add_argument(
+        "--num-ctx",
+        type=int,
+        default=None,
+        help="Context window size in tokens (default: model-specific).",
+    )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=None,
+        help="Sampling temperature (default: model-specific).",
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Top-p (nucleus) sampling threshold (default: model-specific).",
+    )
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        default=None,
+        help="Top-k sampling limit (default: model-specific).",
+    )
+    parser.add_argument(
+        "--think-mode",
+        action="store_true",
+        default=None,
+        help="Enable extended thinking mode for supported models.",
+    )
+    parser.add_argument(
+        "--server",
+        action="store_true",
+        default=False,
+        help="Run in JSON-line server mode (for desktop GUI).",
+    )
+    parser.add_argument(
+        "--web-monitor",
+        action="store_true",
+        default=False,
+        help="Run web-based agent monitor (browser dashboard with SSE streaming).",
+    )
+    parser.add_argument(
+        "--web-port",
+        type=int,
+        default=7070,
+        help="Port for --web-monitor (default: 7070).",
+    )
+    parser.add_argument(
+        "--bench",
+        action="store_true",
+        default=False,
+        help="Run quick benchmark (speed, knowledge, tool-calling).",
+    )
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        default=False,
+        help="Check for updates and pull the latest version.",
+    )
+    parser.add_argument(
+        "--auto-update",
+        dest="auto_update",
+        action="store_true",
+        default=None,
+        help="Install available updates automatically on startup "
+             "(git pull + reinstall).",
+    )
+    parser.add_argument(
+        "--plan",
+        action="store_true",
+        default=False,
+        help="Start in plan mode with plan commands available.",
+    )
+    parser.add_argument(
+        "--ideate",
+        action="store_true",
+        default=False,
+        help="Start directly in ideation (brainstorming) mode.",
+    )
+    parser.add_argument(
+        "--yes",
+        "-y",
+        dest="auto_approve",
+        action="store_true",
+        default=None,
+        help="Auto-approve risky commands (skip confirmation prompts).",
+    )
+    return parser
+
+
+# ---------------------------------------------------------------------------
+# Interactive REPL
+# ---------------------------------------------------------------------------
+
+
+def run_repl(
+    config: Config,
+    client: OllamaClient,
+    tools: list[Tool],
+    rag_engine: object | None = None,
+    rag_topk: int = 5,
+    orchestrator: object | None = None,
+    model_manager: object | None = None,
+    sub_agent_runner: object | None = None,
+    plan_manager: PlanManager | None = None,
+    knowledge_store: KnowledgeStore | None = None,
+    skills_loader: SkillsLoader | None = None,
+    ideation_engine: IdeationEngine | None = None,
+    initial_mode: str = "agent",
+) -> None:
+    """Run the interactive REPL loop.
+
+    Reads user input line-by-line, detects slash commands, and forwards
+    natural-language prompts to :func:`agent_loop` for LLM processing.
+    Supports multiple modes: ``agent`` (default tool-using mode) and
+    ``ideate`` (tool-free brainstorming mode).
+
+    Uses ``readline`` for line editing and input history (automatically
+    available via the import at module level).
+
+    Args:
+        config: Application configuration.
+        client: An :class:`OllamaClient` instance.
+        tools: A list of :class:`Tool` instances available to the agent.
+        rag_engine: Optional :class:`RAGEngine` for context augmentation.
+        rag_topk: Number of RAG results per query.
+        orchestrator: Optional :class:`Orchestrator` for provider/brain
+            management and task routing.
+        model_manager: Optional :class:`ModelManager` for model
+            install/delete operations.
+        sub_agent_runner: Optional :class:`SubAgentRunner` for background
+            agent status queries via the ``/agents`` command.
+        plan_manager: Optional :class:`PlanManager` for plan CRUD.
+        knowledge_store: Optional :class:`KnowledgeStore` for persistent
+            knowledge items.
+        skills_loader: Optional :class:`SkillsLoader` for skill
+            auto-discovery and contextual injection.
+        ideation_engine: Optional :class:`IdeationEngine` for tool-free
+            brainstorming mode.
+        initial_mode: Starting REPL mode (``"agent"`` or ``"ideate"``).
+    """
+    # Print welcome banner.
+    if config.mascot != "off":
+        set_spinner_style("pixel" if config.mascot == "pixel" else "mascot")
+        print("  (=･ω･=)ﾉ  Loca is here — happy hacking!")
+    tool_names = ", ".join(t.name for t in tools)
+    print(f"local-cli v{__version__} | model: {config.model}")
+    print(f"Tools: {tool_names}")
+    if rag_engine is not None:
+        print("RAG: enabled")
+    if orchestrator is not None:
+        print(f"Provider: {orchestrator.get_active_provider_name()}")
+    print("Type /help for commands, /exit to quit.\n")
+
+    # Build system prompt with tool descriptions.
+    system_prompt = build_system_prompt(tools)
+
+    # Conversation history (persists across the session).
+    messages: list[dict] = [
+        {"role": "system", "content": system_prompt},
+    ]
+
+    # Project instruction file (LOCAL_CLI.md / AGENTS.md / CLAUDE.md):
+    # per-project steering, injected after the system prompt and
+    # re-injected on /clear.
+    instruction_source: str | None = None
+    instruction_message: dict | None = None
+    loaded_instructions = load_project_instructions()
+    if loaded_instructions is not None:
+        instruction_source, instruction_text = loaded_instructions
+        instruction_message = build_instruction_message(
+            instruction_source, instruction_text,
+        )
+        messages.append(instruction_message)
+        print(f"Project instructions loaded from {instruction_source}")
+
+    # Project map: exact paths up front so the model reads instead of
+    # exploring.  Rebuilt on /clear and /resume.
+    map_message = project_map_message()
+    if map_message is not None:
+        messages.append(map_message)
+
+    # Session manager for /save command.
+    session_manager = SessionManager(config.state_dir)
+
+    # Flight recorder: automatic per-project transcript under
+    # <state_dir>/projects/<cwd-slug>/, one file per session — unlike
+    # /save, which is manual.  LOCAL_CLI_SESSION_LOG=0 disables.
+    session_log = SessionLogger(config.state_dir)
+    session_log.log_session_start(
+        model=config.model,
+        provider=(
+            orchestrator.get_active_provider_name()
+            if orchestrator is not None else "ollama"
+        ),
+        app_version=__version__,
+        frontend="cli",
+    )
+    if instruction_source is not None:
+        session_log.log("project_instructions", source=instruction_source)
+
+    # Last-conversation autosave: quit no longer loses the chat.
+    conversation_store = ConversationStore(config.state_dir)
+    last_ctx_logged: int | None = None
+    resumable = conversation_store.info()
+    if resumable is not None:
+        print(
+            f"Previous conversation found ({resumable['count']} messages"
+            + (f", {resumable['saved_at']}" if resumable["saved_at"] else "")
+            + "). Type /resume to restore it."
+        )
+
+    # Session-scoped tool cache and token tracker.  These were created
+    # but never wired into the loop before, so /usage always read zero
+    # and repeated reads always hit the disk.
+    tool_cache = ToolCache()
+    token_tracker = TokenTracker()
+
+    # Harness intervention switches (shared by every turn this session).
+    harness_config = HarnessConfig(
+        max_iterations=config.max_iterations,
+        compact_mode=config.compact_mode,
+    )
+
+    # Build the REPL context for slash commands.
+    ctx = _ReplContext(
+        config=config,
+        client=client,
+        tools=tools,
+        messages=messages,
+        session_manager=session_manager,
+        system_prompt=system_prompt,
+        rag_engine=rag_engine,
+        rag_topk=rag_topk,
+        orchestrator=orchestrator,
+        model_manager=model_manager,
+        token_tracker=token_tracker,
+        tool_cache=tool_cache,
+        sub_agent_runner=sub_agent_runner,
+        plan_manager=plan_manager,
+        knowledge_store=knowledge_store,
+        skills_loader=skills_loader,
+        ideation_engine=ideation_engine,
+        session_log=session_log,
+        instruction_message=instruction_message,
+        map_message=map_message,
+        conversation_store=conversation_store,
+    )
+
+    # Set initial mode.
+    ctx.current_mode = initial_mode
+    if initial_mode == "ideate" and ideation_engine is not None:
+        if not ideation_engine.has_session:
+            ideation_engine.start_session()
+        print("Starting in ideation mode. Type /ideate exit to return.\n")
+
+    while True:
+        # Read user input with mode-aware prompt.
+        prompt_label = "Ideate> " if ctx.current_mode == "ideate" else "You> "
+        try:
+            user_input = input(prompt_label)
+        except (EOFError, KeyboardInterrupt):
+            print(
+                "\n(=^ω^=)ﾉｼ  Goodbye!" if config.mascot != "off"
+                else "\nGoodbye!"
+            )
+            break
+
+        # Skip empty input.
+        stripped = user_input.strip()
+        if not stripped:
+            continue
+
+        # Handle slash commands (available in all modes).
+        if stripped.startswith("/"):
+            should_continue = _handle_slash_command(stripped, ctx)
+            if not should_continue:
+                break
+            continue
+
+        # -- Ideation mode --------------------------------------------------
+        if ctx.current_mode == "ideate":
+            if ctx.ideation_engine is not None:
+                try:
+                    ctx.ideation_engine.chat_turn(
+                        user_input=stripped,
+                        model=ctx.config.model,
+                    )
+                except KeyboardInterrupt:
+                    print("\nInterrupted.")
+                except Exception as exc:
+                    sys.stderr.write(f"Ideation error: {exc}\n")
+            else:
+                print("Ideation engine not available. Use /ideate exit.")
+            continue
+
+        # -- Agent mode -----------------------------------------------------
+
+        # Inject skills context if skills match the user input.
+        messages.extend(build_skill_messages(ctx.skills_loader, stripped))
+
+        # Fast-mode heuristic: suggest plan for complex requests.
+        if (
+            ctx.plan_manager is not None
+            and ctx.active_plan_id is None
+            and _is_complex_request(stripped)
+        ):
+            print(
+                "This looks complex. Consider creating a plan first "
+                "with /plan create <title>."
+            )
+
+        # Augment prompt with RAG context if available.
+        prompt_content = stripped
+        if ctx.rag_engine is not None:
+            try:
+                prompt_content = ctx.rag_engine.augment_prompt(
+                    stripped, top_k=ctx.rag_topk,
+                )
+            except Exception:
+                # RAG failure is non-fatal; fall back to the raw prompt.
+                pass
+
+        # Inject active plan context if a plan is active.
+        if ctx.active_plan_id is not None and ctx.plan_manager is not None:
+            try:
+                plan_content = ctx.plan_manager.get_plan_content(
+                    ctx.active_plan_id,
+                )
+                plan_msg = build_plan_context(plan_content)
+                messages.append(plan_msg)
+            except PlanError:
+                # Plan read failure is non-fatal; skip injection.
+                pass
+
+        # Build user message and add to history.
+        messages.append({"role": "user", "content": prompt_content})
+        session_log.log_user(prompt_content)
+
+        # Build merged inference options: defaults < presets < user config.
+        default_options: dict = {"num_ctx": 8192}
+        preset_options = get_model_preset(config.model)
+        # Adaptive window (config "auto"): model capability x machine RAM,
+        # instead of pinning a 256k model to the historical 8k.
+        resolved_ctx = resolve_num_ctx(
+            client, config.model, config.num_ctx,
+            estimated_tokens=_estimate_tokens(messages),
+        )
+        if resolved_ctx != last_ctx_logged:
+            session_log.log("context_window", num_ctx=resolved_ctx)
+            last_ctx_logged = resolved_ctx
+        user_options: dict = {"num_ctx": resolved_ctx}
+        if config.temperature is not None:
+            user_options["temperature"] = config.temperature
+        if config.top_p is not None:
+            user_options["top_p"] = config.top_p
+        if config.top_k is not None:
+            user_options["top_k"] = config.top_k
+        inference_options = {**default_options, **preset_options, **user_options}
+
+        # Determine think mode for models that support it.
+        family = get_model_family(config.model)
+        think: bool | None = None
+        if family in SUPPORTS_THINKING:
+            think = True if config.think_mode else False
+
+        # Resolve the active provider so /provider switches actually take
+        # effect.  The REPL previously always chatted through the raw
+        # Ollama client, silently ignoring a switch to Claude or
+        # llama-server.  Ollama stays on the raw client (identical
+        # behaviour); only non-Ollama providers go through the
+        # orchestrator, and they do not receive Ollama-only options.
+        active_client: object = client
+        chat_options: dict | None = inference_options
+        chat_think: bool | None = think
+        if orchestrator is not None:
+            active_name = orchestrator.get_active_provider_name()
+            if active_name != "ollama":
+                try:
+                    active_client = orchestrator.get_active_provider()
+                    chat_options = None
+                    chat_think = None
+                except ValueError as exc:
+                    sys.stderr.write(
+                        f"Provider error: {exc}; falling back to Ollama.\n"
+                    )
+
+        # Run the agent loop (streams response to stdout).
+        turn_error = False
+        try:
+            agent_loop(
+                client=active_client,
+                model=config.model,
+                tools=tools,
+                messages=messages,
+                debug=config.debug,
+                cache=tool_cache,
+                tracker=token_tracker,
+                options=chat_options,
+                think=chat_think,
+                harness=harness_config,
+                tee=session_log.emit,
+            )
+        except KeyboardInterrupt:
+            print("\nInterrupted.")
+        except Exception as exc:
+            turn_error = True
+            session_log.log("error", source="fatal", message=str(exc))
+            sys.stderr.write(f"Error: {exc}\n")
+        session_log.log_turn_end(error=turn_error)
+        conversation_store.save(messages)
