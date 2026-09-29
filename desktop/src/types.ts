@@ -14,6 +14,7 @@ export type Message = {
   id: string
   role: MessageRole
   content: string
+  sourceIndex?: number
   toolCalls?: ToolCall[]
   toolResults?: ToolResult[]
   streaming?: boolean
@@ -57,10 +58,13 @@ export type PythonMessage = {
   resumable?: ResumableInfo | null
   messages?: Array<{ role: string; content: string }>
   confirm_id?: number
+  input_request_id?: number
+  question?: string
   command?: string
   model?: string
   tools?: string[]
   message?: string
+  code?: string
   provider?: string
   has_claude?: boolean
   git_capability?: 'UNAVAILABLE' | 'AVAILABLE_NOT_REPOSITORY' | 'AVAILABLE_REPOSITORY'
@@ -74,6 +78,9 @@ export type PythonMessage = {
 declare global {
   interface Window {
     api: {
+      applicationCommand: (kind: string, payload: Record<string, unknown>, commandId?: string) => Promise<import('../shared/application').CommandReceipt>
+      restartBackend: () => Promise<{ success: boolean; error?: string }>
+      onSessionView: (cb: (view: import('../shared/application').DesktopSessionView) => void) => () => void
       signalReady: () => void
       sendToPython: (data: object) => void
       onPythonMessage: (cb: (msg: PythonMessage) => void) => () => void

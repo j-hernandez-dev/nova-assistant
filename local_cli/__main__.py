@@ -5,6 +5,7 @@ steps; :func:`main` is a thin orchestration of them (it was previously a
 single 300-line function with no test coverage).
 """
 
+import os
 import sys
 import threading
 
@@ -23,7 +24,7 @@ from local_cli.model_selector import select_model_interactive
 from local_cli.ollama_client import OllamaClient
 from local_cli.orchestrator import Orchestrator
 from local_cli.plan_manager import PlanManager
-from local_cli.rag import RAGEngine
+from local_cli.application.rag import RAGService, create_rag_service
 from local_cli.security import validate_model_name
 from local_cli.skills import SkillsLoader
 from local_cli.tools import create_tools
@@ -82,7 +83,7 @@ def _apply_arg_aliases(args: object, config: Config) -> None:
 
 
 def _dispatch_alternate_modes(args: object, config: Config) -> bool:
-    """Run a non-REPL mode (server / web monitor / bench / update).
+    """Run a non-REPL mode (server / bench / update).
 
     These modes skip the heavy REPL initialization entirely, so their
     modules are imported lazily.
@@ -98,11 +99,6 @@ def _dispatch_alternate_modes(args: object, config: Config) -> bool:
     if getattr(args, "server", False):
         from local_cli.server import run_server
         run_server()
-        return True
-
-    if getattr(args, "web_monitor", False):
-        from local_cli.web_monitor import run_web_monitor
-        run_web_monitor(config=config, port=getattr(args, "web_port", 7070))
         return True
 
     if getattr(args, "bench", False):
@@ -256,8 +252,8 @@ def _build_tools(config: Config) -> list[Tool]:
 
     Unless the user opted into auto-approval (--yes), the bash tool is
     replaced with one that asks for confirmation on risky commands.
-    Sub-agents and the GUI server keep the unconfirmed bash tool (no
-    stdin to prompt on).
+    Sub-agents deny risky commands; the server resolves approvals through
+    JSONL. Only this CLI response adapter reads stdin for ask_user.
 
     Args:
         config: The application configuration.
@@ -267,6 +263,7 @@ def _build_tools(config: Config) -> list[Tool]:
     """
     return create_tools(
         "cli", auto_approve=config.auto_approve, confirm=_cli_confirm,
+        ask_user=lambda question: input(f"\n{question}\n> "),
         preference=config.shell_backend,
     )
 
@@ -363,11 +360,16 @@ def _attach_agent_tool(
 
         sub_agent_runner = SubAgentRunner()
         provider = orchestrator.get_active_provider()
+        cwd = next((t.cwd for t in tools if hasattr(t, "cwd")), None)
+        environment = next((t.environment for t in tools
+                            if hasattr(t, "environment")), None)
         agent_tool = AgentTool(
             runner=sub_agent_runner,
             provider=provider,
             model=config.model,
-            sub_agent_tools=create_tools("sub_agent", preference=config.shell_backend),
+            sub_agent_tools=create_tools("sub_agent", preference=config.shell_backend,
+                                         cwd=cwd, environment=environment),
+            cwd=cwd,
         )
         tools.append(agent_tool)
         if config.debug:
@@ -379,37 +381,47 @@ def _attach_agent_tool(
         return None
 
 
-def _init_rag(args: object, client: OllamaClient) -> tuple[RAGEngine | None, int]:
-    """Initialize the RAG engine when --rag was passed.
+def _init_rag(args: object, client: OllamaClient,
+              cwd: str | os.PathLike[str] | None = None) -> tuple[RAGService | None, int]:
+    """Activate the common backend service when configured.
 
     Args:
         args: The parsed argparse namespace.
         client: The Ollama client used for embeddings.
 
     Returns:
-        ``(rag_engine, rag_topk)``; the engine is ``None`` when RAG is
-        disabled or its initialization failed (a warning is printed).
+        ``(rag_service, rag_topk)``. Disabled returns ``None``; a backend
+        failure remains observable/recoverable on the service and is nonfatal.
     """
     if not (getattr(args, "rag", False) or False):
         return None, 5
 
     rag_path = getattr(args, "rag_path", None) or "."
     rag_model = getattr(args, "rag_model", None) or "all-minilm"
-    rag_topk = getattr(args, "rag_topk", None) or 5
+    rag_topk = getattr(args, "rag_topk", None)
+    if rag_topk is None:
+        rag_topk = 5
 
     try:
-        rag_engine = RAGEngine(client=client, embedding_model=rag_model)
+        from pathlib import Path
+        service = create_rag_service(client=client, workspace=Path(cwd or Path.cwd()).resolve(),
+            path=rag_path, embedding_model=rag_model, top_k=rag_topk,
+            state_dir=getattr(args, "state_dir", None))
         sys.stderr.write(f"RAG: indexing {rag_path}...\n")
-        stats = rag_engine.index_directory(rag_path, embedding_model=rag_model)
+        response = service.set_enabled(True)
+        if response.error:
+            sys.stderr.write(f"Warning: {response.error.code}: {response.error.safe_message}\n")
+            return service, rag_topk
+        stats = response.stats
         sys.stderr.write(
             f"RAG: indexed {stats['files_indexed']} files "
             f"({stats['chunks_indexed']} chunks), "
             f"{stats['files_unchanged']} unchanged, "
             f"{stats['files_skipped']} skipped\n"
         )
-        return rag_engine, rag_topk
-    except Exception as exc:
-        sys.stderr.write(f"Warning: RAG initialization failed: {exc}\n")
+        return service, rag_topk
+    except Exception:
+        sys.stderr.write("Warning: RAG initialization failed\n")
         return None, rag_topk
 
 
@@ -510,7 +522,7 @@ def main() -> None:
     config = Config(cli_args=args)
     _apply_arg_aliases(args, config)
 
-    # Non-REPL modes (server / web monitor / bench / update) return early.
+    # Non-REPL modes (server / bench / update) return early.
     if _dispatch_alternate_modes(args, config):
         return
 
@@ -525,7 +537,9 @@ def main() -> None:
     orchestrator = _init_orchestrator(config, registry)
     sub_agent_runner = _attach_agent_tool(tools, orchestrator, config)
 
-    rag_engine, rag_topk = _init_rag(args, client)
+    rag_engine, rag_topk = _init_rag(
+        config, client, cwd=next((t.cwd for t in tools if hasattr(t, "cwd")), None),
+    )
     plan_manager, knowledge_store, skills_loader, ideation_engine = (
         _init_optional_components(config, client)
     )

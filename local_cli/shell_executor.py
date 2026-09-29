@@ -8,8 +8,20 @@ import shutil
 import signal
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
+
+from local_cli.core.contracts import CancellationToken
+
+
+class ShellExecutionCancelled(Exception):
+    """The process tree was stopped; effects before termination are unknown."""
+
+    def __init__(self, *, started: bool = True) -> None:
+        self.started = started
+        super().__init__("shell execution cancelled")
 
 
 @dataclass(frozen=True)
@@ -103,7 +115,13 @@ class PlatformShellExecutor:
         raise NotImplementedError
 
     def run(self, command: str, timeout: int, cwd: str | None,
-            env: dict[str, str]) -> subprocess.CompletedProcess[str]:
+            env: dict[str, str], *,
+            cancellation_token: CancellationToken | None = None,
+            deadline: datetime | None = None) -> subprocess.CompletedProcess[str]:
+        if cancellation_token is not None and cancellation_token.is_cancel_requested():
+            raise ShellExecutionCancelled(started=False)
+        if deadline is not None and datetime.now(timezone.utc) >= deadline:
+            raise ShellExecutionCancelled(started=False)
         windows = self.descriptor.os_name == "Windows"
         proc = subprocess.Popen(
             self.argv(command), cwd=cwd, env=env, stdout=subprocess.PIPE,
@@ -111,37 +129,57 @@ class PlatformShellExecutor:
             creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if windows else 0,
             start_new_session=not windows,
         )
+        started = time.monotonic()
         try:
-            stdout, stderr = proc.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            if windows:
-                # taskkill /T also stops descendants left behind by the shell.
-                try:
-                    subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"],
-                                   capture_output=True, timeout=5)
-                except (OSError, subprocess.TimeoutExpired):
-                    pass
+            if cancellation_token is None and deadline is None:
+                stdout, stderr = proc.communicate(timeout=timeout)
             else:
-                try:
-                    os.killpg(proc.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-            if proc.poll() is None:
-                try:
-                    proc.kill()
-                except ProcessLookupError:
-                    pass
-            try:
-                proc.communicate(timeout=5)
-            except subprocess.TimeoutExpired:
-                # A descendant may still hold a pipe open if the platform's
-                # tree-kill facility failed. Do not hang the agent forever.
-                if proc.stdout:
-                    proc.stdout.close()
-                if proc.stderr:
-                    proc.stderr.close()
+                while True:
+                    if cancellation_token is not None and cancellation_token.is_cancel_requested():
+                        raise ShellExecutionCancelled()
+                    remaining = timeout - (time.monotonic() - started)
+                    if deadline is not None:
+                        remaining = min(remaining,
+                                        (deadline - datetime.now(timezone.utc)).total_seconds())
+                    if remaining <= 0:
+                        raise subprocess.TimeoutExpired(self.argv(command), timeout)
+                    try:
+                        stdout, stderr = proc.communicate(timeout=min(remaining, 0.1))
+                        break
+                    except subprocess.TimeoutExpired:
+                        continue
+        except BaseException:
+            self._terminate_process_tree(proc, windows)
             raise
         return subprocess.CompletedProcess(self.argv(command), proc.returncode, stdout, stderr)
+
+    @staticmethod
+    def _terminate_process_tree(proc: subprocess.Popen[str], windows: bool) -> None:
+        if windows:
+            # taskkill /T also stops descendants left behind by the shell.
+            try:
+                subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"],
+                               capture_output=True, timeout=5)
+            except (OSError, subprocess.TimeoutExpired):
+                pass
+        else:
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        if proc.poll() is None:
+            try:
+                proc.kill()
+            except ProcessLookupError:
+                pass
+        try:
+            proc.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            # A descendant can hold a pipe open if tree termination failed.
+            if proc.stdout:
+                proc.stdout.close()
+            if proc.stderr:
+                proc.stderr.close()
 
 
 class PowerShellExecutor(PlatformShellExecutor):

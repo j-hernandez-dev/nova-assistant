@@ -185,8 +185,19 @@ class TestPhase0Characterization(unittest.TestCase):
         )
 
     def test_legacy_jsonl_and_provider_message_conversion(self):
+        actual = capture_server_and_provider()
+        # The Application route adds deterministic context-budget telemetry
+        # (phase 9). Freeze all original frames and their order unchanged;
+        # do not regenerate the phase-0 golden or hide other new frames.
+        budget_events = [event for event in actual["jsonl_events"]
+                         if event.get("type") == "harness"
+                         and event.get("event") == "context_budget"]
+        self.assertEqual(len(budget_events), 2)
+        actual["jsonl_events"] = [event for event in actual["jsonl_events"]
+            if not (event.get("type") == "harness"
+                    and event.get("event") == "context_budget")]
         self.assertEqual(
-            capture_server_and_provider(), self.expected["server_and_provider"]
+            actual, self.expected["server_and_provider"]
         )
 
     def test_approval_denial_acceptance_and_missing_git(self):

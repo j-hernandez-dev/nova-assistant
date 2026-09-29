@@ -28,7 +28,7 @@ class SessionManager:
 
     Args:
         state_dir: Base directory for application state (e.g.
-            ``~/.local/state/local-cli``).  A ``sessions`` subdirectory will
+            ``~/.local/state/nova``).  A ``sessions`` subdirectory will
             be created automatically.
     """
 

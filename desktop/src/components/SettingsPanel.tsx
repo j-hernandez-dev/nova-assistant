@@ -1,8 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
+import type { RAGStatus } from '../../shared/application'
 
 type Props = {
   onClose: () => void
   backendGitCapability: 'UNAVAILABLE' | 'AVAILABLE_NOT_REPOSITORY' | 'AVAILABLE_REPOSITORY' | null
+  rag?: RAGStatus
+  ragProgress: string
+  ragResult: { matches?: Array<Record<string, any>> } | null
+  onRAGEnabled: (enabled: boolean) => void
+  onRAGQuery: (query: string) => void
 }
 
 type AppUpdateInfo = {
@@ -20,7 +26,8 @@ type UpdateProgress = {
   percent: number
 }
 
-export function SettingsPanel({ onClose, backendGitCapability }: Props) {
+export function SettingsPanel({ onClose, backendGitCapability, rag, ragProgress, ragResult, onRAGEnabled, onRAGQuery }: Props) {
+  const [ragQuery, setRAGQuery] = useState('')
   const [appVersion, setAppVersion] = useState('')
   const [appUpdate, setAppUpdate] = useState<AppUpdateInfo | null>(null)
   const [checkingApp, setCheckingApp] = useState(false)
@@ -186,6 +193,19 @@ export function SettingsPanel({ onClose, backendGitCapability }: Props) {
           </div>
 
           {/* Keyboard Shortcuts */}
+          <div className="settings-section" data-testid="rag-panel">
+            <div className="settings-section-title">Project retrieval (RAG)</div>
+            <label>
+              <input type="checkbox" aria-label="Enable project retrieval" checked={rag?.enabled || false}
+                disabled={!rag || !!ragProgress} onChange={e => onRAGEnabled(e.target.checked)} /> Enable
+            </label>
+            <p role="status">{rag?.availability || 'UNKNOWN'}{ragProgress ? ` — ${ragProgress}` : ''}</p>
+            {rag?.error && <p role="alert">{rag.error.code}: {rag.error.message || 'Retrieval unavailable; conversation remains available.'}</p>}
+            <input aria-label="Project retrieval query" value={ragQuery} onChange={e => setRAGQuery(e.target.value)} />
+            <button disabled={!rag?.enabled || !!ragProgress || !ragQuery.trim()} onClick={() => onRAGQuery(ragQuery)}>Query project</button>
+            {ragResult?.matches?.map((match, i) => <p key={i}>{match.file_path}: {match.content}</p>)}
+          </div>
+
           <div className="settings-section">
             <div className="settings-section-title">Keyboard Shortcuts</div>
             <div className="settings-shortcut">

@@ -772,6 +772,7 @@ _FILE_TOOLS = frozenset({"read", "write", "edit"})
 
 def files_known_to_conversation(
     messages: list[dict[str, Any]],
+    *, cwd: str | Path | None = None,
 ) -> set[str]:
     """Absolute paths of files any read/write/edit call has addressed.
 
@@ -803,7 +804,8 @@ def files_known_to_conversation(
                 continue
             path = args.get("file_path") or args.get("path")
             if isinstance(path, str) and path:
-                known.add(os.path.abspath(path))
+                known.add(str((Path(cwd) / path).resolve()) if cwd is not None
+                          else os.path.abspath(path))
     return known
 
 
@@ -943,6 +945,7 @@ def verify_file_write(
     tool_name: str,
     arguments: dict[str, Any],
     result: str,
+    *, cwd: str | Path | None = None,
 ) -> str | None:
     """Syntax-check a file right after a successful write/edit.
 
@@ -974,6 +977,8 @@ def verify_file_write(
         return None
 
     path = Path(file_path)
+    if not path.is_absolute() and cwd is not None:
+        path = Path(cwd) / path
     suffix = path.suffix.lower()
 
     try:

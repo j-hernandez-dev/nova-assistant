@@ -8,11 +8,15 @@ check, and returns content with line numbers.  Supports ``offset`` and
 from pathlib import Path
 
 from local_cli.tools._fileio import not_found_error
+from local_cli.tools._paths import capture_cwd, relative_path_escapes, resolve_tool_path
 from local_cli.tools.base import Tool
 
 
 class ReadTool(Tool):
     """Read the contents of a file and return it with line numbers."""
+
+    def __init__(self, *, cwd: str | Path | None = None) -> None:
+        self.cwd = capture_cwd(cwd)
 
     @property
     def cacheable(self) -> bool:
@@ -84,10 +88,12 @@ class ReadTool(Tool):
             else:
                 limit = max(1, int(limit))
 
-        path = Path(file_path)
+        if relative_path_escapes(file_path, self.cwd):
+            return f"Error: path rejected (directory traversal not allowed): {file_path}"
+        path = resolve_tool_path(file_path, self.cwd)
 
         if not path.exists():
-            return not_found_error(file_path)
+            return not_found_error(file_path, self.cwd)
 
         if not path.is_file():
             return f"Error: not a regular file: {file_path}"

@@ -10,8 +10,8 @@ CONFIG_DEFAULTS: dict[str, object] = {
     "model": "qwen3.5:9b-q4_K_M",
     "sidecar_model": "",
     "ollama_host": "http://localhost:11434",
-    "state_dir": "~/.local/state/local-cli",
-    "config_file": "~/.config/local-cli/config",
+    "state_dir": "~/.local/state/nova",
+    "config_file": "~/.config/nova/config",
     "auto_approve": False,
     "shell_backend": "native",
     "debug": False,
@@ -26,9 +26,11 @@ CONFIG_DEFAULTS: dict[str, object] = {
     "knowledge_dir": ".agents/knowledge",
     "skills_dir": ".agents/skills",
     "default_mode": "agent",
-    # "auto" sizes the context window per model and machine at runtime
-    # (see context_sizing.resolve_num_ctx); an integer pins it.
+    # ContextManager validates AUTO or a manual V1 preset at inference.
     "num_ctx": "auto",
+    "context_output_reserve": None,
+    "context_safety_margin": None,
+    "context_resource_limit": None,
     "temperature": None,
     "top_p": None,
     "top_k": None,
@@ -49,6 +51,9 @@ ENV_VAR_MAP: dict[str, str] = {
     "LOCAL_CLI_PROVIDER": "provider",
     "OLLAMA_HOST": "ollama_host",
     "LOCAL_CLI_NUM_CTX": "num_ctx",
+    "LOCAL_CLI_CONTEXT_OUTPUT_RESERVE": "context_output_reserve",
+    "LOCAL_CLI_CONTEXT_SAFETY_MARGIN": "context_safety_margin",
+    "LOCAL_CLI_CONTEXT_RESOURCE_LIMIT": "context_resource_limit",
     "LOCAL_CLI_TEMPERATURE": "temperature",
     "LOCAL_CLI_TOP_P": "top_p",
     "LOCAL_CLI_TOP_K": "top_k",
@@ -264,10 +269,17 @@ class Config:
         self.knowledge_dir: str = str(merged["knowledge_dir"])
         self.skills_dir: str = str(merged["skills_dir"])
         self.default_mode: str = str(merged["default_mode"])
-        # 0 = "auto": resolved per model/machine each turn by
-        # context_sizing.resolve_num_ctx; any positive integer pins it.
+        # 0 = AUTO. A manual preset is validated by the common context policy;
+        # it is never silently clamped or sent past a known limit.
         raw_num_ctx = str(merged["num_ctx"]).strip().lower()
-        self.num_ctx: int = 0 if raw_num_ctx == "auto" else int(raw_num_ctx)
+        self.num_ctx: int = (0 if raw_num_ctx == "auto" else
+                            {"4k": 4096, "8k": 8192, "16k": 16384, "32k": 32768}[raw_num_ctx]
+                            if raw_num_ctx in ("4k", "8k", "16k", "32k") else int(raw_num_ctx))
+        for key in ("context_output_reserve", "context_safety_margin", "context_resource_limit"):
+            value = _parse_optional_int(merged[key])
+            if value is not None and value < 1:
+                raise ValueError(key + " must be positive")
+            setattr(self, key, value)
         self.temperature: float | None = _parse_optional_float(merged["temperature"])
         self.top_p: float | None = _parse_optional_float(merged["top_p"])
         self.top_k: int | None = _parse_optional_int(merged["top_k"])

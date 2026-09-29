@@ -20,7 +20,7 @@ model's context window.  Disable with LOCAL_CLI_PROJECT_INSTRUCTIONS=0.
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 # Precedence within a directory: our native name first, then the
 # cross-tool standard, then Claude Code's file.
@@ -33,9 +33,10 @@ _MAX_CHARS = 8_000
 _DISABLE_VALUES = frozenset({"0", "false", "off", "no"})
 
 
-def project_instructions_enabled() -> bool:
+def project_instructions_enabled(environment: Mapping[str, str] | None = None) -> bool:
     """Whether LOCAL_CLI_PROJECT_INSTRUCTIONS allows injection."""
-    value = os.environ.get(
+    source = os.environ if environment is None else environment
+    value = source.get(
         "LOCAL_CLI_PROJECT_INSTRUCTIONS", "",
     ).strip().lower()
     return value not in _DISABLE_VALUES
@@ -76,6 +77,7 @@ def find_instruction_file(cwd: str | None = None) -> Path | None:
 
 def load_project_instructions(
     cwd: str | None = None,
+    environment: Mapping[str, str] | None = None,
 ) -> tuple[str, str] | None:
     """Return ``(source_name, clipped_content)`` or None.
 
@@ -83,7 +85,7 @@ def load_project_instructions(
     ``AGENTS.md``) for display; unreadable or empty files count as
     absent.
     """
-    if not project_instructions_enabled():
+    if not project_instructions_enabled(environment):
         return None
     path = find_instruction_file(cwd)
     if path is None:

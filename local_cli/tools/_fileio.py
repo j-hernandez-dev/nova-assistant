@@ -11,8 +11,10 @@ import os
 import tempfile
 from pathlib import Path
 
+from local_cli.tools._paths import capture_cwd
 
-def find_similar_path(requested: str) -> str | None:
+
+def find_similar_path(requested: str, cwd: str | Path | None = None) -> str | None:
     """Find a file under the cwd sharing the requested path's file name.
 
     Small models frequently hallucinate an absolute prefix
@@ -35,7 +37,7 @@ def find_similar_path(requested: str) -> str | None:
     name = Path(requested).name
     if not name:
         return None
-    cwd = Path.cwd()
+    cwd = capture_cwd(cwd)
 
     direct = cwd / name
     if direct.is_file():
@@ -60,10 +62,10 @@ def find_similar_path(requested: str) -> str | None:
     return None
 
 
-def not_found_error(file_path: str) -> str:
+def not_found_error(file_path: str, cwd: str | Path | None = None) -> str:
     """Build a file-not-found error, suggesting the real path when known."""
     error = f"Error: file not found: {file_path}"
-    hint = find_similar_path(file_path)
+    hint = find_similar_path(file_path, cwd)
     if hint is not None and hint != file_path:
         return (
             f"{error}. A file with that name exists at '{hint}' "

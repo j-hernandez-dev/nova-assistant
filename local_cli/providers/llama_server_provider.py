@@ -193,7 +193,7 @@ class LlamaServerProvider(LLMProvider):
                 })
             result["tool_calls"] = normalized_calls
 
-        return {"message": result}
+        return {"message": result, **({"usage": data["usage"]} if isinstance(data.get("usage"), dict) else {})}
 
     # ------------------------------------------------------------------
     # LLMProvider interface
@@ -272,6 +272,13 @@ class LlamaServerProvider(LLMProvider):
         # Accumulate tool_calls across chunks
         accumulated_tool_calls: list[dict[str, Any]] = []
         tool_call_buffers: dict[int, dict[str, Any]] = {}
+        usage: dict[str, Any] = {}
+
+        def terminal_chunk():
+            message = {"content": ""}
+            if accumulated_tool_calls:
+                message["tool_calls"] = accumulated_tool_calls
+            return {"message": message, "done": True, **({"usage": usage} if usage else {})}
 
         try:
             for raw_line in resp:
@@ -281,17 +288,7 @@ class LlamaServerProvider(LLMProvider):
                 if line.startswith("data: "):
                     line = line[6:]
                 if line == "[DONE]":
-                    # Final chunk — emit with tool_calls if any
-                    if accumulated_tool_calls:
-                        yield {
-                            "message": {
-                                "content": "",
-                                "tool_calls": accumulated_tool_calls,
-                            },
-                            "done": True,
-                        }
-                    else:
-                        yield {"message": {"content": ""}, "done": True}
+                    yield terminal_chunk()
                     return
 
                 try:
@@ -299,7 +296,12 @@ class LlamaServerProvider(LLMProvider):
                 except json.JSONDecodeError:
                     continue
 
-                choice = chunk.get("choices", [{}])[0]
+                if isinstance(chunk.get("usage"), dict):
+                    usage = chunk["usage"]
+                choices = chunk.get("choices") or []
+                if not choices:
+                    continue
+                choice = choices[0]
                 delta = choice.get("delta", {})
                 finish = choice.get("finish_reason")
 
@@ -345,9 +347,9 @@ class LlamaServerProvider(LLMProvider):
                             "id": buf["id"],
                         })
 
-                if finish is not None and finish != "tool_calls":
-                    yield {"message": {"content": ""}, "done": True}
-                    return
+            # Keep reading after finish_reason to accept a usage-only frame.
+            # Some compatible endpoints close without a [DONE] marker.
+            yield terminal_chunk()
         finally:
             resp.close()
 

@@ -55,9 +55,14 @@ class Orchestrator:
         self._providers: dict[str, LLMProvider] = {}
         self._active_provider_name: str = config.provider
         self._brain_model: str = config.orchestrator_model or config.model
+        self._provider_manager = None
 
         # Sub-agent runner is lazily created on first use.
         self._sub_agent_runner: SubAgentRunner | None = None
+
+    def bind_provider_manager(self, manager) -> None:
+        """Temporary compatibility view; session provider state lives in Application."""
+        self._provider_manager = manager
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -120,6 +125,8 @@ class Orchestrator:
             ValueError: If the provider name is unknown or the provider
                 cannot be initialized.
         """
+        if self._provider_manager is not None and name in (None, self.get_active_provider_name()):
+            return self._provider_manager.snapshot()
         if name is None:
             name = self._active_provider_name
 
@@ -140,6 +147,8 @@ class Orchestrator:
         Raises:
             ValueError: If the active provider cannot be initialized.
         """
+        if self._provider_manager is not None:
+            return self._provider_manager.snapshot()
         return self.get_provider(self._active_provider_name)
 
     def get_active_provider_name(self) -> str:
@@ -148,6 +157,8 @@ class Orchestrator:
         Returns:
             The active provider name string (e.g. ``'ollama'``).
         """
+        if self._provider_manager is not None:
+            return self._provider_manager.snapshot().name
         return self._active_provider_name
 
     def switch_provider(self, name: str) -> LLMProvider:
@@ -168,6 +179,11 @@ class Orchestrator:
             ValueError: If neither the requested provider nor the
                 fallback can be initialized.
         """
+        if self._provider_manager is not None:
+            current = self._provider_manager.change_provider(name)
+            self._config.model = current.snapshot.model_id
+            self._config.provider = current.name
+            return current
         try:
             provider = self.get_provider(name)
             self._active_provider_name = name
@@ -245,7 +261,7 @@ class Orchestrator:
         if self._registry is not None:
             return self._registry.get_model_for_task(task_type)
 
-        return (self._active_provider_name, self._config.model)
+        return (self.get_active_provider_name(), self._config.model)
 
     def get_provider_for_task(
         self,
@@ -325,6 +341,8 @@ class Orchestrator:
             ValueError: If the provider name is unknown or the provider
                 cannot be initialized.
         """
+        if self._provider_manager is not None and name in (None, self.get_active_provider_name()):
+            return self._provider_manager.snapshot().fresh()
         if name is None:
             name = self._active_provider_name
         return self._create_provider(name)
@@ -383,7 +401,8 @@ class Orchestrator:
 
         runner = self._ensure_sub_agent_runner()
         fresh_provider = self.create_fresh_provider()
-        agent_model = model or self._config.model
+        agent_model = model or (fresh_provider.snapshot.model_id
+                               if self._provider_manager is not None else self._config.model)
         sub_agent_tools = get_sub_agent_tools()
 
         sub_agent = SubAgent(

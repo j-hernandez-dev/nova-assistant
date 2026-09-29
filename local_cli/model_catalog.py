@@ -199,7 +199,7 @@ def get_categories() -> list[str]:
 # Persistent catalog cache (updated from ollama.com)
 # ---------------------------------------------------------------------------
 
-_CACHE_DIR = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "local-cli"
+_CACHE_DIR = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "nova"
 _CACHE_FILE = _CACHE_DIR / "model_catalog.json"
 _CACHE_MAX_AGE = 24 * 60 * 60  # 24 hours
 

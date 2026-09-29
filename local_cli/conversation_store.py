@@ -61,31 +61,30 @@ class ConversationStore:
 
     def save(self, messages: list[dict[str, Any]]) -> None:
         """Persist the conversation (minus system messages).  Never raises."""
+        try:
+            self.save_checked(messages)
+        except Exception:
+            pass  # legacy fail-open facade; application can observe failures
+
+    def save_checked(self, messages: list[dict[str, Any]]) -> None:
+        """Same legacy format/retention, with observable errors for adapters."""
         if not self._enabled:
             return
         keep = [
             m for m in messages
             if isinstance(m, dict) and m.get("role") != "system"
         ][-_MAX_MESSAGES:]
-        try:
-            self._dir.mkdir(parents=True, exist_ok=True)
-            tmp_path = self.path.with_suffix(".tmp")
-            with open(tmp_path, "w", encoding="utf-8") as fh:
-                fh.write(json.dumps({
-                    "_meta": True,
-                    "saved_at": datetime.now(timezone.utc).isoformat(
-                        timespec="seconds",
-                    ),
-                    "cwd": self._cwd,
-                }, ensure_ascii=False) + "\n")
-                for message in keep:
-                    fh.write(
-                        json.dumps(message, ensure_ascii=False, default=str)
-                        + "\n",
-                    )
-            os.replace(tmp_path, self.path)
-        except Exception:
-            pass  # fail-open: autosave must never break the session
+        self._dir.mkdir(parents=True, exist_ok=True)
+        tmp_path = self.path.with_suffix(".tmp")
+        with open(tmp_path, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps({
+                "_meta": True,
+                "saved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "cwd": self._cwd,
+            }, ensure_ascii=False) + "\n")
+            for message in keep:
+                fh.write(json.dumps(message, ensure_ascii=False, default=str) + "\n")
+        os.replace(tmp_path, self.path)
 
     def load(self) -> list[dict[str, Any]]:
         """Return the saved messages ([] if absent or unreadable)."""

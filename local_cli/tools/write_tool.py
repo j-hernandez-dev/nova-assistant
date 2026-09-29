@@ -5,10 +5,10 @@ parent directories as needed (equivalent to ``mkdir -p``).  Validates
 paths to prevent directory traversal attacks.
 """
 
-import os
 from pathlib import Path
 
 from local_cli.tools._fileio import atomic_write_text
+from local_cli.tools._paths import capture_cwd, resolve_tool_path
 from local_cli.tools.base import Tool
 
 
@@ -18,7 +18,7 @@ _BLOCKED_PREFIXES = (
 )
 
 
-def _is_path_safe(file_path: str) -> bool:
+def _is_path_safe(file_path: str, cwd: str | Path | None = None) -> bool:
     """Check that a file path does not contain directory traversal or target
     sensitive system directories.
 
@@ -33,7 +33,8 @@ def _is_path_safe(file_path: str) -> bool:
         True if the path is safe, False otherwise.
     """
     try:
-        resolved = Path(file_path).resolve()
+        working_dir = capture_cwd(cwd)
+        resolved = resolve_tool_path(file_path, working_dir)
         resolved_str = str(resolved)
 
         # Block writes to sensitive system directories.
@@ -43,8 +44,7 @@ def _is_path_safe(file_path: str) -> bool:
 
         # For relative paths, enforce cwd boundary.
         if not Path(file_path).is_absolute():
-            cwd = Path.cwd().resolve()
-            return resolved == cwd or resolved_str.startswith(str(cwd) + os.sep)
+            return resolved.is_relative_to(working_dir)
 
         return True
     except (OSError, ValueError):
@@ -53,6 +53,9 @@ def _is_path_safe(file_path: str) -> bool:
 
 class WriteTool(Tool):
     """Create or overwrite a file with the given content."""
+
+    def __init__(self, *, cwd: str | Path | None = None) -> None:
+        self.cwd = capture_cwd(cwd)
 
     @property
     def name(self) -> str:
@@ -107,10 +110,10 @@ class WriteTool(Tool):
             return "Error: 'content' parameter is required and must be a string."
 
         # Security check: reject directory traversal.
-        if not _is_path_safe(file_path):
+        if not _is_path_safe(file_path, self.cwd):
             return f"Error: path rejected (directory traversal not allowed): {file_path}"
 
-        path = Path(file_path)
+        path = resolve_tool_path(file_path, self.cwd)
 
         # Reject writing to a directory.  Small models frequently pass
         # the working directory here and then give up, so tell them the

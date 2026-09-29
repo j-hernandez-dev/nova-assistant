@@ -60,15 +60,6 @@ class TestDispatchAlternateModes(unittest.TestCase):
         self.assertTrue(handled)
         run_server.assert_called_once()
 
-    def test_web_monitor_mode(self) -> None:
-        config = Config()
-        with patch("local_cli.web_monitor.run_web_monitor") as run_web:
-            handled = _dispatch_alternate_modes(
-                _args(web_monitor=True, web_port=7071), config,
-            )
-        self.assertTrue(handled)
-        run_web.assert_called_once_with(config=config, port=7071)
-
     def test_update_mode_no_updates(self) -> None:
         with patch(
             "local_cli.updater.check_for_updates",
@@ -167,7 +158,7 @@ class TestInitRag(unittest.TestCase):
 
     def test_failure_warns_and_returns_none(self) -> None:
         with patch(
-            "local_cli.__main__.RAGEngine",
+            "local_cli.__main__.create_rag_service",
             side_effect=RuntimeError("no embeddings"),
         ):
             with patch("sys.stderr"):

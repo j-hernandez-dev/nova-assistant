@@ -6,6 +6,14 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'path'
+import { DesktopApplicationClient } from './application_client'
+
+// Keep the user profile independent of the legacy package name. Set both paths
+// before ready so Chromium caches/cookies also use the Nova profile.
+const desktopDataPath = path.join(app.getPath('appData'), 'nova-desktop')
+fs.mkdirSync(desktopDataPath, { recursive: true })
+app.setPath('userData', desktopDataPath)
+app.setPath('sessionData', desktopDataPath)
 
 // Read the real version from package.json (via Electron) instead of
 // hardcoding — a stale hardcode was shown in the UI for several releases.
@@ -15,17 +23,24 @@ const GITHUB_REPO = 'lutelute/local-cli'
 // Claude auth credential storage path.
 const CLAUDE_AUTH_PATH = path.join(
   process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'),
-  'local-cli',
+  'nova',
   'claude-auth.json',
 )
 
 let mainWindow: BrowserWindow | null = null
 let pythonProcess: ChildProcess | null = null
 let lineBuffer = ''
-let pendingMessages: object[] = []
 let rendererReady = false
 let lastReadyMessage: object | null = null
 let storedApiKey: string | null = null
+let restartWorkspace: string | null = null
+let restartReady: Record<string, any> | null = null
+let restoreAfterRestart = false
+const applicationClient = new DesktopApplicationClient(sendToPython, view => {
+  if (rendererReady && mainWindow && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send('session-view', view)
+  }
+})
 
 // ---------------------------------------------------------------------------
 // Claude credential storage (encrypted with safeStorage when available)
@@ -296,19 +311,26 @@ function startPythonServer() {
   console.log(`Starting Python server: ${pythonCmd} -m local_cli --server`)
   console.log(`Working directory: ${projectRoot}`)
 
-  const env: Record<string, string> = { ...process.env as Record<string, string>, PYTHONUNBUFFERED: '1' }
+  const env: Record<string, string> = { ...process.env as Record<string, string>, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8' }
   if (storedApiKey) {
     env.ANTHROPIC_API_KEY = storedApiKey
   }
 
-  pythonProcess = spawn(pythonCmd, ['-m', 'local_cli', '--server'], {
+  lineBuffer = ''
+  lastReadyMessage = null
+  const child = spawn(pythonCmd, ['-m', 'local_cli', '--server'], {
     cwd: projectRoot,
     stdio: ['pipe', 'pipe', 'pipe'],
     env,
+    windowsHide: true,
   })
+  pythonProcess = child
+  child.stdout?.setEncoding('utf8')
+  child.stderr?.setEncoding('utf8')
 
-  pythonProcess.stdout?.on('data', (data: Buffer) => {
-    lineBuffer += data.toString()
+  child.stdout?.on('data', (data: string) => {
+    if (pythonProcess !== child) return
+    lineBuffer += data
     const lines = lineBuffer.split('\n')
     // Keep the last incomplete line in the buffer.
     lineBuffer = lines.pop() || ''
@@ -320,36 +342,69 @@ function startPythonServer() {
         // Remember the ready message so we can re-send it on HMR re-mounts.
         if (msg.type === 'ready') {
           lastReadyMessage = msg
+          if (restartWorkspace) {
+            restartReady = msg
+            sendToPython({ id: 'desktop-restart-cwd', type: 'set_cwd', path: restartWorkspace })
+            continue
+          }
+        }
+        if (msg.id === 'desktop-restart-cwd') {
+          restartWorkspace = null
+          if (msg.type === 'cwd_changed' && restartReady) {
+            applicationClient.receive(restartReady)
+            restoreAfterRestart = !!msg.resumable
+          } else {
+            applicationClient.receive(restartReady || {})
+            applicationClient.receive(msg)
+          }
+          restartReady = null
+        }
+        applicationClient.receive(msg)
+        if (restoreAfterRestart && applicationClient.view.status.ready) {
+          restoreAfterRestart = false
+          // Restore the saved transcript, never effects or pending requests.
+          void applicationClient.command('ExecuteCommand', { name: 'resume' })
         }
         if (rendererReady && mainWindow) {
           mainWindow.webContents.send('python-message', msg)
-        } else {
-          // Buffer messages until renderer is ready.
-          pendingMessages.push(msg)
         }
       } catch {
-        console.error('Invalid JSON from Python:', line)
+        console.error('Invalid JSON from Python')
       }
     }
   })
 
-  pythonProcess.stderr?.on('data', (data: Buffer) => {
-    const text = data.toString()
+  child.stderr?.on('data', (text: string) => {
+    if (pythonProcess !== child) return
     console.error('[python stderr]', text)
     mainWindow?.webContents.send('python-stderr', text)
   })
 
-  pythonProcess.on('exit', (code) => {
+  child.on('error', () => {
+    if (pythonProcess !== child) return
+    pythonProcess = null
+    applicationClient.disconnected()
+  })
+  child.stdin?.on('error', () => {
+    if (pythonProcess === child) applicationClient.disconnected()
+  })
+  child.on('exit', (code) => {
+    if (pythonProcess !== child) return
     console.log(`Python process exited with code ${code}`)
     mainWindow?.webContents.send('python-exit', code)
     pythonProcess = null
+    applicationClient.disconnected()
   })
 }
 
 function sendToPython(data: object) {
   if (pythonProcess?.stdin?.writable) {
-    pythonProcess.stdin.write(JSON.stringify(data) + '\n')
+    try {
+      pythonProcess.stdin.write(JSON.stringify(data) + '\n')
+      return true
+    } catch { return false }
   }
+  return false
 }
 
 function createWindow() {
@@ -376,8 +431,10 @@ function createWindow() {
   }
 
   mainWindow.on('closed', () => {
+    rendererReady = false
     mainWindow = null
   })
+  mainWindow.webContents.on('did-start-loading', () => { rendererReady = false })
 }
 
 // IPC handlers.
@@ -389,18 +446,21 @@ ipcMain.handle('get-python-status', () => {
   return { running: pythonProcess !== null && !pythonProcess.killed }
 })
 
+ipcMain.handle('application-command', (_event, kind: string, payload: Record<string, unknown>, commandId?: string) => {
+  return applicationClient.command(kind, payload, commandId)
+})
+ipcMain.handle('restart-backend', () => {
+  if (pythonProcess) return { success: false, error: 'Backend is already running.' }
+  restartWorkspace = applicationClient.view.workspace || findProjectRoot()
+  startPythonServer()
+  return { success: true }
+})
+
 ipcMain.on('renderer-ready', () => {
   rendererReady = true
-  const hadPending = pendingMessages.length > 0
-  // Flush any messages that arrived before the renderer was ready.
-  for (const msg of pendingMessages) {
-    mainWindow?.webContents.send('python-message', msg)
-  }
-  pendingMessages = []
-
-  // On HMR re-mounts (and React StrictMode double-mounts) the buffer is
-  // empty but the renderer needs the ready message again.
-  if (!hadPending && lastReadyMessage) {
+  mainWindow?.webContents.send('session-view', applicationClient.view)
+  applicationClient.refresh()
+  if (lastReadyMessage) {
     mainWindow?.webContents.send('python-message', lastReadyMessage)
   }
 })

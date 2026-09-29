@@ -48,74 +48,45 @@ class TestSubAgentBashPolicy(unittest.TestCase):
 
 
 class TestGuiConfirm(unittest.TestCase):
-    def _server(self):
-        server = _make_server(provider=None, tools=[])
-        server._config = SimpleNamespace(auto_approve=False)
-        return server
+    """Same security observations through the sole Application approval gate."""
+    def _exercise(self, approved=None, *, auto=False, timeout=None):
+        import tempfile
+        from pathlib import Path
+        from tests.test_nova_core_phase7_server_legacy import approval_adapter
+        from tests.test_nova_core_phase11_adapter import _wait_for
+        with tempfile.TemporaryDirectory() as directory:
+            adapter,app,sent,executor=approval_adapter(Path(directory),auto=auto,timeout=timeout)
+            try:
+                adapter.handle({"id":1,"type":"chat","content":"run"})
+                if approved is not None:
+                    request=_wait_for(sent,"confirm_request")
+                    adapter.handle({"type":"confirm_response","confirm_id":request["confirm_id"],"approved":approved})
+                _wait_for(sent,"done",request_id=1)
+                return sent,executor.run.call_count
+            finally:adapter.close()
 
-    def test_auto_approve_skips_the_dialog(self) -> None:
-        server = self._server()
-        server._config.auto_approve = True
-        sent: list[dict] = []
-        with patch("local_cli.server._send", side_effect=sent.append):
-            self.assertTrue(server._gui_confirm("sudo echo hi"))
-        self.assertEqual(sent, [])
+    def test_auto_approve_skips_the_dialog(self):
+        sent,calls=self._exercise(auto=True)
+        self.assertEqual(calls,1)
+        self.assertFalse(any(m.get("type")=="confirm_request" for m in sent))
 
-    def test_approved_by_gui(self) -> None:
-        server = self._server()
-        sent: list[dict] = []
+    def test_approved_by_gui(self):
+        sent,calls=self._exercise(True)
+        self.assertEqual(calls,1)
+        request=next(m for m in sent if m.get("type")=="confirm_request")
+        self.assertIn("confirm_id",request)
 
-        def send_and_approve(msg: dict) -> None:
-            sent.append(msg)
-            # Simulate the main stdin loop routing the response back.
-            server._confirm_result = True
-            server._confirm_event.set()
+    def test_denied_by_gui(self):
+        _,calls=self._exercise(False)
+        self.assertEqual(calls,0)
 
-        with patch("local_cli.server._send", side_effect=send_and_approve):
-            self.assertTrue(server._gui_confirm("sudo echo hi"))
-        (request,) = sent
-        self.assertEqual(request["type"], "confirm_request")
-        self.assertEqual(request["command"], "sudo echo hi")
-        self.assertIn("confirm_id", request)
+    def test_timeout_denies(self):
+        _,calls=self._exercise(timeout=.05)
+        self.assertEqual(calls,0)
 
-    def test_denied_by_gui(self) -> None:
-        server = self._server()
-
-        def send_and_deny(msg: dict) -> None:
-            server._confirm_result = False
-            server._confirm_event.set()
-
-        with patch("local_cli.server._send", side_effect=send_and_deny):
-            self.assertFalse(server._gui_confirm("kill -9 123"))
-
-    def test_timeout_denies(self) -> None:
-        """Nobody watching means the risky command must NOT run."""
-        server = self._server()
-        with patch("local_cli.server._send"), \
-             patch("local_cli.server._CONFIRM_TIMEOUT_S", 0.05):
-            self.assertFalse(server._gui_confirm("sudo rm -r build"))
-
-    def test_confirm_response_routing_sets_event(self) -> None:
-        """The stdin loop shape: response resolves the waiting thread."""
-        server = self._server()
-        sent: list[dict] = []
-        results: list[bool] = []
-        with patch("local_cli.server._send", side_effect=sent.append):
-            thread = threading.Thread(
-                target=lambda: results.append(
-                    server._gui_confirm("sudo echo hi"),
-                ),
-            )
-            thread.start()
-            for _ in range(200):
-                if sent:
-                    break
-                threading.Event().wait(0.01)
-            # What run() does for req_type == "confirm_response":
-            server._confirm_result = True
-            server._confirm_event.set()
-            thread.join(timeout=5)
-        self.assertEqual(results, [True])
+    def test_confirm_response_routing_sets_event(self):
+        _,calls=self._exercise(True)
+        self.assertEqual(calls,1)
 
 
 class TestPromptSecuritySection(unittest.TestCase):

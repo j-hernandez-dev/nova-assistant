@@ -16,6 +16,7 @@ import difflib
 from pathlib import Path
 
 from local_cli.tools._fileio import atomic_write_text, not_found_error
+from local_cli.tools._paths import capture_cwd, relative_path_escapes, resolve_tool_path
 from local_cli.tools.base import Tool
 
 # Skip the similarity search on big inputs — it is O(lines * window).
@@ -127,6 +128,9 @@ def _make_diff_output(
 class EditTool(Tool):
     """Replace exact text matches in a file."""
 
+    def __init__(self, *, cwd: str | Path | None = None) -> None:
+        self.cwd = capture_cwd(cwd)
+
     @property
     def name(self) -> str:
         return "edit"
@@ -209,10 +213,12 @@ class EditTool(Tool):
         if not isinstance(replace_all, bool):
             replace_all = False
 
-        path = Path(file_path)
+        if relative_path_escapes(file_path, self.cwd):
+            return f"Error: path rejected (directory traversal not allowed): {file_path}"
+        path = resolve_tool_path(file_path, self.cwd)
 
         if not path.exists():
-            return not_found_error(file_path)
+            return not_found_error(file_path, self.cwd)
 
         if not path.is_file():
             return f"Error: not a regular file: {file_path}"

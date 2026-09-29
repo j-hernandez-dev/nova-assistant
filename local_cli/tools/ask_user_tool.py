@@ -1,15 +1,15 @@
-"""Ask user tool for interactive prompts.
+"""Ask-user tool with an injected interface response adapter."""
 
-Presents a question to the user via ``input()`` and returns their
-response.  Useful when the agent needs clarification or confirmation
-before proceeding with an action.
-"""
+from typing import Callable
 
 from local_cli.tools.base import Tool
 
 
 class AskUserTool(Tool):
     """Prompt the user with a question and return their answer."""
+
+    def __init__(self, responder: Callable[[str], str] | None = None) -> None:
+        self._responder = responder
 
     @property
     def name(self) -> str:
@@ -50,8 +50,10 @@ class AskUserTool(Tool):
         if not isinstance(question, str) or not question.strip():
             return "Error: 'question' parameter is required and must be a non-empty string."
 
+        if self._responder is None:
+            return "Error: no input available (non-interactive environment)."
         try:
-            answer = input(f"\n{question}\n> ")
+            answer = self._responder(question)
         except EOFError:
             return "Error: no input available (non-interactive environment)."
         except KeyboardInterrupt:

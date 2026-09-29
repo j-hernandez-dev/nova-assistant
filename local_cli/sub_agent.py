@@ -12,6 +12,8 @@ silently -- no stdout streaming, no spinners, no interactive I/O.
 
 import json
 import os
+import copy
+from pathlib import Path
 import subprocess
 from local_cli.git_capability import GitCapability, detect_git_capability
 import tempfile
@@ -21,14 +23,19 @@ import uuid
 import warnings
 from concurrent.futures import Future, ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any
+from datetime import datetime, timedelta, timezone
+from typing import Any, Callable
+from typing import Mapping
 
 from local_cli.agent import run_agent
 from local_cli.harness import AgentEvent
 from local_cli.prompts import build_system_prompt
 from local_cli.providers.base import LLMProvider
 from local_cli.tools.base import Tool
+from local_cli.execution_paths import capture_cwd
+from local_cli.security import SANITIZED_ENV_VARS, get_sanitized_env
+from local_cli.application.cancellation import CancellationController
+from local_cli.core.contracts import CancellationToken
 
 
 # ---------------------------------------------------------------------------
@@ -49,8 +56,8 @@ class SubAgentResult:
         content: Final output text from the sub-agent (last assistant
             message content).  Empty string on error/timeout if no
             content was produced.
-        status: Execution status -- one of ``'success'``, ``'error'``,
-            or ``'timeout'``.
+        status: Execution status -- ``'success'``, ``'error'``,
+            ``'timeout'``, ``'cancelled'`` or ``'outcome_unknown'``.
         duration_seconds: Wall-clock execution time in seconds.
         messages_count: Total number of messages in the sub-agent's
             conversation history (including system, user, assistant,
@@ -64,7 +71,7 @@ class SubAgentResult:
     agent_id: str
     description: str
     content: str
-    status: str  # "success" | "error" | "timeout"
+    status: str  # "success" | "error" | "timeout" | "cancelled" | "outcome_unknown"
     duration_seconds: float
     messages_count: int
     tool_calls_count: int
@@ -148,15 +155,28 @@ class SubAgent:
         agent_id: str | None = None,
         timeout: float = _DEFAULT_TIMEOUT,
         isolation: str | None = None,
+        cwd: str | Path | None = None,
+        environment: Mapping[str, str] | None = None,
+        cancellation_token: CancellationToken | None = None,
     ) -> None:
         self._provider = provider
+        from local_cli.core.models import ModelRuntimeSnapshot
+        snapshot = getattr(provider, "snapshot", None)
+        self.model_snapshot = snapshot if isinstance(snapshot, ModelRuntimeSnapshot) else None
         self._model = model
+        self._source_tools = list(tools)
         self._tools = list(tools)
         self._prompt = prompt
         self._description = description or "sub-agent task"
         self._agent_id = agent_id or self._generate_agent_id()
         self._timeout = timeout
         self._isolation = isolation
+        self._cwd = capture_cwd(cwd)
+        blocked = {key.casefold() for key in SANITIZED_ENV_VARS}
+        source = get_sanitized_env() if environment is None else environment
+        self._environment = {key: value for key, value in source.items()
+                             if key.casefold() not in blocked}
+        self._cancellation = CancellationController(cancellation_token)
 
         # Each sub-agent gets its own isolated message list.
         self._messages: list[dict[str, Any]] = []
@@ -198,9 +218,8 @@ class SubAgent:
         continues until the LLM responds without tool calls or the
         timeout is reached.
 
-        When worktree isolation is active (``_worktree_path`` is set by
-        :meth:`_setup_worktree`), the working directory is changed to
-        the worktree before the agent loop runs and restored afterward.
+        When worktree isolation is active, each tool receives the worktree
+        cwd without changing the process working directory.
         After completion, the worktree is cleaned up if no changes were
         detected; otherwise it is preserved and its path included in
         the result.
@@ -213,10 +232,65 @@ class SubAgent:
             A :class:`SubAgentResult` containing the final output,
             status, and execution metadata.
         """
+        effective_cwd = (Path(self._worktree_path).resolve()
+                         if self._worktree_path else self._cwd)
+        # Clone cwd-bound built-ins and give each worker its own mutable
+        # todo state.  The AgentTool template can be shared concurrently.
+        from local_cli.application.tool_runtime import (
+            LegacyToolAdapter, ToolRegistry, ToolRuntime,
+        )
+        from local_cli.core.contracts import (
+            AgentId, ExecutionContext, RuntimeCapabilitySnapshot,
+            new_operation_id, new_session_id,
+        )
+        from local_cli.tools.todo_tool import TodoWriteTool
+        from local_cli.tools.shell_tool import ShellTool
+
+        bound_tools: list[Tool] = []
+        for tool in self._source_tools:
+            if isinstance(tool, TodoWriteTool):
+                tool = TodoWriteTool()
+            elif hasattr(tool, "cwd"):
+                tool = copy.copy(tool)
+                tool.cwd = effective_cwd
+                if isinstance(tool, ShellTool):
+                    tool.environment = dict(self._environment)
+            bound_tools.append(tool)
+        has_unknown_effect = False
+
+        def capture_tool_outcome(event) -> None:
+            nonlocal has_unknown_effect
+            result = event[2]
+            if result is not None and result.operation_outcome.value == "outcome_unknown":
+                has_unknown_effect = True
+
+        runtime = ToolRuntime(ToolRegistry(bound_tools, scope="sub_agent"),
+                              publish=capture_tool_outcome)
+        sub_session_id = new_session_id()
+        capability = RuntimeCapabilitySnapshot(
+            captured_at=datetime.now(timezone.utc), source="sub_agent_unprobed",
+        )
+
+        def context_factory() -> ExecutionContext:
+            remaining = max(0.0, self._timeout - (time.monotonic() - start_time))
+            return ExecutionContext(
+                workspace=effective_cwd, cwd=effective_cwd,
+                environment=self._environment, session_id=sub_session_id,
+                operation_id=new_operation_id(), agent_id=AgentId(self._agent_id),
+                cancellation_token=self._cancellation.child(),
+                deadline=datetime.now(timezone.utc) + timedelta(seconds=remaining),
+                capabilities=capability,
+                provider_revision=self.model_snapshot.provider_revision if self.model_snapshot else None,
+            )
+
+        self._tools = [LegacyToolAdapter(tool, runtime, context_factory)
+                       for tool in bound_tools]
+
         # Initialize the message list with system prompt and user task.
         self._messages = [
             {"role": "system",
-             "content": build_system_prompt(self._tools, role="sub_agent")},
+             "content": build_system_prompt(self._tools, role="sub_agent",
+                                            cwd=effective_cwd)},
             {"role": "user", "content": self._prompt},
         ]
         self._tool_calls_count = 0
@@ -226,16 +300,14 @@ class SubAgent:
         # execution timeout starts afterwards.
         start_time = time.monotonic()
 
-        # Change to worktree directory if isolation is active.
-        original_cwd = ""
-        if self._worktree_path:
-            original_cwd = os.getcwd()
-            os.chdir(self._worktree_path)
-
         try:
             final_content = self._run_agent_loop(start_time)
-            status = "success"
-            error_message = ""
+            status = "cancelled" if self._cancellation.is_cancel_requested() else "success"
+            error_message = ("Cancelled by request" if status == "cancelled" else "")
+        except _SubAgentCancelled:
+            status = "cancelled"
+            error_message = "Cancelled by request"
+            final_content = self._extract_last_assistant_content()
         except _SubAgentTimeout as exc:
             status = "timeout"
             error_message = str(exc)
@@ -245,14 +317,9 @@ class SubAgent:
             status = "error"
             error_message = f"{type(exc).__name__}: {exc}"
             final_content = self._extract_last_assistant_content()
-        finally:
-            # Restore original working directory.
-            if original_cwd:
-                try:
-                    os.chdir(original_cwd)
-                except OSError:
-                    pass
-
+        if has_unknown_effect:
+            status = "outcome_unknown"
+            error_message = "A child tool has an unknown effect after interruption."
         duration = time.monotonic() - start_time
 
         # Clean up worktree; preserve if changes were detected.
@@ -317,6 +384,7 @@ class SubAgent:
             self._messages,
             emit=on_event,
             raise_provider_errors=True,
+            should_stop=self._cancellation.is_cancel_requested,
         )
 
     # ------------------------------------------------------------------
@@ -332,12 +400,18 @@ class SubAgent:
         Raises:
             _SubAgentTimeout: If the elapsed time exceeds the timeout.
         """
+        if self._cancellation.is_cancel_requested():
+            raise _SubAgentCancelled()
         elapsed = time.monotonic() - start_time
         if elapsed > self._timeout:
             raise _SubAgentTimeout(
                 f"Sub-agent timed out after {elapsed:.1f}s "
                 f"(limit: {self._timeout}s)"
             )
+
+    def request_cancel(self) -> bool:
+        """Request cancellation; the caller must still wait for a terminal."""
+        return self._cancellation.request()
 
     def _extract_last_assistant_content(self) -> str:
         """Extract the content from the last assistant message, if any.
@@ -374,7 +448,7 @@ class SubAgent:
         Raises:
             _WorktreeError: If ``git worktree add`` fails.
         """
-        capability = detect_git_capability()
+        capability = detect_git_capability(str(self._cwd))
         if capability is GitCapability.UNAVAILABLE:
             raise _WorktreeError("Git is not installed; worktree isolation is unavailable.")
         if capability is GitCapability.AVAILABLE_NOT_REPOSITORY:
@@ -388,7 +462,8 @@ class SubAgent:
         try:
             result = subprocess.run(
                 ["git", "worktree", "add", "-b", branch_name, worktree_dir],
-                capture_output=True, text=True, timeout=30,
+                capture_output=True, text=True, timeout=30, cwd=str(self._cwd),
+                env=dict(self._environment),
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
             raise _WorktreeError(f"git worktree add failed: {exc}") from exc
@@ -403,6 +478,8 @@ class SubAgent:
             capture_output=True,
             text=True,
             timeout=10,
+            cwd=str(self._cwd),
+            env=dict(self._environment),
         )
         self._worktree_path = worktree_dir
         self._worktree_branch = branch_name
@@ -438,6 +515,8 @@ class SubAgent:
                     capture_output=True,
                     text=True,
                     timeout=30,
+                    cwd=str(self._cwd),
+                    env=dict(self._environment),
                 )
             except (subprocess.TimeoutExpired, OSError):
                 pass  # Graceful cleanup -- don't fail.
@@ -449,6 +528,8 @@ class SubAgent:
                     capture_output=True,
                     text=True,
                     timeout=10,
+                    cwd=str(self._cwd),
+                    env=dict(self._environment),
                 )
             except (subprocess.TimeoutExpired, OSError):
                 pass  # Graceful cleanup -- don't fail.
@@ -485,6 +566,8 @@ class SubAgent:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                cwd=str(self._cwd),
+                env=dict(self._environment),
             )
             if status_result.stdout.strip():
                 return True
@@ -496,6 +579,8 @@ class SubAgent:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                cwd=str(self._cwd),
+                env=dict(self._environment),
             )
             current_commit = rev_result.stdout.strip()
             return current_commit != self._worktree_base_commit
@@ -551,6 +636,7 @@ class SubAgentRunner:
         self._ollama_parallel = ollama_parallel
         self._executor: ThreadPoolExecutor | None = None
         self._background: dict[str, Future[SubAgentResult]] = {}
+        self._active_agents: dict[str, tuple[SubAgent, Future[SubAgentResult]]] = {}
         # Cache of results for completed background agents.  A future is
         # moved here (and removed from ``_background``) once its result is
         # retrieved, so the ``_background`` dict — and the thread/message
@@ -568,7 +654,8 @@ class SubAgentRunner:
     # Public API
     # ------------------------------------------------------------------
 
-    def submit(self, sub_agent: "SubAgent") -> SubAgentResult:
+    def submit(self, sub_agent: "SubAgent", *,
+               on_complete: Callable[[SubAgentResult], None] | None = None) -> SubAgentResult:
         """Submit a sub-agent for execution and block until completion.
 
         If the sub-agent has ``isolation='worktree'``, its worktree is
@@ -591,9 +678,31 @@ class SubAgentRunner:
         self._prepare_isolation(sub_agent)
         executor = self._ensure_executor()
         future = executor.submit(sub_agent.run)
+        with self._background_lock:
+            self._active_agents[sub_agent.agent_id] = (sub_agent, future)
         try:
-            return future.result()
+            result = future.result()
+            if on_complete is not None:
+                on_complete(result)
+            return result
         except KeyboardInterrupt:
+            if on_complete is not None:
+                sub_agent.request_cancel()
+                if future.cancel():
+                    result = SubAgentResult(
+                        sub_agent.agent_id, sub_agent.description, "", "cancelled",
+                        0.0, 0, 0, "Cancelled before execution",
+                    )
+                else:
+                    try:
+                        result = future.result()
+                    except BaseException as exc:
+                        result = SubAgentResult(
+                            sub_agent.agent_id, sub_agent.description, "", "outcome_unknown",
+                            0.0, 0, 0, type(exc).__name__,
+                        )
+                on_complete(result)
+                return result
             future.cancel()
             # If the future already completed, return its result.
             if future.done() and not future.cancelled():
@@ -612,8 +721,12 @@ class SubAgentRunner:
                 tool_calls_count=0,
                 error_message="Cancelled by KeyboardInterrupt",
             )
+        finally:
+            with self._background_lock:
+                self._active_agents.pop(sub_agent.agent_id, None)
 
-    def submit_background(self, sub_agent: "SubAgent") -> str:
+    def submit_background(self, sub_agent: "SubAgent", *,
+                          on_complete: Callable[[SubAgentResult], None] | None = None) -> str:
         """Submit a sub-agent for background execution.
 
         If the sub-agent has ``isolation='worktree'``, its worktree is
@@ -635,7 +748,31 @@ class SubAgentRunner:
         future = executor.submit(sub_agent.run)
         with self._background_lock:
             self._background[sub_agent.agent_id] = future
+            self._active_agents[sub_agent.agent_id] = (sub_agent, future)
+        if on_complete is not None:
+            def notify(done: Future[SubAgentResult]) -> None:
+                try:
+                    result = done.result()
+                except Exception as exc:
+                    result = SubAgentResult(
+                        agent_id=sub_agent.agent_id,
+                        description=sub_agent.description, content="",
+                        status="error", duration_seconds=0.0,
+                        messages_count=0, tool_calls_count=0,
+                        error_message=type(exc).__name__,
+                    )
+                on_complete(result)
+            future.add_done_callback(notify)
         return sub_agent.agent_id
+
+    def cancel(self, agent_id: str) -> bool:
+        """Request cancellation without claiming that the child has stopped."""
+        with self._background_lock:
+            active = self._active_agents.get(agent_id)
+            if active is None or active[1].done():
+                return False
+            active[0].request_cancel()
+            return True
 
     def get_background_result(
         self,
@@ -669,6 +806,7 @@ class SubAgentRunner:
             result = future.result()
             self._completed[agent_id] = result
             del self._background[agent_id]
+            self._active_agents.pop(agent_id, None)
             return result
 
     def list_background_agents(self) -> list[dict]:
@@ -865,6 +1003,10 @@ class SubAgentRunner:
 
 class _SubAgentTimeout(Exception):
     """Raised internally when a sub-agent exceeds its timeout."""
+
+
+class _SubAgentCancelled(Exception):
+    """Raised when a parent or runner requests sub-agent cancellation."""
 
 
 class _WorktreeError(Exception):

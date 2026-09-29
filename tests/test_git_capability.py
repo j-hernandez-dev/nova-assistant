@@ -13,7 +13,7 @@ from local_cli.project_map import build_project_map
 from local_cli.updater import check_for_updates
 from local_cli.shell_executor import ShellDescriptor
 from local_cli.tools.bash_tool import BashTool
-from local_cli.cli import _handle_slash_command
+from tests.cli_application_fixture import _handle_slash_command
 from tests.test_server import _make_server
 
 

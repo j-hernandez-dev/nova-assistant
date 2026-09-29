@@ -8,6 +8,7 @@ import time
 import types
 import unittest
 import warnings
+from pathlib import Path
 from io import StringIO
 from typing import Any
 from unittest.mock import MagicMock, call, patch
@@ -3776,14 +3777,10 @@ class TestSubAgentRunWithWorktreeIsolation(unittest.TestCase):
     """Tests for SubAgent.run() with worktree isolation."""
 
     @patch("local_cli.sub_agent.os.chdir")
-    @patch("local_cli.sub_agent.os.getcwd")
-    def test_run_changes_to_worktree_dir_and_restores(
-        self,
-        mock_getcwd: MagicMock,
-        mock_chdir: MagicMock,
+    def test_run_uses_worktree_without_changing_process_cwd(
+        self, mock_chdir: MagicMock,
     ) -> None:
-        """run() changes to worktree dir and restores original cwd."""
-        mock_getcwd.return_value = "/original/cwd"
+        """The worktree is selected per agent without global chdir."""
 
         provider = _make_mock_provider()
         _setup_provider_simple_response(provider, "done in worktree")
@@ -3794,26 +3791,20 @@ class TestSubAgentRunWithWorktreeIsolation(unittest.TestCase):
             tools=[],
             prompt="task",
         )
-        agent._worktree_path = "/tmp/test-worktree"
+        agent._worktree_path = str(Path.cwd() / "test-worktree")
 
         with patch.object(agent, "_teardown_worktree", return_value=False):
             result = agent.run()
 
         self.assertEqual(result.status, "success")
-        # Should have changed to worktree dir.
-        mock_chdir.assert_any_call("/tmp/test-worktree")
-        # Should have restored original dir.
-        mock_chdir.assert_any_call("/original/cwd")
+        mock_chdir.assert_not_called()
+        self.assertIn(agent._worktree_path, agent._messages[0]["content"])
 
     @patch("local_cli.sub_agent.os.chdir")
-    @patch("local_cli.sub_agent.os.getcwd")
-    def test_run_restores_cwd_even_on_error(
-        self,
-        mock_getcwd: MagicMock,
-        mock_chdir: MagicMock,
+    def test_run_does_not_change_cwd_even_on_error(
+        self, mock_chdir: MagicMock,
     ) -> None:
-        """run() restores original cwd even when the agent errors."""
-        mock_getcwd.return_value = "/original/cwd"
+        """A failed agent does not mutate the process cwd."""
 
         provider = _make_mock_provider()
         provider.chat_stream.side_effect = RuntimeError("error in worktree")
@@ -3824,24 +3815,19 @@ class TestSubAgentRunWithWorktreeIsolation(unittest.TestCase):
             tools=[],
             prompt="task",
         )
-        agent._worktree_path = "/tmp/test-worktree"
+        agent._worktree_path = str(Path.cwd() / "test-worktree")
 
         with patch.object(agent, "_teardown_worktree", return_value=False):
             result = agent.run()
 
         self.assertEqual(result.status, "error")
-        # Should still have restored original dir.
-        mock_chdir.assert_any_call("/original/cwd")
+        mock_chdir.assert_not_called()
 
     @patch("local_cli.sub_agent.os.chdir")
-    @patch("local_cli.sub_agent.os.getcwd")
     def test_worktree_preserved_in_result_when_changes(
-        self,
-        mock_getcwd: MagicMock,
-        mock_chdir: MagicMock,
+        self, mock_chdir: MagicMock,
     ) -> None:
         """Result includes worktree_path when changes are detected."""
-        mock_getcwd.return_value = "/original"
 
         provider = _make_mock_provider()
         _setup_provider_simple_response(provider, "modified files")
@@ -3852,12 +3838,13 @@ class TestSubAgentRunWithWorktreeIsolation(unittest.TestCase):
             tools=[],
             prompt="task",
         )
-        agent._worktree_path = "/tmp/changed-worktree"
+        agent._worktree_path = str(Path.cwd() / "changed-worktree")
 
         with patch.object(agent, "_teardown_worktree", return_value=True):
             result = agent.run()
 
-        self.assertEqual(result.worktree_path, "/tmp/changed-worktree")
+        self.assertEqual(result.worktree_path, agent._worktree_path)
+        mock_chdir.assert_not_called()
 
 
 if __name__ == "__main__":

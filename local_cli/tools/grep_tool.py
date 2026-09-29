@@ -8,11 +8,16 @@ Supports case-insensitive search and glob-based file filtering.
 import re
 from pathlib import Path
 
+from local_cli.tools._paths import capture_cwd, relative_path_escapes, resolve_tool_path
+
 from local_cli.tools.base import Tool
 
 
 class GrepTool(Tool):
     """Search file contents using regular expressions."""
+
+    def __init__(self, *, cwd: str | Path | None = None) -> None:
+        self.cwd = capture_cwd(cwd)
 
     @property
     def cacheable(self) -> bool:
@@ -101,7 +106,9 @@ class GrepTool(Tool):
         except re.error as exc:
             return f"Error: invalid regex pattern: {exc}"
 
-        base = Path(search_path)
+        if relative_path_escapes(search_path, self.cwd):
+            return f"Error: path rejected (directory traversal not allowed): {search_path}"
+        base = resolve_tool_path(search_path, self.cwd)
 
         if not base.exists():
             return f"Error: path not found: {search_path}"
@@ -124,6 +131,9 @@ class GrepTool(Tool):
         max_results = 500
 
         for file_path in files:
+            if (not Path(search_path).is_absolute()
+                    and not file_path.resolve().is_relative_to(self.cwd)):
+                continue
             if not file_path.is_file():
                 continue
 
@@ -148,7 +158,9 @@ class GrepTool(Tool):
 
             for line_num, line in enumerate(content.splitlines(), start=1):
                 if regex.search(line):
-                    results.append(f"{file_path}:{line_num}:{line}")
+                    display_path = (file_path if Path(search_path).is_absolute()
+                                    else file_path.relative_to(self.cwd))
+                    results.append(f"{display_path}:{line_num}:{line}")
                     if len(results) >= max_results:
                         results.append(
                             f"... truncated ({max_results} matches shown)"

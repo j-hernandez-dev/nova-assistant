@@ -1,13 +1,10 @@
 """System hardware detection and model recommendation.
 
-Detects available RAM (and GPU type on macOS) to recommend the best
-models that will run comfortably on the user's machine. Uses only
-stdlib — no external dependencies.
+Projects the shared hardware probes into the legacy recommendation UI.
+Unknown RAM remains None; GPU memory is never inferred from system RAM.
 """
 
-import os
 import platform
-import subprocess
 
 
 def get_system_info() -> dict:
@@ -16,76 +13,16 @@ def get_system_info() -> dict:
     Returns:
         Dict with keys: ram_gb, chip, gpu, os, arch.
     """
-    info: dict = {
-        "ram_gb": 0,
-        "chip": "",
-        "gpu": "",
-        "os": platform.system(),
-        "arch": platform.machine(),
-    }
-
-    system = platform.system()
-
-    if system == "Darwin":
-        # macOS — unified memory, so RAM = VRAM.
-        try:
-            raw = subprocess.check_output(
-                ["sysctl", "-n", "hw.memsize"],
-                timeout=5,
-            ).decode().strip()
-            info["ram_gb"] = int(raw) // (1024 ** 3)
-        except Exception:
-            pass
-
-        try:
-            chip = subprocess.check_output(
-                ["sysctl", "-n", "machdep.cpu.brand_string"],
-                timeout=5,
-            ).decode().strip()
-            info["chip"] = chip
-            info["gpu"] = chip  # Apple Silicon: GPU = chip
-        except Exception:
-            pass
-
-    elif system == "Linux":
-        try:
-            with open("/proc/meminfo") as f:
-                for line in f:
-                    if line.startswith("MemTotal:"):
-                        kb = int(line.split()[1])
-                        info["ram_gb"] = kb // (1024 * 1024)
-                        break
-        except Exception:
-            pass
-
-        # Try nvidia-smi for VRAM.
-        try:
-            out = subprocess.check_output(
-                ["nvidia-smi", "--query-gpu=name,memory.total",
-                 "--format=csv,noheader,nounits"],
-                timeout=5,
-            ).decode().strip()
-            if out:
-                parts = out.split(",")
-                info["gpu"] = parts[0].strip()
-        except Exception:
-            pass
-
-    elif system == "Windows":
-        try:
-            raw = subprocess.check_output(
-                ["wmic", "ComputerSystem", "get", "TotalPhysicalMemory"],
-                timeout=5,
-            ).decode()
-            for line in raw.strip().split("\n"):
-                line = line.strip()
-                if line.isdigit():
-                    info["ram_gb"] = int(line) // (1024 ** 3)
-                    break
-        except Exception:
-            pass
-
-    return info
+    from local_cli.infrastructure.capabilities import probe_memory, probe_gpu
+    memory = probe_memory()
+    devices, total, available = probe_gpu()
+    return {"ram_gb": memory.total.value // (1024 ** 3) if memory.total.value is not None else None,
+            "ram_status": memory.total.status.value, "ram_source": memory.source,
+            "ram_error": memory.total.reason, "chip": "",
+            "gpu": ", ".join(device["name"] for device in (devices.value or [])),
+            "gpu_status": devices.status.value,
+            "vram_total_bytes": total.value, "vram_available_bytes": available.value,
+            "os": platform.system(), "arch": platform.machine()}
 
 
 def _usable_ram_gb(ram_gb: int) -> float:
@@ -133,7 +70,9 @@ def recommend_models(
     """
     if ram_gb is None:
         info = get_system_info()
-        ram_gb = info.get("ram_gb", 8)
+        ram_gb = info.get("ram_gb")
+    if ram_gb is None:
+        return []  # Unknown memory is not evidence that a model fits.
 
     usable = _usable_ram_gb(ram_gb)
     results = []

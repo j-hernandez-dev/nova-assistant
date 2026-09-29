@@ -14,7 +14,7 @@ def command_tool(tools):
 
 class TestFrontendFactories(unittest.TestCase):
     def test_public_name_is_compatible_everywhere(self):
-        for frontend in ("cli", "server", "web_monitor", "sub_agent"):
+        for frontend in ("cli", "server", "sub_agent"):
             with self.subTest(frontend=frontend):
                 kwargs = {"confirm": lambda _command: False} if frontend in ("cli", "server") else {}
                 tool = command_tool(create_tools(frontend, **kwargs))
@@ -28,13 +28,13 @@ class TestFrontendFactories(unittest.TestCase):
                     create_tools(frontend)
 
     def test_unattended_frontends_deny_risky_commands(self):
-        for frontend in ("web_monitor", "sub_agent"):
+        for frontend in ("sub_agent",):
             with self.subTest(frontend=frontend):
                 tool = command_tool(create_tools(frontend))
                 self.assertIn("declined", tool.execute(command="sudo echo no").lower())
 
     def test_explicit_auto_approve_preserves_existing_behavior(self):
-        for frontend in ("cli", "server", "web_monitor"):
+        for frontend in ("cli", "server"):
             with self.subTest(frontend=frontend):
                 tool = command_tool(create_tools(frontend, auto_approve=True))
                 self.assertIsNone(tool._confirm)

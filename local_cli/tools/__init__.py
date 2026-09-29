@@ -7,6 +7,8 @@ and :func:`get_tool_map` for name-based lookup.
 
 from local_cli.tools.base import Tool
 from typing import Callable
+from pathlib import Path
+from typing import Mapping
 
 
 def _deny_risky(_command: str) -> bool:
@@ -16,26 +18,30 @@ def _deny_risky(_command: str) -> bool:
 
 def create_tools(frontend: str, *, auto_approve: bool = False,
                  confirm: Callable[[str], bool] | None = None,
-                 preference: str = "native") -> list[Tool]:
+                 ask_user: Callable[[str], str] | None = None,
+                 preference: str = "native", cwd: str | Path | None = None,
+                 environment: Mapping[str, str] | None = None) -> list[Tool]:
     """Single approval policy for every command-tool entry point."""
     if frontend == "sub_agent":
-        return get_sub_agent_tools(preference=preference)
-    if frontend not in ("cli", "server", "web_monitor"):
+        return get_sub_agent_tools(preference=preference, cwd=cwd,
+                                   environment=environment)
+    if frontend not in ("cli", "server"):
         raise ValueError(f"Unknown tool frontend: {frontend}")
     if auto_approve:
         gate = None
-    elif frontend == "web_monitor":
-        gate = _deny_risky
     else:
         if confirm is None:
             raise ValueError(f"{frontend} requires a command approval callback")
         gate = confirm
-    return get_default_tools(confirm=gate, preference=preference)
+    return get_default_tools(confirm=gate, preference=preference, cwd=cwd,
+                             environment=environment, ask_user=ask_user)
 
 
 def get_default_tools(
     confirm: Callable[[str], bool] | None = _deny_risky,
-    *, preference: str = "native",
+    *, preference: str = "native", cwd: str | Path | None = None,
+    environment: Mapping[str, str] | None = None,
+    ask_user: Callable[[str], str] | None = None,
 ) -> list[Tool]:
     """Return a list of all default tool instances.
 
@@ -57,20 +63,23 @@ def get_default_tools(
     from local_cli.tools.write_tool import WriteTool
 
     tools: list[Tool] = [
-        BashTool(confirm=confirm, preference=preference),
-        ReadTool(),
-        WriteTool(),
-        EditTool(),
-        GlobTool(),
-        GrepTool(),
+        BashTool(confirm=confirm, preference=preference, cwd=cwd,
+                 environment=environment),
+        ReadTool(cwd=cwd),
+        WriteTool(cwd=cwd),
+        EditTool(cwd=cwd),
+        GlobTool(cwd=cwd),
+        GrepTool(cwd=cwd),
         WebFetchTool(),
         TodoWriteTool(),
-        AskUserTool(),
+        AskUserTool(responder=ask_user),
     ]
     return tools
 
 
-def get_sub_agent_tools(*, preference: str = "native") -> list[Tool]:
+def get_sub_agent_tools(*, preference: str = "native",
+                        cwd: str | Path | None = None,
+                        environment: Mapping[str, str] | None = None) -> list[Tool]:
     """Return tools suitable for non-interactive sub-agents.
 
     This is the same set as :func:`get_default_tools` but excludes
@@ -94,12 +103,13 @@ def get_sub_agent_tools(*, preference: str = "native") -> list[Tool]:
         # recursive rm, kill, ...) are refused outright instead of
         # running unconfirmed; the refusal message lets the model hand
         # such steps back to the main agent.
-        BashTool(confirm=_deny_risky, preference=preference),
-        ReadTool(),
-        WriteTool(),
-        EditTool(),
-        GlobTool(),
-        GrepTool(),
+        BashTool(confirm=_deny_risky, preference=preference, cwd=cwd,
+                 environment=environment),
+        ReadTool(cwd=cwd),
+        WriteTool(cwd=cwd),
+        EditTool(cwd=cwd),
+        GlobTool(cwd=cwd),
+        GrepTool(cwd=cwd),
         WebFetchTool(),
         TodoWriteTool(),
     ]

@@ -24,8 +24,6 @@ lookup fails the resolver falls back to the historical 8192, so this
 can never make things worse than before.
 """
 
-import subprocess
-import sys
 from typing import Any
 
 _FLOOR = 8192
@@ -36,25 +34,20 @@ _CEILING = 32768
 _max_ctx_cache: dict[str, int] = {}
 
 
-def _system_ram_gb() -> float:
-    """Total physical RAM in GB (0.0 when undetectable)."""
-    try:
-        if sys.platform == "darwin":
-            out = subprocess.run(
-                ["sysctl", "-n", "hw.memsize"],
-                capture_output=True, text=True, timeout=5,
-            )
-            return int(out.stdout.strip()) / 1e9
-        with open("/proc/meminfo", encoding="utf-8") as fh:
-            for line in fh:
-                if line.startswith("MemTotal:"):
-                    return int(line.split()[1]) * 1024 / 1e9
-    except Exception:
-        pass
-    return 0.0
+def _system_ram_gb() -> float | None:
+    """Compatibility projection of the common probe; None means UNKNOWN.
+
+    The legacy numeric resolver is retained for existing callers/tests.
+    Product inference uses ContextManager/OD-05, not these RAM tiers.
+    """
+    from local_cli.infrastructure.capabilities import probe_memory
+    value = probe_memory().total.value
+    return value / 1e9 if value is not None else None
 
 
-def _ram_cap(ram_gb: float) -> int:
+def _ram_cap(ram_gb: float | None) -> int:
+    if ram_gb is None:
+        return _FLOOR
     if ram_gb >= 32:
         return 32768
     if ram_gb >= 16:

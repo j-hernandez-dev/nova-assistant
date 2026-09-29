@@ -7,7 +7,8 @@ except ModuleNotFoundError:
     raise unittest.SkipTest("curses is unavailable on this Windows Python")
 from unittest.mock import MagicMock, patch
 
-from local_cli.cli import _SLASH_COMMANDS, _ReplContext, _handle_slash_command, build_parser
+from tests.cli_application_fixture import _ReplContext, _handle_slash_command
+from local_cli.cli import _SLASH_COMMANDS, build_parser
 from local_cli.config import Config
 from local_cli.model_selector import (
     _build_model_display_data,
@@ -745,14 +746,19 @@ class TestSlashModelsCommand(unittest.TestCase):
 
     def _make_ctx(self) -> _ReplContext:
         """Create a minimal _ReplContext for testing."""
-        config = MagicMock(spec=Config)
+        config = Config()
         config.model = "qwen3:8b"
         client = MagicMock(spec=OllamaClient)
         tools: list = []
         messages = [{"role": "system", "content": "test"}]
         session_manager = MagicMock()
+        from tests.test_nova_core_phase8_providers import Provider, manager
+        provider=Provider()
+        provider.list_models=lambda: [{"name":"qwen3:8b"},{"name":"gemma3:4b"}]
+        backend=manager(provider)
+        backend.change_model("qwen3:8b")
         return _ReplContext(
-            config=config,
+            config=config, provider_manager=backend,
             client=client,
             tools=tools,
             messages=messages,
@@ -765,8 +771,8 @@ class TestSlashModelsCommand(unittest.TestCase):
         self.assertIn("/models", _SLASH_COMMANDS)
 
     @patch(
-        "local_cli.model_selector.select_model_interactive",
-        return_value="gemma3:4b",
+        "builtins.input",
+        return_value="2",
     )
     def test_models_command_updates_config(
         self, mock_selector: MagicMock
@@ -778,11 +784,12 @@ class TestSlashModelsCommand(unittest.TestCase):
 
         self.assertTrue(result)
         self.assertEqual(ctx.config.model, "gemma3:4b")
-        mock_selector.assert_called_once_with(ctx.client, "qwen3:8b")
+        mock_selector.assert_called_once()
+        self.assertEqual(ctx._console.snapshot().model,"gemma3:4b")
 
     @patch(
-        "local_cli.model_selector.select_model_interactive",
-        return_value=None,
+        "builtins.input",
+        return_value="",
     )
     def test_models_command_cancel_keeps_model(
         self, mock_selector: MagicMock
@@ -796,7 +803,7 @@ class TestSlashModelsCommand(unittest.TestCase):
         self.assertEqual(ctx.config.model, "qwen3:8b")
 
     @patch(
-        "local_cli.model_selector.select_model_interactive",
+        "builtins.input",
         side_effect=Exception("unexpected error"),
     )
     def test_models_command_handles_exception(
@@ -817,8 +824,8 @@ class TestSlashModelsCommand(unittest.TestCase):
         ctx = self._make_ctx()
 
         with patch(
-            "local_cli.model_selector.select_model_interactive",
-            return_value=None,
+            "builtins.input",
+            return_value="",
         ):
             result = _handle_slash_command("/models", ctx)
 

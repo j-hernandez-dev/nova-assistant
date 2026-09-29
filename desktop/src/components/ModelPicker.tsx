@@ -25,7 +25,7 @@ export type Recommendation = {
 }
 
 export type SystemInfo = {
-  ram_gb: number
+  ram_gb: number | null
   chip: string
   gpu: string
   os: string
@@ -247,7 +247,7 @@ export function ModelPicker({
         {systemInfo && (
           <div className="picker-system-info">
             <span>{systemInfo.chip || systemInfo.os}</span>
-            <span>{systemInfo.ram_gb} GB RAM</span>
+            <span>{systemInfo.ram_gb === null ? 'RAM unknown' : `${systemInfo.ram_gb} GB RAM`}</span>
           </div>
         )}
         <div className="picker-list">

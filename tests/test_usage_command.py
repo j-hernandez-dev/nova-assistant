@@ -4,7 +4,8 @@ import unittest
 from io import StringIO
 from unittest.mock import MagicMock, patch
 
-from local_cli.cli import _handle_slash_command, _ReplContext, _SLASH_COMMANDS
+from tests.cli_application_fixture import _handle_slash_command, _ReplContext
+from local_cli.cli import _SLASH_COMMANDS
 from local_cli.config import Config
 from local_cli.token_tracker import TokenTracker, TokenUsage
 

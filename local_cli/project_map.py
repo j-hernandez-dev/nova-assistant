@@ -15,7 +15,7 @@ still verifies before editing.  Disable with LOCAL_CLI_PROJECT_MAP=0.
 import os
 import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 _MAX_ENTRIES = 120
 _MAX_CHARS = 2_000
@@ -31,18 +31,20 @@ _DISABLE_VALUES = frozenset({"0", "false", "off", "no"})
 _WALK_MAX_DEPTH = 4
 
 
-def project_map_enabled() -> bool:
+def project_map_enabled(environment: Mapping[str, str] | None = None) -> bool:
     """Whether LOCAL_CLI_PROJECT_MAP allows injection."""
-    value = os.environ.get("LOCAL_CLI_PROJECT_MAP", "").strip().lower()
+    source = os.environ if environment is None else environment
+    value = source.get("LOCAL_CLI_PROJECT_MAP", "").strip().lower()
     return value not in _DISABLE_VALUES
 
 
-def _git_files(cwd: str) -> list[str] | None:
+def _git_files(cwd: str, environment: Mapping[str, str] | None = None) -> list[str] | None:
     """Tracked + untracked-but-not-ignored files, or None outside git."""
     try:
         proc = subprocess.run(
             ["git", "ls-files", "--cached", "--others", "--exclude-standard"],
             cwd=cwd, capture_output=True, text=True, timeout=5,
+            **({} if environment is None else {"env": dict(environment)}),
         )
     except Exception:
         return None
@@ -75,10 +77,11 @@ def _walk_files(cwd: str) -> list[str]:
     return found
 
 
-def build_project_map(cwd: str | None = None) -> str | None:
+def build_project_map(cwd: str | None = None,
+                      environment: Mapping[str, str] | None = None) -> str | None:
     """A sorted, capped file listing for *cwd* (None when empty)."""
     directory = cwd or os.getcwd()
-    files = _git_files(directory)
+    files = _git_files(directory, environment)
     if files is None:
         files = _walk_files(directory)
     files = sorted(set(files))
@@ -94,11 +97,12 @@ def build_project_map(cwd: str | None = None) -> str | None:
     return text
 
 
-def project_map_message(cwd: str | None = None) -> dict[str, Any] | None:
+def project_map_message(cwd: str | None = None,
+                        environment: Mapping[str, str] | None = None) -> dict[str, Any] | None:
     """The injectable system message, or None (disabled/empty dir)."""
-    if not project_map_enabled():
+    if not project_map_enabled(environment):
         return None
-    listing = build_project_map(cwd)
+    listing = build_project_map(cwd, environment)
     if listing is None:
         return None
     return {

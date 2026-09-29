@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 type Props = {
   currentProvider: string
   hasClaude: boolean
-  hasMessages: boolean
+  disabled: boolean
   onSwitch: (provider: string) => void
   onLoginRequest?: () => void
 }
@@ -19,9 +19,8 @@ const PROVIDERS: ProviderOption[] = [
   { id: 'ollama', label: 'Local LLM', description: 'Ollama' },
 ]
 
-export function ProviderSelector({ currentProvider, hasClaude, hasMessages, onSwitch, onLoginRequest }: Props) {
+export function ProviderSelector({ currentProvider, hasClaude, disabled, onSwitch, onLoginRequest }: Props) {
   const [open, setOpen] = useState(false)
-  const [confirming, setConfirming] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Close on Escape key.
@@ -30,7 +29,6 @@ export function ProviderSelector({ currentProvider, hasClaude, hasMessages, onSw
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setOpen(false)
-        setConfirming(null)
       }
     }
     window.addEventListener('keydown', handler)
@@ -43,7 +41,6 @@ export function ProviderSelector({ currentProvider, hasClaude, hasMessages, onSw
     const handler = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false)
-        setConfirming(null)
       }
     }
     window.addEventListener('mousedown', handler)
@@ -51,6 +48,7 @@ export function ProviderSelector({ currentProvider, hasClaude, hasMessages, onSw
   }, [open])
 
   const handleSelect = useCallback((providerId: string) => {
+    if (disabled) return
     if (providerId === currentProvider) {
       setOpen(false)
       return
@@ -62,27 +60,9 @@ export function ProviderSelector({ currentProvider, hasClaude, hasMessages, onSw
       return
     }
 
-    if (hasMessages) {
-      setConfirming(providerId)
-      return
-    }
-
     onSwitch(providerId)
     setOpen(false)
-    setConfirming(null)
-  }, [currentProvider, hasClaude, hasMessages, onSwitch])
-
-  const handleConfirm = useCallback(() => {
-    if (confirming) {
-      onSwitch(confirming)
-      setOpen(false)
-      setConfirming(null)
-    }
-  }, [confirming, onSwitch])
-
-  const handleCancel = useCallback(() => {
-    setConfirming(null)
-  }, [])
+  }, [currentProvider, hasClaude, disabled, onSwitch])
 
   const displayLabel = PROVIDERS.find(p => p.id === currentProvider)?.description || currentProvider
 
@@ -90,7 +70,8 @@ export function ProviderSelector({ currentProvider, hasClaude, hasMessages, onSw
     <div className="provider-select-container" ref={containerRef}>
       <span
         className="model-select"
-        onClick={() => setOpen(!open)}
+        onClick={() => { if (!disabled) setOpen(!open) }}
+        aria-disabled={disabled}
         title="Click to switch provider"
       >
         {displayLabel}
@@ -98,17 +79,7 @@ export function ProviderSelector({ currentProvider, hasClaude, hasMessages, onSw
 
       {open && (
         <div className="provider-dropdown">
-          {confirming ? (
-            <div className="provider-confirm">
-              <div className="provider-confirm-text">
-                Switching providers will clear the conversation. Continue?
-              </div>
-              <div className="provider-confirm-actions">
-                <button className="provider-confirm-btn yes" onClick={handleConfirm}>Switch</button>
-                <button className="provider-confirm-btn no" onClick={handleCancel}>Cancel</button>
-              </div>
-            </div>
-          ) : (
+          {
             PROVIDERS.map(p => {
               const isActive = p.id === currentProvider
               const needsLogin = p.id === 'claude' && !hasClaude
@@ -132,7 +103,7 @@ export function ProviderSelector({ currentProvider, hasClaude, hasMessages, onSw
                 </div>
               )
             })
-          )}
+          }
         </div>
       )}
     </div>

@@ -6,6 +6,10 @@ rolling back to previous checkpoints.  Uses ``subprocess.run`` with
 """
 
 import subprocess
+from pathlib import Path
+from typing import Mapping
+from local_cli.execution_paths import capture_cwd
+from local_cli.security import SANITIZED_ENV_VARS, get_sanitized_env
 from datetime import datetime, timezone
 from local_cli.git_capability import GitCapability, detect_git_capability
 
@@ -52,6 +56,14 @@ class GitOps:
             ops.rollback_to_checkpoint(tag)
     """
 
+    def __init__(self, cwd: str | Path | None = None,
+                 environment: Mapping[str, str] | None = None) -> None:
+        self.cwd = capture_cwd(cwd)
+        blocked = {key.casefold() for key in SANITIZED_ENV_VARS}
+        source = get_sanitized_env() if environment is None else environment
+        self.environment = {key: value for key, value in source.items()
+                            if key.casefold() not in blocked}
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
@@ -87,6 +99,8 @@ class GitOps:
         try:
             result = subprocess.run(
                 ["git", *args], capture_output=True, text=True, timeout=30,
+                cwd=str(self.cwd),
+                env=dict(self.environment),
             )
         except FileNotFoundError as exc:
             raise GitNotInstalledError("git is not installed or not found in PATH.") from exc
@@ -117,7 +131,7 @@ class GitOps:
     # ------------------------------------------------------------------
 
     def capability(self) -> GitCapability:
-        return detect_git_capability()
+        return detect_git_capability(str(self.cwd), self.environment)
 
     def is_git_repo(self) -> bool:
         """Check whether the current working directory is inside a git repo.
@@ -337,8 +351,13 @@ class GitOps:
         for file_path in changed_files:
             # Read current working tree version as raw bytes.
             try:
-                with open(file_path, "rb") as fh:
-                    current_bytes = fh.read()
+                candidate = (self.cwd / file_path).resolve()
+                if candidate.is_relative_to(self.cwd):
+                    with candidate.open("rb") as fh:
+                        current_bytes = fh.read()
+                else:
+                    # A tracked symlink must not read outside this cwd.
+                    current_bytes = b""
             except (FileNotFoundError, OSError):
                 # File was deleted from the working tree.
                 current_bytes = b""
@@ -437,6 +456,8 @@ class GitOps:
                 capture_output=True,
                 text=True,
                 timeout=10,
+                cwd=str(self.cwd),
+                env=dict(self.environment),
             )
         except (FileNotFoundError, subprocess.TimeoutExpired):
             return []

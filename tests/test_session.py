@@ -616,75 +616,19 @@ class TestSaveSessionWithTokenUsage(unittest.TestCase):
             self.assertNotIn("token_usage", loaded[1])
 
 
-class TestReplContextTokenTrackerAndToolCache(unittest.TestCase):
-    """Tests for _ReplContext token_tracker and tool_cache attributes."""
+class TestBackendTelemetryOwnership(unittest.TestCase):
+    def test_cli_does_not_own_a_second_repl_context(self):
+        import local_cli.cli as cli
+        self.assertFalse(hasattr(cli,"_ReplContext"))
+        self.assertFalse(hasattr(cli,"agent_loop"))
 
-    def test_repl_context_has_token_tracker_slot(self) -> None:
-        """_ReplContext includes token_tracker in __slots__."""
-        from local_cli.cli import _ReplContext
-
-        self.assertIn("token_tracker", _ReplContext.__slots__)
-
-    def test_repl_context_has_tool_cache_slot(self) -> None:
-        """_ReplContext includes tool_cache in __slots__."""
-        from local_cli.cli import _ReplContext
-
-        self.assertIn("tool_cache", _ReplContext.__slots__)
-
-    def test_repl_context_defaults_to_none(self) -> None:
-        """token_tracker and tool_cache default to None."""
-        from unittest.mock import MagicMock
-
-        from local_cli.cli import _ReplContext
-
-        ctx = _ReplContext(
-            config=MagicMock(),
-            client=MagicMock(),
-            tools=[],
-            messages=[],
-            session_manager=MagicMock(),
-            system_prompt="",
-        )
-        self.assertIsNone(ctx.token_tracker)
-        self.assertIsNone(ctx.tool_cache)
-
-    def test_repl_context_accepts_token_tracker(self) -> None:
-        """_ReplContext can be constructed with a token_tracker."""
-        from unittest.mock import MagicMock
-
-        from local_cli.cli import _ReplContext
-        from local_cli.token_tracker import TokenTracker
-
-        tracker = TokenTracker()
-        ctx = _ReplContext(
-            config=MagicMock(),
-            client=MagicMock(),
-            tools=[],
-            messages=[],
-            session_manager=MagicMock(),
-            system_prompt="",
-            token_tracker=tracker,
-        )
-        self.assertIs(ctx.token_tracker, tracker)
-
-    def test_repl_context_accepts_tool_cache(self) -> None:
-        """_ReplContext can be constructed with a tool_cache."""
-        from unittest.mock import MagicMock
-
-        from local_cli.cli import _ReplContext
-        from local_cli.tool_cache import ToolCache
-
-        cache = ToolCache()
-        ctx = _ReplContext(
-            config=MagicMock(),
-            client=MagicMock(),
-            tools=[],
-            messages=[],
-            session_manager=MagicMock(),
-            system_prompt="",
-            tool_cache=cache,
-        )
-        self.assertIs(ctx.tool_cache, cache)
+    def test_usage_service_preserves_injected_tracker(self):
+        from local_cli.application.auxiliary import AuxiliaryServices
+        from local_cli.token_tracker import TokenTracker,TokenUsage
+        tracker=TokenTracker();tracker.record(TokenUsage(input_tokens=100,output_tokens=50,provider="ollama"))
+        result=AuxiliaryServices(token_tracker=tracker).execute("usage_get",{})
+        self.assertEqual(result.data["usage"],tracker.to_dict())
+        self.assertEqual(result.data["table"],tracker.format_table())
 
 
 if __name__ == "__main__":

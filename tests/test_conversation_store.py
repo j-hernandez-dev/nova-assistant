@@ -113,6 +113,7 @@ class TestServerResume(unittest.TestCase):
 
     def _server(self, tmp: str) -> JsonLineServer:
         server = _make_server(provider=None, tools=[])
+        server._cwd = Path(tmp).resolve()
         server._conversation_store = ConversationStore(tmp, cwd=tmp)
         server._system_prompt = "sys"
         return server
@@ -127,7 +128,7 @@ class TestServerResume(unittest.TestCase):
             ])
             sent: list[dict] = []
             with patch("local_cli.server._send", side_effect=sent.append), \
-                 patch("local_cli.server.project_map_message",
+                 patch("local_cli.bootstrap_server.project_map_message",
                        return_value=None):
                 server._handle_resume(7)
 
@@ -147,18 +148,15 @@ class TestServerResume(unittest.TestCase):
     def test_resume_reinjects_instruction_message(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             server = self._server(tmp)
-            server._instruction_message = {
-                "role": "system", "content": "PROJECT INSTRUCTIONS",
-            }
+            Path(tmp, "LOCAL_CLI.md").write_text("PROJECT INSTRUCTIONS", encoding="utf-8")
             server._conversation_store.save(
                 [{"role": "user", "content": "q"}],
             )
             with patch("local_cli.server._send"), \
-                 patch("local_cli.server.project_map_message",
+                 patch("local_cli.bootstrap_server.project_map_message",
                        return_value=None):
                 server._handle_resume(1)
-            self.assertEqual(server._messages[1]["content"],
-                             "PROJECT INSTRUCTIONS")
+            self.assertIn("PROJECT INSTRUCTIONS", server._messages[1]["content"])
 
     def test_resume_without_saved_conversation_errors(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

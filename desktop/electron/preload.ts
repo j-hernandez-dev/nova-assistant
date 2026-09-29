@@ -11,10 +11,20 @@ export type PythonMessage = {
   model?: string
   tools?: string[]
   message?: string
+  input_request_id?: number
+  question?: string
   provider?: string
 }
 
 contextBridge.exposeInMainWorld('api', {
+  applicationCommand: (kind: string, payload: Record<string, unknown>, commandId?: string) =>
+    ipcRenderer.invoke('application-command', kind, payload, commandId),
+  restartBackend: () => ipcRenderer.invoke('restart-backend'),
+  onSessionView: (callback: (view: unknown) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, view: unknown) => callback(view)
+    ipcRenderer.on('session-view', handler)
+    return () => ipcRenderer.removeListener('session-view', handler)
+  },
   sendToPython: (data: object) => {
     ipcRenderer.send('send-to-python', data)
   },

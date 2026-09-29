@@ -11,6 +11,7 @@ import os
 import re
 import sys
 import time
+from pathlib import Path
 from typing import Any, Callable, Generator
 
 from local_cli.harness import (
@@ -1039,7 +1040,10 @@ def _summary_compact(
         apply_summary(messages, summary, system_end, recent_start)
         mode = "summarize"
     else:
-        compact_messages(messages, debug=debug)
+        if getattr(provider, "context_managed", False) is not True:
+            compact_messages(messages, debug=debug)
+        # With managed inference the fallback materializes whole groups at
+        # the provider boundary, preserving the private working transcript.
         mode = "truncate"
 
     emit(AgentEvent("compaction", {
@@ -1189,8 +1193,9 @@ def run_agent(
     # Read-before-edit gate state: files any read/write/edit has
     # addressed so far (seeded from the conversation history), plus the
     # files already deferred once this run (second attempt passes).
+    tool_cwd = next((t.cwd for t in tools if hasattr(t, "cwd")), None)
     known_files: set[str] = (
-        files_known_to_conversation(messages)
+        files_known_to_conversation(messages, cwd=tool_cwd)
         if hc.read_before_edit else set()
     )
     read_gate_deferred: set[str] = set()
@@ -1220,7 +1225,12 @@ def run_agent(
         # ---------------------------------------------------------------
         # 0b. Compact conversation history if thresholds are exceeded.
         # ---------------------------------------------------------------
-        if _needs_compaction(messages, token_threshold=compact_token_threshold):
+        # Managed inference budgets/truncates complete tool groups. Legacy
+        # truncation can strip a call while retaining its results. Preserve
+        # the opt-in summary path and all unmanaged legacy behavior.
+        managed_truncation = (getattr(provider, "context_managed", False) is True
+                              and hc.compact_mode != "summarize")
+        if not managed_truncation and _needs_compaction(messages, token_threshold=compact_token_threshold):
             if hc.compact_mode == "summarize":
                 _summary_compact(
                     provider, model, messages, hc.keep_recent, emit,
@@ -1526,7 +1536,8 @@ def run_agent(
             ):
                 edit_path = arguments.get("file_path")
                 if isinstance(edit_path, str) and edit_path:
-                    abs_edit_path = os.path.abspath(edit_path)
+                    abs_edit_path = (str((Path(tool.cwd) / edit_path).resolve())
+                                     if hasattr(tool, "cwd") else os.path.abspath(edit_path))
                     if (
                         abs_edit_path not in known_files
                         and abs_edit_path not in read_gate_deferred
@@ -1610,7 +1621,9 @@ def run_agent(
             # Post-write verification gate: surface syntax errors in the
             # file the model just produced while it still has context.
             if hc.verify_writes:
-                warning = verify_file_write(tool_name, arguments, result)
+                warning = verify_file_write(
+                    tool_name, arguments, result, cwd=getattr(tool, "cwd", None),
+                )
                 if warning is not None:
                     result = f"{result}\n\n{warning}"
                     emit(AgentEvent("verify_warning", {
@@ -1634,7 +1647,10 @@ def run_agent(
             ):
                 executed_path = arguments.get("file_path")
                 if isinstance(executed_path, str) and executed_path:
-                    known_files.add(os.path.abspath(executed_path))
+                    known_files.add(
+                        str((Path(tool.cwd) / executed_path).resolve())
+                        if hasattr(tool, "cwd") else os.path.abspath(executed_path)
+                    )
 
             if reminder is not None:
                 reminder.note_tool_use(iteration, tool_name)

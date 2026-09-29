@@ -7,11 +7,16 @@ first).
 
 from pathlib import Path
 
+from local_cli.tools._paths import capture_cwd, relative_path_escapes, resolve_tool_path
+
 from local_cli.tools.base import Tool
 
 
 class GlobTool(Tool):
     """Find files matching a glob pattern."""
+
+    def __init__(self, *, cwd: str | Path | None = None) -> None:
+        self.cwd = capture_cwd(cwd)
 
     @property
     def cacheable(self) -> bool:
@@ -71,7 +76,9 @@ class GlobTool(Tool):
         if not isinstance(search_path, str) or not search_path.strip():
             search_path = "."
 
-        base = Path(search_path)
+        if relative_path_escapes(search_path, self.cwd):
+            return f"Error: path rejected (directory traversal not allowed): {search_path}"
+        base = resolve_tool_path(search_path, self.cwd)
 
         if not base.exists():
             return f"Error: directory not found: {search_path}"
@@ -96,4 +103,11 @@ class GlobTool(Tool):
             # Fall back to alphabetical if stat fails on any file.
             matches.sort()
 
-        return "\n".join(str(m) for m in matches)
+        if not Path(search_path).is_absolute():
+            matches = [m for m in matches if m.resolve().is_relative_to(self.cwd)]
+        if not matches:
+            return f"No files matched pattern: {pattern}"
+        return "\n".join(
+            str(m if Path(search_path).is_absolute() else m.relative_to(self.cwd))
+            for m in matches
+        )

@@ -30,50 +30,17 @@ import sys
 import threading
 from typing import Any
 
-from local_cli import __version__
-from local_cli.agent import (
-    _COMPACT_TOKEN_THRESHOLD,
-    _estimate_tokens,
-    _needs_compaction,
-    run_agent,
-    truncate_tool_output,
-)
-from local_cli.harness import AgentEvent, HarnessConfig
 from local_cli.clipboard import (
     ClipboardError,
     ClipboardUnavailableError,
     copy_to_clipboard,
 )
-from local_cli.config import Config
-from local_cli.context_sizing import resolve_num_ctx
-from local_cli.conversation_store import ConversationStore
-from local_cli.git_ops import GitError, GitNotInstalledError, GitOps
-from local_cli.git_capability import GitCapability, detect_git_capability
-from local_cli.knowledge import KnowledgeStore
+from local_cli.git_capability import detect_git_capability
 from local_cli.model_catalog import get_merged_catalog, update_catalog
-from local_cli.model_presets import SUPPORTS_THINKING, get_model_family, get_model_preset
 from local_cli.model_search import search_models
-from local_cli.ollama_client import OllamaClient, OllamaConnectionError
-from local_cli.plan_manager import PlanManager
-from local_cli.providers import LLMProvider, ProviderConnectionError, ProviderRequestError, ProviderStreamError
-from local_cli.providers.claude_provider import ClaudeProvider
-from local_cli.providers.ollama_provider import OllamaProvider
-from local_cli.project_instructions import (
-    build_instruction_message,
-    load_project_instructions,
-)
-from local_cli.project_map import project_map_message
+from local_cli.ollama_client import OllamaConnectionError
 from local_cli.security import validate_model_name
-from local_cli.session_log import SessionLogger
-from local_cli.skills import SkillsLoader
-from local_cli.sub_agent import SubAgentRunner
-from local_cli.token_tracker import TokenTracker
-from local_cli.tool_cache import ToolCache
-from local_cli.tools import create_tools
 from local_cli.updater import get_project_root
-from local_cli.prompts import build_skill_messages, build_system_prompt
-from local_cli.tools.agent_tool import AgentTool
-from local_cli.tools.base import Tool
 
 
 _send_lock = threading.Lock()
@@ -96,146 +63,41 @@ class JsonLineServer:
     """Stdin/stdout server for desktop integration."""
 
     def __init__(self) -> None:
-        self._config = Config()
-        try:
-            self._client = OllamaClient(base_url=self._config.ollama_host)
-        except ValueError:
-            self._client = OllamaClient()
+        from local_cli.bootstrap_server import configure_server
+        configure_server(self, send=_send, human_timeout=_CONFIRM_TIMEOUT_S)
 
-        # Wrap the client in a provider for normalized chat operations.
-        # Keep self._client for Ollama-specific ops (pull, delete, catalog, search).
-        self._provider: LLMProvider = OllamaProvider(client=self._client)
+    def _ensure_rag_service(self):
+        from local_cli.bootstrap_server import ensure_rag_service
+        return ensure_rag_service(self)
 
-        # Risky-command gate for the GUI path.  The CLI wires a stdin
-        # prompt; the desktop asks over the JSON-line protocol and the
-        # chat thread waits (deny on timeout).  Without this, risky
-        # commands (sudo, recursive rm, kill, ...) ran unconfirmed.
-        self._confirm_lock = threading.Lock()
-        self._confirm_event = threading.Event()
-        self._confirm_result = False
-        self._confirm_seq = 0
-        self._tools = create_tools(
-            "server", auto_approve=self._config.auto_approve,
-            confirm=self._gui_confirm, preference=self._config.shell_backend,
-        )
+    def _handle_rag(self, req_id, action, *, enabled=None, query=None) -> None:
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": action, "enabled": enabled, "query": query})
 
-        # 007: Sub-agent support — inject AgentTool into tools list.
-        self._sub_agent_runner: SubAgentRunner | None = None
-        try:
-            self._sub_agent_runner = SubAgentRunner()
-            agent_tool = AgentTool(
-                runner=self._sub_agent_runner,
-                provider=self._provider,
-                model=self._config.model,
-                sub_agent_tools=create_tools("sub_agent", preference=self._config.shell_backend),
-            )
-            self._tools.append(agent_tool)
-        except Exception as exc:
-            # Non-fatal: continue without sub-agents, but surface the
-            # reason on stderr (stdout is the JSON-line channel) so a
-            # missing 'agent' tool can be diagnosed.
-            sys.stderr.write(f"[server] sub-agent setup failed: {exc}\n")
+    def _ensure_provider_manager(self):
+        from local_cli.bootstrap_server import ensure_provider_manager
+        return ensure_provider_manager(self)
 
-        # 008: Plan manager, knowledge store, skills loader.
-        self._plan_manager: PlanManager | None = None
-        try:
-            self._plan_manager = PlanManager(plans_dir=self._config.plan_dir)
-        except Exception as exc:
-            sys.stderr.write(f"[server] plan manager init failed: {exc}\n")
+    def _sync_provider_projection(self):
+        from local_cli.bootstrap_server import sync_provider_projection
+        return sync_provider_projection(self)
 
-        self._knowledge_store: KnowledgeStore | None = None
-        try:
-            self._knowledge_store = KnowledgeStore(
-                knowledge_dir=self._config.knowledge_dir,
-            )
-        except Exception as exc:
-            sys.stderr.write(f"[server] knowledge store init failed: {exc}\n")
+    def _reject_active_provider_change(self, req_id, category="PROVIDER"):
+        state = self._application.get_snapshot(self._app_adapter.session_id)
+        active = any(t["status"] == "running" for t in state.turns)
+        if active:
+            _send({"id": req_id, "type": "error", "code": "CONFLICT_ACTIVE_TURN",
+                   "category": category, "message": "Provider/model cannot change during an active Turn"})
+        return active
 
-        self._skills_loader: SkillsLoader | None = None
-        try:
-            self._skills_loader = SkillsLoader(
-                skills_dir=self._config.skills_dir,
-            )
-            self._skills_loader.discover_skills()
-        except Exception as exc:
-            sys.stderr.write(f"[server] skills loader init failed: {exc}\n")
+    def _handle_confirm_response(self, request: dict[str, Any]) -> None:
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle(request)
 
-        self._system_prompt = build_system_prompt(self._tools)
-        self._messages: list[dict[str, Any]] = [
-            {"role": "system", "content": self._system_prompt},
-        ]
 
-        # Project instruction file (LOCAL_CLI.md / AGENTS.md / CLAUDE.md):
-        # the per-project steering lever, injected right after the system
-        # prompt and re-injected on /clear.
-        self._instruction_source: str | None = None
-        self._instruction_message: dict[str, Any] | None = None
-        loaded_instructions = load_project_instructions()
-        if loaded_instructions is not None:
-            self._instruction_source, instruction_text = loaded_instructions
-            self._instruction_message = build_instruction_message(
-                self._instruction_source, instruction_text,
-            )
-            self._messages.append(self._instruction_message)
-
-        # Project map: exact paths up front so the model reads instead
-        # of exploring.  Rebuilt on /clear, resume and folder change.
-        self._map_message = project_map_message()
-        if self._map_message is not None:
-            self._messages.append(self._map_message)
-
-        self._tool_defs = self._provider.format_tools(self._tools)
-        self._tool_map = {t.name: t for t in self._tools}
-        self._stop_flag = threading.Event()
-        self._pending_switch: tuple[int, str] | None = None
-        self._tool_cache = ToolCache()
-        self._token_tracker = TokenTracker()
-        self._git_ops = GitOps()
-        self._ideation_active = False
-
-        # Flight recorder: the session leaves a JSONL transcript under
-        # <state_dir>/projects/<cwd-slug>/ from the moment the folder is
-        # opened (LOCAL_CLI_SESSION_LOG=0 disables).  Fail-open: a write
-        # error silences the logger, never the session.
-        self._session_log = SessionLogger(self._config.state_dir)
-        self._session_log.log_session_start(
-            model=self._config.model,
-            provider=self._provider.name,
-            app_version=__version__,
-            frontend="server",
-        )
-        if self._instruction_source is not None:
-            self._session_log.log(
-                "project_instructions", source=self._instruction_source,
-            )
-
-        # Last-conversation autosave: quit no longer loses the chat.
-        # Saved after every turn; restored via the "resume" request.
-        self._conversation_store = ConversationStore(self._config.state_dir)
-
-    def _gui_confirm(self, command: str) -> bool:
-        """Ask the GUI to approve a risky command; deny on timeout.
-
-        Called from the chat thread (bash tool).  Sends a
-        ``confirm_request`` and blocks until the main stdin loop routes
-        back a ``confirm_response`` — or the timeout elapses, in which
-        case the command is refused: a risky command must never run
-        just because nobody was watching.
-        """
-        if getattr(self._config, "auto_approve", False):
-            return True
-        with self._confirm_lock:
-            self._confirm_seq += 1
-            self._confirm_result = False
-            self._confirm_event.clear()
-            _send({
-                "type": "confirm_request",
-                "confirm_id": self._confirm_seq,
-                "command": command,
-            })
-        if self._confirm_event.wait(timeout=_CONFIRM_TIMEOUT_S):
-            return bool(self._confirm_result)
-        return False
+    def _handle_input_response(self, request: dict[str, Any]) -> None:
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle(request)
 
     def run(self) -> None:
         """Main loop: read stdin lines, dispatch, write responses."""
@@ -252,22 +114,24 @@ class JsonLineServer:
             "has_claude": has_claude,
             # Offer to restore this folder's previous conversation.
             "resumable": self._conversation_store.info(),
+            **({"sessionId": self._app_adapter.session_id, "apiSchemaVersion": 1}
+               if hasattr(self, "_app_adapter") else {}),
         })
+        if hasattr(self, "_app_adapter"):
+            self._app_adapter.start()
 
         # Background auto-update check.
         def _bg_update_check() -> None:
             try:
-                from local_cli.updater import check_for_updates
-                has_updates, message = check_for_updates()
-                if has_updates:
-                    _send({"type": "update_available", "message": message})
+                result = self._application.execute_auxiliary(
+                    self._app_adapter.session_id, "update_check").data
+                if result["available"]:
+                    _send({"type": "update_available", "message": result["message"]})
             except Exception:
                 pass
 
         update_thread = threading.Thread(target=_bg_update_check, daemon=True)
         update_thread.start()
-
-        self._chat_thread: threading.Thread | None = None
 
         for line in sys.stdin:
             line = line.strip()
@@ -279,62 +143,30 @@ class JsonLineServer:
             except json.JSONDecodeError:
                 _send({"type": "error", "message": "Invalid JSON"})
                 continue
+            if not isinstance(req, dict):
+                _send({"type": "error", "category": "TRANSPORT", "code": "INVALID_REQUEST",
+                       "message": "JSONL request must be an object"})
+                continue
 
             req_id = req.get("id", 0)
             req_type = req.get("type", "")
-
-            # Stop can arrive while chat is running in a thread.
-            if req_type == "stop":
-                self._handle_stop(req_id)
-                continue
-
-            # Confirm responses arrive while the chat thread is blocked
-            # inside _gui_confirm — never join on these.
-            if req_type == "confirm_response":
-                self._confirm_result = bool(req.get("approved"))
-                self._confirm_event.set()
-                continue
-
-            # Model switch can arrive while chat is streaming.
-            # Interrupt the stream and defer the switch until the
-            # chat thread exits cleanly.
-            if req_type == "switch_model":
-                if self._chat_thread and self._chat_thread.is_alive():
-                    self._pending_switch = (req_id, req.get("model", ""))
-                    self._stop_flag.set()
+            try:
+                if self._app_adapter.handle(req):
                     continue
-                # No active stream — fall through to normal dispatch.
-
-            # Wait for any running chat to finish before processing
-            # non-stop requests (except stop which is handled above).
-            if self._chat_thread and self._chat_thread.is_alive():
-                self._chat_thread.join()
-
-            # Process any deferred model switch that was waiting for
-            # the chat thread to finish.
-            if self._pending_switch is not None:
-                switch_id, switch_model = self._pending_switch
-                self._pending_switch = None
-                try:
-                    self._handle_switch_model(switch_id, switch_model)
-                except Exception as exc:
-                    _send({"id": switch_id, "type": "error", "message": str(exc)})
+            except Exception:
+                _send({"id": req_id, "type": "error", "category": "TRANSPORT",
+                       "code": "APPLICATION_ADAPTER_FAILED", "message": "Could not process request"})
+                continue
+            state = self._application.get_snapshot(self._app_adapter.session_id)
+            if any(t["status"] == "running" for t in state.turns) and req_type not in (
+                    "catalog", "search_models", "check_update", "recommend"):
+                _send({"id": req_id, "type": "error", "code": "CONFLICT_ACTIVE_TURN",
+                       "category": "CONTEXT", "message": "Command unavailable during active Turn"})
                 continue
 
             try:
-                if req_type == "chat":
-                    # Run chat in a thread so stdin can still read stop.
-                    self._stop_flag.clear()
-                    self._chat_thread = threading.Thread(
-                        target=self._handle_chat,
-                        args=(req_id, req.get("content", "")),
-                        daemon=True,
-                    )
-                    self._chat_thread.start()
-                elif req_type == "command":
+                if req_type == "command":
                     self._handle_command(req_id, req.get("command", ""))
-                elif req_type == "models":
-                    self._handle_models(req_id)
                 elif req_type == "catalog":
                     self._handle_catalog(req_id)
                 elif req_type == "pull_model":
@@ -356,16 +188,6 @@ class JsonLineServer:
                         req.get("sort", "popular"),
                         req.get("capability", ""),
                     )
-                elif req_type == "status":
-                    self._handle_status(req_id)
-                elif req_type == "switch_model":
-                    self._handle_switch_model(req_id, req.get("model", ""))
-                elif req_type == "clear":
-                    self._handle_clear(req_id)
-                elif req_type == "resume":
-                    self._handle_resume(req_id)
-                elif req_type == "switch_provider":
-                    self._handle_switch_provider(req_id, req.get("provider", ""))
                 elif req_type == "check_update":
                     self._handle_check_update(req_id)
                 elif req_type == "do_update":
@@ -378,179 +200,20 @@ class JsonLineServer:
                     self._handle_recommend(req_id)
                 elif req_type == "set_cwd":
                     self._handle_set_cwd(req_id, req.get("path", ""))
-                elif req_type == "spawn_agent":
-                    threading.Thread(
-                        target=self._handle_spawn_agent,
-                        args=(req_id, req.get("prompt", ""),
-                              req.get("description", ""),
-                              req.get("run_in_background", False)),
-                        daemon=True,
-                    ).start()
                 else:
                     _send({"id": req_id, "type": "error", "message": f"Unknown type: {req_type}"})
             except Exception as exc:
                 _send({"id": req_id, "type": "error", "message": str(exc)})
 
     def _handle_stop(self, req_id: int) -> None:
-        """Signal the current chat to stop."""
-        self._stop_flag.set()
-        _send({"id": req_id, "type": "stopped"})
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": "stop"})
+
 
     def _handle_chat(self, req_id: int, content: str) -> None:
-        if not content.strip():
-            _send({"id": req_id, "type": "error", "message": "Empty message"})
-            return
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": "chat", "content": content})
 
-        self._stop_flag.clear()
-
-        # Inject matching skills (same behaviour as the CLI REPL —
-        # previously the GUI paths silently skipped skill injection).
-        self._messages.extend(
-            build_skill_messages(self._skills_loader, content)
-        )
-        self._messages.append({"role": "user", "content": content})
-        self._session_log.log_user(content)
-
-        # Build merged inference options: defaults < presets < user config.
-        default_options: dict[str, Any] = {"num_ctx": 8192}
-        preset_options = get_model_preset(self._config.model)
-        # Adaptive window (config "auto"): model capability x machine RAM,
-        # instead of pinning a 256k model to the historical 8k.
-        resolved_ctx = resolve_num_ctx(
-            self._client, self._config.model, self._config.num_ctx,
-            estimated_tokens=_estimate_tokens(self._messages),
-        )
-        if resolved_ctx != getattr(self, "_last_ctx_logged", None):
-            self._session_log.log("context_window", num_ctx=resolved_ctx)
-            self._last_ctx_logged = resolved_ctx
-        user_options: dict[str, Any] = {"num_ctx": resolved_ctx}
-        if self._config.temperature is not None:
-            user_options["temperature"] = self._config.temperature
-        if self._config.top_p is not None:
-            user_options["top_p"] = self._config.top_p
-        if self._config.top_k is not None:
-            user_options["top_k"] = self._config.top_k
-        inference_options = {**default_options, **preset_options, **user_options}
-
-        # Determine think mode (only for models that support it).  For
-        # thinking-capable families the flag is passed EXPLICITLY (True or
-        # False, matching the CLI) — leaving it unset lets e.g. qwen3.5
-        # default to thinking, which swallows the reply into the thinking
-        # channel: the GUI then shows tool calls followed by nothing
-        # (observed live on the desktop app, 0.12.0).
-        family = get_model_family(self._config.model)
-        think = (
-            bool(self._config.think_mode)
-            if family in SUPPORTS_THINKING
-            else None
-        )
-
-        # Provider-specific kwargs: only Ollama accepts inference
-        # options / think / keep_alive.
-        options: dict[str, Any] | None = None
-        think_flag: bool | None = None
-        chat_extra: dict[str, Any] | None = None
-        if self._provider.name == "ollama":
-            options = inference_options
-            think_flag = think
-            if self._config.keep_alive is not None:
-                chat_extra = {"keep_alive": self._config.keep_alive}
-
-        error_seen = False
-
-        def _emit(event: AgentEvent) -> None:
-            nonlocal error_seen
-            kind = event.kind
-            data = event.data
-            if kind == "content_delta":
-                _send({"id": req_id, "type": "stream", "content": data["text"]})
-            elif kind == "tool_start":
-                _send({
-                    "id": req_id,
-                    "type": "tool_call",
-                    "name": data["tool_name"],
-                    "args": data["arguments"],
-                })
-            elif kind == "tool_result":
-                _send({
-                    "id": req_id,
-                    "type": "tool_result",
-                    "name": data["tool_name"],
-                    "output": truncate_tool_output(data["result"]),
-                })
-            elif kind == "error":
-                error_seen = True
-                prefix = {
-                    "request": "API error",
-                    "connection": "Connection error",
-                    "stream": "Stream error",
-                }.get(data.get("source", ""), "Error")
-                detail = data.get("detail") or data.get("message", "")
-                _send({
-                    "id": req_id,
-                    "type": "error",
-                    "message": f"{prefix}: {detail}",
-                })
-            elif kind == "thinking_delta":
-                # Surface thinking so the GUI can show progress instead
-                # of dead air during long reasoning stretches.
-                _send({
-                    "id": req_id,
-                    "type": "thinking",
-                    "content": data.get("text", ""),
-                })
-            elif kind in (
-                "rescue", "loop_warning", "loop_break", "limit",
-                "reminder", "verify_warning", "compaction", "retry",
-                "nudge", "error_stop", "empty_response",
-                "tools_fallback", "write_deferred", "deliverable_nudge",
-                "read_gate",
-            ):
-                # Harness interventions, surfaced for UIs that want them.
-                _send({
-                    "id": req_id,
-                    "type": "harness",
-                    "event": kind,
-                    "data": data,
-                })
-
-        # The unified agent loop (shared with the CLI, web monitor and
-        # sub-agents) brings compaction, tool-name resolution, text
-        # tool-call rescue, loop detection, the verification gate and
-        # overload retry to this path — previously a hand-rolled copy
-        # with none of those.
-        try:
-            run_agent(
-                self._provider,
-                self._config.model,
-                self._tools,
-                self._messages,
-                emit=self._session_log.wrap_emit(_emit),
-                harness=HarnessConfig(
-                    max_iterations=self._config.max_iterations,
-                    compact_mode=self._config.compact_mode,
-                ),
-                cache=self._tool_cache,
-                tracker=self._token_tracker,
-                options=options,
-                think=think_flag,
-                chat_extra=chat_extra,
-                should_stop=self._stop_flag.is_set,
-            )
-        except Exception as exc:
-            self._session_log.log("error", source="fatal", message=str(exc))
-            self._session_log.log_turn_end(error=True)
-            self._conversation_store.save(self._messages)
-            _send({"id": req_id, "type": "error", "message": str(exc)})
-            return
-
-        # Persist BEFORE signalling done: a client that quits the moment
-        # it sees "done" (or crashes right after) must not lose the turn.
-        self._session_log.log_turn_end(error=error_seen)
-        self._conversation_store.save(self._messages)
-        # Preserve the historical contract: no "done" after an error.
-        if not error_seen:
-            _send({"id": req_id, "type": "done"})
 
     def _handle_command(self, req_id: int, command: str) -> None:
         parts = command.strip().split(maxsplit=1)
@@ -594,146 +257,24 @@ class JsonLineServer:
             _send({"id": req_id, "type": "error", "message": f"Unknown command: {command}"})
 
     def _handle_models(self, req_id: int) -> None:
-        try:
-            models = self._client.list_models()
-            model_list = []
-            for m in models:
-                name = m.get("name", "")
-                size = m.get("size", 0)
-                model_list.append({"name": name, "size": size})
-            _send({"id": req_id, "type": "models", "data": model_list})
-        except OllamaConnectionError:
-            _send({"id": req_id, "type": "error", "message": "Cannot connect to Ollama"})
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": "models"})
 
     def _handle_status(self, req_id: int) -> None:
-        user_msgs = sum(1 for m in self._messages if m.get("role") == "user")
-        connected = False
-        version = ""
-        try:
-            info = self._client.get_version()
-            connected = True
-            version = info.get("version", "")
-        except OllamaConnectionError:
-            pass
-
-        _send({
-            "id": req_id,
-            "type": "status",
-            "data": {
-                "model": self._config.model,
-                "provider": self._provider.name,
-                "messages": user_msgs,
-                "connected": connected,
-                "ollama_version": version,
-            },
-        })
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": "status"})
 
     def _handle_switch_model(self, req_id: int, model: str) -> None:
-        if not model:
-            _send({"id": req_id, "type": "error", "message": "No model specified"})
-            return
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": "switch_model", "model": model})
 
-        if not validate_model_name(model):
-            _send({"id": req_id, "type": "error", "message": f"Invalid model name: {model}"})
-            return
 
-        # Verify the model is installed on Ollama (when using Ollama provider).
-        # If not installed, auto-pull it instead of erroring.
-        if self._provider.name == "ollama":
-            try:
-                models = self._client.list_models()
-                installed = {m.get("name", "") for m in models}
-                installed_bases = {n.split(":")[0] for n in installed}
-                if model not in installed and model not in installed_bases:
-                    # Auto-pull, then switch on completion.
-                    self._auto_pull_and_switch(req_id, model)
-                    return
-            except OllamaConnectionError:
-                pass  # Can't verify, proceed anyway.
-
-        self._finish_switch_model(req_id, model)
-
-    def _finish_switch_model(self, req_id: int, model: str) -> None:
-        """Complete model switch: update config, sanitize history, notify.
-
-        Preserves the conversation history so the user does not lose
-        context.  Orphaned tool-result messages and dangling tool_calls
-        from the previous model are stripped to keep the history valid.
-        """
-        self._session_log.log("model_changed", model=model)
-        self._config.model = model
-
-        # Remove trailing orphaned tool-result messages.
-        while (
-            len(self._messages) > 1
-            and self._messages[-1].get("role") == "tool"
-        ):
-            self._messages.pop()
-
-        # Strip tool_calls from the last assistant message to avoid
-        # sending schemas the new model does not recognise.
-        for msg in reversed(self._messages):
-            if msg.get("role") == "assistant":
-                msg.pop("tool_calls", None)
-                break
-            if msg.get("role") != "tool":
-                break
-
-        _send({"id": req_id, "type": "model_changed", "model": model})
-
-    def _auto_pull_and_switch(self, req_id: int, model: str) -> None:
-        """Pull a model and switch to it on success."""
-        _send({"id": req_id, "type": "pull_start", "model": model})
-        try:
-            for chunk in self._client.pull_model(model):
-                status = chunk.get("status", "")
-                completed = chunk.get("completed")
-                total = chunk.get("total")
-                _send({
-                    "id": req_id,
-                    "type": "pull_progress",
-                    "model": model,
-                    "status": status,
-                    "completed": completed,
-                    "total": total,
-                })
-        except (OllamaConnectionError, Exception) as exc:
-            _send({"id": req_id, "type": "error",
-                   "message": f"Failed to pull model '{model}': {exc}"})
-            return
-
-        _send({"id": req_id, "type": "pull_done", "model": model})
         # The frontend's pull_done handler will send switch_model,
         # which will now succeed since the model is installed.
 
-    def _handle_switch_provider(self, req_id: int, provider: str) -> None:
-        """Switch the active LLM provider (ollama or claude)."""
-        if provider not in ("ollama", "claude"):
-            _send({
-                "id": req_id,
-                "type": "error",
-                "message": f"Unknown provider: {provider}. Must be 'ollama' or 'claude'.",
-            })
-            return
-
-        if provider == "claude":
-            api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-            if not api_key:
-                _send({
-                    "id": req_id,
-                    "type": "error",
-                    "message": "ANTHROPIC_API_KEY environment variable is not set.",
-                })
-                return
-            self._provider = ClaudeProvider(api_key=api_key)
-        else:
-            self._provider = OllamaProvider(client=self._client)
-
-        self._tool_defs = self._provider.format_tools(self._tools)
-        self._messages.clear()
-        self._messages.append({"role": "system", "content": self._system_prompt})
-
-        _send({"id": req_id, "type": "provider_changed", "provider": provider})
+    def _handle_switch_provider(self, req_id: int, provider: str, model: str | None = None) -> None:
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": "switch_provider", "provider": provider, "model": model})
 
     def _handle_catalog(self, req_id: int) -> None:
         """Return merged model catalog (built-in + cache) + installed status."""
@@ -827,10 +368,7 @@ class JsonLineServer:
         _send({"id": req_id, "type": "pull_start", "model": model})
 
         try:
-            for chunk in self._client.pull_model(model):
-                status = chunk.get("status", "")
-                completed = chunk.get("completed")
-                total = chunk.get("total")
+            def progress(status, completed, total):
                 _send({
                     "id": req_id,
                     "type": "pull_progress",
@@ -839,11 +377,13 @@ class JsonLineServer:
                     "completed": completed,
                     "total": total,
                 })
-        except OllamaConnectionError as exc:
-            _send({"id": req_id, "type": "error", "message": f"Connection error: {exc}"})
-            return
+            self._application.execute_auxiliary(self._app_adapter.session_id,
+                "model_install", {"model": model, "progress": progress})
         except Exception as exc:
-            _send({"id": req_id, "type": "error", "message": f"Pull failed: {exc}"})
+            cause = exc.__cause__ or exc
+            message = (f"Connection error: {cause}" if isinstance(cause, OllamaConnectionError)
+                       else f"Pull failed: {exc}")
+            _send({"id": req_id, "type": "error", "message": message})
             return
 
         _send({"id": req_id, "type": "pull_done", "model": model})
@@ -858,7 +398,8 @@ class JsonLineServer:
             return
 
         try:
-            self._client.delete_model(model)
+            self._application.execute_auxiliary(self._app_adapter.session_id,
+                "model_delete", {"model": model})
             _send({"id": req_id, "type": "delete_done", "model": model})
         except OllamaConnectionError as exc:
             _send({"id": req_id, "type": "error", "message": f"Connection error: {exc}"})
@@ -896,27 +437,25 @@ class JsonLineServer:
 
     def _handle_check_update(self, req_id: int) -> None:
         """Check if updates are available."""
-        from local_cli.updater import check_for_updates
-
-        has_updates, message = check_for_updates()
+        result = self._application.execute_auxiliary(
+            self._app_adapter.session_id, "update_check").data
         _send({
             "id": req_id,
             "type": "update_status",
-            "has_updates": has_updates,
-            "message": message,
+            "has_updates": result["available"],
+            "message": result["message"],
         })
 
     def _handle_do_update(self, req_id: int) -> None:
         """Perform the update (git pull)."""
-        from local_cli.updater import perform_update
-
         _send({"id": req_id, "type": "updating"})
-        success, message = perform_update()
+        result = self._application.execute_auxiliary(
+            self._app_adapter.session_id, "update_perform").data
         _send({
             "id": req_id,
             "type": "update_done",
-            "success": success,
-            "message": message,
+            "success": result["success"],
+            "message": result["message"],
         })
 
     def _handle_set_api_key(self, req_id: int, api_key: str) -> None:
@@ -929,13 +468,13 @@ class JsonLineServer:
 
     def _handle_claude_logout(self, req_id: int) -> None:
         """Clear the stored API key and revert to Ollama if active."""
-        os.environ.pop("ANTHROPIC_API_KEY", None)
+        if self._reject_active_provider_change(req_id):
+            return
         if self._provider.name == "claude":
-            self._provider = OllamaProvider(client=self._client)
-            self._tool_defs = self._provider.format_tools(self._tools)
-            self._messages.clear()
-            self._messages.append({"role": "system", "content": self._system_prompt})
-            _send({"id": req_id, "type": "provider_changed", "provider": "ollama"})
+            self._handle_switch_provider(req_id, "ollama")
+            if self._provider.name == "claude":
+                return
+        os.environ.pop("ANTHROPIC_API_KEY", None)
         _send({"id": req_id, "type": "api_key_set", "has_claude": False})
 
     def _handle_recommend(self, req_id: int) -> None:
@@ -970,133 +509,42 @@ class JsonLineServer:
         })
 
     def _handle_set_cwd(self, req_id: int, path: str) -> None:
-        """Change the working directory and update the system prompt."""
-        if not path:
-            _send({"id": req_id, "type": "error", "message": "No path specified"})
-            return
+        """Translate folder selection; Application serializes rebinding."""
         try:
-            os.chdir(path)
-            # Rebuild system prompt with new cwd.
-            self._system_prompt = build_system_prompt(self._tools)
-            # Update system message in conversation history.
-            if self._messages and self._messages[0].get("role") == "system":
-                self._messages[0] = {"role": "system", "content": self._system_prompt}
-
-            # Re-anchor the project-bound subsystems: a new folder means
-            # a new transcript, its own instruction file, and its own
-            # resumable conversation.
-            self._session_log.close()
-            self._session_log = SessionLogger(self._config.state_dir)
-            self._session_log.log_session_start(
-                model=self._config.model,
-                provider=self._provider.name,
-                app_version=__version__,
-                frontend="server",
-                reason="cwd_change",
-            )
-            if (
-                self._instruction_message is not None
-                and self._instruction_message in self._messages
-            ):
-                self._messages.remove(self._instruction_message)
-            self._instruction_source = None
-            self._instruction_message = None
-            loaded_instructions = load_project_instructions()
-            if loaded_instructions is not None:
-                self._instruction_source, instruction_text = loaded_instructions
-                self._instruction_message = build_instruction_message(
-                    self._instruction_source, instruction_text,
-                )
-                self._messages.insert(1, self._instruction_message)
-                self._session_log.log(
-                    "project_instructions", source=self._instruction_source,
-                )
-            if (
-                self._map_message is not None
-                and self._map_message in self._messages
-            ):
-                self._messages.remove(self._map_message)
-            self._map_message = project_map_message()
-            if self._map_message is not None:
-                insert_at = 2 if self._instruction_message is not None else 1
-                self._messages.insert(insert_at, self._map_message)
-            self._conversation_store = ConversationStore(
-                self._config.state_dir,
-            )
-
-            _send({
-                "id": req_id,
-                "type": "cwd_changed",
-                "path": path,
-                "git_capability": self._git_ops.capability().value,
-                "resumable": self._conversation_store.info(),
-            })
-        except OSError as exc:
-            _send({"id": req_id, "type": "error", "message": f"Cannot change directory: {exc}"})
+            data = self._application.change_workspace(self._app_adapter.session_id, path)
+        except ValueError as exc:
+            _send({"id": req_id, "type": "error", "code": getattr(exc, "code", "INVALID_WORKSPACE"),
+                   "category": "CONTEXT", "message": str(exc)})
+            return
+        _send({"id": req_id, "type": "cwd_changed", **data})
 
     def _handle_undo(self, req_id: int) -> None:
-        """Undo the most recent file modifications via git checkout."""
-        try:
-            if self._git_ops.capability() is GitCapability.UNAVAILABLE:
-                _send({"id": req_id, "type": "error", "message": "Git is not installed. Cannot undo."})
-                return
-            if not self._git_ops.is_git_repo():
-                _send({"id": req_id, "type": "error", "message": "Not a git repository. Cannot undo."})
-                return
-            result = self._git_ops.undo_last_change(confirmed=True)
-            _send({"id": req_id, "type": "undo", "data": {"message": result}})
-        except GitNotInstalledError:
-            _send({"id": req_id, "type": "error", "message": "git is not installed. Cannot undo."})
-        except GitError as exc:
-            _send({"id": req_id, "type": "error", "message": f"Undo failed: {exc}"})
+        result = self._execute_auxiliary(req_id, "undo", {"confirmed": True})
+        if result is not None:
+            _send({"id": req_id, "type": "undo", "data": dict(result.data)})
+        return
 
     def _handle_diff(self, req_id: int) -> None:
-        """Show uncommitted changes in the working tree."""
-        try:
-            if self._git_ops.capability() is GitCapability.UNAVAILABLE:
-                _send({"id": req_id, "type": "error", "message": "Git is not installed. Cannot show diff."})
-                return
-            if not self._git_ops.is_git_repo():
-                _send({"id": req_id, "type": "error", "message": "Not a git repository. Cannot show diff."})
-                return
-            result = self._git_ops.diff_working_tree(color=False)
-            _send({"id": req_id, "type": "diff", "data": {"diff": result}})
-        except GitNotInstalledError:
-            _send({"id": req_id, "type": "error", "message": "git is not installed. Cannot show diff."})
-        except GitError as exc:
-            _send({"id": req_id, "type": "error", "message": f"Diff failed: {exc}"})
+        result = self._execute_auxiliary(req_id, "diff", {"color": False})
+        if result is not None:
+            _send({"id": req_id, "type": "diff", "data": dict(result.data)})
+        return
 
     def _handle_usage(self, req_id: int) -> None:
-        """Return per-message token usage and session totals."""
-        _send({
-            "id": req_id,
-            "type": "usage",
-            "data": self._token_tracker.to_dict(),
-            "summary": self._token_tracker.format_summary(),
-        })
+        result = self._execute_auxiliary(req_id, "usage_get")
+        if result is not None:
+            _send({"id": req_id, "type": "usage", "data": result.data["usage"],
+                   "summary": result.data["summary"]})
 
     def _handle_context(self, req_id: int) -> None:
-        """Return context window usage stats."""
-        msg_count = len(self._messages)
-        est_tokens = _estimate_tokens(self._messages)
-        token_limit = _COMPACT_TOKEN_THRESHOLD
-        compaction_triggered = _needs_compaction(self._messages)
-        _send({
-            "id": req_id,
-            "type": "context",
-            "data": {
-                "messages": msg_count,
-                "estimated_tokens": est_tokens,
-                "token_limit": token_limit,
-                "compaction_triggered": compaction_triggered,
-            },
-        })
+        data = self._application.get_context_usage(self._app_adapter.session_id)
+        _send({"id": req_id, "type": "context", "data": data})
 
     def _handle_copy(self, req_id: int) -> None:
         """Copy the last assistant response to the system clipboard."""
         # Find the last assistant message.
         last_assistant = None
-        for msg in reversed(self._messages):
+        for msg in reversed(self._application.get_snapshot(self._app_adapter.session_id).transcript):
             if msg.get("role") == "assistant":
                 content = msg.get("content")
                 if content:
@@ -1117,151 +565,78 @@ class JsonLineServer:
 
 
     def _handle_clear(self, req_id: int) -> None:
-        self._messages.clear()
-        self._messages.append({"role": "system", "content": self._system_prompt})
-        if self._instruction_message is not None:
-            self._messages.append(self._instruction_message)
-        # Fresh snapshot: files created during the conversation show up.
-        self._map_message = project_map_message()
-        if self._map_message is not None:
-            self._messages.append(self._map_message)
-        self._tool_cache.clear()
-        self._token_tracker.clear()
-        # A cleared conversation is a new session — start a fresh transcript
-        # and discard the resume copy (there is nothing left to restore).
-        self._session_log.log("cleared")
-        self._session_log.rotate()
-        self._session_log.log_session_start(
-            model=self._config.model,
-            provider=self._provider.name,
-            app_version=__version__,
-            frontend="server",
-            reason="clear",
-        )
-        self._conversation_store.clear()
-        _send({"id": req_id, "type": "cleared"})
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": "clear"})
 
     def _handle_resume(self, req_id: int) -> None:
-        """Restore this folder's last saved conversation."""
-        saved = self._conversation_store.load()
-        if not saved:
-            _send({
-                "id": req_id,
-                "type": "error",
-                "message": "No saved conversation to resume",
-            })
-            return
-        self._messages.clear()
-        self._messages.append(
-            {"role": "system", "content": self._system_prompt},
-        )
-        if self._instruction_message is not None:
-            self._messages.append(self._instruction_message)
-        self._map_message = project_map_message()
-        if self._map_message is not None:
-            self._messages.append(self._map_message)
-        self._messages.extend(saved)
-        self._session_log.log("resumed", count=len(saved))
-        # Replay the visible history so the GUI can rebuild the chat:
-        # user/assistant text only (tool plumbing stays internal).
-        display = [
-            {"role": m["role"], "content": str(m.get("content", ""))}
-            for m in saved
-            if m.get("role") in ("user", "assistant")
-            and str(m.get("content", "")).strip()
-        ]
-        _send({
-            "id": req_id,
-            "type": "restored",
-            "messages": display,
-            "count": len(saved),
-        })
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": "resume"})
 
     # ------------------------------------------------------------------
     # 007: Sub-agent handlers
     # ------------------------------------------------------------------
 
     def _handle_agents(self, req_id: int) -> None:
-        """Return sub-agent runner status and background agent results."""
-        if self._sub_agent_runner is None:
-            _send({"id": req_id, "type": "command_result", "command": "/agents",
-                   "output": "Sub-agent runner not available."})
-            return
-
-        has_agent_tool = any(t.name == "agent" for t in self._tools)
-        bg_agents = self._sub_agent_runner.list_background_agents()
-        output_parts = [
-            f"Sub-agent runner: active",
-            f"AgentTool registered: {has_agent_tool}",
-            f"Max workers: {self._sub_agent_runner._max_workers}",
-            f"Background agents: {len(bg_agents)}",
-        ]
-        for a in bg_agents:
-            output_parts.append(f"  [{a['agent_id']}] {a['status']}")
-        _send({"id": req_id, "type": "command_result", "command": "/agents",
-               "output": "\n".join(output_parts)})
+        result = self._execute_auxiliary(req_id, "agents_list")
+        if result is not None:
+            agents = result.data["agents"]
+            lines = ["Sub-agent runner: active", f"Background agents: {len(agents)}"]
+            lines.extend(f"  [{a['agent_id']}] {a['status']}" for a in agents)
+            _send({"id": req_id, "type": "command_result", "command": "/agents", "output": "\n".join(lines)})
 
     # ------------------------------------------------------------------
     # 008: Plan / Knowledge / Skills / Ideation handlers
     # ------------------------------------------------------------------
 
+    def _execute_auxiliary(self, req_id: int, name: str,
+                           arguments: dict[str, Any] | None = None):
+        """Legacy JSONL frame over the shared Application service."""
+        try:
+            return self._application.execute_auxiliary(
+                self._app_adapter.session_id, name, arguments or {})
+        except Exception as exc:
+            _send({"id": req_id, "type": "error", "message": str(exc)})
+            return None
+
     def _handle_plan(self, req_id: int, args: str) -> None:
-        """Manage plans via /plan [list|create|show] subcommands."""
-        if self._plan_manager is None:
+        parts = args.split(maxsplit=1) if args else []
+        action = parts[0].lower() if parts else "list"
+        value = parts[1].strip() if len(parts) > 1 else ""
+        if action not in ("list", "create", "show", "activate", "abandon"):
             _send({"id": req_id, "type": "error",
-                   "message": "Plan manager not initialized."})
+                   "message": f"Unknown /plan subcommand: {action}"})
             return
-
-        sub_parts = args.split(maxsplit=1) if args else []
-        sub_cmd = sub_parts[0].lower() if sub_parts else "list"
-        sub_arg = sub_parts[1].strip() if len(sub_parts) > 1 else ""
-
-        if sub_cmd == "list" or not args:
-            plans = self._plan_manager.list_plans()
-            if not plans:
-                output = "No plans found. Use /plan create <title> to create one."
-            else:
-                lines = [f"{len(plans)} plan(s):"]
-                for p in plans:
-                    lines.append(f"  [{p.plan_id}] {p.title} ({p.status})")
-                output = "\n".join(lines)
-            _send({"id": req_id, "type": "command_result",
-                   "command": "/plan", "output": output})
-
-        elif sub_cmd == "create":
-            if not sub_arg:
-                _send({"id": req_id, "type": "error",
-                       "message": "Usage: /plan create <title>"})
-                return
-            plan = self._plan_manager.create_plan(
-                title=sub_arg, model=self._config.model,
-            )
-            _send({"id": req_id, "type": "command_result",
-                   "command": "/plan create",
-                   "output": f"Plan [{plan.plan_id}] '{plan.title}' created ({plan.status})."})
-
-        elif sub_cmd == "show":
-            plan_id = sub_arg or "001"
-            try:
-                plan = self._plan_manager.get_plan(plan_id)
-                lines = [
-                    f"Plan [{plan.plan_id}]: {plan.title}",
-                    f"Status: {plan.status}  Model: {plan.model}",
-                    f"Created: {plan.created}",
-                ]
-                if plan.steps:
-                    lines.append("Steps:")
-                    for done, text in plan.steps:
-                        mark = "[x]" if done else "[ ]"
-                        lines.append(f"  {mark} {text}")
-                _send({"id": req_id, "type": "command_result",
-                       "command": "/plan show",
-                       "output": "\n".join(lines)})
-            except Exception as exc:
-                _send({"id": req_id, "type": "error", "message": str(exc)})
-        else:
+        if action == "create" and not value:
             _send({"id": req_id, "type": "error",
-                   "message": f"Unknown /plan subcommand: {sub_cmd}"})
+                   "message": "Usage: /plan create <title>"})
+            return
+        result = self._execute_auxiliary(req_id, "plan_" + action,
+            {"title": value} if action == "create" else
+            {"planId": value or "001"})
+        if result is None:
+            return
+        if action == "list":
+            plans = result.data["plans"]
+            output = ("\n".join([f"{len(plans)} plan(s):", *(
+                f"  [{p['plan_id']}] {p['title']} ({p['status']})" for p in plans)])
+                if plans else "No plans found. Use /plan create <title> to create one.")
+        else:
+            plan = result.data["plan"]
+            if action == "create":
+                output = f"Plan [{plan['plan_id']}] '{plan['title']}' created ({plan['status']})."
+            else:
+                lines = [f"Plan [{plan['plan_id']}]: {plan['title']}",
+                         f"Status: {plan['status']}  Model: {plan['model']}",
+                         f"Created: {plan['created']}"]
+                if plan["steps"]:
+                    lines.append("Steps:")
+                    for done, text in plan["steps"]:
+                        lines.append(f"  {'[x]' if done else '[ ]'} {text}")
+                output = "\n".join(lines)
+        _send({"id": req_id, "type": "command_result",
+               "command": "/plan" + (" " + action if action != "list" else ""),
+               "output": output})
+        return
 
     def _handle_ideate(self, req_id: int, args: str) -> None:
         """Handle ideation mode toggle."""
@@ -1279,119 +654,48 @@ class JsonLineServer:
                             "Type /ideate exit to return to agent mode."})
 
     def _handle_knowledge(self, req_id: int, args: str) -> None:
-        """Manage knowledge items via /knowledge [list|save|show]."""
-        if self._knowledge_store is None:
+        parts = args.split(maxsplit=1) if args else []
+        action = parts[0].lower() if parts else "list"
+        value = parts[1].strip() if len(parts) > 1 else ""
+        if action not in ("list", "save", "load", "delete"):
             _send({"id": req_id, "type": "error",
-                   "message": "Knowledge store not initialized."})
+                   "message": f"Unknown /knowledge subcommand: {action}"})
             return
-
-        sub_parts = args.split(maxsplit=1) if args else []
-        sub_cmd = sub_parts[0].lower() if sub_parts else "list"
-        sub_arg = sub_parts[1].strip() if len(sub_parts) > 1 else ""
-
-        if sub_cmd == "list" or not args:
-            items = self._knowledge_store.list_items()
-            if not items:
-                output = "No knowledge items. Use /knowledge save <name> to add one."
-            else:
-                lines = [f"{len(items)} knowledge item(s):"]
-                for item in items:
-                    lines.append(f"  - {item.get('name', '?')}: "
-                                 f"{item.get('description', '')[:60]}")
-                output = "\n".join(lines)
-            _send({"id": req_id, "type": "command_result",
-                   "command": "/knowledge", "output": output})
-
-        elif sub_cmd == "save":
-            if not sub_arg:
-                _send({"id": req_id, "type": "error",
-                       "message": "Usage: /knowledge save <name>"})
-                return
-            item = self._knowledge_store.save_item(
-                name=sub_arg, description=f"Saved from server session",
-                content=f"Knowledge item '{sub_arg}' created via server.",
-            )
-            _send({"id": req_id, "type": "command_result",
-                   "command": "/knowledge save",
-                   "output": f"Knowledge item '{sub_arg}' saved."})
-        else:
+        if action != "list" and not value:
             _send({"id": req_id, "type": "error",
-                   "message": f"Unknown /knowledge subcommand: {sub_cmd}"})
+                   "message": f"Usage: /knowledge {action} <name>"})
+            return
+        result = self._execute_auxiliary(req_id, "knowledge_" + action,
+                                         {"name": value})
+        if result is None:
+            return
+        if action == "list":
+            items = result.data["items"]
+            output = ("\n".join([f"{len(items)} knowledge item(s):", *(
+                f"  - {item.get('name', '?')}: {item.get('description', '')[:60]}"
+                for item in items)]) if items else
+                "No knowledge items. Use /knowledge save <name> to add one.")
+        else:
+            output = f"Knowledge item '{value}' " + {
+                "save": "saved.", "load": "loaded.",
+                "delete": "deleted."}[action]
+        _send({"id": req_id, "type": "command_result",
+               "command": "/knowledge" + (" " + action if action != "list" else ""),
+               "output": output})
+        return
 
     def _handle_skills(self, req_id: int) -> None:
-        """List discovered skills."""
-        if self._skills_loader is None:
-            _send({"id": req_id, "type": "error",
-                   "message": "Skills loader not initialized."})
-            return
-
-        skills = self._skills_loader.discover_skills()
-        if not skills:
-            output = ("Skills loader active (scanning: "
-                      f"{self._skills_loader._skills_dir}). "
-                      "No SKILL.md files discovered yet.")
-        else:
-            lines = [f"{len(skills)} skill(s) discovered:"]
-            for s in skills:
-                triggers = ", ".join(s.triggers[:3])
-                lines.append(f"  - {s.name}: {s.description[:50]} "
-                             f"[triggers: {triggers}]")
-            output = "\n".join(lines)
-        _send({"id": req_id, "type": "command_result",
-               "command": "/skills", "output": output})
+        result = self._execute_auxiliary(req_id, "skills_list")
+        if result is not None:
+            skills = result.data["skills"]
+            lines = [f"{len(skills)} skill(s) discovered:"] if skills else ["No SKILL.md files discovered yet."]
+            lines.extend(f"  - {s['name']}: {s['description'][:50]} [triggers: {', '.join(s['triggers'][:3])}]" for s in skills)
+            _send({"id": req_id, "type": "command_result", "command": "/skills", "output": "\n".join(lines)})
 
 
-    def _handle_spawn_agent(
-        self, req_id: int, prompt: str, description: str, background: bool,
-    ) -> None:
-        """Spawn a real sub-agent to execute a task."""
-        if self._sub_agent_runner is None:
-            _send({"id": req_id, "type": "error",
-                   "message": "Sub-agent runner not available."})
-            return
-        if not prompt.strip():
-            _send({"id": req_id, "type": "error",
-                   "message": "Prompt is required."})
-            return
-
-        from local_cli.sub_agent import SubAgent
-
-        try:
-            from local_cli.providers import get_provider
-            fresh_provider = get_provider(
-                "ollama", base_url=self._client.base_url,
-            )
-        except Exception as exc:
-            _send({"id": req_id, "type": "error",
-                   "message": f"Failed to create provider: {exc}"})
-            return
-
-        sub_agent = SubAgent(
-            provider=fresh_provider,
-            model=self._config.model,
-            tools=create_tools("sub_agent", preference=self._config.shell_backend),
-            prompt=prompt.strip(),
-            description=description or "sub-agent task",
-        )
-
-        if background:
-            agent_id = self._sub_agent_runner.submit_background(sub_agent)
-            _send({"id": req_id, "type": "agent_started",
-                   "agent_id": agent_id, "description": description})
-        else:
-            _send({"id": req_id, "type": "agent_running",
-                   "description": description})
-            result = self._sub_agent_runner.submit(sub_agent)
-            _send({
-                "id": req_id,
-                "type": "agent_done",
-                "agent_id": result.agent_id,
-                "status": result.status,
-                "content": result.content,
-                "duration": result.duration_seconds,
-                "tool_calls": result.tool_calls_count,
-                "error": result.error_message,
-            })
+    def _handle_spawn_agent(self, req_id: int, prompt: str, description: str, background: bool) -> None:
+        """Compatibility frame; execution belongs exclusively to Application."""
+        self._app_adapter.handle({"id": req_id, "type": "spawn_agent", "prompt": prompt, "description": description, "run_in_background": background})
 
 
 def run_server() -> None:

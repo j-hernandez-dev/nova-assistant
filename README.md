@@ -53,7 +53,7 @@ Think of it as a local, offline-capable alternative to cloud-based AI coding ass
 The LLM autonomously calls tools to complete tasks. It reads files, writes code, runs commands, and iterates until the task is done — no manual step-by-step prompting required.
 
 ### Deterministic Harness
-A single unified loop (shared by the CLI, server, web monitor, and sub-agents) wraps the model with deterministic interventions that repair the failure modes of small local models — so a 1-9B model can sustain agentic sessions that would otherwise need a frontier model:
+A single unified loop (shared by the CLI, server, and sub-agents) wraps the model with deterministic interventions that repair the failure modes of small local models — so a 1-9B model can sustain agentic sessions that would otherwise need a frontier model:
 
 | Intervention | What it fixes |
 |--------------|---------------|
@@ -91,8 +91,7 @@ not require Git Bash on Windows. If Git Bash is installed, a user can opt in
 with `--shell-backend git-bash` or `LOCAL_CLI_SHELL=git-bash`; the model
 cannot choose a different executable through a tool call. The system prompt
 reports the selected OS, shell, version, and capabilities. Risky commands
-retain their CLI/desktop confirmation flow; unattended sub-agents and the
-web monitor decline them unless auto-approval was explicitly selected.
+retain their CLI/desktop confirmation flow; unattended sub-agents decline them.
 
 Git is a separate optional executable. Reading, editing, shell commands,
 the project map, and ordinary sub-agents work without it. Checkpoints,
@@ -153,7 +152,7 @@ output from its own choice to the mandated name. Disable with
 
 ### Session Transcripts (flight recorder)
 Every session is automatically recorded as JSONL under
-`~/.local/state/local-cli/projects/<cwd-slug>/` from the moment a folder
+`~/.local/state/nova/projects/<cwd-slug>/` from the moment a folder
 is opened — user messages, tool calls, harness interventions, and
 per-turn visible/thinking character counts. A field failure can be
 diagnosed from the transcript alone. Disable with
@@ -377,7 +376,27 @@ Configuration is resolved in order: **CLI flags > environment variables > config
 | — | `LOCAL_CLI_PROJECT_MAP` | `1` | Inject the project file map at session start (`0` disables) |
 | `--mascot [style]` | `LOCAL_CLI_MASCOT` | `off` | Loca the local cat: `--mascot` for the one-line face `(=･ω･=)`, `--mascot pixel` for animated pixel art (TTY only; falls back to the face in pipes) |
 
-Config file location: `~/.config/local-cli/config` (key=value format).
+Config file location: `~/.config/nova/config` (key=value format).
+
+### User data directories (Nova)
+
+Default user data locations are:
+
+| Data | Location |
+|------|----------|
+| Conversation history, session snapshots and logs | `~/.local/state/nova/` |
+| Backend configuration | `~/.config/nova/config` |
+| Desktop Claude credentials | `~/.config/nova/claude-auth.json` |
+| Model catalog cache | `~/.cache/nova/` |
+| Electron profile, cookies and Chromium cache on Windows | `%APPDATA%/nova-desktop/` |
+
+`~` is the user's home directory. Existing custom config/state paths remain
+supported. `XDG_CACHE_HOME` overrides the cache parent directory, and
+`XDG_CONFIG_HOME` overrides the parent directory for Desktop Claude credentials.
+Electron uses its platform `appData` directory with the `nova-desktop` suffix.
+Old `local-cli` and `local-cli-desktop` profiles are not automatically imported,
+moved or deleted. Project-local data such as `.agents/` and `rag_index.db` remain
+in the workspace.
 
 ### Claude API
 

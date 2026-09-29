@@ -10,7 +10,7 @@ import os
 import sqlite3
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from local_cli.ollama_client import OllamaClient
 
@@ -222,14 +222,20 @@ class RAGEngine:
         client: OllamaClient,
         db_path: str | None = None,
         embedding_model: str = _DEFAULT_EMBED_MODEL,
+        cwd: str | Path | None = None,
+        on_embedding_error: Callable[[Exception], None] | None = None,
+        excluded_paths: tuple[str | Path, ...] = (),
     ) -> None:
         self.client = client
         self.embedding_model = embedding_model
+        self._on_embedding_error = on_embedding_error
+        self.cwd = (Path.cwd() if cwd is None else Path(cwd)).resolve()
+        self.excluded_paths = tuple((self.cwd / Path(p)).resolve() for p in excluded_paths)
 
         if db_path is None:
             db_path = _DB_FILENAME
 
-        self.db_path = db_path
+        self.db_path = str((self.cwd / db_path).resolve()) if not Path(db_path).is_absolute() else db_path
         self._conn = sqlite3.connect(self.db_path)
         self._migrate()
 
@@ -241,6 +247,10 @@ class RAGEngine:
     def close(self) -> None:
         """Close the SQLite database connection."""
         self._conn.close()
+
+    def _is_excluded(self, path: str | Path) -> bool:
+        resolved = (self.cwd / Path(path)).resolve()
+        return any(resolved == p or resolved.is_relative_to(p) for p in self.excluded_paths)
 
     # ------------------------------------------------------------------
     # Indexing
@@ -268,7 +278,7 @@ class RAGEngine:
             and chunks indexed.
         """
         model = embedding_model or self.embedding_model
-        root = Path(path).resolve()
+        root = (self.cwd / path).resolve()
 
         stats: dict[str, int] = {
             "files_indexed": 0,
@@ -284,10 +294,13 @@ class RAGEngine:
             # Prune skipped directories (modifying dirnames in-place).
             dirnames[:] = [
                 d for d in dirnames if d not in _SKIP_DIRS
+                and not self._is_excluded(Path(dirpath) / d)
             ]
 
             for filename in filenames:
                 file_path = Path(dirpath) / filename
+                if self._is_excluded(file_path):
+                    continue
 
                 # Skip files that are too large.
                 try:
@@ -341,13 +354,18 @@ class RAGEngine:
                 try:
                     embeddings = self.client.embed(model, chunks)
                 except Exception as exc:
-                    sys.stderr.write(
-                        f"Warning: embedding failed for {file_path}: {exc}\n"
-                    )
+                    if self._on_embedding_error is not None:
+                        self._on_embedding_error(exc)
+                    else:
+                        sys.stderr.write(
+                            f"Warning: embedding failed for {file_path}: {exc}\n"
+                        )
                     stats["files_skipped"] += 1
                     continue
 
                 if len(embeddings) != len(chunks):
+                    if self._on_embedding_error is not None:
+                        self._on_embedding_error(ValueError("embedding count mismatch"))
                     stats["files_skipped"] += 1
                     continue
 
@@ -411,10 +429,14 @@ class RAGEngine:
         # Compute query embedding.
         try:
             embeddings = self.client.embed(self.embedding_model, text)
-        except Exception:
+        except Exception as exc:
+            if self._on_embedding_error is not None:
+                self._on_embedding_error(exc)
             return []
 
         if not embeddings:
+            if self._on_embedding_error is not None:
+                self._on_embedding_error(ValueError("empty query embedding"))
             return []
 
         query_vec = embeddings[0]
@@ -427,6 +449,10 @@ class RAGEngine:
         scored: list[tuple[float, dict[str, Any]]] = []
         for row in cursor:
             row_id, file_path, chunk_index, content, emb_data = row
+            if self._is_excluded(file_path):
+                # Existing legacy indices can contain state files. Keep their
+                # format/data, but never retrieve them into a conversation.
+                continue
             stored_vec = _deserialize_embedding(emb_data)
             score = _cosine_similarity(query_vec, stored_vec)
             scored.append((

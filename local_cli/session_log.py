@@ -88,7 +88,7 @@ class SessionLogger:
     """Append-only JSONL transcript for one session in one project.
 
     Args:
-        state_dir: Base state directory (e.g. ``~/.local/state/local-cli``).
+        state_dir: Base state directory (e.g. ``~/.local/state/nova``).
         cwd: Project directory the session runs in; defaults to the
             process working directory.
         enabled: Force on/off; ``None`` reads LOCAL_CLI_SESSION_LOG.
@@ -277,6 +277,9 @@ class SessionLogger:
                     source=data.get("source", ""),
                     message=str(data.get("detail") or data.get("message", "")),
                 )
+            elif kind in ("context_budget", "context_usage"):
+                # The common boundary supplies aggregate counters only.
+                self.log(kind, **{key: value for key, value in data.items() if key != "rule"})
             elif kind in _INTERVENTION_KINDS:
                 self.log("harness", event=kind)
         except Exception:

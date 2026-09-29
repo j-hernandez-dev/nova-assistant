@@ -1,13 +1,14 @@
 """Tests for local_cli.server — the JSON-line server's chat handler.
 
-JsonLineServer.__init__ builds an Ollama client, a provider and several
-managers, so these tests construct the instance via __new__ and inject only
-the attributes _handle_chat touches.  _send is patched to capture the
-JSON-line events instead of writing to stdout.
+The fixture injects fake inference into the production Application composition
+root. Only the test observation wrapper waits for an asynchronous Turn; the
+production command reader does not. _send captures compatibility frames.
 """
 
 import threading
 import unittest
+import os
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from local_cli.config import Config
@@ -43,8 +44,10 @@ class _EchoTool(Tool):
 
 
 def _make_server(provider: MagicMock, tools: list) -> JsonLineServer:
-    """Build a JsonLineServer with only the attributes _handle_chat needs."""
-    server = JsonLineServer.__new__(JsonLineServer)
+    """Build an injectable fixture that composes the real Application lazily."""
+    server = _ApplicationServerFixture.__new__(_ApplicationServerFixture)
+    server._cwd = Path.cwd().resolve()
+    server._environment = dict(os.environ)
     server._config = Config()
     server._provider = provider
     # Raw client stub: adaptive context sizing queries show_model; an
@@ -52,11 +55,7 @@ def _make_server(provider: MagicMock, tools: list) -> JsonLineServer:
     server._client = MagicMock()
     server._client.show_model.return_value = {}
     server._tools = tools
-    server._tool_map = {t.name: t for t in tools}
-    server._tool_defs = []
     server._messages = [{"role": "system", "content": "sys"}]
-    server._stop_flag = threading.Event()
-    server._pending_switch = None
     server._tool_cache = ToolCache()
     server._token_tracker = TokenTracker()
     server._ideation_active = False
@@ -66,11 +65,72 @@ def _make_server(provider: MagicMock, tools: list) -> JsonLineServer:
     server._instruction_message = None
     server._map_message = None
     server._conversation_store = ConversationStore(".", enabled=False)
-    server._confirm_lock = threading.Lock()
-    server._confirm_event = threading.Event()
-    server._confirm_result = False
-    server._confirm_seq = 0
     return server
+
+
+class _ApplicationServerFixture(JsonLineServer):
+    """Inject tests into the same Application path as the production server.
+
+    Only this test adapter waits for private-method observations. The actual
+    JSONL command reader never joins a Turn or invokes a second agent loop.
+    """
+    def _compose_test_application(self):
+        if hasattr(self, "_app_adapter"):
+            return
+        from local_cli.bootstrap_server import create_server_application
+        from local_cli.application.persistence import PersistenceService
+        from local_cli.application.rag import RAGService
+        from local_cli.application.auxiliary import AuxiliaryServices
+        from local_cli.model_manager import ModelManager
+        from local_cli.updater import check_for_updates, perform_update
+        from local_cli.prompts import build_system_prompt
+        from local_cli.server import _send
+        from tests.test_nova_core_phase4_session import ScriptedProvider
+        if self._provider is None:
+            self._provider = ScriptedProvider([])
+        if not hasattr(self._provider, "name"):
+            self._provider.name = "test"
+        self._ensure_provider_manager()
+        self._system_prompt = getattr(self, "_system_prompt", "sys")
+        if self._instruction_message and self._instruction_message not in self._messages:
+            self._messages.append(self._instruction_message)
+        self._sub_agent_runner = getattr(self, "_sub_agent_runner", None)
+        self._ensure_rag_service()
+        if not isinstance(self._conversation_store, PersistenceService):
+            self._conversation_store = PersistenceService(workspace=self._cwd,
+                conversation=self._conversation_store, snapshots=MagicMock())
+        self._auxiliary_services = AuxiliaryServices(git=getattr(self, "_git_ops", None),
+            token_tracker=self._token_tracker, skills=self._skills_loader,
+            model_manager=ModelManager(self._client),
+            updater_check=check_for_updates, updater_perform=perform_update)
+        create_server_application(self, send=lambda item: __import__(
+            "local_cli.server", fromlist=["_send"])._send(item))
+
+    def __getattribute__(self, name):
+        method = super().__getattribute__(name)
+        if not (name.startswith("_handle_") or name == "run"):
+            return method
+        def observe(*args, **kwargs):
+            self._compose_test_application()
+            result = method(*args, **kwargs)
+            if name in ("_handle_chat", "_handle_rag"):
+                import time
+                limit = time.monotonic() + 5
+                app = self._application
+                while time.monotonic() < limit:
+                    snapshot = app.get_snapshot(self._app_adapter.session_id)
+                    active = any(t["status"] == "running" for t in snapshot.turns)
+                    active |= any(o["status"] in ("requested", "running")
+                        for o in snapshot.services["operations"])
+                    if not active:break
+                    time.sleep(.002)
+                assert not active, "Application test operation did not finish"
+                self._app_adapter._poll_legacy()
+                reports = snapshot.turns[-1].get("contextReports", []) if snapshot.turns else []
+                self._last_context_budget = next((r["budget"] for r in reversed(reports)
+                    if r.get("rule") == "context_budget"), None)
+            return result
+        return observe
 
 
 class TestHandleChat(unittest.TestCase):
@@ -179,7 +239,8 @@ class TestHandleChat(unittest.TestCase):
             m for m in server._messages
             if m.get("role") == "user" and "did not create" in m.get("content", "")
         ]
-        self.assertEqual(len(nudges), 1)
+        self.assertEqual(len(nudges), 0)  # harness instructions are working context, not user transcript
+        self.assertTrue(any(m.get("type") == "harness" for m in sent))
         self.assertEqual(server._provider.chat_stream.call_count, 2)
 
 

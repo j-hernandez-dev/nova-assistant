@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import type { Message, AppStatus, PythonMessage, ResumableInfo, ToolCall, ToolResult } from './types'
+import type { PythonMessage } from './types'
+import { useSessionView } from './use_session_view'
 import { Banner } from './components/Banner'
 import { MessageBlock } from './components/MessageBlock'
 import { ModelPicker, CatalogModel, SearchResult, Recommendation, SystemInfo } from './components/ModelPicker'
@@ -11,16 +12,18 @@ import { ClaudeLogin } from './components/ClaudeLogin'
 
 let reqIdCounter = 0
 function nextId() { return ++reqIdCounter }
-function uid() { return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` }
 
 type Catalog = { categories: string[]; models: CatalogModel[] }
 
 export default function App() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [status, setStatus] = useState<AppStatus>({
-    model: '', provider: '', connected: false, tools: [], ready: false,
-  })
-  const [streaming, setStreaming] = useState(false)
+  const view = useSessionView()
+  const messages = view?.messages || []
+  const status = view?.status || { model: '', provider: '', connected: false, tools: [], ready: false }
+  const streaming = !!view?.activeTurnId
+  const confirmReq = view?.approvals[0] || null
+  const askReq = view?.inputs[0] || null
+  const [resumeDismissed, setResumeDismissed] = useState(false)
+  const resumable = resumeDismissed ? null : view?.resumable
   const [catalog, setCatalog] = useState<Catalog | null>(null)
   const [showPicker, setShowPicker] = useState(false)
   const [pulling, setPulling] = useState<string | null>(null)
@@ -44,12 +47,10 @@ export default function App() {
   const [rootDir, setRootDir] = useState<string | null>(null)
   const [appVersion, setAppVersion] = useState('')
   const [backendGitCapability, setBackendGitCapability] = useState<'UNAVAILABLE' | 'AVAILABLE_NOT_REPOSITORY' | 'AVAILABLE_REPOSITORY' | null>(null)
-  const [resumable, setResumable] = useState<ResumableInfo | null>(null)
-  const [confirmReq, setConfirmReq] = useState<{ id: number; command: string } | null>(null)
-  const [explorerRefreshKey, setExplorerRefreshKey] = useState(0)
+  const [askAnswer, setAskAnswer] = useState('')
+  const explorerRefreshKey = view?.fileRevision || 0
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const activeMessageId = useRef('')
   const [inputText, setInputText] = useState('')
 
   const scrollToBottom = useCallback(() => {
@@ -60,7 +61,13 @@ export default function App() {
 
   useEffect(() => { scrollToBottom() }, [messages, scrollToBottom])
 
-  // Initialize hasClaude, auth status, and rootDir on mount.
+  useEffect(() => { setAskAnswer('') }, [askReq?.inputRequestId])
+  useEffect(() => {
+    if (view?.workspace) setRootDir(view.workspace)
+    setResumeDismissed(false)
+  }, [view?.workspace])
+
+  // Initialize host metadata on mount.
   useEffect(() => {
     if (!window.api) return
     window.api.getAppVersion().then(setAppVersion)
@@ -129,167 +136,14 @@ export default function App() {
       switch (msg.type) {
         case 'ready':
           setBackendGitCapability(msg.backend_git_capability || null)
-          setStatus({
-            model: msg.model || '',
-            provider: msg.provider || 'ollama',
-            connected: true,
-            tools: msg.tools || [],
-            ready: true,
-          })
           // Read has_claude from ready message.
           if (msg.has_claude !== undefined) {
             setHasClaude(!!msg.has_claude)
           }
           // Offer to restore this folder's previous conversation.
-          setResumable(msg.resumable || null)
           // Fetch catalog.
           window.api.sendToPython({ id: nextId(), type: 'catalog' })
           break
-
-        case 'stream': {
-          const content = msg.content || ''
-          setMessages(prev => {
-            const last = prev[prev.length - 1]
-            if (last?.id === activeMessageId.current && last.role === 'assistant') {
-              return [...prev.slice(0, -1), { ...last, content: last.content + content, thinking: false, streaming: true }]
-            }
-            const newId = uid()
-            activeMessageId.current = newId
-            return [...prev, { id: newId, role: 'assistant', content, streaming: true }]
-          })
-          break
-        }
-
-        case 'thinking': {
-          // The model is reasoning with no visible output yet. Re-arm the
-          // thinking indicator (tool_call clears it) so a long reasoning
-          // stretch after tool calls doesn't look like a dead session.
-          setMessages(prev => {
-            const last = prev[prev.length - 1]
-            if (last?.id === activeMessageId.current && last.role === 'assistant' && !last.content) {
-              if (last.thinking) return prev
-              return [...prev.slice(0, -1), { ...last, thinking: true, streaming: true }]
-            }
-            return prev
-          })
-          break
-        }
-
-        case 'tool_call': {
-          const tc: ToolCall = { name: msg.name || '', args: msg.args || {} }
-          setMessages(prev => {
-            const last = prev[prev.length - 1]
-            if (last?.id === activeMessageId.current) {
-              return [...prev.slice(0, -1), { ...last, thinking: false, toolCalls: [...(last.toolCalls || []), tc] }]
-            }
-            return prev
-          })
-          break
-        }
-
-        case 'tool_result': {
-          const tr: ToolResult = { name: msg.name || '', output: msg.output || '' }
-          setMessages(prev => {
-            const last = prev[prev.length - 1]
-            if (last?.id === activeMessageId.current) {
-              return [...prev.slice(0, -1), { ...last, toolResults: [...(last.toolResults || []), tr] }]
-            }
-            return prev
-          })
-          // Refresh explorer when file-modifying tools complete.
-          const fsTools = ['write', 'edit', 'bash']
-          if (fsTools.includes(msg.name || '')) {
-            setExplorerRefreshKey(k => k + 1)
-          }
-          break
-        }
-
-        case 'harness': {
-          // A harness intervention fired (rescue, nudge, error stop, ...).
-          // Attach it to the active assistant message so the user sees the
-          // agent is being steered rather than a dead session.
-          const ev = msg.event || ''
-          if (!ev) break
-          setMessages(prev => {
-            const last = prev[prev.length - 1]
-            if (last?.id === activeMessageId.current && last.role === 'assistant') {
-              return [...prev.slice(0, -1), { ...last, harnessEvents: [...(last.harnessEvents || []), ev] }]
-            }
-            const newId = uid()
-            activeMessageId.current = newId
-            return [...prev, { id: newId, role: 'assistant', content: '', streaming: true, harnessEvents: [ev] }]
-          })
-          break
-        }
-
-        case 'confirm_request':
-          // The backend is holding a risky command until the user
-          // approves it (denied automatically on timeout).
-          setConfirmReq({ id: msg.confirm_id ?? 0, command: msg.command || '' })
-          break
-
-        case 'done':
-        case 'stopped':
-          setMessages(prev => {
-            const last = prev[prev.length - 1]
-            if (last?.id === activeMessageId.current) {
-              // Remove empty thinking placeholders on stop.
-              if (!last.content && !last.toolCalls?.length && !last.harnessEvents?.length) {
-                return prev.slice(0, -1)
-              }
-              return [...prev.slice(0, -1), { ...last, streaming: false, thinking: false }]
-            }
-            return prev
-          })
-          setStreaming(false)
-          setConfirmReq(null)
-          break
-
-        case 'error':
-          setMessages(prev => [
-            ...prev,
-            { id: uid(), role: 'system', content: msg.message || 'Unknown error' },
-          ])
-          setStreaming(false)
-          setConfirmReq(null)
-          break
-
-        case 'model_changed':
-          setStatus(prev => ({ ...prev, model: msg.model || prev.model }))
-          // Show an informational divider when the model changes mid-conversation.
-          setMessages(prev => {
-            if (prev.length === 0) return prev
-            return [...prev, { id: uid(), role: 'system', content: `Model switched to ${msg.model}` }]
-          })
-          break
-
-        case 'provider_changed':
-          setStatus(prev => ({ ...prev, provider: msg.provider || prev.provider }))
-          break
-
-        case 'cleared':
-          setMessages([])
-          setResumable(null)
-          break
-
-        case 'cwd_changed':
-          // A new folder may have its own saved conversation to offer.
-          setResumable(msg.resumable || null)
-          break
-
-        case 'restored': {
-          // Rebuild the chat from the saved conversation.
-          const restored: Message[] = (msg.messages || [])
-            .filter(m => m.role === 'user' || m.role === 'assistant')
-            .map(m => ({
-              id: uid(),
-              role: m.role as Message['role'],
-              content: m.content,
-            }))
-          setMessages(restored)
-          setResumable(null)
-          break
-        }
 
         case 'catalog':
           if (msg.data && typeof msg.data === 'object') {
@@ -348,7 +202,7 @@ export default function App() {
           setPullProgress('')
           // Auto-switch to the newly downloaded model and close picker.
           if (pulledModel) {
-            window.api.sendToPython({ id: nextId(), type: 'switch_model', model: pulledModel })
+            void window.api.applicationCommand('ChangeModel', { modelId: pulledModel })
             setShowPicker(false)
           }
           // Refresh catalog to update installed status.
@@ -359,18 +213,6 @@ export default function App() {
         case 'delete_done':
           // Refresh catalog.
           window.api.sendToPython({ id: nextId(), type: 'catalog' })
-          break
-
-        case 'status':
-          if (msg.data && typeof msg.data === 'object') {
-            const d = msg.data as Record<string, unknown>
-            setStatus(prev => ({
-              ...prev,
-              model: (d.model as string) || prev.model,
-              provider: (d.provider as string) || prev.provider,
-              connected: (d.connected as boolean) ?? prev.connected,
-            }))
-          }
           break
 
         case 'update_available':
@@ -401,29 +243,34 @@ export default function App() {
     })
 
     // Signal to main process that renderer is ready to receive messages.
-    // This flushes any buffered messages (e.g. the 'ready' message from Python).
+    // The host sends its current snapshot projection without restarting work.
     window.api.signalReady()
 
     return cleanup
   }, [])
 
   const sendMessage = useCallback((text: string) => {
-    if (!text.trim() || streaming) return
-    const thinkId = uid()
-    activeMessageId.current = ''
-    setMessages(prev => [
-      ...prev,
-      { id: uid(), role: 'user', content: text },
-      { id: thinkId, role: 'assistant', content: '', thinking: true, streaming: true },
-    ])
-    activeMessageId.current = thinkId
-    setStreaming(true)
-    window.api.sendToPython({ id: nextId(), type: 'chat', content: text })
-  }, [streaming])
+    if (!text.trim()) return
+    void window.api.applicationCommand('SubmitUserInput', { content: text })
+  }, [])
 
   const handleStop = useCallback(() => {
-    window.api.sendToPython({ id: nextId(), type: 'stop' })
-  }, [])
+    if (view?.activeTurnId) void window.api.applicationCommand('CancelTurn', { turnId: view.activeTurnId })
+  }, [view?.activeTurnId])
+
+  const answerAskUser = useCallback(() => {
+    if (askReq) void window.api.applicationCommand('ResolveUserInput', {
+      inputRequestId: askReq.inputRequestId, response: askAnswer,
+    })
+  }, [askReq, askAnswer])
+
+  const resolveApproval = useCallback((approved: boolean) => {
+    if (!confirmReq) return
+    const { approvalId, toolCallId, requestDigest, cwd, policyRevision } = confirmReq
+    void window.api.applicationCommand('ResolveApproval', {
+      approvalId, toolCallId, requestDigest, cwd, policyRevision, approved,
+    })
+  }, [confirmReq])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Ignore key events during IME composition (e.g. Japanese input).
@@ -448,24 +295,9 @@ export default function App() {
 
   const handleModelSelect = useCallback((model: string) => {
     setShowPicker(false)
-    // If streaming, the backend will auto-stop on switch_model.
-    // Update frontend state immediately for responsiveness.
-    if (streaming) {
-      setStreaming(false)
-      setMessages(prev => {
-        const last = prev[prev.length - 1]
-        if (last?.id === activeMessageId.current && last.streaming) {
-          // Remove empty thinking placeholder, or finalize partial content.
-          if (!last.content && !last.toolCalls?.length) {
-            return prev.slice(0, -1)
-          }
-          return [...prev.slice(0, -1), { ...last, streaming: false, thinking: false }]
-        }
-        return prev
-      })
-    }
-    window.api.sendToPython({ id: nextId(), type: 'switch_model', model })
-  }, [streaming])
+    // The backend confirms the change or returns an explicit conflict.
+    void window.api.applicationCommand('ChangeModel', { modelId: model })
+  }, [])
 
   const handlePull = useCallback((model: string) => {
     setPulling(model)
@@ -491,7 +323,7 @@ export default function App() {
   }, [])
 
   const handleClear = useCallback(() => {
-    window.api.sendToPython({ id: nextId(), type: 'clear' })
+    void window.api.applicationCommand('ExecuteCommand', { name: 'clear' })
   }, [])
 
   const handleAppUpdate = useCallback(() => {
@@ -501,7 +333,7 @@ export default function App() {
   }, [])
 
   const handleProviderSwitch = useCallback((provider: string) => {
-    window.api.sendToPython({ id: nextId(), type: 'switch_provider', provider })
+    void window.api.applicationCommand('ChangeProvider', { providerId: provider })
   }, [])
 
   const handleFileSelect = useCallback((path: string) => {
@@ -509,7 +341,6 @@ export default function App() {
   }, [])
 
   const handleRootChange = useCallback((path: string) => {
-    setRootDir(path)
     setSelectedFile(null)
     // Notify Python server to change working directory.
     window.api.sendToPython({ id: nextId(), type: 'set_cwd', path })
@@ -539,7 +370,7 @@ export default function App() {
         <div className="status-item model-status-group">
           <span
             className="model-select"
-            onClick={() => { refreshCatalog(); setShowPicker(true) }}
+            onClick={() => { if (!streaming && status.ready) { refreshCatalog(); setShowPicker(true) } }}
           >
             {status.model || '...'}
           </span>
@@ -556,7 +387,7 @@ export default function App() {
           <ProviderSelector
             currentProvider={status.provider}
             hasClaude={hasClaude}
-            hasMessages={messages.length > 0}
+            disabled={streaming || !status.ready}
             onSwitch={handleProviderSwitch}
             onLoginRequest={() => setShowClaudeLogin(true)}
           />
@@ -581,7 +412,7 @@ export default function App() {
           title="Settings (Cmd+,)"
         >settings</button>
         {messages.length > 0 && (
-          <button className="status-btn" onClick={handleClear}>clear</button>
+          <button className="status-btn" disabled={streaming || !status.ready} onClick={handleClear}>clear</button>
         )}
       </div>
 
@@ -620,6 +451,12 @@ export default function App() {
           )}
         </div>
       )}
+
+      {view?.error && <div className="confirm-bar" role="alert">
+        <span>{view.error.code}: {view.error.message}</span>
+        {!status.connected && <button className="confirm-approve" onClick={() => void window.api.restartBackend()}>Restart backend</button>}
+      </div>}
+      {view?.gap && <div className="resume-bar" role="status">Event continuity was interrupted; the current session snapshot is authoritative.</div>}
 
       <div className="app-body">
         {explorerOpen && (
@@ -663,13 +500,13 @@ export default function App() {
                       </span>
                       <button
                         className="resume-btn"
-                        onClick={() => window.api.sendToPython({ id: nextId(), type: 'resume' })}
+                        onClick={() => void window.api.applicationCommand('ExecuteCommand', { name: 'resume' })}
                       >
                         Restore
                       </button>
                       <button
                         className="resume-dismiss"
-                        onClick={() => setResumable(null)}
+                        onClick={() => setResumeDismissed(true)}
                       >
                         Dismiss
                       </button>
@@ -686,32 +523,37 @@ export default function App() {
             <div className="confirm-bar">
               <div className="confirm-text">
                 <span className="confirm-label">Risky command — approve?</span>
-                <code className="confirm-command">{confirmReq.command}</code>
+                <code className="confirm-command">{String(confirmReq.arguments.command || confirmReq.name)}</code>
               </div>
               <button
                 className="confirm-deny"
-                onClick={() => {
-                  window.api.sendToPython({
-                    id: nextId(), type: 'confirm_response',
-                    confirm_id: confirmReq.id, approved: false,
-                  })
-                  setConfirmReq(null)
-                }}
+                onClick={() => resolveApproval(false)}
               >
                 Deny
               </button>
               <button
                 className="confirm-approve"
-                onClick={() => {
-                  window.api.sendToPython({
-                    id: nextId(), type: 'confirm_response',
-                    confirm_id: confirmReq.id, approved: true,
-                  })
-                  setConfirmReq(null)
-                }}
+                onClick={() => resolveApproval(true)}
               >
                 Run it
               </button>
+            </div>
+          )}
+
+          {askReq && (
+            <div className="confirm-bar">
+              <div className="confirm-text">
+                <span className="confirm-label">Agent question</span>
+                <span>{askReq.question}</span>
+              </div>
+              <input
+                aria-label="Answer to agent"
+                value={askAnswer}
+                onChange={e => setAskAnswer(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') answerAskUser() }}
+              />
+              <button className="confirm-approve" onClick={answerAskUser}>Send</button>
+              <button className="confirm-deny" onClick={handleStop}>Stop</button>
             </div>
           )}
 
@@ -733,7 +575,7 @@ export default function App() {
                 rows={1}
               />
               {streaming && (
-                <button className="stop-btn" onClick={handleStop} title="Stop generation (Esc)">
+                <button className="stop-btn" onClick={handleStop} title="Cancel current turn (Esc)">
                   stop
                 </button>
               )}
@@ -773,7 +615,10 @@ export default function App() {
       )}
 
       {showSettings && (
-        <SettingsPanel onClose={() => setShowSettings(false)} backendGitCapability={backendGitCapability} />
+        <SettingsPanel onClose={() => setShowSettings(false)} backendGitCapability={backendGitCapability}
+          rag={view?.rag} ragProgress={view?.ragProgress || ''} ragResult={view?.ragResult || null}
+          onRAGEnabled={enabled => void window.api.applicationCommand('SetRAGEnabled', { enabled })}
+          onRAGQuery={query => void window.api.applicationCommand('QueryRAG', { query })} />
       )}
 
       {showClaudeLogin && (

@@ -58,7 +58,8 @@ def build_skill_messages(
     ]
 
 
-def build_system_prompt(tools: list[Tool], role: str = "main") -> str:
+def build_system_prompt(tools: list[Tool], role: str = "main",
+                        *, cwd: str | os.PathLike[str] | None = None) -> str:
     """Build the agent system prompt, including a description of *tools*.
 
     Args:
@@ -74,7 +75,7 @@ def build_system_prompt(tools: list[Tool], role: str = "main") -> str:
         The full system prompt string.
     """
     tool_section = "\n".join(f"- {t.name}: {t.description}" for t in tools)
-    cwd = os.getcwd()
+    cwd = os.getcwd() if cwd is None else str(cwd)
     shell_tool = next((t for t in tools if t.name == "bash"), None)
     descriptor = getattr(shell_tool, "descriptor", None)
     if descriptor is None:
