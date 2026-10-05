@@ -20,20 +20,34 @@ jobs:
         run: python -m pytest tests/test_nova_core_phase14_architecture.py tests/test_nova_core_phase14_platform.py -q
       - name: Core and Security contract regression (no external LLM required)
         shell: bash
-        run: >-
-          python -m pytest -q tests
-          --ignore=tests/security_v12/test_s0_frontends.py
-          --ignore=tests/security_v12/test_s0_process.py
-          --ignore=tests/security_v12/test_s0_surfaces.py
-          --ignore=tests/security_v12/test_s3_windows.py
-          --ignore=tests/security_v12/test_s4_host.py
-          --ignore=tests/security_v12/test_s5_network.py
-          --ignore=tests/security_v12/test_s6_host.py
-          --ignore=tests/security_v12/test_s8_host.py
-          --ignore=tests/security_v12/test_s8_e2e.py
-          --ignore=tests/test_nova_core_phase7_legacy_bridge.py
-          --ignore=tests/test_nova_core_phase7_server_legacy.py
-          --ignore=tests/test_security_gates.py
+        run: |
+          args=(
+            --ignore=tests/security_v12/test_s0_frontends.py
+            --ignore=tests/security_v12/test_s0_process.py
+            --ignore=tests/security_v12/test_s0_surfaces.py
+            --ignore=tests/security_v12/test_s3_windows.py
+            --ignore=tests/security_v12/test_s4_host.py
+            --ignore=tests/security_v12/test_s5_network.py
+            --ignore=tests/security_v12/test_s6_host.py
+            --ignore=tests/security_v12/test_s8_host.py
+            --ignore=tests/security_v12/test_s8_e2e.py
+            --ignore=tests/test_nova_core_phase7_legacy_bridge.py
+            --ignore=tests/test_nova_core_phase7_server_legacy.py
+            --ignore=tests/test_security_gates.py
+          )
+          # These four Core-era filesystem characterizations exercise the S3
+          # Windows/NTFS adapter. On other hosts the normative result is the
+          # fail-closed FILESYSTEM_PLATFORM_UNSUPPORTED contract, covered by
+          # the Security suite rather than by a successful filesystem test.
+          if [ "$RUNNER_OS" != "Windows" ]; then
+            args+=(
+              --ignore=tests/test_nova_core_phase12_client.py
+              --ignore=tests/test_nova_core_phase3_cwd.py
+              --ignore=tests/test_nova_core_phase6_runtime.py
+              --ignore=tests/test_nova_core_phase7_session.py
+            )
+          fi
+          python -m pytest -q tests "${args[@]}"
 
   security-windows-ntfs:
     name: security-windows-ntfs
