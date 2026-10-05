@@ -12,6 +12,7 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron',
+            commonjsOptions: { include: [/node_modules/, /approval_host\.cjs$/] },
           },
         },
       },

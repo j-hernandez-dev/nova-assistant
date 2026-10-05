@@ -10,8 +10,9 @@ from typing import Any, Callable
 from urllib.parse import urlsplit, urlunsplit
 
 from local_cli.core.models import ModelRuntimeSnapshot
+from local_cli.application.secrets import SecretRedactor
 from local_cli.core.contracts import json_safe_copy
-from local_cli.providers.base import ProviderConnectionError
+from local_cli.providers.base import ProviderConnectionError, LLMProvider
 
 
 class ProviderTransitionError(ValueError):
@@ -77,6 +78,7 @@ class BoundModelRuntime:
     _provider: Any = field(repr=False, compare=False)
     _fresh_factory: Callable[[], Any] | None = field(repr=False, compare=False)
     _context: Any = field(default=None, repr=False, compare=False)
+    _redactor: Any = field(default=None, repr=False, compare=False)
 
     @property
     def name(self):
@@ -102,7 +104,9 @@ class BoundModelRuntime:
             context = InferenceContext(ContextManager(manager.selection, policy=manager.policy,
                 model_limit=manager.model_limit, provider_limit=manager.provider_limit,
                 max_output_tokens=manager.max_output_tokens, tokenizer=tokenizer), context.capabilities)
-        return BoundModelRuntime(self.snapshot, provider, self._fresh_factory, context)
+        if self._redactor is not None:
+            self._redactor.observe_provider(provider)
+        return BoundModelRuntime(self.snapshot, provider, self._fresh_factory, context, self._redactor)
 
     def format_tools(self, tools):
         if hasattr(self._provider, "format_tools"):
@@ -122,27 +126,59 @@ class BoundModelRuntime:
         if model != self.snapshot.model_id:
             raise ProviderTransitionError("MODEL_SNAPSHOT_CONFLICT", "Model does not match snapshot", "MODEL")
         merged = self._kwargs(kwargs)
+        messages = self._redactor.messages(messages) if self._redactor else messages
         prepared = self._prepare(messages, merged)
         stream = self._provider.chat_stream(model, prepared.messages if prepared else messages, **merged)
+        streams = {key: self._redactor.stream() for key in ('content', 'thinking')} if self._redactor else {}
         try:
             for chunk in stream:
                 if prepared is not None:
                     self._context.observe(chunk, prepared.budget)
+                if self._redactor:
+                    safe = self._redactor.value(chunk)
+                    message = chunk.get('message') or {}
+                    for key, scrub in streams.items():
+                        if isinstance(message.get(key), str):
+                            safe.setdefault('message', {})[key] = scrub.feed(message[key])
+                        if chunk.get('done'):
+                            tail = scrub.finish()
+                            if tail:
+                                safe.setdefault('message', {})[key] = safe.get('message', {}).get(key, '') + tail
+                    chunk = safe
                 yield chunk
+            for key, scrub in streams.items():
+                tail = scrub.finish()
+                if tail:
+                    yield {'message': {'role': 'assistant', key: tail}}
+        except BaseException as exc:
+            if self._redactor:
+                self._redactor.exception(exc)
+            raise
         finally:
             close = getattr(stream, "close", None)
             if close is not None:
-                close()
+                try:
+                    close()
+                except BaseException as exc:
+                    if self._redactor:
+                        self._redactor.exception(exc)
+                    raise
 
     def chat(self, model, messages, **kwargs):
         if model != self.snapshot.model_id:
             raise ProviderTransitionError("MODEL_SNAPSHOT_CONFLICT", "Model does not match snapshot", "MODEL")
         merged = self._kwargs(kwargs)
+        messages = self._redactor.messages(messages) if self._redactor else messages
         prepared = self._prepare(messages, merged)
-        result = self._provider.chat(model, prepared.messages if prepared else messages, **merged)
+        try:
+            result = self._provider.chat(model, prepared.messages if prepared else messages, **merged)
+        except BaseException as exc:
+            if self._redactor:
+                self._redactor.exception(exc)
+            raise
         if prepared is not None:
             self._context.observe(result, prepared.budget)
-        return result
+        return self._redactor.value(result) if self._redactor else result
 
     def _prepare(self, messages, kwargs):
         if self._context is None:
@@ -160,6 +196,11 @@ class BoundModelRuntime:
         return prepared
 
 
+# The legacy loop uses this ABC to choose native provider tool formatting.
+# S6's redacting wrapper must preserve that compatibility discriminator.
+LLMProvider.register(BoundModelRuntime)
+
+
 class ProviderManager:
     """One provider/model/revision per session. OD-04: reject, never queue."""
 
@@ -172,11 +213,13 @@ class ProviderManager:
         self._factory = provider_factory
         self._clone_factory = clone_factory
         self._active_turn = None
+        self.redactor = SecretRedactor()
+        self.redactor.observe_provider(provider)
         name = getattr(provider, "name", "legacy")
         name = name if isinstance(name, str) else "legacy"
         self._current = BoundModelRuntime(
             ModelRuntimeSnapshot(name, model, 1, endpoint=_endpoint(provider)),
-            provider, clone_factory(provider))
+            provider, clone_factory(provider), _redactor=self.redactor)
 
     def snapshot(self):
         with self._lock:
@@ -265,7 +308,7 @@ class ProviderManager:
                 raise ProviderTransitionError("INVALID_MODEL", "Model must be non-empty", "MODEL")
             current = self._current
             observed = self._observe(current._provider, model, current.snapshot.provider_revision + 1)
-            self._current = BoundModelRuntime(observed, current._provider, current._fresh_factory)
+            self._current = BoundModelRuntime(observed, current._provider, current._fresh_factory, _redactor=self.redactor)
             return self._current
 
     def change_provider(self, name, *, model=None, expected_revision=None):
@@ -277,11 +320,12 @@ class ProviderManager:
                 raise ProviderTransitionError("INVALID_MODEL", "Model must be non-empty", "MODEL")
             try:
                 provider = self._factory(name)
+                self.redactor.observe_provider(provider)
                 if provider.name != name:
                     raise ValueError("factory returned another provider")
                 observed = self._observe(provider, model or self._current.snapshot.model_id,
                     self._current.snapshot.provider_revision + 1, choose_model=model is None)
-                candidate = BoundModelRuntime(observed, provider, self._clone_factory(provider))
+                candidate = BoundModelRuntime(observed, provider, self._clone_factory(provider), _redactor=self.redactor)
             except ProviderTransitionError:
                 raise
             except Exception as exc:

@@ -26,6 +26,7 @@ export type SessionSnapshot = {
   services: {
     rag: RAGStatus
     filesystem?: { revision: number }
+    securityAudit?: { deliveryFailures: number; lastError: string | null; storageGapCodes: string[] }
     interactions?: { approvals: Approval[]; inputs: UserInputRequest[] }
     operations?: Array<{ operationId: string; status: string; service?: string; phase?: string; result?: any }>
   }

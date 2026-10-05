@@ -1,0 +1,240 @@
+..........FF                                                             [100%]
+================================== FAILURES ===================================
+_____ test_host_real_executor_observes_synthetic_stdin_with_finite_child ______
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmpr5lcth97/pytest/test_host_real_executor_observ0')
+record_property = <function record_property.<locals>.append_property at 0x000002043B91FAB0>
+
+    def test_host_real_executor_observes_synthetic_stdin_with_finite_child(
+        tmp_path, record_property
+    ):
+        child_raw = tmp_path / "workspace ' spaces" / "stdin_child_raw.json"
+        child_bytes = child_raw.with_suffix(".bin")
+        fixture_source = (
+            "import json,os,sys\nfrom pathlib import Path\n"
+            "from threading import Event,Thread\n"
+            "received = {}\nfinished = Event()\n"
+            "def receive():\n"
+            " try:\n"
+            f"  received['data'] = sys.stdin.buffer.readline({len(STDIN_CANARY.encode('ascii'))})\n"
+            " except BaseException as exc:\n"
+            "  received['error'] = type(exc).__name__\n"
+            " finally:\n"
+            "  finished.set()\n"
+            "reader = Thread(target=receive, daemon=True)\nreader.start()\n"
+            "reader.join(1.5)\n"
+            "payload = received.get('data', b'')\n"
+            "raw = {'read_completed': finished.is_set(), 'data_hex': payload.hex(),\n"
+            "       'read_error': received.get('error'), 'reader_alive': reader.is_alive(),\n"
+            "       'reader_deadline_seconds': 1.5}\n"
+            f"Path({str(child_bytes)!r}).write_bytes(payload)\n"
+            f"Path({str(child_raw)!r}).write_text(json.dumps(raw), encoding='utf-8')\n"
+            "if not raw['read_completed']:\n"
+            " observation, inherited = 'UNKNOWN', None\n"
+            f"elif payload == {STDIN_CANARY.encode('ascii')!r}:\n"
+            " observation, inherited = 'OBSERVED', True\n"
+            "else:\n"
+            " observation, inherited = 'INPUT_NOT_OBSERVED', False\n"
+            "print(json.dumps({'stdin_observation': observation, 'inherited_canary': inherited}), flush=True)\n"
+            # Exit the fixture itself even when its daemon reader is still blocked.
+            "os._exit(0)\n"
+        )
+    
+>       observed, transport = _run_host_fixture(
+            tmp_path, fixture_source, mode="executor", input_text=STDIN_CANARY,
+            raw_observation_path=child_raw,
+        )
+
+..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py:451: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmpr5lcth97/pytest/test_host_real_executor_observ0')
+fixture_source = "import json,os,sys\nfrom pathlib import Path\nfrom threading import Event,Thread\nreceived = {}\nfinished = Event()\n...False\nprint(json.dumps({'stdin_observation': observation, 'inherited_canary': inherited}), flush=True)\nos._exit(0)\n"
+mode = 'executor', input_text = 'NOVA_S0_STDIN_CANARY\n', extra_env = None
+raw_observation_path = WindowsPath("C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmpr5lcth97/pytest/test_host_real_executor_observ0/workspace ' spaces/stdin_child_raw.json")
+
+    def _run_host_fixture(
+        tmp_path, fixture_source, *, mode, input_text="", extra_env=None,
+        raw_observation_path=None,
+    ):
+        descriptor = _native_descriptor()
+        workspace = tmp_path / "workspace ' spaces"
+        workspace.mkdir()
+        fixture = workspace / "fixture ' child.py"
+        child_started = workspace / "child_started.json"
+        prefix = (
+            "import json,os,sys\nfrom pathlib import Path\n"
+            f"Path({str(child_started)!r}).write_text(json.dumps({{"
+            "'marker': 'NOVA_S0_CHILD_STARTED', 'pid': os.getpid(), "
+            "'python_executable': sys.executable, 'python_base_prefix': sys.base_prefix"
+            "}), encoding='utf-8')\n"
+        )
+        fixture.write_text(prefix + fixture_source, encoding="utf-8")
+        driver = tmp_path / "isolated_driver.py"
+        driver.write_text(DRIVER_SOURCE, encoding="utf-8")
+        repository = Path(shell_executor.__file__).resolve().parent.parent
+        python_executable = _runtime_python_executable()
+        environment = _fixture_environment(tmp_path, extra_env)
+        environment["PYTHONPATH"] = str(repository)
+        environment["PATH"] = str(Path(python_executable).parent)
+        driver_raw = tmp_path / "host_driver_raw.json"
+        command = [
+            python_executable, "-I", str(driver), str(repository),
+            descriptor.os_name, descriptor.kind, descriptor.executable,
+            str(fixture), str(workspace), mode, python_executable,
+        ]
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=workspace,
+                env=environment,
+                input=input_text,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=20,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+            )
+            raw = {"driver_returncode": completed.returncode,
+                   "driver_stdout": completed.stdout, "driver_stderr": completed.stderr}
+        except subprocess.TimeoutExpired as exc:
+            raw = {"exception": "TimeoutExpired", "driver_stdout": repr(exc.output),
+                   "driver_stderr": repr(exc.stderr)}
+            raw.update({"command": command, "child_started": child_started.exists()})
+            driver_raw.write_text(json.dumps(raw), encoding="utf-8")
+            raise
+        raw.update({"command": command, "child_started": child_started.exists(),
+                    "child_stream_report_exists": (workspace / "driver_child_raw.json").exists(),
+                    "parent_sys_executable": sys.executable,
+                    "parent_base_executable": getattr(sys, "_base_executable", None),
+                    "parent_base_prefix": sys.base_prefix})
+        driver_raw.write_text(json.dumps(raw), encoding="utf-8")
+        assert completed.returncode == 0, "The isolated S0 fixture driver failed"
+        assert completed.stdout.strip(), "Driver stdout is empty; see host_driver_raw.json"
+        result = json.loads(completed.stdout)
+        assert result["status"] == "completed"
+        assert result["exit_code"] == 0
+>       assert child_started.is_file(), "The Python fixture did not record that it started"
+E       AssertionError: The Python fixture did not record that it started
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = WindowsPath("C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmpr5lcth97/pytest/test_host_real_executor_observ0/workspace ' spaces/child_started.json").is_file
+
+..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py:406: AssertionError
+______ test_host_real_shelltool_filters_env_and_reads_sibling_dummy_file ______
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmpr5lcth97/pytest/test_host_real_shelltool_filte0')
+record_property = <function record_property.<locals>.append_property at 0x000002043B976CF0>
+
+    def test_host_real_shelltool_filters_env_and_reads_sibling_dummy_file(
+        tmp_path, record_property
+    ):
+        private_fixture = tmp_path / "private_fixture"
+        private_fixture.mkdir()
+        dummy = private_fixture / "dummy_canary.txt"
+        dummy.write_text(FILE_CANARY, encoding="utf-8")
+        fixture_source = (
+            "import json,os\nfrom pathlib import Path\n"
+            "keys = {key.casefold() for key in os.environ}\n"
+            "observed = {\n"
+            " 'blocked_keys_present': bool(keys & {'openai_api_key','github_token','bash_env'}),\n"
+            f" 'unlisted_canary_retained': os.environ.get('NOVA_FIXTURE_SECRET') == {UNLISTED_CANARY!r},\n"
+            f" 'sibling_dummy_readable': Path({str(dummy)!r}).read_text(encoding='utf-8') == {FILE_CANARY!r},\n"
+            "}\nprint(json.dumps(observed))\n"
+        )
+    
+>       observed, transport = _run_host_fixture(
+            tmp_path,
+            fixture_source,
+            mode="tool",
+            extra_env={
+                "OPENAI_API_KEY": BLOCKED_CANARY,
+                "gItHuB_tOkEn": BLOCKED_CANARY,
+                "BASH_ENV": "NOVA_S0_DUMMY_STARTUP_HOOK",
+                "NOVA_FIXTURE_SECRET": UNLISTED_CANARY,
+            },
+        )
+
+..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py:499: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmpr5lcth97/pytest/test_host_real_shelltool_filte0')
+fixture_source = "import json,os\nfrom pathlib import Path\nkeys = {key.casefold() for key in os.environ}\nobserved = {\n 'blocked_keys...\\\\dummy_canary.txt').read_text(encoding='utf-8') == 'NOVA_S0_SIBLING_FILE_CANARY',\n}\nprint(json.dumps(observed))\n"
+mode = 'tool', input_text = ''
+extra_env = {'OPENAI_API_KEY': 'NOVA_S0_BLOCKED_CANARY', 'gItHuB_tOkEn': 'NOVA_S0_BLOCKED_CANARY', 'BASH_ENV': 'NOVA_S0_DUMMY_STARTUP_HOOK', 'NOVA_FIXTURE_SECRET': 'NOVA_S0_UNLISTED_CANARY'}
+raw_observation_path = None
+
+    def _run_host_fixture(
+        tmp_path, fixture_source, *, mode, input_text="", extra_env=None,
+        raw_observation_path=None,
+    ):
+        descriptor = _native_descriptor()
+        workspace = tmp_path / "workspace ' spaces"
+        workspace.mkdir()
+        fixture = workspace / "fixture ' child.py"
+        child_started = workspace / "child_started.json"
+        prefix = (
+            "import json,os,sys\nfrom pathlib import Path\n"
+            f"Path({str(child_started)!r}).write_text(json.dumps({{"
+            "'marker': 'NOVA_S0_CHILD_STARTED', 'pid': os.getpid(), "
+            "'python_executable': sys.executable, 'python_base_prefix': sys.base_prefix"
+            "}), encoding='utf-8')\n"
+        )
+        fixture.write_text(prefix + fixture_source, encoding="utf-8")
+        driver = tmp_path / "isolated_driver.py"
+        driver.write_text(DRIVER_SOURCE, encoding="utf-8")
+        repository = Path(shell_executor.__file__).resolve().parent.parent
+        python_executable = _runtime_python_executable()
+        environment = _fixture_environment(tmp_path, extra_env)
+        environment["PYTHONPATH"] = str(repository)
+        environment["PATH"] = str(Path(python_executable).parent)
+        driver_raw = tmp_path / "host_driver_raw.json"
+        command = [
+            python_executable, "-I", str(driver), str(repository),
+            descriptor.os_name, descriptor.kind, descriptor.executable,
+            str(fixture), str(workspace), mode, python_executable,
+        ]
+        try:
+            completed = subprocess.run(
+                command,
+                cwd=workspace,
+                env=environment,
+                input=input_text,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=20,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+            )
+            raw = {"driver_returncode": completed.returncode,
+                   "driver_stdout": completed.stdout, "driver_stderr": completed.stderr}
+        except subprocess.TimeoutExpired as exc:
+            raw = {"exception": "TimeoutExpired", "driver_stdout": repr(exc.output),
+                   "driver_stderr": repr(exc.stderr)}
+            raw.update({"command": command, "child_started": child_started.exists()})
+            driver_raw.write_text(json.dumps(raw), encoding="utf-8")
+            raise
+        raw.update({"command": command, "child_started": child_started.exists(),
+                    "child_stream_report_exists": (workspace / "driver_child_raw.json").exists(),
+                    "parent_sys_executable": sys.executable,
+                    "parent_base_executable": getattr(sys, "_base_executable", None),
+                    "parent_base_prefix": sys.base_prefix})
+        driver_raw.write_text(json.dumps(raw), encoding="utf-8")
+        assert completed.returncode == 0, "The isolated S0 fixture driver failed"
+        assert completed.stdout.strip(), "Driver stdout is empty; see host_driver_raw.json"
+        result = json.loads(completed.stdout)
+        assert result["status"] == "completed"
+        assert result["exit_code"] == 0
+>       assert child_started.is_file(), "The Python fixture did not record that it started"
+E       AssertionError: The Python fixture did not record that it started
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = WindowsPath("C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmpr5lcth97/pytest/test_host_real_shelltool_filte0/workspace ' spaces/child_started.json").is_file
+
+..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py:406: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py::test_host_real_executor_observes_synthetic_stdin_with_finite_child
+FAILED ..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py::test_host_real_shelltool_filters_env_and_reads_sibling_dummy_file
+2 failed, 10 passed in 2.69s

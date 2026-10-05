@@ -134,6 +134,11 @@ class AgentTool(Tool):
         self, context: ExecutionContext | None,
         on_started: Callable[[SubAgent, OperationId, ExecutionContext, SubAgentRunner], None] | None,
         on_completed: Callable[[SubAgentResult, OperationId, ExecutionContext], None] | None,
+        security_issuer=None, security_policy=None, parent_grant=None, filesystem_authority=None,
+        process_service=None,
+        network_service=None,
+        redactor=None,
+        security_audit=None,
         **kwargs: object,
     ) -> str:
         """Spawn a sub-agent to execute the given task.
@@ -180,6 +185,13 @@ class AgentTool(Tool):
             cwd=self.cwd,
             environment=self.environment,
             cancellation_token=context.cancellation_token if context else None,
+            security_issuer=security_issuer, security_policy=security_policy,
+            parent_grant=parent_grant,
+            filesystem_authority=filesystem_authority,
+            process_service=process_service,
+            network_service=network_service,
+            redactor=redactor,
+            security_audit=security_audit,
         )
 
         child_operation_id = new_operation_id() if context else None

@@ -41,17 +41,19 @@ def test_real_native_unicode_quoting_cwd_env_stdout_stderr_exit(tmp_path):
     folder = tmp_path / "á space ' quote"
     folder.mkdir()
     script = folder / "script.py"
-    script.write_text("import os,sys\nfrom pathlib import Path\n"
-        "print('ñ🧠|' + str(Path.cwd()) + '|' + os.environ['NOVA_NATIVE_TEST'])\n"
+    script.write_text("import os,sys\nfrom pathlib import Path\nsys.stdout.reconfigure(encoding='utf-8')\n"
+        "print('ñ🧠|' + str(Path.cwd()) + '|' + os.environ['LANG'])\n"
         "print('NATIVE_ERR', file=sys.stderr)\nsys.exit(7)\n", encoding="utf-8")
-    environment = {**get_sanitized_env(), "PYTHONIOENCODING": "utf-8", "NOVA_NATIVE_TEST": "native"}
+    # S6 deliberately excludes Nova/internal variables. Exercise compatible
+    # locale env here; exact additional passes are covered by S6 native tests.
+    environment = {**get_sanitized_env(), "LANG": "native"}
     before = Path.cwd()
     result = executor.run(python_command(descriptor, script), 10, str(folder), environment)
     # python_command explicitly propagates $LASTEXITCODE in PowerShell.
     assert result.returncode == 7
     assert "ñ🧠|" + str(folder) + "|native" in result.stdout
     assert "NATIVE_ERR" in result.stderr
-    assert Path.cwd() == before and "NOVA_NATIVE_TEST" not in os.environ
+    assert Path.cwd() == before and os.environ.get("LANG") != "native"
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Real Windows PowerShell fallback gate")

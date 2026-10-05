@@ -19,6 +19,7 @@ from local_cli.core.contracts import (
     ApprovalId, InputRequestId, SessionId, ToolCallId, ToolInvocation, TurnId,
     json_safe_copy, new_approval_id, new_input_request_id,
 )
+from local_cli.core.security import GrantRequest, _map
 
 
 class InteractionError(ValueError):
@@ -45,7 +46,7 @@ class ApprovalRequest:
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "arguments",
-                           MappingProxyType(json_safe_copy(self.arguments)))
+                           _map(dict(self.arguments)))
 
 
 @dataclass
@@ -55,6 +56,9 @@ class _ApprovalState:
     wake: Event = field(default_factory=Event)
     decision: bool | None = None
     reason: str | None = None
+    validate_current: Callable[[], Any] | None = None
+    invocation: ToolInvocation | None = field(default=None, repr=False)
+    actor_kind: str | None = None
 
 
 class ApprovalGate:
@@ -63,12 +67,56 @@ class ApprovalGate:
     def __init__(self, *,
                  on_required: Callable[[ApprovalRequest], None] | None = None,
                  on_resolved: Callable[[ApprovalRequest, bool, str], None] | None = None,
-                 deadline_factory: Callable[[], datetime | None] | None = None) -> None:
+                 deadline_factory: Callable[[], datetime | None] | None = None,
+                 require_actor: bool = True) -> None:
         self._lock = RLock()
         self._states: dict[ApprovalId, _ApprovalState] = {}
         self._on_required = on_required or (lambda _request: None)
         self._on_resolved = on_resolved or (lambda _request, _approved, _reason: None)
         self._deadline_factory = deadline_factory
+        self._require_actor = require_actor
+        self._actors: dict[object, tuple[str, Callable[[], bool]]] = {}
+        self._operations: dict[tuple[str, str], _ApprovalState] = {}
+        self._security_audit = None
+        self._audit_parents = {}
+
+    def bind_security_audit(self, audit, parents):
+        """Trusted composition only; not an approval actor or public command."""
+        if self._security_audit is not None and self._security_audit is not audit:
+            raise ValueError('audit already bound')
+        self._security_audit, self._audit_parents = audit, dict(parents)
+
+    def _audit_state(self, state, *, required=False):
+        if self._security_audit is None:
+            return
+        from local_cli.core.security_audit import AuditKind
+        request = state.request
+        self._security_audit.record(state.invocation,
+            AuditKind.APPROVAL_REQUIRED if required else AuditKind.APPROVAL_RESOLVED,
+            {'approvalId': request.approval_id, 'requestDigest': request.request_digest,
+             'policyRevision': request.policy_revision,
+             'deadline': request.deadline.isoformat() if request.deadline else None,
+             'approvalStatus': 'pending' if required else state.reason,
+             'actor': None if required else state.actor_kind}, parents=self._audit_parents)
+
+    def register_actor(self, kind: str, verify: Callable[[], bool]) -> object:
+        """In-process host registration. No serialized actor/ID creates authority."""
+        if kind not in ('cli_tty', 'desktop_host') or not callable(verify):
+            raise ValueError('invalid human adapter')
+        actor = object()
+        with self._lock:
+            self._actors[actor] = (kind, verify)
+        return actor
+
+    def effective_deadline(self, context):
+        own = self._deadline_factory() if self._deadline_factory is not None else None
+        values = [d for d in (own, context.deadline) if d is not None]
+        return min(values) if values else None
+
+    def reason_for_operation(self, session_id, operation_id):
+        with self._lock:
+            state = self._operations.get((session_id, operation_id))
+            return state.reason if state is not None else 'unavailable'
 
     @staticmethod
     def _digest(invocation: ToolInvocation, arguments: Mapping[str, Any],
@@ -86,10 +134,14 @@ class ApprovalGate:
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
     def request(self, invocation: ToolInvocation,
-                arguments: Mapping[str, Any], *, policy_revision: int) -> bool:
+                arguments: Mapping[str, Any], *, policy_revision: int,
+                grant_request: GrantRequest | None = None,
+                validate_current: Callable[[], Any] | None = None) -> bool:
         context = invocation.context
-        deadline = (context.deadline or self._deadline_factory()
-                    if self._deadline_factory is not None else context.deadline)
+        if self._require_actor and (grant_request is None or validate_current is None):
+            raise InteractionError('APPROVAL_STALE')
+        deadline = (grant_request.lifetime.expires_at if grant_request is not None
+                    else self.effective_deadline(context))
         if context.cancellation_token.is_cancel_requested() or _expired(deadline):
             return False
         request = ApprovalRequest(
@@ -98,12 +150,19 @@ class ApprovalGate:
             tool_call_id=invocation.tool_call_id, tool_name=invocation.name,
             arguments=arguments, cwd=str(context.cwd.resolve()),
             policy_revision=policy_revision,
-            request_digest=self._digest(invocation, arguments, policy_revision, deadline),
+            request_digest=(grant_request.request_digest if grant_request is not None else
+                            self._digest(invocation, arguments, policy_revision, deadline)),
             deadline=deadline,
         )
-        state = _ApprovalState(request, context.cancellation_token)
+        state = _ApprovalState(request, context.cancellation_token,
+                               validate_current=validate_current, invocation=invocation)
         with self._lock:
+            key = (context.session_id, invocation.operation_id)
+            if key in self._operations:
+                raise InteractionError('ALREADY_RESOLVED')
+            self._operations[key] = state
             self._states[request.approval_id] = state
+        self._audit_state(state, required=True)
         try:
             self._on_required(request)
         except BaseException:
@@ -118,6 +177,12 @@ class ApprovalGate:
             elif _expired(request.deadline):
                 self._finish(state, False, "expired")
             else:
+                if validate_current is not None:
+                    try:
+                        validate_current()
+                    except Exception:
+                        self._finish(state, False, 'stale')
+                        continue
                 state.wake.wait(_poll_interval(request.deadline))
 
     def _finish(self, state: _ApprovalState, approved: bool, reason: str) -> bool:
@@ -127,16 +192,29 @@ class ApprovalGate:
             state.decision = approved
             state.reason = reason
             state.wake.set()
+        self._audit_state(state)
         self._on_resolved(state.request, approved, reason)
         return approved
 
     def resolve(self, session_id: SessionId, approval_id: ApprovalId,
                 tool_call_id: ToolCallId, request_digest: str, *,
-                cwd: str, policy_revision: int, approved: bool) -> bool:
+                cwd: str, policy_revision: int, approved: bool,
+                actor: object | None = None) -> bool:
         if (not isinstance(approved, bool) or type(policy_revision) is not int
                 or not isinstance(cwd, str) or not Path(cwd).is_absolute()):
             raise InteractionError("INVALID_RESPONSE")
         with self._lock:
+            if self._require_actor:
+                registered = self._actors.get(actor)
+                if registered is None:
+                    raise InteractionError('APPROVAL_ACTOR_INVALID')
+                if approved:
+                    try:
+                        verified = registered[1]() is True
+                    except Exception:
+                        verified = False
+                    if not verified:
+                        raise InteractionError('APPROVAL_ACTOR_INVALID')
             state = self._states.get(approval_id)
             if state is None:
                 raise InteractionError("REQUEST_MISMATCH")
@@ -150,6 +228,12 @@ class ApprovalGate:
                 if state.reason in ("approved", "denied") and state.decision is approved:
                     return approved
                 raise InteractionError("ALREADY_RESOLVED")
+            if state.validate_current is not None:
+                try:
+                    state.validate_current()
+                except Exception:
+                    self._finish(state, False, 'stale')
+                    raise InteractionError('APPROVAL_STALE') from None
             if state.token.is_cancel_requested() or _expired(request.deadline):
                 reason = "cancelled" if state.token.is_cancel_requested() else "expired"
                 state.decision = False
@@ -157,7 +241,9 @@ class ApprovalGate:
                 reason = "approved" if approved else "denied"
                 state.decision = approved
             state.reason = reason
+            state.actor_kind = registered[0] if self._require_actor else 'legacy_compatibility'
             state.wake.set()
+        self._audit_state(state)
         self._on_resolved(request, bool(state.decision), reason)
         if reason in ("cancelled", "expired"):
             raise InteractionError("ALREADY_RESOLVED")

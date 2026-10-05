@@ -131,6 +131,7 @@ def is_command_risky(cmd: str) -> bool:
 # Environment variables that must be stripped from subprocess environments
 # to prevent accidental leakage of secrets.
 SANITIZED_ENV_VARS: list[str] = [
+    "NOVA_APPROVAL_HOST_KEY",
     "AWS_SECRET_ACCESS_KEY",
     "AWS_ACCESS_KEY_ID",
     "AWS_SESSION_TOKEN",
@@ -157,18 +158,13 @@ SANITIZED_ENV_VARS: list[str] = [
 
 
 def get_sanitized_env() -> dict[str, str]:
-    """Return a copy of the current environment with sensitive keys removed.
+    """S6 compatible base only; extra project variables need an exact pass.
 
-    Returns:
-        A new dictionary based on ``os.environ`` with all keys listed in
-        ``SANITIZED_ENV_VARS`` stripped out.
+    Provider adapters continue to obtain their own credentials separately.
+    This helper never reads .env files or returns host credential variables.
     """
-    env = dict(os.environ)
-    blocked = {key.casefold() for key in SANITIZED_ENV_VARS}
-    for key in list(env):
-        if key.casefold() in blocked:
-            env.pop(key, None)
-    return env
+    from local_cli.infrastructure.process_environment import EnvironmentBuilder
+    return EnvironmentBuilder().build(dict(os.environ), additional={})
 
 
 # ---------------------------------------------------------------------------

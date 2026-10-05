@@ -24,6 +24,7 @@ from local_cli.core.contracts import (
 from local_cli.shell_executor import ShellDescriptor, detect_shell
 from local_cli.tools.ask_user_tool import AskUserTool
 from local_cli.tools.bash_tool import BashTool
+from tests.security_v12.process_fixtures import bind_mock_shell
 
 
 def _invocation(tmp_path, token=None, deadline=None):
@@ -39,7 +40,7 @@ def _invocation(tmp_path, token=None, deadline=None):
         policy_revision=1,
     )
     return ToolInvocation(
-        name="bash", arguments={"command": "sudo echo ok"},
+        name="bash", arguments={"command": "git reset --hard"},
         tool_call_id=new_tool_call_id(), operation_id=operation_id,
         context=context,
     )
@@ -67,7 +68,7 @@ def test_child_cancel_inherits_parent_without_cancelling_sibling():
 
 def test_approval_is_bound_to_digest_cwd_revision_and_one_shot(tmp_path):
     required, resolved = [], []
-    gate = ApprovalGate(on_required=required.append,
+    gate = ApprovalGate(require_actor=False, on_required=required.append,
                         on_resolved=lambda *items: resolved.append(items))
     invocation = _invocation(tmp_path)
     output = []
@@ -100,7 +101,7 @@ def test_approval_is_bound_to_digest_cwd_revision_and_one_shot(tmp_path):
 
 def test_approval_expiry_and_cancellation_never_authorize(tmp_path):
     expired = _invocation(tmp_path, deadline=datetime.now(timezone.utc) - timedelta(seconds=1))
-    gate = ApprovalGate()
+    gate = ApprovalGate(require_actor=False, )
     assert gate.request(expired, dict(expired.arguments), policy_revision=1) is False
     token = CancellationController()
     invocation = _invocation(tmp_path, token=token)
@@ -119,7 +120,7 @@ def test_approval_expiry_and_cancellation_never_authorize(tmp_path):
 
 
 def test_pending_approval_expiry_rejects_late_response(tmp_path):
-    gate = ApprovalGate()
+    gate = ApprovalGate(require_actor=False, )
     invocation = _invocation(tmp_path, deadline=datetime.now(timezone.utc)
                              + timedelta(milliseconds=80))
     output = []
@@ -140,7 +141,7 @@ def test_pending_approval_expiry_rejects_late_response(tmp_path):
     ("policy_revision", 2), ("cwd", "."), ("approved", "yes"),
 ])
 def test_approval_rejects_mismatched_authority_inputs(tmp_path, field, value):
-    gate = ApprovalGate()
+    gate = ApprovalGate(require_actor=False, )
     invocation = _invocation(tmp_path)
     output = []
     worker = Thread(target=lambda: output.append(gate.request(
@@ -187,7 +188,8 @@ def test_tool_runtime_approval_executes_once_without_legacy_callback(tmp_path):
     shell = BashTool(confirm=lambda _command: pytest.fail("legacy callback called"),
                      descriptor=ShellDescriptor("Linux", "bash", "bash", "5"),
                      executor=executor, cwd=tmp_path, environment={})
-    gate = ApprovalGate()
+    bind_mock_shell(shell, executor)
+    gate = ApprovalGate(require_actor=False, )
     runtime = ToolRuntime(ToolRegistry([shell]), approval_gate=gate)
     invocation = _invocation(tmp_path)
     output = []

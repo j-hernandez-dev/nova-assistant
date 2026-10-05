@@ -1621,9 +1621,10 @@ def run_agent(
             # Post-write verification gate: surface syntax errors in the
             # file the model just produced while it still has context.
             if hc.verify_writes:
-                warning = verify_file_write(
+                verifier = getattr(tool, 'verify_file_write', None)
+                warning = (verifier(arguments, result) if callable(verifier) else verify_file_write(
                     tool_name, arguments, result, cwd=getattr(tool, "cwd", None),
-                )
+                ))
                 if warning is not None:
                     result = f"{result}\n\n{warning}"
                     emit(AgentEvent("verify_warning", {

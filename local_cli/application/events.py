@@ -76,11 +76,14 @@ class SessionEventStream:
 
     def __init__(self, session_id: SessionId, config: EventBufferConfig,
                  journal: EventJournal | None = None, *,
-                 initial_sequence: int = 0) -> None:
+                 initial_sequence: int = 0, redactor=None) -> None:
         if type(initial_sequence) is not int or initial_sequence < 0:
             raise ValueError("initial sequence must be non-negative")
         self.session_id = session_id
         self.config = config
+        from local_cli.application.secrets import SecretRedactor
+        self.redactor = redactor or SecretRedactor()
+        self._secret_streams = {}
         self._lock = RLock()
         self._sequence = initial_sequence
         if journal is None:
@@ -102,10 +105,17 @@ class SessionEventStream:
 
     def _new_event(self, kind: EventKind, payload: Mapping[str, Any],
                    **kwargs: Any) -> EventEnvelope:
+        safe = self.redactor.value(payload)
+        if kind not in (EventKind.LEGACY_AGENT_EVENT, EventKind.HARNESS_INTERVENTION):
+            for key in ('status','operationType','requestDigest','policyRevision','deadline'):
+                if key in payload:
+                    safe[key] = payload[key]
+        if kind is EventKind.SESSION_SNAPSHOT:
+            safe = self.redactor.snapshot(payload)
         event = EventEnvelope(
             schema_version=1, event_id=new_event_id(),
             sequence=self._sequence + 1, session_id=self.session_id,
-            timestamp=datetime.now(timezone.utc), kind=kind, payload=payload,
+            timestamp=datetime.now(timezone.utc), kind=kind, payload=safe,
             **kwargs,
         )
         self._sequence = event.sequence
@@ -163,6 +173,21 @@ class SessionEventStream:
                       approval_id=approval_id, agent_id=agent_id,
                       causation_id=causation_id)
         with self._lock:
+            # A timer/batch/replay cursor must never expose half of a secret.
+            # Streams are keyed by generation and channel, not consumer cursor.
+            if kind in _DELTA_KINDS:
+                key = (generation_id, kind)
+                scrub = self._secret_streams.setdefault(key, self.redactor.stream())
+                payload = {**payload, 'text': scrub.feed(payload.get('text', ''))}
+                if not payload['text']:
+                    return None
+            elif kind in (EventKind.GENERATION_COMPLETED, EventKind.GENERATION_CANCELLED, EventKind.GENERATION_FAILED):
+                for key in tuple(self._secret_streams):
+                    if key[0] == generation_id:
+                        tail = self._secret_streams.pop(key).finish()
+                        if tail:
+                            self._flush_delta()
+                            self._append(key[1], {'text': tail}, **kwargs)
             if kind in _DELTA_KINDS:
                 text = payload.get("text")
                 if not isinstance(text, str):

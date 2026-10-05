@@ -12,6 +12,16 @@ from abc import ABC, abstractmethod
 class Tool(ABC):
     """Base class for all built-in tools."""
 
+    def create_filesystem_broker(self):
+        """Trusted legacy executor/composition bridge, not a model-call schema.
+
+        Application receives the Core port. Concrete OS selection stays on
+        this adapter side of the existing flat-module migration boundary.
+        Unsupported platforms fail closed; never return a direct-FS executor.
+        """
+        from local_cli.infrastructure.windows_filesystem import WindowsFilesystemBroker
+        return WindowsFilesystemBroker()
+
     @property
     def cacheable(self) -> bool:
         """Whether this tool's results can be cached.

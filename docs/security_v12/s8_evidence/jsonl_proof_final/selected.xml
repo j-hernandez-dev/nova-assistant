@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="12.157" timestamp="2026-10-04T15:04:22.693753-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s8_e2e" name="test_native_jsonl_spoof_rejected_and_exact_host_denial" file="tests\security_v12\test_s8_e2e.py" line="155" time="11.999"><failure message="AssertionError: S8 backend deadline reached; [{&quot;id&quot;: &quot;301d63b8796d4585ae1c6af6a2c898df&quot;, &quot;type&quot;: &quot;application_result&quot;, &quot;schemaVersion&quot;: 1, &quot;data&quot;: {&quot;schemaVersion&quot;: 1, &quot;commandId&quot;: &quot;301d63b8796d4585ae1c6af6a2c898df&quot;, &quot;accepted&quot;: true, &quot;sessionId&quot;: &quot;ses_a3e6f51ad4784961b8a823a6717df940&quot;, &quot;stateRevision&quot;: 2, &quot;createdIds&quot;: {&quot;turnId&quot;: &quot;turn_37eea1865c0042b683c96d07a3725229&quot;, &quot;operationId&quot;: &quot;op_8cc5e542408c48cba8e1244d2c7bc3b5&quot;}, &quot;error&quot;: null}}, {&quot;id&quot;: &quot;8e60617656294b82bebb6ae1819a3a57&quot;, &quot;type&quot;: &quot;error&quot;, &quot;category&quot;: &quot;APPROVAL&quot;, &quot;code&quot;: &quot;APPROVAL_ACTOR_INVALID&quot;, &quot;message&quot;: &quot;Host confirmation is required.&quot;}, {&quot;id&quot;: &quot;1b5cddf1c15a40089acd9c8bfa5d5c79&quot;, &quot;type&quot;: &quot;error&quot;, &quot;category&quot;: &quot;APPROVAL&quot;, &quot;code&quot;: &quot;APPROVAL_ACTOR_INVALID&quot;, &quot;message&quot;: &quot;Host confirmation is required.&quot;}]">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_zefyd79w/selected/test_native_jsonl_spoof_reject0')
+
+    def test_native_jsonl_spoof_rejected_and_exact_host_denial(tmp_path):
+        from local_cli.interfaces.approval_proof import approval_proof
+        key='ab'*32;peer=Peer(tmp_path,'--fixture',key)
+        try:
+            ident,_=peer.command('SubmitUserInput',{'content':'approval'})
+            result=peer.wait(lambda f:f.get('type')=='application_result' and f.get('id')==ident,10)
+            assert result['data']['accepted']
+            # Approval is sensitive; use the authorized session-owner snapshot.
+            deadline=time.monotonic()+10;request=None
+            while time.monotonic()&lt;deadline:
+                state=peer.snapshot()
+                approvals=state['services']['interactions']['approvals']
+                if approvals:
+                    request=approvals[0];break
+                time.sleep(.05)
+            assert request,state
+            payload={k:request[k] for k in ('approvalId','toolCallId','requestDigest','cwd','policyRevision')}
+            payload['approved']=True
+            ident,command=peer.command('ResolveApproval',payload)
+            denied=peer.wait(lambda f:f.get('id')==ident and f.get('type')=='error',10)
+            assert denied['code']=='APPROVAL_ACTOR_INVALID'
+            ident,command=peer.command('ResolveApproval',{**payload,'approved':False},send=False)
+            peer.send({'id':ident,'type':'application_command','command':command,
+                       'hostApprovalProof':approval_proof(key,command)})
+&gt;           peer.wait(lambda f:f.get('type')=='application_result' and f.get('id')==ident,10)
+
+tests\security_v12\test_s8_e2e.py:180: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;test_s8_e2e.Peer object at 0x000002C81CA4B770&gt;
+predicate = &lt;function test_native_jsonl_spoof_rejected_and_exact_host_denial.&lt;locals&gt;.&lt;lambda&gt; at 0x000002C81CB63D70&gt;
+timeout = 10
+
+    def wait(self,predicate,timeout=240):
+        deadline=time.monotonic()+timeout
+        while time.monotonic()&lt;deadline:
+            try:f=self.frames.get(timeout=.2)
+            except Empty:
+                assert self.process.poll() is None,self.errors
+                continue
+            if f.get('type')=='event':self.events.append(f['event'])
+            if f.get('type') in ('application_result','error'):self.receipts.append(f)
+            if hasattr(self,'sid') and time.monotonic()-getattr(self,'_last_trace',0)&gt;1:
+                observations('backend_trace_'+self.sid,{'events':[e for e in self.events if e['kind'] not in
+                    ('AssistantDelta','ThinkingDelta','LegacyAgentEvent')],'receipts':self.receipts,'stderr':self.errors})
+                self._last_trace=time.monotonic()
+            if predicate(f):return f
+        observations('backend_failure',{'events':self.events,'receipts':self.receipts,'stderr':self.errors})
+&gt;       raise AssertionError('S8 backend deadline reached; '+json.dumps(self.receipts)[-2000:]+''.join(self.errors)[-1000:])
+E       AssertionError: S8 backend deadline reached; [{"id": "301d63b8796d4585ae1c6af6a2c898df", "type": "application_result", "schemaVersion": 1, "data": {"schemaVersion": 1, "commandId": "301d63b8796d4585ae1c6af6a2c898df", "accepted": true, "sessionId": "ses_a3e6f51ad4784961b8a823a6717df940", "stateRevision": 2, "createdIds": {"turnId": "turn_37eea1865c0042b683c96d07a3725229", "operationId": "op_8cc5e542408c48cba8e1244d2c7bc3b5"}, "error": null}}, {"id": "8e60617656294b82bebb6ae1819a3a57", "type": "error", "category": "APPROVAL", "code": "APPROVAL_ACTOR_INVALID", "message": "Host confirmation is required."}, {"id": "1b5cddf1c15a40089acd9c8bfa5d5c79", "type": "error", "category": "APPROVAL", "code": "APPROVAL_ACTOR_INVALID", "message": "Host confirmation is required."}]
+
+tests\security_v12\test_s8_e2e.py:84: AssertionError</failure></testcase></testsuite></testsuites>

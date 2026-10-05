@@ -158,6 +158,11 @@ class SubAgent:
         cwd: str | Path | None = None,
         environment: Mapping[str, str] | None = None,
         cancellation_token: CancellationToken | None = None,
+        security_issuer=None, security_policy=None, parent_grant=None, filesystem_authority=None,
+        process_service=None,
+        network_service=None,
+        redactor=None,
+        security_audit=None,
     ) -> None:
         self._provider = provider
         from local_cli.core.models import ModelRuntimeSnapshot
@@ -177,6 +182,28 @@ class SubAgent:
         self._environment = {key: value for key, value in source.items()
                              if key.casefold() not in blocked}
         self._cancellation = CancellationController(cancellation_token)
+        self._security_issuer = security_issuer
+        self._filesystem_authority = filesystem_authority
+        self._security_policy = security_policy
+        self._parent_grant = parent_grant
+        self._process_service = process_service
+        self._network_service = network_service
+        self._security_audit = security_audit
+        from local_cli.application.secrets import SecretRedactor
+        provider_redactor = getattr(provider, '_redactor', None)
+        self._redactor = redactor or (provider_redactor if isinstance(provider_redactor, SecretRedactor)
+                                     else SecretRedactor())
+        self._redactor.observe_provider(provider)
+        if not isinstance(provider_redactor, SecretRedactor):
+            from local_cli.application.providers import ProviderManager
+            manager = ProviderManager(provider, model)
+            manager.redactor = self._redactor
+            from dataclasses import replace
+            self._provider = replace(manager.snapshot(), _redactor=self._redactor)
+        self._redactor.observe_environment(source)
+        from local_cli.infrastructure.process_environment import EnvironmentBuilder
+        self._environment = EnvironmentBuilder(protected_value=self._redactor.protected_value).build(
+            self._environment, additional={})
 
         # Each sub-agent gets its own isolated message list.
         self._messages: list[dict[str, Any]] = []
@@ -265,7 +292,13 @@ class SubAgent:
                 has_unknown_effect = True
 
         runtime = ToolRuntime(ToolRegistry(bound_tools, scope="sub_agent"),
-                              publish=capture_tool_outcome)
+                              publish=capture_tool_outcome,
+                              issuer=self._security_issuer, policy=self._security_policy,
+                              parent_grant=self._parent_grant,
+                              filesystem_authority=self._filesystem_authority,
+                              process_service=self._process_service,
+                              network_service=self._network_service,
+                              redactor=self._redactor, security_audit=self._security_audit)
         sub_session_id = new_session_id()
         capability = RuntimeCapabilitySnapshot(
             captured_at=datetime.now(timezone.utc), source="sub_agent_unprobed",
@@ -281,6 +314,7 @@ class SubAgent:
                 deadline=datetime.now(timezone.utc) + timedelta(seconds=remaining),
                 capabilities=capability,
                 provider_revision=self.model_snapshot.provider_revision if self.model_snapshot else None,
+                policy_revision=runtime.policy.revision,
             )
 
         self._tools = [LegacyToolAdapter(tool, runtime, context_factory)
@@ -293,6 +327,7 @@ class SubAgent:
                                             cwd=effective_cwd)},
             {"role": "user", "content": self._prompt},
         ]
+        self._messages = self._redactor.messages(self._messages)
         self._tool_calls_count = 0
         final_content = ""
 
@@ -331,12 +366,12 @@ class SubAgent:
         return SubAgentResult(
             agent_id=self._agent_id,
             description=self._description,
-            content=final_content,
+            content=self._redactor.text(final_content),
             status=status,
             duration_seconds=round(duration, 2),
             messages_count=len(self._messages),
             tool_calls_count=self._tool_calls_count,
-            error_message=error_message,
+            error_message=self._redactor.text(error_message),
             worktree_path=preserved_worktree,
         )
 

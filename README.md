@@ -1,492 +1,192 @@
+<h1 align="center">Nova</h1>
+
 <p align="center">
-  <img src="assets/banner.svg" alt="local-cli" width="700"/>
+  <strong>Local-first AI coding assistant. Desktop and CLI, powered by one backend.</strong>
 </p>
 
 <p align="center">
-  <strong>Local-first AI coding agent. Zero dependencies. Runs entirely on your machine.</strong>
-</p>
-
-<p align="center">
-  <a href="#download">Download</a> &nbsp;·&nbsp;
+  <a href="#what-is-nova">Overview</a> &nbsp;·&nbsp;
   <a href="#features">Features</a> &nbsp;·&nbsp;
+  <a href="#quick-start">Quick Start</a> &nbsp;·&nbsp;
   <a href="#desktop-app">Desktop App</a> &nbsp;·&nbsp;
-  <a href="#cli-usage">CLI Usage</a> &nbsp;·&nbsp;
-  <a href="#configuration">Configuration</a>
+  <a href="#security-and-limits">Security</a> &nbsp;·&nbsp;
+  <a href="#documentation">Documentation</a>
 </p>
 
 ---
 
-<p align="center">
-  <img src="assets/demo.gif" alt="Local CLI in action" width="700"/>
-</p>
+## What is Nova?
 
-<p align="center">
-  <img src="assets/demo-2048.gif" alt="Building 2048 with Local CLI" width="700"/>
-</p>
-<p align="center"><em>AI agent autonomously creates a 2048 game — write tool in action</em></p>
+Nova is an AI assistant for working with code and local projects. Describe a task in natural language, and it can inspect files, search a codebase, propose changes, run commands, and work through tool results with you.
 
-<p align="center">
-  <img src="assets/demo-2048-solver.gif" alt="AI creating a 2048 solver" width="700"/>
-</p>
-<p align="center"><em>AI builds a 2048 solver with 3 strategies and benchmarks them</em></p>
+[Ollama](https://ollama.com) is the primary local model runtime. The local workflow does not require a cloud API or subscription. Other provider adapters are available, but using a remote provider changes where inference happens; local-first does not mean every operation is offline.
 
-<p align="center">
-  <img src="assets/demo-2048-compare.gif" alt="3 AI strategies playing 2048 side by side" width="700"/>
-</p>
-<p align="center"><em>3 AI strategies compared: Random vs Heuristic vs Lookahead — game over side by side</em></p>
+Desktop is the main interface. The CLI is a supported technical interface to the same Nova Core backend—not a separate agent implementation.
 
----
-
-## What is this?
-
-Local CLI is an AI coding agent that runs locally using [Ollama](https://ollama.com). It can read, write, and edit files, run shell commands, search code, and fetch web pages — all through natural language.
-
-It also supports [Claude API](https://console.anthropic.com/) as an alternative provider, with seamless runtime switching between local and cloud models.
-
-Think of it as a local, offline-capable alternative to cloud-based AI coding assistants.
+Nova builds on Local CLI. The Python package, module, and executable still use `local-cli` / `local_cli` for compatibility; there is no `nova` command to substitute in the examples below.
 
 ---
 
 ## Features
 
-### Agent Loop
-The LLM autonomously calls tools to complete tasks. It reads files, writes code, runs commands, and iterates until the task is done — no manual step-by-step prompting required.
+- **Work with real project tools.** Read, write, and edit files; search paths and contents; run host-shell commands; and fetch public web pages.
+- **Keep the model and execution separate.** The model proposes tool calls. Application services evaluate policy, request approval when needed, and return actual tool results.
+- **Use one backend across interfaces.** Desktop and CLI use the same Application services for session management, model selection, tool execution, approvals, and persistence.
+- **Support local models.** A deterministic harness helps recover malformed tool calls, detect repetition, and manage context. It does not guarantee that a model will complete every task correctly.
+- **Add project context when needed.** Optional RAG provides project retrieval. It is not long-term conversational memory, and its absence does not prevent normal chat.
+- **Track work and delegate within scope.** Task lists, user questions, and capability-gated subagents use the same execution and authority rules.
+- **Keep Git optional.** Conversation, native shell execution, and supported file tools do not require Git or Git Bash.
+- **Make lifecycle observable.** Session persistence, operation status, cancellation reporting, and a local security audit support diagnosis without presenting uncertain effects as success.
 
-### Deterministic Harness
-A single unified loop (shared by the CLI, server, and sub-agents) wraps the model with deterministic interventions that repair the failure modes of small local models — so a 1-9B model can sustain agentic sessions that would otherwise need a frontier model:
-
-| Intervention | What it fixes |
-|--------------|---------------|
-| **Text tool-call rescue** | Models that print their tool call as text instead of a structured call still act — `<tool_call>` tags, fenced JSON, bare JSON, inlined arguments (`{"name": "write", "file_path": ...}`), tool-name-as-key (`{"write": {...}}`), and Python call syntax (`write(file_path=...)`) |
-| **No-tool-support fallback** | Models whose endpoint rejects `tools` entirely (e.g. Japanese-specialized models) are taught a fenced-JSON call format and driven by text — they still work as agents |
-| **Tool-name / argument repair** | Near-miss names (`write_file` → `write`, `run` → `bash`) and keys (`path` → `file_path`) are resolved instead of erroring |
-| **Loop detection** | Repeated identical calls draw a corrective reminder, then a forced wrap-up — no more infinite retry loops |
-| **Post-write verification** | `.py`/`.json`/`.toml` files are syntax-checked immediately after write/edit, and unresolved merge-conflict markers are flagged in files of any type; errors are fed straight back to the model |
-| **Finish guards** | An empty reply, or finishing right after a failed tool call — including a bash command that exited non-zero (`[exit code: N]`) — draws one deterministic push-back instead of ending the turn half-done |
-| **Read-before-edit gate** | An `edit` of an existing file that nothing has read in the conversation is deferred once — a blind `old_text` is a guess that never matches. Files the model has read (or itself wrote) pass straight through |
-| **Edit recovery hints** | A failed `edit` shows the closest matching block from the file (with line numbers) so the next attempt copies the exact text |
-| **Todo staleness reminders** | A half-finished todo list is re-surfaced so multi-step work is not silently abandoned |
-| **Step limit** | After `max_iterations` the model gets one tool-free turn to summarize instead of running forever |
-| **Overload retry** | HTTP 503s retry with exponential backoff |
-| **Context compaction** | Truncation (default) or LLM summarization (`compact_mode=summarize`) with automatic fallback |
-
-### 10 Built-in Tools
-
-| Tool | Description |
-|------|-------------|
-| `bash` | Run commands in the host-selected shell; the public name is kept for compatibility |
-| `read` | Read file contents with line numbers |
-| `write` | Create or overwrite files (with path validation) |
-| `edit` | Find-and-replace editing |
-| `glob` | Find files by pattern (`*.py`, `**/*.ts`) |
-| `grep` | Search file contents with regex |
-| `web_fetch` | Fetch and parse web pages |
-| `ask_user` | Ask the user a question |
-| `todo_write` | Track a structured task list (pending / in-progress / done) |
-| `agent` | Spawn sub-agents for parallel task execution |
-
-The command tool selects `pwsh.exe` then `powershell.exe` on Windows,
-`bash` then `sh` on Linux, and `zsh`, `bash`, then `sh` on macOS. It does
-not require Git Bash on Windows. If Git Bash is installed, a user can opt in
-with `--shell-backend git-bash` or `LOCAL_CLI_SHELL=git-bash`; the model
-cannot choose a different executable through a tool call. The system prompt
-reports the selected OS, shell, version, and capabilities. Risky commands
-retain their CLI/desktop confirmation flow; unattended sub-agents decline them.
-
-Git is a separate optional executable. Reading, editing, shell commands,
-the project map, and ordinary sub-agents work without it. Checkpoints,
-rollback, undo/diff, Git worktree isolation, and backend `git pull` updates
-require Git and report when it is unavailable.
-
-### Multi-Provider
-- **Ollama** — Local inference, no API key, full privacy
-- **Claude API** — Anthropic's cloud models (Opus, Sonnet, Haiku)
-- Switch providers at runtime with `/provider` command or the desktop UI
-
-### Model Management
-- **40+ curated models** across 6 categories: Code, General, Small, Reasoning, Japanese, Multilingual
-- **Live search** from ollama.com with filters (tools, vision, thinking, code)
-- Install, delete, and switch models from CLI or desktop app
-- Interactive TUI model picker (`/models` or `--select-model`)
-
-### RAG Engine
-Index your codebase for context-aware responses. Uses SQLite + embeddings with automatic re-indexing on file changes.
-
-### Git Checkpoints
-Create tagged snapshots before risky edits. Roll back instantly with `/rollback`.
-
-### Session Persistence
-Save conversations as JSONL files. Resume where you left off.
-
-### Conversation Autosave & Resume
-The conversation is autosaved after every turn, per project. Quitting
-the app no longer loses your chat: the CLI offers `/resume` on startup,
-and the desktop app shows a Restore button when the folder has a
-previous conversation (`/clear` discards it). Save happens *before* the
-done signal, so even an instant quit keeps the last turn.
-
-### Adaptive Context Window (grow-on-demand)
-`num_ctx` defaults to `auto` and grows with the conversation: it starts
-at a fast 8k floor and steps up (16k, 32k, capped by the model's native
-window and a RAM tier) only when the chat actually approaches the
-current window. Measured on qwen3.5:9b, a short turn runs ~2x faster at
-8k than at 32k, so blanket-maxing the window taxed every everyday turn
-for a working-memory benefit only large conversations use — grow-on-
-demand keeps short sessions fast and still gives long ones the room.
-Pin a fixed size with `LOCAL_CLI_NUM_CTX=<int>`.
-
-### Project Map
-A capped, sorted file listing (git-aware, 120 entries / 2KB max) is
-injected at session start, so small models start with exact paths
-instead of burning their first iterations exploring. Rebuilt on /clear,
-resume and folder change. Disable with `LOCAL_CLI_PROJECT_MAP=0`.
-
-### Project Instructions (LOCAL_CLI.md)
-Drop a `LOCAL_CLI.md` (or `AGENTS.md` / `CLAUDE.md`) into your project
-and it is injected into every session as system instructions — the
-per-project steering lever small models need most. Nearest directory
-wins, the lookup stops at the git root, content is clipped to 8KB.
-Live-verified: a filename mandate in LOCAL_CLI.md flips the model's
-output from its own choice to the mandated name. Disable with
-`LOCAL_CLI_PROJECT_INSTRUCTIONS=0`.
-
-### Session Transcripts (flight recorder)
-Every session is automatically recorded as JSONL under
-`~/.local/state/nova/projects/<cwd-slug>/` from the moment a folder
-is opened — user messages, tool calls, harness interventions, and
-per-turn visible/thinking character counts. A field failure can be
-diagnosed from the transcript alone. Disable with
-`LOCAL_CLI_SESSION_LOG=0`.
-
-### Security
-- Dangerous command blocking (`rm -rf /` and its variants, fork bombs, `dd` to a device, etc.)
-- Risky-command confirmation — recursive `rm`, `sudo`, force push, `kill`, `shutdown`, etc. prompt for approval in the REPL (pass `--yes` to auto-approve)
-- Environment sanitization (strips API keys, tokens from subprocesses)
-- Path traversal prevention
-- Ollama host validation (localhost only)
-
-### Desktop GUI
-Electron app with terminal-style UI, model picker, file explorer, and settings panel.
-
-### Zero Dependencies
-Python stdlib only. No `pip install` needed for the core CLI.
-
-### Mascot — Loca 🐈
-An optional terminal companion. Pass `--mascot` (or `LOCAL_CLI_MASCOT=cat`) and the spinner becomes Loca, the local cat, blinking on one line while it thinks:
-
-```
-  (=･ω･=)  Thinking...      (=-ω-=)  blink      (=･ω-=)  wink
-```
-
-Pass `--mascot pixel` for an animated pixel-art Loca — a five-row cat sprite (orange fur, pink ears and cheeks, big highlighted eyes, an ω mouth) that blinks and twitches its ears via ANSI cursor control. It automatically falls back to the one-line face when output is piped or not a TTY, so cursor codes never end up in your logs. Pure decoration, default off, still zero-dependency.
+The current Core V1 scope has one main active agent session. Multiple chats, voice, external connectors, and long-term conversational memory are not part of this stage.
 
 ---
 
-## Download
+## Project status
 
-### Desktop App (pre-built)
+At the latest evaluated baseline, Nova Core V1 is implemented and the **SECURITY V1.2 product gate is closed**: `NOVA_SECURITY_V1_2_READY = true`.
 
-Download the latest release from **[GitHub Releases](https://github.com/lutelute/local-cli/releases)**:
+The validated scope is **Windows 11 + local NTFS + `HOST_UNISOLATED`**. Linux and macOS are **not certified** by this evaluation. This is a scoped product-quality gate, not an external security certification or a guarantee about future changes.
 
-| Platform | File |
-|----------|------|
-| macOS (Apple Silicon) | `Local CLI-x.x.x-arm64.dmg` |
-| Windows | `Local CLI Setup x.x.x.exe` |
-| Linux | `Local CLI-x.x.x.AppImage` |
+The historical single-turn `qwen2.5:7b` failure remains recorded as a non-blocking model-behavior limitation. A passing gate does not mean every prompt or model behaves reliably. See the [READY evaluation](docs/security_v12/nova_security_v12_ready.md) for the exact evidence and limitations.
 
-> [Ollama](https://ollama.com) must be installed and running on your machine.
-
-#### macOS: "App is damaged" warning
-
-The app is not code-signed. To allow it:
-
-```bash
-xattr -cr /Applications/Local\ CLI.app
-```
-
-Or: **System Settings > Privacy & Security > Open Anyway**.
-
-### CLI (from source)
-
-```bash
-# Core requirements: Python 3.10+ and Ollama; Git is needed to clone this example
-git clone https://github.com/lutelute/local-cli.git
-cd local-cli
-
-# Run directly
-python -m local_cli
-
-# Or install as a command
-pip install -e .
-local-cli
-```
+> Nova does not provide a sandbox or process isolation. Commands run with your account's normal permissions. Review proposed actions and verify their results.
 
 ---
 
-## CLI Usage
+## Quick Start
 
-### Quick Start
+### Requirements
 
-```bash
-# Default model (qwen3.5:9b-q4_K_M)
-local-cli
+For the currently validated workflow:
 
-# Choose a model at startup
+- Windows 11 and a project on a supported local NTFS filesystem.
+- Python 3.10 or newer, as declared in the package metadata.
+- Ollama running locally, with a model already installed that can handle tool use and fits your available resources.
+- Node.js and npm if you want to develop or run Desktop from source.
+
+The Python package has no third-party runtime dependencies. Ollama is still a required runtime for local inference; Desktop has its own dependencies.
+
+### Get the source
+
+```powershell
+git clone https://github.com/j-hernandez-dev/nova-assistant.git
+cd nova-assistant
+```
+
+Git is needed for this clone command, not for normal chat. You can also work from an existing checkout.
+
+### Run the CLI
+
+From the root of your checkout, using your chosen Python environment:
+
+```powershell
+python -m pip install -e .
+python -m local_cli --select-model
+```
+
+The model selector lets you choose an installed Ollama model rather than relying on the configured default.
+
+The editable installation also provides the `local-cli` command. Start it from the project directory you want to work in:
+
+```powershell
+Set-Location "C:\path\to\your\project"
 local-cli --select-model
-
-# Use a specific model
-local-cli --model qwen3:8b
-
-# Enable RAG for codebase-aware responses
-local-cli --rag --rag-path ./src
-
-# Use Claude API
-export ANTHROPIC_API_KEY=sk-ant-...
-local-cli --provider claude
 ```
 
-### Slash Commands
+If the executable is not on `PATH`, use `python -m local_cli --select-model` with the same Python environment.
 
-| Command | Description |
-|---------|-------------|
-| `/help` | Show available commands |
-| `/model <name>` | Switch model |
-| `/models` | Open interactive model selector (TUI) |
-| `/provider [name]` | Switch or show LLM provider |
-| `/status` | Show connection and model info |
-| `/install <model>` | Download a model from Ollama registry |
-| `/uninstall <model>` | Delete a model |
-| `/info <model>` | Show model details and capabilities |
-| `/running` | List models currently loaded in VRAM |
-| `/checkpoint [msg]` | Create a git checkpoint |
-| `/rollback [tag]` | Roll back to a checkpoint |
-| `/save` | Save current session |
-| `/brain [model]` | Set orchestrator brain model |
-| `/registry` | Show task-to-model routing |
-| `/update` | Check for and install updates |
-| `/agents` | List background sub-agent status |
-| `/plan` | Show, create, or manage structured plans |
-| `/ideate` | Enter brainstorming / ideation mode |
-| `/knowledge` | Save, load, or list knowledge items |
-| `/skills` | List or show discovered skills |
-| `/clear` | Clear conversation |
-| `/exit` | Quit |
+Start with a small task, such as:
 
-> See **[docs/prompts.md](docs/prompts.md)** for copy-paste prompt examples.
-
----
-
-## Skills
-
-Local CLI has a skills system that auto-injects contextual instructions based on trigger keywords. Create `SKILL.md` files in `.agents/skills/` to encode team conventions, framework guides, or domain knowledge.
-
-```
-.agents/skills/
-├── django-api/
-│   └── SKILL.md      # triggers: [django, REST API, DRF]
-└── code-review/
-    └── SKILL.md      # triggers: [review, PR, code quality]
+```text
+Read the project README and explain how the application is organized.
+Do not modify any files yet.
 ```
 
-> See **[docs/skills.md](docs/skills.md)** for the full guide.
+Review file changes and command results before relying on them. Natural-language instructions are not a substitute for execution policy.
+
+### Useful commands
+
+| Command | Purpose |
+|---|---|
+| `/help` | Show the available interactive commands. |
+| `/status` | Inspect the current model and session status. |
+| `/models` | Open the model selector. |
+| `/model <name>` | Request a model change between turns. |
+| `/exit` | Leave the CLI. |
+
+Use `python -m local_cli --help` for startup options. Model and provider changes are rejected while a main turn is active; they do not silently interrupt ongoing work.
+
+### Configuration
+
+Configuration precedence is **CLI arguments → environment variables → config file → defaults**.
+
+Common settings include `--model`, `LOCAL_CLI_MODEL`, and `OLLAMA_HOST`. The default config file is `~/.config/nova/config`. The supported settings and defaults live in [local_cli/config.py](local_cli/config.py).
 
 ---
 
 ## Desktop App
 
-Terminal-style GUI with streaming chat, model management, and file browsing.
+Desktop uses Electron, React, and Vite. Its host starts the Python backend; the renderer presents state and interactions rather than running its own agent loop.
 
-### Features
-- **Streaming chat** with real-time tool call display
-- **Markdown rendering** — headings, code blocks, lists, tables and links render properly (zero-dependency renderer; text stays text nodes so output cannot inject markup; links open in the system browser)
-- **Harness intervention chips** — rescue / nudge / deliverable_nudge and friends show as purple chips instead of dead air
-- **Conversation restore bar** — reopen a folder and pick up the previous chat
-- **Thinking indicator** — see when the AI is processing
-- **Model picker** — Catalog (curated) + Discover (live search from ollama.com)
-- **Provider switching** — Toggle between Ollama and Claude
-- **File explorer** — Browse project files in the sidebar
-- **File viewer** — Preview files without leaving the app
-- **Settings panel** — App and backend updates, keyboard shortcuts
-- **Copyable output** — Select and copy any text from the terminal
-- **Stop generation** — Interrupt AI responses mid-stream
+Complete the Python setup above, keep Ollama running, and make sure `python` is available on your Windows `PATH`. From the repository root:
 
-### Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Cmd/Ctrl + ,` | Settings |
-| `Cmd/Ctrl + B` | Toggle file explorer |
-| `Escape` | Stop generation / Close dialog |
-| `Shift + Enter` | New line in input |
-| `Enter` | Send message |
-
-### Auto-Update
-
-The desktop app updates automatically on startup:
-
-1. Checks GitHub Releases for new versions
-2. Downloads the update in the background
-3. Closes the app, replaces itself, and relaunches — zero user interaction
-
-Manual update is also available from the Settings panel (`Cmd/Ctrl + ,`).
-
-### Run from Source
-
-```bash
+```powershell
 cd desktop
-npm install
-npm run dev          # Development mode (hot reload)
+npm ci
+npm run dev
 ```
 
-### Build Installers
-
-```bash
-cd desktop
-npm run build        # Build for current platform
-npm run build:mac    # macOS (.dmg + .zip)
-npm run build:win    # Windows (NSIS installer)
-npm run build:linux  # Linux (AppImage + .deb)
-```
+This starts the local development app. These instructions do not imply a published installer, a packaged release, or validation on additional operating systems.
 
 ---
 
-## Configuration
+## Security and Limits
 
-Configuration is resolved in order: **CLI flags > environment variables > config file > defaults**.
+Nova separates consent, policy, and mediated tool access from the permissions of the operating system:
 
-| Flag | Env Var | Default | Description |
-|------|---------|---------|-------------|
-| `--model` | `LOCAL_CLI_MODEL` | `qwen3.5:9b-q4_K_M` | Model to use |
-| `--provider` | `LOCAL_CLI_PROVIDER` | `ollama` | LLM provider |
-| `--debug` | `LOCAL_CLI_DEBUG` | `false` | Debug output |
-| `--rag` | — | `false` | Enable RAG |
-| `--rag-path` | — | `.` | Directory to index |
-| `--rag-topk` | — | `5` | RAG results per query |
-| `--rag-model` | — | `all-minilm` | Embedding model |
-| `--select-model` | — | `false` | Interactive model picker |
-| `--server` | — | `false` | JSON-line server mode |
-| `--yes` / `-y` | — | `false` | Auto-approve risky commands (skip confirmation) |
-| `--update` | — | `false` | Check for updates now (git pull + reinstall) |
-| `--auto-update` | `LOCAL_CLI_AUTO_UPDATE` | `false` | Install available updates automatically on startup, then restart |
-| — | `LOCAL_CLI_COMPACT_MODE` | `truncate` | Context compaction: `truncate` or `summarize` |
-| — | `LOCAL_CLI_MAX_ITERATIONS` | `40` | Agent step limit per turn (`0` = unlimited) |
-| — | `LOCAL_CLI_SESSION_LOG` | `1` | Session transcripts (`0` disables). Written to `<state_dir>/projects/<cwd-slug>/` |
-| — | `LOCAL_CLI_PROJECT_INSTRUCTIONS` | `1` | Auto-inject project instruction files (`0` disables) |
-| — | `LOCAL_CLI_NUM_CTX` | `auto` | Context window: auto = per model x RAM (8k-32k); an integer pins it |
-| — | `LOCAL_CLI_PROJECT_MAP` | `1` | Inject the project file map at session start (`0` disables) |
-| `--mascot [style]` | `LOCAL_CLI_MASCOT` | `off` | Loca the local cat: `--mascot` for the one-line face `(=･ω･=)`, `--mascot pixel` for animated pixel art (TTY only; falls back to the face in pipes) |
+- **Processes are `HOST_UNISOLATED`.** Shell commands and their descendants use normal account permissions. A workspace, approval, or logical grant is not a physical filesystem or network boundary.
+- **Approvals are exact and one-shot.** Model output, retrieved text, and ordinary chat replies cannot grant execution authority. `--yes` does not bypass required human approval or turn a denial into permission.
+- **Direct file tools are broker-mediated.** `read`, `write`, `edit`, `glob`, and `grep` enforce their supported local NTFS contract and deny unsupported paths or aliases. This does not mediate file access performed inside shell commands.
+- **`web_fetch` has a separate public-only contract.** It allows public HTTP(S) destinations and revalidates DNS and redirects. Private, loopback, link-local, special destinations, and `file://` are denied. This is not a firewall for shell, Git, or provider traffic.
+- **Environment handling and audit have explicit limits.** Nova filters deliberate environment inheritance and redacts known secrets. Audit is local and durable, but not tamper-proof against the host account or a record of every effect inside a shell process.
+- **Cancellation is best-effort.** Requesting cancellation does not prove termination or rollback. Uncertain outcomes remain uncertain and are not automatically retried.
 
-Config file location: `~/.config/nova/config` (key=value format).
-
-### User data directories (Nova)
-
-Default user data locations are:
-
-| Data | Location |
-|------|----------|
-| Conversation history, session snapshots and logs | `~/.local/state/nova/` |
-| Backend configuration | `~/.config/nova/config` |
-| Desktop Claude credentials | `~/.config/nova/claude-auth.json` |
-| Model catalog cache | `~/.cache/nova/` |
-| Electron profile, cookies and Chromium cache on Windows | `%APPDATA%/nova-desktop/` |
-
-`~` is the user's home directory. Existing custom config/state paths remain
-supported. `XDG_CACHE_HOME` overrides the cache parent directory, and
-`XDG_CONFIG_HOME` overrides the parent directory for Desktop Claude credentials.
-Electron uses its platform `appData` directory with the `nova-desktop` suffix.
-Old `local-cli` and `local-cli-desktop` profiles are not automatically imported,
-moved or deleted. Project-local data such as `.agents/` and `rag_index.db` remain
-in the workspace.
-
-### Claude API
-
-Set the `ANTHROPIC_API_KEY` environment variable to enable Claude as a provider:
-
-```bash
-export ANTHROPIC_API_KEY=sk-ant-api03-...
-local-cli --provider claude
-```
-
-Switch at runtime with `/provider claude` or `/provider ollama`.
+Output limits, timeouts, and concurrency limits are operational controls—not OS quotas or isolation. See [product limits](docs/security_v12/s8_limits.md) for the full, surface-specific contract.
 
 ---
 
-## Recommended Models
+## Documentation
 
-| Model | Size | Best For |
-|-------|------|----------|
-| `qwen3:8b` | 5.2 GB | General use, tool calling |
-| `qwen2.5-coder:7b` | 4.7 GB | Code generation |
-| `qwen3:30b` | 18.5 GB | Complex reasoning |
-| `deepseek-r1:14b` | 9.0 GB | Chain-of-thought |
-| `gemma3:12b` | 8.1 GB | Multilingual, Japanese |
-| `qwen3:0.6b` | 0.5 GB | Quick testing |
+This README is the project entry point. Detailed architecture, decisions, and validation evidence stay in their own documents.
 
-**Agent-quality guidance** (measured with `scripts/harness_eval.py`): tool-trained models from ~4B up complete multi-step agent tasks reliably, in English and Japanese (qwen3.5:4b scored 7/7 on the eval suite). Sub-1B models handle simple create/run tasks but fail multi-step edits even with the harness pushing back. Chat-specialized models without tool training (e.g. Japanese conversation models) run via the text-driven fallback and manage single tool calls, but tend to go silent mid-task — prefer tool-trained models for real agent work.
+| Document | What it covers |
+|---|---|
+| [Nova Core V1](docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md) | Backend boundaries, session lifecycle, providers, tools, and shared interfaces. |
+| [SECURITY V1.2](docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md) | Security contracts, implementation stages, and the normative gate. |
+| [Product limits](docs/security_v12/s8_limits.md) | What is enforced on each surface—and what is not. |
+| [READY evaluation](docs/security_v12/nova_security_v12_ready.md) · [Manifest](docs/security_v12/nova_security_v12_ready_manifest.json) | Validated scope, evidence, historical failures, and traceability. |
+
+The detailed architecture and validation documents are currently written in Spanish.
 
 ---
 
-## Architecture
+## Development and Tests
 
-```
-local-cli/
-├── local_cli/
-│   ├── __main__.py              # Entry point (decomposed startup steps)
-│   ├── agent.py                 # Unified agent loop (run_agent + emitters)
-│   ├── harness.py               # Deterministic harness interventions
-│   ├── cli.py                   # REPL + slash commands
-│   ├── config.py                # Configuration (CLI > env > file > defaults)
-│   ├── server.py                # JSON-line server for desktop GUI
-│   ├── ollama_client.py         # Ollama REST API client
-│   ├── orchestrator.py          # Multi-provider orchestration
-│   ├── model_catalog.py         # 40+ curated models + cache
-│   ├── model_search.py          # Live search from ollama.com
-│   ├── model_manager.py         # Install / delete / info
-│   ├── model_registry.py        # Task-to-model routing
-│   ├── model_selector.py        # Interactive TUI picker
-│   ├── rag.py                   # RAG engine (SQLite + embeddings)
-│   ├── git_ops.py               # Git checkpoint / rollback
-│   ├── session.py               # Session persistence (JSONL)
-│   ├── security.py              # Input validation + sanitization
-│   ├── updater.py               # Self-update (git pull)
-│   ├── sub_agent.py             # Sub-agent runner (thread pool)
-│   ├── plan_manager.py          # Structured plan management
-│   ├── knowledge.py             # Persistent knowledge store
-│   ├── skills.py                # Skill discovery & matching
-│   ├── providers/
-│   │   ├── base.py              # Abstract LLMProvider
-│   │   ├── ollama_provider.py   # Ollama adapter
-│   │   ├── claude_provider.py   # Claude API adapter
-│   │   ├── message_converter.py # Format normalization
-│   │   └── sse_parser.py        # SSE streaming parser
-│   └── tools/                   # 10 agent tools
-│       ├── bash_tool.py         # Shell execution
-│       ├── read_tool.py         # File reading
-│       ├── write_tool.py        # File creation
-│       ├── edit_tool.py         # String replacement
-│       ├── glob_tool.py         # File pattern search
-│       ├── grep_tool.py         # Content search (regex)
-│       ├── web_fetch_tool.py    # URL fetching
-│       ├── ask_user_tool.py     # User prompts
-│       ├── todo_tool.py         # Structured task tracking
-│       └── agent_tool.py        # Sub-agent spawning
-├── desktop/                     # Electron + React + Vite
-│   ├── electron/                # Main process + preload
-│   ├── src/                     # React UI components
-│   └── build/                   # App icons
-├── tests/                       # 2351 tests
-└── pyproject.toml               # Zero dependencies
-```
+The Python regression suite uses pytest:
 
-## Tests
-
-```bash
+```powershell
 python -m pytest tests/ -q
-# 2351 passed
 ```
+
+Install pytest in your development environment before running it. Desktop checks live under [desktop/tests](desktop/tests), and Python tests under [tests](tests).
+
+Host-real and local-model E2E checks have separate prerequisites and evidence. A default regression run alone is not proof that the full SECURITY gate passes; consult the READY evaluation for the distinction between unit, contract, integration, and host-real results.
+
+When contributing, keep execution decisions in Application, preserve the shared CLI/Desktop backend, and include tests for the behavior you change. New platforms or security claims need their own validation.
 
 ---
 
 ## License
 
-MIT
+MIT, as declared in [pyproject.toml](pyproject.toml).

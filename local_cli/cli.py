@@ -253,7 +253,7 @@ def build_parser() -> argparse.ArgumentParser:
         dest="auto_approve",
         action="store_true",
         default=None,
-        help="Auto-approve risky commands (skip confirmation prompts).",
+        help="Compatibility flag; required human security approvals are never skipped.",
     )
     return parser
 

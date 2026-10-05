@@ -26,6 +26,7 @@ from local_cli.tools.agent_tool import AgentTool
 from local_cli.tools.base import Tool
 from local_cli.tools.todo_tool import TodoWriteTool
 from tests.test_nova_core_phase4_session import ScriptedProvider
+from tests.security_v12.process_fixtures import bind_mock_shell
 
 
 class _NeverCancelled:
@@ -36,7 +37,7 @@ class _NeverCancelled:
 def _context(tmp_path, *, operation_id=None):
     return ExecutionContext(
         workspace=tmp_path, cwd=tmp_path, environment=get_sanitized_env(),
-        session_id=new_session_id(), turn_id=new_turn_id(),
+        session_id='fixture-session', turn_id='fixture-turn',
         operation_id=operation_id or new_operation_id(),
         cancellation_token=_NeverCancelled(), deadline=None,
         capabilities=RuntimeCapabilitySnapshot(
@@ -66,7 +67,7 @@ def test_registry_preserves_nine_base_schemas_and_conditional_agent(tmp_path):
     assert ten.definition("agent").to_ollama_tool() == agent.to_ollama_tool()
 
 
-def test_runtime_normalizes_call_caches_read_and_invalidates_on_write(tmp_path):
+def test_runtime_normalizes_call_revalidates_brokered_read_and_write(tmp_path):
     target = tmp_path / "note.txt"
     target.write_text("old", encoding="utf-8")
     runtime = ToolRuntime(ToolRegistry(get_default_tools(cwd=tmp_path)))
@@ -75,8 +76,12 @@ def test_runtime_normalizes_call_caches_read_and_invalidates_on_write(tmp_path):
     second = runtime.execute(_invoke("read", {"file_path": "note.txt"},
                                      _context(tmp_path)))
     assert first.status is ToolStatus.COMPLETED
-    assert second.metadata["cached"] is True
+    assert second.metadata["cached"] is False
     assert first.legacy_text == second.legacy_text
+    # A different operation must read the current object, never legacy cache.
+    target.write_text("external change", encoding="utf-8")
+    changed = runtime.execute(_invoke("read", {"file_path": "note.txt"}, _context(tmp_path)))
+    assert "external change" in changed.legacy_text and changed.metadata["cached"] is False
     write = runtime.execute(_invoke("write", {"file_path": "note.txt",
                                             "content": "new"}, _context(tmp_path)))
     assert write.status is ToolStatus.COMPLETED
@@ -84,6 +89,7 @@ def test_runtime_normalizes_call_caches_read_and_invalidates_on_write(tmp_path):
                                         _context(tmp_path)))
     assert refreshed.metadata["cached"] is False
     assert "new" in refreshed.legacy_text
+    runtime.close()
 
 
 def test_shell_policy_blocks_and_preserves_approval_then_exit_code(tmp_path):
@@ -91,14 +97,15 @@ def test_shell_policy_blocks_and_preserves_approval_then_exit_code(tmp_path):
     descriptor = ShellDescriptor("Linux", "bash", "bash", "5")
     shell = BashTool(confirm=lambda _command: False, descriptor=descriptor,
                      executor=executor, cwd=tmp_path)
+    bind_mock_shell(shell, executor)
     runtime = ToolRuntime(ToolRegistry([shell]))
     blocked = runtime.execute(_invoke("bash", {"command": "rm -rf /"},
                                       _context(tmp_path)))
-    declined = runtime.execute(_invoke("bash", {"command": "sudo echo hi"},
+    declined = runtime.execute(_invoke("bash", {"command": "git reset --hard"},
                                        _context(tmp_path)))
     assert blocked.status is ToolStatus.DENIED
     assert declined.status is ToolStatus.DENIED
-    assert runtime.policy_for("bash", {"command": "sudo echo hi"}).action is (
+    assert runtime.policy_for("bash", {"command": "git reset --hard"}).action is (
         ToolPolicyAction.REQUIRE_APPROVAL)
     assert executor.run.call_count == 0
     executor.run.return_value = subprocess.CompletedProcess([], 7, "out\n", "err\n")
@@ -243,17 +250,17 @@ def test_tool_policy_denial_emits_only_specialized_terminal(tmp_path):
     executor.run.assert_not_called()
 
 
-def test_explicit_auto_approval_preserves_existing_opt_in(tmp_path):
+def test_explicit_auto_approval_cannot_replace_s2_human_confirmation(tmp_path):
     executor = Mock()
     executor.run.return_value = subprocess.CompletedProcess([], 0, "ok\n", "")
     shell = BashTool(confirm=None,
                      descriptor=ShellDescriptor("Linux", "bash", "bash", "5"),
                      executor=executor, cwd=tmp_path)
     runtime = ToolRuntime(ToolRegistry([shell]), auto_approve=True)
-    result = runtime.execute(_invoke("bash", {"command": "sudo echo hi"},
+    result = runtime.execute(_invoke("bash", {"command": "git reset --hard"},
                                      _context(tmp_path)))
-    assert result.status is ToolStatus.COMPLETED
-    executor.run.assert_called_once()
+    assert result.status is ToolStatus.DENIED
+    executor.run.assert_not_called()
 
 
 def test_cwd_mismatch_is_denied_before_tool_execution(tmp_path):

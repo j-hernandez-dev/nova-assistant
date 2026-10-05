@@ -17,13 +17,15 @@ class PersistenceService:
                  snapshots: SessionSnapshotStore, audit: AuditLog | None = None,
                  config: ConfigRepository | None = None,
                  knowledge: KnowledgeRepository | None = None,
-                 plans: PlanRepository | None = None):
+                 plans: PlanRepository | None = None, redactor=None):
         if not Path(workspace).is_absolute():
             raise ValueError("persistence requires an explicit absolute workspace")
         self.workspace = Path(workspace).resolve()
         self.conversation, self.snapshots, self.audit = conversation, snapshots, audit
         self.config, self.knowledge, self.plans = config, knowledge, plans
         self.last_error: PersistenceError | None = None
+        from local_cli.application.secrets import SecretRedactor
+        self.redactor = redactor or SecretRedactor()
 
     def _failure(self, exc: Exception, code: str):
         self.last_error = exc if isinstance(exc, PersistenceError) else PersistenceError(code)
@@ -36,14 +38,14 @@ class PersistenceService:
     def save(self, messages: list[dict[str, Any]]) -> None:
         """Nonfatal autosave; persist raw transcript, not prepared prompt."""
         try:
-            self.conversation.save(deepcopy(messages))
+            self.conversation.save(self.redactor.messages(messages))
             self.last_error = None
         except Exception as exc:
             self._failure(exc, "AUTOSAVE_FAILED")
 
     def load(self) -> list[dict[str, Any]]:
         try:
-            return deepcopy(self.conversation.load())
+            return self.redactor.messages(self.conversation.load())
         except Exception as exc:
             self._failure(exc, "TRANSCRIPT_LOAD_FAILED")
             return []
@@ -64,12 +66,12 @@ class PersistenceService:
 
     def save_session(self, messages, session_id=None, token_tracker=None):
         try:
-            return self.snapshots.save_session(deepcopy(messages), session_id, token_tracker)
+            return self.snapshots.save_session(self.redactor.messages(messages), session_id, token_tracker)
         except Exception as exc:
             self._failure(exc, "SNAPSHOT_SAVE_FAILED")
             if isinstance(exc, PersistenceError):
                 raise
-            raise self.last_error from exc
+            raise self.last_error from None
 
     def restore(self, *, workspace: Path, snapshot_key: str | None = None):
         if Path(workspace).resolve() != self.workspace:
@@ -81,7 +83,7 @@ class PersistenceService:
             self._failure(exc, "TRANSCRIPT_LOAD_FAILED")
             if isinstance(exc, PersistenceError):
                 raise
-            raise self.last_error from exc
+            raise self.last_error from None
         if not messages:
             raise PersistenceError("NO_SAVED_CONVERSATION", "No saved conversation to resume")
         if any(not isinstance(m, dict) or m.get("role") not in
@@ -90,7 +92,7 @@ class PersistenceService:
         # The current provider/tools/system prompt are authoritative on restore.
         # Old JSONL carries no verified provider snapshot; never restore credentials
         # or revive operations/approvals from transcript dictionaries.
-        return [deepcopy(m) for m in messages if m["role"] != "system"]
+        return self.redactor.messages([m for m in messages if m["role"] != "system"])
 
 
 def create_persistence_service(*, config, workspace: Path, logger=None) -> PersistenceService:

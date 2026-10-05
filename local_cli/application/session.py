@@ -7,7 +7,7 @@ characterized against run_agent. Phase-7 interactions are owned here.
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -22,8 +22,10 @@ from local_cli.application.legacy_runtime import LegacyAgentRuntime
 from local_cli.application.providers import ProviderManager, ProviderTransitionError, BoundModelRuntime
 from local_cli.application.context import bind_context, WorkingMessages as _WorkingMessages
 from local_cli.application.persistence import PersistenceService
+from local_cli.application.environment import EnvironmentService
 from local_cli.application.rag import RAGService
 from local_cli.core.persistence import PersistenceError
+from local_cli.core.security_audit import SecurityAuditError
 from local_cli.core.context import ContextPolicy
 from local_cli.infrastructure.capabilities import capture_capabilities
 from local_cli.application.cancellation import CancellationController
@@ -185,6 +187,10 @@ class AgentSessionCoordinator:
         auxiliary_services: Any = None,
         refresh_base_factory: Callable[[Path, list[Any]], list[dict[str, Any]]] | None = None,
         workspace_rebinder: Any = None,
+        process_service: Any = None,
+        network_service: Any = None,
+        environment_selector: Any = None, environment_source: Any = None,
+        security_audit_port: Any = None,
     ) -> None:
         if runtime is not None and run_agent_fn is not None:
             raise ValueError("pass either runtime or a legacy runner")
@@ -195,7 +201,19 @@ class AgentSessionCoordinator:
             provider_factory = get_provider
         self.provider_manager = provider_manager or ProviderManager(
             provider, model, provider_factory=provider_factory)
+        self.redactor = self.provider_manager.redactor
+        from local_cli.application.security_audit import SecurityAuditService
+        # Composition roots install the OD-05 durable port. Direct embedding
+        # can inject a fixture; Application never chooses an on-disk format.
+        self.security_audit = (SecurityAuditService(security_audit_port, redactor=self.redactor)
+                               if security_audit_port is not None else None)
+        from local_cli.infrastructure.process_environment import EnvironmentBuilder
+        self._environment_service = EnvironmentService(EnvironmentBuilder(
+            protected_value=self.redactor.protected_value), self.redactor, source=environment_source)
+        self._environment_selector = environment_selector
         self._tool_factory = tool_factory
+        self._process_service = process_service
+        self._network_service = network_service
         self._context_selection, self._context_policy = context_selection, context_policy
         self._capability_factory = capability_factory
         self._persistence_factory, self._rag_factory = persistence_factory, rag_factory
@@ -285,7 +303,8 @@ class AgentSessionCoordinator:
     def _reject(self, command: ApplicationCommand, code: str,
                 message: str) -> CommandReceipt:
         revision = self._session.state_revision if self._session else None
-        category = (ErrorCategory.FILESYSTEM if code == "INVALID_WORKSPACE"
+        category = (ErrorCategory.POLICY if code.startswith('SECURITY_AUDIT_')
+                    else ErrorCategory.FILESYSTEM if code == "INVALID_WORKSPACE"
                     else ErrorCategory.APPROVAL if command.kind is CommandKind.RESOLVE_APPROVAL
                     else ErrorCategory.CANCELLATION if command.kind in (
                         CommandKind.CANCEL_TURN, CommandKind.STOP_GENERATION,
@@ -363,6 +382,11 @@ class AgentSessionCoordinator:
                 (tool.environment for tool in tools if isinstance(tool, ShellTool)),
                 get_sanitized_env(),
             ))
+            self.redactor.observe_environment(environment)
+            environment = self._environment_service.build(environment, None)
+            for tool in tools:
+                if hasattr(tool, 'environment'):
+                    tool.environment = dict(environment)
         except Exception:
             return self._reject(command, "SESSION_SETUP_FAILED",
                                 "Could not initialize the AgentSession")
@@ -374,6 +398,7 @@ class AgentSessionCoordinator:
                 initial_messages[0].get("role") != "system"):
             return self._reject(command, "SESSION_SETUP_FAILED",
                                 "Could not initialize the AgentSession")
+        initial_messages = self.redactor.messages(initial_messages)
         session = AgentSession(
             session_id=session_id, workspace=workspace, model=self.provider_manager.snapshot().snapshot.model_id,
             tools=tools, transcript=initial_messages,
@@ -399,11 +424,18 @@ class AgentSessionCoordinator:
             publish=lambda event: self._publish_tool_event(session, event),
             on_agent_started=lambda *args: self._publish_agent_started(session, *args),
             on_agent_completed=lambda *args: self._publish_agent_completed(session, *args),
+            process_service=self._process_service,
+            network_service=self._network_service,
+            redactor=self.redactor, environment_service=self._environment_service,
+            environment_selector=self._environment_selector,
+            security_audit=self.security_audit,
         )
+        session.tool_runtime.install_authority(workspace, session_id)
         self._session = session
         if self._persistence_factory is not None:
             try:
                 self._persistence = self._persistence_factory(workspace)
+                self._bind_redaction(self._persistence)
                 if self._persistence.workspace != workspace:
                     raise PersistenceError("PERSISTENCE_WORKSPACE_CONFLICT")
             except Exception:
@@ -428,7 +460,7 @@ class AgentSessionCoordinator:
                         requested=self._context_selection, policy=self._context_policy,
                         capability_factory=self._capability_factory))
         if self._event_config is not None:
-            self._events = SessionEventStream(session_id, self._event_config)
+            self._events = SessionEventStream(session_id, self._event_config, redactor=self.redactor)
             self._events.publish(
                 EventKind.SESSION_STARTED, {"status": "active"},
                 state_revision=1, causation_id=CausationId(command.command_id),
@@ -459,7 +491,8 @@ class AgentSessionCoordinator:
         if self._turn_messages_factory is not None:
             session.transcript.extend(deepcopy(self._turn_messages_factory(command.payload["content"])))
         turn.transcript_start = len(session.transcript)
-        session.transcript.append({"role": "user", "content": command.payload["content"]})
+        session.transcript[:] = self.redactor.messages(session.transcript)
+        session.transcript.append({"role": "user", "content": self.redactor.text(command.payload["content"])})
         if self._persistence is not None:
             self._persistence.save(session.transcript)
         session.state_revision += 1
@@ -544,8 +577,9 @@ class AgentSessionCoordinator:
             if not workspace.is_absolute() or not workspace.is_dir():
                 raise ValueError("workspace must be an absolute directory")
             session.workspace = workspace.resolve()
-            session.base_transcript = deepcopy(base_messages)
+            session.base_transcript = self.redactor.messages(base_messages)
             self._persistence = persistence
+            self._bind_redaction(persistence)
             self._rag = rag if rag is not None else RAGService(None)
             session.capabilities = self._capability_factory(
                 model=self.provider_manager.snapshot().snapshot,
@@ -689,12 +723,20 @@ class AgentSessionCoordinator:
                 payload["requestDigest"], cwd=payload["cwd"],
                 policy_revision=payload["policyRevision"],
                 approved=payload["approved"],
+                actor=command.approval_actor,
             )
         except InteractionError as exc:
             return self._reject(command, exc.code, "Approval is stale or does not match")
         return CommandReceipt(command_id=command.command_id, accepted=True,
                               session_id=session.session_id,
                               state_revision=session.state_revision)
+
+    def register_approval_actor(self, kind: str, verify: Callable[[], bool]) -> object:
+        """Trusted adapter composition only; not an ApplicationCommand endpoint."""
+        with self._lock:
+            if self._session is None or self._session.approval_gate is None:
+                raise ValueError('no active session')
+            return self._session.approval_gate.register_actor(kind, verify)
 
     def _resolve_user_input(self, command: ApplicationCommand) -> CommandReceipt:
         session = self._active_session(command)
@@ -809,16 +851,29 @@ class AgentSessionCoordinator:
                 turn_id=parent.turn_id, operation_id=operation_id,
                 agent_id=agent_id, cancellation_token=parent.cancellation.child(),
                 deadline=None, capabilities=parent.capabilities or session.capabilities,
-                provider_revision=bound.snapshot.provider_revision, policy_revision=1)
+                provider_revision=bound.snapshot.provider_revision,
+                policy_revision=session.tool_runtime.policy.revision)
+            parent_grant = session.tool_runtime.delegation_for(context)
             child = SubAgent(provider=fresh_provider, model=bound.snapshot.model_id,
                 tools=tools, prompt=task.strip(),
                 description=command.payload.get("description") or "sub-agent task",
                 agent_id=agent_id, isolation="worktree" if mode == "worktree" else None,
                 cwd=session.workspace, environment=session.environment,
-                cancellation_token=context.cancellation_token)
+                cancellation_token=context.cancellation_token,
+                security_issuer=session.tool_runtime._issuer,
+                security_policy=session.tool_runtime.policy, parent_grant=parent_grant,
+                filesystem_authority=session.tool_runtime._filesystem,
+                process_service=session.tool_runtime._process_service,
+                network_service=session.tool_runtime._network_service,
+                redactor=self.redactor, security_audit=self.security_audit)
+        except SecurityAuditError:
+            return self._reject(command, 'SECURITY_AUDIT_PRE_EFFECT_FAILED', 'Audit unavailable; sub-agent not started')
         except Exception:
             return self._reject(command, "SUB_AGENT_SETUP_FAILED", "Could not start sub-agent")
-        self._publish_agent_started(session, child, operation_id, context, self._sub_agent_runner)
+        try:
+            self._publish_agent_started(session, child, operation_id, context, self._sub_agent_runner)
+        except SecurityAuditError:
+            return self._reject(command, 'SECURITY_AUDIT_PRE_EFFECT_FAILED', 'Audit unavailable; sub-agent not started')
 
         completed_once = Event()
         def completed(result: SubAgentResult) -> None:
@@ -845,6 +900,7 @@ class AgentSessionCoordinator:
     def _run_turn(self, session: AgentSession, turn: Turn) -> None:
         working: _WorkingMessages | None = None
         active_generation: GenerationId | None = None
+        display_streams = {key: self.redactor.stream() for key in ('content_delta', 'thinking_delta')}
 
         def context_factory() -> ExecutionContext:
             operation_id = new_operation_id()
@@ -859,7 +915,7 @@ class AgentSessionCoordinator:
                 deadline=self._interaction_deadline_factory(),
                 capabilities=turn.capabilities,
                 provider_revision=turn.model_runtime.snapshot.provider_revision,
-                policy_revision=1,
+                policy_revision=session.tool_runtime.policy.revision,
             )
 
         runtime_tools = [LegacyToolAdapter(tool, session.tool_runtime,
@@ -869,6 +925,22 @@ class AgentSessionCoordinator:
         def emit_legacy(event: AgentEvent) -> None:
             nonlocal active_generation
             with self._lock:
+                data = self.redactor.value(event.data)
+                if event.kind in display_streams:
+                    data['text'] = display_streams[event.kind].feed(event.data.get('text', ''))
+                elif event.kind in ('assistant_message', 'interrupted', 'stopped'):
+                    for key, scrub in display_streams.items():
+                        tail = scrub.finish()
+                        if tail:
+                            # Tail is already safe; publish without feeding it
+                            # back into the same stream's prefix buffer.
+                            self._observe_display(turn, AgentEvent(key, {'text': tail}))
+                            if self._events is not None and active_generation is not None:
+                                self._events.publish(EventKind.ASSISTANT_DELTA if key == 'content_delta'
+                                    else EventKind.THINKING_DELTA, {'text': tail},
+                                    state_revision=session.state_revision, turn_id=turn.turn_id,
+                                    generation_id=active_generation)
+                event = AgentEvent(event.kind, data)
                 self._observe_display(turn, event)
                 stream = self._events
                 def publish(*args: Any, **kwargs: Any) -> None:
@@ -937,8 +1009,8 @@ class AgentSessionCoordinator:
             def checkpoint(additions):
                 if self._persistence is not None:
                     with self._lock:
-                        self._persistence.save(session.transcript + [deepcopy(m) for m in additions
-                            if isinstance(m, dict) and m.get("role") in ("assistant", "tool")])
+                        self._persistence.save(self.redactor.messages(session.transcript + [deepcopy(m) for m in additions
+                            if isinstance(m, dict) and m.get("role") in ("assistant", "tool")]))
             working = _WorkingMessages(session.transcript, on_append=checkpoint)
             if self._rag.status()["enabled"]:
                 rag_op = ServiceOperation(new_operation_id(), turn.command_id,
@@ -1011,7 +1083,7 @@ class AgentSessionCoordinator:
                              (working.appended if working is not None else ())
                              if isinstance(message, dict)
                              and message.get("role") in ("assistant", "tool")]
-                session.transcript.extend(additions)
+                session.transcript.extend(self.redactor.messages(additions))
             except Exception:
                 outcome = TurnOutcome(TurnStatus.FAILED,
                                       error_code="TRANSCRIPT_CAPTURE_FAILED")
@@ -1031,9 +1103,9 @@ class AgentSessionCoordinator:
                 if outcome.error_code == "OUTCOME_UNKNOWN"
                 else OperationStatus(outcome.status.value),
             )
-            turn.final_content = outcome.final_content
+            turn.final_content = self.redactor.text(outcome.final_content)
             turn.transcript_end = len(session.transcript)
-            turn.error_code = outcome.error_code
+            turn.error_code = self.redactor.text(outcome.error_code)
             turn.terminal_count += 1
             session.state_revision += 1
             if self._persistence is not None:
@@ -1129,6 +1201,8 @@ class AgentSessionCoordinator:
                     "operationType": "TOOL",
                     "cached": result.metadata.get("cached", False),
                 })
+                if 'securityAudit' in result.metadata:
+                    payload['securityAudit'] = result.metadata['securityAudit']
             if stream is not None:
                 stream.publish(
                     kind, payload, state_revision=session.state_revision,
@@ -1226,6 +1300,12 @@ class AgentSessionCoordinator:
                         if item.turn_id == context.turn_id)
             if sub_agent.agent_id in session.agent_operations:
                 raise ValueError("duplicate agentId")
+            if self.security_audit is not None:
+                self.security_audit.agent(context, operation_id, sub_agent.agent_id, started=True)
+                from types import SimpleNamespace
+                self.security_audit.before_effect(SimpleNamespace(
+                    context=replace(context, operation_id=operation_id, agent_id=sub_agent.agent_id),
+                    operation_id=operation_id, name='agent', tool_call_id=None), origin='application')
             session.agent_operations[sub_agent.agent_id] = AgentOperation(
                 operation_id=operation_id, parent_turn_id=turn.turn_id,
                 runner=runner,
@@ -1256,6 +1336,10 @@ class AgentSessionCoordinator:
                        "timeout": OperationStatus.OUTCOME_UNKNOWN}
                       .get(result.status, OperationStatus.FAILED))
             operation.status = advance_operation_status(operation.status, status)
+            audit_lost = False
+            if self.security_audit is not None:
+                audit_lost = not self.security_audit.agent(context, operation_id, result.agent_id,
+                                          started=False, outcome=status.value)
             if status is OperationStatus.OUTCOME_UNKNOWN:
                 turn = next(item for item in session.turns
                             if item.turn_id == operation.parent_turn_id)
@@ -1269,7 +1353,9 @@ class AgentSessionCoordinator:
                     {"status": status.value, "operationType": "SUB_AGENT",
                      "content": result.content, "duration": result.duration_seconds,
                      "toolCalls": result.tool_calls_count,
-                     "error": result.error_message},
+                     "error": result.error_message,
+                     **({'securityAudit': {'gap': True, 'errorCode': 'SECURITY_AUDIT_DELIVERY_FAILED',
+                                          'retryAllowed': False}} if audit_lost else {})},
                     state_revision=session.state_revision,
                     visibility=Visibility.SENSITIVE,
                     turn_id=turn.turn_id, operation_id=operation_id,
@@ -1331,11 +1417,20 @@ class AgentSessionCoordinator:
                                          visibility=Visibility.SENSITIVE)
             return result
 
+    def _bind_redaction(self, persistence):
+        if persistence is None:
+            return
+        persistence.redactor = self.redactor
+        audit = getattr(persistence, 'audit', None)
+        logger = getattr(audit, '_logger', None)
+        if logger is not None:
+            logger.redactor = self.redactor
+
     def _snapshot_unlocked(self, session_id: SessionId | None) -> SessionSnapshot:
         session = self._session
         if session is None or session.session_id != session_id:
             raise ValueError("No matching active AgentSession")
-        return SessionSnapshot(
+        snapshot = SessionSnapshot(
             session_id=session.session_id,
             workspace=str(session.workspace), model=session.model,
             status=session.status, state_revision=session.state_revision,
@@ -1343,12 +1438,13 @@ class AgentSessionCoordinator:
             model_runtime=self.provider_manager.snapshot().snapshot.to_dict(),
             capabilities=session.capabilities.to_dict() if session.capabilities else {},
             services={"rag": self._rag.status(),
+                      **({'securityAudit': self.security_audit.health()} if self.security_audit is not None else {}),
                       "filesystem": {"revision": session.filesystem_revision},
                       "interactions": {
                           "approvals": [{"approvalId": req.approval_id,
                               "turnId": req.turn_id, "operationId": req.operation_id,
                               "toolCallId": req.tool_call_id, "name": req.tool_name,
-                              "arguments": deepcopy(dict(req.arguments)), "cwd": req.cwd,
+                              "arguments": self.redactor.value(req.arguments), "cwd": req.cwd,
                               "policyRevision": req.policy_revision,
                               "requestDigest": req.request_digest,
                               "deadline": req.deadline.isoformat() if req.deadline else None}
@@ -1365,7 +1461,7 @@ class AgentSessionCoordinator:
                           "result": deepcopy(op.result),
                           "turnId": op.turn_id, "cancelRequested": op.token.is_cancel_requested()}
                           for op in self._service_operations.values()]},
-            transcript=tuple(deepcopy(session.transcript)),
+            transcript=tuple(self.redactor.messages(session.transcript)),
             turns=tuple({
                 "turnId": turn.turn_id, "operationId": turn.operation_id,
                 "commandId": turn.command_id, "status": turn.status.value,
@@ -1380,11 +1476,15 @@ class AgentSessionCoordinator:
                 "modelRuntime": turn.model_runtime.snapshot.to_dict() if turn.model_runtime else None,
                 "generations": deepcopy(turn.generations),
                 "contextReports": deepcopy(turn.context_reports),
-                "displayMessages": deepcopy(turn.display_messages),
+                "displayMessages": self.redactor.value(turn.display_messages),
                 "transcriptStart": turn.transcript_start,
                 "transcriptEnd": turn.transcript_end,
             } for turn in session.turns),
         )
+        safe = self.redactor.snapshot(snapshot.to_dict())
+        return replace(snapshot, workspace=safe['workspace'], model=safe['model'],
+            transcript=tuple(safe['transcript']), turns=tuple(safe['turns']),
+            model_runtime=safe['modelRuntime'], capabilities=safe['capabilities'], services=safe['services'])
 
     def subscribe_events(self, session_id: SessionId | None, *,
                          after_sequence: int = 0,

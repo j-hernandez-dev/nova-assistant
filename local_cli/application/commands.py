@@ -62,6 +62,7 @@ class ApplicationCommand:
     session_id: SessionId | None = None
     expected_revision: int | None = None
     schema_version: int = 1
+    approval_actor: object | None = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:

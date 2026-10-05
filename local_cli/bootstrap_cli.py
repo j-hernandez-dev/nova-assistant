@@ -18,6 +18,7 @@ from local_cli.application.context import bind_context, policy_from_config
 from local_cli.application.events import EventBufferConfig
 from local_cli.application.legacy_runtime import LegacyAgentRuntime
 from local_cli.application.session import AgentSessionCoordinator
+from local_cli.audit_config import create_security_audit
 from local_cli.application.rag import RAGService
 from local_cli.application.rag import create_rag_service, adapt_legacy_rag_service
 from local_cli.application.persistence import create_persistence_service
@@ -245,6 +246,7 @@ def create_cli_application(*, config: Any, provider_manager: Any,
         return result
 
     coordinator = AgentSessionCoordinator(
+        security_audit_port=create_security_audit(workspace),
         provider=provider_manager.snapshot()._provider,
         model=provider_manager.snapshot().snapshot.model_id,
         provider_manager=provider_manager,

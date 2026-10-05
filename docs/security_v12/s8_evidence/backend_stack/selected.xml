@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="373.944" timestamp="2026-10-04T14:46:23.368361-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s8_e2e" name="test_native_jsonl_spoof_rejected_and_exact_host_denial" file="tests\security_v12\test_s8_e2e.py" line="150" time="11.771"><failure message="AssertionError: {'sessionId': 'ses_2585eb508b3440e689e475c2e67d5512', 'workspace': 'C:\\Users\\joseh\\AppData\\Local\\Temp\\s8_private_w90nq_sl\\selected\\test_native_jsonl_spoof_reject0', 'model': 'qwen2.5:7b', 'status': 'active', ...}&#10;assert None">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_w90nq_sl/selected/test_native_jsonl_spoof_reject0')
+
+    def test_native_jsonl_spoof_rejected_and_exact_host_denial(tmp_path):
+        from local_cli.interfaces.approval_proof import approval_proof
+        key='ab'*32;peer=Peer(tmp_path,'--fixture',key)
+        try:
+            ident,_=peer.command('SubmitUserInput',{'content':'approval'})
+            result=peer.wait(lambda f:f.get('type')=='application_result' and f.get('id')==ident,10)
+            assert result['data']['accepted']
+            # Approval is sensitive; use the authorized session-owner snapshot.
+            deadline=time.monotonic()+10;request=None
+            while time.monotonic()&lt;deadline:
+                state=peer.snapshot()
+                if state.get('approvals'):
+                    request=state['approvals'][0];break
+                time.sleep(.05)
+&gt;           assert request,state
+E           AssertionError: {'sessionId': 'ses_2585eb508b3440e689e475c2e67d5512', 'workspace': 'C:\\Users\\joseh\\AppData\\Local\\Temp\\s8_private_w90nq_sl\\selected\\test_native_jsonl_spoof_reject0', 'model': 'qwen2.5:7b', 'status': 'active', ...}
+E           assert None
+
+tests\security_v12\test_s8_e2e.py:165: AssertionError</failure></testcase><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_ollama_normal_backend_multitool_and_durable_audit" file="tests\security_v12\test_s8_e2e.py" line="118" time="361.992"><failure message="AssertionError: S8 backend deadline reached; [{&quot;id&quot;: &quot;ecf8eeee623b4d5cbbf9301479a2e374&quot;, &quot;type&quot;: &quot;application_result&quot;, &quot;schemaVersion&quot;: 1, &quot;data&quot;: {&quot;schemaVersion&quot;: 1, &quot;commandId&quot;: &quot;ecf8eeee623b4d5cbbf9301479a2e374&quot;, &quot;accepted&quot;: true, &quot;sessionId&quot;: &quot;ses_1af36239176840a0905d551e50d75ca2&quot;, &quot;stateRevision&quot;: 2, &quot;createdIds&quot;: {&quot;turnId&quot;: &quot;turn_05b0d816141344d599373782a5d89874&quot;, &quot;operationId&quot;: &quot;op_97c05f53c108436a8e7e91b5118f3410&quot;}, &quot;error&quot;: null}}]">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_w90nq_sl/selected/test_real_ollama_normal_backen0')
+
+        return rows
+    
+    
+    def test_real_ollama_normal_backend_multitool_and_durable_audit(tmp_path):
+        model=require_model(os.environ['NOVA_S8_MODEL'])
+        marker='NOVA_S8_'+uuid.uuid4().hex
+        (tmp_path/'seed.txt').write_text(marker+'\n',encoding='utf-8')
+        peer=Peer(tmp_path)
+        try:
+            command_id,_=peer.command('SubmitUserInput',{'content':
+                'Read seed.txt with the read tool. Copy its content to result.txt with the write tool: '
+                'content must be the literal text returned by read, not a command, expression or placeholder. '
+                'Then verify result.txt with read. Call read, write, read in that order. Wait for each tool '
+&gt;               'result before issuing the next call; never put these dependent calls in one batch. '
+                     ^^^^^^^^^^^^^^^
+                'Do not use bash. Finish only after verification. All paths are relative to the current workspace.'})
+
+tests\security_v12\test_s8_e2e.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\security_v12\test_s8_e2e.py:90: in terminal
+    observed=next((e for e in reversed(self.events) if e['kind'] in
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;test_s8_e2e.Peer object at 0x000002055DC87110&gt;
+predicate = &lt;function Peer.terminal.&lt;locals&gt;.&lt;lambda&gt; at 0x000002055DCFAA30&gt;
+timeout = 360
+
+    def wait(self,predicate,timeout=240):
+        deadline=time.monotonic()+timeout
+        while time.monotonic()&lt;deadline:
+            try:f=self.frames.get(timeout=.2)
+            except Empty:
+                assert self.process.poll() is None,self.errors
+                continue
+            if f.get('type')=='event':self.events.append(f['event'])
+            if f.get('type') in ('application_result','error'):self.receipts.append(f)
+            if hasattr(self,'sid') and time.monotonic()-getattr(self,'_last_trace',0)&gt;1:
+                observations('backend_trace_'+self.sid,{'events':[e for e in self.events if e['kind'] not in
+                    ('AssistantDelta','ThinkingDelta','LegacyAgentEvent')],'receipts':self.receipts,'stderr':self.errors})
+                self._last_trace=time.monotonic()
+            if predicate(f):return f
+        observations('backend_failure',{'events':self.events,'receipts':self.receipts,'stderr':self.errors})
+&gt;       raise AssertionError('S8 backend deadline reached; '+json.dumps(self.receipts)[-2000:]+''.join(self.errors)[-1000:])
+E       AssertionError: S8 backend deadline reached; [{"id": "ecf8eeee623b4d5cbbf9301479a2e374", "type": "application_result", "schemaVersion": 1, "data": {"schemaVersion": 1, "commandId": "ecf8eeee623b4d5cbbf9301479a2e374", "accepted": true, "sessionId": "ses_1af36239176840a0905d551e50d75ca2", "stateRevision": 2, "createdIds": {"turnId": "turn_05b0d816141344d599373782a5d89874", "operationId": "op_97c05f53c108436a8e7e91b5118f3410"}, "error": null}}]
+
+tests\security_v12\test_s8_e2e.py:83: AssertionError</failure></testcase></testsuite></testsuites>

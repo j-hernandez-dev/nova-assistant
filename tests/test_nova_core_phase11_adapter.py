@@ -14,6 +14,7 @@ from local_cli.core.contracts import new_command_id
 from local_cli.core.contracts import EventKind
 from local_cli.harness import AgentEvent
 from local_cli.interfaces.jsonl_application import JsonlApplicationAdapter
+from local_cli.interfaces.approval_proof import approval_proof
 from local_cli.tools.ask_user_tool import AskUserTool
 from local_cli.tools.bash_tool import BashTool
 from local_cli.shell_executor import ShellDescriptor
@@ -33,7 +34,7 @@ def _wait_for(sent, kind, *, request_id=None):
     raise AssertionError(f"missing JSONL frame {kind}")
 
 
-def _adapter(tmp_path, provider, *, tools=(), runner=None, event_config=None):
+def _adapter(tmp_path, provider, *, tools=(), runner=None, event_config=None, host_key=None):
     coordinator = AgentSessionCoordinator(
         provider=provider, model="local", tool_factory=lambda _cwd: list(tools),
         run_agent_fn=runner, event_config=event_config or EventBufferConfig())
@@ -42,9 +43,23 @@ def _adapter(tmp_path, provider, *, tools=(), runner=None, event_config=None):
         payload={"workspace": str(tmp_path)}))
     assert started.accepted
     sent = []
-    adapter = JsonlApplicationAdapter(coordinator, started.session_id, sent.append)
+    adapter = JsonlApplicationAdapter(coordinator, started.session_id, sent.append,
+                                     host_approval_key=host_key)
     adapter.start()
     return adapter, coordinator, sent
+
+
+def _host_response(adapter, coordinator, *, approved):
+    pending = coordinator._session.approval_gate.pending()[0]
+    command = ApplicationCommand(new_command_id(), CommandKind.RESOLVE_APPROVAL,
+        {'approvalId': pending.approval_id, 'toolCallId': pending.tool_call_id,
+         'requestDigest': pending.request_digest, 'cwd': pending.cwd,
+         'policyRevision': pending.policy_revision, 'approved': approved},
+        session_id=adapter.session_id).to_dict()
+    frame = {'id': 'fixture-host', 'type': 'application_command', 'command': command,
+             'hostApprovalProof': approval_proof('ab' * 32, command)}
+    adapter.handle(frame)
+    return frame
 
 
 def test_chat_and_status_are_nonblocking_and_project_legacy_stream(tmp_path):
@@ -171,16 +186,18 @@ def test_reconnect_from_previous_backend_receives_gap_then_snapshot(tmp_path):
 
 
 def test_jsonl_approval_is_one_shot_and_status_does_not_block(tmp_path):
+    from tests.security_v12.process_fixtures import bind_mock_shell
     executor = Mock()
     executor.run.return_value = subprocess.CompletedProcess([], 0, "ok\n", "")
     shell = BashTool(confirm=lambda _command: False,
                      descriptor=ShellDescriptor("Linux", "bash", "bash", "5"),
                      executor=executor, cwd=tmp_path, environment={})
+    bind_mock_shell(shell, executor)
     risky = {"role": "assistant", "content": "", "tool_calls": [{
-        "function": {"name": "bash", "arguments": {"command": "sudo echo ok"}},
+        "function": {"name": "bash", "arguments": {"command": "git reset --hard"}},
     }]}
     adapter, coordinator, sent = _adapter(
-        tmp_path, ScriptedProvider([risky, "done"]), tools=[shell])
+        tmp_path, ScriptedProvider([risky, "done"]), tools=[shell], host_key='ab' * 32)
     try:
         adapter.handle({"id": 40, "type": "chat", "content": "run"})
         confirm = _wait_for(sent, "confirm_request")
@@ -190,14 +207,10 @@ def test_jsonl_approval_is_one_shot_and_status_does_not_block(tmp_path):
                         "confirm_id": confirm["confirm_id"] + 1,
                         "approved": True})
         executor.run.assert_not_called()
-        adapter.handle({"type": "confirm_response",
-                        "confirm_id": confirm["confirm_id"],
-                        "approved": True})
+        frame = _host_response(adapter, coordinator, approved=True)
         assert _wait_for(sent, "done", request_id=40)
         executor.run.assert_called_once()
-        adapter.handle({"type": "confirm_response",
-                        "confirm_id": confirm["confirm_id"],
-                        "approved": True})
+        adapter.handle(frame)
         executor.run.assert_called_once()
     finally:
         adapter.close()
@@ -209,15 +222,14 @@ def test_jsonl_denied_approval_never_executes_command(tmp_path):
                      descriptor=ShellDescriptor("Linux", "bash", "bash", "5"),
                      executor=executor, cwd=tmp_path, environment={})
     risky = {"role": "assistant", "content": "", "tool_calls": [{
-        "function": {"name": "bash", "arguments": {"command": "sudo echo denied"}},
+        "function": {"name": "bash", "arguments": {"command": "git reset --hard"}},
     }]}
-    adapter, _, sent = _adapter(tmp_path, ScriptedProvider([risky, "done"]),
-                                tools=[shell])
+    adapter, coordinator, sent = _adapter(tmp_path, ScriptedProvider([risky, "done"]),
+                                tools=[shell], host_key='ab' * 32)
     try:
         adapter.handle({"id": 45, "type": "chat", "content": "run"})
         confirm = _wait_for(sent, "confirm_request")
-        adapter.handle({"type": "confirm_response",
-                        "confirm_id": confirm["confirm_id"], "approved": False})
+        _host_response(adapter, coordinator, approved=False)
         assert _wait_for(sent, "done", request_id=45)
         executor.run.assert_not_called()
     finally:

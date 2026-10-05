@@ -21,14 +21,14 @@ def detect_git_capability(cwd: str | None = None,
     try:
         version = subprocess.run(
             ["git", "--version"], cwd=directory, capture_output=True,
-            text=True, timeout=5,
+            text=True, timeout=5, stdin=subprocess.DEVNULL, close_fds=True,
             **env_kwargs,
         )
         if version.returncode != 0:
             return GitCapability.UNAVAILABLE
         repo = subprocess.run(
             ["git", "rev-parse", "--is-inside-work-tree"], cwd=directory,
-            capture_output=True, text=True, timeout=5,
+            capture_output=True, text=True, timeout=5, stdin=subprocess.DEVNULL, close_fds=True,
             **env_kwargs,
         )
     except (OSError, subprocess.TimeoutExpired):

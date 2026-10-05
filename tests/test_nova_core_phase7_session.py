@@ -17,11 +17,12 @@ from local_cli.tools.bash_tool import BashTool
 from local_cli.tools.read_tool import ReadTool
 from local_cli.sub_agent import SubAgentRunner
 from tests.test_nova_core_phase4_session import ScriptedProvider
+from tests.security_v12.process_fixtures import bind_mock_shell
 
 
-def _command(kind, session_id=None, payload=None):
+def _command(kind, session_id=None, payload=None, *, actor=None):
     return ApplicationCommand(command_id=new_command_id(), kind=kind,
-                              session_id=session_id, payload=payload or {})
+                              session_id=session_id, payload=payload or {}, approval_actor=actor)
 
 
 def _deadline():
@@ -120,8 +121,9 @@ def test_approval_wrong_digest_is_rejected_and_stop_waits_for_terminal(tmp_path)
     shell = BashTool(confirm=lambda _cmd: False,
                      descriptor=ShellDescriptor("Linux", "bash", "bash", "5"),
                      executor=executor, cwd=tmp_path, environment={})
+    bind_mock_shell(shell, executor)
     risky = {"role": "assistant", "content": "", "tool_calls": [{
-        "function": {"name": "bash", "arguments": {"command": "sudo echo ok"}},
+        "function": {"name": "bash", "arguments": {"command": "git reset --hard"}},
     }]}
     coordinator = AgentSessionCoordinator(
         provider=ScriptedProvider([risky, "done"]), model="local",
@@ -130,6 +132,7 @@ def test_approval_wrong_digest_is_rejected_and_stop_waits_for_terminal(tmp_path)
         interaction_deadline_factory=_deadline,
     )
     session_id = _start(coordinator, tmp_path)
+    actor = coordinator.register_approval_actor('desktop_host', lambda: True)
     turn = coordinator.handle(_command(CommandKind.SUBMIT_USER_INPUT,
                                        session_id, {"content": "run"}))
     request = _pending(coordinator._session.approval_gate)
@@ -138,14 +141,14 @@ def test_approval_wrong_digest_is_rejected_and_stop_waits_for_terminal(tmp_path)
         "approvalId": request.approval_id, "toolCallId": request.tool_call_id,
         "requestDigest": "wrong", "cwd": request.cwd,
         "policyRevision": 1, "approved": True,
-    }))
+    }, actor=actor))
     assert not bad.accepted
     executor.run.assert_not_called()
     good = coordinator.handle(_command(CommandKind.RESOLVE_APPROVAL, session_id, {
         "approvalId": request.approval_id, "toolCallId": request.tool_call_id,
         "requestDigest": request.request_digest, "cwd": request.cwd,
         "policyRevision": 1, "approved": True,
-    }))
+    }, actor=actor))
     assert good.accepted
     assert coordinator.wait_for_turn(turn.created_ids["turnId"], 5)
     executor.run.assert_called_once()
@@ -230,7 +233,7 @@ def test_stop_generation_without_event_subscriber(tmp_path):
     assert coordinator.get_snapshot(session_id).turns[0]["status"] == "completed"
 
 
-def test_cached_read_keeps_one_terminal_per_tool_operation(tmp_path):
+def test_brokered_read_keeps_one_terminal_per_tool_operation(tmp_path):
     path = tmp_path / "note.txt"
     path.write_text("hello", encoding="utf-8")
     read_call = {"role": "assistant", "content": "", "tool_calls": [{
@@ -249,7 +252,7 @@ def test_cached_read_keeps_one_terminal_per_tool_operation(tmp_path):
     terminal = [e for e in _events(coordinator, session_id)
                 if e.kind is EventKind.TOOL_COMPLETED]
     assert len(terminal) == 2
-    assert sum(bool(event.payload["cached"]) for event in terminal) == 1
+    assert all(event.payload["cached"] is False for event in terminal)
 
 
 def test_cancel_started_shell_marks_unknown_effect_without_retry(tmp_path):
@@ -267,6 +270,7 @@ def test_cancel_started_shell_marks_unknown_effect_without_retry(tmp_path):
     executor.run.side_effect = running_command
     shell = BashTool(descriptor=ShellDescriptor("Linux", "bash", "bash", "5"),
                      executor=executor, cwd=tmp_path, environment={})
+    bind_mock_shell(shell, executor)
     call = {"role": "assistant", "content": "", "tool_calls": [{
         "function": {"name": "bash", "arguments": {"command": "echo begun"}},
     }]}
@@ -329,7 +333,7 @@ def test_cancel_turn_while_approval_pending_denies_execution(tmp_path):
                      descriptor=ShellDescriptor("Linux", "bash", "bash", "5"),
                      executor=executor, cwd=tmp_path, environment={})
     risky = {"role": "assistant", "content": "", "tool_calls": [{
-        "function": {"name": "bash", "arguments": {"command": "sudo echo ok"}},
+        "function": {"name": "bash", "arguments": {"command": "git reset --hard"}},
     }]}
     coordinator = AgentSessionCoordinator(
         provider=ScriptedProvider([risky, "done"]), model="local",

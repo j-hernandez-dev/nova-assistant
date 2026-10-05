@@ -4,17 +4,20 @@ from __future__ import annotations
 
 import math
 import subprocess
+import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Mapping
 
 from local_cli.security import SANITIZED_ENV_VARS, get_sanitized_env
 from local_cli.shell_executor import (
-    PlatformShellExecutor, ShellDescriptor, ShellExecutionCancelled,
+    PlatformShellExecutor, ShellDescriptor, ShellExecutionCancelled, ShellProcessOutcomeUnknown,
     create_executor, detect_shell,
 )
 from local_cli.shell_policy import ShellDecision, ShellPolicy
 from local_cli.core.contracts import CancellationToken, EffectState, ToolResult, ToolStatus
+from local_cli.core.process import ProcessReport, process_report_to_tool_result
+from local_cli.process_config import DEFAULT_PROCESS_LIMITS
 from local_cli.tools.base import Tool
 from local_cli.tools._paths import capture_cwd
 
@@ -70,6 +73,23 @@ class ShellTool(Tool):
 
     def execute(self, **kwargs: object) -> str:
         return self.execute_result(**kwargs).legacy_text or ""
+
+    def process_argv(self, command):
+        """Internal platform compilation for the authorized S4 launch snapshot."""
+        argv = create_executor(self.descriptor).argv(command)
+        executable = Path(self.descriptor.executable)
+        argv[0] = str(executable if executable.is_absolute() else Path(
+            shutil.which(str(executable)) or self.cwd/executable))
+        return tuple(argv)
+
+    def process_environment(self, environment):
+        from local_cli.infrastructure.process_environment import minimum_process_environment
+        return minimum_process_environment(environment)
+
+    def create_process_launcher(self):
+        """Composition factory; Application consumes the Core launcher port."""
+        from local_cli.infrastructure.host_process import HostProcessLauncher
+        return HostProcessLauncher()
 
     def execute_result(self, **kwargs: object) -> ToolResult:
         """Expose a typed outcome while retaining the exact legacy text."""
@@ -136,21 +156,31 @@ class ShellTool(Tool):
                     cancellation_token=cancellation_token, deadline=deadline,
                 )
         except ShellExecutionCancelled as exc:
+            if type(exc.process_report) is ProcessReport:
+                return process_report_to_tool_result(exc.process_report, (), DEFAULT_PROCESS_LIMITS)
             if not exc.started:
                 return error(ToolStatus.CANCELLED,
                              "Error: command cancelled before execution.")
             return error(ToolStatus.OUTCOME_UNKNOWN,
                          "Error: command cancelled after execution began; outcome unknown.",
                          EffectState.UNKNOWN)
-        except subprocess.TimeoutExpired:
+        except ShellProcessOutcomeUnknown as exc:
+            return process_report_to_tool_result(exc.process_report, (), DEFAULT_PROCESS_LIMITS)
+        except subprocess.TimeoutExpired as exc:
+            if type(getattr(exc, 'process_report', None)) is ProcessReport:
+                return process_report_to_tool_result(exc.process_report, (), DEFAULT_PROCESS_LIMITS)
             return error(ToolStatus.OUTCOME_UNKNOWN,
                          f"Error: command timed out after {timeout} seconds.",
                          EffectState.UNKNOWN)
         except PermissionError as exc:
             return error(ToolStatus.FAILED, f"Error: permission denied: {exc}")
         except OSError as exc:
+            if type(getattr(exc, 'process_report', None)) is ProcessReport:
+                return process_report_to_tool_result(exc.process_report, (), DEFAULT_PROCESS_LIMITS)
             return error(ToolStatus.FAILED,
                          f"Error: failed to execute command: {exc}")
+        if type(getattr(result, 'process_report', None)) is ProcessReport:
+            return process_report_to_tool_result(result.process_report, (), DEFAULT_PROCESS_LIMITS)
         output = (result.stdout or "") + (result.stderr or "")
         encoded = output.encode("utf-8", errors="replace")
         if len(encoded) > _MAX_OUTPUT_BYTES:

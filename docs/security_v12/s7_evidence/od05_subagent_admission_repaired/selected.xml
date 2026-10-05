@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.580" timestamp="2026-10-04T13:30:50.556214-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_start_subagent_audit_failure_is_typed_denial_no_child_submission" file="tests\security_v12\test_s7_durable_runtime.py" line="280" time="0.285"><failure message="AssertionError: assert (not False and 'SUB_AGENT_SETUP_FAILED' == 'SECURITY_AUD...EFFECT_FAILED'&#10; +  where False = CommandReceipt(command_id='command_80c08cbd2b8b408c98f6d0148cff8197', accepted=False, session_id='ses_1e91716f9eb044de...egory=&lt;ErrorCategory.CONTEXT: 'CONTEXT'&gt;, safe_message='Could not start sub-agent', retryable=False), schema_version=1).accepted&#10;  &#10;  - SECURITY_AUDIT_PRE_EFFECT_FAILED&#10;  + SUB_AGENT_SETUP_FAILED)">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s7_private_bzi3d1gj/selected/test_start_subagent_audit_fail0')
+
+    def test_start_subagent_audit_failure_is_typed_denial_no_child_submission(tmp_path):
+        from unittest.mock import Mock
+        from local_cli.application.session import AgentSessionCoordinator
+        from local_cli.application.commands import ApplicationCommand,CommandKind
+        from local_cli.core.contracts import new_command_id
+        from local_cli.application.events import EventBufferConfig
+        from tests.test_nova_core_phase4_session import ScriptedProvider,start,submit
+        from tests.security_v12.test_s7_contracts import FixtureAuditPort
+        class Port(FixtureAuditPort):
+            def flush(self):
+                raise OSError()
+        entered,release = Event(),Event()
+        def run(*args,**kwargs):
+            entered.set(); assert release.wait(5); return 'done'
+        runner = Mock()
+        shell_runtime,_,_ = runtime(tmp_path)
+        shell = shell_runtime.registry.tool('bash')
+        app = AgentSessionCoordinator(provider=ScriptedProvider([]),model='fixture',tool_factory=lambda _:[],
+            run_agent_fn=run,security_audit_port=Port(),event_config=EventBufferConfig(),
+            provider_factory=lambda _:ScriptedProvider([]),
+            sub_agent_runner=runner,sub_agent_tool_factory=lambda _:[shell])
+        sid = start(app,tmp_path).session_id
+        parent = submit(app,sid,'wait')
+        try:
+            assert entered.wait(2)
+            child = app.handle(ApplicationCommand(new_command_id(),CommandKind.START_SUB_AGENT,
+                {'parentTurnId':parent.created_ids['turnId'],'task':'child','mode':'default'},session_id=sid))
+&gt;           assert not child.accepted and child.error.code == 'SECURITY_AUDIT_PRE_EFFECT_FAILED'
+E           AssertionError: assert (not False and 'SUB_AGENT_SETUP_FAILED' == 'SECURITY_AUD...EFFECT_FAILED'
+E            +  where False = CommandReceipt(command_id='command_80c08cbd2b8b408c98f6d0148cff8197', accepted=False, session_id='ses_1e91716f9eb044de...egory=&lt;ErrorCategory.CONTEXT: 'CONTEXT'&gt;, safe_message='Could not start sub-agent', retryable=False), schema_version=1).accepted
+E             
+E             - SECURITY_AUDIT_PRE_EFFECT_FAILED
+E             + SUB_AGENT_SETUP_FAILED)
+
+tests\security_v12\test_s7_durable_runtime.py:308: AssertionError</failure></testcase></testsuite></testsuites>

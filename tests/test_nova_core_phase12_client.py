@@ -120,7 +120,7 @@ def test_cli_approval_uses_application_gate_and_does_not_create_extra_turn(tmp_p
     shell = BashTool(descriptor=ShellDescriptor("Linux", "bash", "bash", "5"),
                      executor=executor, cwd=tmp_path, environment={})
     risky = {"role": "assistant", "content": "", "tool_calls": [{
-        "function": {"name": "bash", "arguments": {"command": "sudo echo ok"}},
+        "function": {"name": "bash", "arguments": {"command": "git reset --hard"}},
     }]}
     client, app, _ = _client(tmp_path, ScriptedProvider([risky, "done"]),
                              tools=[shell], answers=["no"])

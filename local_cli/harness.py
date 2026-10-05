@@ -945,7 +945,7 @@ def verify_file_write(
     tool_name: str,
     arguments: dict[str, Any],
     result: str,
-    *, cwd: str | Path | None = None,
+    *, cwd: str | Path | None = None, content: str | None = None,
 ) -> str | None:
     """Syntax-check a file right after a successful write/edit.
 
@@ -981,12 +981,18 @@ def verify_file_write(
         path = Path(cwd) / path
     suffix = path.suffix.lower()
 
-    try:
-        if not path.is_file() or path.stat().st_size > _VERIFY_MAX_BYTES:
+    if content is not None:
+        # S3 verifies the bytes its broker committed, never reopens a pathname.
+        if len(content.encode('utf-8')) > _VERIFY_MAX_BYTES:
             return None
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return None
+        text = content
+    else:
+        try:
+            if not path.is_file() or path.stat().st_size > _VERIFY_MAX_BYTES:
+                return None
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            return None
 
     # Merge-conflict markers break a file of any type and are almost never
     # legitimate; require both an opener and a closer so a decorative

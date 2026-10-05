@@ -7,6 +7,7 @@ agent loop, approval decision or transcript.
 from __future__ import annotations
 
 from threading import Event, RLock, Thread
+from dataclasses import replace
 from typing import Any, Callable
 
 from local_cli.application.commands import ApplicationCommand, CommandKind, CommandReceipt
@@ -14,12 +15,14 @@ from local_cli.application.events import SubscriptionOutOfSync
 from local_cli.application.auxiliary import AuxiliaryConflict, AuxiliaryUnavailable
 from local_cli.application.legacy_event_bridge import envelope_to_jsonl
 from local_cli.core.contracts import EventKind, new_command_id
+from local_cli.interfaces.approval_proof import verify_approval_proof
 
 
 class JsonlApplicationAdapter:
     def __init__(self, application: Any, session_id: str,
                  send: Callable[[dict[str, Any]], None], *,
-                 on_provider_changed: Callable[[], None] | None = None) -> None:
+                 on_provider_changed: Callable[[], None] | None = None,
+                 host_approval_key: str | None = None) -> None:
         self.application, self.session_id, self._send = application, session_id, send
         self._on_provider_changed = on_provider_changed or (lambda: None)
         self._lock = RLock()
@@ -35,6 +38,11 @@ class JsonlApplicationAdapter:
         self._pending_inputs: dict[int, str] = {}
         self._subscriptions: dict[Any, Any] = {}
         self._agent_requests: dict[str, tuple[Any, bool]] = {}
+        self._host_approval_key = host_approval_key
+        if host_approval_key and getattr(application, 'redactor', None) is not None:
+            application.redactor.register(host_approval_key, protected=True)
+        self._approval_actor = (application.register_approval_actor('desktop_host', lambda: True)
+                                if host_approval_key else None)
         snapshot = self.application.get_snapshot(session_id)
         self._legacy_cursor = self.application.subscribe_events(
             session_id, after_sequence=snapshot.last_sequence,
@@ -128,13 +136,9 @@ class JsonlApplicationAdapter:
                         self._receipt_error(req_id, receipt)
             return True
         if kind == "confirm_response":
-            confirm_id = request.get("confirm_id")
-            if type(confirm_id) is int and isinstance(request.get("approved"), bool):
-                with self._lock:
-                    pending = self._pending_confirms.pop(confirm_id, None)
-                if pending is not None:
-                    self._command(CommandKind.RESOLVE_APPROVAL,
-                                  {**pending, "approved": request["approved"]})
+            self._send({'id': req_id, 'type': 'error', 'category': 'APPROVAL',
+                        'code': 'APPROVAL_ACTOR_INVALID',
+                        'message': 'Host confirmation is required.'})
             return True
         if kind == "input_response":
             input_id = request.get("input_request_id")
@@ -380,6 +384,14 @@ class JsonlApplicationAdapter:
     def _versioned_command(self, req_id: Any, request: dict[str, Any]) -> None:
         try:
             command = ApplicationCommand.from_dict(request["command"])
+            if command.kind is CommandKind.RESOLVE_APPROVAL:
+                if not verify_approval_proof(self._host_approval_key, command.to_dict(),
+                                              request.get('hostApprovalProof')):
+                    self._send({'id': req_id, 'type': 'error', 'category': 'APPROVAL',
+                                'code': 'APPROVAL_ACTOR_INVALID',
+                                'message': 'Host confirmation is required.'})
+                    return
+                command = replace(command, approval_actor=self._approval_actor)
             result = self.application.handle(command)
             if (command.kind in (CommandKind.CHANGE_MODEL, CommandKind.CHANGE_PROVIDER)
                     and isinstance(result, CommandReceipt) and result.accepted):

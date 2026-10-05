@@ -1,0 +1,49 @@
+{
+  "phase": "S3",
+  "finalGateStatus": "PARTIAL",
+  "rawEvidencePreserved": true,
+  "incidents": [
+    {
+      "evidence": "block1_native",
+      "result": "21 portable PASS; 3 native FAIL",
+      "cause": "Instrumental execution restriction returned access denied for normalized handle-name queries on known drive/user ancestors.",
+      "resolution": "Re-ran private fixtures using authorized unsandboxed execution, without administrator elevation; kept path validation unchanged."
+    },
+    {
+      "evidence": "block1_native_authorized",
+      "result": "21 portable PASS; 1 native PASS, 2 FAIL",
+      "cause": "Initial Win32 rename helper rejected the relative target form.",
+      "resolution": "Selected native FileRenameInformation per Microsoft documentation; original evidence preserved."
+    },
+    {
+      "evidence": "block1_native_recheck",
+      "result": "21 portable PASS; 1 native PASS, 2 FAIL",
+      "cause": "Non-NULL rename RootDirectory opened the pinned directory for write and conflicted with sharing guards.",
+      "resolution": "Native simple leaf filename and NULL RootDirectory rename within the source handle parent; block1_native_pass has 21 + 3 PASS."
+    },
+    {
+      "evidence": "block4_regression",
+      "result": "34 S3 PASS; 560 prior PASS, 5 FAIL, 1 skip, 2 deselected, 10 subtests PASS",
+      "cause": "Prior tests expected S2 APPLICATION_ENFORCED FS intent, legacy FS executor and cache hits.",
+      "resolution": "Updated only explicit S3 expectations: BROKER_ENFORCED, broker-port fake with no-fallback asserts, and fresh object reads; final 565 prior PASS."
+    },
+    {
+      "evidence": "block5_recheck",
+      "result": "118 selected PASS, 1 FAIL; 23 host-real PASS, 2 fixture FAIL",
+      "cause": "New child test referenced nonexistent registry.legacy_tools; host symlink fixture privilege missing.",
+      "resolution": "Corrected test to registry.names/tool; final 42 S3 PASS. Symlink failures not waived."
+    },
+    {
+      "evidence": "block3_host_real, block5_recheck, final",
+      "result": "Required directory_symlink and file_symlink fixture creation FAIL: WinError 1314",
+      "cause": "Non-elevated host token cannot create symbolic links in the private NTFS fixture.",
+      "resolution": "UNRESOLVED. No system configuration changes, privilege enablement or automatic elevation. Gate pending actual symlink fixture execution, not skipped or replaced by junction/mock."
+    },
+    {
+      "evidence": "final_frontend",
+      "result": "Schema + Node + syntax exit 0 with interpreter/console deallocator warnings",
+      "cause": "Instrumental execution restriction / console cleanup warning, not assertion failure.",
+      "resolution": "Clean new final_frontend_authorized run: schema 1 PASS, Node 10 PASS, syntax checks exit 0; no source change."
+    }
+  ]
+}

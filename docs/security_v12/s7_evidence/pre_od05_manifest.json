@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "phase": "S7",
+  "status": "PARTIAL",
+  "userContextDate": "2026-10-04",
+  "processModel": "HOST_UNISOLATED",
+  "baseline": {
+    "head": "158b60effa484cd34a58b991f3ee4ca3f808d924",
+    "branch": "main",
+    "staged": [],
+    "s6Status": "PASS",
+    "s6PinsVerifiedBeforeChanges": 111,
+    "snapshot": "docs/security_v12/s7_evidence/before/snapshot.json",
+    "files": 864,
+    "historicalDocs": 539,
+    "tests": {
+      "pythonPassed": 1170,
+      "subtestsPassed": 10,
+      "nodePassed": 10,
+      "optionalSkipped": 1,
+      "gpuDeselected": 3
+    },
+    "evidence": "docs/security_v12/s7_evidence/baseline/run.json"
+  },
+  "scope": {
+    "onlyS7": true,
+    "deprecatedSecurityReused": false,
+    "publicToolNamesSchemasChanged": false,
+    "agentRuntimeChanged": false,
+    "nextPhase": "S8",
+    "nextPhaseImplemented": false,
+    "commit": false,
+    "push": false
+  },
+  "decision": {
+    "id": "SEC12-OD-05",
+    "status": "PENDING_USER_DECISION",
+    "document": "docs/security_v12/SEC12_OD_05_S7_PENDING.md",
+    "storageAndRetentionNotSelected": true,
+    "durableAdmissionFailurePolicyNotSelected": true,
+    "recommendationsNotImplemented": [
+      "JSONL private per-user state outside workspace; 10 MiB segments; 100 MiB/30 day retention; closed owned segments only",
+      "durable flush/fsync before effect and terminal; deny on pre-effect audit failure; preserve observed result and disclose post-effect audit failure; no retry",
+      "crash reopen validates records and discloses tail/gaps without invented terminal/effects"
+    ]
+  },
+  "implementation": {
+    "securityAuditPort": true,
+    "versionedSchema": 1,
+    "immutableCodec": true,
+    "actorOriginCorrelation": true,
+    "policyApprovalGrantSummary": true,
+    "processReportProjection": true,
+    "filesystemProvenanceProjection": true,
+    "networkProvenanceProjection": true,
+    "sharedApplicationSubagents": true,
+    "redactionBeforePort": true,
+    "selectedEnvironmentRegisteredBeforeRequestRecord": true,
+    "reconstructionObservedOnly": true,
+    "persistenceAdapter": false,
+    "retentionRotation": false,
+    "crashReopen": false,
+    "productionAuditActivation": false,
+    "fixturePort": "tests/security_v12/test_s7_contracts.py::FixtureAuditPort",
+    "default": "security_audit_port=None"
+  },
+  "gate": {
+    "status": "PARTIAL",
+    "independentTestStatus": "PASS",
+    "sourcePinsVerified": 733,
+    "sourceMismatches": [],
+    "evidence": "docs/security_v12/s7_evidence/independent_release/run.json",
+    "groups": [
+      {
+        "name": "s7",
+        "exitCode": 0
+      },
+      {
+        "name": "prior_regression",
+        "exitCode": 0
+      },
+      {
+        "name": "desktop_approval",
+        "exitCode": 0
+      },
+      {
+        "name": "desktop_main_syntax",
+        "exitCode": 0
+      }
+    ],
+    "fulfilled": [
+      "SecurityAuditPort/schema/codec",
+      "actor/origin/policy/approval/grant correlation",
+      "observed process/FS/network projection",
+      "no bearer material/known-secret redaction",
+      "parent IDs and Core terminal uniqueness",
+      "reasonable fixture reconstruction without invented process internal effects"
+    ],
+    "pending": [
+      "SEC12-OD-05 authorization",
+      "productive persistence adapter and activation",
+      "retention/rotation/privacy of selected storage",
+      "durability and pre/post-effect failure policy",
+      "crash/reopen according to selected retention"
+    ],
+    "criterionReduced": false
+  },
+  "tests": {
+    "s7": {
+      "passed": 48,
+      "unitContract": 27,
+      "mockInProcessIntegration": 21,
+      "failed": 0,
+      "xml": "docs/security_v12/s7_evidence/independent_release/s7.xml"
+    },
+    "regression": {
+      "passed": 1170,
+      "subtestsPassed": 10,
+      "failed": 0,
+      "skipped": 1,
+      "deselected": 3,
+      "xml": "docs/security_v12/s7_evidence/independent_release/prior_regression.xml"
+    },
+    "desktopApproval": {
+      "passed": 10,
+      "type": "Node contract with simulated host adapters"
+    },
+    "desktopMain": {
+      "exitCode": 0,
+      "type": "Node syntax only; not tsc/bundle/Electron GUI"
+    },
+    "pythonPassed": 1218,
+    "pythonSubtestsPassed": 10,
+    "nodePassed": 10,
+    "hostRealExecuted": false,
+    "hostRealReason": "S7 does not explicitly require native fixtures; independent scope uses declared mock ports",
+    "durableCrashExecuted": false,
+    "durableCrashNotReplacedWithMock": true,
+    "optionalSkipped": "real Ollama Core smoke opt-in not enabled",
+    "gpuDeselected": 3,
+    "gpuProbes": false,
+    "actualCloudModel": false,
+    "dependencyInstallation": false,
+    "incrementalRepeatsIncludedInTotal": false
+  },
+  "filesCreated": [
+    "local_cli/core/security_audit.py",
+    "local_cli/application/security_audit.py",
+    "tests/security_v12/run_s7.py",
+    "tests/security_v12/test_s7_contracts.py",
+    "tests/security_v12/test_s7_runtime.py",
+    "docs/security_v12/SEC12_OD_05_S7_PENDING.md",
+    "docs/security_v12/s7_security_audit.md",
+    "docs/security_v12/s7_resultados.md",
+    "docs/security_v12/s7_manifest.json"
+  ],
+  "filesModified": [
+    "local_cli/application/interactions.py",
+    "local_cli/application/session.py",
+    "local_cli/application/tool_runtime.py",
+    "local_cli/sub_agent.py",
+    "local_cli/tools/agent_tool.py"
+  ],
+  "preservation": {
+    "beforeFilesMissing": [],
+    "unrelatedFilesModified": [],
+    "historicalDocFilesHashIdentical": 539,
+    "previousS3WinError1314AndManualClosurePreserved": true,
+    "previousS0ThroughS6EvidencePreserved": true,
+    "intermediateS7FailedAttemptsPreserved": true,
+    "preexistingDeletionsPreserved": [
+      "README.easy-ja.md",
+      "README.ja.md",
+      "hello.py"
+    ],
+    "stagingEmpty": true,
+    "headUnchanged": true
+  },
+  "regressions": [],
+  "debt": {
+    "blockingS7": [
+      "SEC12-OD-05 and its adapter/retention/durability/crash gate"
+    ],
+    "nonBlocking": [
+      "known-value redaction only",
+      "HOST_UNISOLATED normal account authority",
+      "process observations post-report, not comprehensive OS monitoring",
+      "write-only before hash may be unobserved",
+      "no cloud/model real or full Electron GUI test"
+    ]
+  },
+  "results": "docs/security_v12/s7_resultados.md",
+  "integrity": {
+    "algorithm": "SHA256",
+    "pins": 52,
+    "evidenceFiles": 39,
+    "includesIgnoredEvidenceLogs": true,
+    "manifestSelfHashExcluded": true
+  },
+  "files": {
+    "docs/security_v12/s7_evidence/application_integration/run.json": "00798A97F8101A30D433AF76939750F630995680DEAD11B10B7867A5A64043DD",
+    "docs/security_v12/s7_evidence/application_integration/selected.log": "A18CC6868846067C5C661AD385E14EABE1DF2E977E4797F716F46D5C024247F7",
+    "docs/security_v12/s7_evidence/application_integration/selected.xml": "BBD4E607A73AD5D200661F24BF22DBFBA8011EBCE6BD51FD79CEDDAFCEDFF9E7",
+    "docs/security_v12/s7_evidence/baseline/desktop_approval.log": "D4E2757F99B7541824FC07C5EEEA027FCBB394AB7D012E6919630D141922EC1D",
+    "docs/security_v12/s7_evidence/baseline/desktop_main_syntax.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s7_evidence/baseline/run.json": "EFA2FE6270488D3AE94649ED24D67EE5CD860D0007ED18426BB7E94D2087D532",
+    "docs/security_v12/s7_evidence/baseline/selected.log": "363B5F60EA9F36FFDE9CC3DCB7023EA4CB042667C6FE5B65428978721DD3D08A",
+    "docs/security_v12/s7_evidence/baseline/selected.xml": "6127EED6EE3A0DDDF386207DE4584BBBE70E80B1450F160985C426712A27B1E3",
+    "docs/security_v12/s7_evidence/before/snapshot.json": "11476563CD6BE58D9086F46D9AC94D3D13A798CF9511A99B84A2C538A6A930AB",
+    "docs/security_v12/s7_evidence/contracts_repaired/run.json": "B7594FDAD709DAC4EF3EE1AE7AB1E29D9BDD263A151B28E0A11627EED3E4B627",
+    "docs/security_v12/s7_evidence/contracts_repaired/selected.log": "ED561D4951FF4360B38F32D8A6D9C5FECC474D2C7FC837F96EEC4384A72201DF",
+    "docs/security_v12/s7_evidence/contracts_repaired/selected.xml": "912F265551281C99E66949B31E6DA8BB975853B246E620C7F01115D2392A6F45",
+    "docs/security_v12/s7_evidence/contracts/run.json": "F46BF281BBDE1FF7517D76BB4D880ED5C482ED2E665D143ED628E3510D88CB98",
+    "docs/security_v12/s7_evidence/contracts/selected.log": "A5C4D76A00E4F7EC8E03E1DFD81CCAAB4E3657B768CC49802029ECE76D880AEC",
+    "docs/security_v12/s7_evidence/contracts/selected.xml": "2571A8C406AE6F1CCA0ED03F19B22E58F02B03F47ECAE59FBE35C314A246E1B0",
+    "docs/security_v12/s7_evidence/final_integration/run.json": "1BDABC53CFB4D1F926BF470E6C76ABDFD8D506037E304CC64999E70A3F4619EF",
+    "docs/security_v12/s7_evidence/final_integration/selected.log": "0BD53FD6C4F301920E59C7C34B4A93B8259E505F7B2E1FD8015A30A6D93FA64E",
+    "docs/security_v12/s7_evidence/final_integration/selected.xml": "2604156B4D2029DC976419857C31A1B697841B0EE441D99755105EF051473F3C",
+    "docs/security_v12/s7_evidence/final_verification.json": "939408BAE91492F466DF8628DECAF34853D39AA7049E7221E35FDE5F43A0CB46",
+    "docs/security_v12/s7_evidence/independent_release/desktop_approval.log": "D23A3F21ED3F6AB4087FD3DA160E4FE50F2C83D2555F9DB9AC5F526DF344149E",
+    "docs/security_v12/s7_evidence/independent_release/desktop_main_syntax.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s7_evidence/independent_release/prior_regression.log": "17E9CC0E03EEFF4D92D3062F310DDB6241BB68209A273AF4940B5FCD842A45FF",
+    "docs/security_v12/s7_evidence/independent_release/prior_regression.xml": "D769240938B937CD08955F8D37A18268F6501170CFF3175219634BF336152AD5",
+    "docs/security_v12/s7_evidence/independent_release/run.json": "0505E78DA5F7E1D52D4A9C9561A919D659BC60FDC4D2BCDE5D176E1DA34B2801",
+    "docs/security_v12/s7_evidence/independent_release/s7.log": "C8B80C38FEFF3D1A1E375C05D5E219700E08BC239D6A5278E99A436307E2E3D6",
+    "docs/security_v12/s7_evidence/independent_release/s7.xml": "EDE07A5F1515B95D8029A848B9E11A8E669CDDE9DF126B1904946DE9D989FE2C",
+    "docs/security_v12/s7_evidence/regression/desktop_approval.log": "D9C301FACF8D8333118548ECFE28CCAE8A585724AAEAA689C32DF9D5377903F2",
+    "docs/security_v12/s7_evidence/regression/desktop_main_syntax.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s7_evidence/regression/prior_regression.log": "BBB273C8DD595AF29F10E35B96553CC9F484D28A17811B3B612D115BD7184580",
+    "docs/security_v12/s7_evidence/regression/prior_regression.xml": "EA25DA422D431A44C8BAECE3E216409ADD48137A93A5C83F4A3CDF0C788D8B49",
+    "docs/security_v12/s7_evidence/regression/run.json": "4E12172308E171C88C58F6299044D568E4D2A1D54C6DF61267F375609C6F6821",
+    "docs/security_v12/s7_evidence/regression/s7.log": "93D52DD13DCA510871923440A570F6CDEEC3F6340B4A06FF29AA462F143A86DB",
+    "docs/security_v12/s7_evidence/regression/s7.xml": "E15C28A00E61973ED95E17D73401376B955F81CF4976F9A8D449F6C9FEC73A95",
+    "docs/security_v12/s7_evidence/runtime_repaired/run.json": "C573E7EE62FD7CB480FD3BDE53DE2823E12A83ED845777A4556976583E63AAAD",
+    "docs/security_v12/s7_evidence/runtime_repaired/selected.log": "0D9A301D5E11864CBCA76F3D299ABC708C5660254DA90075A849E09AAE380147",
+    "docs/security_v12/s7_evidence/runtime_repaired/selected.xml": "F2A9F3787737DE8C9898B48B255D369A845B2AEDA3D860F53A883961CEA3C5BF",
+    "docs/security_v12/s7_evidence/runtime/run.json": "831A75B169EB2577B528E8EBE988BD8582A076D8FC4EAF0C19FDEF5AA2241FD0",
+    "docs/security_v12/s7_evidence/runtime/selected.log": "356B7C6BEAAD0EA6932F877C02F14F927D96FBD4FE1B163F8CFF6010F4E8CD89",
+    "docs/security_v12/s7_evidence/runtime/selected.xml": "06FCED8BA3DC8C1EAD3A60AE7DEA7062791D50C84CCE499BDCFC0937B0695E26",
+    "docs/security_v12/s7_resultados.md": "4575D9AB718DBBEB9BC953BB2790FA60ADB89ACE99AA5F517082383E0DF000AB",
+    "docs/security_v12/s7_security_audit.md": "707212D24CA55412A9AB9078886051BBAA14AB359006128A3F7ADE2F3B9F4503",
+    "docs/security_v12/SEC12_OD_05_S7_PENDING.md": "504DF005C339D7297184851E2E66B3DAF309628951A0197833551B001DF89741",
+    "local_cli/application/interactions.py": "67FC56621DCEF0590A9E742F32C36EF8F8D04C5942AAD6E83BF971E860F5A009",
+    "local_cli/application/security_audit.py": "6F19427AA1627D22D39E530D49A7363D14FF854AB932FE1EC4C89CCA160D0318",
+    "local_cli/application/session.py": "FA2C7986A882EBF25674BDAD5B05814460EBC15DC896DCA1D94DC0A320D59868",
+    "local_cli/application/tool_runtime.py": "94B535570346EFF4FC744863ECBD90120FD68D5629820875CD437AE89EEC2F18",
+    "local_cli/core/security_audit.py": "2D441EE3E38643EEFB6B32853EF4D48DDCD12281452409DDEED686FA054D649F",
+    "local_cli/sub_agent.py": "B36165DB1EAA4460CE9DB1B21690EA6CC30C50FB8FEAC26342C54116998A9B63",
+    "local_cli/tools/agent_tool.py": "C3C2E1E89A85D37AA2FE444594833229F40435F27BD12F8002058C4E5175A1C8",
+    "tests/security_v12/run_s7.py": "1F6CACDACCEC8C88FCAFC5486EB5DF85FD3041D0BDB78C618DFA184024C90E50",
+    "tests/security_v12/test_s7_contracts.py": "24C3ADA206EBDA06377FE04CF4CF5A1BBA90D043F4FB93412BAC26906670F092",
+    "tests/security_v12/test_s7_runtime.py": "49612E682F1010D8D483CF57C54135A1918580276043D9C0C1BCCC1C10B91751"
+  }
+}

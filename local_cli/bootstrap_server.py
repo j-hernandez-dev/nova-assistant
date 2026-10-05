@@ -1,6 +1,7 @@
 """Server composition root. Transport handlers never compose an alternate runtime."""
 
 import sys
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -8,6 +9,7 @@ from local_cli import __version__
 from local_cli.agent import run_agent
 from local_cli.harness import HarnessConfig
 from local_cli.config import Config
+from local_cli.audit_config import create_security_audit
 from local_cli.application.context import bind_context, policy_from_config
 from local_cli.application.persistence import create_persistence_service
 from local_cli.application.rag import RAGService, create_rag_service
@@ -37,6 +39,8 @@ from local_cli.tools.agent_tool import AgentTool
 
 
 def configure_server(self, *, send, human_timeout):
+    # One launch-specific host credential, retained only by the transport.
+    self._approval_host_key = os.environ.pop('NOVA_APPROVAL_HOST_KEY', None)
     self._cwd = Path.cwd().resolve()
     self._environment = get_sanitized_env()
     self._config = Config()
@@ -49,6 +53,7 @@ def configure_server(self, *, send, human_timeout):
     # Keep self._client for Ollama-specific ops (pull, delete, catalog, search).
     self._provider: LLMProvider = OllamaProvider(client=self._client)
     self._ensure_provider_manager()
+    self._provider_manager.redactor.register(self._approval_host_key, protected=True)
     if self._config.provider != "ollama":
         self._provider_manager.change_provider(self._config.provider, model=self._config.model)
         self._sync_provider_projection()
@@ -150,7 +155,8 @@ def configure_server(self, *, send, human_timeout):
     # <state_dir>/projects/<cwd-slug>/ from the moment the folder is
     # opened (LOCAL_CLI_SESSION_LOG=0 disables).  Fail-open: a write
     # error silences the logger, never the session.
-    self._session_log = SessionLogger(self._config.state_dir, cwd=str(self._cwd))
+    self._session_log = SessionLogger(self._config.state_dir, cwd=str(self._cwd),
+                                    redactor=self._provider_manager.redactor)
     self._session_log.log_session_start(
         model=self._config.model,
         provider=self._provider.name,
@@ -200,6 +206,7 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
         return result
 
     self._application = AgentSessionCoordinator(
+        security_audit_port=create_security_audit(self._cwd),
         provider=self._provider, model=self._config.model,
         provider_manager=self._provider_manager,
         tool_factory=lambda _workspace: self._tools,
@@ -235,7 +242,8 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
     self._messages = self._application._session.transcript
     self._app_adapter = JsonlApplicationAdapter(
         self._application, started.session_id, send,
-        on_provider_changed=self._sync_provider_projection)
+        on_provider_changed=self._sync_provider_projection,
+        host_approval_key=getattr(self, '_approval_host_key', None))
 
 
 def ensure_rag_service(self):
@@ -296,7 +304,8 @@ def rebind_server_workspace(self, target):
     # a new transcript, its own instruction file, and its own
     # resumable conversation.
     self._session_log.close()
-    self._session_log = SessionLogger(self._config.state_dir, cwd=str(target))
+    self._session_log = SessionLogger(self._config.state_dir, cwd=str(target),
+                                    redactor=self._provider_manager.redactor)
     self._session_log.log_session_start(
         model=self._config.model,
         provider=self._provider.name,

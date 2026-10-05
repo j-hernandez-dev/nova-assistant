@@ -5,23 +5,32 @@ from __future__ import annotations
 import base64
 import os
 import shutil
-import signal
 import subprocess
 import sys
-import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 from local_cli.core.contracts import CancellationToken
+from local_cli.core.process import ProcessLaunchRequest
+from local_cli.process_config import DEFAULT_PROCESS_LIMITS
+from local_cli.infrastructure.host_process import HostProcessLauncher
+from local_cli.infrastructure.process_environment import minimum_process_environment
 
 
 class ShellExecutionCancelled(Exception):
     """The process tree was stopped; effects before termination are unknown."""
 
-    def __init__(self, *, started: bool = True) -> None:
+    def __init__(self, *, started: bool = True, report=None) -> None:
         self.started = started
+        self.process_report = report
         super().__init__("shell execution cancelled")
+
+
+class ShellProcessOutcomeUnknown(Exception):
+    def __init__(self, report):
+        self.process_report = report
+        super().__init__('process cleanup unknown')
 
 
 @dataclass(frozen=True)
@@ -43,7 +52,8 @@ def _probe(kind: str, executable: str) -> str | None:
     else:
         args = [executable, "--version"]
     try:
-        result = subprocess.run(args, capture_output=True, text=True, timeout=3)
+        result = subprocess.run(args, capture_output=True, text=True, timeout=3,
+            env=minimum_process_environment(os.environ), stdin=subprocess.DEVNULL, close_fds=True)
     except (OSError, subprocess.TimeoutExpired):
         return None
     if result.returncode != 0:
@@ -118,69 +128,41 @@ class PlatformShellExecutor:
             env: dict[str, str], *,
             cancellation_token: CancellationToken | None = None,
             deadline: datetime | None = None) -> subprocess.CompletedProcess[str]:
-        if cancellation_token is not None and cancellation_token.is_cancel_requested():
-            raise ShellExecutionCancelled(started=False)
-        if deadline is not None and datetime.now(timezone.utc) >= deadline:
-            raise ShellExecutionCancelled(started=False)
-        windows = self.descriptor.os_name == "Windows"
-        proc = subprocess.Popen(
-            self.argv(command), cwd=cwd, env=env, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace",
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if windows else 0,
-            start_new_session=not windows,
-        )
-        started = time.monotonic()
-        try:
-            if cancellation_token is None and deadline is None:
-                stdout, stderr = proc.communicate(timeout=timeout)
-            else:
-                while True:
-                    if cancellation_token is not None and cancellation_token.is_cancel_requested():
-                        raise ShellExecutionCancelled()
-                    remaining = timeout - (time.monotonic() - started)
-                    if deadline is not None:
-                        remaining = min(remaining,
-                                        (deadline - datetime.now(timezone.utc)).total_seconds())
-                    if remaining <= 0:
-                        raise subprocess.TimeoutExpired(self.argv(command), timeout)
-                    try:
-                        stdout, stderr = proc.communicate(timeout=min(remaining, 0.1))
-                        break
-                    except subprocess.TimeoutExpired:
-                        continue
-        except BaseException:
-            self._terminate_process_tree(proc, windows)
-            raise
-        return subprocess.CompletedProcess(self.argv(command), proc.returncode, stdout, stderr)
-
-    @staticmethod
-    def _terminate_process_tree(proc: subprocess.Popen[str], windows: bool) -> None:
-        if windows:
-            # taskkill /T also stops descendants left behind by the shell.
-            try:
-                subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"],
-                               capture_output=True, timeout=5)
-            except (OSError, subprocess.TimeoutExpired):
-                pass
-        else:
-            try:
-                os.killpg(proc.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-        if proc.poll() is None:
-            try:
-                proc.kill()
-            except ProcessLookupError:
-                pass
-        try:
-            proc.communicate(timeout=5)
-        except subprocess.TimeoutExpired:
-            # A descendant can hold a pipe open if tree termination failed.
-            if proc.stdout:
-                proc.stdout.close()
-            if proc.stderr:
-                proc.stderr.close()
-
+        """Compatibility facade over the same bounded S4 launcher, not a fallback."""
+        if cwd is None:
+            raise ValueError("explicit cwd required")
+        # Existing Core compatibility callers may supply an explicit relative
+        # cwd. Snapshot it once; never change the host's global working directory.
+        cwd = str(Path(cwd).resolve())
+        argv = self.argv(command)
+        executable = Path(self.descriptor.executable)
+        argv[0] = str(executable if executable.is_absolute() else Path(
+            shutil.which(str(executable)) or Path(cwd)/executable))
+        request = ProcessLaunchRequest(command, tuple(argv), str(cwd),
+            minimum_process_environment(env), max(1, min(timeout, DEFAULT_PROCESS_LIMITS.max_timeout)),
+            DEFAULT_PROCESS_LIMITS)
+        class NotCancelled:
+            def is_cancel_requested(self):
+                return False
+        report = HostProcessLauncher().launch(request,
+            cancellation_token=cancellation_token or NotCancelled(),
+            deadline=deadline, validate_launch=lambda: None)
+        if report.error_code == "PROCESS_CANCELLED":
+            raise ShellExecutionCancelled(started=report.pid is not None, report=report)
+        if report.error_code == "PROCESS_TIMEOUT":
+            error = subprocess.TimeoutExpired(argv, timeout, output=report.stdout, stderr=report.stderr)
+            error.process_report = report
+            raise error
+        if report.outcome == "outcome_unknown":
+            raise ShellProcessOutcomeUnknown(report)
+        if report.pid is None:
+            error = FileNotFoundError(report.error_code) if report.error_code == "EXECUTABLE_NOT_FOUND" else OSError(
+                report.error_code)
+            error.process_report = report
+            raise error
+        result = subprocess.CompletedProcess(argv, report.exit_code, report.stdout, report.stderr)
+        result.process_report = report
+        return result
 
 class PowerShellExecutor(PlatformShellExecutor):
     def argv(self, command: str) -> list[str]:

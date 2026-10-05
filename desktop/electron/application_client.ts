@@ -43,7 +43,8 @@ export class DesktopApplicationClient {
   private reconnectCursor: { sessionId: string; sequence: number } | null = null
   private pending = new Map<string, { commandId: string; resolve: (receipt: CommandReceipt) => void }>()
   constructor(private send: (frame: object) => boolean | void,
-              private publish: (view: DesktopSessionView) => void) {}
+              private publish: (view: DesktopSessionView) => void,
+              private approvalProof?: (command: Record<string, unknown>) => string) {}
 
   private id() { return `desktop-${++this.serial}` }
   private changed() { this.publish(this.view) }
@@ -83,9 +84,13 @@ export class DesktopApplicationClient {
     return new Promise(resolve => {
       const id = this.id()
       this.pending.set(id, { commandId, resolve })
-      this.transmit({ id, type: 'application_command', command: {
+      const command = {
         schemaVersion: 1, commandId, sessionId: this.view.sessionId, kind, payload,
-      } })
+        expectedRevision: null,
+      }
+      this.transmit({ id, type: 'application_command', command,
+        ...(kind === 'ResolveApproval' && this.approvalProof
+          ? { hostApprovalProof: this.approvalProof(command) } : {}) })
     })
   }
   receive(frame: Record<string, any>) {
@@ -161,12 +166,20 @@ export class DesktopApplicationClient {
       error: lastTurn?.status === 'failed' ? { code: lastTurn.errorCode || 'TURN_FAILED', message: 'Turn failed.' } : this.view.error,
       ...(messages.length ? { resumable: null } : {}),
     }
+    if ((state.services.securityAudit?.deliveryFailures || 0) > 0) {
+      this.view = { ...this.view, error: { code: 'SECURITY_AUDIT_DELIVERY_FAILED',
+        message: 'Audit gap. Observed result retained; no automatic retry or rollback.' } }
+    }
   }
   private event(event: EventEnvelope) {
     if (!event || event.schemaVersion !== 1 || event.sessionId !== this.view.sessionId) return
     if (event.kind === 'EventGap') this.view = { ...this.view, gap: true }
     if (event.sequence <= this.view.sequence) return
     this.view = { ...this.view, sequence: event.sequence, stateRevision: event.stateRevision }
+    if (event.payload.securityAudit?.gap === true) {
+      this.view = { ...this.view, error: { code: 'SECURITY_AUDIT_DELIVERY_FAILED',
+        message: 'Audit gap. Observed result retained; no automatic retry or rollback.' } }
+    }
     if (event.kind === 'SessionSnapshot') { this.snapshot(event.payload as SessionSnapshot); return }
     if (event.kind === 'AssistantDelta' || event.kind === 'ThinkingDelta') {
       if (event.turnId !== this.view.activeTurnId || event.generationId !== this.view.activeGenerationId) { this.refresh(); return }

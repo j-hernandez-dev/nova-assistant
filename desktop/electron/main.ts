@@ -7,6 +7,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'path'
 import { DesktopApplicationClient } from './application_client'
+import { signApproval, confirmApproval, validFrame } from './approval_host.cjs'
 
 // Keep the user profile independent of the legacy package name. Set both paths
 // before ready so Chromium caches/cookies also use the Nova profile.
@@ -36,11 +37,12 @@ let storedApiKey: string | null = null
 let restartWorkspace: string | null = null
 let restartReady: Record<string, any> | null = null
 let restoreAfterRestart = false
+let approvalHostKey = ''
 const applicationClient = new DesktopApplicationClient(sendToPython, view => {
   if (rendererReady && mainWindow && !mainWindow.webContents.isDestroyed()) {
     mainWindow.webContents.send('session-view', view)
   }
-})
+}, command => signApproval(approvalHostKey, command))
 
 // ---------------------------------------------------------------------------
 // Claude credential storage (encrypted with safeStorage when available)
@@ -312,6 +314,8 @@ function startPythonServer() {
   console.log(`Working directory: ${projectRoot}`)
 
   const env: Record<string, string> = { ...process.env as Record<string, string>, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8' }
+  approvalHostKey = crypto.randomBytes(32).toString('hex')
+  env.NOVA_APPROVAL_HOST_KEY = approvalHostKey
   if (storedApiKey) {
     env.ANTHROPIC_API_KEY = storedApiKey
   }
@@ -438,7 +442,14 @@ function createWindow() {
 }
 
 // IPC handlers.
-ipcMain.on('send-to-python', (_event, data) => {
+function validApplicationSender(event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent) {
+  return !!mainWindow && event.sender === mainWindow.webContents &&
+    event.senderFrame === mainWindow.webContents.mainFrame
+}
+
+ipcMain.on('send-to-python', (event, data) => {
+  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'confirm_response' ||
+      (data.type === 'application_command' && data.command?.kind === 'ResolveApproval')) return
   sendToPython(data)
 })
 
@@ -446,7 +457,20 @@ ipcMain.handle('get-python-status', () => {
   return { running: pythonProcess !== null && !pythonProcess.killed }
 })
 
-ipcMain.handle('application-command', (_event, kind: string, payload: Record<string, unknown>, commandId?: string) => {
+ipcMain.handle('application-command', async (event, kind: string, payload: Record<string, unknown>, commandId?: string) => {
+  if (!validApplicationSender(event) || typeof kind !== 'string' || !validFrame(payload)) {
+    return { schemaVersion: 1, commandId: commandId || '', accepted: false, createdIds: {},
+      error: { code: 'INVALID_APPLICATION_COMMAND', message: 'Invalid application command.' } }
+  }
+  if (kind === 'ResolveApproval') {
+    return confirmApproval(applicationClient, payload, commandId, request => dialog.showMessageBox(mainWindow!, {
+      type: 'warning', title: 'Nova — confirmar ejecución local',
+      message: 'Este comando se ejecutará con los permisos normales de tu cuenta.',
+      detail: 'Carpeta: ' + request.cwd + '\n\n' + String(request.arguments.command || JSON.stringify(request.arguments))
+        + (request.arguments.environment ? '\n\nEnvironment: ' + JSON.stringify(request.arguments.environment) : ''),
+      buttons: ['Cancelar', 'Ejecutar'], defaultId: 0, cancelId: 0, noLink: true,
+    }))
+  }
   return applicationClient.command(kind, payload, commandId)
 })
 ipcMain.handle('restart-backend', () => {

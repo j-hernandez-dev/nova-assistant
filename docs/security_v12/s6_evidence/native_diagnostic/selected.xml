@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="7.158" timestamp="2026-10-04T08:47:28.169142-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s6_host" name="test_native_baseline_no_secret_proxy_ssh_hooks_and_normal_paths" file="tests\security_v12\test_s6_host.py" line="70" time="6.494"><failure message="AssertionError: ('native script requires exact human gate', [{'status': 'denied', 'effectState': 'none', 'stdout': '', 'stderr': '', ...}])&#10;assert False&#10; +  where False = wait(5)&#10; +    where wait = &lt;threading.Event at 0x2394df3d480: unset&gt;.wait">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/native_diagnostic/s6_private_r885kb73/selected/test_native_baseline_no_secret0')
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x000002394DF13740&gt;
+
+    def test_native_baseline_no_secret_proxy_ssh_hooks_and_normal_paths(tmp_path, record_property):
+&gt;       result, _ = native(tmp_path, """import os,json,sys
+    for name in ('UNUSED_SECRET','OPENAI_API_KEY','NOVA_APPROVAL_HOST_KEY','HTTP_PROXY','SSH_AUTH_SOCK','GIT_SSH_COMMAND','NODE_OPTIONS','PYTHONPATH'):
+        assert name not in os.environ, name
+    for name in ('PATH','HOME','USERPROFILE','TEMP','TMP'):
+        assert os.environ.get(name), name
+    assert os.path.isdir(os.environ['TEMP'])
+    assert os.getcwd() == os.environ['HOME']
+    print('baseline-real-ok')
+    """
+        )
+
+tests\security_v12\test_s6_host.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/native_diagnostic/s6_private_r885kb73/selected/test_native_baseline_no_secret0')
+code = "import os,json,sys\nfor name in ('UNUSED_SECRET','OPENAI_API_KEY','NOVA_APPROVAL_HOST_KEY','HTTP_PROXY','SSH_AUTH_SOC... name\nassert os.path.isdir(os.environ['TEMP'])\nassert os.getcwd() == os.environ['HOME']\nprint('baseline-real-ok')\n"
+selection = None, source_extra = None
+
+    def native(tmp_path, code, *, selection=None, source_extra=None):
+        descriptor = detect_shell('native')
+        assert descriptor is not None, 'S6 gate requires an available native shell'
+        source = {key: os.environ[key] for key in ('SystemRoot','WINDIR','PATH','COMSPEC','PATHEXT') if key in os.environ}
+        source.update(HOME=str(tmp_path), USERPROFILE=str(tmp_path), TEMP=str(tmp_path), TMP=str(tmp_path),
+            UNUSED_SECRET='host-dummy-secret-789', OPENAI_API_KEY='provider-dummy-789',
+            NOVA_APPROVAL_HOST_KEY='approval-dummy-789', HTTP_PROXY='http://dummy:password@127.0.0.1:9',
+            SSH_AUTH_SOCK='dummy', GIT_SSH_COMMAND='dummy', NODE_OPTIONS='dummy', PYTHONPATH='dummy')
+        source.update(source_extra or {})
+        redactor = SecretRedactor(source=source)
+        builder = EnvironmentBuilder(protected_value=redactor.protected_value)
+        environment = builder.build(source, additional={})
+        shell = ShellTool(descriptor=descriptor, cwd=tmp_path, environment=environment)
+        ready, requested = Event(), []
+        gate = ApprovalGate(on_required=lambda r: (requested.append(r), ready.set()))
+        actor = gate.register_actor('desktop_host', lambda: True)
+        service = EnvironmentService(builder, redactor, source=source)
+        rt = ToolRuntime(ToolRegistry([shell]), approval_gate=gate, redactor=redactor,
+            environment_service=service)
+        rt.install_authority(tmp_path, 'session')
+        script = tmp_path/'fixture.py'; script.write_text(code, encoding='utf-8')
+        def quoted(s):
+            return "'"+str(s).replace("'","''" if descriptor.kind == 'powershell' else "'\\''")+"'"
+        command = ('&amp; ' if descriptor.kind == 'powershell' else '')+quoted(sys.executable)+' -I -S '+quoted(script)
+        inv = invocation(tmp_path, arguments={'command':command}, environment=environment)
+        if selection is not None:
+            rt.select_operation_environment(inv, selection)
+        results = []
+        worker = Thread(target=lambda: results.append(rt.execute(inv)), daemon=True)
+        worker.start()
+        try:
+&gt;           assert ready.wait(5), ('native script requires exact human gate', [r.to_dict() for r in results])
+E           AssertionError: ('native script requires exact human gate', [{'status': 'denied', 'effectState': 'none', 'stdout': '', 'stderr': '', ...}])
+E           assert False
+E            +  where False = wait(5)
+E            +    where wait = &lt;threading.Event at 0x2394df3d480: unset&gt;.wait
+
+tests\security_v12\test_s6_host.py:60: AssertionError</failure></testcase></testsuite></testsuites>

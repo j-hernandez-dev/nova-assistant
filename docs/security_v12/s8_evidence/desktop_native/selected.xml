@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="201.401" timestamp="2026-10-04T14:41:29.751508-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_electron_renderer_backend_same_application[scripted_lifecycle]" file="tests\security_v12\test_s8_e2e.py" line="200" time="6.668" /><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_electron_renderer_backend_same_application[local_ollama]" file="tests\security_v12\test_s8_e2e.py" line="200" time="182.778"><failure message="AssertionError: &#10;  Starting Python server: python -m local_cli --server&#10;  Working directory: C:\Users\joseh\Downloads\nova-local-cli\nova-assistant&#10;  Python process exited with code null&#10;  Error: Timeout: real Ollama response&#10;      at until (C:\Users\joseh\Downloads\nova-local-cli\nova-assistant\desktop\tests\electron_phase13.cjs:85:9)&#10;      at async C:\Users\joseh\Downloads\nova-local-cli\nova-assistant\desktop\tests\electron_phase13.cjs:136:7&#10;  LAST_VIEW: {&quot;sessionId&quot;:&quot;ses_cd631adfe0fa463daea21d23e2ef6635&quot;,&quot;sequence&quot;:2,&quot;stateRevision&quot;:2,&quot;workspace&quot;:&quot;C:\\Users\\joseh\\AppData\\Local\\Temp\\s8_private_1nek0y00\\selected\\test_real_electron_renderer_ba1&quot;,&quot;status&quot;:{&quot;model&quot;:&quot;qwen2.5:7b&quot;,&quot;provider&quot;:&quot;ollama&quot;,&quot;connected&quot;:true,&quot;ready&quot;:true,&quot;tools&quot;:[&quot;bash&quot;,&quot;read&quot;,&quot;write&quot;,&quot;edit&quot;,&quot;glob&quot;,&quot;grep&quot;,&quot;web_fetch&quot;,&quot;todo_write&quot;,&quot;ask_user&quot;,&quot;agent&quot;]},&quot;messages&quot;:[{&quot;id&quot;:&quot;ses_cd631adfe0fa463daea21d23e2ef6635:2&quot;,&quot;sourceIndex&quot;:2,&quot;role&quot;:&quot;user&quot;,&quot;content&quot;:&quot;Responde exactamente NOVA_DESKTOP_OLLAMA_OK. No uses herramientas.&quot;},{&quot;role&quot;:&quot;assistant&quot;,&quot;content&quot;:&quot;&quot;,&quot;thinking&quot;:true,&quot;id&quot;:&quot;turn_195b4553e4c04b95841100a8ea51c541:0&quot;,&quot;streaming&quot;:true}],&quot;activeTurnId&quot;:&quot;turn_195b4553e4c04b95841100a8ea51c541&quot;,&quot;activeGenerationId&quot;:null,&quot;approvals&quot;:[],&quot;inputs&quot;:[],&quot;resumable&quot;:null,&quot;rag&quot;:{&quot;enabled&quot;:false,&quot;availability&quot;:&quot;DISABLED&quot;,&quot;topK&quot;:5,&quot;error&quot;:null},&quot;ragProgress&quot;:&quot;&quot;,&quot;ragResult&quot;:null,&quot;error&quot;:null,&quot;gap&quot;:false,&quot;fileRevision&quot;:0}&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\desktop\\node_modules\\electron\\...ity&quot;:&quot;DISABLED&quot;,&quot;topK&quot;:5,&quot;error&quot;:null},&quot;ragProgress&quot;:&quot;&quot;,&quot;ragResult&quot;:null,&quot;error&quot;:null,&quot;gap&quot;:false,&quot;fileRevision&quot;:0}\n').returncode">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_1nek0y00/selected/test_real_electron_renderer_ba1')
+real = True
+
+    @pytest.mark.parametrize('real',[False,True],ids=['scripted_lifecycle','local_ollama'])
+    def test_real_electron_renderer_backend_same_application(tmp_path,real):
+        desktop=ROOT/'desktop';executable=desktop/'node_modules/electron/dist/electron.exe'
+        assert os.name=='nt','This S8 supports Windows; do not silently skip required E2E'
+        assert executable.exists() and (desktop/'dist-electron/main.js').exists(),'Authorized build required'
+        env=env_for(tmp_path)
+        env.update(NOVA_TEST_WORKSPACE=str(tmp_path),NOVA_TEST_PYTHON=sys.executable,
+            XDG_CONFIG_HOME=str(tmp_path/'config'),LOCAL_CLI_MODEL='qwen2.5:7b' if real else 'local:7b')
+        (tmp_path/'sample.txt').write_text('sample file: ¡Unicode 🧠!',encoding='utf-8')
+        if real:
+            require_model('qwen2.5:7b');env['NOVA_REAL_OLLAMA_E2E']='1'
+        else:env.pop('NOVA_REAL_OLLAMA_E2E',None)
+        result=subprocess.run([str(executable),'tests/electron_s8.cjs'],cwd=desktop,env=env,
+            capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=360,
+            creationflags=subprocess.CREATE_NO_WINDOW)
+        observations('desktop_real' if real else 'desktop_scripted',{'exitCode':result.returncode,
+            'stdout':result.stdout,'stderr':result.stderr,'providerScripted':not real,
+            'electronReal':True,'gpuProbed':False})
+&gt;       assert result.returncode==0,result.stdout+result.stderr
+E       AssertionError: 
+E         Starting Python server: python -m local_cli --server
+E         Working directory: C:\Users\joseh\Downloads\nova-local-cli\nova-assistant
+E         Python process exited with code null
+E         Error: Timeout: real Ollama response
+E             at until (C:\Users\joseh\Downloads\nova-local-cli\nova-assistant\desktop\tests\electron_phase13.cjs:85:9)
+E             at async C:\Users\joseh\Downloads\nova-local-cli\nova-assistant\desktop\tests\electron_phase13.cjs:136:7
+E         LAST_VIEW: {"sessionId":"ses_cd631adfe0fa463daea21d23e2ef6635","sequence":2,"stateRevision":2,"workspace":"C:\\Users\\joseh\\AppData\\Local\\Temp\\s8_private_1nek0y00\\selected\\test_real_electron_renderer_ba1","status":{"model":"qwen2.5:7b","provider":"ollama","connected":true,"ready":true,"tools":["bash","read","write","edit","glob","grep","web_fetch","todo_write","ask_user","agent"]},"messages":[{"id":"ses_cd631adfe0fa463daea21d23e2ef6635:2","sourceIndex":2,"role":"user","content":"Responde exactamente NOVA_DESKTOP_OLLAMA_OK. No uses herramientas."},{"role":"assistant","content":"","thinking":true,"id":"turn_195b4553e4c04b95841100a8ea51c541:0","streaming":true}],"activeTurnId":"turn_195b4553e4c04b95841100a8ea51c541","activeGenerationId":null,"approvals":[],"inputs":[],"resumable":null,"rag":{"enabled":false,"availability":"DISABLED","topK":5,"error":null},"ragProgress":"","ragResult":null,"error":null,"gap":false,"fileRevision":0}
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\desktop\\node_modules\\electron\\...ity":"DISABLED","topK":5,"error":null},"ragProgress":"","ragResult":null,"error":null,"gap":false,"fileRevision":0}\n').returncode
+
+tests\security_v12\test_s8_e2e.py:219: AssertionError</failure></testcase><testcase classname="tests.security_v12.test_s8_e2e" name="test_native_jsonl_spoof_rejected_and_exact_host_denial" file="tests\security_v12\test_s8_e2e.py" line="150" time="11.761"><failure message="AssertionError: {'sessionId': 'ses_8fc431629f79424d9b9953064767cf58', 'workspace': 'C:\\Users\\joseh\\AppData\\Local\\Temp\\s8_private_1nek0y00\\selected\\test_native_jsonl_spoof_reject0', 'model': 'qwen2.5:7b', 'status': 'active', ...}&#10;assert None">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_1nek0y00/selected/test_native_jsonl_spoof_reject0')
+
+    def test_native_jsonl_spoof_rejected_and_exact_host_denial(tmp_path):
+        from local_cli.interfaces.approval_proof import approval_proof
+        key='ab'*32;peer=Peer(tmp_path,'--fixture',key)
+        try:
+            ident,_=peer.command('SubmitUserInput',{'content':'approval'})
+            result=peer.wait(lambda f:f.get('type')=='application_result' and f.get('id')==ident,10)
+            assert result['data']['accepted']
+            # Approval is sensitive; use the authorized session-owner snapshot.
+            deadline=time.monotonic()+10;request=None
+            while time.monotonic()&lt;deadline:
+                state=peer.snapshot()
+                if state.get('pendingApprovals'):
+                    request=state['pendingApprovals'][0];break
+                time.sleep(.05)
+&gt;           assert request,state
+E           AssertionError: {'sessionId': 'ses_8fc431629f79424d9b9953064767cf58', 'workspace': 'C:\\Users\\joseh\\AppData\\Local\\Temp\\s8_private_1nek0y00\\selected\\test_native_jsonl_spoof_reject0', 'model': 'qwen2.5:7b', 'status': 'active', ...}
+E           assert None
+
+tests\security_v12\test_s8_e2e.py:165: AssertionError</failure></testcase></testsuite></testsuites>

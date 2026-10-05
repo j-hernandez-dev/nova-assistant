@@ -101,8 +101,11 @@ class SessionLogger:
         cwd: str | None = None,
         enabled: bool | None = None,
         session_id: str | None = None,
+        redactor=None,
     ) -> None:
         self._enabled = session_log_enabled() if enabled is None else bool(enabled)
+        from local_cli.application.secrets import SecretRedactor
+        self.redactor = redactor or SecretRedactor()
         self._broken = False
         self._fh: Any = None
         self._lock = threading.Lock()
@@ -151,7 +154,11 @@ class SessionLogger:
             **fields,
         }
         try:
-            line = json.dumps(record, ensure_ascii=False, default=str)
+            # Redact before clipping/serialization: a clip must not retain a
+            # credential prefix. Also cover exception objects/default=str.
+            record = self.redactor.value(record)
+            line = json.dumps(record, ensure_ascii=False,
+                default=lambda value: self.redactor.text(str(value)))
             with self._lock:
                 if self._fh is None:
                     self._dir.mkdir(parents=True, exist_ok=True)
@@ -199,7 +206,7 @@ class SessionLogger:
         )
 
     def log_user(self, text: str) -> None:
-        self.log("user", content=_clip(text))
+        self.log("user", content=_clip(self.redactor.text(text)))
 
     def log_turn_end(self, error: bool = False) -> None:
         """Close out one user turn with the layer-diagnosis counters."""
@@ -243,7 +250,7 @@ class SessionLogger:
             return
         try:
             kind = event.kind
-            data = event.data
+            data = self.redactor.value(event.data)
             if kind == "content_delta":
                 self._visible_chars += len(data.get("text", "") or "")
             elif kind == "thinking_delta":

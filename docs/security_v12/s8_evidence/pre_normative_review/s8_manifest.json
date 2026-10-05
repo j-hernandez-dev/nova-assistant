@@ -1,0 +1,1120 @@
+{
+  "schemaVersion": 1,
+  "phase": "S8",
+  "status": "PARTIAL",
+  "gate": "NOT_SATISFIED",
+  "NOVA_SECURITY_V1_2_READY": false,
+  "userContextDate": "2026-10-04",
+  "platform": "Windows 11, local NTFS",
+  "processModel": "HOST_UNISOLATED",
+  "baseline": {
+    "head": "158b60effa484cd34a58b991f3ee4ca3f808d924",
+    "branch": "main",
+    "staged": [],
+    "s7Status": "PASS",
+    "s7PinsVerifiedBeforeChanges": 149,
+    "s7MismatchesBeforeChanges": [],
+    "snapshot": "docs/security_v12/s8_evidence/before.json",
+    "tests": {
+      "pythonPassed": 1248,
+      "subtestsPassed": 10,
+      "nodePassed": 12,
+      "optionalOllamaSmokeSkipped": 1,
+      "gpuDeselected": 3
+    },
+    "evidence": "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/run.json"
+  },
+  "preservation": {
+    "staged": [],
+    "head": "158b60effa484cd34a58b991f3ee4ca3f808d924",
+    "branch": "main",
+    "changed": [
+      "local_cli/git_capability.py",
+      "tests/test_nova_core_phase14_platform.py"
+    ],
+    "historicalSecurityUnchanged": 648,
+    "missing": [],
+    "files": 1004,
+    "historicalManualSymlinkEvidence": "docs/security_v12/s3_evidence/after_symlink_permission",
+    "earlierWinError1314EvidencePreserved": true,
+    "verification": "docs/security_v12/s8_evidence/verification.json"
+  },
+  "implementation": {
+    "productChanges": [
+      "local_cli/git_capability.py"
+    ],
+    "existingTestChanges": [
+      "tests/test_nova_core_phase14_platform.py"
+    ],
+    "newTestAndSetupFiles": [
+      "tests/security_v12/test_s8_adversarial.py",
+      "tests/security_v12/s8_backend_entry.py",
+      "tests/security_v12/test_s8_e2e.py",
+      "tests/security_v12/test_s8_git.py",
+      "tests/security_v12/test_s8_contracts.py",
+      "tests/security_v12/run_s8.py",
+      "tests/security_v12/test_s8_host.py",
+      "desktop/tests/finish_electron_s8.cjs",
+      "desktop/tests/electron_s8.cjs"
+    ],
+    "documents": [
+      "docs/security_v12/s8_limits.md",
+      "docs/security_v12/s8_matrix.json",
+      "docs/security_v12/s8_resultados.md",
+      "docs/security_v12/s8_manifest.json"
+    ],
+    "deprecatedCodeReadCopiedMigratedOrReused": false,
+    "publicSchemaChanged": false,
+    "coreLifecycleChanged": false,
+    "newSecurityDependencies": false,
+    "nextPhaseImplemented": false,
+    "commit": false,
+    "push": false,
+    "gitChange": "Two read-only capability probes explicitly close stdin/control inheritance (DEVNULL + close_fds), preserving commands, timeout, cwd and optional degradation",
+    "coreNativeFixtureChange": "UTF-8 configured in the fixture script and compatible LANG; no weakening of productive S6 environment allowlist"
+  },
+  "coverage": {
+    "announcedInvariants": 28,
+    "mappedInvariants": 28,
+    "passedMappedFamilies": 23,
+    "blockedNativeFixtureInvariants": 2,
+    "partialRequiredE2EInvariants": 3,
+    "notExecutedMappedFamilies": 0,
+    "familyLevelNote": "Coverage/family PASS is not a formal or universal proof. A failure of multi-tool copy does not by itself establish a violation of renderer authority, unique terminal or external dependency invariants. Conservatively those mapped families stay partial.",
+    "invariants": [
+      {
+        "id": "SEC12-INV-001",
+        "files": [
+          "tests/security_v12/test_s2_runtime.py",
+          "tests/security_v12/test_s4_host.py"
+        ],
+        "claim": "Ruta única principal/hijo, sin adapters legacy.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/s4_process.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-002",
+        "files": [
+          "tests/security_v12/test_s1_issuer.py",
+          "tests/security_v12/test_s8_adversarial.py",
+          "tests/security_v12/test_s2_approvals.py"
+        ],
+        "claim": "Texto no confiable/renderer nunca crean grants.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-003",
+        "files": [
+          "tests/security_v12/test_s1_contracts.py",
+          "tests/security_v12/test_s1_issuer.py"
+        ],
+        "claim": "Algebra lógica grant/ceiling.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-004",
+        "files": [
+          "tests/security_v12/test_s1_issuer.py",
+          "tests/security_v12/test_s1_contracts.py"
+        ],
+        "claim": "Bindings, one-shot, revisiones, revocación.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-005",
+        "files": [
+          "tests/security_v12/test_s4_contracts.py",
+          "tests/security_v12/test_s8_host.py"
+        ],
+        "claim": "Approval consiente un launch; no limita autoridad OS.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/s8_host.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-006",
+        "files": [
+          "tests/security_v12/test_s8_contracts.py"
+        ],
+        "claim": "Texto de cuenta normal en CLI/Desktop y límites publicados.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-007",
+        "files": [
+          "tests/security_v12/test_s8_contracts.py",
+          "tests/security_v12/test_s4_contracts.py"
+        ],
+        "claim": "Controles nativos sólo lifecycle; no naming sandbox.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-008",
+        "files": [
+          "tests/security_v12/test_s3_runtime.py",
+          "tests/security_v12/test_s3_windows.py"
+        ],
+        "claim": "Cinco tools mediadas, links/alias, sin fallback.",
+        "status": "BLOCKED_NATIVE_FIXTURE",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/s3_windows.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": [
+          "test_host_link_to_external_fixture_is_denied_for_all_tools[directory_symlink]",
+          "test_host_link_to_external_fixture_is_denied_for_all_tools[file_symlink]"
+        ]
+      },
+      {
+        "id": "SEC12-INV-009",
+        "files": [
+          "tests/security_v12/test_s8_contracts.py",
+          "tests/security_v12/test_s8_host.py"
+        ],
+        "claim": "Claim S3 no cubre syscalls del shell.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_native/s8_host.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-010",
+        "files": [
+          "tests/security_v12/test_s1_contracts.py",
+          "tests/security_v12/test_s3_windows.py"
+        ],
+        "claim": "Read no concede write.",
+        "status": "BLOCKED_NATIVE_FIXTURE",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/s3_windows.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": [
+          "test_host_link_to_external_fixture_is_denied_for_all_tools[directory_symlink]",
+          "test_host_link_to_external_fixture_is_denied_for_all_tools[file_symlink]"
+        ]
+      },
+      {
+        "id": "SEC12-INV-011",
+        "files": [
+          "tests/security_v12/test_s1_issuer.py",
+          "tests/security_v12/test_s2_runtime.py",
+          "tests/security_v12/test_s4_host.py"
+        ],
+        "claim": "Child autoridad lógica atenuada, misma ruta.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/s4_process.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-012",
+        "files": [
+          "tests/security_v12/test_s8_contracts.py"
+        ],
+        "claim": "Shell hijo HOST_UNISOLATED, no confinement del padre.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-013",
+        "files": [
+          "tests/security_v12/test_s4_host.py",
+          "tests/security_v12/test_s8_adversarial.py"
+        ],
+        "claim": "Elevación prohibida, sin fallback elevado.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_native/s4_process.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-014",
+        "files": [
+          "tests/security_v12/test_s4_host.py"
+        ],
+        "claim": "Stdin cerrado y handle fixture no transferido.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_native/s4_process.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-015",
+        "files": [
+          "tests/security_v12/test_s6_host.py",
+          "tests/security_v12/test_s6_environment.py"
+        ],
+        "claim": "Secretos dummy no heredados por defecto.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/s6_secrets.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-016",
+        "files": [
+          "tests/security_v12/test_s5_runtime.py"
+        ],
+        "claim": "file/data DENY sin lectura FS.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-017",
+        "files": [
+          "tests/security_v12/test_s8_contracts.py",
+          "tests/security_v12/test_s5_runtime.py"
+        ],
+        "claim": "Red shell host; provider separado; no firewall.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-018",
+        "files": [
+          "tests/security_v12/test_s4_host.py",
+          "tests/test_nova_core_phase7_session.py"
+        ],
+        "claim": "Cancel solicitado no inventa terminal.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/core_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/s4_process.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-019",
+        "files": [
+          "tests/security_v12/test_s8_adversarial.py",
+          "tests/security_v12/test_s4_host.py",
+          "tests/security_v12/test_s7_durable_runtime.py"
+        ],
+        "claim": "Outcome desconocido conserva efecto, no retry.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/s4_process.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-020",
+        "files": [
+          "tests/security_v12/test_s7_contracts.py",
+          "tests/security_v12/test_s7_persistence.py",
+          "tests/security_v12/test_s6_redaction.py"
+        ],
+        "claim": "Audit redactado/codec estricto, sin bearer.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-021",
+        "files": [
+          "tests/security_v12/test_s2_approvals.py",
+          "tests/security_v12/test_s8_e2e.py"
+        ],
+        "claim": "IPC/backend actor y Electron real, no autoridad local.",
+        "status": "PARTIAL_REQUIRED_E2E",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_e2e/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": [
+          "test_real_ollama_normal_backend_multitool_and_durable_audit"
+        ]
+      },
+      {
+        "id": "SEC12-INV-022",
+        "files": [
+          "tests/security_v12/test_s7_durable_runtime.py",
+          "tests/test_nova_core_phase7_session.py",
+          "tests/security_v12/test_s8_e2e.py"
+        ],
+        "claim": "Terminal Core exclusivo; crash/reconnect.",
+        "status": "PARTIAL_REQUIRED_E2E",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/core_regression.xml",
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_e2e/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": [
+          "test_real_ollama_normal_backend_multitool_and_durable_audit"
+        ]
+      },
+      {
+        "id": "SEC12-INV-023",
+        "files": [
+          "tests/security_v12/test_s8_contracts.py",
+          "tests/security_v12/test_s8_e2e.py"
+        ],
+        "claim": "Sin dependencias externas de seguridad; Electron es aplicación.",
+        "status": "PARTIAL_REQUIRED_E2E",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml",
+          "docs/security_v12/s8_evidence/final_e2e/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": [
+          "test_real_ollama_normal_backend_multitool_and_durable_audit"
+        ]
+      },
+      {
+        "id": "SEC12-INV-024",
+        "files": [
+          "tests/test_nova_core_phase14_architecture.py"
+        ],
+        "claim": "AST dependencias hacia dentro.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/core_regression.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-025",
+        "files": [
+          "tests/security_v12/test_s8_adversarial.py",
+          "tests/security_v12/test_s3_runtime.py",
+          "tests/security_v12/test_s5_runtime.py"
+        ],
+        "claim": "Errores tipados, no éxito vacío.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-026",
+        "files": [
+          "tests/security_v12/test_s8_contracts.py",
+          "tests/security_v12/test_s4_contracts.py",
+          "tests/security_v12/test_s8_host.py"
+        ],
+        "claim": "Scope proceso intención lógica, no límite OS.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/s8_host.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-027",
+        "files": [
+          "tests/security_v12/test_s8_adversarial.py",
+          "tests/security_v12/test_s2_approvals.py"
+        ],
+        "claim": "Injection/--yes/headless no evitan Policy/Approval.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_regression/security_regression.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      },
+      {
+        "id": "SEC12-INV-028",
+        "files": [
+          "tests/security_v12/test_s8_contracts.py",
+          "tests/security_v12/test_s4_host.py"
+        ],
+        "claim": "BEST_EFFORT tree cleanup, sólo dimensión observada.",
+        "status": "PASS",
+        "evidence": [
+          "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml",
+          "docs/security_v12/s8_evidence/final_native/s4_process.xml",
+          "docs/security_v12/s8_evidence/final_native/selected.xml"
+        ],
+        "missingFamilies": [],
+        "failingCasesInMappedFamilies": []
+      }
+    ]
+  },
+  "tests": {
+    "regression": {
+      "pythonPassed": 1298,
+      "subtestsPassed": 10,
+      "optionalSkipped": 1,
+      "gpuDeselected": 3,
+      "nodePassed": 28,
+      "typescript": "PASS",
+      "viteBuild": "PASS",
+      "groups": {
+        "s8": 50,
+        "security": 554,
+        "core": 694
+      },
+      "extraExistingGitCasesPassed": 8,
+      "evidence": "docs/security_v12/s8_evidence/final_regression/run.json"
+    },
+    "hostReal": {
+      "passed": 91,
+      "fixtureFailures": 2,
+      "skipped": 0,
+      "evidence": "docs/security_v12/s8_evidence/final_native/run.json",
+      "groups": [
+        {
+          "name": "S3 Windows broker",
+          "passed": 23,
+          "failed": 2,
+          "fixtureCreatedForTwoSymlinks": false,
+          "brokerExecutedForTwoSymlinks": false,
+          "error": "WinError 1314"
+        },
+        {
+          "name": "S4 process/lifecycle/channels/output",
+          "passed": 29,
+          "failed": 0
+        },
+        {
+          "name": "S5 HTTP/TLS/IPv4/IPv6",
+          "passed": 28,
+          "failed": 0,
+          "fixtureResolverAndPublicAdmissionSubstitution": true,
+          "defaultProductPrivatePolicyUnchanged": true
+        },
+        {
+          "name": "S6 environment/secrets",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "name": "S8 destructive allow/deny and shell versus mediated filesystem",
+          "passed": 3,
+          "failed": 0,
+          "inProcessTestApprovalActor": true,
+          "humanNativeDialog": false
+        },
+        {
+          "name": "Core native shell/cwd/Unicode/fallback",
+          "passed": 4,
+          "failed": 0
+        }
+      ]
+    },
+    "e2e": {
+      "passed": 4,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 140.64,
+      "evidence": "docs/security_v12/s8_evidence/final_e2e/run.json",
+      "cases": [
+        {
+          "name": "real_ollama_normal_backend_multitool_and_durable_audit",
+          "status": "FAIL",
+          "model": "qwen2.5:7b",
+          "nativeBackend": true,
+          "scriptedInference": false,
+          "reason": "Read returned the real fixture marker; write received model-generated placeholder read(result.txt). Literal final-content criterion failed, despite successful read/write/read and Turn completion.",
+          "transcript": "docs/security_v12/s8_evidence/final_e2e/ollama_backend_attempt.json"
+        },
+        {
+          "name": "native_jsonl_spoof_rejected_and_exact_host_denial",
+          "status": "PASS",
+          "scriptedInference": true,
+          "nativeJsonlApplication": true,
+          "hostProofIsTestCredential": true,
+          "observations": "docs/security_v12/s8_evidence/final_e2e/native_jsonl_approval.json"
+        },
+        {
+          "name": "real_cli_local_model_read_and_productive_audit",
+          "status": "PASS",
+          "model": "qwen2.5:7b",
+          "scriptedInference": false,
+          "observations": "docs/security_v12/s8_evidence/final_e2e/ollama_cli.json"
+        },
+        {
+          "name": "real_electron_renderer_backend_same_application[scripted_lifecycle]",
+          "status": "PASS",
+          "electronReal": true,
+          "scriptedInferenceAndEmbeddings": true,
+          "gitCapabilityScriptedUnavailable": true,
+          "observations": "docs/security_v12/s8_evidence/final_e2e/desktop_scripted.json"
+        },
+        {
+          "name": "real_electron_renderer_backend_same_application[local_ollama]",
+          "status": "PASS",
+          "electronReal": true,
+          "model": "qwen2.5:7b",
+          "scriptedInference": false,
+          "gitUnavailableRealPath": true,
+          "observations": "docs/security_v12/s8_evidence/final_e2e/desktop_real.json"
+        }
+      ]
+    },
+    "injection": {
+      "cases": 5,
+      "providerAndEffectPortsScripted": true,
+      "realCoordinatorToolRuntimeAndCliDenial": true,
+      "provesHostAuthorityBoundaryNotUniversalModelAlignment": true
+    },
+    "coreUnitRegression": "PASS",
+    "coreNativeRegression": "PASS",
+    "localMultitoolCoreEquivalentSmoke": "FAIL",
+    "junitCaseCountsIncludeTenCoreSubtests": true,
+    "doNotDoubleCountRepeatedSelectedGroups": true
+  },
+  "gateCriteria": [
+    {
+      "criterion": "Baseline and all earlier evidence preserved",
+      "status": "PASS"
+    },
+    {
+      "criterion": "Architectural/public schema boundaries and no deprecated code reuse",
+      "status": "PASS"
+    },
+    {
+      "criterion": "28 invariant families mapped and executed",
+      "status": "PASS",
+      "qualifier": "mapping is not gate PASS"
+    },
+    {
+      "criterion": "All required native FS alias/reparse cases",
+      "status": "BLOCKED",
+      "reason": "Two fixtures never created; WinError 1314; historical S3 PASS is preserved but not substituted"
+    },
+    {
+      "criterion": "S4/S5/S6/S7, adversarial authority, honest outcomes and audit",
+      "status": "PASS",
+      "qualifier": "within observed and declared fixture/surface limits"
+    },
+    {
+      "criterion": "CLI/Desktop shared Application and real installed Ollama",
+      "status": "PASS",
+      "qualifier": "read/reply and Desktop lifecycle/reload, not failing multi-tool criterion"
+    },
+    {
+      "criterion": "Real Ollama Core-equivalent single-Turn multi-tool literal-copy smoke",
+      "status": "FAIL"
+    },
+    {
+      "criterion": "Git unavailable real path and RAG optional non-fatal fixture",
+      "status": "PASS"
+    },
+    {
+      "criterion": "Relevant Core unit/integration/native regression",
+      "status": "PASS",
+      "qualifier": "does not include the separate failed local multi-tool smoke"
+    },
+    {
+      "criterion": "Published HOST_UNISOLATED claims by surface",
+      "status": "PASS",
+      "evidence": "docs/security_v12/s8_limits.md"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "S8-BLOCK-01",
+      "status": "BLOCKED_ENVIRONMENT",
+      "requiredAction": "Fresh host-real run in a user-authorized context capable of creating file and directory symlinks; both must actually execute the broker and pass",
+      "failedCases": [
+        "directory_symlink",
+        "file_symlink"
+      ],
+      "historicalPassDoesNotCloseCurrentGate": true,
+      "systemConfigurationChanged": false
+    },
+    {
+      "id": "S8-BLOCK-02",
+      "status": "FAIL_LOCAL_E2E",
+      "requiredAction": "Resolve real local multi-tool copy failure without weakening final content/order/terminal/approval criteria or replacing the provider with a scripted model",
+      "candidate9B": "Also failed: requested ls -la against instructions; REQUIRE_APPROVAL remained pending and no automatic host consent or effect occurred",
+      "evidence": "docs/security_v12/s8_evidence/local_final_candidate/backend_failure.json",
+      "gpuOrModelConfigurationChanged": false
+    }
+  ],
+  "debt": [
+    "Complete pending S8 native symlink and real multi-tool criteria; repeat fresh evidence and review before PASS",
+    "Linux/macOS not recertified by Windows evidence"
+  ],
+  "openDecisions": {
+    "newS8": [],
+    "priorOD01To05": "Human choices preserved",
+    "OD06AndOD07": "Future decisions, not resolved or implemented here"
+  },
+  "nextLogicalStep": "Close pending S8 only, then evaluate NOVA_SECURITY_V1_2_READY; no later implementation authorized",
+  "setup": "docs/security_v12/s8_evidence/setup_incidents.json",
+  "noGpuInspectionOrTuning": true,
+  "noModelDownload": true,
+  "noCloud": true,
+  "sourceAndArtifactPinsSHA256": {
+    "local_cli/shell_policy.py": "9BC686182A291CD6EA2E4B8A6876FA82E1B08DF3B57345E5DB62CEB408A58DC4",
+    "desktop/src/components/FileExplorer.tsx": "280074456A7D186C3650E9859712781808DB61A7413D32D1BE0CEB7AA86FCAB7",
+    "local_cli/core/event_limits.py": "AFA4500A459A3CDD6466C374C3EC46A6FF8149B02750E78FAAC62B19BBCDEABE",
+    "local_cli/context_sizing.py": "899BF70CFA17A8E6558E0AC1D07CB8AF9E57AA232F6EC82348B8513B3903AD59",
+    "local_cli/audit_config.py": "06F073A5501977FD577EC9BF3D1BB04A7C7245460A241C0D5DF379452F82B60C",
+    "local_cli/model_manager.py": "1B31115B981A4E98B45A4DF9303FD97839BA54360B3FB319B94E9E3D1FB5ACAA",
+    "local_cli/rag.py": "3F6964F444361641F1C55BAFAD818D5543FBE9F84BF764245D85F52A74910407",
+    "tests/test_git_capability.py": "649AD56964064A7128852B4927064A576D675F9BB537274F11938FA137B7ADEC",
+    "local_cli/infrastructure/__init__.py": "89779D3859251CA20FF44C1A18AF76301396A8BE846C18BE4107078FF89CE211",
+    "local_cli/infrastructure/legacy_ideation.py": "87B9CAB79C8B816AE8C86D23271BD879AF10662234D54D462CB75029B8AD32FD",
+    "local_cli/model_catalog.py": "83D0EBE5E11A31F448623904B17542924FD6E96F31C9C3AA7D2DC8C166CF2207",
+    "local_cli/core/runtime.py": "C878857F1DC51C1D5369265A18B64A2654BF2CD017FE3F535DD42A06EAC70F0C",
+    "local_cli/application/interactions.py": "67FC56621DCEF0590A9E742F32C36EF8F8D04C5942AAD6E83BF971E860F5A009",
+    "local_cli/process_config.py": "0D3149CAB20D70DBB4B0A8AD58882FAA118A3028C056543C88CAB4FFD14B8DBF",
+    "local_cli/__init__.py": "243CACC54F72D25537C3D69EF0AEECBFB3271F0BAE5BCD6C1B6155996AB6083F",
+    "local_cli/server.py": "6EE63098C9CFF9D3CAE7B9FEF548709F97F6A921E96F5ECB7F44016E84AFFC54",
+    "local_cli/tools/glob_tool.py": "7DD7E25733DF2E9B57CE50FCDD0ED49F800BF54ED2D72FEC4A07E4DB2E3B905F",
+    "local_cli/health_check.py": "6A3BBF18A6D1453D21DDD35646706607C7619B9E8ABC2F3BB346D29240F9C682",
+    "local_cli/infrastructure/persistence.py": "D010DEB947D5330FF3BEEAF64E3D0858DF60C5B9E61CECDA6A80E77D43B06C65",
+    "local_cli/core/network.py": "5A03A1C8067E84843857386C3585E57917583F1CB26B3459E25B34417EAC76D5",
+    "local_cli/ollama_client.py": "6AEE7B10CFC834F117204C1C5C447ADB01FAC95C0C03ED68B55F1EE741D9BF80",
+    "local_cli/plan_manager.py": "74CCEC51DE53FF45D819C9838E5612EE9EB34F66CB38A3C8104BBCBEE7D2D1F1",
+    "desktop/electron/approval_host.d.cts": "799D5757CFC7A77F43F3E22354001BFFB778CC4A87815E9F849693CAAA22B79D",
+    "local_cli/infrastructure/http_fetch.py": "EB59C67AF303AD436C059D167D7D85A2B00CC66F25B30CDE7686A53D459C2A9C",
+    "local_cli/application/legacy_runtime.py": "4B152E40F8440D948BF3FDD119ABDEA571D0C43C729C71621E79C8102BBD0D16",
+    "local_cli/providers/sse_parser.py": "853EED99A61788F66A9BADFE3973E189CC2E5F36148CE0035EBE010F3D5CE261",
+    "local_cli/git_capability.py": "E57AF8F69565B59AE5524289CFB9E3FF7E351F82881379A52BBDBBB22A91C937",
+    "desktop/package.json": "5665732279E3B1F064AE46CCB955695AB0ADBA27331E48BB0FEBC702B4DCAB1D",
+    "local_cli/tools/write_tool.py": "5CEE9744884EC34E9E909A7A3EF2FC323C1577083CD47BD75E13FA71AD81D42A",
+    "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md": "B13814A0F1C99528AB4F4D2F5C874DACDC1017C8F3F13B1053C90C67EB848147",
+    "local_cli/infrastructure/windows_filesystem.py": "8DA7D10C111A199923C4A90BEFF7864B86391EBA97C1D491CA9E861ECB1B7AE1",
+    "local_cli/sub_agent.py": "B36165DB1EAA4460CE9DB1B21690EA6CC30C50FB8FEAC26342C54116998A9B63",
+    "local_cli/interfaces/cli_application.py": "A78153911A468869AD9884651F5CC7AFDFC7FE17A23EAB620CEA9B7968BEE970",
+    "local_cli/interfaces/__init__.py": "429CA145EEE86A9AFF8F3AD43A71654A9413C2DEC9456D638252F2CA71D757BE",
+    "local_cli/application/security_audit.py": "3095CD173F4D2DA13D0D580C3D75D205BC86FBEC2D4A1E0AF462D6B887E95DA3",
+    "tests/security_v12/test_s8_adversarial.py": "8230FC1D6C0746BBE417B495A812817A01B034A65CBF5F455542DB90FCBFFD24",
+    "local_cli/bootstrap_server.py": "8C13CDA63E1EBD81353FA5F4B0C12C2BBCC9E1AE097CB561478DDE159A2CC04F",
+    "local_cli/core/persistence.py": "53D54367D278F02D3D951BF2A102B638E075A55711FE5AB0E7784E6942D54135",
+    "local_cli/application/session.py": "9F692CB67212D99859345E1BD54B29724D32A13CAB19F972CBE2B498B68E492A",
+    "local_cli/shell_executor.py": "30EEC5D2A8C76E20A858BF818A4563E0C2D94626E26B25F8079BE2ECC9772A1A",
+    "docs/security_v12/s8_limits.md": "5FCA46D6B87765C2718A9E8B28158C50480F755AE567ADCD78027ABECCB8FE16",
+    "local_cli/agent.py": "B543971D8585656143E262219F08DB9D5B91FAC79C99F35077017F3BFC42459C",
+    "local_cli/tools/edit_tool.py": "C45513362E2182804AFCBAD526FF2E03AFFA9391A8836CD49347C6683FD19F22",
+    "desktop/src/components/FileViewer.tsx": "0F1050BDA9335150E79B99A141DDE0A4F94FD426A0AA858D5A508BD4DA28176C",
+    "local_cli/infrastructure/rag.py": "03E0C94A5B301186BC26C16B29C3BB1F1C78947824437A1620C6CB09C4AFB37F",
+    "local_cli/tools/agent_tool.py": "C3C2E1E89A85D37AA2FE444594833229F40435F27BD12F8002058C4E5175A1C8",
+    "local_cli/application/commands.py": "1BC1CB1F46075C00FC7FB4B6F9DCE4EC45D75F04FBD6A8EBC8EFFAD63249807D",
+    "local_cli/application/persistence.py": "4555022DC4E11248E43F5D600A0B51D59432A31A0341B5CA5E2C6DCF4708152B",
+    "desktop/electron/preload.ts": "9A9B76F32D1FD6509E6C139861D70BA86050ABB4A87788CACD09F358767F4C13",
+    "local_cli/knowledge.py": "821C819251D3519D88082AC775EF4CB9080F45EBF09F231DF8AD9BA82935A910",
+    "local_cli/core/__init__.py": "D9463ADE9A6B2314AEFABC690CDAD0FC5349ADFC8DF5D762C117143481BB1B93",
+    "local_cli/core/models.py": "B377C7F8C2EEC6AF56F31081329077573B1CCAACFDE32CAF8DD506013D7FA043",
+    "local_cli/core/rag.py": "FC0A1C896623E83CB2EAA62884B5676052866D012FEEE7817CD4EAA845260DE1",
+    "local_cli/providers/llama_server_provider.py": "705192E6473BBA0F44FDF13866DB44C4397E15FBD03D7C2A6BDACEE7E0496C95",
+    "tests/security_v12/s8_backend_entry.py": "6A974E4AD8FFEA84112E61CBACCAD11903BCE760838EB00215D2C87620F90040",
+    "local_cli/model_registry.py": "0ACC012AE30B55C7F21893F48C8A952912B35C0B6D75CEED53669020DEDCE710",
+    "local_cli/tools/todo_tool.py": "DDF5540D92499A1109663B9EE6377E6B2CD6C94AC0D491AE7BC55E170BB4AF8D",
+    "local_cli/application/secrets.py": "D6B15A37BC95AB23A9208D1C008B40FD053555DD6BA34989A184B9349083EE57",
+    "local_cli/orchestrator.py": "338B5A58F94849C49A47D4B33C3F6A5167CF4BB849AE9851B07767235764E6E2",
+    "local_cli/tools/base.py": "DF29B52E7FF3BA4DA988E620486B77A617D27C2EE0A1D145B78A7B95895B025C",
+    "local_cli/application/legacy_event_bridge.py": "D00A033AA3EBE962BD20CCB298324A0CEB73AC531A27AF402E2BE80EDCB427FF",
+    "tests/security_v12/test_s8_e2e.py": "69EC1501ABDE9FEF3E0ADB97893B2F17C42CDAF185BBAD18E7B743EC0DFD2CA0",
+    "local_cli/infrastructure/host_process.py": "4E73FFC98255439E540AA22348837693BA2307E744FBB5D35261CE2A5ADCA14F",
+    "local_cli/tools/read_tool.py": "1A2D7C0CD73F108E52FADF4D21044FAE1A3C253E1CEA9A6D4B5077A32B4F4774",
+    "local_cli/tools/_paths.py": "4CE982D9EEA99873AC92030F99BB2E268E7B683B6ADB5D54751D8544E4F10CBF",
+    "local_cli/project_map.py": "35D559AA32E5AB1121506BE6910FA1CE91E76F338DD0085497D6744685CF2F2A",
+    "local_cli/tools/_fileio.py": "732D21286D87219BFB7459BF1421D5EE357BCF3D36F550943FF0435FE50F8BC7",
+    "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md": "293E29C8EC956707AB0F3403235CE21F29EC472E99AA83E52B03428CF6B38273",
+    "local_cli/providers/ollama_provider.py": "740377E89CFBA5CD2B919A0E5A6284B6CF9FD0EBB7831691326984AEDAA57D7A",
+    "local_cli/infrastructure/filesystem_tools.py": "74516FBAA6E9C61E4E61CE30B957BBA59E52ED36545FCB7243AE572F2ABDEF21",
+    "tests/test_nova_core_phase14_platform.py": "AE8951B42A6F74BCAC2910E91DA6EB4783006262D3A9378F79F6828B61016BB8",
+    "desktop/tests/electron_phase13.cjs": "72B0AD576EB50F2F2FA404B038F48D38A5990A791D81CD422B3E97CA85026A93",
+    "desktop/src/components/MessageBlock.tsx": "074745CEF0FF561AD3F065951FB3403C2C080B54CA18E31B97ED557B4D575B49",
+    "local_cli/application/legacy_interactions.py": "E752A07BEA9813FBF18E2151C315A10847CDB0C8CBCB31A7F98BA42F8A61734F",
+    "local_cli/interfaces/jsonl_application.py": "48742CC561872AA5DAC9CD1BB85A5A327F2362565292EB78D03AE8B315D0B3FA",
+    "local_cli/infrastructure/filesystem_plan.py": "7B2AEF0266A2ED0A81D6A0527ECAFAEB7FDCCB9AC880AF045E8C9B62D5F96132",
+    "desktop/src/App.tsx": "5DF1C63804ADB5BF9D6B4CAF6A18710C3EB6D626CF772F20E6EEC3CA802D9127",
+    "local_cli/core/filesystem.py": "1E35EF221B8561962CF572C331D12FECB4193EFFED94A6157A55749E07671928",
+    "local_cli/infrastructure/capabilities.py": "8A86854A82D40A92831E47DFFB0EEEEB82F93BF1760E110D2A005A6F74C92A7C",
+    "local_cli/infrastructure/process_environment.py": "29C17AE78BDD6DEDFD349D825E8747372BBB08BA4724CC307B2FD025BDBC89A7",
+    "local_cli/tools/ask_user_tool.py": "74F677FD6B3F3D6ED9A6299580B5BD743E34E22E302029BF1053A3A22E5B225C",
+    "desktop/vite.config.ts": "200813D5AFDD6227717B3A616AC142A7079A183461DBDDEBDB107126527F0616",
+    "desktop/src/components/ModelPicker.tsx": "739BAD625958491F401CA044F47F324A9131853417AC73BDA45930E3BFBF0351",
+    "local_cli/legacy_contracts.py": "D1D19D5DCA709DC5220DA58891006AAF940E56C55C9E5230C56019166651DC02",
+    "desktop/src/types.ts": "DB8703EF01A451A95B8A4E450AF807F0DA0E755D5E58ECA23EC1F0DBBBD70841",
+    "local_cli/tools/bash_tool.py": "8933CDEE293BD418E134DD06B539D9E7FA403FE5559B25B57A5E09484F89B4DB",
+    "desktop/electron/main.ts": "25D84C1F0DD26A0D9591A10A752657BFFA4964F28F4984697AEA13C4E04DBFBD",
+    "local_cli/core/environment.py": "6C10F2C4F36210A36580CDD39D13BE0D3F41A4D9D32E0195747BF079D52738FA",
+    "local_cli/network_config.py": "6653F00C2DE2CC9A452453A6391C91C944652760BCD368D508794EB1777676DA",
+    "desktop/electron/application_client.ts": "DA692D4DD1B335AFF9336C0B2CFD8C7142D283543AD473CF4C688B790F822845",
+    "desktop/src/components/Markdown.tsx": "73B0EAB5B0749645359AAF9E1F704D05538A3689044882A6099E65321C88EED0",
+    "local_cli/tool_cache.py": "D73EFD4CC68E6C65D8E66FD3B66D8D6EE3E61E5426E8F6D3D29B1E3F6B153AE4",
+    "desktop/package-lock.json": "33D6273D4EAA3438A4786C1C6861166A439B0AD4C5D71015E14936322B58B59B",
+    "tests/security_v12/test_s8_git.py": "975040BA0006F0EBB4EA414BF5B9494958EF5FCEB53F6D54D0397411F99D449B",
+    "local_cli/ideation.py": "743CB106C2EC59CE86CB9D6BF94EEF9708E827D4F3C3187467D0810104166BDE",
+    "local_cli/providers/__init__.py": "02710C587F73C3256808488C14958E64A2FE1CA166E72807DDBC646F3F6CAAC2",
+    "local_cli/application/grants.py": "67245CEB425588B6D2F5BFB83FE157A0D063F6D9D7FACA1775BE1B0E79467ABE",
+    "local_cli/session_log.py": "30AE8745AF748A55B62C62CE3A97C8ADCDCDC464EFF3C7CF92482671994EBC0B",
+    "local_cli/cli.py": "23558692BC5B50F4A958AAD0D0D506B29F76FC74120E313563D6653220EAB59B",
+    "local_cli/tools/__init__.py": "69C9F5D7F6AA661E3559BD60C27EA70CBE2F27CFA6CCC85F3B1563FFD7B67408",
+    "docs/security_v12/s8_matrix.json": "E28E909921B0A1D6BFC43A4E04A2403E8E2824DA925F2743EBC37960129D91C7",
+    "local_cli/application/context.py": "8B5EF5DD09820CAAE15B4921908CD7BDD5C1EF37EAA3AD7F46DC61E3BB3EF6A0",
+    "desktop/electron/approval_host.cjs": "2AD174FA208F87004776A740077F02A3ED119483D51BF634C6907AA52E2AA8B3",
+    "local_cli/core/context.py": "BC37319DA399CC191EE3000236F5740AB7105319601BB531D0F0E31E2CD4D728",
+    "local_cli/providers/base.py": "EC64B0C354CEDCE54923C5C2780A532E792E5766A85320ADC30CAC7F5A1E2393",
+    "local_cli/system_info.py": "CAAADA3527D9C9329963BC850814631E23C2E05076F4129DFF9A74B484138991",
+    "desktop/src/markdown.ts": "5804FA284FF21A26242B10535BF4A22F55FF93919EFCA6D285659B94C527F5F1",
+    "local_cli/diff_preview.py": "B61BA3C577ADA3E0CC7052C608BB3C9EE88B956AF6317D7169B29676E0A82ED7",
+    "local_cli/harness.py": "404A1F2A1DFC54E86EA445CE8E44B517F9EF3FE9C4766DD3641CB9596D8DB860",
+    "local_cli/model_selector.py": "F900BD3238CEAAD750458470AB5298B0105C84A3D07E993AEC6870D8B914280E",
+    "local_cli/tools/grep_tool.py": "707BD7706E54B1C0D84645CB0AECDC5EF6C4ECC00B8B962A6B48ED84C7DE4A93",
+    "local_cli/bench.py": "AB168A00FD468F47CA1D1AA7788AABC16BFDB0739E3A1545C153824FE0910E48",
+    "local_cli/application/events.py": "DDB396DCBA4EC88BA6CF5502636472FFE47B4A657B6639BD66B9C577CB5A7D20",
+    "local_cli/spinner.py": "01A2138DADD0459174FFA7D8ECE166A6908AC045BC5AD20736C32ACEAE77B5F2",
+    "desktop/src/components/ProviderSelector.tsx": "B08D4C2A14D4C6FBE91AD7160D6749143EC7B4D0A83B7ED55A601BE205BA9013",
+    "docs/security_v12/s8_resultados.md": "9F01616E52E8C17B55813D3E7015FCC2A26A4377A2F655D4F087381AF0EA2747",
+    "desktop/src/vite-env.d.ts": "65996936FBB042915F7B74A200FCDDE7E410F32A669B1AB9597CFAA4B0FADDB5",
+    "desktop/src/main.tsx": "26210B6A01EA35AB17CC467C59D16C11176E15725301C0BCC5A767B6CE03C2E4",
+    "local_cli/core/security_audit.py": "4FE3666EF00ABED9E3DF4C5ACA85EEF29DA26637E62A386734BB151BF61427E7",
+    "local_cli/conversation_store.py": "3FC8C833C452E49ECC3B61EB083CAFFE92681B6EEF87AF9A99E42D7CB8324979",
+    "local_cli/git_ops.py": "70D17D4890B38DC165010B682CFB3C3A484FE5EE3F3304BEF2C194652188725F",
+    "local_cli/execution_paths.py": "B72C57179A02EF53DB67228C970DCE5B027C2C87E8939B7E695126F353E0260C",
+    "local_cli/updater.py": "084A6DC6F3034FBBA2ED45B7733A6B66B3266B738F616D770F4FDF47A917D50B",
+    "desktop/src/use_session_view.ts": "373B4E93EA8859C2A3EE1AF02DC03F3E8E5102CCEBABD7CBA4AEE0ABD191D9EB",
+    "local_cli/providers/claude_provider.py": "C2457C233F37BF04297E9EDAFE136AE8B710479FDB48A8F1FB224E50F34D5B92",
+    "local_cli/tools/shell_tool.py": "33FA40F9BD60F360A90D995B6FC4DD3FB17FA27C79B2DF4F347BEC8D54E5BC12",
+    "local_cli/infrastructure/security_audit_jsonl.py": "7058FE8702CA294361D35D80C2249CCAC5807273DE7FCCB31981FA17FA642EA4",
+    "local_cli/bootstrap_cli.py": "E603DE330999F58834F966648E52398EC50993E3CCBD8E10FA8B4D0CABD44424",
+    "local_cli/application/__init__.py": "3C67332FF83AE99E5E598B0973A2AAD507C09B24DD8000C290C4E247C4065C17",
+    "desktop/src/components/ClaudeLogin.tsx": "BB84A429E90D5B6551F01318E2D0D81A836E9AEDF993E03CE38EAA8271F2E9DC",
+    "local_cli/model_search.py": "05C2F08B77430156CD7E7C08CF2AE5D2B2A11313A4C4ED6170D0C9817C0AFDF9",
+    "local_cli/__main__.py": "CA993385476E50149B8DA98944D60261EAA2CA0DCEFE81B613728F5B58F5FA29",
+    "tests/desktop_backend_fixture.py": "C565B917920C160402B9A7E4D71B537C176B39E0DE42F2889A458E923FCD00F1",
+    "local_cli/token_tracker.py": "2229B2CB05E1A5628715FC55B0BC1CDB7840491CD7D66AA1DB53009AD21C2099",
+    "local_cli/providers/message_converter.py": "0D422C098DDDB7C2ED196A07AE23F741AFDB0DF7F58DBD64B34B1FF4E1012EA8",
+    "desktop/src/components/Banner.tsx": "B371DA0AA25C57D0609758364BDE71C75900142602A9AA4E555AFEE3CE757E81",
+    "local_cli/application/providers.py": "AFF3327E1BF4063350F70F1F946DAE5B900CD42568680E50F0AA405D1B7E410E",
+    "local_cli/core/security.py": "F5B2A50277A6EB69BD5B0626BC91A535FC77D6A27E95E729939B1EB912E1FCDE",
+    "local_cli/application/rag.py": "B4DC75F37E9D82961C7D9755C89A5DC0A120639C336825850BA4D4B8874F91A7",
+    "local_cli/session.py": "84F94DA3EBDCA6AE5629C9B3A756C8C7BB83B59208B42981D30DA1155E149C1B",
+    "local_cli/prompts.py": "D397358E8C268D083C8F6F5630EE8B0722C1944916D1554016EC04B05D9C88DC",
+    "desktop/src/styles.css": "F03ED12A9F635EDFF88FE436EA3B29073B97A1881DD4CF802E74328F1E4F7819",
+    "local_cli/application/auxiliary.py": "5D5CABA2CECB263044C527F39CCA7A08BDB68C95C2C7260C7580E60BFDDF5D15",
+    "local_cli/core/contracts.py": "1F965E9E9B69235A33C394E4D710490E28DDB4AB10338E457A0044600B707354",
+    "desktop/shared/application.ts": "F8B24601E3DE7150D948278E9009C2D62580B2F7AEE0A01962DE46F30028EA32",
+    "local_cli/application/cancellation.py": "4F9334D92E2D7051470BC936744A167BA405314D2AF4CFA3297F15E947A3C7A2",
+    "local_cli/infrastructure/process_lifecycle.py": "88BC2C4AC661C95116A3AEE04DC0BABEE1721D10DE2A308C7F4AB4E402071AA7",
+    "tests/security_v12/test_s8_contracts.py": "7EBE369135D7F91B8478F3F9140D28C17C9813B768B475F30078B8F7B5235B70",
+    "local_cli/security.py": "22ABA5C5BC876D6082DB170BB91433BF85423BE2D073637F6EEEFC50714D0F1D",
+    "local_cli/application/network.py": "9E26E7A2798A9A49B8C077FFEDC5AF6C5993F522683EB248E8987757745233F0",
+    "local_cli/config.py": "789B305086CF4527F794B48F3287A34BAF7F5E6BB4C7467BAF1DAE1E01E1E7FA",
+    "local_cli/application/process.py": "DADA345F6CDA0DD2BEBB823454ED62F7EF5BB79E2C5F9634BCC16280EAE1DDEF",
+    "local_cli/application/tool_runtime.py": "144C61B603D31C556B99B24869BD8DC710D8FDB85B2C13052D1332C80D1AE62C",
+    "local_cli/interfaces/approval_proof.py": "38F33C049C93CD59AF9993F79D4248A83D037A762103D84FD3398E11E606D422",
+    "local_cli/skills.py": "25177F96A5BA6FD0EF123FBE66CD13832088A9995EA63134C5E633C179FB03C6",
+    "local_cli/application/policy.py": "02667D8CCE261A7B0E216CBEE779AD18D3254E8F681F90DA9F36C0C6073A6AA4",
+    "local_cli/application/environment.py": "4213757409BDA6A298EA6A7C4CBC8E9F526330D8DA487E79C8CC6DC932F124D8",
+    "local_cli/clipboard.py": "5743122715B96B1933103C0DA6DD845CBD9FA33685ACE3BEFB66563C4D3CCF58",
+    "local_cli/core/process.py": "9736A3DACB6F5A358B4FA310A022C19172907DDD74849117841173F48949E055",
+    "tests/security_v12/run_s8.py": "4D8FC49F7E0AB8AD8721F4F035D743C151AE046CD42808C000101DD2E8188A82",
+    "local_cli/application/filesystem.py": "6CA98C67B5AAE53CC0ABA8A34D9F58E8F10DCB6C8C80EF66EA9B94C611EF629F",
+    "desktop/src/components/SettingsPanel.tsx": "9DC30B2CF55AED5D2A7B131D8AE2C506520524680CE9A0979E47B50C9C4EC0D9",
+    "local_cli/tools/web_fetch_tool.py": "0E35D286E0988824E979784DF090628D5B9F66AFFC4B2FA431FBDBB0BA6797FD",
+    "local_cli/model_presets.py": "C9E67A8B12C65AA3009ED1BB2C17B0D685CB1A9A2A199E06CCC9D992EBA85324",
+    "tests/security_v12/test_s8_host.py": "91511D0E73E5D33D66991963905F0EEF9AC50EE3DA2CA2A8F09E0E9D8C37DF28",
+    "desktop/tests/finish_electron_s8.cjs": "3BAB1154C967B07BC47CA5E1668D3A3D43C92B616BCEE9436FC1ED60560AFC09",
+    "local_cli/project_instructions.py": "D2918BCDBEBC782D6C7B3E17DB5E351921EB5DAD6A8BC67CFBE677C6D8064B07",
+    "desktop/tests/electron_s8.cjs": "1D22D76325412E8BFDE5631B90298FF1630C3A5A818E810AAE811727B0C2B1E5",
+    "docs/security_v12/s8_evidence/backend_stack/selected.log": "3E4E0AB5B40110CBB105D4A0ADFBA6474492327F66D1F5A480F4D164CC66A96D",
+    "docs/security_v12/s8_evidence/destructive_host/network_observations.json": "0027B8A884C2BDD5BBAC0F374503A2EBCBE24C59432E7B6381B00F0817AB7B38",
+    "docs/security_v12/s8_evidence/destructive_host/s3_windows.xml": "8B98B866D7AFCF5C474CA144348568DE414F01A0EECD23D8BF52B9BF40E72C41",
+    "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/desktop_main_syntax.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/e2e_control_final/backend_trace_ses_525aee4854d44ed6b55498b1edd78706.json": "E0C6A1CBF3FC3DE0F029E803E9687450B5297E5FDE36C677433BB3D3A2337221",
+    "docs/security_v12/s8_evidence/backend_stack/selected.xml": "F46549B19612FA97BA739EC1C4054EC1D4FB5F226EEDE27B282B466077774F9C",
+    "docs/security_v12/s8_evidence/backend_stack/backend_trace_ses_1af36239176840a0905d551e50d75ca2.json": "5DE526D5CDD8267B130C3A88621AD62BBB2FF17C1E6A768D415A89F13BC852B5",
+    "docs/security_v12/s8_evidence/block1_final/selected.xml": "2140131DE63B9E7FF596714AEB514624DBD378BD6F0919D3CBF1558409B55E1B",
+    "docs/security_v12/s8_evidence/backend_stack/backend_failure.json": "EBDFAFC51222F65D7CFF99F7BB59F09A6238743BD6B1D4DB2DB601F92CF5B59E",
+    "docs/security_v12/s8_evidence/destructive_host/s8_host.log": "B815244B578D8E1BE8CCD96C6EF25ED918F6D03918E7F1F4BBE2E947345F92C7",
+    "docs/security_v12/s8_evidence/backend_recheck/interruption.json": "8CFF17A69E1E107790F6BC39CE8593B227C70AAD6D7751CB0108B59963DA9C15",
+    "docs/security_v12/s8_evidence/backend_stack_file/backend_stack_31296.log": "5957FBC3B9F0B5F195270E222D393158B0EF3F89843847B91C4A193A8A3702D7",
+    "desktop/node_modules/electron/dist/electron.exe": "1925F358E7F0E9675A5AC4198FB076613F0DB318DA56D388799A97BE74A5B19C",
+    "docs/security_v12/s8_evidence/core_native_recheck/selected.log": "1B49FFA10AC59F28CE034999121EAC43CF1399952EA80A5B027603800272E215",
+    "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/prior_regression.log": "2D0690DD1193D4886D8795386FC152216B845B555666E6BBA792DF626F037728",
+    "docs/security_v12/s8_evidence/block1_recheck/selected.xml": "51A3A70432D9D834A933922A3324BDF3A77043323F23A98428B6E0AED4E317DE",
+    "docs/security_v12/s8_evidence/desktop_native/backend_trace_ses_8fc431629f79424d9b9953064767cf58.json": "93495783FF318AE893BCE6CA3FA59C42C8FE6F9E42E59A7D2C2BB6EAC5376FF1",
+    "docs/security_v12/s8_evidence/backend_stack_file/backend_trace_ses_f6fdfc6493084dde80cf0d2ae3036cb8.json": "1F3A08028E34E2B8426C20AC869EAD3ED5190F90A9F80E5673094B2AD8A99E55",
+    "docs/security_v12/s8_evidence/backend_recheck/selected.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/before.json": "95C3477F7DEC4EF708B659F326EF7A5362AC5A236C52323B6EC7FAF9463834FD",
+    "docs/security_v12/s8_evidence/block1/run.json": "B6DF52E635D1E136A108E7FFC8C648A1B41E761812C974ECF5423C4DFAADD0FD",
+    "docs/security_v12/s8_evidence/destructive_host/core_native.log": "0D2C7D2D9A4E3CE6701A2213C8A11BAE48AFA86521B2F198CA1FCDEDA5A7196A",
+    "desktop/node_modules/electron/dist/version": "00EEB0D932F38C1EAEA38CC0011AECD10BCD2D06DB67EC7E2D36258840B940B6",
+    "docs/security_v12/s8_evidence/backend_diagnostic/selected.xml": "EEB242DFCC76C091B3E508084C231FEB8F63AFA05A396B4B4E0ACDC4A251057C",
+    "docs/security_v12/s8_evidence/e2e_control_final/desktop_real.json": "B6821C50ED1B83D0D120486C6035734BA67B9C2C735E425D8F5EE34902E2392D",
+    "docs/security_v12/s8_evidence/backend_diagnostic/selected.log": "99A92EB97721680433A0C0CBD49A103178D7A88C2BEB5B441040CE04A5334C52",
+    "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/run.json": "3840C8ABCC46B45323660AA27C9076EF835D23AE888090BEAEC3519F1B0A6A08",
+    "docs/security_v12/s8_evidence/backend_stack/run.json": "BD75A7B38D86BD0C0CA6B28E2CDA7E1A0E1330E9DD71E74BEC2A8D0E6C171B2C",
+    "docs/security_v12/s8_evidence/e2e_control_final/run.json": "BA1A62BCDF45F61B48AA6A7C6EA55B1D3EA97D985BE15CF4DB5827AB458381BF",
+    "docs/security_v12/s8_evidence/destructive_host/s8_host.xml": "9755E604AA37377AE28E0AF670854C35D61101A9621619D0821044FB394C61E0",
+    "docs/security_v12/s8_evidence/e2e_control_final/backend_stack_28368.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/e2e_control_final/backend_stack_31312.log": "8C1DF2C502CDF478A0173248355F0EB524F4E951D4F69BB6DA83FCE6B96639BE",
+    "docs/security_v12/s8_evidence/backend_diagnostic/backend_trace_ses_7c9ca8a2768648a2aa770b9392af6a58.json": "C7D70DF0B39FD255611648AA5026A5F6632D76A4C3826B35880895563BA276A0",
+    "docs/security_v12/s8_evidence/core_native_recheck/selected.xml": "51F3BF2D4F6B82A23726E501550B9DD5895BB3689AF6B41766EADEBDB016905D",
+    "docs/security_v12/s8_evidence/destructive_host/selected.xml": "8E72367DA06DF8A6C187E6C16C07F9D7B313C8554EE5798970E8D6C3C3B88319",
+    "desktop/dist/index.html": "68659E8A26ABD10896DB18AB8B48FD71C54B6385507E72E693AEE544256A1921",
+    "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/s7.log": "44E2DE114DA73068FE0AD87E70518302C8041CFFBCAF8D490BA8ADF213369D43",
+    "docs/security_v12/s8_evidence/core_native_final/selected.xml": "509AF6C9364DF927733F821D5418CEEC96313BDD81FECFCEE74C2E4922FF5F69",
+    "docs/security_v12/s8_evidence/backend_diagnostic/run.json": "8780EB46DFFD1A56988407BFB78E96A465A596F43438B5FEE023218044ADA205",
+    "docs/security_v12/s8_evidence/final_e2e/backend_stack_24976.log": "4DB7EE6023A0B2D38D0262B0DA084D8D715E3305FF8ACAD735F9A13285DD4F84",
+    "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/prior_regression.xml": "3AAC0A7B6701F5E4B6FD94B00CD1588878E5A8DE2AB6B156C96F3D304CB17866",
+    "docs/security_v12/s8_evidence/backend_diagnostic/backend_failure.json": "D0D1878790448CBC07056F0422FC361B046CF1DF9C0464EC4C6419F3D5396580",
+    "docs/security_v12/s8_evidence/block1/selected.log": "F28671BB06E2DC2C51F0058E3CD83C9498804F230BB347B8BD83F114B737D90A",
+    "docs/security_v12/s8_evidence/e2e_control_final/selected.log": "F83FB03D225710F458E9F53BA52B23DB5398A9F9DF991FE24F78FF7CA02B8BAF",
+    "docs/security_v12/s8_evidence/e2e_control_final/selected.xml": "6678C7E631F979B530A201A6E844156017DA382AA27A8F42FC993EADF1B7F436",
+    "docs/security_v12/s8_evidence/desktop_native/selected.log": "46E34C58F9454229460A06381A2C520D979BE79DED97D2203CF6DF2F7626BE74",
+    "docs/security_v12/s8_evidence/e2e_control_final/backend_stack_3296.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/desktop_native/selected.xml": "7A16882E1263907979CEF9FDC1871AE453FC3A7DD6D5F3EE0D4FBC38FC13C81B",
+    "docs/security_v12/s8_evidence/core_native_final/selected.log": "1E4E64B444435051C3B9CD58D00A4B0D63E87ECE8DFEFCEC41463D3FA0D2DF8F",
+    "docs/security_v12/s8_evidence/destructive_host/s6_secrets.xml": "6517A6958219B13542E2299128F3253C1AE48B218318B2950E7B212EFC2A4C87",
+    "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/s7.xml": "CE8E9D6261DCBB46DF289251309F7D8561705CB880E9ED8D5B4FE2189332DE7C",
+    "docs/security_v12/s8_evidence/backend_stack_file/run.json": "5DBF30A92E64F5F2F80D97D90B80798883B81709E555BA304B7B834C693B2881",
+    "docs/security_v12/s8_evidence/desktop_native/desktop_real.json": "F4B62ADF4D0E90F4A0C37D150A9CB8D5479BCAB7AE21F986366D2DF0474E81FC",
+    "docs/security_v12/s8_evidence/backend_stack_file/selected.log": "966CBCDAC31DE24202210670085E200D535527E3E7F108AA0BAEC289DA337FC2",
+    "desktop/dist/assets/index-sU1mZCoZ.js": "7FB066660734D5D0039EB3CB69DA8C4ED998455A829E2FDACDADA16EBDE9A719",
+    "docs/security_v12/s8_evidence/destructive_host/s5_network.log": "E94208F99B42127AC61015C4A16527CC3025C1B60CAEFC539AADEF30140851D4",
+    "docs/security_v12/s8_evidence/backend_stack_file/selected.xml": "9CA21521E0B0A5D69F39BF390C497D1AE732785A1463D77FEDCE0E108BB6935B",
+    "docs/security_v12/s8_evidence/core_native_recheck/run.json": "EFB7B266470DD7623BC98A1E34728ED00E7CD42396A203D0B0259BD614BABAD7",
+    "docs/security_v12/s8_evidence/block1_final/s8_local_e2e.xml": "4A73741132898135C9E5F543E0591D1E59B24678DE66806920B341C885AD09AB",
+    "docs/security_v12/s8_evidence/destructive_host/selected.log": "B464CE1322D653E8BFC05059934C52D4EC22909F34AC41C7FF77951DED09FA34",
+    "docs/security_v12/s8_evidence/e2e_control_final/desktop_scripted.json": "5640699B493EAD36E54D338C30D504192FFC329FF5BE79842EFB3F1DF2D115CC",
+    "docs/security_v12/s8_evidence/destructive_host/s4_process.xml": "8B7E473BC5BE4881AB300723254C6DD3C9C0ACDDB9DFF8D8EC238A7D37FFC24C",
+    "docs/security_v12/s8_evidence/backend_stack_file/backend_failure.json": "E846C3CAF6D7D654F181272AA302FA6AA91F2A13291A4ED47F8A41EF7C22D325",
+    "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/desktop_approval.log": "3679D0761FD97A244EFFA34932290CB52E6D4039075D4437088A1531B6020202",
+    "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/desktop_audit.log": "94F9F1497F9A2A5C25EA0117535A1E2AF5C26DAE9ACE627419A7AA8DB96C2E80",
+    "docs/security_v12/s8_evidence/destructive_host/s5_network.xml": "D8D62EF219754629A1EF538184D79B8D075A2F5D5EB43DCCFEEF021B0D89EA70",
+    "desktop/dist-electron/preload.js": "AD1FD0C80085C48190B961644BEF275C26EADDC0F06574F019CAE3176EB279FA",
+    "docs/security_v12/s8_evidence/desktop_native/run.json": "79CE221C66574C57B38674C5743399AFFE9F474BB2EF6BCE72AC1AEB89AAA824",
+    "docs/security_v12/s8_evidence/block1_final/ollama_cli.json": "5047B2F4105AF37604C21CC571D09B26DC5C5DE88747FB0D510CCD631871607A",
+    "docs/security_v12/s8_evidence/destructive_host/s3_windows.log": "D82FDD15078B5CA8F4BF8D50808F58A038EF4073C7E103D108256FC2DED9DA7E",
+    "desktop/dist/assets/index-D-pHLfog.css": "4ABD2F43C0384CE6474CF561772B8F3CEDE1675019D3B537FFDE3A55815F7DB2",
+    "desktop/dist-electron/main.js": "C5F4827BFBA24B5DD358927EAE37638EC66E7027E23177EBB1533E48D38922EE",
+    "docs/security_v12/s8_evidence/block1/selected.xml": "DBF421D2645FB9AD45B250F3F78386788F102953AE3783905713B482A0D7D230",
+    "docs/security_v12/s8_evidence/block1_recheck/selected.log": "C127273116CBB19DFB8ACF8A2BBC0470628B3387834D06E3BFC22A5E4139943D",
+    "docs/security_v12/s8_evidence/desktop_native/desktop_scripted.json": "8367A251414C3929E645227130B4A806ACA7FF9F812DCA4F4E36832AC6170385",
+    "docs/security_v12/s8_evidence/destructive_host/core_native.xml": "6D66053620C7DBF88B18863898764446057ED70C7E5761856536AEF28D209C3A",
+    "desktop/node_modules/electron/path.txt": "DCEDF875E21343ECBF6371FFA7E5420B1BADF3136EBDC98F908B9EF2ACE9FA86",
+    "docs/security_v12/s8_evidence/core_native_final/run.json": "12524F40E9563E101A0E12B7BA37A8F68CB290D2859429A6F8195D5F71108D32",
+    "docs/security_v12/s8_evidence/backend_recheck/s8_local_e2e.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/block1_final/run.json": "436D4FC9A0BCC5A006DB5E3AD78FA03A67FD9ABC653E9BA82FB5D549B41AF8D9",
+    "docs/security_v12/s8_evidence/final_e2e/backend_stack_10488.log": "F10189A0AA60AA1A02AC957D1BFB2AF347D3490B1C7B209D504D4178B12E0C5E",
+    "docs/security_v12/s8_evidence/destructive_host/s4_process.log": "6AE057D6758AD3775B7ABFA9AAB7FF572A344137EDF5A8858AD6B2CB8DACA48A",
+    "docs/security_v12/s8_evidence/e2e_control_final/backend_stack_6940.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/block1_final/s8_local_e2e.log": "DCABA91090C8A93CE684167E08D8EA41E2E2D170393E0CC4CB375D2F592A95A3",
+    "docs/security_v12/s8_evidence/block1_final/selected.log": "84E56F49D0F3445371688034FFEBE1FE3B277E0441A6C59ACF98590078DCCD23",
+    "docs/security_v12/s8_evidence/block1_recheck/run.json": "D3BB46FF9272DB3BA7FC8430CB7EEABBAB9FAB5369BD80193216D8A9FE3570A7",
+    "docs/security_v12/s8_evidence/backend_stack/backend_trace_ses_2585eb508b3440e689e475c2e67d5512.json": "20A6018E3F958194312E72BE6C1512F96C81A5789475E680129F654E3DAD70C3",
+    "docs/security_v12/s8_evidence/destructive_host/s6_secrets.log": "DC84D0A1BF6BCA47213128B42259DD5D40DCD44A08B1D653F591C4D5ECC1797D",
+    "docs/security_v12/s8_evidence/destructive_host/run.json": "A081AC5CCD4392B3BC6D8C3BD25BC1CAD7A8030B51FB444FBA7A55F5E1E62C9E",
+    "docs/security_v12/s8_evidence/backend_recheck/run.json": "53F9F8974CD6E3F103D7B2ADD7A6A09EBADE04DDCC789BC878677CD27778C6C5",
+    "docs/security_v12/s8_evidence/local_backend_7b_final/backend_stack_32032.log": "6B600C0ACE33B65ED79F97265AEA6E5A776C6484E35B38A5AB2D44850ED056D4",
+    "docs/security_v12/s8_evidence/final_native/s3_windows.log": "DB1E54ACB615889BE0669C3B01FB6C64880C61DA52AB01711EEF8FCDE0E96BA1",
+    "docs/security_v12/s8_evidence/final_regression/desktop_build.log": "8B3BC1619C847B58E2F64F77A5D594BAD897131793F4EE1CFA63D2AE36F1E0C3",
+    "docs/security_v12/s8_evidence/local_backend_diagnosed/backend_trace_ses_55828dd29ccd4520b48077b088736369.json": "581A68F45FF791D96469E67D4A39FD24F821717F7D43956301A1BD8BA25258F6",
+    "docs/security_v12/s8_evidence/local_final_candidate/backend_stack_4916.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/native_recheck/desktop_build.log": "F4D6DEBAF04D3142767468E29CDCF6BA01FDB43D09FDCCC5D8D0E10C9B9C50F5",
+    "docs/security_v12/s8_evidence/final_native/s5_network.log": "5297B9BB6C3D5104E3C7D579A35ADB51F0A3BC92370147B8D44449E6CDC7D9A2",
+    "docs/security_v12/s8_evidence/jsonl_canonical_final/run.json": "36775CDB88DB624C37FD29936273A52366EA7067E090F96ED209BA3D8F6D9FB1",
+    "docs/security_v12/s8_evidence/final_e2e/desktop_scripted.json": "5640699B493EAD36E54D338C30D504192FFC329FF5BE79842EFB3F1DF2D115CC",
+    "docs/security_v12/s8_evidence/local_backend_diagnosed/selected.xml": "AAE10C0B97C1CD4B15DB911AF7BD126F4120A33504AF4547FF85CB5A60D4736B",
+    "docs/security_v12/s8_evidence/local_final_candidate/desktop_scripted.json": "8367A251414C3929E645227130B4A806ACA7FF9F812DCA4F4E36832AC6170385",
+    "docs/security_v12/s8_evidence/final_regression/desktop_tsc.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/jsonl_canonical_final/native_jsonl_approval.json": "5824AE982945ECED1C0C40FCF331C4C5BD476916A64447B3410AF37AB8DBBA46",
+    "docs/security_v12/s8_evidence/jsonl_proof_final/backend_failure.json": "E8B8F81F4F4BE9EADB267DCD2D3FA13E696873912D5DC3F3B3B54C0411119F96",
+    "docs/security_v12/s8_evidence/final_e2e/backend_stack_31312.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/final_native/s3_windows.xml": "7453BB06CF309F7CBB16C4A42E2358B967F0C8BFA0B91B38378A562E90A2E9E5",
+    "docs/security_v12/s8_evidence/final_native/s4_process.log": "F3037456C5B46AC7A2B1B2BAA3CCB746CFF522B2CBA28704C3FF0CF9244768DE",
+    "docs/security_v12/s8_evidence/final_e2e/backend_stack_30380.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/local_backend_diagnosed/backend_stack_27152.log": "B45B6600966F4F8346C20A4F85F252A0127D106EC2FBCA623F25B0A783F1F0BB",
+    "docs/security_v12/s8_evidence/final_e2e/selected.xml": "0982906864C97E26FD5580F9DE68B1DFE1C1E17C109FF8FAC5D88044B7A4A144",
+    "docs/security_v12/s8_evidence/final_regression/s8_adversarial.log": "477D587829E29CD7EB829922AB009A23DD8FD10C20CD0B4994D16647AC59B4A3",
+    "docs/security_v12/s8_evidence/local_backend_7b_final/backend_trace_ses_7176a10b9df846a0bd31b86ec2eb3abd.json": "CA9C599A65481A2C46D7256A09B764C7C08AEDDB49C63A2B9E332115CCA7317A",
+    "docs/security_v12/s8_evidence/final_native/core_native.xml": "F7047AF9A88F7DB59D046974DF3B5D9FF99C978F52D355346DAAE6F1E53065AE",
+    "docs/security_v12/s8_evidence/final_e2e/backend_trace_ses_60bd0f8f5c0446259c6e188aee400591.json": "1C160BBDF206DA3DD3DD01C734832A677488043AA038EB250E733AB7774E87E7",
+    "docs/security_v12/s8_evidence/jsonl_proof_final/selected.log": "A04FEE536F80E8C7303E174B1A8F0CA2473627B5CCDE721E5DCF1429870424E1",
+    "docs/security_v12/s8_evidence/local_final_candidate/run.json": "38CDF480A2F0E0E97095A8DBE3CABA6A090EF362AA866BCEE3223C73990CAA9D",
+    "docs/security_v12/s8_evidence/local_final_candidate/backend_stack_9584.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/git_channel_recheck/selected.log": "1F10C154494FA09849F16F0E76D35DED53DCAFF9201DFC9E6D635EE6AC92A853",
+    "docs/security_v12/s8_evidence/final_e2e/ollama_backend_attempt.json": "38A71FAE3651D28BDA83E861DF124E0F033E77A176883E2FCF84A16E408AD1C3",
+    "docs/security_v12/s8_evidence/jsonl_proof_final/backend_stack_25552.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/final_e2e/backend_stack_26172.log": "B5FBDBE5FF78C35D3015037431C90E94A5F0FDF5477276C78E1CB0761787DCB0",
+    "docs/security_v12/s8_evidence/final_regression/s8_adversarial.xml": "CA0675876EC2CAAA5C54387EF1530338BFB0C5BA3B01FC4D06941CBC2261DB82",
+    "docs/security_v12/s8_evidence/git_channel_recheck/backend_stack_20256.log": "293679312C6613878A54DF0BEA2E1E0C300B8E392F8934B996A4436781D888F0",
+    "docs/security_v12/s8_evidence/local_final_candidate/backend_stack_2264.log": "995178B9D203DE5420D610D1F8413525A2AB3C2350E4E4F811FDC63DFDF02CF6",
+    "docs/security_v12/s8_evidence/local_backend_7b_final/selected.log": "DB6A4E530B81273D8DD8B49C5DD1DF9F45183AD2ECF988408487D47227052942",
+    "docs/security_v12/s8_evidence/final_regression/core_regression.xml": "87BB9291DD51A88C4C2C73EBC0B6C5127EE9F95EA5E5448453B9ECE821F71631",
+    "docs/security_v12/s8_evidence/local_final_candidate/ollama_cli.json": "3653003B6FE70A4E2D9C02A09A2B01EC6722828155FC1E02EFFBF369B0832098",
+    "docs/security_v12/s8_evidence/jsonl_canonical_final/backend_trace_ses_5f886901e0aa43da9fa26f4db174e527.json": "5A70B9AE5A343EFDA187AA192C75B597025A8D2CACE9003B086F79E27E3078B0",
+    "docs/security_v12/s8_evidence/final_regression/security_regression.xml": "006101A82E7268FDD63FDE98A59C1350941A792C3C19AD34F7533B89242DCEA1",
+    "docs/security_v12/s8_evidence/final_native/selected.log": "163257A8CDDB48FBCF24A30CF48ED764345928BF7416E587BEBBD8A66A8F3F2A",
+    "docs/security_v12/s8_evidence/final_e2e/desktop_real.json": "B6821C50ED1B83D0D120486C6035734BA67B9C2C735E425D8F5EE34902E2392D",
+    "docs/security_v12/s8_evidence/native_recheck/desktop_approval.log": "B6FF0B21902E51C0057C787981DCB19B3E78E808779188BE65F4422DB6FFEA63",
+    "docs/security_v12/s8_evidence/local_final_candidate/backend_stack_14800.log": "D1B681CCDDED5C86370A6BD609ED51DA4E468AA90C1F8FC9D5B2D211B6FA9AB5",
+    "docs/security_v12/s8_evidence/final_native/s8_host.log": "A926764462A1B46D75E2AE41802959AADEE175AAB686D530CF81781738129B53",
+    "docs/security_v12/s8_evidence/final_e2e/selected.log": "03AD9BBF46C12DB8FA3A18BCF8F73472D87020C7E67356D3EF3F462061AB2FE5",
+    "docs/security_v12/s8_evidence/final_native/core_native.log": "FFF107CD2DC8DE765DE8375DC4B2ABAA03E6EFA4FA41071F33D2575682BE76E5",
+    "docs/security_v12/s8_evidence/local_backend_diagnosed/run.json": "CC311B7356D3DEACAB80089FECFD0F9107CEFFEBA4C13AE606AC6FE575FA67BA",
+    "docs/security_v12/s8_evidence/final_e2e/backend_stack_3096.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/git_channel_recheck/run.json": "FF57977BE4130DA2C8FD81E03BFAA55C302727A8988D508E171FDB32B0F14A7E",
+    "docs/security_v12/s8_evidence/jsonl_proof_final/selected.xml": "4137A9ACB85A2FDA71F2444286143050F042F7E3461E03EB8D97FF035CB77765",
+    "docs/security_v12/s8_evidence/local_final_candidate/selected.log": "2B2CB047750F9201BC3BD64A6C10803CF460D9AFF64531D14E50F48808DBEBFE",
+    "docs/security_v12/s8_evidence/final_native/network_observations.json": "708CF80F88F8DC7FE296E1A8022427902EA2AC398C148DC97DA173A15EED4EBE",
+    "docs/security_v12/s8_evidence/final_native/s8_host.xml": "A9157C444D32B50189DF1F7F4ED518189294C87130B2CE00D373736AC63743E5",
+    "docs/security_v12/s8_evidence/local_final_candidate/selected.xml": "81865383D3FC2676B0F2D69537D9A032AE374DA2698E828EE98E7AF7909B110B",
+    "docs/security_v12/s8_evidence/final_regression/run.json": "3FC35E1CAA984DC2FEBED3A61AF820F103EF0FDAED9E853BECB7C471E0916832",
+    "docs/security_v12/s8_evidence/final_regression/core_regression.log": "54413590810D5F475A899AB706F136A7B3CFBC5717A9DA010B790B6E6BD9EB30",
+    "docs/security_v12/s8_evidence/local_final_candidate/backend_failure.json": "58CE60B12B5E30B511481BA51F69255F7BE596F5604868FBE0229282280B6894",
+    "docs/security_v12/s8_evidence/local_final_candidate/backend_trace_ses_938ad408a2ab428ba34ff1b9e6cf9c2e.json": "C81E408F1A20E8ED80355D71E7294222D2DF88E9920F1A6745BEBC935AA004CF",
+    "docs/security_v12/s8_evidence/local_final_candidate/backend_trace_ses_698a5b8da04c4e2db588b62aad59a8eb.json": "0F6C51510F25FDB43FFBD3F36825A16DEBCB4EBA07954C8F307ACC16B999789A",
+    "docs/security_v12/s8_evidence/jsonl_canonical_final/selected.log": "9699ED2BE9B0638E030554F9DB3318A58AD369D139EA3EDD9A3F1860C76647DB",
+    "docs/security_v12/s8_evidence/local_backend_diagnosed/ollama_backend_attempt.json": "794F44BED054D44B55C63AE032895124CAFE9AF78777F9B8EE53F183AC2CBF22",
+    "docs/security_v12/s8_evidence/local_backend_7b_final/run.json": "00F0F3FC21DC2FC4F4AF552F6CED835C18D062E05CD4B8DDEF11693DAC68B70E",
+    "docs/security_v12/s8_evidence/final_native/s6_secrets.xml": "BA309F3F7837E67AA954BFD387B417598CFE228F8D01C0071D83CFE07BB6095C",
+    "docs/security_v12/s8_evidence/final_native/selected.xml": "1DD3F6BD31A3D99861EF96AB3BEA964014632600F1F3D467060D1DCB56DCBF5D",
+    "docs/security_v12/s8_evidence/jsonl_canonical_final/backend_stack_3432.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/final_native/s6_secrets.log": "79016616D6AE69128B9C7B5BB5B03262CFA7900E9E52829261911447D8EA18BA",
+    "docs/security_v12/s8_evidence/final_native/s5_network.xml": "07E95D1F8E7BC686AD11B29C3260063D766837F44F67400D2BDDADE18A7F4999",
+    "docs/security_v12/s8_evidence/jsonl_canonical_final/selected.xml": "08E652513E6906A0F60CDD043DA096261A4769ED307743B95153908E18A9E7E4",
+    "docs/security_v12/s8_evidence/final_native/run.json": "858C6072167992332AD80B0D41FEAEEFFCFF32F400971E09352D420375E817AF",
+    "docs/security_v12/s8_evidence/final_regression/desktop_audit.log": "B2B0B06F2B10DE2670A9FBB1BDDC64B78680DB4EBBBEFFB903D4FB2CF159CDFB",
+    "docs/security_v12/s8_evidence/final_native/s4_process.xml": "105CDD4F725674BAB93ADB1F07AF450F2F7F49E8BA23FE4E94EF107C286A93BD",
+    "docs/security_v12/s8_evidence/final_e2e/native_jsonl_approval.json": "C9F6AAFA570D9F44BAC1F38C2E6287F41AC216C0C301401003B9A113F2BAD8ED",
+    "docs/security_v12/s8_evidence/final_e2e/run.json": "E1AE87FEA6A5BCFE1B6B5ABC873F4B78918279BC7B83F7EB4C6D9F015A5C8219",
+    "docs/security_v12/s8_evidence/native_recheck/desktop_audit.log": "6C97A3D5898BD6959BB72B8876CAB97DCC85868BB8FFBC96BF8DDC67B6B77D9D",
+    "docs/security_v12/s8_evidence/final_e2e/ollama_cli.json": "2AC842010A42DA98A983DBD7363EBF806FD899DEB3DF939E1EF3E6BFF9B5D96F",
+    "docs/security_v12/s8_evidence/final_regression/desktop_client.log": "EB896E3105FBA446330CC2F9D564E1CD8DE9401A2AFB8D642E1447C04C55938D",
+    "docs/security_v12/s8_evidence/jsonl_proof_final/backend_trace_ses_a3e6f51ad4784961b8a823a6717df940.json": "271A02C532734BD21F3D8F68DB3DF918AC13F65DAACE3A9ED2CE555BDFE096C4",
+    "docs/security_v12/s8_evidence/local_final_candidate/backend_stack_12532.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/final_e2e/backend_trace_ses_5f34cd9ed50d43b8907ff39dc314c4cb.json": "03D71BDFA3187F8DC1ECCFDC81B0E6DEED6A2E05ECA950A23FFE87551E47EAF5",
+    "docs/security_v12/s8_evidence/final_regression/desktop_approval.log": "6792F65203A2EF496A5BE9485DD2D750C21B12FC27CEE21C89CAEB40E7E48AEE",
+    "docs/security_v12/s8_evidence/jsonl_proof_final/run.json": "FBB2858EFCEA63FFB241C80A1F078D25326C0B514BA653AF187335D8F6FC0169",
+    "docs/security_v12/s8_evidence/local_backend_7b_final/selected.xml": "46F02D17225BE83F44F9EFED1D934E8694C210E05CED6410925F7BDD5332DC60",
+    "docs/security_v12/s8_evidence/git_channel_recheck/selected.xml": "27FE4BA068FBD35D1F899C51D6A47AAF8FF7854A30F46A546C12EB203DF73965",
+    "docs/security_v12/s8_evidence/local_final_candidate/desktop_real.json": "E07A24A9B2FE4627BCB0CBCF799F48FD4D4F3023FE878E85FEAA5238816470A3",
+    "docs/security_v12/s8_evidence/native_recheck/core_native.log": "1F4A584CAD5366ED2E5A01C7CCE965C6F2E32F7C3F7DEEC2F9A79D15DF9B11C3",
+    "docs/security_v12/s8_evidence/local_backend_diagnosed/selected.log": "4EA1E4F7425AB69D7707A297ADBDB56A437B6300AB7AAE74817E6332DBE3A974",
+    "docs/security_v12/s8_evidence/native_recheck/core_native.xml": "BB8DE028832353E65F3DFDCD5A17CB4CC70A18DD2082BEE94DB47AEA2254A20F",
+    "docs/security_v12/s8_evidence/local_final_candidate/backend_stack_21996.log": "A4C35E4DC45FCE6B5B6AEE2ED0B60469437F86DCF1B765D9DFAE83D2E82D2C27",
+    "docs/security_v12/s8_evidence/final_regression/security_regression.log": "477E586F82B1218C3DBDD942B6BA7965A6969790DCD3E33A00DA9432B6858ACA",
+    "docs/security_v12/s8_evidence/git_channel_recheck/backend_trace_ses_0ad2ccb6be7443138290efb1407c5a48.json": "2F11832E2E6B56E8144297C9CC64C814BACFBBFD00EA3D583A26E54F87B2D401",
+    "docs/security_v12/s8_evidence/native_recheck/s6_secrets.log": "4299B690D8CDE1360523D141717FBF37D217AA19638A25323454F771132EE459",
+    "docs/security_v12/s8_evidence/setup_incidents.json": "D133960168860D0FE962CCFB6553D5281119E22927B7849C7316BACA72920CFA",
+    "docs/security_v12/s8_evidence/regression/desktop_build.log": "366342AABA3FE17304B864C851221E5E85AC672C4A45739AA13725E71D842E0A",
+    "docs/security_v12/s8_evidence/regression/desktop_approval.log": "7BC8663CAF569852CC9A0C2A0DECF1B90991C79CC0CE48A606933903EE4A9530",
+    "docs/security_v12/s8_evidence/native_recheck/s4_process.xml": "EB862427CC72EEDEA1E3407DD7B3244F17060545A5C78893533F7C12DE13F440",
+    "docs/security_v12/s8_evidence/regression/run.json": "DD16F4B46ABD5E6FE63D968D573BF0FCA87F0C2F1E901F81BCB8471B9ED92ABD",
+    "docs/security_v12/s8_evidence/native_recheck/network_observations.json": "380433DFFCD0885D7C492C1DC20810AAA5A4CFAA642BE7A7DA0F528CD059C654",
+    "docs/security_v12/s8_evidence/native_recheck/selected.log": "171655824104681C92DECE6EC6F130C97CF5E9A427B353CA847026D8E0EB78F0",
+    "docs/security_v12/s8_evidence/regression/s8_adversarial.log": "538DBE76EEF90E8DFABD31A666B9C28FAFBC48DEE000866F45B62AF593555C13",
+    "docs/security_v12/s8_evidence/regression/security_regression.xml": "38A0588BC5F26690E471494C2E5700937786350EE947AD7063A7623D0B7B4741",
+    "docs/security_v12/s8_evidence/regression/desktop_audit.log": "DBBFC50879F82109DF9D4573A055C6E06434D1D2FCAF6456C962418A54BFCCA5",
+    "docs/security_v12/s8_evidence/verification.json": "FD805C363A3152EE70FAB2BBA3964B9C73357CEA8BEDD5203D6AF0C1874F38A3",
+    "docs/security_v12/s8_evidence/native_recheck/s4_process.log": "73078E51B67EEC20D615B3C51FF34A9207F66E0231B5DD95417A7D42EB48FDA1",
+    "docs/security_v12/s8_evidence/native_recheck/desktop_tsc.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/regression/core_regression.log": "06D4E63B958962884F18CF457C7EEF0AC4061F011A56B29F455CEDB98FF7BB28",
+    "docs/security_v12/s8_evidence/regression/desktop_client.log": "87623CFD297FEB34E74C362A0134E33D0B76C7B8B063A4751E11C54B011695F1",
+    "docs/security_v12/s8_evidence/native_recheck/run.json": "DFA7729DB1A44990A78FF1DD0DA2505161BDF71A23178CC3B0A478820D24BE4B",
+    "docs/security_v12/s8_evidence/native_recheck/s3_windows.xml": "D50ADFCCDF1C8409D1A46CD7F5D9986397DEADF6D02EEAB8D58F992F8A0D18ED",
+    "docs/security_v12/s8_evidence/native_recheck/s5_network.xml": "E9241A904E5C82D4618C7285608D41771E60EF6BA7382E672851CA3BDADDD9CC",
+    "docs/security_v12/s8_evidence/regression/core_regression.xml": "BBB9D84FC0A21881E636AAA052831E4CD8962628FBEAAC281D915CEB403CE457",
+    "docs/security_v12/s8_evidence/native_recheck/s3_windows.log": "B3D377394A77E0DA6A80671973E53337BFE54306A09AE6619693C45622AF08E7",
+    "docs/security_v12/s8_evidence/native_recheck/selected.xml": "68278EDF9727563BDAF932E2ACB8A4AAEB412353601B58E7A4388E9E8FE0809C",
+    "docs/security_v12/s8_evidence/regression/s8_adversarial.xml": "0DE6F2E739CE8BBF02FF03B9ACECF8F09B28BF23E5EBCA74CAC185D0E8D6DA45",
+    "docs/security_v12/s8_evidence/native_recheck/desktop_client.log": "E2676A6CB6C71A7892FCF1EC1C9001E2B52B721DA539A648A6593118F4E417E4",
+    "docs/security_v12/s8_evidence/regression/desktop_tsc.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s8_evidence/native_recheck/s5_network.log": "708BCE87A3C2E5BCE46B2B119DFE9ABD88B9C9A08ABFB4807A94D658040FFE50",
+    "docs/security_v12/s8_evidence/regression/security_regression.log": "EEB129621AA7580DD7BB1B8C1841B8CD99103AAAB2C0F7698A4B8C53E0FEC3FC",
+    "docs/security_v12/s8_evidence/native_recheck/s6_secrets.xml": "D8CCB73EB3566F3D90B3968D70684DFD69A691625B8E8C5FFF6F6307A96C8598"
+  },
+  "verification": {
+    "currentProductDriftInAllDefinitiveRuns": [],
+    "pinsExcludeManifestSelfHash": true,
+    "previousAttemptsPreserved": true,
+    "rawLogsAndJunitPinned": true
+  }
+}

@@ -61,10 +61,16 @@ class CliApplicationClient:
         self._on_command = on_command or (lambda _kind, _payload, _receipt: None)
         self._on_submit = on_submit or (lambda _content: None)
         self._on_turn_complete = on_turn_complete or (lambda _error: None)
+        self._approval_actor = application.register_approval_actor(
+            'cli_tty', self._human_tty)
         state = application.get_snapshot(session_id)
         self._cursor = application.subscribe_events(
             session_id, after_sequence=state.last_sequence,
             include_internal=True)
+
+    @staticmethod
+    def _human_tty() -> bool:
+        return bool(sys.stdin.isatty() and sys.stdout.isatty())
 
     def close(self) -> None:
         self._cursor._stream.close(self._cursor)
@@ -80,7 +86,8 @@ class CliApplicationClient:
         command_payload = payload or {}
         receipt = self.application.handle(ApplicationCommand(
             command_id=command_id or new_command_id(), kind=kind,
-            payload=command_payload, session_id=self.session_id))
+            payload=command_payload, session_id=self.session_id,
+            approval_actor=self._approval_actor if kind is CommandKind.RESOLVE_APPROVAL else None))
         if isinstance(receipt, CommandReceipt):
             self._on_command(kind, command_payload, receipt)
         return receipt
@@ -149,6 +156,8 @@ class CliApplicationClient:
 
     def _render(self, event) -> None:
         self._on_event(event)
+        if event.payload.get('securityAudit', {}).get('gap'):
+            self._write_error('Warning: SECURITY_AUDIT_DELIVERY_FAILED; audit gap. Observed result retained; no retry/rollback.\n')
         if event.kind is EventKind.ASSISTANT_DELTA:
             self._write(event.payload["text"])
         elif event.kind is EventKind.THINKING_DELTA:
@@ -173,12 +182,18 @@ class CliApplicationClient:
         elif event.kind is EventKind.OPERATION_PROGRESS:
             self._write(f"RAG {event.payload.get('action', '')}: {event.payload.get('phase', '')}\n")
         elif event.kind is EventKind.APPROVAL_REQUIRED:
+            if event.payload.get('arguments', {}).get('environment'):
+                import json
+                self._write('Environment: ' + json.dumps(
+                    dict(event.payload['arguments']['environment']), ensure_ascii=False) + '\n')
             arguments = event.payload["arguments"]
             try:
-                answer = self._read(f"\nAllow command '{arguments.get('command', '')}'? [y/N] ")
+                answer = (self._read(f"\nRun with your account permissions in {event.payload['cwd']}: "
+                                     f"'{arguments.get('command', '')}'? [y/N] ")
+                          if self._human_tty() else '')
             except (EOFError, KeyboardInterrupt):
                 answer = ""
-            approved = answer.strip().lower() in ("y", "yes", "s", "sí")
+            approved = self._human_tty() and answer.strip().lower() in ("y", "yes", "s", "sí")
             self.command(CommandKind.RESOLVE_APPROVAL, {
                 "approvalId": event.approval_id,
                 "toolCallId": event.tool_call_id,

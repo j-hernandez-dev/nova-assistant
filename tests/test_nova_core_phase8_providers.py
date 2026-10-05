@@ -363,7 +363,7 @@ def test_provider_change_does_not_resolve_or_cancel_pending_interaction(tmp_path
         cwd=tmp_path, environment={}))
     call = {"role": "assistant", "content": "", "tool_calls": [{"function": {
         "name": tool_name, "arguments": {"question": "Continue?"} if tool_name == "ask_user"
-                                         else {"command": "sudo echo hello"}}}]}
+                                         else {"command": "git reset --hard"}}}]}
     provider = Provider(steps=[call, "done"])
     coordinator = AgentSessionCoordinator(provider=provider, model="old", provider_manager=manager(provider),
         tool_factory=lambda _cwd: [tool])
@@ -388,7 +388,9 @@ def test_provider_change_does_not_resolve_or_cancel_pending_interaction(tmp_path
                    "requestDigest": request.request_digest, "cwd": request.cwd,
                    "policyRevision": request.policy_revision, "approved": False}
         kind = CommandKind.RESOLVE_APPROVAL
-    assert coordinator.handle(ApplicationCommand(new_command_id(), kind, payload, session_id=session_id)).accepted
+    actor = coordinator.register_approval_actor('desktop_host', lambda: True)
+    assert coordinator.handle(ApplicationCommand(new_command_id(), kind, payload,
+                              session_id=session_id, approval_actor=actor)).accepted
     assert coordinator.wait_for_turn(turn.created_ids["turnId"], 5)
     assert len(snapshot(coordinator, session_id).turns) == 1
     executor.run.assert_not_called()

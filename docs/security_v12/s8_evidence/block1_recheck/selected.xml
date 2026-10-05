@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="17" time="0.895" timestamp="2026-10-04T14:22:23.135091-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s8_adversarial" name="test_untrusted_context_cannot_authorize_destructive_model_tool[file]" file="tests\security_v12\test_s8_adversarial.py" line="22" time="0.082"><failure message="ValueError: event stream is not configured">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_ziivxx1w/selected/test_untrusted_context_cannot_0')
+source = 'file'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+&gt;       console=CliApplicationClient(app,sid,write=lambda _:None,write_error=lambda _:None,
+                                    read=lambda _:pytest.fail('Headless input is not human consent'))
+
+tests\security_v12\test_s8_adversarial.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:67: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x00000187FC7CC980&gt;
+session_id = 'ses_2c1dd563560441b78eb58d273e14c4d3', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -&gt; EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+&gt;               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1500: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s8_adversarial" name="test_untrusted_context_cannot_authorize_destructive_model_tool[web]" file="tests\security_v12\test_s8_adversarial.py" line="22" time="0.060"><failure message="ValueError: event stream is not configured">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_ziivxx1w/selected/test_untrusted_context_cannot_1')
+source = 'web'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+&gt;       console=CliApplicationClient(app,sid,write=lambda _:None,write_error=lambda _:None,
+                                    read=lambda _:pytest.fail('Headless input is not human consent'))
+
+tests\security_v12\test_s8_adversarial.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:67: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x00000187FC7CF0E0&gt;
+session_id = 'ses_c05b6052f15442168d4a3ed90761f1cb', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -&gt; EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+&gt;               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1500: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s8_adversarial" name="test_untrusted_context_cannot_authorize_destructive_model_tool[RAG]" file="tests\security_v12\test_s8_adversarial.py" line="22" time="0.063"><failure message="ValueError: event stream is not configured">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_ziivxx1w/selected/test_untrusted_context_cannot_2')
+source = 'RAG'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+&gt;       console=CliApplicationClient(app,sid,write=lambda _:None,write_error=lambda _:None,
+                                    read=lambda _:pytest.fail('Headless input is not human consent'))
+
+tests\security_v12\test_s8_adversarial.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:67: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x00000187FC7CF4D0&gt;
+session_id = 'ses_89816ecf66604809b4ab51db199bdd55', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -&gt; EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+&gt;               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1500: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s8_adversarial" name="test_untrusted_context_cannot_authorize_destructive_model_tool[tool_result]" file="tests\security_v12\test_s8_adversarial.py" line="22" time="0.064"><failure message="ValueError: event stream is not configured">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_ziivxx1w/selected/test_untrusted_context_cannot_3')
+source = 'tool_result'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+&gt;       console=CliApplicationClient(app,sid,write=lambda _:None,write_error=lambda _:None,
+                                    read=lambda _:pytest.fail('Headless input is not human consent'))
+
+tests\security_v12\test_s8_adversarial.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:67: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x00000187FC726F90&gt;
+session_id = 'ses_ef88b2646dcd44a5873ee5e9b9fc8520', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -&gt; EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+&gt;               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1500: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s8_adversarial" name="test_untrusted_context_cannot_authorize_destructive_model_tool[project_instructions]" file="tests\security_v12\test_s8_adversarial.py" line="22" time="0.061"><failure message="ValueError: event stream is not configured">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_ziivxx1w/selected/test_untrusted_context_cannot_4')
+source = 'project_instructions'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+&gt;       console=CliApplicationClient(app,sid,write=lambda _:None,write_error=lambda _:None,
+                                    read=lambda _:pytest.fail('Headless input is not human consent'))
+
+tests\security_v12\test_s8_adversarial.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:67: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x00000187FC726900&gt;
+session_id = 'ses_81739c32b43a40abbff39e31893dbc70', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -&gt; EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+&gt;               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1500: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s8_adversarial" name="test_unexpected_bash_authority_args_fail_typed_before_effect[extra0]" file="tests\security_v12\test_s8_adversarial.py" line="52" time="0.005" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_unexpected_bash_authority_args_fail_typed_before_effect[extra1]" file="tests\security_v12\test_s8_adversarial.py" line="52" time="0.004" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_unexpected_bash_authority_args_fail_typed_before_effect[extra2]" file="tests\security_v12\test_s8_adversarial.py" line="52" time="0.004" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_unexpected_bash_authority_args_fail_typed_before_effect[extra3]" file="tests\security_v12\test_s8_adversarial.py" line="52" time="0.004" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_unexpected_bash_authority_args_fail_typed_before_effect[extra4]" file="tests\security_v12\test_s8_adversarial.py" line="52" time="0.005" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_unexpected_bash_authority_args_fail_typed_before_effect[extra5]" file="tests\security_v12\test_s8_adversarial.py" line="52" time="0.004" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_unexpected_bash_authority_args_fail_typed_before_effect[extra6]" file="tests\security_v12\test_s8_adversarial.py" line="52" time="0.004" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_unexpected_bash_authority_args_fail_typed_before_effect[extra7]" file="tests\security_v12\test_s8_adversarial.py" line="52" time="0.003" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_injection_yes_cannot_turn_block_or_elevation_into_allow[sudo whoami]" file="tests\security_v12\test_s8_adversarial.py" line="75" time="0.005" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_injection_yes_cannot_turn_block_or_elevation_into_allow[Start-Process cmd -Verb RunAs]" file="tests\security_v12\test_s8_adversarial.py" line="75" time="0.004" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_injection_yes_cannot_turn_block_or_elevation_into_allow[Format-Volume D:]" file="tests\security_v12\test_s8_adversarial.py" line="75" time="0.004" /><testcase classname="tests.security_v12.test_s8_adversarial" name="test_changed_operation_replay_never_reexecutes_uncertain_effect" file="tests\security_v12\test_s8_adversarial.py" line="86" time="0.013" /></testsuite></testsuites>

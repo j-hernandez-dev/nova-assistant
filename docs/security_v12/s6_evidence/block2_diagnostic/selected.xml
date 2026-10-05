@@ -1,0 +1,1049 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="27" skipped="0" tests="108" time="2.418" timestamp="2026-10-04T08:08:27.171560-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s6_redaction" name="test_known_unused_variable_redacted_everywhere_without_mutating_input" file="tests\security_v12\test_s6_redaction.py" line="12" time="0.003" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[1]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.001" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[2]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[3]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.001" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[4]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[5]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[6]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[7]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[8]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[9]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[10]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[11]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.001" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[12]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.001" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[13]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.001" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[14]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.001" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[15]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_stream_no_partial_publication_and_finish_masks_prefix[16]" file="tests\security_v12\test_s6_redaction.py" line="20" time="0.000" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_tool_result_preserves_status_effect_numeric_and_masks_truncation" file="tests\security_v12\test_s6_redaction.py" line="30" time="0.001" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_unicode_json_and_url_encoded_known_value" file="tests\security_v12\test_s6_redaction.py" line="41" time="0.001" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_logger_redacts_before_clip_and_exception_serialization" file="tests\security_v12\test_s6_redaction.py" line="48" time="0.035" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_exception_cause_trace_scrubbed" file="tests\security_v12\test_s6_redaction.py" line="57" time="0.002"><failure message="AssertionError: assert 'dummy-api-key-123' not in 'Traceback (...[REDACTED]\n'&#10;  &#10;  'dummy-api-key-123' is contained here:&#10;    or('inner dummy-api-key-123')&#10;    ValueError: inner [REDACTED]&#10;    &#10;    The above exception was the direct cause of the following exception:&#10;    ...&#10;  &#10;  ...Full output truncated (4 lines hidden), use '-vv' to show">def test_exception_cause_trace_scrubbed():
+        import traceback
+        r = redactor()
+        try:
+            try:
+&gt;               raise ValueError('inner dummy-api-key-123')
+E               ValueError: inner [REDACTED]
+
+tests\security_v12\test_s6_redaction.py:63: ValueError
+
+The above exception was the direct cause of the following exception:
+
+    def test_exception_cause_trace_scrubbed():
+        import traceback
+        r = redactor()
+        try:
+            try:
+                raise ValueError('inner dummy-api-key-123')
+            except ValueError as cause:
+&gt;               raise RuntimeError('outer dummy-api-key-123') from cause
+E               RuntimeError: outer [REDACTED]
+
+tests\security_v12\test_s6_redaction.py:65: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+    def test_exception_cause_trace_scrubbed():
+        import traceback
+        r = redactor()
+        try:
+            try:
+                raise ValueError('inner dummy-api-key-123')
+            except ValueError as cause:
+                raise RuntimeError('outer dummy-api-key-123') from cause
+        except RuntimeError as exc:
+            r.exception(exc)
+&gt;           assert 'dummy-api-key-123' not in ''.join(traceback.format_exception(exc))
+E           AssertionError: assert 'dummy-api-key-123' not in 'Traceback (...[REDACTED]\n'
+E             
+E             'dummy-api-key-123' is contained here:
+E               or('inner dummy-api-key-123')
+E               ValueError: inner [REDACTED]
+E               
+E               The above exception was the direct cause of the following exception:
+E               ...
+E             
+E             ...Full output truncated (4 lines hidden), use '-vv' to show
+
+tests\security_v12\test_s6_redaction.py:68: AssertionError</failure></testcase><testcase classname="tests.security_v12.test_s6_redaction" name="test_event_stream_split_secret_survives_timer_and_cursor" file="tests\security_v12\test_s6_redaction.py" line="70" time="0.025"><failure message="ValueError: generation terminal requires IDs and matching status">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_event_stream_split_secret0')
+
+    def test_event_stream_split_secret_survives_timer_and_cursor(tmp_path):
+        from local_cli.application.events import SessionEventStream, EventBufferConfig
+        from local_cli.core.contracts import EventKind
+        stream = SessionEventStream('session', EventBufferConfig(delta_batch_count=1), redactor=redactor())
+        for text in ['dummy-api-', 'key-123']:
+            stream.publish(EventKind.ASSISTANT_DELTA, {'text':text}, state_revision=1, generation_id='generation')
+            assert 'dummy-api-' not in json.dumps([e.to_dict() for e in stream._journal.read_after(0)])
+&gt;       stream.publish(EventKind.GENERATION_COMPLETED, {'status':'completed'}, state_revision=1, generation_id='generation')
+
+tests\security_v12\test_s6_redaction.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\application\events.py:204: in publish
+    return self._append(kind, payload, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\events.py:119: in _append
+    event = self._new_event(kind, payload, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\events.py:108: in _new_event
+    event = EventEnvelope(
+&lt;string&gt;:19: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = EventEnvelope(schema_version=1, event_id='event_2157844a32e8481eaa674431f96b8f3d', sequence=2, session_id='session', t..., generation_id='generation', operation_id=None, tool_call_id=None, approval_id=None, agent_id=None, causation_id=None)
+
+    def __post_init__(self) -&gt; None:
+        if (type(self.schema_version) is not int or self.schema_version != 1 or
+                type(self.sequence) is not int or self.sequence &lt; 1 or
+                type(self.state_revision) is not int or self.state_revision &lt; 0):
+            raise ValueError("unsupported version or invalid sequence/revision")
+        if (not self.event_id or not self.session_id or
+                not isinstance(self.timestamp, datetime) or
+                self.timestamp.tzinfo is None):
+            raise ValueError("event requires IDs and timezone-aware timestamp")
+        if not isinstance(self.kind, EventKind) or not isinstance(self.visibility, Visibility):
+            raise TypeError("event kind and visibility must use contract enums")
+        if self.kind in _TURN_TERMINALS:
+            if not self.turn_id or self.payload.get("status") != _TURN_TERMINALS[self.kind].value:
+                raise ValueError("turn terminal requires matching turnId and status")
+        if self.kind in _GENERATION_TERMINALS:
+            if (not self.turn_id or not self.generation_id or
+                    self.payload.get("status") != _GENERATION_TERMINALS[self.kind].value):
+&gt;               raise ValueError("generation terminal requires IDs and matching status")
+E               ValueError: generation terminal requires IDs and matching status
+
+local_cli\core\contracts.py:469: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s6_redaction" name="test_persistence_new_writes_and_reads_safe_without_rewriting_old_file" file="tests\security_v12\test_s6_redaction.py" line="82" time="0.006" /><testcase classname="tests.security_v12.test_s6_redaction" name="test_provider_credential_stays_in_adapter_not_prompt_or_split_reply" file="tests\security_v12\test_s6_redaction.py" line="96" time="0.006"><failure message="AssertionError: assert 'dummy-api-key-123' == '[REDACTED]'&#10;  &#10;  - [REDACTED]&#10;  + dummy-api-key-123">def test_provider_credential_stays_in_adapter_not_prompt_or_split_reply():
+        from local_cli.application.providers import ProviderManager
+        class Provider:
+            name = 'fixture'
+            _api_key = 'dummy-api-key-123'
+            def chat_stream(self, model, messages, **kwargs):
+                assert messages[0]['content'] == MARKER
+                assert self._api_key == 'dummy-api-key-123'
+                yield {'message':{'content':'dummy-api-'}}
+                yield {'message':{'content':'key-123'}, 'done':True}
+        runtime = ProviderManager(Provider(), 'fixture').snapshot()
+&gt;       chunks = list(runtime.chat_stream('fixture', [{'role':'user','content':'dummy-api-key-123'}]))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s6_redaction.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\application\providers.py:134: in chat_stream
+    for chunk in stream:
+                 ^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;test_s6_redaction.test_provider_credential_stays_in_adapter_not_prompt_or_split_reply.&lt;locals&gt;.Provider object at 0x0000023BDBF0D400&gt;
+model = 'fixture', messages = [{'role': 'user', 'content': 'dummy-api-key-123'}]
+kwargs = {}
+
+    def chat_stream(self, model, messages, **kwargs):
+&gt;       assert messages[0]['content'] == MARKER
+E       AssertionError: assert 'dummy-api-key-123' == '[REDACTED]'
+E         
+E         - [REDACTED]
+E         + dummy-api-key-123
+
+tests\security_v12\test_s6_redaction.py:103: AssertionError</failure></testcase><testcase classname="tests.security_v12.test_s6_runtime" name="test_exact_approval_pass_and_no_automatic_reuse" file="tests\security_v12\test_s6_runtime.py" line="26" time="0.058" /><testcase classname="tests.security_v12.test_s6_runtime" name="test_pending_change_denies_before_launcher_and_consumes_selection[policy]" file="tests\security_v12\test_s6_runtime.py" line="49" time="0.012" /><testcase classname="tests.security_v12.test_s6_runtime" name="test_pending_change_denies_before_launcher_and_consumes_selection[cancel]" file="tests\security_v12\test_s6_runtime.py" line="49" time="0.067" /><testcase classname="tests.security_v12.test_s6_runtime" name="test_pending_change_denies_before_launcher_and_consumes_selection[arguments]" file="tests\security_v12\test_s6_runtime.py" line="49" time="0.073" /><testcase classname="tests.security_v12.test_s6_runtime" name="test_pending_change_denies_before_launcher_and_consumes_selection[selection]" file="tests\security_v12\test_s6_runtime.py" line="49" time="0.070" /><testcase classname="tests.security_v12.test_s6_runtime" name="test_pass_without_human_approval_fails_even_yes" file="tests\security_v12\test_s6_runtime.py" line="69" time="0.009" /><testcase classname="tests.security_v12.test_s6_runtime" name="test_public_requested_started_and_result_never_carry_private_env" file="tests\security_v12\test_s6_runtime.py" line="78" time="0.017" /><testcase classname="tests.test_nova_core_phase4_session" name="test_one_session_start_idempotency_and_conflict" file="tests\test_nova_core_phase4_session.py" line="62" time="0.005"><failure message="AssertionError: assert (True and False)&#10; +  where True = isinstance(CommandReceipt(command_id='command_751313ef7e0b4cc89b7c678da65334ec', accepted=False, session_id=None, state_revision=...Category.CONTEXT: 'CONTEXT'&gt;, safe_message='Could not initialize the AgentSession', retryable=False), schema_version=1), CommandReceipt)&#10; +  and   False = CommandReceipt(command_id='command_751313ef7e0b4cc89b7c678da65334ec', accepted=False, session_id=None, state_revision=...Category.CONTEXT: 'CONTEXT'&gt;, safe_message='Could not initialize the AgentSession', retryable=False), schema_version=1).accepted">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_one_session_start_idempot0')
+
+    def test_one_session_start_idempotency_and_conflict(tmp_path):
+        coordinator = AgentSessionCoordinator(provider=ScriptedProvider([]), model="local",
+                                              tool_factory=lambda cwd: [])
+        command_id = new_command_id()
+        first = start(coordinator, tmp_path, command_id)
+&gt;       assert isinstance(first, CommandReceipt) and first.accepted
+E       AssertionError: assert (True and False)
+E        +  where True = isinstance(CommandReceipt(command_id='command_751313ef7e0b4cc89b7c678da65334ec', accepted=False, session_id=None, state_revision=...Category.CONTEXT: 'CONTEXT'&gt;, safe_message='Could not initialize the AgentSession', retryable=False), schema_version=1), CommandReceipt)
+E        +  and   False = CommandReceipt(command_id='command_751313ef7e0b4cc89b7c678da65334ec', accepted=False, session_id=None, state_revision=...Category.CONTEXT: 'CONTEXT'&gt;, safe_message='Could not initialize the AgentSession', retryable=False), schema_version=1).accepted
+
+tests\test_nova_core_phase4_session.py:68: AssertionError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_submit_creates_one_turn_and_duplicate_reuses_receipt" file="tests\test_nova_core_phase4_session.py" line="74" time="0.004"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_submit_creates_one_turn_a0')
+
+    def test_submit_creates_one_turn_and_duplicate_reuses_receipt(tmp_path):
+        coordinator = AgentSessionCoordinator(provider=ScriptedProvider(["respuesta"]),
+                                              model="local", tool_factory=lambda cwd: [])
+        session_id = start(coordinator, tmp_path).session_id
+        command_id = new_command_id()
+&gt;       receipt = submit(coordinator, session_id, "hola", command_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase4_session.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_abdc9c47e4e349078438b0566a8ac3c1', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'hola'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_active_turn_rejects_second_turn_without_creating_chat" file="tests\test_nova_core_phase4_session.py" line="92" time="0.005"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_active_turn_rejects_secon0')
+
+    def test_active_turn_rejects_second_turn_without_creating_chat(tmp_path):
+        entered, release = Event(), Event()
+    
+        def blocking_runner(provider, model, tools, messages, **kwargs):
+            entered.set()
+            assert release.wait(5)
+            messages.append({"role": "assistant", "content": "done"})
+            return "done"
+    
+        coordinator = AgentSessionCoordinator(provider=object(), model="local",
+                                              tool_factory=lambda cwd: [],
+                                              run_agent_fn=blocking_runner)
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       first = submit(coordinator, session_id, "one")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase4_session.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_6fe66c5a95bd41fda4e309bafe445f4b', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'one'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_failure_has_one_terminal_and_can_start_next_turn" file="tests\test_nova_core_phase4_session.py" line="114" time="0.004"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_failure_has_one_terminal_0')
+
+    def test_failure_has_one_terminal_and_can_start_next_turn(tmp_path):
+        calls = 0
+    
+        def runner(provider, model, tools, messages, **kwargs):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise RuntimeError("provider failed")
+            messages.append({"role": "assistant", "content": "recovered"})
+            return "recovered"
+    
+        coordinator = AgentSessionCoordinator(provider=object(), model="local",
+                                              tool_factory=lambda cwd: [],
+                                              run_agent_fn=runner)
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       first = submit(coordinator, session_id, "first")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase4_session.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_4380363d4c1b4ed7b65908de03d57955', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'first'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_compaction_of_working_messages_preserves_canonical_transcript" file="tests\test_nova_core_phase4_session.py" line="138" time="0.005"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_compaction_of_working_mes0')
+
+    def test_compaction_of_working_messages_preserves_canonical_transcript(tmp_path):
+        def compacting_runner(provider, model, tools, messages, **kwargs):
+            messages.append({"role": "assistant", "content": "before compaction"})
+            del messages[1:]
+            messages.append({"role": "assistant", "content": "after compaction"})
+            return "after compaction"
+    
+        coordinator = AgentSessionCoordinator(provider=object(), model="local",
+                                              tool_factory=lambda cwd: [],
+                                              run_agent_fn=compacting_runner)
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       receipt = submit(coordinator, session_id, "keep me")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase4_session.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_8a50d31e3cd44493a8b4b57ad291ef99', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'keep me'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_real_legacy_loop_tool_rescue_remains_available" file="tests\test_nova_core_phase4_session.py" line="156" time="0.005"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_real_legacy_loop_tool_res0')
+
+    def test_real_legacy_loop_tool_rescue_remains_available(tmp_path):
+        text_call = '&lt;tool_call&gt;{"name":"echo","arguments":{"text":"ok"}}&lt;/tool_call&gt;'
+        direct_tool = EchoTool()
+        direct_provider = ScriptedProvider([text_call, "finished"])
+        direct_messages = [{"role": "system", "content": "sys"},
+                           {"role": "user", "content": "echo"}]
+        direct_answer = run_agent(direct_provider, "local", [direct_tool], direct_messages)
+    
+        tool = EchoTool()
+        coordinator = AgentSessionCoordinator(
+            provider=ScriptedProvider([text_call, "finished"]), model="local",
+            tool_factory=lambda cwd: [tool],
+            prompt_factory=lambda tools, cwd: "sys",
+        )
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       receipt = submit(coordinator, session_id, "echo")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase4_session.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_141647dceac84b34bf35d60c6145c17c', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'echo'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_read_before_edit_guard_uses_session_workspace" file="tests\test_nova_core_phase4_session.py" line="179" time="0.008"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_read_before_edit_guard_us0')
+
+    def test_read_before_edit_guard_uses_session_workspace(tmp_path):
+        target = tmp_path / "target.py"
+        target.write_text("value = 1\n")
+        request = {"role": "assistant", "content": "", "tool_calls": [{
+            "function": {"name": "edit", "arguments": {
+                "file_path": "target.py", "old_text": "value = 1", "new_text": "value = 2",
+            }},
+        }]}
+        coordinator = AgentSessionCoordinator(
+            provider=ScriptedProvider([request, "done"]), model="local",
+            tool_factory=lambda cwd: [ReadTool(cwd=cwd), EditTool(cwd=cwd)],
+        )
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       receipt = submit(coordinator, session_id, "update target.py")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase4_session.py:193: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_cffca57a7cdb45e7b326685f922dd974', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'update target.py'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_followup_turn_uses_prior_transcript_and_snapshot_isolated" file="tests\test_nova_core_phase4_session.py" line="200" time="0.004"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_followup_turn_uses_prior_0')
+
+    def test_followup_turn_uses_prior_transcript_and_snapshot_isolated(tmp_path):
+        seen = []
+    
+        def runner(provider, model, tools, messages, **kwargs):
+            seen.append([m["content"] for m in messages if m["role"] == "user"])
+            messages.append({"role": "assistant", "content": "reply"})
+            return "reply"
+    
+        coordinator = AgentSessionCoordinator(provider=object(), model="local",
+                                              tool_factory=lambda cwd: [],
+                                              run_agent_fn=runner)
+        session_id = start(coordinator, tmp_path).session_id
+        for content in ("first", "second"):
+&gt;           receipt = submit(coordinator, session_id, content)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase4_session.py:214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_7472dc1faeec4b8ba21bfa1749be7a82', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'first'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_stale_revision_and_wrong_session_reject_without_turn" file="tests\test_nova_core_phase4_session.py" line="221" time="0.005"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_stale_revision_and_wrong_0')
+
+    def test_stale_revision_and_wrong_session_reject_without_turn(tmp_path):
+        coordinator = AgentSessionCoordinator(provider=ScriptedProvider([]), model="local",
+                                              tool_factory=lambda cwd: [])
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       stale = coordinator.handle(ApplicationCommand(
+            command_id=new_command_id(), kind=CommandKind.SUBMIT_USER_INPUT,
+            session_id=session_id, expected_revision=0, payload={"content": "hello"},
+        ))
+
+tests\test_nova_core_phase4_session.py:226: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_8b8e846605bd47f698ce617d8ea8279c', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'hello'}, session_id=None, expected_revision=0, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_invalid_runtime_outcome_fails_turn_once" file="tests\test_nova_core_phase4_session.py" line="235" time="0.007"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_invalid_runtime_outcome_f0')
+
+    def test_invalid_runtime_outcome_fails_turn_once(tmp_path):
+        class BrokenRuntime:
+            def run_turn(self, **kwargs):
+                return None
+    
+        coordinator = AgentSessionCoordinator(provider=object(), model="local",
+                                              tool_factory=lambda cwd: [],
+                                              runtime=BrokenRuntime())
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       receipt = submit(coordinator, session_id, "hello")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase4_session.py:245: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_3de9abefe5dc4fd0aaa5f535e2ca974a', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'hello'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_legacy_adapter_forwards_harness_configuration" file="tests\test_nova_core_phase4_session.py" line="252" time="0.004"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_legacy_adapter_forwards_h0')
+
+    def test_legacy_adapter_forwards_harness_configuration(tmp_path):
+        selected = HarnessConfig(max_iterations=2)
+        seen = []
+    
+        def runner(provider, model, tools, messages, **kwargs):
+            seen.append(kwargs["harness"])
+            messages.append({"role": "assistant", "content": "done"})
+            return "done"
+    
+        coordinator = AgentSessionCoordinator(provider=object(), model="local",
+                                              tool_factory=lambda cwd: [],
+                                              run_agent_fn=runner, harness=selected)
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       receipt = submit(coordinator, session_id, "hello")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase4_session.py:266: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_571dea008c85435bb51bc0c4a6235e83', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'hello'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase4_session" name="test_runtime_outcome_requires_typed_terminal_status" file="tests\test_nova_core_phase4_session.py" line="270" time="0.001" /><testcase classname="tests.test_nova_core_phase4_session" name="test_read_history_relative_path_uses_session_workspace" file="tests\test_nova_core_phase4_session.py" line="275" time="0.003" /><testcase classname="tests.test_nova_core_phase5_events" name="test_delta_batching_keeps_order_and_terminal_visible" file="tests\test_nova_core_phase5_events.py" line="19" time="0.002" /><testcase classname="tests.test_nova_core_phase5_events" name="test_bounded_delivery_replays_without_blocking_producer" file="tests\test_nova_core_phase5_events.py" line="41" time="0.001" /><testcase classname="tests.test_nova_core_phase5_events" name="test_expired_cursor_gets_gap_then_snapshot_and_can_continue" file="tests\test_nova_core_phase5_events.py" line="50" time="0.001" /><testcase classname="tests.test_nova_core_phase5_events" name="test_internal_events_are_not_sent_to_public_subscriber" file="tests\test_nova_core_phase5_events.py" line="66" time="0.001" /><testcase classname="tests.test_nova_core_phase5_events" name="test_session_events_survive_consumer_disconnect_and_snapshot_has_cursor" file="tests\test_nova_core_phase5_events.py" line="77" time="0.003"><failure message="ValueError: No matching active AgentSession">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_session_events_survive_co0')
+
+    def test_session_events_survive_consumer_disconnect_and_snapshot_has_cursor(tmp_path):
+        entered, release = Event(), Event()
+    
+        def runner(provider, model, tools, messages, **kwargs):
+            emit = kwargs["emit"]
+            emit(AgentEvent("llm_start", {"iteration": 1}))
+            emit(AgentEvent("content_delta", {"text": "hola"}))
+            entered.set()
+            assert release.wait(5)
+            emit(AgentEvent("assistant_message", {"content": "hola"}))
+            messages.append({"role": "assistant", "content": "hola"})
+            return "hola"
+    
+        coordinator = AgentSessionCoordinator(
+            provider=object(), model="local", tool_factory=lambda cwd: [],
+            run_agent_fn=runner, event_config=EventBufferConfig(32, 16, 8),
+        )
+        started = coordinator.handle(ApplicationCommand(
+            command_id=new_command_id(), kind=CommandKind.START_SESSION,
+            payload={"workspace": str(tmp_path)},
+        ))
+&gt;       cursor = coordinator.subscribe_events(started.session_id, after_sequence=0)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase5_events.py:99: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\application\session.py:1465: in subscribe_events
+    self._snapshot_unlocked(session_id)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023BDBF0DE80&gt;
+session_id = None
+
+    def _snapshot_unlocked(self, session_id: SessionId | None) -&gt; SessionSnapshot:
+        session = self._session
+        if session is None or session.session_id != session_id:
+&gt;           raise ValueError("No matching active AgentSession")
+E           ValueError: No matching active AgentSession
+
+local_cli\application\session.py:1404: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase5_events" name="test_legacy_jsonl_bridge_preserves_existing_stream_and_tool_shapes" file="tests\test_nova_core_phase5_events.py" line="126" time="0.002" /><testcase classname="tests.test_nova_core_phase5_events" name="test_subscribe_command_and_expired_renderer_get_current_turn_state" file="tests\test_nova_core_phase5_events.py" line="150" time="0.004"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_subscribe_command_and_exp0')
+
+    def test_subscribe_command_and_expired_renderer_get_current_turn_state(tmp_path):
+        def runner(provider, model, tools, messages, **kwargs):
+            emit = kwargs["emit"]
+            emit(AgentEvent("llm_start", {"iteration": 1}))
+            for part in ("a", "b", "c", "d"):
+                emit(AgentEvent("content_delta", {"text": part}))
+            emit(AgentEvent("assistant_message", {"content": "abcd"}))
+            messages.append({"role": "assistant", "content": "abcd"})
+            return "abcd"
+    
+        coordinator = AgentSessionCoordinator(
+            provider=object(), model="local", tool_factory=lambda cwd: [],
+            run_agent_fn=runner, event_config=EventBufferConfig(3, 2, 1),
+        )
+        started = coordinator.handle(ApplicationCommand(
+            command_id=new_command_id(), kind=CommandKind.START_SESSION,
+            payload={"workspace": str(tmp_path)},
+        ))
+&gt;       subscribed = coordinator.handle(ApplicationCommand(
+            command_id=new_command_id(), kind=CommandKind.SUBSCRIBE_EVENTS,
+            session_id=started.session_id, payload={"afterSequence": 0},
+        ))
+
+tests\test_nova_core_phase5_events.py:169: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_66d7d0be945a44f5960b00f729bb018b', kind=&lt;CommandKind.SUBSCRIBE_EVENTS: 'SubscribeEvents'&gt;, payload={'afterSequence': 0}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase5_events" name="test_invalid_event_does_not_consume_sequence" file="tests\test_nova_core_phase5_events.py" line="186" time="0.001" /><testcase classname="tests.test_nova_core_phase5_events" name="test_parallel_publishers_get_unique_monotonic_sequences" file="tests\test_nova_core_phase5_events.py" line="198" time="0.009" /><testcase classname="tests.test_nova_core_phase5_events" name="test_failed_turn_has_one_operation_terminal_and_one_turn_terminal" file="tests\test_nova_core_phase5_events.py" line="221" time="0.003"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_failed_turn_has_one_opera0')
+
+    def test_failed_turn_has_one_operation_terminal_and_one_turn_terminal(tmp_path):
+        def runner(provider, model, tools, messages, **kwargs):
+            kwargs["emit"](AgentEvent("llm_start", {"iteration": 1}))
+            raise RuntimeError("provider secret must not appear in events")
+    
+        coordinator = AgentSessionCoordinator(
+            provider=object(), model="local", tool_factory=lambda cwd: [],
+            run_agent_fn=runner, event_config=EventBufferConfig(16, 16, 1),
+        )
+        started = coordinator.handle(ApplicationCommand(
+            command_id=new_command_id(), kind=CommandKind.START_SESSION,
+            payload={"workspace": str(tmp_path)},
+        ))
+&gt;       submitted = coordinator.handle(ApplicationCommand(
+            command_id=new_command_id(), kind=CommandKind.SUBMIT_USER_INPUT,
+            session_id=started.session_id, payload={"content": "try"},
+        ))
+
+tests\test_nova_core_phase5_events.py:235: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_c896e3cb9f6646beb2719e5ab6583250', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'try'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_manager_rejects_active_turn_before_factory_or_network[change_model-new]" file="tests\test_nova_core_phase8_providers.py" line="64" time="0.002" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_manager_rejects_active_turn_before_factory_or_network[change_provider-claude]" file="tests\test_nova_core_phase8_providers.py" line="64" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_snapshots_are_deeply_immutable_and_do_not_follow_later_revision" file="tests\test_nova_core_phase8_providers.py" line="78" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_all_three_provider_adapters_have_atomic_manager_transition[ollama]" file="tests\test_nova_core_phase8_providers.py" line="95" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_all_three_provider_adapters_have_atomic_manager_transition[claude]" file="tests\test_nova_core_phase8_providers.py" line="95" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_all_three_provider_adapters_have_atomic_manager_transition[llama-server]" file="tests\test_nova_core_phase8_providers.py" line="95" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_unknown_capabilities_are_not_invented" file="tests\test_nova_core_phase8_providers.py" line="108" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_validation_failures_are_safe_and_atomic[failure0-PROVIDER_UNAVAILABLE]" file="tests\test_nova_core_phase8_providers.py" line="117" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_validation_failures_are_safe_and_atomic[failure1-PROVIDER_VALIDATION_FAILED]" file="tests\test_nova_core_phase8_providers.py" line="117" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_unavailable_model_and_stale_revision_do_not_mutate" file="tests\test_nova_core_phase8_providers.py" line="132" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_failed_provider_does_not_fall_back_to_another_provider" file="tests\test_nova_core_phase8_providers.py" line="142" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_provider_selection_uses_validated_catalog_and_explicit_model_wins" file="tests\test_nova_core_phase8_providers.py" line="151" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_old_claude_snapshot_keeps_credential_endpoint_and_options" file="tests\test_nova_core_phase8_providers.py" line="160" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_endpoint_in_public_snapshot_strips_credentials_query_and_fragment" file="tests\test_nova_core_phase8_providers.py" line="173" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_bound_non_ollama_rejects_silent_ollama_options" file="tests\test_nova_core_phase8_providers.py" line="179" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_application_rejects_during_generation_without_cancel_or_mutation[ChangeModel-payload0]" file="tests\test_nova_core_phase8_providers.py" line="188" time="0.004"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_application_rejects_durin0')
+kind = &lt;CommandKind.CHANGE_MODEL: 'ChangeModel'&gt;, payload = {'modelId': 'new'}
+
+    @pytest.mark.parametrize("kind,payload", [
+        (CommandKind.CHANGE_MODEL, {"modelId": "new"}),
+        (CommandKind.CHANGE_PROVIDER, {"providerId": "claude", "modelId": "new"}),
+    ])
+    def test_application_rejects_during_generation_without_cancel_or_mutation(tmp_path, kind, payload):
+        entered, release = Event(), Event()
+        state = manager()
+        def runner(provider, model, tools, messages, emit, **kwargs):
+            emit(AgentEvent("llm_start", {}))
+            entered.set()
+            assert release.wait(5)
+            messages.append({"role": "assistant", "content": "done"})
+            return "done"
+        coordinator = AgentSessionCoordinator(provider=object(), model="old", provider_manager=state,
+            tool_factory=lambda _cwd: [], run_agent_fn=runner, event_config=EventBufferConfig(64, 64, 8))
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       receipt = submit(coordinator, session_id, "task")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase8_providers.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_295899846d1e4fcca770b65f29e9a398', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'task'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_application_rejects_during_generation_without_cancel_or_mutation[ChangeProvider-payload1]" file="tests\test_nova_core_phase8_providers.py" line="188" time="0.004"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_application_rejects_durin1')
+kind = &lt;CommandKind.CHANGE_PROVIDER: 'ChangeProvider'&gt;
+payload = {'providerId': 'claude', 'modelId': 'new'}
+
+    @pytest.mark.parametrize("kind,payload", [
+        (CommandKind.CHANGE_MODEL, {"modelId": "new"}),
+        (CommandKind.CHANGE_PROVIDER, {"providerId": "claude", "modelId": "new"}),
+    ])
+    def test_application_rejects_during_generation_without_cancel_or_mutation(tmp_path, kind, payload):
+        entered, release = Event(), Event()
+        state = manager()
+        def runner(provider, model, tools, messages, emit, **kwargs):
+            emit(AgentEvent("llm_start", {}))
+            entered.set()
+            assert release.wait(5)
+            messages.append({"role": "assistant", "content": "done"})
+            return "done"
+        coordinator = AgentSessionCoordinator(provider=object(), model="old", provider_manager=state,
+            tool_factory=lambda _cwd: [], run_agent_fn=runner, event_config=EventBufferConfig(64, 64, 8))
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       receipt = submit(coordinator, session_id, "task")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase8_providers.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_a974e35e8b5547159f5200c11141be82', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'task'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_application_change_idempotency_revision_and_transcript" file="tests\test_nova_core_phase8_providers.py" line="226" time="0.005"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_application_change_idempo0')
+
+    def test_application_change_idempotency_revision_and_transcript(tmp_path):
+        coordinator = AgentSessionCoordinator(provider=Provider(), model="old", provider_manager=manager(),
+            tool_factory=lambda _cwd: [], event_config=EventBufferConfig(64, 64, 8))
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       turn = submit(coordinator, session_id, "hello")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase8_providers.py:231: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_1108e265039f435f90306e67b608ffde', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'hello'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_agent_tool_dynamic_source_avoids_stale_template" file="tests\test_nova_core_phase8_providers.py" line="246" time="0.004"><failure message="local_cli.core.environment.EnvironmentError: INVALID_ENVIRONMENT_SELECTION">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_agent_tool_dynamic_source0')
+
+    def test_agent_tool_dynamic_source_avoids_stale_template(tmp_path):
+        class Runner:
+            def __init__(self):
+                self.agents = []
+            def submit_background(self, agent):
+                self.agents.append(agent)
+                return agent.agent_id
+        runner = Runner()
+        state = manager()
+        tool = AgentTool(runner, Provider("claude"), "stale", [], cwd=tmp_path)
+        tool.bind_model_runtime(state.snapshot)
+&gt;       tool.execute(description="first task", prompt="task", run_in_background=True)
+
+tests\test_nova_core_phase8_providers.py:258: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\tools\agent_tool.py:123: in execute
+    return self._execute(None, None, None, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\tools\agent_tool.py:178: in _execute
+    sub_agent = SubAgent(
+local_cli\sub_agent.py:195: in __init__
+    self._environment = EnvironmentBuilder(protected_value=self._redactor.protected_value).build(
+local_cli\infrastructure\process_environment.py:34: in build
+    validate_variables(source)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+values = {'ALLUSERSPROFILE': 'C:\\ProgramData', 'APPDATA': 'C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\...': 'MCowBQYDK2VwAyEALzMuyc0wCJVIGhDz6bs2GTheOB4XWND/o7LrinCcSZU=', 'CODEX_APPLY_PATCH_PRESERVE_LINE_ENDINGS': '1', ...}
+
+    def validate_variables(values):
+        if not isinstance(values, Mapping) or any(
+                not isinstance(k, str) or re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', k) is None
+                or not isinstance(v, str) or '\x00' in v or len(v) &gt; 65536
+                for k, v in values.items()):
+&gt;           raise EnvironmentError('INVALID_ENVIRONMENT_SELECTION')
+E           local_cli.core.environment.EnvironmentError: INVALID_ENVIRONMENT_SELECTION
+
+local_cli\core\environment.py:19: EnvironmentError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_local_tool_calling_or_text_rescue_survives_manager[True]" file="tests\test_nova_core_phase8_providers.py" line="268" time="0.004"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_local_tool_calling_or_tex0')
+native = True
+
+    @pytest.mark.parametrize("native", [True, False])
+    def test_local_tool_calling_or_text_rescue_survives_manager(tmp_path, native):
+        tool = EchoTool()
+        call = {"role": "assistant", "content": "", "tool_calls": [{"id": "call-47",
+            "function": {"name": "echo", "arguments": {"text": "ok"}}}]}
+        if not native:
+            call = '```json\n{"name":"echo","arguments":{"text":"ok"}}\n```'
+        provider = Provider(steps=[call, "final"])
+        coordinator = AgentSessionCoordinator(provider=provider, model="old",
+                                             tool_factory=lambda _cwd: [tool])
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       turn = submit(coordinator, session_id, "task")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase8_providers.py:280: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_b89406cbc8154a1d96e9c7be89288204', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'task'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_local_tool_calling_or_text_rescue_survives_manager[False]" file="tests\test_nova_core_phase8_providers.py" line="268" time="0.003"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_local_tool_calling_or_tex1')
+native = False
+
+    @pytest.mark.parametrize("native", [True, False])
+    def test_local_tool_calling_or_text_rescue_survives_manager(tmp_path, native):
+        tool = EchoTool()
+        call = {"role": "assistant", "content": "", "tool_calls": [{"id": "call-47",
+            "function": {"name": "echo", "arguments": {"text": "ok"}}}]}
+        if not native:
+            call = '```json\n{"name":"echo","arguments":{"text":"ok"}}\n```'
+        provider = Provider(steps=[call, "final"])
+        coordinator = AgentSessionCoordinator(provider=provider, model="old",
+                                             tool_factory=lambda _cwd: [tool])
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       turn = submit(coordinator, session_id, "task")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase8_providers.py:280: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_6c8ecf4ee51f4e5f9508292a054bfccc', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'task'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_background_agents_keep_old_snapshot_and_new_agents_use_new_revision" file="tests\test_nova_core_phase8_providers.py" line="289" time="0.007"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_background_agents_keep_ol0')
+
+    def test_background_agents_keep_old_snapshot_and_new_agents_use_new_revision(tmp_path):
+        children = []
+        release = Event()
+        class Child(Provider):
+            def __init__(self):
+                super().__init__()
+                self.entered = Event()
+                children.append(self)
+            def chat_stream(self, model, messages, **kwargs):
+                self.requests.append((model, kwargs))
+                self.entered.set()
+                assert release.wait(5)
+                yield {"message": {"role": "assistant", "content": "child done"}, "done": True}
+        call = {"role": "assistant", "content": "", "tool_calls": [{"function": {
+            "name": "agent", "arguments": {"description": "background task", "prompt": "task",
+                                             "run_in_background": True}}}]}
+        main = Provider(steps=[call, "done"])
+        state = manager(main, clone_factory=lambda _provider: Child)
+        runner = SubAgentRunner(max_workers=2)
+        agent = AgentTool(runner, Provider("claude"), "stale", [], cwd=tmp_path)
+        coordinator = AgentSessionCoordinator(provider=main, model="old", provider_manager=state,
+            tool_factory=lambda _cwd: [agent], event_config=EventBufferConfig(128, 128, 8))
+        session_id = start(coordinator, tmp_path).session_id
+        try:
+&gt;           first = submit(coordinator, session_id, "first")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase8_providers.py:314: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_a8ddb3459d6c455587dbfe6acc82fe61', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'first'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_cancel_requested_is_still_active_until_terminal" file="tests\test_nova_core_phase8_providers.py" line="333" time="0.006"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_cancel_requested_is_still0')
+
+    def test_cancel_requested_is_still_active_until_terminal(tmp_path):
+        entered, release = Event(), Event()
+        def runner(*args, **kwargs):
+            entered.set()
+            assert release.wait(5)
+            return "done"
+        coordinator = AgentSessionCoordinator(provider=Provider(), model="old", provider_manager=manager(),
+            run_agent_fn=runner, tool_factory=lambda _cwd: [])
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       turn = submit(coordinator, session_id, "task")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase8_providers.py:343: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_4b3e61768ee64cc4851f9abd3963045f', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'task'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_provider_change_does_not_resolve_or_cancel_pending_interaction[ask_user]" file="tests\test_nova_core_phase8_providers.py" line="356" time="0.003"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_provider_change_does_not_0')
+tool_name = 'ask_user'
+
+    @pytest.mark.parametrize("tool_name", ["ask_user", "bash"])
+    def test_provider_change_does_not_resolve_or_cancel_pending_interaction(tmp_path, tool_name):
+        executor = Mock()
+        executor.run.return_value = Mock(stdout="ok", stderr="", returncode=0)
+        tool = (AskUserTool() if tool_name == "ask_user" else BashTool(
+            descriptor=ShellDescriptor("Linux", "bash", "bash", "5"), executor=executor,
+            cwd=tmp_path, environment={}))
+        call = {"role": "assistant", "content": "", "tool_calls": [{"function": {
+            "name": tool_name, "arguments": {"question": "Continue?"} if tool_name == "ask_user"
+                                             else {"command": "git reset --hard"}}}]}
+        provider = Provider(steps=[call, "done"])
+        coordinator = AgentSessionCoordinator(provider=provider, model="old", provider_manager=manager(provider),
+            tool_factory=lambda _cwd: [tool])
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       turn = submit(coordinator, session_id, "task")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_nova_core_phase8_providers.py:371: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase4_session.py:50: in submit
+    return coordinator.handle(ApplicationCommand(
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_505a5dd0f2204e16b8c56ec8af825453', kind=&lt;CommandKind.SUBMIT_USER_INPUT: 'SubmitUserInput'&gt;, payload={'content': 'task'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_provider_change_does_not_resolve_or_cancel_pending_interaction[bash]" file="tests\test_nova_core_phase8_providers.py" line="356" time="0.232" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_refresh_health_preserves_identity_and_inflight_snapshot" file="tests\test_nova_core_phase8_providers.py" line="398" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_model_snapshot_rejects_invalid_identity_or_observation[overrides0]" file="tests\test_nova_core_phase8_providers.py" line="411" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_model_snapshot_rejects_invalid_identity_or_observation[overrides1]" file="tests\test_nova_core_phase8_providers.py" line="411" time="0.000" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_model_snapshot_rejects_invalid_identity_or_observation[overrides2]" file="tests\test_nova_core_phase8_providers.py" line="411" time="0.000" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_model_snapshot_rejects_invalid_identity_or_observation[overrides3]" file="tests\test_nova_core_phase8_providers.py" line="411" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_model_snapshot_rejects_invalid_identity_or_observation[overrides4]" file="tests\test_nova_core_phase8_providers.py" line="411" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_model_info_failure_and_endpoint_request_are_typed_without_mutation" file="tests\test_nova_core_phase8_providers.py" line="419" time="0.004"><failure message="ValueError: command requires sessionId">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block2_diagnostic/s6_private_c1tieouh/selected/test_model_info_failure_and_en0')
+
+    def test_model_info_failure_and_endpoint_request_are_typed_without_mutation(tmp_path):
+        provider = Provider()
+        state = manager(provider)
+        provider.get_model_info = lambda _model: {"model_info": None}
+        with pytest.raises(ProviderTransitionError) as error:
+            state.change_model("new")
+        assert error.value.code == "INVALID_MODEL_INFO" and state.snapshot().snapshot.provider_revision == 1
+        coordinator = AgentSessionCoordinator(provider=provider, model="old", provider_manager=state,
+                                             tool_factory=lambda _cwd: [])
+        session_id = start(coordinator, tmp_path).session_id
+&gt;       result = change(coordinator, session_id, CommandKind.CHANGE_PROVIDER,
+                        {"providerId": "ollama", "endpointRef": "unconfigured"})
+
+tests\test_nova_core_phase8_providers.py:430: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_nova_core_phase8_providers.py:61: in change
+    return coordinator.handle(ApplicationCommand(command_id=kwargs.pop("command_id", new_command_id()),
+&lt;string&gt;:10: in __init__
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = ApplicationCommand(command_id='command_3c46942c1000467b8e9a42e6c4dfab27', kind=&lt;CommandKind.CHANGE_PROVIDER: 'ChangePr...oad={'providerId': 'ollama', 'endpointRef': 'unconfigured'}, session_id=None, expected_revision=None, schema_version=1)
+
+    def __post_init__(self) -&gt; None:
+        if type(self.schema_version) is not int or self.schema_version != 1 or not self.command_id:
+            raise ValueError("unsupported command version or missing commandId")
+        if not isinstance(self.kind, CommandKind):
+            raise TypeError("command kind must use CommandKind")
+        if self.kind is CommandKind.START_SESSION:
+            if self.session_id is not None:
+                raise ValueError("StartSession does not target an existing session")
+        elif not self.session_id:
+&gt;           raise ValueError("command requires sessionId")
+E           ValueError: command requires sessionId
+
+local_cli\application\commands.py:76: ValueError</failure></testcase><testcase classname="tests.test_nova_core_phase8_providers" name="test_model_queries_wrap_private_provider_errors[get_model_info]" file="tests\test_nova_core_phase8_providers.py" line="435" time="0.001" /><testcase classname="tests.test_nova_core_phase8_providers" name="test_model_queries_wrap_private_provider_errors[list_models]" file="tests\test_nova_core_phase8_providers.py" line="435" time="0.001" /><testcase classname="tests.test_session_log.TestProjectSlug" name="test_empty_path" file="tests\test_session_log.py" line="49" time="0.000" /><testcase classname="tests.test_session_log.TestProjectSlug" name="test_overlong_keeps_tail" file="tests\test_session_log.py" line="44" time="0.001" /><testcase classname="tests.test_session_log.TestProjectSlug" name="test_path_maps_to_dashes" file="tests\test_session_log.py" line="36" time="0.000" /><testcase classname="tests.test_session_log.TestProjectSlug" name="test_special_chars_collapse" file="tests\test_session_log.py" line="39" time="0.000" /><testcase classname="tests.test_session_log.TestEnabledEnv" name="test_default_on" file="tests\test_session_log.py" line="54" time="0.001" /><testcase classname="tests.test_session_log.TestEnabledEnv" name="test_disable_values" file="tests\test_session_log.py" line="59" time="0.005" /><testcase classname="tests.test_session_log.TestEnabledEnv" name="test_one_is_on" file="tests\test_session_log.py" line="66" time="0.002" /><testcase classname="tests.test_session_log.TestSessionLoggerWrites" name="test_clip_marker" file="tests\test_session_log.py" line="114" time="0.001" /><testcase classname="tests.test_session_log.TestSessionLoggerWrites" name="test_disabled_writes_nothing" file="tests\test_session_log.py" line="91" time="0.003" /><testcase classname="tests.test_session_log.TestSessionLoggerWrites" name="test_env_kill_switch" file="tests\test_session_log.py" line="97" time="0.004" /><testcase classname="tests.test_session_log.TestSessionLoggerWrites" name="test_fail_open_on_unwritable_state_dir" file="tests\test_session_log.py" line="103" time="0.004" /><testcase classname="tests.test_session_log.TestSessionLoggerWrites" name="test_lines_land_in_project_dir" file="tests\test_session_log.py" line="72" time="0.016" /><testcase classname="tests.test_session_log.TestSessionLoggerWrites" name="test_rotate_starts_new_file" file="tests\test_session_log.py" line="119" time="0.006" /><testcase classname="tests.test_session_log.TestEmitMapping" name="test_assistant_message_logged" file="tests\test_session_log.py" line="174" time="0.013" /><testcase classname="tests.test_session_log.TestEmitMapping" name="test_deltas_counted_not_stored" file="tests\test_session_log.py" line="138" time="0.014" /><testcase classname="tests.test_session_log.TestEmitMapping" name="test_error_event_logged" file="tests\test_session_log.py" line="186" time="0.011" /><testcase classname="tests.test_session_log.TestEmitMapping" name="test_tool_output_clipped" file="tests\test_session_log.py" line="196" time="0.020" /><testcase classname="tests.test_session_log.TestEmitMapping" name="test_turn_end_resets_counters" file="tests\test_session_log.py" line="164" time="0.012" /><testcase classname="tests.test_session_log.TestEmitMapping" name="test_wrap_emit_tees" file="tests\test_session_log.py" line="205" time="0.013" /><testcase classname="tests.test_session_log.TestRunAgentIntegration" name="test_full_turn_transcript" file="tests\test_session_log.py" line="221" time="0.016" /></testsuite></testsuites>

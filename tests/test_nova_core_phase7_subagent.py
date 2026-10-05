@@ -9,6 +9,7 @@ from local_cli.sub_agent import SubAgent, SubAgentRunner
 from local_cli.shell_executor import ShellDescriptor, ShellExecutionCancelled
 from local_cli.tools.bash_tool import BashTool
 from tests.test_nova_core_phase4_session import ScriptedProvider
+from tests.security_v12.process_fixtures import bind_mock_shell
 
 
 class _BlockingProvider:
@@ -74,6 +75,7 @@ def test_cancelled_subagent_with_started_shell_preserves_unknown_effect(tmp_path
     executor.run.side_effect = interrupted
     shell = BashTool(descriptor=ShellDescriptor("Linux", "bash", "bash", "5"),
                      executor=executor, cwd=tmp_path, environment={})
+    bind_mock_shell(shell, executor)
     call = {"role": "assistant", "content": "", "tool_calls": [{
         "function": {"name": "bash", "arguments": {"command": "echo begun"}},
     }]}
