@@ -70,12 +70,14 @@ def test_real_windows_powershell_fallback_without_pwsh_or_git_bash(tmp_path):
 from local_cli.shell_executor import detect_shell, create_executor
 from local_cli.security import get_sanitized_env
 d=detect_shell()
-r=create_executor(d).run("Write-Output 'fallback-ñ🧠'; exit 7", 10, '.', get_sanitized_env())
+# This smoke owns fallback discovery/execution; timeout semantics are covered
+# separately. Hosted Windows PowerShell 5 cold-start can exceed 10 seconds.
+r=create_executor(d).run("Write-Output 'fallback-ñ🧠'; exit 7", 45, '.', get_sanitized_env())
 print(json.dumps({'kind':d.kind,'executable':d.executable,'version':d.version,
                  'stdout':r.stdout,'exitCode':r.returncode}))
 """
     result = subprocess.run([sys.executable, "-c", script], env=environment, cwd=tmp_path,
-        capture_output=True, text=True, encoding="utf-8", timeout=20)
+        capture_output=True, text=True, encoding="utf-8", timeout=60)
     assert result.returncode == 0, result.stderr
     data = json.loads(result.stdout)
     assert data["kind"] == "powershell" and data["version"].startswith("5.1")
@@ -115,21 +117,22 @@ def test_real_native_timeout_cancel_terminates_child_tree(tmp_path, cancel):
     errors = []
     def run():
         try:
-            executor.run(python_command(descriptor, parent), 3, str(tmp_path), get_sanitized_env(),
+            executor.run(python_command(descriptor, parent), 15, str(tmp_path), get_sanitized_env(),
                          cancellation_token=token if cancel else None)
         except (ShellExecutionCancelled, subprocess.TimeoutExpired) as exc:
             errors.append(exc)
     worker = Thread(target=run)
     worker.start()
     pid_file = tmp_path / "child.pid"
-    deadline = time.monotonic() + 2.5
+    # Observe startup independently from timeout/cancellation semantics.
+    deadline = time.monotonic() + 15
     while not pid_file.exists() and time.monotonic() < deadline:
         time.sleep(.01)
     assert pid_file.exists(), "Child did not start before the test deadline"
     pid = int(pid_file.read_text())
     if cancel:
         token.request()
-    worker.join(10)
+    worker.join(25)
     assert not worker.is_alive()
     assert len(errors) == 1
     assert isinstance(errors[0], ShellExecutionCancelled if cancel else subprocess.TimeoutExpired)

@@ -146,7 +146,9 @@ class TestShellResult(unittest.TestCase):
         self.assertFalse(any(key.casefold() == "github_token" for key in env))
         self.assertNotIn("BASH_ENV", env)
         self.assertNotIn("ZDOTDIR", env)
-        self.assertEqual(env["NORMAL_VARIABLE"], "kept")
+        # S6 keeps only the compatible minimum environment. Arbitrary host
+        # variables require explicit per-operation selection.
+        self.assertNotIn("NORMAL_VARIABLE", env)
 
     def test_nonzero_exit_marker_is_preserved(self):
         tool = BashTool(descriptor=PS)
