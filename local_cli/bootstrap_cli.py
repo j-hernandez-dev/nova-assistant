@@ -19,6 +19,7 @@ from local_cli.application.events import EventBufferConfig
 from local_cli.application.legacy_runtime import LegacyAgentRuntime
 from local_cli.application.session import AgentSessionCoordinator
 from local_cli.audit_config import create_security_audit
+from local_cli.memory_config import memory_factory,memory_extractor_factory
 from local_cli.application.rag import RAGService
 from local_cli.application.rag import create_rag_service, adapt_legacy_rag_service
 from local_cli.application.persistence import create_persistence_service
@@ -246,6 +247,13 @@ def create_cli_application(*, config: Any, provider_manager: Any,
         return result
 
     coordinator = AgentSessionCoordinator(
+        memory_factory=memory_factory(config.state_dir,
+            embedding_model=getattr(config,'memory_embedding_model',''),
+            embedding_endpoint=getattr(config,'memory_embedding_endpoint','http://127.0.0.1:11434'),
+            capture_mode=getattr(config,'memory_auto_capture','off')),
+        memory_capture_mode=getattr(config,'memory_auto_capture','off'),
+        memory_extractor_factory=memory_extractor_factory,
+        allow_remote_memory_injection=getattr(config, 'allow_remote_memory_injection', False),
         security_audit_port=create_security_audit(workspace),
         provider=provider_manager.snapshot()._provider,
         model=provider_manager.snapshot().snapshot.model_id,
@@ -254,9 +262,7 @@ def create_cli_application(*, config: Any, provider_manager: Any,
         initial_messages_factory=lambda _workspace, _tools: base_messages,
         turn_messages_factory=lambda text: (
             (turn_messages_factory(text) if turn_messages_factory else
-             build_skill_messages(skills_loader, text))
-            + ([plan] if auxiliary_services is not None and
-               (plan := auxiliary_services.plan_context()) is not None else [])),
+             build_skill_messages(skills_loader, text))),
         inference_options_factory=inference_options,
         runtime=LegacyAgentRuntime(partial(run_agent, debug=config.debug), HarnessConfig(
             max_iterations=config.max_iterations,

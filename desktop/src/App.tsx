@@ -457,6 +457,7 @@ export default function App() {
         {!status.connected && <button className="confirm-approve" onClick={() => void window.api.restartBackend()}>Restart backend</button>}
       </div>}
       {view?.gap && <div className="resume-bar" role="status">Event continuity was interrupted; the current session snapshot is authoritative.</div>}
+      {view?.memoryNotice && <div className="resume-bar" role="status">{view.memoryNotice}</div>}
 
       <div className="app-body">
         {explorerOpen && (

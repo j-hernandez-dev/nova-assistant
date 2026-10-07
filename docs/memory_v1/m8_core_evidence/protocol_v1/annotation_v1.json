@@ -1,0 +1,2584 @@
+{
+  "schemaVersion": 1,
+  "annotationVersion": "od08-discriminative-taxonomy-v1",
+  "rules": {
+    "priority": [
+      "CORE_CONTRACT_NEGATIVE",
+      "CORE_EXACT",
+      "SEMANTIC_VERIFIED_CROSS_LANGUAGE",
+      "CORE_DISCRIMINATIVE_ANCHOR",
+      "CORE_AMBIGUOUS",
+      "SEMANTIC_NO_CONTENT_SUPPORT"
+    ],
+    "normalization": "NFD/casefold/Latin diacritics removed/Unicode words; no stemming or translation",
+    "composerStopwords": [
+      "a",
+      "an",
+      "and",
+      "are",
+      "be",
+      "been",
+      "can",
+      "como",
+      "continue",
+      "continúa",
+      "could",
+      "cuál",
+      "cómo",
+      "de",
+      "del",
+      "dime",
+      "do",
+      "does",
+      "el",
+      "en",
+      "es",
+      "eso",
+      "favor",
+      "for",
+      "hazlo",
+      "how",
+      "in",
+      "is",
+      "it",
+      "la",
+      "las",
+      "lo",
+      "los",
+      "me",
+      "mi",
+      "mis",
+      "my",
+      "necesito",
+      "no",
+      "o",
+      "of",
+      "on",
+      "or",
+      "para",
+      "please",
+      "por",
+      "puedes",
+      "puedo",
+      "que",
+      "quiero",
+      "qué",
+      "should",
+      "si",
+      "son",
+      "sí",
+      "tell",
+      "the",
+      "this",
+      "to",
+      "tus",
+      "un",
+      "una",
+      "unas",
+      "unos",
+      "was",
+      "what",
+      "which",
+      "would",
+      "y",
+      "yes",
+      "your"
+    ],
+    "extraStopwords": [
+      "after",
+      "any",
+      "before",
+      "each",
+      "every",
+      "ficticia",
+      "ficticias",
+      "ficticio",
+      "ficticios",
+      "fictional",
+      "had",
+      "has",
+      "have",
+      "here",
+      "let",
+      "memoria",
+      "memory",
+      "more",
+      "most",
+      "must",
+      "now",
+      "only",
+      "perfil",
+      "preference",
+      "profile",
+      "project",
+      "projects",
+      "proyecto",
+      "proyectos",
+      "rather",
+      "some",
+      "synthetic",
+      "than",
+      "then",
+      "there",
+      "user",
+      "usuario",
+      "when",
+      "where",
+      "who",
+      "whom",
+      "whose",
+      "why",
+      "with",
+      "without",
+      "work",
+      "works",
+      "workspace"
+    ],
+    "discriminative": "df <= max(1,min(8,floor(sourceRecords*0.10)))",
+    "ambiguous": "CORE",
+    "minimumCorePositives": 50,
+    "minimumOrdinaryNegatives": 15
+  },
+  "sources": [
+    {
+      "corpusId": "m8-fixed-synthetic-v1",
+      "path": "tests/memory_v1/fixtures/m8_quality_v1.json",
+      "sha256": "9412e7d40a34d4ea0b26fa4a665860bc381ac28c8472cba36c3cda5157ba1d2f",
+      "cases": [
+        {
+          "caseId": "absent-birthday",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "EN",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "a8ee446c12f76f70c6d9550b88519ea9cd60ab195751175db42cf606925ea91a",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "absent-phone",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "ES",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "04fdd56b85f48a7db93024ac61b426eb79a36f7b71615c4d6bb6a6af66297718",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "exact-theme",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "dark",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "preference.theme",
+          "sharedContentTokens": [
+            "theme"
+          ],
+          "anchorDocumentFrequencies": {
+            "theme": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "94b9546bb585a3a5ee73b40fbf8bb6e33f9b946da104c73d19bdc745de7036b3",
+          "originalRecordSha256": "37acb8b1cf28c75227b860e48227f7472dbff61c3cd247053a01789b05692d52"
+        },
+        {
+          "caseId": "exact-units",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "metric",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "preference.units",
+          "sharedContentTokens": [
+            "units"
+          ],
+          "anchorDocumentFrequencies": {
+            "units": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "d12ba59229c3abc62fbf096150bbc36b1bbd2e571fee87f1a59166a32c2cc020",
+          "originalRecordSha256": "81f34b80d8f5e4cfd1a65506eaba48bf659a76cdb790ad7e78e37c27899ac15d"
+        },
+        {
+          "caseId": "lexical-bicycle",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "color",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "bicycle"
+          ],
+          "sharedContentTokens": [
+            "bicycle"
+          ],
+          "anchorDocumentFrequencies": {
+            "bicycle": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "cbf6b54e627bd1cb7cefc591a65b196161b2b16f5531ca733eb458c16578288b",
+          "originalRecordSha256": "8be6e335c010d73e34ae19ff95ed95e632cd798653be3bc0bb7f69e8518de2a2"
+        },
+        {
+          "caseId": "lexical-kitchen",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "tea",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "kitchen",
+            "tea"
+          ],
+          "sharedContentTokens": [
+            "kitchen",
+            "tea"
+          ],
+          "anchorDocumentFrequencies": {
+            "kitchen": 1,
+            "tea": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "2f1832f29a6d8dfd8a4cef19dd73db7d8923305ac13d801417b85a2360373f47",
+          "originalRecordSha256": "dc0d6423891bcaccebb0c68f4d629ed434b8e47fd89ce0c616d5ad64b411df0d"
+        },
+        {
+          "caseId": "paraphrase-brief",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "brief",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "5c0870fe84433e4171f8044fc4c44f52cba2987769c7e9e1710a5d0c171a602c",
+          "originalRecordSha256": "b16e9e6ecabe64e7079d066d932d9f33dc888768a821c6ddca7538d0eac4a15c"
+        },
+        {
+          "caseId": "paraphrase-dark",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "dark",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "9469537d5445e6cedce9b52a0cafed9d3b0f0148c36a916e99e344dad2e62817",
+          "originalRecordSha256": "37acb8b1cf28c75227b860e48227f7472dbff61c3cd247053a01789b05692d52"
+        },
+        {
+          "caseId": "paraphrase-diet",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "vegetarian",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "e54f1a5559ff11816bdf91688e8520cb0270f7de4a8c66a6b4b26f37d62d6b9f",
+          "originalRecordSha256": "6795713af69d54811497e8c37cfa23379fb8c59fe08935425c0757193652ab6f"
+        },
+        {
+          "caseId": "paraphrase-metric",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "metric",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "dce34911fd12b21df18f477ec2906325e864ee0c3f1b4c29de840ab193e64e44",
+          "originalRecordSha256": "81f34b80d8f5e4cfd1a65506eaba48bf659a76cdb790ad7e78e37c27899ac15d"
+        },
+        {
+          "caseId": "paraphrase-morning",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "morning",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "efc5dbcb13d61d361686fbb55b50f22963231d4d0983a837b534887a2fa05b82",
+          "originalRecordSha256": "2bc776a36a38286413054f0c17b46d37863fdadaaca5f90efe52c2027e21bc3c"
+        },
+        {
+          "caseId": "paraphrase-offline",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "offline",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "ba7ee392a25f466ae42bbea279f681b7dff4b30b22cc58f7c59b16935615aa56",
+          "originalRecordSha256": "637c82eba52ae1654b3f05f63e37890c84249ae9d0764fdc6f3ed640a9e377cb"
+        },
+        {
+          "caseId": "paraphrase-release",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "checks",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "release"
+          ],
+          "sharedContentTokens": [
+            "release"
+          ],
+          "anchorDocumentFrequencies": {
+            "release": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "6968b963fa7ce727f88059ca8125e7e37e15ede6a7794c4a96ff76fe0f51d49a",
+          "originalRecordSha256": "b2139b2b598d3a1b6baa955a8a3c68ee99d5685e302a76e8bea6829fcfb36db9"
+        },
+        {
+          "caseId": "paraphrase-train",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "train",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "transport"
+          ],
+          "sharedContentTokens": [
+            "transport"
+          ],
+          "anchorDocumentFrequencies": {
+            "transport": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 12,
+          "originalCaseSha256": "6708f283f8817f6588ddd139a1e8ddb057c227c90078e785027b55ab171d34b1",
+          "originalRecordSha256": "adfe3876f2d6276c2e58f45515ac12d6e368fe3dfd61448eb52eeb071cabcdff"
+        }
+      ],
+      "counts": {
+        "CORE": 8,
+        "SEMANTIC": 6
+      }
+    },
+    {
+      "corpusId": "m8-query-document-heldout-v1",
+      "path": "tests/memory_v1/fixtures/m8_query_heldout_v1.json",
+      "sha256": "8ab1f9cb69c46eab68657938efa55a75cc405e7e442c3b75dacb99b4cc159718",
+      "cases": [
+        {
+          "caseId": "exact-spelling",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "spelling",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "preference.spelling_region",
+          "sharedContentTokens": [
+            "region",
+            "spelling"
+          ],
+          "anchorDocumentFrequencies": {
+            "region": 1,
+            "spelling": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "6396cc1844235e1bb7ec5b5320041a92a63f50906bdfe0291394b9c35a6db3f5",
+          "originalRecordSha256": "030800a4d7d06a6ceceb4e6fcba13847652139f5ff3660c6492f81ef555f98c0"
+        },
+        {
+          "caseId": "exact-steps",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "steps",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "EN",
+          "lexicalAnchor": "preference.instruction_layout",
+          "sharedContentTokens": [
+            "instruction",
+            "layout"
+          ],
+          "anchorDocumentFrequencies": {
+            "instruction": 1,
+            "layout": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "cd1206d2c339c1d93a7ec00a84ebdfd5f7b898e2f5e76a44f9723aa7bad1353d",
+          "originalRecordSha256": "390575d9bafeb82018f54fb5add55f5888a765afa94a7b6b9b9455c14e5ac808"
+        },
+        {
+          "caseId": "exact-study",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "study",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "EN",
+          "lexicalAnchor": "preference.study_rhythm",
+          "sharedContentTokens": [
+            "rhythm",
+            "study"
+          ],
+          "anchorDocumentFrequencies": {
+            "rhythm": 1,
+            "study": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "feb668c5e2be460a60fdeae53d5cb6ab3ffcec9343f802b626fd768ffc6f3874",
+          "originalRecordSha256": "26c9294dea58205e1cde82536b746ed9df0bd2f47978b1538c318c660b440e78"
+        },
+        {
+          "caseId": "exact-terrain",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "terrain",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "preference.running_surface",
+          "sharedContentTokens": [
+            "running",
+            "surface"
+          ],
+          "anchorDocumentFrequencies": {
+            "running": 1,
+            "surface": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "5898a50e5689e65e8cf0c23a9394ea0f1275debf4088a9f3f830a0d5df4774f6",
+          "originalRecordSha256": "ef007eec72e95842ad39588f4550a296a7f3cedcf5fc002102ad13a8d8a9690b"
+        },
+        {
+          "caseId": "lex-encoding",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "encoding",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "encoding",
+            "export",
+            "files"
+          ],
+          "sharedContentTokens": [
+            "encoding",
+            "export",
+            "files"
+          ],
+          "anchorDocumentFrequencies": {
+            "encoding": 1,
+            "export": 1,
+            "files": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "8db0b2c52b69331af30000a9598eef1bb34daec8a8df1b699df4f60babe16acf",
+          "originalRecordSha256": "8ec4f5a85dd4484cd2fd084923c526f51d329a02cc557338ed87c1ae88edb1d5"
+        },
+        {
+          "caseId": "lex-missing",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "missing",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "readings",
+            "represents",
+            "sensor",
+            "unknown"
+          ],
+          "sharedContentTokens": [
+            "readings",
+            "represents",
+            "sensor",
+            "unknown"
+          ],
+          "anchorDocumentFrequencies": {
+            "readings": 1,
+            "represents": 1,
+            "sensor": 1,
+            "unknown": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "7fec771772433d32b9a23e291261f593d6f2650f3cbd068b6c51126c0fdec32c",
+          "originalRecordSha256": "0caaa1d18b7fcc02a01638218da12e5bfaa377975b609dfb50f0a95465ef961c"
+        },
+        {
+          "caseId": "lex-names",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "names",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "function",
+            "names",
+            "python"
+          ],
+          "sharedContentTokens": [
+            "function",
+            "names",
+            "python"
+          ],
+          "anchorDocumentFrequencies": {
+            "function": 1,
+            "names": 1,
+            "python": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "b4942f950e648c15ef5c21b1a72f01850e279a78af2df2905a0e05191c2139e4",
+          "originalRecordSha256": "5e361b5dd5d0e579ee4cf5077f42905bf9b9b86214a724997687d08e038e6ae3"
+        },
+        {
+          "caseId": "lex-zone",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "zone",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "fechas",
+            "guardan",
+            "registros"
+          ],
+          "sharedContentTokens": [
+            "este",
+            "fechas",
+            "guardan",
+            "registros"
+          ],
+          "anchorDocumentFrequencies": {
+            "fechas": 1,
+            "guardan": 1,
+            "registros": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "48845c7e4a018c754fcff9bd2e53a71d1856b9a44d852891573e8a5d98d8bf9f",
+          "originalRecordSha256": "d4ade28e664719ae31e73dddd2a1f4713caceb511ab073ee5d9086007931deb7"
+        },
+        {
+          "caseId": "negative-address",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "ES",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "2ef79a838e4e8e6b9992a32d22d0269b3652f73d397d7691a40855a4656f85e5",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-license",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "ES",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "90d1c4d6ee54a4a44abe4bb6512e5f7345157d9399bd7c581af1e5b6b448cc6b",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-pet",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "EN",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "c68ef6e6277527bae8c0febcea2d5a8ebbaa8c430479fadd8a4396b3e35938cb",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-version",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "EN",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "bcf203a95d079c5ad6f4bdf291d99c48f730fc8817d44d4fd57620e0bd693998",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "para-baking",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "baking",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "cooking"
+          ],
+          "sharedContentTokens": [
+            "cooking"
+          ],
+          "anchorDocumentFrequencies": {
+            "cooking": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "7876972a3cff4c5295276be8e6c678b9fa958b466d6e6cad3e92292572697f0b",
+          "originalRecordSha256": "291ba9b40c4b56c49a053b8ccba11f6d0a34c7d379fd10a58bc19ec2af6bf91e"
+        },
+        {
+          "caseId": "para-clock",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "clock",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "suite"
+          ],
+          "sharedContentTokens": [
+            "suite"
+          ],
+          "anchorDocumentFrequencies": {
+            "suite": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "5975aa2b26dd5a7221f655e5a910dab372a81a76c1915d24611efb942614e2c4",
+          "originalRecordSha256": "cf1d2fb86dee848079160c1289347a7ef3052344720e9a2652c40f968391650e"
+        },
+        {
+          "caseId": "para-currency",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "currency",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "viaje"
+          ],
+          "sharedContentTokens": [
+            "viaje"
+          ],
+          "anchorDocumentFrequencies": {
+            "viaje": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "dd83f9d5feb0ded21c83645618e57f03ff9ef21e63e8ae830f5db3d2657af873",
+          "originalRecordSha256": "1825b6cf7e4e6b887aa2c17e89ef6bb7cdbfa93671d9051931ce571cac280964"
+        },
+        {
+          "caseId": "para-decisions",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "decisions",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "tecnicas"
+          ],
+          "sharedContentTokens": [
+            "tecnicas"
+          ],
+          "anchorDocumentFrequencies": {
+            "tecnicas": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "4d0b12f7d9b472df80ab0a3a95aee3b8345677063ff668365813f1e9dae2063c",
+          "originalRecordSha256": "2810a0a8038a8ebeffa1dfa7241dcc22ac22506bba41cb419e54a2b9333b1f0a"
+        },
+        {
+          "caseId": "para-encoding",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "encoding",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "export"
+          ],
+          "sharedContentTokens": [
+            "export"
+          ],
+          "anchorDocumentFrequencies": {
+            "export": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "bc819407059e6799535526186b759f82da89f022c3a1cda533fedadc9118c806",
+          "originalRecordSha256": "8ec4f5a85dd4484cd2fd084923c526f51d329a02cc557338ed87c1ae88edb1d5"
+        },
+        {
+          "caseId": "para-missing",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "missing",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "zero"
+          ],
+          "sharedContentTokens": [
+            "zero"
+          ],
+          "anchorDocumentFrequencies": {
+            "zero": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "d5b08291e013e5804a2a66a3296767c744705ad66df14db73aefa9166384b823",
+          "originalRecordSha256": "0caaa1d18b7fcc02a01638218da12e5bfaa377975b609dfb50f0a95465ef961c"
+        },
+        {
+          "caseId": "para-names",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "names",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "names",
+            "python"
+          ],
+          "sharedContentTokens": [
+            "names",
+            "python"
+          ],
+          "anchorDocumentFrequencies": {
+            "names": 1,
+            "python": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "511ca7e70ee28d3ad2f067090dd62547968e1587111468817c7ac68816489357",
+          "originalRecordSha256": "5e361b5dd5d0e579ee4cf5077f42905bf9b9b86214a724997687d08e038e6ae3"
+        },
+        {
+          "caseId": "para-spelling",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "spelling",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "spelling"
+          ],
+          "sharedContentTokens": [
+            "spelling"
+          ],
+          "anchorDocumentFrequencies": {
+            "spelling": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "1ee90022ec4dc5f3c0dbb10a11f96d50df3032313830d94183b5a9f1fff88566",
+          "originalRecordSha256": "030800a4d7d06a6ceceb4e6fcba13847652139f5ff3660c6492f81ef555f98c0"
+        },
+        {
+          "caseId": "para-steps",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "steps",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "instructions"
+          ],
+          "sharedContentTokens": [
+            "instructions"
+          ],
+          "anchorDocumentFrequencies": {
+            "instructions": 1
+          },
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "113196898895b4193ea3642539deeaed3db323fa4a60bbabba303266c60254fc",
+          "originalRecordSha256": "390575d9bafeb82018f54fb5add55f5888a765afa94a7b6b9b9455c14e5ac808"
+        },
+        {
+          "caseId": "para-study",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "study",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "0005f78022be06f58723bd2524849f1d084f2e843a6130c5bcf30b512aed2400",
+          "originalRecordSha256": "26c9294dea58205e1cde82536b746ed9df0bd2f47978b1538c318c660b440e78"
+        },
+        {
+          "caseId": "para-terrain",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "terrain",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "c27095f3c43877d6f80c49b0d979f2515ae1e198f166ea02f1dd5c8fc3e04cd3",
+          "originalRecordSha256": "ef007eec72e95842ad39588f4550a296a7f3cedcf5fc002102ad13a8d8a9690b"
+        },
+        {
+          "caseId": "para-zone",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "zone",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 1,
+          "sourceRecords": 16,
+          "originalCaseSha256": "376c04f065e8381ccd11bb83ca3ef6cccd9e649551cae6da711ab6485c01dc54",
+          "originalRecordSha256": "d4ade28e664719ae31e73dddd2a1f4713caceb511ab073ee5d9086007931deb7"
+        }
+      ],
+      "counts": {
+        "CORE": 20,
+        "SEMANTIC": 4
+      }
+    },
+    {
+      "corpusId": "m8-bge-final-heldout-v1",
+      "path": "tests/memory_v1/fixtures/m8_bge_final_heldout_v1.json",
+      "sha256": "97b8d9e98ac74ad4b54efb31f35977eb4fe758ecef45d7e75bf044b2aafc7dfe",
+      "cases": [
+        {
+          "caseId": "heldout-air",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-air",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "6ecc08edfb8bc9e977d85fae3f1de42a3769e929e51f9f816b2dba19fe9dd82e",
+          "originalRecordSha256": "ef22e85c3263b0efabccfd6d7c76ed3b4bb7455bb887577cb32c9582aee389ea"
+        },
+        {
+          "caseId": "heldout-alarm",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-alarm",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "preference.wake_signal",
+          "sharedContentTokens": [
+            "signal",
+            "wake"
+          ],
+          "anchorDocumentFrequencies": {
+            "signal": 1,
+            "wake": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "0432cff5da0137bbe1a9157fd3eecaada2ad7a11ee201f2260c047b96b7658e4",
+          "originalRecordSha256": "b2317182577f023017e67c208cf439c72ddfdd74af99eb18544e086664076a23"
+        },
+        {
+          "caseId": "heldout-badge",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-badge",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "workspace.badges",
+          "sharedContentTokens": [
+            "badges"
+          ],
+          "anchorDocumentFrequencies": {
+            "badges": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "d3b4dafe66477d5f564e7f3d052c8fe9e0f2dd80d0387d78696b064631ca4235",
+          "originalRecordSha256": "5eafcb415972449b2ea3b7381db9893ca5387030f05b13e723a33d706cbf48fa"
+        },
+        {
+          "caseId": "heldout-bell",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-bell",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "bell",
+            "departure",
+            "dock",
+            "ferry",
+            "rings"
+          ],
+          "sharedContentTokens": [
+            "bell",
+            "departure",
+            "dock",
+            "ferry",
+            "rings"
+          ],
+          "anchorDocumentFrequencies": {
+            "bell": 1,
+            "departure": 1,
+            "dock": 1,
+            "ferry": 1,
+            "rings": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "585f6e27b29cf05f85afb3236f67db06a1586fc4ce44b377cdf9488618c5abd5",
+          "originalRecordSha256": "781903afba134a9ebfb4b6b000ab73b18734e3a3a28328dcd6f14d261fe7defd"
+        },
+        {
+          "caseId": "heldout-binoculars",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-binoculars",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "binoculars",
+            "case",
+            "cliff",
+            "lookout"
+          ],
+          "sharedContentTokens": [
+            "binoculars",
+            "case",
+            "cliff",
+            "lookout"
+          ],
+          "anchorDocumentFrequencies": {
+            "binoculars": 1,
+            "case": 2,
+            "cliff": 2,
+            "lookout": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "91289e0868133b643aff0fc8ecd69f6932a414b013c959cebb4796949cf1071e",
+          "originalRecordSha256": "4fee91f2f34c2706cc1ac8b524a89c596478f66b6257821ef3062e2887b33946"
+        },
+        {
+          "caseId": "heldout-bread",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-bread",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "EN",
+          "lexicalAnchor": "preference.breakfast_bread",
+          "sharedContentTokens": [
+            "bread",
+            "breakfast"
+          ],
+          "anchorDocumentFrequencies": {
+            "bread": 1,
+            "breakfast": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "a8c7e9eb505dcbd119baf86566b79031d983e58ef166f8e732fdc6ee90e1db18",
+          "originalRecordSha256": "706e2a763372e07c6422a56ff9f872dac152c93ff8d29536f96a656161bc14ef"
+        },
+        {
+          "caseId": "heldout-bridge",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-bridge",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "bridge",
+            "deck",
+            "model",
+            "removable"
+          ],
+          "sharedContentTokens": [
+            "bridge",
+            "deck",
+            "model",
+            "removable"
+          ],
+          "anchorDocumentFrequencies": {
+            "bridge": 1,
+            "deck": 1,
+            "model": 2,
+            "removable": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "c196b977c9aa057ec0f4460fb12273410c2e937df7fc81e6adda4e81142b16cf",
+          "originalRecordSha256": "4dbef84f0ef8f251ec7fcda31a5f7c09ac37c0c7446ec314ba8e8c1a18cb6d2c"
+        },
+        {
+          "caseId": "heldout-calendar",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-calendar",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "first"
+          ],
+          "sharedContentTokens": [
+            "first"
+          ],
+          "anchorDocumentFrequencies": {
+            "first": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "ee5cb2fa528f9ef71bff9a908920dc0b0fff53c1530c343f0a16ca23866a40c4",
+          "originalRecordSha256": "4ecb0e664bbac3d20d2dcb92230e60944f833698728fa7e238ad280cfd57504d"
+        },
+        {
+          "caseId": "heldout-calendar_notice",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-calendar_notice",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "appointment"
+          ],
+          "sharedContentTokens": [
+            "appointment"
+          ],
+          "anchorDocumentFrequencies": {
+            "appointment": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "838a77aadbbcd04a387aa70b334e889e067d56dfee81f09c4a33594c2f035539",
+          "originalRecordSha256": "bb65a90d4a4cce8a7812d72a65fd30c7c9f0faa508a7534805f0d64040e59355"
+        },
+        {
+          "caseId": "heldout-call",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-call",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "b83a94fb4c321ccdd4103723d64b4467dc4b3830a210325783e90a9e73af8992",
+          "originalRecordSha256": "eee4691bc790480882fb26c02cc03d4f3d394798e99aa0439fbb08bde8e611f5"
+        },
+        {
+          "caseId": "heldout-clock",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-clock",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "EN",
+          "lexicalAnchor": "workspace.repair_clock",
+          "sharedContentTokens": [
+            "clock",
+            "repair"
+          ],
+          "anchorDocumentFrequencies": {
+            "clock": 2,
+            "repair": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "4de94d806be312fdd5db3acd54df2337d0f89bde68c7119696cf09470af6f794",
+          "originalRecordSha256": "22c94fb1c76c1d6f5610de929f422990af013ec816fca2c2b73eece51377894f"
+        },
+        {
+          "caseId": "heldout-cloth",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-cloth",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "workspace.stage_curtains",
+          "sharedContentTokens": [
+            "curtains",
+            "stage"
+          ],
+          "anchorDocumentFrequencies": {
+            "curtains": 1,
+            "stage": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "c5f8c350c880d3faa8d9bf27019fb452d4fdc536270e3f93dcc34a3e2c979513",
+          "originalRecordSha256": "f2e8bf09b82cd5b919b952fb8c3b7a083a0bc3ee45477a33acef85ca2e1b2e72"
+        },
+        {
+          "caseId": "heldout-crowd",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-crowd",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "191925c430d4269c2c3952bc37650dbec2db2a32be44f64bdf53aa4cc9aa1880",
+          "originalRecordSha256": "f474c9e29cc1b7fd21276d77f198e56e5c442c3a5730fa9ce181d00aa4283e62"
+        },
+        {
+          "caseId": "heldout-curtain",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-curtain",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "86036d209a505f9e20c04aba91da7ffa94522e3e28d366e6a991c2b51332d482",
+          "originalRecordSha256": "b71056f608f647ca0d07d2810d0f66d2545d8b47aef84d1d5a4fdabb333ec184"
+        },
+        {
+          "caseId": "heldout-deadline",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-deadline",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "8c26abcfbe2d229a4ecb46c1b0b57576495261caa60bf04c0aebab519feab045",
+          "originalRecordSha256": "6f517783ca2e50bc2553aa3bb7e35e95fa7923e67c3c2c28eb71747521a23017"
+        },
+        {
+          "caseId": "heldout-drawer",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-drawer",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "734e5e88f0b7df069a604265aaeba25d7546370b44fcbdc4719b6cbad53f8033",
+          "originalRecordSha256": "d2cea24070e8d9679821813322caf7fc74d07c547c66d41fd1136fb03c026ba4"
+        },
+        {
+          "caseId": "heldout-feedback",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-feedback",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "70f0d669b5a44eb5bdded60cd597697fb76b5017914b7f9ae60343f167c3523d",
+          "originalRecordSha256": "3dc22567216f7753a0313b9c09103332a123f649b482fe8eed278ab2a6d8a01a"
+        },
+        {
+          "caseId": "heldout-fever",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-fever",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "3fc1e56b4f3959b16f6f6737790420e9476bcd243c345309922fd1b73b700a9d",
+          "originalRecordSha256": "d15dda09c27069e215d02474505baa1cfa63e2754f7cac3b443914c3b859a1f3"
+        },
+        {
+          "caseId": "heldout-flag",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-flag",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "club",
+            "flag",
+            "sailing",
+            "striped"
+          ],
+          "sharedContentTokens": [
+            "club",
+            "flag",
+            "sailing",
+            "striped"
+          ],
+          "anchorDocumentFrequencies": {
+            "club": 6,
+            "flag": 1,
+            "sailing": 1,
+            "striped": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "20945151e01d1d09ca471dc5f280035a285582fd76190bf613294ca9398ba05b",
+          "originalRecordSha256": "8454d3450653829d1f988177a972b515d7e4333c8f45413eccf06cab3c656af3"
+        },
+        {
+          "caseId": "heldout-fold",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-fold",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "0f4db237f7756f6fd968e2ad54cad7f6482ddb5bea774ae3cb1292396fc6928d",
+          "originalRecordSha256": "95387ce340a85b6d4d81d958034dcc3360b864eff88c2db2c29f128ce52f481a"
+        },
+        {
+          "caseId": "heldout-fountain",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-fountain",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "courtyard",
+            "fountain",
+            "nozzles"
+          ],
+          "sharedContentTokens": [
+            "courtyard",
+            "fountain",
+            "nozzles"
+          ],
+          "anchorDocumentFrequencies": {
+            "courtyard": 1,
+            "fountain": 1,
+            "nozzles": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "a4bfa7fc8c4e64933a8308a3f988e74029bc4956d4bbc44e3cc83d702e008651",
+          "originalRecordSha256": "be683cb46e519c3faf0082f93ccdd26294bfd35cd9b0672bd240aeeb8ca0dbb3"
+        },
+        {
+          "caseId": "heldout-gift",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-gift",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "32f19f46e4d4b4796898d0e12d48058bc8362208e59293685f2f4007a11d95a6",
+          "originalRecordSha256": "635d2c9c214a5b2d706d285154c2d24ff47121aa30d54168a285cc2c63b5937b"
+        },
+        {
+          "caseId": "heldout-hydration",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-hydration",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "water"
+          ],
+          "sharedContentTokens": [
+            "water"
+          ],
+          "anchorDocumentFrequencies": {
+            "water": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "4121799121bda15d472fce172cbc65fd7dd14d02a8cc8fc5a700e452fadc6b55",
+          "originalRecordSha256": "b0807bdcbbc52b0baa09cf67547ab7f8ad94aef22924e9142b6057ee7d11561e"
+        },
+        {
+          "caseId": "heldout-kite",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-kite",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "club",
+            "cola",
+            "cometa",
+            "tiene"
+          ],
+          "sharedContentTokens": [
+            "club",
+            "cola",
+            "cometa",
+            "tiene"
+          ],
+          "anchorDocumentFrequencies": {
+            "club": 6,
+            "cola": 1,
+            "cometa": 2,
+            "tiene": 3
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "4e6b5670a7549c8e3fd3b8bcf13403d6bd6d22ab2787a3c764ebbb683547d87b",
+          "originalRecordSha256": "21d7177eac92bd097293db3d6bbf4074a9916ac3fa2b1ec7d7350cf369e9ee9e"
+        },
+        {
+          "caseId": "heldout-lamp",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-lamp",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "EN",
+          "lexicalAnchor": "workspace.harbor_lamp",
+          "sharedContentTokens": [
+            "harbor",
+            "lamp"
+          ],
+          "anchorDocumentFrequencies": {
+            "harbor": 2,
+            "lamp": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "2ec92d552c3bc4f967d2b712cdeb151be53a3213d5f1b5896b1ef6fbf5e48e9f",
+          "originalRecordSha256": "694268d14d3f12b85223a822fdccd8e81e6d6b5dedbfec531268fbae7c73cac1"
+        },
+        {
+          "caseId": "heldout-learning",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-learning",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "aid"
+          ],
+          "sharedContentTokens": [
+            "aid"
+          ],
+          "anchorDocumentFrequencies": {
+            "aid": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "1fa016209e2bfca3a5b458af4577f080eaa16229eed7417dda8625b11892097b",
+          "originalRecordSha256": "913efba9c830b5ed01b410a2fb35a08a2f3b6f079c36bdb7af79f39097d1f9b2"
+        },
+        {
+          "caseId": "heldout-lens",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-lens",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "camera",
+            "club",
+            "lenses"
+          ],
+          "sharedContentTokens": [
+            "camera",
+            "club",
+            "lenses"
+          ],
+          "anchorDocumentFrequencies": {
+            "camera": 2,
+            "club": 6,
+            "lenses": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "683fd64e1d825feca70be559958e76c419de78c359af0a330e4175cf1da67178",
+          "originalRecordSha256": "332bcde59cf50fbe2ece168effab01e28c1a228d10b978cf1dfb51f0123d0d28"
+        },
+        {
+          "caseId": "heldout-manual",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-manual",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "EN",
+          "lexicalAnchor": "preference.reference_binding",
+          "sharedContentTokens": [
+            "binding",
+            "reference"
+          ],
+          "anchorDocumentFrequencies": {
+            "binding": 1,
+            "reference": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "4dbefa5e7205b69271ce75f0c24a62b6d8a1d68febd8f06388059371eaf1a47c",
+          "originalRecordSha256": "19841df4cdf72938f9a4907fa56ee07da9fe7bb202dcd04f4d772558bfaf4f38"
+        },
+        {
+          "caseId": "heldout-map",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-map",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "expedition",
+            "finish",
+            "map"
+          ],
+          "sharedContentTokens": [
+            "expedition",
+            "finish",
+            "map"
+          ],
+          "anchorDocumentFrequencies": {
+            "expedition": 1,
+            "finish": 1,
+            "map": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "9ff6e9182140d0c30f54cb2109af8c4a885d8fe3ca02a4ff04817b77ae93b022",
+          "originalRecordSha256": "5bebc3fd1f46f3d65f35b3b7cb816d0d3175bac2d105f789c6d72a1b7979add9"
+        },
+        {
+          "caseId": "heldout-marbles",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-marbles",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "canicas",
+            "guardan",
+            "juego"
+          ],
+          "sharedContentTokens": [
+            "canicas",
+            "guardan",
+            "juego"
+          ],
+          "anchorDocumentFrequencies": {
+            "canicas": 1,
+            "guardan": 1,
+            "juego": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "c6163d3060b323a998a22a5863d56ec80215bedcd16edad70e2aaaa744557094",
+          "originalRecordSha256": "42a310f17c47276a0059f4c16c00686dbfcdc67d58c5fbfb075da7eb77ea58d4"
+        },
+        {
+          "caseId": "heldout-meal",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-meal",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "4e21264575bf987547077096c07804694f6a02ddcbe3856c1439287bb2d198c2",
+          "originalRecordSha256": "10bd8ade23a801d803702d08a770dd59fbbfb6385d7c01d50af4f88930e17d0f"
+        },
+        {
+          "caseId": "heldout-message",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-message",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "872f362328b46cb4f0134fd3f2449b05eddca0525ac6db5979e05cd623e47c6f",
+          "originalRecordSha256": "20ef5429ed54f65c7cc8515b21f88eef7422c192cfd97d1132385c3ff006ae8e"
+        },
+        {
+          "caseId": "heldout-monitor",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-monitor",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "editing",
+            "monitor",
+            "shelf"
+          ],
+          "sharedContentTokens": [
+            "editing",
+            "monitor",
+            "shelf"
+          ],
+          "anchorDocumentFrequencies": {
+            "editing": 1,
+            "monitor": 1,
+            "shelf": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "6d3b7cd4ff1cd48b78627af0bc49bf1343387bdd31abeb56ceefe4e0358b451a",
+          "originalRecordSha256": "011ae7965168ea16a84facedab9fc9e8c886aa649212da5014a8d16c5ad2203e"
+        },
+        {
+          "caseId": "heldout-notes",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-notes",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "workspace.field_notes",
+          "sharedContentTokens": [
+            "field",
+            "notes"
+          ],
+          "anchorDocumentFrequencies": {
+            "field": 1,
+            "notes": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "0f49dfdb78114b298d79560ad74c1e0ef37f4f348684417142ba46c3062487c9",
+          "originalRecordSha256": "a131fbf4bc31bcda1abc77ba4b9517cdad7b1df4601f84885d52dffa03e4a67a"
+        },
+        {
+          "caseId": "heldout-paper",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-paper",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "b63f794f9884b015df296816b0e437e6265a80f3379127706d031d61474a5b4a",
+          "originalRecordSha256": "db8c249215e9a213c0e3fe64d896568231a73be820b139f9291342c00a6d7a56"
+        },
+        {
+          "caseId": "heldout-parcel",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-parcel",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "workspace.sample_parcel",
+          "sharedContentTokens": [
+            "parcel",
+            "sample"
+          ],
+          "anchorDocumentFrequencies": {
+            "parcel": 2,
+            "sample": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "983698c384c5cd75d65706c82f414ea870fae4111cbcc8d80acdfae0185d3f97",
+          "originalRecordSha256": "b8c244dea77a382d60648362108feeba3487bf9afe19d9eeec2012d298088536"
+        },
+        {
+          "caseId": "heldout-path",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-path",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "bbc573e4304c4cbcd095b8980a48996dcdfe1ab34e679f7e09fc3f0d0bdf1398",
+          "originalRecordSha256": "4651030f38e478e7cdc30aae3d67625cb52215115f8a76c0fc091f54a5f9a3d3"
+        },
+        {
+          "caseId": "heldout-pencil",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-pencil",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "EN",
+          "lexicalAnchor": "workspace.illustration_pencils",
+          "sharedContentTokens": [
+            "illustration",
+            "pencils"
+          ],
+          "anchorDocumentFrequencies": {
+            "illustration": 1,
+            "pencils": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "8463902aa3dc6de6d9ad1e00c5ebaaf25b7de71d1d3fede6d3e6c3794873af1c",
+          "originalRecordSha256": "d0877644fb2ffaab0bb5ad32c8e98de4d602aaa5e66bacc289f960a2423a7069"
+        },
+        {
+          "caseId": "heldout-photobook",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-photobook",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "family"
+          ],
+          "sharedContentTokens": [
+            "family"
+          ],
+          "anchorDocumentFrequencies": {
+            "family": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "bedbed38fe7cfec55cfcb192930da67b23c0c944b7d0f36b67735646ae6c577d",
+          "originalRecordSha256": "96b42322638496e167a84323fc6582d35bfff27335e54b9694a67ac3879b0c9a"
+        },
+        {
+          "caseId": "heldout-plate",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-plate",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "f198f64412113e19cc67ccc838e061926c89dbee6fe6df8a2e5892b621f318b0",
+          "originalRecordSha256": "b20b23e5b9cc528c665dbf4c2f74139baa8ef07abb14edd0310bf5ff9ea0e868"
+        },
+        {
+          "caseId": "heldout-posture",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-posture",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "desk"
+          ],
+          "sharedContentTokens": [
+            "desk"
+          ],
+          "anchorDocumentFrequencies": {
+            "desk": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "de51fa6ee7f1c1408d03a61ae91233bdc47b9f39703c1cbd098b8ffb79129766",
+          "originalRecordSha256": "010e5d39a24b555c72a0c030c97bcf70860949b6a79ee38668629629c18ed338"
+        },
+        {
+          "caseId": "heldout-print",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-print",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "reading"
+          ],
+          "sharedContentTokens": [
+            "reading"
+          ],
+          "anchorDocumentFrequencies": {
+            "reading": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "2d595069eaab75be6c97c66b8a8e9f2083bf0e1f7d55fdb28ecf40c378fbdaa4",
+          "originalRecordSha256": "8671c97700e16a4f5991e0c65b93f37523a48d4554e5b95949eb4eaf3c7ca285"
+        },
+        {
+          "caseId": "heldout-queue",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-queue",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "c83c47a78a5494f0174b51c6b8a759bf6314855116fce541a81c1bc6ac320c8e",
+          "originalRecordSha256": "f4b1b43b60a724209cfeb124d51b3496d468e6566168e4bc99dec8dcaac5a239"
+        },
+        {
+          "caseId": "heldout-receipt",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-receipt",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "workshop"
+          ],
+          "sharedContentTokens": [
+            "workshop"
+          ],
+          "anchorDocumentFrequencies": {
+            "workshop": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "ab182a87a7cedff8ce3f060751820eb7296f63f049852e0d35c317f4b3deec51",
+          "originalRecordSha256": "6f7c61b9ba3fc8d5c5b8d63068a63ed993435b567c75cc07eed6628ec50d5419"
+        },
+        {
+          "caseId": "heldout-reflection",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-reflection",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "3ebf9cd2825ac58c610474e98fccde89e6088b44f77ac83d55d40a03bc62c221",
+          "originalRecordSha256": "135e69b55d743ad14089eae36c47774101ae73d934240f4bb2ca4990ba17481b"
+        },
+        {
+          "caseId": "heldout-ribbon",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-ribbon",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "color",
+            "listones",
+            "premios",
+            "torneo"
+          ],
+          "sharedContentTokens": [
+            "color",
+            "listones",
+            "premios",
+            "torneo"
+          ],
+          "anchorDocumentFrequencies": {
+            "color": 2,
+            "listones": 1,
+            "premios": 1,
+            "torneo": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "0a088edfc83749e8fc08a9759858fe3206e8a73b70bbf4f7a0033b54a6124a24",
+          "originalRecordSha256": "601d46b291c1873617f23117602ad62d5ede5bfa63b59be64e469e086418cf2e"
+        },
+        {
+          "caseId": "heldout-sand",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-sand",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "arena",
+            "costera",
+            "maqueta",
+            "usa"
+          ],
+          "sharedContentTokens": [
+            "arena",
+            "costera",
+            "maqueta",
+            "usa"
+          ],
+          "anchorDocumentFrequencies": {
+            "arena": 1,
+            "costera": 1,
+            "maqueta": 1,
+            "usa": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "22796d508ef956ddc92af1ef70a9a766212f8bf4d852c4860659a2bdceedbe2b",
+          "originalRecordSha256": "6279f0f335b1dce512345f64e08df73dbf0ce798804658900ea87608fb91212f"
+        },
+        {
+          "caseId": "heldout-scent",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-scent",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "39713110217fb479352ce975de455f4fcc9c14a8e5048823cc27187bf341eaff",
+          "originalRecordSha256": "60d336705b4902adc817de508c6e6d52d071d27a71f4cc24ae852e94a5fb1a08"
+        },
+        {
+          "caseId": "heldout-seat",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-seat",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "eb0a7f1436233cc6fd0de9c4e6157b93c3e149dff4d982f8772c4017393fb9c8",
+          "originalRecordSha256": "3d6619038a6fde00ccce6e72c9ab8a3be467cffcbb2077a38efceb4aa303fc02"
+        },
+        {
+          "caseId": "heldout-seed",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-seed",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "etiquetas",
+            "semillero",
+            "tinta"
+          ],
+          "sharedContentTokens": [
+            "etiquetas",
+            "semillero",
+            "tinta"
+          ],
+          "anchorDocumentFrequencies": {
+            "etiquetas": 2,
+            "semillero": 1,
+            "tinta": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "bb8040330160fb36edac93c287f2104b67a79d4a9bba3ef15a1405c3c75e0cf0",
+          "originalRecordSha256": "0099939c6b3eaba1e8da19848b0795f0aecb5c48a188742248b2ae762bbaa615"
+        },
+        {
+          "caseId": "heldout-shoe",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-shoe",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "EN",
+          "lexicalAnchor": "workspace.spare_shoes",
+          "sharedContentTokens": [
+            "shoes",
+            "spare"
+          ],
+          "anchorDocumentFrequencies": {
+            "shoes": 1,
+            "spare": 3
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "627dc71b2049ddb55e9350395fd589933e797983fa8067110fbea0ced0e8358b",
+          "originalRecordSha256": "387141b16766715ffce9ff0f3866d4a9c9217dbcd072c92f494d8ab283e49027"
+        },
+        {
+          "caseId": "heldout-sieve",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-sieve",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "laboratorio",
+            "malla",
+            "tamiz"
+          ],
+          "sharedContentTokens": [
+            "laboratorio",
+            "malla",
+            "tamiz"
+          ],
+          "anchorDocumentFrequencies": {
+            "laboratorio": 1,
+            "malla": 1,
+            "tamiz": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "929681caa9805a0106cc1637c265706f555fe86d6a5e5424bd8e46240cefeaea",
+          "originalRecordSha256": "ff14abfd7993cd3e0c5638ae45b49b25575a100ed2ebdd6e92c6b2d7f6f97e40"
+        },
+        {
+          "caseId": "heldout-silence",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-silence",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "1ffdc04131d62230779d385b0cd89ac609ab1297bd4c48741c4b318318e0c939",
+          "originalRecordSha256": "3574b2a116351aa2271f3ce875465f643ba2e98fcc261431dbd6558ba557886a"
+        },
+        {
+          "caseId": "heldout-snack",
+          "profile": "CORE",
+          "rule": "C_EXACT_KEY_OR_TEXT",
+          "gold": "final-snack",
+          "originalSubset": "exact",
+          "queryLanguage": "KEY",
+          "recordLanguage": "ES",
+          "lexicalAnchor": "preference.trip_snack",
+          "sharedContentTokens": [
+            "snack",
+            "trip"
+          ],
+          "anchorDocumentFrequencies": {
+            "snack": 1,
+            "trip": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "de1d25ffe4d21ce48f8a092d9c65b2055a22113749aa6071c37953af61a56b27",
+          "originalRecordSha256": "428f068da66139ce1833e22fed6ec3276faff04c52a1bafb0236cb3908fba23c"
+        },
+        {
+          "caseId": "heldout-soup",
+          "profile": "SEMANTIC",
+          "rule": "S_VERIFIED_CROSS_LANGUAGE",
+          "gold": "final-soup",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "eab6b1bfe15786ce60d4fc7ad242adde2ba2a71bb0d5ea9d8621e13e698e826b",
+          "originalRecordSha256": "4e9277d9131412e44287f2dbf56d62eadc105e6eea41e1b4cb47a2952e4b7257"
+        },
+        {
+          "caseId": "heldout-stamps",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-stamps",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "coleccion",
+            "esta",
+            "ordenada",
+            "postal"
+          ],
+          "sharedContentTokens": [
+            "coleccion",
+            "esta",
+            "ordenada",
+            "postal"
+          ],
+          "anchorDocumentFrequencies": {
+            "coleccion": 1,
+            "esta": 3,
+            "ordenada": 1,
+            "postal": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "4ca6c65dea0efe7a9b85c00ab7b442723c45911c739a4afc25055003045161e8",
+          "originalRecordSha256": "29f121c1bcfafae61a412e0e31bf2f9eb21f37b77e3b6808cb8a2a2b217ced2a"
+        },
+        {
+          "caseId": "heldout-surface",
+          "profile": "SEMANTIC",
+          "rule": "S_NO_CONTENT_LEXICAL_SUPPORT",
+          "gold": "final-surface",
+          "originalSubset": "paraphrase",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "b4838fad34618d835b8272191754461c0e1b7e7b8ceb48d2cc25577521287b2a",
+          "originalRecordSha256": "fb275b82aa7ded7bbec24afd1b74c8849c9cb41579695675cf77b5b3772d84de"
+        },
+        {
+          "caseId": "heldout-tiles",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-tiles",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "mosaico",
+            "pasillo",
+            "piezas"
+          ],
+          "sharedContentTokens": [
+            "mosaico",
+            "pasillo",
+            "piezas"
+          ],
+          "anchorDocumentFrequencies": {
+            "mosaico": 1,
+            "pasillo": 1,
+            "piezas": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "6f61a46bbfe015ec1729277515d5130b5326b7db3bcec3ac9671b51d72931443",
+          "originalRecordSha256": "0a855e228c069f9b66b7dd1ad08c72f89685cf27de8248140fa52c4405e85587"
+        },
+        {
+          "caseId": "heldout-tray",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-tray",
+          "originalSubset": "lexical",
+          "queryLanguage": "ES",
+          "recordLanguage": "ES",
+          "lexicalAnchor": [
+            "ajedrez",
+            "bandeja",
+            "con",
+            "esta",
+            "forrada",
+            "juego"
+          ],
+          "sharedContentTokens": [
+            "ajedrez",
+            "bandeja",
+            "con",
+            "esta",
+            "forrada",
+            "juego"
+          ],
+          "anchorDocumentFrequencies": {
+            "ajedrez": 1,
+            "bandeja": 1,
+            "con": 5,
+            "esta": 3,
+            "forrada": 1,
+            "juego": 2
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "c1da285b97a983bdc78d538656493ade5406bccd60bb2ad580dcf4402080f089",
+          "originalRecordSha256": "039bf69526955c852e30bc8c7015a43f3b5e1c8767451b4ee6de6b515d11f8a2"
+        },
+        {
+          "caseId": "heldout-vase",
+          "profile": "CORE",
+          "rule": "C_DISCRIMINATIVE_LEXICAL",
+          "gold": "final-vase",
+          "originalSubset": "lexical",
+          "queryLanguage": "EN",
+          "recordLanguage": "EN",
+          "lexicalAnchor": [
+            "ceramics",
+            "display",
+            "vase"
+          ],
+          "sharedContentTokens": [
+            "ceramics",
+            "display",
+            "vase"
+          ],
+          "anchorDocumentFrequencies": {
+            "ceramics": 1,
+            "display": 1,
+            "vase": 1
+          },
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "99db4107823970a18af74a610d1d4f7473a8bfdc969ccf9e764071b795f9bb61",
+          "originalRecordSha256": "51addf6c3f6bbdfd41e0754562d2d4b56d7f536c28a7b2c1ded7fbe30c59ca2a"
+        },
+        {
+          "caseId": "negative-animal",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "EN",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "a43c0b865431bad511e3ae081ef2d2f21934e616084e5155259b8fafcb75fe80",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-birthday_cake",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "EN",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "d3a993a9130ad74713d8d6b8ca86fe27a5160537ffba9b51d8570d4aae0668a7",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-clinic",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "EN",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "7833c40beca60c9bd5fb543f5b1ef904166b1fd2ee5168e2b2219c7a78dcca08",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-helmet",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "ES",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "e9be5746c8c4e8b97dc9a7c9cca0fcc361520a092439b02b060988932b25965b",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-hotel",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "EN",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "04ba0f125da82ab713bd5f38b7257e99a220e8fcc39a18a34edbb2617494a495",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-locker",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "EN",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "387147db42edc547222b0cf898e0624eabaec75468220ab39319a61eca2c3705",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-passport",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "ES",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "426fe8e088c7f812127b2de989175617ea20fea8451d37e474d7f2afe99fd2b5",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-radio",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "ES",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "ea6e4f53f3d4644780a15b0c773b51e297bca979ad1967aee9dedd117e85ee42",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-route",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "ES",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "4eeeb9a968be1c2dd52eb6371943f81d33561a739d3ac2c58672be0d9858eb33",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-salary",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "ES",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "f5467eb9ea283734e656c765e73bd06ffe94d7781ad52a0efa8532c3950242e1",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-shoe_size",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "ES",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "7c14f70b57a9a1d18c916c8a3f0e6c1c95ba4022cb434a5dbcd1a64ba1da8791",
+          "originalRecordSha256": null
+        },
+        {
+          "caseId": "negative-vehicle",
+          "profile": "CORE",
+          "rule": "C_NEGATIVE_NO_EVIDENCE",
+          "gold": null,
+          "originalSubset": "abstention",
+          "queryLanguage": "EN",
+          "recordLanguage": "NONE",
+          "lexicalAnchor": [],
+          "sharedContentTokens": [],
+          "anchorDocumentFrequencies": {},
+          "maxAnchorDocumentFrequency": 8,
+          "sourceRecords": 90,
+          "originalCaseSha256": "c147b83f9399f1dd342e2f7fed1bda818161ef97dd18ad52e9da621641843b34",
+          "originalRecordSha256": null
+        }
+      ],
+      "counts": {
+        "SEMANTIC": 25,
+        "CORE": 47
+      }
+    }
+  ],
+  "historicalResultsUsed": false,
+  "rankingOrInferenceUsed": false,
+  "contractScenarios": {
+    "corpusId": "m8-scenarios-fixed-v1",
+    "path": "tests/memory_v1/fixtures/m8_scenarios_v1.json",
+    "sha256": "f9eec6b9888014e0dcc97b85ebcfe7020386966c02626a2459e9bc9d8b283cfb",
+    "cases": [
+      {
+        "caseId": "exact",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "exact",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "98a0c6d81c28447dfc59edcfd9cb1991ee1f34481654188e5e1fb9a8dc139c14"
+      },
+      {
+        "caseId": "cross-session",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "cross_session",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "d4e46996717d04f83ab9453eece441e8ea8a3ebe8c7f670c4be198b8764b2653"
+      },
+      {
+        "caseId": "correction",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "correction",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "e511eeb386151458adb6b358e0691be19e02f32855180dd3e11cd3469211deaa"
+      },
+      {
+        "caseId": "workspace-isolation",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "critical-negative",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "75e8844378efdee3ad5e252a57a12730e94feab935f6edfa84b6c6b694af119a"
+      },
+      {
+        "caseId": "deleted-memory",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "critical-negative",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "be376052e8ba510521969f01057fb842a407360a673e8942a86b8f63fc73a78e"
+      },
+      {
+        "caseId": "unresolved-conflict",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "critical-negative",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "b3cd6b357da261f86724c0a7bb57af98af5033ca2149d134540c289b518267a9"
+      },
+      {
+        "caseId": "expired-episode",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "temporal",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "1ebc033ce1a692b1e0325effff3783a402de1f8b25461ce59657cd0827bf62e8"
+      },
+      {
+        "caseId": "known-secret",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "critical-negative",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "e06a3a64a313f1460e2a12056d56b214098be20f492f747e10cdc617b211613d"
+      },
+      {
+        "caseId": "persistent-poison",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "critical-negative",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "7d19217f869a76eaacf2f4dde83ca17ba4f77bbaa49194377959b6f28fedda9d"
+      },
+      {
+        "caseId": "authority-escalation",
+        "profile": "CORE",
+        "rule": "C_CONTRACT_CRITICAL_OR_TEMPORAL",
+        "originalSubset": "critical-negative",
+        "queryLanguage": "EN",
+        "recordLanguage": "FIXTURE",
+        "lexicalAnchor": [],
+        "originalCaseSha256": "664dbf14bd4b7830e83812fd4487888c121ff95d5e2052a208088dbe17b3af79"
+      }
+    ]
+  }
+}

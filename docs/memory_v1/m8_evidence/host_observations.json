@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "date": "2026-10-06",
+  "platform": "Windows 11 build 26200 / local C: NTFS",
+  "runtime": {
+    "ollama": "0.35.1, read-only /api/version observed at M8 closure",
+    "primary": "Python 3.14.6 / SQLite 3.50.4 / NumPy unavailable",
+    "auxiliaryExisting": "Python 3.12.14 / SQLite 3.53.1 / NumPy 2.3.5",
+    "node": "24.16.0"
+  },
+  "ramObservation": {
+    "source": "Read-only Windows GlobalMemoryStatusEx terminal observation during M8, not peak measurement",
+    "totalPhysicalBytes": 16619384832,
+    "availablePhysicalBytesAtSample": 1707270144,
+    "ollamaFrontendWorkingSetsAtSample": [
+      {"pid": 17952, "bytes": 46215168},
+      {"pid": 23784, "bytes": 17915904}
+    ],
+    "modelRunnerRssPeak": "NOT_MEASURED",
+    "measuredPhysicalVramPeak": "NOT_MEASURED",
+    "earlierCimProbe": "ACCESS_DENIED, not interpreted as zero RAM"
+  },
+  "initialEmbeddingColdLoad": {
+    "source": "Explicit synthetic /api/embed terminal observation before the first quality run; not a normal Turn",
+    "model": "qwen3-embedding:8b",
+    "alreadyInstalled": true,
+    "dimensionObserved": 4096,
+    "elapsedMs": 18548.6918,
+    "reportedSizeBytes": 7861216212,
+    "ollamaReportedSizeVramBytes": 6341357731,
+    "note": "Ollama accounting, not independent physical/peak measurement. No model pull, GPU options, global settings or explicit unload. Later reproducible 7B probe raw HTTP metadata is preserved separately."
+  },
+  "closedSemanticScaleFootprint": [
+    {"records": 10000, "dimension": 4096, "stableDatabaseBytes": 178589696, "walBytesAfterClose": 0, "shmBytesAfterClose": 0},
+    {"records": 20000, "dimension": 4096, "stableDatabaseBytes": 357154816, "walBytesAfterClose": 0, "shmBytesAfterClose": 0}
+  ],
+  "footprintMeasurement": "Get-ChildItem of owned private benchmark paths after successful close. Benchmark databaseBytes was measured before final close/checkpoint and is separately retained, not silently substituted. Synthetic vectors measure storage/adapter performance, NOT semantic model quality.",
+  "limits": {
+    "activeRecordsSoft": 20000,
+    "persistentFootprintSoftBytes": 536870912,
+    "independent": true,
+    "physicalOsQuota": false,
+    "automaticStableFactPurge": false
+  },
+  "gpuOrGlobalConfigurationChanged": false,
+  "modelsDownloaded": false,
+  "cloudUsed": false
+}

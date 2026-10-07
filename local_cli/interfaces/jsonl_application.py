@@ -43,6 +43,8 @@ class JsonlApplicationAdapter:
             application.redactor.register(host_approval_key, protected=True)
         self._approval_actor = (application.register_approval_actor('desktop_host', lambda: True)
                                 if host_approval_key else None)
+        self._memory_actor = (application.register_memory_actor('desktop_host', lambda: not self._closed)
+                              if host_approval_key else None)
         snapshot = self.application.get_snapshot(session_id)
         self._legacy_cursor = self.application.subscribe_events(
             session_id, after_sequence=snapshot.last_sequence,
@@ -78,6 +80,19 @@ class JsonlApplicationAdapter:
 
     def handle(self, request: dict[str, Any]) -> bool:
         kind, req_id = request.get("type"), request.get("id", 0)
+        if kind == 'memory_command':
+            from local_cli.application.memory import MemoryCommand
+            from local_cli.core.memory import MemoryError, MemoryErrorCode
+            try:
+                command=MemoryCommand.from_dict(request.get('command'))
+                if not verify_approval_proof(self._host_approval_key,command.to_dict(),request.get('hostMemoryProof')):
+                    raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+                result=self.application.execute_memory(command,actor=self._memory_actor)
+                self._send(dict(id=req_id,type='memory_result',schemaVersion=1,data=result))
+            except (MemoryError,TypeError,ValueError):
+                self._send(dict(id=req_id,type='error',category='MEMORY',code='MEMORY_UNTRUSTED_INPUT',
+                                message='Authenticated host memory control is required.'))
+            return True
         if kind == "command":
             command = request.get("command")
             if not isinstance(command, str):

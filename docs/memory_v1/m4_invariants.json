@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "phase": "M4",
+  "gateSatisfied": true,
+  "scope": "M4 plus preserved M1-M3/Core/SECURITY contracts; not MEMORY READY",
+  "realModelQualityCertified": false,
+  "claims": "HOST_UNISOLATED; no sandbox/process isolation; no Linux/macOS M4 host-real certification",
+  "invariants": [
+    {
+      "id": "MEM1-INV-001",
+      "status": "PASS_PRESERVED",
+      "evidence": "M1 durable subject; M4 restart identity integration"
+    },
+    {
+      "id": "MEM1-INV-002",
+      "status": "PASS_PRESERVED",
+      "evidence": "M1/M2 scoped records; M4 scoped query"
+    },
+    {
+      "id": "MEM1-INV-003",
+      "status": "PASS",
+      "evidence": "test_filter_subject_current_workspace_global_before_ranking / test_workspace_rebind_and_ambient_cwd_do_not_recall_previous_workspace"
+    },
+    {
+      "id": "MEM1-INV-004",
+      "status": "PASS",
+      "evidence": "test_workspace_rebind_and_ambient_cwd_do_not_recall_previous_workspace"
+    },
+    {
+      "id": "MEM1-INV-005",
+      "status": "PASS",
+      "evidence": "numeric matrix + exact boundary + Application large inputs"
+    },
+    {
+      "id": "MEM1-INV-006",
+      "status": "PASS",
+      "evidence": "test_shared_soft_share_borrow_and_nonadditive_retrieval / test_rag_separate_service_shared_retrieval_budget_and_no_memory_write"
+    },
+    {
+      "id": "MEM1-INV-007",
+      "status": "PASS",
+      "evidence": "user-role quoted capsule + guard + poisoned memory denial"
+    },
+    {
+      "id": "MEM1-INV-008",
+      "status": "PASS",
+      "evidence": "test_first_prompt_after_restart_later_tool_rounds_one_recall_no_capsule_persistence"
+    },
+    {
+      "id": "MEM1-INV-009",
+      "status": "PASS",
+      "evidence": "first prompt / two generations / retrieve count=1"
+    },
+    {
+      "id": "MEM1-INV-010",
+      "status": "PASS",
+      "evidence": "two generations / retrieve count=1; embeddings not enabled"
+    },
+    {
+      "id": "MEM1-INV-011",
+      "status": "PASS",
+      "evidence": "zero boundary, irrelevant, optional guard eviction"
+    },
+    {
+      "id": "MEM1-INV-012",
+      "status": "PASS_PRESERVED",
+      "evidence": "M3 separate stores + M4 persistence/audit inspection"
+    },
+    {
+      "id": "MEM1-INV-013",
+      "status": "PASS_PRESERVED",
+      "evidence": "M1/M2/M3 provenance; M4 private selected records retain sources"
+    },
+    {
+      "id": "MEM1-INV-014",
+      "status": "PASS",
+      "evidence": "ordinal rank, no confidence field; metadata/capsule exclude scores"
+    },
+    {
+      "id": "MEM1-INV-015",
+      "status": "PASS_PRESERVED",
+      "evidence": "M3 exact dedup doesn't infer truth; M4 no count-based truth"
+    },
+    {
+      "id": "MEM1-INV-016",
+      "status": "DEFERRED_M5",
+      "evidence": "No semantic/embedding execution in M4"
+    },
+    {
+      "id": "MEM1-INV-017",
+      "status": "PASS_PRESERVED",
+      "evidence": "M2 FTS rebuild + M4 correction/forget/reopen/rebuild"
+    },
+    {
+      "id": "MEM1-INV-018",
+      "status": "PASS_PRESERVED",
+      "evidence": "M2 recovery/migration regression; no M4 schema migration/READY declaration"
+    },
+    {
+      "id": "MEM1-INV-019",
+      "status": "PASS_NO_EXTRACTOR",
+      "evidence": "No extraction or model-authorized write in M4; M3 write controls intact"
+    },
+    {
+      "id": "MEM1-INV-020",
+      "status": "PASS_PRESERVED",
+      "evidence": "M3 host action/WritePolicy; M4 tools cannot commit memory"
+    },
+    {
+      "id": "MEM1-INV-021",
+      "status": "PASS_PRESERVED",
+      "evidence": "M3 supersession + M4 correction recall"
+    },
+    {
+      "id": "MEM1-INV-022",
+      "status": "PASS_PRESERVED",
+      "evidence": "M3 typed conflict; M4 suppresses CONFLICTED by default"
+    },
+    {
+      "id": "MEM1-INV-023",
+      "status": "PASS",
+      "evidence": "No auto-write from working summary/capsule"
+    },
+    {
+      "id": "MEM1-INV-024",
+      "status": "NOT_APPLICABLE_M4",
+      "evidence": "No maintenance implemented"
+    },
+    {
+      "id": "MEM1-INV-025",
+      "status": "PASS_PRESERVED",
+      "evidence": "M3/S6 secret denial; M4 late-known secret denial/nonfatal degradation"
+    },
+    {
+      "id": "MEM1-INV-026",
+      "status": "PASS",
+      "evidence": "No auto-capture; SENSITIVE excluded from default SQL recall"
+    },
+    {
+      "id": "MEM1-INV-027",
+      "status": "PASS_PRESERVED",
+      "evidence": "M2 delete/FTS; M4 future capsule invalidated"
+    },
+    {
+      "id": "MEM1-INV-028",
+      "status": "PASS",
+      "evidence": "M4 forget/rebuild/reopen no resurrection"
+    },
+    {
+      "id": "MEM1-INV-029",
+      "status": "PASS",
+      "evidence": "M4 forget does not erase transcript/audit or claim RAM/backups erasure"
+    },
+    {
+      "id": "MEM1-INV-030",
+      "status": "PASS",
+      "evidence": "unknown/remote denied by default; trusted boolean opt-in + CLI/Desktop notice"
+    },
+    {
+      "id": "MEM1-INV-031",
+      "status": "PASS",
+      "evidence": "Real SQLite FTS recall, no embedding calls"
+    },
+    {
+      "id": "MEM1-INV-032",
+      "status": "PASS",
+      "evidence": "No model download or embedding composition in M4"
+    },
+    {
+      "id": "MEM1-INV-033",
+      "status": "PASS",
+      "evidence": "No auxiliary chat inference/reranker"
+    },
+    {
+      "id": "MEM1-INV-034",
+      "status": "DEFERRED_M5",
+      "evidence": "No semantic strategy implemented"
+    },
+    {
+      "id": "MEM1-INV-035",
+      "status": "PASS",
+      "evidence": "<=24 IDs -> <=16 shortlist -> <=8 final hydrations, no full Python materialization"
+    },
+    {
+      "id": "MEM1-INV-036",
+      "status": "DEFERRED_M5",
+      "evidence": "No cold semantic capability in M4"
+    },
+    {
+      "id": "MEM1-INV-037",
+      "status": "PASS",
+      "evidence": "RAG on/off + record count unchanged, separate service/store"
+    },
+    {
+      "id": "MEM1-INV-038",
+      "status": "PASS",
+      "evidence": "poisoned memory still yields denied INVALID_CONTRACT, effect none, no HTTP"
+    },
+    {
+      "id": "MEM1-INV-039",
+      "status": "PASS",
+      "evidence": "fresh child has no memory retrieval/store route"
+    },
+    {
+      "id": "MEM1-INV-040",
+      "status": "PASS_PRESERVED",
+      "evidence": "M3 child-active mutation controls and no memory tool schemas"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+........................................................................ [ 11%]
+........................................................................ [ 22%]
+........................................................................ [ 33%]
+........................................................................ [ 44%]
+........................................................................ [ 55%]
+........................................................................ [ 66%]
+........................................................................ [ 77%]
+........................................................................ [ 88%]
+...............................................................F........ [ 99%]
+..                                                                       [100%]
+================================== FAILURES ===================================
+_____ test_actual_20000_default_active_records_pauses_without_purge[True] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m8_aux_capacity_final_20261006/pytest-private/test_actual_20000_default_acti1')
+semantic_enabled = True
+
+    @pytest.mark.parametrize('semantic_enabled',(False,True))
+    def test_actual_20000_default_active_records_pauses_without_purge(tmp_path,semantic_enabled):
+        service,scope=setup(tmp_path)
+        try:
+            service.store.insert_batch(record('m8-count-'+str(i),subject_id=scope.subject_id,
+                canonical_text='Synthetic capacity marker '+str(i)) for i in range(19999))
+            if semantic_enabled:
+                from local_cli.infrastructure.memory_semantic import NumpySemanticIndex
+                try:idx=NumpySemanticIndex(service.store,space())
+                except MemoryError as exc:
+                    assert importlib.util.find_spec('numpy') is None and exc.code=='MEMORY_EMBEDDING_UNAVAILABLE'
+                    return  # Auxiliary runtime covers the actual semantic projection.
+                # Synthetic vectors prove quota/projection behavior, not LLM quality.
+>               idx.upsert_batch(tuple(('m8-count-'+str(i),(1.,0.,0.),1) for i in range(19999)),space().embedding_space_id)
+
+tests\memory_v1\test_m8_capacity.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.infrastructure.memory_semantic.NumpySemanticIndex object at 0x000002C767EB2BA0>
+batch = (('m8-count-0', (1.0, 0.0, 0.0), 1), ('m8-count-1', (1.0, 0.0, 0.0), 1), ('m8-count-2', (1.0, 0.0, 0.0), 1), ('m8-count-3', (1.0, 0.0, 0.0), 1), ('m8-count-4', (1.0, 0.0, 0.0), 1), ('m8-count-5', (1.0, 0.0, 0.0), 1), ...)
+embedding_space_id = 'synthetic-v1'
+
+    def upsert_batch(self, batch, embedding_space_id):
+        self._check_space(embedding_space_id)
+        if not isinstance(batch,tuple) or not 1<=len(batch)<=32:
+>           raise MemoryError(MemoryErrorCode.CAPACITY_REACHED)
+E           local_cli.core.memory.MemoryError: Memory contract validation failed.
+
+local_cli\infrastructure\memory_semantic.py:80: MemoryError
+=========================== short test summary info ===========================
+FAILED tests/memory_v1/test_m8_capacity.py::test_actual_20000_default_active_records_pauses_without_purge[True]
+1 failed, 649 passed in 64.21s (0:01:04)

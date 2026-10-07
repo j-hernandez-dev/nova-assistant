@@ -208,6 +208,7 @@ class SubAgent:
         # Each sub-agent gets its own isolated message list.
         self._messages: list[dict[str, Any]] = []
         self._tool_calls_count = 0
+        self._memory_delegate=None
 
         # Worktree isolation state -- populated by _setup_worktree().
         self._worktree_path: str = ""
@@ -232,6 +233,10 @@ class SubAgent:
     def isolation(self) -> str | None:
         """Isolation mode for this sub-agent (``'worktree'`` or ``None``)."""
         return self._isolation
+
+    def bind_memory_delegate(self,source):
+        """Trusted Application hook. Bounded data callback, not a MemoryStore."""
+        self._memory_delegate=source
 
     # ------------------------------------------------------------------
     # Execution
@@ -328,6 +333,35 @@ class SubAgent:
             {"role": "user", "content": self._prompt},
         ]
         self._messages = self._redactor.messages(self._messages)
+        if self._memory_delegate is not None:
+            from local_cli.application.memory_children import CHILD_HINT
+            from local_cli.application.memory_recall import admit_capsule
+            from local_cli.application.context import WorkingMessages
+            # Workflow guidance is optional, NOT Core/security mandatory system.
+            # Putting this hint in fixed system can evict relevant memory at4K.
+            # Latest user task stays current; memory admission precedes this
+            # older optional working message under the unchanged Core caps.
+            self._messages.insert(1,{'role':'user','content':CHILD_HINT})
+            self._messages=WorkingMessages(self._messages)
+            context=getattr(self._provider,'_context',None)
+            if context is not None:
+                last_capsule=[None]
+                def delegated():
+                    # Refresh only delegated IDs for delete/revision eligibility,
+                    # never a fresh global retrieval each child generation.
+                    from local_cli.application.memory_recall import MEMORY_GUARD
+                    try:snapshot=self._memory_delegate()
+                    except Exception:snapshot=None
+                    content=snapshot.capsule if snapshot else None
+                    if content==last_capsule[0]:return
+                    last_capsule[0]=content
+                    for message in list(self._messages):
+                        if message.get('_context_kind')=='memory' or message.get('content')==MEMORY_GUARD:self._messages.remove(message)
+                    context.manager.invalidate_cache()
+                    if snapshot is None:return
+                    if snapshot.capsule:admit_capsule(self._messages,context.manager,
+                        self._provider.format_tools(self._tools),snapshot)
+                context.memory_source=delegated
         self._tool_calls_count = 0
         final_content = ""
 
@@ -336,6 +370,9 @@ class SubAgent:
         start_time = time.monotonic()
 
         try:
+            # Zero duration is an already reached deadline, even when the
+            # host monotonic clock has not advanced. Do not start inference.
+            self._check_timeout(start_time)
             final_content = self._run_agent_loop(start_time)
             status = "cancelled" if self._cancellation.is_cancel_requested() else "success"
             error_message = ("Cancelled by request" if status == "cancelled" else "")
@@ -356,6 +393,9 @@ class SubAgent:
             status = "outcome_unknown"
             error_message = "A child tool has an unknown effect after interruption."
         duration = time.monotonic() - start_time
+        context=getattr(self._provider,'_context',None)
+        if context is not None:
+            context.memory_source=None;context.manager.invalidate_cache()
 
         # Clean up worktree; preserve if changes were detected.
         preserved_worktree = ""
@@ -427,18 +467,18 @@ class SubAgent:
     # ------------------------------------------------------------------
 
     def _check_timeout(self, start_time: float) -> None:
-        """Raise :class:`_SubAgentTimeout` if the timeout has been exceeded.
+        """Raise :class:`_SubAgentTimeout` when the deadline is reached.
 
         Args:
             start_time: Monotonic timestamp of when execution started.
 
         Raises:
-            _SubAgentTimeout: If the elapsed time exceeds the timeout.
+            _SubAgentTimeout: If elapsed time reaches the timeout, including zero.
         """
         if self._cancellation.is_cancel_requested():
             raise _SubAgentCancelled()
         elapsed = time.monotonic() - start_time
-        if elapsed > self._timeout:
+        if elapsed >= self._timeout:
             raise _SubAgentTimeout(
                 f"Sub-agent timed out after {elapsed:.1f}s "
                 f"(limit: {self._timeout}s)"

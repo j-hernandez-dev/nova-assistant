@@ -54,6 +54,7 @@ _SLASH_COMMANDS: dict[str, str] = {
     "/undo": "Undo the most recent file modifications (git checkout).",
     "/diff": "Show uncommitted changes in the working tree.",
     "/context": "Show context window usage (messages, tokens, compaction).",
+    "/memory <action>": "Explicit local memory controls; /memory help for syntax and privacy limits.",
     "/copy": "Copy last assistant response to clipboard.",
     "/usage": "Show per-message token usage and session totals.",
     "/agents": "List background sub-agent status.",
@@ -183,7 +184,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--num-ctx",
         type=int,
         default=None,
-        help="Context window size in tokens (default: model-specific).",
+        help="Context tokens: 0/AUTO (default), 4096, 8192, 16384, 32768, or 65536 (advanced, manual).",
     )
     parser.add_argument(
         "--temperature",
@@ -445,6 +446,10 @@ def _handle_application_slash_command(command: str, console, ctx: SimpleNamespac
     parts = command.strip().split(maxsplit=1)
     cmd = parts[0].lower()
     argument = parts[1].strip() if len(parts) > 1 else ""
+    if cmd == '/memory':
+        from local_cli.interfaces.memory_cli import handle_memory_command
+        handle_memory_command(argument,console)
+        return True
     if cmd in ("/exit", "/quit", "/help"):
         if cmd == "/help":
             print("\nAvailable commands:")

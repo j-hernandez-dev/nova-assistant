@@ -1,0 +1,307 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "iteration": "Qwen query/document protocol diagnosis + independent heldout",
+  "date": "2026-10-06",
+  "status": "PARTIAL",
+  "candidate": "qwen3-embedding:0.6b",
+  "candidateSuitableToCloseM8": false,
+  "memoryReadyDeclared": false,
+  "baseline": {
+    "branch": "main",
+    "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "workingTree": "PREEXISTING_DIRTY_NO_STAGING",
+    "platform": "Windows 11 build 26200 / local NTFS / HOST_UNISOLATED",
+    "runtime": "Python 3.12.14 / SQLite 3.53.1 / NumPy 2.3.5 / Ollama 0.35.1",
+    "indexedFiles": 771,
+    "previousEvidenceUnchanged": true,
+    "unchangedIndexedFiles": 770,
+    "soleExistingFileChanged": "local_cli/infrastructure/memory_embeddings.py",
+    "beforeProductSha256": "1dc92ce903cbea63bdcf03d1270a03fa09e49acd339c97f8c2d49397b9935268",
+    "afterProductSha256": "3ca5b7a81d464ef3224af71751e20343bf9d78c9317d0cf38889de1a342ae173"
+  },
+  "diagnosis": {
+    "classification": "ADAPTER_CONTRACT_GAP",
+    "queryCacheReuseBug": false,
+    "fusionBugDemonstrated": false,
+    "rawNormalizationBug": false,
+    "rawMatrixNormRange": [
+      0.9999999403953552,
+      1
+    ],
+    "queryCount": 5,
+    "embeddingRequests": 5,
+    "distinctEmbeddingHashes": 5,
+    "teaTop1Stage": "PURE_SEMANTIC_COSINE_BEFORE_FUSION",
+    "lexicalEmptyInAllFive": true,
+    "rawQueryInstructionMissing": true,
+    "source": "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B#usage",
+    "rows": "docs/memory_v1/m8_query_evidence/diagnostic_report.json"
+  },
+  "correction": {
+    "component": "Infrastructure LocalOllamaEmbeddings",
+    "instruction": "Given a user request, retrieve the most relevant durable user or workspace memory needed to answer it.",
+    "instructionRevisions": 1,
+    "familySelector": "verified /api/show general.basename=qwen3-embedding",
+    "queryFormat": "Instruct: <task>\\nQuery: <query>",
+    "documentFormat": "canonical_text unchanged",
+    "queryProfile": "qwen-memory-query-document-v1",
+    "newEmbeddingSpace": "ollama-f144583b224b101f9e6bff2bae743d8372c46065da2f1dbb51591216bc019a2a",
+    "digest": "ac6da0dfba84a81fdbfbaf330198c33cd77c4cdfc53e8bc50eb581914a15621d",
+    "dimension": 1024,
+    "nonQwenContractChanged": false,
+    "otherModelsTested": false,
+    "oldVectorsReused": false,
+    "schemasChanged": false,
+    "migrationIntroduced": false,
+    "newCoreContracts": false,
+    "rrfChanged": false,
+    "capsChanged": false,
+    "queryComposerChanged": false,
+    "minimumSimilarityChanged": false,
+    "deadlines": {
+      "softMs": 350,
+      "hardMs": 600
+    },
+    "goldUsedToAdjustRanking": false
+  },
+  "dev": {
+    "datasetVersion": "m8-query-document-dev-v1",
+    "status": "PASS_CONTRACT_ONLY",
+    "records": 4,
+    "queries": 4,
+    "qualityMeasured": false,
+    "prototypeOnly": true,
+    "productUnmodifiedDuringDev": true,
+    "goldUsed": false
+  },
+  "freeze": {
+    "path": "docs/memory_v1/m8_query_evidence/freeze.json",
+    "heldoutEvaluations": 1,
+    "instructionFrozenAfterDev": true,
+    "noRecordsOrQuestionsSharedWithDevOrHistorical": true,
+    "adapterInstructionDataProtocolUnchangedDuringQuality": true
+  },
+  "heldout": {
+    "datasetVersion": "m8-query-document-heldout-v1",
+    "sha256": "8ab1f9cb69c46eab68657938efa55a75cc405e7e442c3b75dacb99b4cc159718",
+    "metrics": {
+      "cases": 24,
+      "measured": 0,
+      "recall3": 0.95,
+      "precision1": 0.85,
+      "answerAccuracy": null,
+      "attributableAnswerAccuracy": null,
+      "attributableMeasured": 0,
+      "abstentionAccuracy": null,
+      "failures": 0
+    },
+    "gate": {
+      "pass": false,
+      "failures": [
+        "precision1"
+      ],
+      "paraphraseGainPP": 16.666666666666664,
+      "warmP95Ms": 460.869,
+      "warmTargetMs": 350,
+      "warmTargetMet": false
+    },
+    "footprint": {
+      "activeRecords": 16,
+      "filesBytes": 253952,
+      "allocatedBytes": 221184,
+      "checkpointAttempted": true,
+      "footprintStable": true,
+      "checkpointBusy": false
+    }
+  },
+  "historicalRegression": {
+    "datasetVersion": "m8-fixed-synthetic-v1",
+    "sha256": "9412e7d40a34d4ea0b26fa4a665860bc381ac28c8472cba36c3cda5157ba1d2f",
+    "metrics": {
+      "cases": 14,
+      "measured": 0,
+      "recall3": 1,
+      "precision1": 1,
+      "answerAccuracy": null,
+      "attributableAnswerAccuracy": null,
+      "attributableMeasured": 0,
+      "abstentionAccuracy": null,
+      "failures": 0
+    },
+    "gate": {
+      "pass": true,
+      "failures": [],
+      "paraphraseGainPP": 75,
+      "warmP95Ms": 310.674,
+      "warmTargetMs": 350,
+      "warmTargetMet": true
+    }
+  },
+  "priorCandidateEvidence": {
+    "status": "FAIL_UNCHANGED",
+    "precision1": 0.5833333333333334,
+    "path": "docs/memory_v1/m8_06b_evidence/standalone_report.json",
+    "reinterpreted": false
+  },
+  "gate": {
+    "mandatoryFailed": [
+      "HELD_OUT_PRECISION1"
+    ],
+    "additionalPerformanceTargetNotMet": [
+      "WARM_P95_350MS"
+    ],
+    "e2e": "NOT_RUN_HELD_OUT_PREREQUISITE_FAILED",
+    "window4096": "NOT_EVALUATED",
+    "window8192": "NOT_EVALUATED",
+    "window16384": "NOT_EVALUATED",
+    "capsulePromptEvidence": "NOT_EVALUATED",
+    "llmAbstention": "NOT_EVALUATED",
+    "semanticCriticalRerun": "NOT_RUN",
+    "realColdOrBetweenTurnResidency": "UNKNOWN",
+    "unavailableNotUsedToExcuseQualityFailure": true
+  },
+  "regression": {
+    "baseline": {
+      "passed": 661,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 56.84
+    },
+    "postAdapter": {
+      "passed": 669,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 56.94,
+      "newTests": 8
+    },
+    "pertinentCoreMemory": {
+      "passed": 1022,
+      "failed": 0,
+      "skipped": 3,
+      "seconds": 95.39
+    },
+    "skipsPreexisting": [
+      "config symlink Developer Mode",
+      "Electron E2E explicit opt-in",
+      "Electron Ollama smoke explicit opt-in"
+    ],
+    "newSkips": 0,
+    "newXfail": 0,
+    "electronUiRun": false,
+    "securityHostRealRerun": false,
+    "coreSecurityProductChanged": false
+  },
+  "operational": {
+    "onlySyntheticData": true,
+    "userDataTouched": false,
+    "modelsDownloaded": false,
+    "globalConfigChanged": false,
+    "gpuChanged": false,
+    "cloudInference": false,
+    "nextPhaseImplemented": false,
+    "ciChanged": false,
+    "commit": false,
+    "push": false,
+    "tagsChanged": false
+  },
+  "openDecisions": {
+    "MEM1_OD_02": "NO_RECOMMENDATION_CANDIDATE_NOT_SUITABLE_FOR_CURRENT_M8",
+    "MEM1_OD_04": "UNCHANGED",
+    "MEM1_OD_07": "UNCHANGED"
+  },
+  "artifacts": [
+    {
+      "path": "local_cli/infrastructure/memory_embeddings.py",
+      "sha256": "3ca5b7a81d464ef3224af71751e20343bf9d78c9317d0cf38889de1a342ae173"
+    },
+    {
+      "path": "tests/memory_v1/run_m8_query_diagnostic.py",
+      "sha256": "c9caa450eee5e7915f847246c9925ee838cbbdc333ad18129ec31659e48c39bb"
+    },
+    {
+      "path": "tests/memory_v1/run_m8_query_dev.py",
+      "sha256": "85a474e8fac449e15865f5762ec8696244cf9a71ad75429194fdfbfbddb5a450"
+    },
+    {
+      "path": "tests/memory_v1/run_m8_query_evaluation.py",
+      "sha256": "2287e8f2aa4a9d3169949dfe7c2e469e47b55599c71ea4dc7f044858bf13429e"
+    },
+    {
+      "path": "tests/memory_v1/test_m8_query_adapter.py",
+      "sha256": "257ee99bfc5618a43efcd665ef1656d74219e131e15def044db0935745fd8e46"
+    },
+    {
+      "path": "tests/memory_v1/fixtures/m8_query_dev_v1.json",
+      "sha256": "f25c56f252038afc4297bae6b3fc441e9b588dfa233c7e1ceac5dca111a8a247"
+    },
+    {
+      "path": "tests/memory_v1/fixtures/m8_query_heldout_v1.json",
+      "sha256": "8ab1f9cb69c46eab68657938efa55a75cc405e7e442c3b75dacb99b4cc159718"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_resultados.md",
+      "sha256": "50adeed9ae7f200dd684cb8875744be4730494568c44a9dc42a67cb780fef69f"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/baseline_run.json",
+      "sha256": "c224d0b9034cf6b1bd6de8da0552bba70d41b81668f73c50dea6b97184be0d3d"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/baseline_tests.xml",
+      "sha256": "b09fdf1c034729aaba4b224f9251ca82c4badce752d9a325a578ba4b6a18d821"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/baseline.log",
+      "sha256": "6de9f48787ac7fca1d8a341e84acca955e98ac38a2d4f2bad9dfb255b5b8a821"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/core_regression_run.json",
+      "sha256": "40fb0c4e59ddf570e5f8f4beb9d67c638700c0afb45b5c9722134261aa62c98e"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/core_regression_tests.xml",
+      "sha256": "4409c0a3fe5150afeab238976ee86482f0369c65f5253967081eefe3dac50d34"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/core_regression.log",
+      "sha256": "d642398d212af991bfb5d8ed27698742b0c7275b2a0db851379cd300edf3d59b"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/dev_report.json",
+      "sha256": "26960c528094c6b9bf8d95448234e435a28169a87a9f61e69782c052d3124570"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/diagnostic_report.json",
+      "sha256": "2cea99ae532064cdf37cbfeb88881918d19a8d6441fee6cb29079647fc9895b3"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/freeze.json",
+      "sha256": "e1682aef6724aacc229751c4c8fd7bc816121024ba6b7b5fd3eabdd8c775cdc8"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/heldout_report.json",
+      "sha256": "85eaeedc931f42126fd7425c221f81d64d73020336aba2c549b4a589c5140288"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/historical_regression_report.json",
+      "sha256": "4395023ef7b7692ef2977c1d12bb7b9b8308bbbdd84c6813400236376171cc59"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/initial_hashes.json",
+      "sha256": "763a7453fc9105aead6bf7635926aedff770964e2072682c321a1b38cef3558d"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/post_adapter_run.json",
+      "sha256": "3f24d51ad3ff22abe028884a29b7dbb88b4c7e8bbddf1fa4bddfc607de164650"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/post_adapter_tests.xml",
+      "sha256": "6def28b9a3d5269aabc2f10ff67f0f3584770d31d813f380f96f3cef174296de"
+    },
+    {
+      "path": "docs/memory_v1/m8_query_evidence/post_adapter.log",
+      "sha256": "3f12e26495e06d438e2137f7838b9269b7ae3d3491f82880c7c5bd4dc13181fd"
+    }
+  ]
+}

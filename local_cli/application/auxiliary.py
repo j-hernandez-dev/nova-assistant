@@ -55,7 +55,8 @@ class AuxiliaryServices:
         if self.plans is None or self.active_plan_id is None:
             return None
         try:
-            return build_plan_context(self.plans.get_plan_content(self.active_plan_id))
+            from local_cli.application.retrieval_context import plan_message
+            return plan_message(self.plans.get_plan_content(self.active_plan_id))
         except Exception:
             return None
 
@@ -235,8 +236,8 @@ class AuxiliaryServices:
             item = self.knowledge.load_item(item_name)
             artifacts = item.get("artifacts_content", {})
             parts = [f"--- {key} ---\n{value}" for key, value in artifacts.items()]
-            context = ({"role": "system", "content":
-                f"Knowledge item '{item_name}' loaded:\n\n" + "\n\n".join(parts)}
+            from local_cli.application.retrieval_context import knowledge_message
+            context = (knowledge_message(item_name,"\n\n".join(parts))
                 if parts else None)
             return AuxiliaryResult(name, {"name": item_name}, context)
         raise AuxiliaryUnavailable("Unknown knowledge subcommand")

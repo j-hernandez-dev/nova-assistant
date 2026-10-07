@@ -29,3 +29,16 @@ Un límite de recursos configurado es evidencia/configuración del host, no una 
 ## Verificación
 
 Tests de caracterización del adapter legacy; unit de UTF-8/overheads, reservas, incertidumbre, hard caps y materialización; probes Windows/Linux/macOS y fallo GPU; contratos de provider/sesión/server/subagentes y conservación del transcript. La evidencia de ejecución y limitaciones de plataforma se documenta en `nova_core_fase_9_resultados.md`.
+
+## Addendum aprobado — contexto manual 64K (2026-10-06)
+
+La lista original anterior documenta la decisión histórica. El contrato vigente
+añade `65536` / `64K` como preset manual avanzado opcional. AUTO conserva
+exactamente su catálogo 4K/8K/16K/32K y los fallbacks 8K/4K; no selecciona 64K.
+Todo límite conocido menor produce `CONTEXT_LIMIT_EXCEEDED` antes de inferencia,
+sin clamp. Límites desconocidos conservan `manual_unverified`, nunca soporte
+verificado inventado. Config reconoce `64K`; el flag CLI mantiene sintaxis
+numérica `--num-ctx 65536`. Budgeting/reservas/caps siguen siendo aritmética sobre
+`N`; no se amplía MEMORY, SECURITY ni el catálogo a 128K. La evidencia histórica
+permanece intacta; la nueva ampliación se registra separadamente en
+`context64/resultados.md`.

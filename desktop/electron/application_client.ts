@@ -1,11 +1,15 @@
 import { randomUUID } from 'node:crypto'
 import type { Message } from '../src/types'
 import type { DesktopSessionView, SessionSnapshot, EventEnvelope, CommandReceipt } from '../shared/application'
+import type { MemoryControlResult } from '../shared/application'
 
 const PRODUCT_COMMANDS = new Set([
   'SubmitUserInput', 'CancelTurn', 'StopGeneration', 'ChangeModel', 'ChangeProvider',
   'ResolveApproval', 'ResolveUserInput', 'ExecuteCommand', 'SetRAGEnabled', 'QueryRAG',
 ])
+const MEMORY_COMMANDS = new Set(['memory_status','memory_list','memory_search','memory_show',
+  'memory_remember','memory_correct','memory_forget','memory_export',
+  'memory_proposals','memory_confirm','memory_reject'])
 
 export function projectTranscript(transcript: Array<Record<string, any>>, prefix: string): Message[] {
   const messages: Message[] = []
@@ -42,6 +46,7 @@ export class DesktopApplicationClient {
   private subscription: string | null = null
   private reconnectCursor: { sessionId: string; sequence: number } | null = null
   private pending = new Map<string, { commandId: string; resolve: (receipt: CommandReceipt) => void }>()
+  private memoryPending = new Map<string, { commandId: string; resolve: (result: MemoryControlResult) => void }>()
   constructor(private send: (frame: object) => boolean | void,
               private publish: (view: DesktopSessionView) => void,
               private approvalProof?: (command: Record<string, unknown>) => string) {}
@@ -73,6 +78,10 @@ export class DesktopApplicationClient {
     for (const { commandId, resolve } of this.pending.values()) resolve({ schemaVersion: 1, commandId,
       accepted: false, createdIds: {}, error: { code: 'OUTCOME_UNKNOWN', message: 'Connection lost; command outcome is unknown. It will not be retried.' } })
     this.pending.clear()
+    for (const { commandId, resolve } of this.memoryPending.values()) resolve({ schemaVersion: 1,
+      commandId, completed: false, error: { code: 'OUTCOME_UNKNOWN', message: 'Connection lost; memory outcome is unknown. No retry.',
+        outcomeUnknown: true, retryable: false } })
+    this.memoryPending.clear()
     this.changed()
   }
   command(kind: string, payload: Record<string, unknown>, commandId = `cmd_${randomUUID()}`): Promise<CommandReceipt> {
@@ -91,6 +100,19 @@ export class DesktopApplicationClient {
       this.transmit({ id, type: 'application_command', command,
         ...(kind === 'ResolveApproval' && this.approvalProof
           ? { hostApprovalProof: this.approvalProof(command) } : {}) })
+    })
+  }
+  memory(name: string, args: Record<string, unknown>, commandId = `cmd_${randomUUID()}`): Promise<MemoryControlResult> {
+    if (!MEMORY_COMMANDS.has(name) || !this.view.status.ready || !this.view.sessionId || !this.approvalProof) {
+      return Promise.resolve({ schemaVersion: 1, commandId, completed: false,
+        error: { code: 'MEMORY_UNAVAILABLE', message: 'Authenticated memory control is unavailable.' } })
+    }
+    return new Promise(resolve => {
+      const id = this.id()
+      this.memoryPending.set(id, { commandId, resolve })
+      const command = { schemaVersion: 1, kind: 'MemoryControl', commandId,
+        sessionId: this.view.sessionId, name, arguments: args, expectedRevision: this.view.stateRevision }
+      this.transmit({ id, type: 'memory_command', command, hostMemoryProof: this.approvalProof!(command) })
     })
   }
   receive(frame: Record<string, any>) {
@@ -117,12 +139,22 @@ export class DesktopApplicationClient {
       this.pending.delete(frame.id)
       this.view = { ...this.view, error: receipt.accepted ? null : receipt.error || null }
       this.refresh()
+    } else if (frame.type === 'memory_result' && this.memoryPending.has(frame.id)) {
+      this.memoryPending.get(frame.id)!.resolve(frame.data as MemoryControlResult)
+      this.memoryPending.delete(frame.id)
+      // No MEMORY payload stored in the chat view, transcript or recall cache.
+      this.refresh()
     } else if (frame.type === 'error') {
       const error = { code: frame.code || 'TRANSPORT_ERROR', message: frame.message || 'Request failed' }
       if (this.pending.has(frame.id)) {
         const pending = this.pending.get(frame.id)!
         pending.resolve({ schemaVersion: 1, commandId: pending.commandId, accepted: false, createdIds: {}, error })
         this.pending.delete(frame.id)
+      }
+      if (this.memoryPending.has(frame.id)) {
+        const pending = this.memoryPending.get(frame.id)!
+        pending.resolve({ schemaVersion: 1, commandId: pending.commandId, completed: false, error })
+        this.memoryPending.delete(frame.id)
       }
       if (frame.id === this.snapshotRequest) this.snapshotRequest = null
       this.view = { ...this.view, error }
@@ -159,6 +191,8 @@ export class DesktopApplicationClient {
         model: state.modelRuntime.modelId, provider: state.modelRuntime.providerId },
       approvals: state.services.interactions?.approvals || [], inputs: state.services.interactions?.inputs || [],
       rag: state.services.rag,
+      memoryNotice: state.services.memory?.allowRemoteMemoryInjection
+        ? 'Remote memory injection is enabled by host configuration. Selected memories may leave this host.' : null,
       ragProgress: state.services.operations?.find(op => op.service === 'rag' &&
         ['running', 'requested'].includes(op.status))?.phase || '',
       ragResult: lastRetrieval?.result || this.view.ragResult,

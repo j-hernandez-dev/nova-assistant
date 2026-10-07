@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "phase": "M1",
+  "state": "PASS",
+  "generatedAt": "2026-10-06T08:31:51Z",
+  "gate": {
+    "reference": "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md §37 M1",
+    "requirement": "algebra/contratos estables y ninguna ruta de memoria depende de sessionId como persona.",
+    "status": "PASS",
+    "criteria": [
+      {
+        "criterion": "workspace_isolation",
+        "status": "PASS",
+        "proofLevel": "DOMAIN_PREDICATE",
+        "file": "tests/memory_v1/test_m1_identity_scope.py"
+      },
+      {
+        "criterion": "subject_separation",
+        "status": "PASS",
+        "proofLevel": "DOMAIN_CONTRACT",
+        "file": "tests/memory_v1/test_m1_identity_scope.py"
+      },
+      {
+        "criterion": "status_eligibility",
+        "status": "PASS",
+        "proofLevel": "DOMAIN_PREDICATE",
+        "file": "tests/memory_v1/test_m1_domain.py"
+      },
+      {
+        "criterion": "supersession_lineage",
+        "status": "PASS",
+        "proofLevel": "PURE_VALIDATOR_COMPLETE_FIXTURE",
+        "file": "tests/memory_v1/test_m1_domain.py"
+      },
+      {
+        "criterion": "source_required",
+        "status": "PASS",
+        "proofLevel": "DOMAIN_CONTRACT",
+        "file": "tests/memory_v1/test_m1_domain.py"
+      },
+      {
+        "criterion": "secret_sensitive_classification_contract",
+        "status": "PASS",
+        "proofLevel": "PRECLASSIFIED_INPUTS_NOT_DETECTOR",
+        "file": "tests/memory_v1/test_m1_domain.py"
+      },
+      {
+        "criterion": "renderer_model_no_trusted_scope",
+        "status": "PASS",
+        "proofLevel": "UNWIRED_APPLICATION_CONTRACT_BOUNDARY",
+        "file": "tests/memory_v1/test_m1_admission_ports.py"
+      }
+    ],
+    "sessionIdIsPersona": false
+  },
+  "interpretation": "N=M1 controls scope. M0 baseline/taxonomy wording is treated as restrictions on productive functionality and complementary characterization, not as a replacement for the normative M1 domain gate.",
+  "baseline": {
+    "branch": "main",
+    "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "headSubject": "ci: align unsupported filesystem gates across platforms",
+    "tagsPresent": [
+      "nova-core-v1-stable",
+      "nova-security-v1.2-ready"
+    ],
+    "version": "0.12.6",
+    "python": "3.14.6",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "filesystem": "NTFS",
+    "dirtyAtStart": true,
+    "preexistingTrackedModified": [
+      "desktop/tests/application_client.test.cjs",
+      "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+      "docs/nova_core_od_05_contexto_v1.md",
+      "local_cli/cli.py",
+      "local_cli/config.py",
+      "local_cli/core/context.py",
+      "tests/test_nova_core_phase9_context.py",
+      "tests/test_nova_core_phase9_integration.py"
+    ],
+    "preexistingUntrackedRoots": [
+      "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md",
+      "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+      "docs/context64/",
+      "docs/memory_v1/",
+      "tests/memory_v1/",
+      "tests/test_context_64k.py"
+    ]
+  },
+  "references": [
+    {
+      "path": "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md",
+      "sha256": "3FB67DF88DAE2428217E937FC8D890A3BCDF5C80524F16C207A2D8EF8C10CC80",
+      "unchangedSinceBaseline": true
+    },
+    {
+      "path": "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+      "sha256": "A5711F372CD9AC9BEE5AC800E638665E2E06CDB4405974C2CD12C14587715792",
+      "unchangedSinceBaseline": true
+    },
+    {
+      "path": "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+      "sha256": "AEC8E75EB346A48995EDC91A7384D7E838F9057FA230AB2C8971450A4FAED817",
+      "unchangedSinceBaseline": true
+    },
+    {
+      "path": "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md",
+      "sha256": "B13814A0F1C99528AB4F4D2F5C874DACDC1017C8F3F13B1053C90C67EB848147",
+      "unchangedSinceBaseline": true
+    }
+  ],
+  "runtimeActivation": {
+    "productiveMemory": false,
+    "concreteStore": false,
+    "extraction": false,
+    "memoryEmbeddings": false,
+    "consolidation": false,
+    "recall": false,
+    "newTools": false,
+    "newPublicCommands": false,
+    "cliDesktopCompositionWiring": false,
+    "secretDetector": false,
+    "newSensitiveConsentUI": false,
+    "osIsolation": false,
+    "processModelUnchanged": "HOST_UNISOLATED"
+  },
+  "implementation": {
+    "newSourceFiles": [
+      "local_cli/core/memory.py",
+      "local_cli/application/memory_admission.py",
+      "tests/memory_v1/m1_fixtures.py",
+      "tests/memory_v1/test_m1_identity_scope.py",
+      "tests/memory_v1/test_m1_domain.py",
+      "tests/memory_v1/test_m1_admission_ports.py"
+    ],
+    "modifiedExistingFile": "tests/memory_v1/run_regression.py",
+    "modifiedExistingFileScope": "Additive m1 mode only; prior exclusion/selection/private-state logic unchanged.",
+    "ports": [
+      "MemoryIdentityPort",
+      "MemoryStorePort",
+      "MemoryLexicalIndexPort",
+      "SemanticIndexPort",
+      "EmbeddingPort",
+      "MemoryPolicyPort"
+    ],
+    "identityCanonicalization": "VERSIONED_HASH_OF_TRUSTED_ALREADY_CANONICAL_PATH_ONLY; no OS resolver/durable identity adapter",
+    "sensitivity": "CLASSIFICATION_AND_CONSENT_INPUT_CONTRACT_ONLY; no inference/detector/active write policy"
+  },
+  "tests": [
+    {
+      "id": "before_head",
+      "kind": "CURRENT_CI_SELECTION_REGRESSION_NATIVE_OS_SMOKES",
+      "passed": 3452,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "seconds": 231.97,
+      "exitCode": 0,
+      "run": "m1_evidence/before_head_run.json",
+      "log": "m1_evidence/before_head.log"
+    },
+    {
+      "id": "domain_initial",
+      "kind": "UNIT_CONTRACT_MOCK_INTERFACES",
+      "passed": 192,
+      "skipped": 0,
+      "seconds": 2.27,
+      "exitCode": 0,
+      "run": "m1_evidence/domain_initial_run.json",
+      "log": "m1_evidence/domain_initial.log",
+      "historicalWithinThisPhase": true
+    },
+    {
+      "id": "domain_final",
+      "kind": "UNIT_CONTRACT_DEPENDENCY",
+      "passed": 193,
+      "skipped": 0,
+      "seconds": 2.04,
+      "exitCode": 0,
+      "m1NewCases": 187,
+      "existingCoreArchitectureCases": 6,
+      "modules": {
+        "identityScope": 41,
+        "domain": 79,
+        "admissionPorts": 67,
+        "coreArchitecture": 6
+      },
+      "run": "m1_evidence/domain_final_run.json",
+      "log": "m1_evidence/domain_final.log"
+    },
+    {
+      "id": "after_head",
+      "kind": "SAME_CURRENT_CI_SELECTION_PLUS_NEW_M1_CONTRACTS",
+      "passed": 3639,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "seconds": 216.3,
+      "exitCode": 0,
+      "run": "m1_evidence/after_head_run.json",
+      "log": "m1_evidence/after_head.log"
+    },
+    {
+      "id": "m0_metrics",
+      "kind": "EXISTING_SYNTHETIC_CHARACTERIZATION_NOT_PRODUCTIVE_MEMORY",
+      "cases": 26,
+      "sources": 34,
+      "contextMeasurements": 20,
+      "advancedScenarios": 45,
+      "exitCode": 0,
+      "run": "m1_evidence/m0_metrics_run.json",
+      "report": "m1_evidence/m0_characterization.json"
+    }
+  ],
+  "regression": {
+    "newFailures": 0,
+    "newM1Skips": 0,
+    "newXfails": 0,
+    "unchangedSkipTestSet": true,
+    "skipEvidence": "m1_evidence/unchanged_skips.json",
+    "existingHeadExclusions": [
+      "tests/security_v12/test_s0_frontends.py",
+      "tests/security_v12/test_s0_process.py",
+      "tests/security_v12/test_s0_surfaces.py",
+      "tests/security_v12/test_s3_windows.py",
+      "tests/security_v12/test_s4_host.py",
+      "tests/security_v12/test_s5_network.py",
+      "tests/security_v12/test_s6_host.py",
+      "tests/security_v12/test_s8_host.py",
+      "tests/security_v12/test_s8_e2e.py",
+      "tests/test_nova_core_phase7_legacy_bridge.py",
+      "tests/test_nova_core_phase7_server_legacy.py",
+      "tests/test_security_gates.py"
+    ],
+    "securityHostRealReexecuted": false,
+    "linuxMacosReexecuted": false,
+    "workflowChanged": false,
+    "realModelInferenceExecuted": false,
+    "modelsDownloaded": false
+  },
+  "metrics": {
+    "windows": [
+      4096,
+      8192,
+      16384,
+      32768,
+      65536
+    ],
+    "countSource": "utf8_bytes_div_3",
+    "modelCapability": "MANUAL_UNVERIFIED_SYNTHETIC_PRESET",
+    "userExact": true,
+    "deterministic": true,
+    "zeroOptionalMemoryValid": true,
+    "noArtificialCapFill": true,
+    "compactOptionalProxyAtAllWindows": 99,
+    "productionMemoryTokens": null,
+    "summary": {
+      "growth": [
+        {
+          "window": 4096,
+          "prepared": 22,
+          "removed": 9986,
+          "median_ms": 76.432,
+          "peak": 22582933
+        },
+        {
+          "window": 8192,
+          "prepared": 49,
+          "removed": 9959,
+          "median_ms": 76.968,
+          "peak": 22582733
+        },
+        {
+          "window": 16384,
+          "prepared": 93,
+          "removed": 9915,
+          "median_ms": 93.079,
+          "peak": 22582733
+        },
+        {
+          "window": 32768,
+          "prepared": 181,
+          "removed": 9827,
+          "median_ms": 86.722,
+          "peak": 22582733
+        },
+        {
+          "window": 65536,
+          "prepared": 387,
+          "removed": 9621,
+          "median_ms": 85.196,
+          "peak": 22582733
+        }
+      ],
+      "memoryProxy": [
+        {
+          "window": 4096,
+          "promptTokens": 285,
+          "memoryProxy": 99,
+          "cap": 327
+        },
+        {
+          "window": 8192,
+          "promptTokens": 285,
+          "memoryProxy": 99,
+          "cap": 655
+        },
+        {
+          "window": 16384,
+          "promptTokens": 285,
+          "memoryProxy": 99,
+          "cap": 1024
+        },
+        {
+          "window": 32768,
+          "promptTokens": 285,
+          "memoryProxy": 99,
+          "cap": 1024
+        },
+        {
+          "window": 65536,
+          "promptTokens": 285,
+          "memoryProxy": 99,
+          "cap": 1024
+        }
+      ]
+    },
+    "quality": {
+      "state": "NOT_IMPLEMENTED",
+      "precision_at_k": null,
+      "recall_at_k": null,
+      "conflict_accuracy": null,
+      "correction_accuracy": null,
+      "delete_no_resurrection": null,
+      "semantic_model_latency_ms": null,
+      "reason": "M0 has no production MEMORY retrieval/write/delete/embedding adapter"
+    },
+    "performance": "DESCRIPTIVE_ONLY_NO_M8_THRESHOLDS_RESOLVED",
+    "legacyRag": "Existing SQLite/Python cosine characterization with synthetic 2D vectors only; all-minilm configured legacy, not a MEMORY model choice.",
+    "ragDocumentDeletionIssue": "OBSERVED_LEGACY_FIXTURE_PRESERVED_NOT_FIXED_IN_M1"
+  },
+  "preservation": {
+    "checkedPreexistingFiles": 63,
+    "unchangedPreexistingFiles": 62,
+    "onlyChangedPreexisting": "tests/memory_v1/run_regression.py",
+    "historicalEvidenceUnchanged": true,
+    "normativeDocumentsUnchanged": true,
+    "headUnchanged": true,
+    "evidence": "m1_evidence/preservation.json"
+  },
+  "sourceFiles": [
+    {
+      "path": "local_cli/core/memory.py",
+      "sha256": "798B609DA3A0B8BC777342F314EA29211BCED96F7E6C6C69A3FAE799C2C2D231"
+    },
+    {
+      "path": "local_cli/application/memory_admission.py",
+      "sha256": "E0DA26AE338A2A02B5DEE1982DBDED355FFC2D4C059609EF7D8694DC3EA71915"
+    },
+    {
+      "path": "tests/memory_v1/m1_fixtures.py",
+      "sha256": "77FB0559DB553E0E1737B07995947A771282B66937256ADCF610C18A9022E452"
+    },
+    {
+      "path": "tests/memory_v1/test_m1_identity_scope.py",
+      "sha256": "82596B0C5E726778F5F0F2EA25FA3A818845E7B41CA3CFED39E73C9000657962"
+    },
+    {
+      "path": "tests/memory_v1/test_m1_domain.py",
+      "sha256": "F2672E0FC893D84130B2F81FA2C7CCA73AD1A116CFA45FB79F257EF83BA072B3"
+    },
+    {
+      "path": "tests/memory_v1/test_m1_admission_ports.py",
+      "sha256": "F377E62FA3A09467CE2D3C923E4EC6E755CDAB1FF02F128448748E4AE23AE9C1"
+    },
+    {
+      "path": "tests/memory_v1/run_regression.py",
+      "sha256": "450927169E184A519AF091860CBFB18CBA6069E0EC8FE7DE424784CDE7C01414"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs/memory_v1/m1_evidence/before_head_run.json",
+      "sha256": "11047D998739637F06F63AED4EBD2255996B3DA39926520D4B62290034F43A24"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/before_head.log",
+      "sha256": "7C0B26A1100808FB929137A09E03D135E3F5F12C375641E1369AB651BA77878D"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/domain_initial_run.json",
+      "sha256": "9D86694C265F27799A668E072FF40C1CA31249A6D798E427CA52FAB27D3553BA"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/domain_initial.log",
+      "sha256": "EAE9949552221BA330C2F7389C2E4C0E21EBB8A9C651505E4B924A8843D2046C"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/domain_final_run.json",
+      "sha256": "3CDC69AC527E8B88A4FE7A384E5C3E6154957867DC129787572F02C132C9366A"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/domain_final.log",
+      "sha256": "F081A69739B7E10D63943F31EB55D83ED3DEA568611AB547CC581EF186A4FF7E"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/after_head_run.json",
+      "sha256": "3852A23ECB3DD3E939E6DD40685A58E119133DAE4C808CDCF31653D1618F30D1"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/after_head.log",
+      "sha256": "C7DD8C04A81DAC2763AD71D22F24634AF560784F4D82C47E21563B98DED75F3D"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/m0_metrics_run.json",
+      "sha256": "6E3B3FB41BEBE6588BC558926C0C5BA7AFFA77F3CE588909E0D657703BD7AF53"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/m0_metrics.log",
+      "sha256": "45214060BFA0C8ACE8219A44CFD3CE22F9417C73F0D996753F6DCA8AD1C33A3F"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/m0_characterization.json",
+      "sha256": "FF99C5BEA1097F44A9B23F09126E4748E6E40DA9E441EB560D1F55262CB53591"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/preservation.json",
+      "sha256": "3D141F9C9A9166664D39D2AAC5EDD0CE3E1D225B5A8DB9DEEEE1AAAD8FB07720"
+    },
+    {
+      "path": "docs/memory_v1/m1_evidence/unchanged_skips.json",
+      "sha256": "4E30627B2CBCC168C0DED458FDFFEBF978F23C557B2B3724FE73AD49E96820C0"
+    },
+    {
+      "path": "docs/memory_v1/m1_resultados.md",
+      "sha256": "BCA83638E85D715975B16175AD21996C7C8683DF4108F2109C07C107B7986CA3"
+    },
+    {
+      "path": "docs/memory_v1/m1_invariants.json",
+      "sha256": "136F71C0CF4930AA740CCA2E3627DEEB37E1EFC72BB0E167A8647E153E9F40F0"
+    }
+  ],
+  "artifactHashPolicy": "Hashes exclude this manifest itself. New logs/JSON are normalized text snapshots; original run artifact hashes/JUnit XML locations are recorded in preservation.json.",
+  "invariantTraceability": "m1_invariants.json",
+  "unknownDebt": [
+    "Durable identity store and OS workspace canonicalization adapters",
+    "SQLite/FTS transactions/migrations/recovery/deletion/index no-resurrection",
+    "Active user controls/classification/consent/write policy",
+    "Lexical/semantic recall, capsules, runtime authority and quality",
+    "Real embedding availability/dimensions/performance",
+    "Native Linux/macOS execution in this phase and new Security host-real certification"
+  ],
+  "openDecisions": [
+    "MEM1-OD-01",
+    "MEM1-OD-02",
+    "MEM1-OD-03",
+    "MEM1-OD-04",
+    "MEM1-OD-05",
+    "MEM1-OD-06",
+    "MEM1-OD-07"
+  ],
+  "decisionsResolved": [],
+  "nextPhase": {
+    "id": "M2",
+    "description": "Durable MemoryStore + FTS5 + migrations",
+    "implemented": false
+  },
+  "memoryImplemented": false,
+  "memoryReady": false,
+  "commit": false,
+  "push": false
+}

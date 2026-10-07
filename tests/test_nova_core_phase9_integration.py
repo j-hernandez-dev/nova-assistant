@@ -270,12 +270,12 @@ def test_cli_and_server_context_render_common_budget(tmp_path, monkeypatch, caps
     assert sent[0]["data"]["budget"] == budget
 
 
-@pytest.mark.parametrize("value", ["4K", "8K", "16K", "32K", "auto"])
+@pytest.mark.parametrize("value", ["4K", "8K", "16K", "32K", "64K", "auto"])
 def test_config_supports_v1_presets_and_positive_limits(tmp_path, value):
     path = tmp_path / "config"
     path.write_text("num_ctx=" + value, encoding="utf-8")
     config = Config(config_file=str(path))
-    assert config.num_ctx == {"4K": 4096, "8K": 8192, "16K": 16384, "32K": 32768, "auto": 0}[value]
+    assert config.num_ctx == {"4K": 4096, "8K": 8192, "16K": 16384, "32K": 32768, "64K": 65536, "auto": 0}[value]
 
 
 @pytest.mark.parametrize("field", ["provider_context_window", "max_output_tokens"])

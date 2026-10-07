@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import json
 from pathlib import Path
 from threading import Event, RLock, Thread
@@ -21,6 +21,9 @@ from local_cli.application.commands import (
 from local_cli.application.legacy_runtime import LegacyAgentRuntime
 from local_cli.application.providers import ProviderManager, ProviderTransitionError, BoundModelRuntime
 from local_cli.application.context import bind_context, WorkingMessages as _WorkingMessages
+from local_cli.application.memory_recall import (MemoryRetriever, TurnMemorySnapshot,
+    admit_capsule, local_memory_destination)
+from local_cli.core.memory import MemoryError,MemoryErrorCode
 from local_cli.application.persistence import PersistenceService
 from local_cli.application.environment import EnvironmentService
 from local_cli.application.rag import RAGService
@@ -78,6 +81,8 @@ class ServiceOperation:
     progress: dict[str, Any] = field(default_factory=dict)
     result: Any = None
     done: Event = field(default_factory=Event)
+    service: str = 'rag'
+    deadline: datetime | None = None
 
 
 @dataclass
@@ -88,6 +93,7 @@ class Turn:
     model_runtime: BoundModelRuntime | None = field(default=None, repr=False)
     generations: dict[str, dict[str, Any]] = field(default_factory=dict)
     context_reports: list[dict[str, Any]] = field(default_factory=list)
+    memory_snapshot: TurnMemorySnapshot | None = field(default=None, repr=False)
     # Ephemeral owner-facing execution projection; never a second transcript,
     # prompt source, durable journal or renderer-owned lifecycle.
     display_messages: list[dict[str, Any]] = field(default_factory=list)
@@ -107,6 +113,7 @@ class Turn:
     stop_generation_requested: bool = False
     has_unknown_effect: bool = False
     done: Event = field(default_factory=Event, repr=False)
+    memory_capture: tuple | None = field(default=None,repr=False)
 
 
 @dataclass
@@ -191,6 +198,10 @@ class AgentSessionCoordinator:
         network_service: Any = None,
         environment_selector: Any = None, environment_source: Any = None,
         security_audit_port: Any = None,
+        memory_factory: Any = None,
+        allow_remote_memory_injection: bool = False,
+        memory_capture_mode: str = 'off',
+        memory_extractor_factory: Any = None,
     ) -> None:
         if runtime is not None and run_agent_fn is not None:
             raise ValueError("pass either runtime or a legacy runner")
@@ -242,6 +253,17 @@ class AgentSessionCoordinator:
         self._human_response_deadline_factory = human_response_deadline_factory
         self._events: SessionEventStream | None = None
         self._receipts: dict[CommandId, tuple[str, CommandReceipt]] = {}
+        self._memory_factory, self._memory = memory_factory, None
+        if type(allow_remote_memory_injection) is not bool:
+            raise ValueError('remote memory injection requires an explicit boolean')
+        self._allow_remote_memory_injection = allow_remote_memory_injection
+        self._memory_actors = {}
+        self._memory_receipts = {}  # Digests + mutation summaries only, never recall/content cache.
+        if memory_capture_mode not in ('off','propose_only','low_risk'):
+            raise ValueError('Invalid memory capture mode')
+        self._memory_capture_mode=memory_capture_mode
+        self._memory_extractor_factory=memory_extractor_factory
+        self._memory_worker=None
 
     def handle(self, command: ApplicationCommand) -> CommandReceipt | SessionSnapshot | EventCursor:
         """Handle the session API; future phases add other services."""
@@ -337,6 +359,7 @@ class AgentSessionCoordinator:
             return reject("REVISION_CONFLICT", "Session revision changed")
         if command.payload.get("endpointRef") is not None:
             return reject("UNSUPPORTED_ENDPOINT_REFERENCE", "Endpoint must come from trusted provider configuration")
+        self._preempt_memory()
         try:
             if command.kind is CommandKind.CHANGE_MODEL:
                 current = self.provider_manager.change_model(command.payload["modelId"])
@@ -480,7 +503,10 @@ class AgentSessionCoordinator:
         if any(not turn.done.is_set() for turn in session.turns):
             return self._reject(command, "CONFLICT_ACTIVE_TURN",
                                 "The main AgentSession already has an active Turn")
+        self._preempt_memory(resume_after_turn=True)
         turn = Turn(new_turn_id(), new_operation_id(), command.command_id)
+        if self._memory_capture_mode!='off':
+            turn.memory_capture=(session.workspace,self.redactor.text(command.payload['content']),datetime.now(timezone.utc))
         if self.provider_manager.snapshot().name in ProviderManager.SUPPORTED:
             self.provider_manager.refresh_status()
         turn.model_runtime = self.provider_manager.begin_turn(
@@ -520,8 +546,161 @@ class AgentSessionCoordinator:
             session.state_revision += 1
             self._publish_turn_terminal(session, turn)
             self.provider_manager.end_turn(turn.turn_id)
+            if turn.model_runtime._context is not None:
+                turn.model_runtime._context.memory_source=None
+                turn.model_runtime._context.manager.invalidate_cache()
             turn.done.set()
+
         return receipt
+
+    def _preempt_memory(self,*,resume_after_turn=False):
+        if self._memory_worker and not self._memory_worker.done.is_set():
+            if resume_after_turn:self._memory_worker.progress['resumeAfterTurn']=True
+            self._memory_worker.token.request()
+
+    def _queue_memory(self,session,turn,*,capture=True):
+        """One idle worker/quota. All state/store writes serialized here."""
+        from local_cli.core.memory import MemoryEvidence,MemorySourceClass
+        from local_cli.core.memory_maintenance import MemoryExtractionInput
+        import hashlib
+        from types import SimpleNamespace
+        from local_cli.core.security_audit import AuditKind
+        with self._lock:
+            if self._session is not session or self._memory_factory is None:return
+            # Capture only successful user evidence, never tool/subagent output
+            # or assistant hallucinations. Other trusted sources stay proposal-only.
+            if turn.status is not TurnStatus.COMPLETED:return
+            if not turn.memory_capture or turn.memory_capture[0]!=session.workspace:return
+            if self._memory_worker and not self._memory_worker.done.is_set():
+                # Capture for this terminal still needs to survive a busy worker;
+                # retry scheduling only, not authoritative effects.
+                self._memory_worker.token.request()
+                self._memory_worker.progress['resumeAfterTurn']=True
+            text=turn.memory_capture[1]
+            capture_error=None
+            # Every queue mutation, including capture/checkpoint, is audited
+            # before its effect. The audit stores metadata only, not evidence.
+            operation=ServiceOperation(new_operation_id(),turn.command_id,service='memory-maintenance',
+                deadline=datetime.now(timezone.utc)+timedelta(seconds=30))
+            self._service_operations[operation.operation_id]=operation
+            invocation=SimpleNamespace(context=SimpleNamespace(session_id=session.session_id,
+                operation_id=operation.operation_id,turn_id=None,agent_id=None,workspace=session.workspace,cwd=session.workspace),
+                operation_id=operation.operation_id,tool_call_id=None,name='memory_maintenance',arguments={})
+            try:
+                if self.security_audit:
+                    self.security_audit.request(invocation,origin='application')
+                    self.security_audit.record(invocation,AuditKind.POLICY,{'decision':'AUTO_SAFE_OR_PROPOSAL',
+                        'policyRevision':'mem6-conservative-span-v1'},origin='application')
+                    self.security_audit.before_effect(invocation,origin='application')
+                if self._memory is None:self._memory=self._memory_factory(session.workspace,self.redactor)
+                maintenance=self._memory.maintenance
+                if maintenance is None:raise MemoryError(MemoryErrorCode.UNAVAILABLE)
+                scope=maintenance.scope(session.workspace,register=True)
+                if capture and len(text)<=4096:
+                    maintenance.capture(MemoryExtractionInput(subject_id=scope.subject_id,workspace_id=scope.workspace_id,
+                        text=text,evidence=MemoryEvidence(source_id='mem6-turn-'+str(turn.turn_id),
+                        source_class=MemorySourceClass.USER_ASSERTION,source_timestamp=turn.memory_capture[2],
+                        session_id=str(session.session_id),turn_id=str(turn.turn_id),operation_id=str(turn.operation_id),
+                        evidence_hash=hashlib.sha256(text.encode()).hexdigest())))
+            except (MemoryError,SecurityAuditError) as exc:capture_error=exc
+            except Exception:
+                capture_error=MemoryError(MemoryErrorCode.WRITE_FAILED)
+            if capture_error:
+                if self.security_audit:self.security_audit.record(invocation,AuditKind.TERMINAL,
+                    {'outcome':'FAILED','effectState':'unknown' if getattr(capture_error,'outcome_unknown',False) else 'none',
+                     'errorCode':capture_error.code,'retryAllowed':False},origin='application')
+                self._finish_service_operation(session,operation,OperationStatus.FAILED,
+                    {'error':{'code':capture_error.code,'retryAllowed':False}})
+                return
+            if (self._memory_worker and not self._memory_worker.done.is_set()) or any(not t.done.is_set() for t in session.turns):
+                if self.security_audit:self.security_audit.record(invocation,AuditKind.TERMINAL,
+                    {'outcome':'COMPLETED','effectState':'applied','action':'queue_capture','retryAllowed':False},origin='application')
+                self._finish_service_operation(session,operation,OperationStatus.COMPLETED,{'phase':'captured_deferred'})
+                return
+            self._memory_worker=operation
+            operation.progress={'phase':'queued','quota':1,'deadline':operation.deadline.isoformat()}
+            def worker():
+                from local_cli.core.memory_maintenance import MemoryExtractionInput
+                response={};status=OperationStatus.COMPLETED;job=None;effect=False;receipts=[]
+                try:
+                    for _ in range(4):  # Bounded idle batch within the existing deadline/quota.
+                        with self._lock:
+                            if operation.token.is_cancel_requested() or any(not t.done.is_set() for t in session.turns):
+                                status=OperationStatus.CANCELLED;break
+                            if datetime.now(timezone.utc)>=operation.deadline:
+                                raise MemoryError(MemoryErrorCode.RETRIEVAL_TIMEOUT)
+                            jobs=maintenance.jobs.list_jobs(scope,states=('PENDING','READY','DEFERRED'),limit=1)
+                            if not jobs:break
+                            job=jobs[0]
+                            runtime=self.provider_manager.snapshot().snapshot
+                            if not local_memory_destination(runtime):
+                                raise MemoryError(MemoryErrorCode.REMOTE_INJECTION_DENIED)
+                        if job['state']!='READY':
+                            if not self._memory_extractor_factory:
+                                raise MemoryError(MemoryErrorCode.EXTRACTION_UNAVAILABLE)
+                            n=turn.model_runtime._context.manager.selection.resolve(
+                                model_limit=runtime.model_context_window,provider_limit=runtime.provider_context_window,
+                                resource_limit=self._context_policy.resource_limit)[0]
+                            extractor=self._memory_extractor_factory(runtime,n)
+                            reply=extractor.extract(MemoryExtractionInput(subject_id=scope.subject_id,workspace_id=scope.workspace_id,
+                                evidence=maintenance._evidence(job),text=job['text']),
+                                cancellation=operation.token,deadline=operation.deadline)
+                        with self._lock:
+                            if (operation.token.is_cancel_requested() or any(not t.done.is_set() for t in session.turns)
+                                or self.provider_manager.snapshot().snapshot!=runtime or self._session is not session
+                                or maintenance.scope(session.workspace)!=scope
+                                or datetime.now(timezone.utc)>=operation.deadline):
+                                status=OperationStatus.CANCELLED;break  # No late/stale commit.
+                            if self.security_audit:
+                                self.security_audit.before_effect(invocation,origin='application')
+                            if job['state']!='READY':job=maintenance.checkpoint(job,reply,scope)
+                            def admissible():
+                                if operation.token.is_cancel_requested() or datetime.now(timezone.utc)>=operation.deadline:
+                                    raise MemoryError(MemoryErrorCode.RETRIEVAL_TIMEOUT)
+                            receipt=maintenance.commit(job,scope,pre_commit=admissible)
+                            receipts.append(receipt)
+                            response={'accepted':sum(r.get('accepted',0) for r in receipts),
+                                'proposed':sum(r.get('proposed',0) for r in receipts),'jobs':len(receipts)}
+                            effect=True
+                except (MemoryError,SecurityAuditError) as exc:
+                    status=(OperationStatus.CANCELLED if operation.token.is_cancel_requested() else
+                        OperationStatus.OUTCOME_UNKNOWN if getattr(exc,'outcome_unknown',False) else OperationStatus.FAILED)
+                    response={'error':{'code':exc.code,'retryAllowed':False}}
+                    if receipts:response['observedReceipts']=receipts
+                    # Known computation/schema failure can be checkpointed. An
+                    # unknown commit or audit failure NEVER triggers a retry.
+                    if (job is not None and isinstance(exc,MemoryError) and not getattr(exc,'outcome_unknown',False)
+                        and not operation.token.is_cancel_requested()):
+                        try:
+                            with self._lock:
+                                if self.security_audit:self.security_audit.before_effect(invocation,origin='application')
+                                fresh=maintenance.jobs.get_job(job['jobId'],scope)
+                                if fresh and fresh['state'] in ('PENDING','READY','DEFERRED'):
+                                    deferred=exc.code==MemoryErrorCode.EXTRACTION_UNAVAILABLE.value
+                                    maintenance.jobs.save_job(fresh['jobId'],scope,expected_revision=fresh['revision'],payload={**fresh,
+                                        'revision':fresh['revision']+1,'state':'DEFERRED' if deferred else 'FAILED',
+                                        'text':fresh['text'] if deferred else '', 'drafts':[],
+                                        'result':{'errorCode':exc.code,'retryAllowed':False}})
+                        except Exception:pass  # No fabricated checkpoint acknowledgment.
+                except Exception:
+                    status=OperationStatus.OUTCOME_UNKNOWN;response={'error':{'code':'MEMORY_MAINTENANCE_FAILED','retryAllowed':False}}
+                    if receipts:response['observedReceipts']=receipts
+                if self.security_audit:
+                    self.security_audit.record(invocation,AuditKind.TERMINAL,dict(action='memory_maintenance',
+                        outcome=status.value,effectState='applied' if effect else 'unknown' if status is OperationStatus.OUTCOME_UNKNOWN else 'none',
+                        errorCode=response.get('error',{}).get('code'),retryAllowed=False),origin='application')
+                    if self.security_audit.health()['deliveryFailures']:
+                        response['securityAudit']={'gap':True,'retryAllowed':False}
+                self._finish_service_operation(session,operation,status,response)
+                # A new Turn may have completed before cancellation returned.
+                # Resume only known cancelled computation, never failed effects.
+                with self._lock:
+                    if (status is OperationStatus.CANCELLED and operation.progress.get('resumeAfterTurn')
+                            and self._session is session and not any(not t.done.is_set() for t in session.turns)):
+                        self._queue_memory(session,session.turns[-1],capture=False)
+            try:Thread(target=worker,name='nova-memory-maintenance',daemon=True).start()
+            except Exception:self._finish_service_operation(session,operation,OperationStatus.FAILED,
+                {'error':{'code':'WORKER_START_FAILED'}})
 
     def _active_session(self, command: ApplicationCommand) -> AgentSession | None:
         session = self._session
@@ -705,7 +884,7 @@ class AgentSessionCoordinator:
             session.state_revision += 1
             if self._events is not None:
                 self._events.publish(operation_terminal_kind(OperationType.OTHER, status),
-                    {"status": status.value, "operationType": "OTHER", "service": "rag",
+                    {"status": status.value, "operationType": "OTHER", "service": operation.service,
                      "result": response}, operation_id=operation.operation_id,
                     causation_id=CausationId(operation.command_id),
                     visibility=Visibility.SENSITIVE if response and response.get("matches") else Visibility.PUBLIC,
@@ -998,7 +1177,7 @@ class AgentSessionCoordinator:
                     # credentials. Publish only the intervention name.
                     publish(EventKind.HARNESS_INTERVENTION,
                                    {"rule": event.kind}, **common)
-                elif event.kind in ("context_budget", "context_usage"):
+                elif event.kind in ("context_budget", "context_usage", "memory_recall"):
                     session.state_revision += 1
                     turn.context_reports.append(deepcopy(event.data))
                     publish(EventKind.HARNESS_INTERVENTION, event.data,
@@ -1012,12 +1191,23 @@ class AgentSessionCoordinator:
                         self._persistence.save(self.redactor.messages(session.transcript + [deepcopy(m) for m in additions
                             if isinstance(m, dict) and m.get("role") in ("assistant", "tool")]))
             working = _WorkingMessages(session.transcript, on_append=checkpoint)
+            if self._auxiliary_services is not None:
+                plan_factory=getattr(self._auxiliary_services,'plan_context',None)
+                plan=plan_factory() if callable(plan_factory) else None
+                if (isinstance(plan,dict) and plan.get('role') in ('user','system')
+                        and isinstance(plan.get('content'),str)):
+                    working.insert(len(working)-1,self.redactor.value(plan))
             if self._rag.status()["enabled"]:
                 rag_op = ServiceOperation(new_operation_id(), turn.command_id,
                     token=turn.cancellation.child(), turn_id=turn.turn_id)
                 with self._lock:
                     self._service_operations[rag_op.operation_id] = rag_op
-                response = self._rag.query(session.transcript[-1]["content"], operation_id=rag_op.operation_id,
+                if self._memory_worker and not self._memory_worker.done.is_set():
+                    from local_cli.application.rag import RAGResponse,RAGState
+                    from local_cli.core.rag import RAGError
+                    response=RAGResponse(rag_op.operation_id,True,RAGState.UNAVAILABLE,
+                        error=RAGError('RAG_BUSY','Optional document retrieval deferred for foreground priority.'))
+                else:response = self._rag.query(session.transcript[-1]["content"], operation_id=rag_op.operation_id,
                     progress=lambda p: self._rag_progress(session, p, turn_id=turn.turn_id,
                                                           causation_id=CausationId(turn.command_id)))
                 self._finish_service_operation(session, rag_op,
@@ -1036,8 +1226,40 @@ class AgentSessionCoordinator:
                 report=lambda payload: emit_legacy(AgentEvent(payload["rule"], payload)),
                 capability_factory=self._capability_factory)
             turn.capabilities = turn.model_runtime._context.capabilities
+            if self._memory_factory is not None and not turn.cancellation.is_cancel_requested():
+                remote = not local_memory_destination(turn.model_runtime.snapshot)
+                if remote and not self._allow_remote_memory_injection:
+                    recalled = TurnMemorySnapshot(error_code='MEMORY_REMOTE_INJECTION_DENIED', remote=True)
+                else:
+                    try:
+                        with self._lock:
+                            if self._memory is None:
+                                self._memory = self._memory_factory(session.workspace, self.redactor)
+                        recalled = MemoryRetriever(self._memory).retrieve(session.transcript[-1]['content'],
+                            workspace=session.workspace, at=datetime.now(timezone.utc),
+                            semantic_allowed=not (self._memory_worker and not self._memory_worker.done.is_set()))
+                        recalled = replace(recalled, remote=remote)
+                    except Exception as exc:
+                        # Optional recall failure is observable, never a failed
+                        # write turned into success, and never an implicit retry.
+                        recalled = TurnMemorySnapshot(error_code=exc.code if isinstance(exc, MemoryError)
+                            else 'MEMORY_UNAVAILABLE', remote=remote)
+                if turn.cancellation.is_cancel_requested():
+                    recalled = TurnMemorySnapshot(error_code='MEMORY_RETRIEVAL_CANCELLED')
+                # RAG and MEMORY are distinct stores, but one payload budget.
+                # Remove only literal duplicate data, not similar facts.
+                if self._rag.status()['enabled'] and 'retrieval' in locals() and retrieval is not None:
+                    from local_cli.application.retrieval_context import rag_message
+                    if retrieval in working:working.remove(retrieval)
+                    retrieval=rag_message(response,recalled,self.redactor)
+                    if retrieval is not None:working.insert(len(working)-1,retrieval)
+                turn.memory_snapshot = admit_capsule(working, turn.model_runtime._context.manager,
+                    turn.model_runtime.format_tools(session.tools), recalled)
+                emit_legacy(AgentEvent('memory_recall', {'rule':'memory_recall',
+                    **turn.memory_snapshot.metadata()}))
             with self._lock:
                 session.capabilities = turn.capabilities
+            turn.model_runtime._context.memory_source=lambda:self._revalidate_memory(session,turn,working)
             outcome = self._runtime.run_turn(
                 provider=turn.model_runtime, model=turn.model_runtime.snapshot.model_id,
                 tools=runtime_tools, messages=working, emit=emit_legacy,
@@ -1112,7 +1334,32 @@ class AgentSessionCoordinator:
                 self._persistence.save(session.transcript)
             self._publish_turn_terminal(session, turn)
             self.provider_manager.end_turn(turn.turn_id)
+            if turn.model_runtime._context is not None:
+                turn.model_runtime._context.memory_source=None
+                turn.model_runtime._context.manager.invalidate_cache()
             turn.done.set()
+
+        # Already terminal: maintenance owns a different operation and never
+        # appends to transcript, reopens Turn or changes its observed result.
+        if self._memory_capture_mode!='off':
+            self._queue_memory(session,turn)
+
+    def _revalidate_memory(self,session,turn,working):
+        """Bounded ID/revision reads; no new retrieval/embedding each generation."""
+        if self._memory is None or turn.memory_snapshot is None or not turn.memory_snapshot.records:return
+        from local_cli.application.retrieval_context import current_snapshot
+        from local_cli.application.memory_recall import MemoryCapsule,MEMORY_GUARD
+        with self._lock:
+            try:updated=current_snapshot(self._memory,turn.memory_snapshot,workspace=session.workspace,at=datetime.now(timezone.utc))
+            except Exception:updated=replace(turn.memory_snapshot,records=(),capsule=None,error_code='MEMORY_UNAVAILABLE')
+            if updated.records==turn.memory_snapshot.records:return
+            for message in list(working):
+                if message.get('_context_kind')=='memory' or message.get('content')==MEMORY_GUARD:working.remove(message)
+            if updated.capsule:
+                working.insert(0,dict(role='system',content=MEMORY_GUARD))
+                working.insert(len(working)-1,MemoryCapsule.message(updated.capsule))
+            turn.memory_snapshot=updated
+            turn.model_runtime._context.manager.invalidate_cache()
 
     def _publish_turn_terminal(self, session: AgentSession, turn: Turn) -> None:
         stream = self._events
@@ -1300,6 +1547,12 @@ class AgentSessionCoordinator:
                         if item.turn_id == context.turn_id)
             if sub_agent.agent_id in session.agent_operations:
                 raise ValueError("duplicate agentId")
+            if self._memory is not None and turn.memory_snapshot is not None:
+                from local_cli.application.memory_children import child_memory_source
+                remote=not local_memory_destination(sub_agent.model_snapshot) if sub_agent.model_snapshot else True
+                if not remote or self._allow_remote_memory_injection:
+                    sub_agent.bind_memory_delegate(child_memory_source(self._memory,turn.memory_snapshot,
+                        session.workspace,sub_agent._prompt))
             if self.security_audit is not None:
                 self.security_audit.agent(context, operation_id, sub_agent.agent_id, started=True)
                 from types import SimpleNamespace
@@ -1330,6 +1583,7 @@ class AgentSessionCoordinator:
             operation = session.agent_operations.get(result.agent_id)
             if operation is None or operation.operation_id != operation_id:
                 return
+            if operation.done.is_set():return
             status = ({"success": OperationStatus.COMPLETED,
                        "cancelled": OperationStatus.CANCELLED,
                        "outcome_unknown": OperationStatus.OUTCOME_UNKNOWN,
@@ -1363,6 +1617,42 @@ class AgentSessionCoordinator:
                     causation_id=CausationId(turn.command_id),
                 )
             operation.done.set()
+            if self._memory is not None and result.status=='success':
+                from local_cli.application.memory_children import CHILD_HEADER
+                if CHILD_HEADER in result.content:self._child_memory_proposal(session,result,context,operation_id)
+
+    def _child_memory_proposal(self,session,result,context,child_operation_id):
+        from types import SimpleNamespace
+        from local_cli.core.security_audit import AuditKind
+        from local_cli.application.memory_children import persist_child_proposal
+        turn=next(t for t in session.turns if t.turn_id==context.turn_id)
+        op=ServiceOperation(new_operation_id(),turn.command_id,service='memory-proposal',
+            deadline=datetime.now(timezone.utc)+timedelta(seconds=30))
+        self._service_operations[op.operation_id]=op
+        op.progress={'phase':'proposal','quota':1,'deadline':op.deadline.isoformat()}
+        invocation=SimpleNamespace(context=replace(context,operation_id=op.operation_id),
+            operation_id=op.operation_id,name='memory_child_proposal',arguments={},tool_call_id=None)
+        status=OperationStatus.FAILED;summary={}
+        try:
+            if turn.cancellation.is_cancel_requested():raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+            if self.security_audit:
+                self.security_audit.request(invocation,origin='application')
+                self.security_audit.record(invocation,AuditKind.POLICY,{'decision':'PROPOSE_ONLY'},origin='application')
+                self.security_audit.before_effect(invocation,origin='application')
+            summary=persist_child_proposal(self._memory,result,workspace=session.workspace,
+                session_id=session.session_id,turn_id=turn.turn_id,operation_id=child_operation_id)
+            status=OperationStatus.COMPLETED
+        except (MemoryError,SecurityAuditError) as exc:
+            status=OperationStatus.OUTCOME_UNKNOWN if getattr(exc,'outcome_unknown',False) else OperationStatus.FAILED
+            summary={'error':{'code':exc.code,'retryAllowed':False}}
+        except Exception:
+            status=OperationStatus.OUTCOME_UNKNOWN;summary={'error':{'code':'MEMORY_WRITE_FAILED','retryAllowed':False}}
+        if self.security_audit:
+            self.security_audit.record(invocation,AuditKind.TERMINAL,{'action':'memory_child_proposal',
+                'outcome':status.value,'effectState':'applied' if status is OperationStatus.COMPLETED else 'unknown'
+                    if status is OperationStatus.OUTCOME_UNKNOWN else 'none','retryAllowed':False},origin='application')
+            if self.security_audit.health()['deliveryFailures']:summary['securityAudit']={'gap':True,'retryAllowed':False}
+        self._finish_service_operation(session,op,status,summary)
 
     def get_snapshot(self, session_id: SessionId | None) -> SessionSnapshot:
         with self._lock:
@@ -1388,6 +1678,123 @@ class AgentSessionCoordinator:
         with self._lock:
             self._snapshot_unlocked(session_id)
         return self.provider_manager.list_models()
+
+    def register_memory_actor(self, kind, verify):
+        """Trusted in-process host seam, not a serialized token or a tool grant."""
+        if kind not in ('cli_tty','desktop_host') or not callable(verify):
+            raise ValueError('Invalid memory host actor')
+        actor=object()
+        with self._lock:
+            self._memory_actors[actor]=(kind,verify)
+        return actor
+
+    def execute_memory(self, command, *, actor=None):
+        """Explicit synchronous Application controls, with Core operation terminal.
+
+        Replies contain requested inspection data; events/snapshots/idempotency
+        entries retain summaries only. Never append memories to transcript or
+        call the model. A receipt here reports a synchronous *observed* outcome.
+        """
+        import hashlib
+        from types import SimpleNamespace
+        from local_cli.application.memory import MemoryCommand, MEMORY_WRITES
+        from local_cli.core.memory import MemoryError
+        from local_cli.core.security_audit import AuditKind
+
+        def rejected(code, unknown=False):
+            raw_id=getattr(command,'command_id','')
+            safe_id=self.redactor.text(raw_id) if isinstance(raw_id,str) else ''
+            return dict(schemaVersion=1,commandId=safe_id,completed=False,
+                stateRevision=self._session.state_revision if self._session else None,
+                error=dict(code=code,category='MEMORY',message='Memory command could not complete.',
+                           outcomeUnknown=unknown,retryable=False))
+
+        with self._lock:
+            if not isinstance(command,MemoryCommand):
+                return rejected('MEMORY_UNTRUSTED_INPUT')
+            try: registered=self._memory_actors.get(actor)
+            except TypeError: registered=None
+            try: verified=registered is not None and registered[1]() is True
+            except Exception: verified=False
+            if not verified:
+                return rejected('MEMORY_UNTRUSTED_INPUT')
+            session=self._session
+            if session is None or session.session_id!=command.session_id or session.status!='active':
+                return rejected('INVALID_SESSION')
+            if any(self.redactor.text(v)!=v for v in (command.command_id,command.session_id)):
+                return rejected('MEMORY_UNTRUSTED_INPUT')
+            digest=hashlib.sha256(json.dumps(command.to_dict(),ensure_ascii=False,sort_keys=True,
+                separators=(',',':')).encode('utf-8')).hexdigest()
+            key=(command.session_id,command.command_id)
+            cached=self._memory_receipts.get(key)
+            if cached:
+                return deepcopy(cached[1]) if cached[0]==digest else rejected('IDEMPOTENCY_CONFLICT')
+            if command.expected_revision is not None and command.expected_revision!=session.state_revision:
+                return rejected('REVISION_CONFLICT')
+            if any(not t.done.is_set() for t in session.turns) or any(not a.done.is_set() for a in session.agent_operations.values()):
+                return rejected('CONFLICT_ACTIVE_OPERATION')
+            if self._memory_factory is None:
+                return rejected('MEMORY_UNAVAILABLE')
+            operation=ServiceOperation(new_operation_id(),command.command_id,service='memory')
+            self._service_operations[operation.operation_id]=operation
+            context=SimpleNamespace(session_id=session.session_id,operation_id=operation.operation_id,
+                turn_id=None,agent_id=None,workspace=session.workspace,cwd=session.workspace)
+            invocation=SimpleNamespace(context=context,operation_id=operation.operation_id,
+                tool_call_id=None,name=command.name,arguments={})
+            audit=self.security_audit
+            response=None
+            status=OperationStatus.FAILED
+            try:
+                if audit is not None:
+                    audit.request(invocation,origin='application')
+                    audit.record(invocation,AuditKind.POLICY,dict(decision='EXPLICIT_USER_CONTROL',
+                        actor=registered[0]),origin='application')
+                    audit.before_effect(invocation,origin='application')
+                if self._memory is None:
+                    self._memory=self._memory_factory(session.workspace,self.redactor)
+                data=self._memory.execute(command.name,command.arguments,workspace=str(session.workspace),
+                    session_id=str(session.session_id),operation_id=str(operation.operation_id),explicit_user_action=True)
+                if command.name in ('memory_forget','memory_correct'):
+                    old_id=command.arguments.get('memoryId')
+                    from local_cli.application.memory_recall import MemoryCapsule
+                    for previous_turn in session.turns:
+                        snapshot=previous_turn.memory_snapshot
+                        if snapshot and any(r.memory_id==old_id for r in snapshot.records):
+                            kept=tuple(r for r in snapshot.records if r.memory_id!=old_id)
+                            previous_turn.memory_snapshot=replace(snapshot,records=kept,
+                                capsule=MemoryCapsule.render(kept,self.redactor),tokens=0 if not kept else snapshot.tokens)
+                        if previous_turn.model_runtime and previous_turn.model_runtime._context:
+                            previous_turn.model_runtime._context.manager.invalidate_cache()
+                response=dict(schemaVersion=1,commandId=command.command_id,completed=True,
+                    operationId=operation.operation_id,data=data)
+                status=OperationStatus.COMPLETED
+            except (MemoryError,SecurityAuditError) as exc:
+                unknown=bool(getattr(exc,'outcome_unknown',False))
+                status=OperationStatus.OUTCOME_UNKNOWN if unknown else OperationStatus.FAILED
+                response=rejected(exc.code,unknown)
+                response['operationId']=operation.operation_id
+            except Exception:
+                # A foreign adapter may fail after an effect. No automatic retry
+                # or raw traceback/content; do not invent a rollback.
+                status=OperationStatus.OUTCOME_UNKNOWN
+                response=rejected('MEMORY_WRITE_FAILED',True)
+                response['operationId']=operation.operation_id
+            summary=dict(command=command.name,completed=response['completed'],error=response.get('error'),
+                memoryId=response.get('data',{}).get('memoryId'))
+            if audit is not None:
+                audit.record(invocation,AuditKind.TERMINAL,dict(action=command.name,outcome=status.value,
+                    effectState=('unknown' if status is OperationStatus.OUTCOME_UNKNOWN else
+                        'applied' if response['completed'] and command.name in MEMORY_WRITES else 'none'),
+                    errorCode=response.get('error',{}).get('code'),retryAllowed=False),origin='application')
+                health=audit.health()
+                if health['deliveryFailures']:
+                    response['securityAudit']=dict(gap=True,errorCode='SECURITY_AUDIT_DELIVERY_FAILED',retryAllowed=False)
+                    summary['securityAudit']=response['securityAudit']
+            self._finish_service_operation(session,operation,status,summary)
+            response['stateRevision']=session.state_revision
+            if command.name in MEMORY_WRITES:
+                self._memory_receipts[key]=(digest,deepcopy(response))
+            return response
 
     def execute_auxiliary(self, session_id: SessionId, name: str,
                           arguments: Mapping[str, Any] | None = None):
@@ -1438,6 +1845,10 @@ class AgentSessionCoordinator:
             model_runtime=self.provider_manager.snapshot().snapshot.to_dict(),
             capabilities=session.capabilities.to_dict() if session.capabilities else {},
             services={"rag": self._rag.status(),
+                      "memory": {"lexicalRecall": self._memory_factory is not None,
+                          "semantic": bool(self._memory and self._memory.semantic and self._memory.semantic.available),
+                          "autoCapture": self._memory_capture_mode!='off', "captureMode":self._memory_capture_mode,
+                          "allowRemoteMemoryInjection": self._allow_remote_memory_injection},
                       **({'securityAudit': self.security_audit.health()} if self.security_audit is not None else {}),
                       "filesystem": {"revision": session.filesystem_revision},
                       "interactions": {
@@ -1457,7 +1868,7 @@ class AgentSessionCoordinator:
                           "errorCode": self._persistence.last_error.code
                               if self._persistence and self._persistence.last_error else self._persistence_setup_error},
                       "operations": [{"operationId": op.operation_id, "status": op.status.value,
-                          "service": "rag", "phase": op.progress.get("phase", "started"),
+                          "service": op.service, "phase": op.progress.get("phase", "started"),
                           "result": deepcopy(op.result),
                           "turnId": op.turn_id, "cancelRequested": op.token.is_cancel_requested()}
                           for op in self._service_operations.values()]},

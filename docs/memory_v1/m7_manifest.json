@@ -1,0 +1,798 @@
+{
+  "schemaVersion": 1,
+  "phase": "M7",
+  "date": "2026-10-06",
+  "status": "PASS",
+  "gate": {
+    "source": "NOVA_MEMORY_ARQUITECTURA_V1.md §37 M7",
+    "literal": "memoria sigue siendo ligera en sesiones largas y no duplica contexto/autoridad entre servicios.",
+    "satisfied": true,
+    "allDeliverablesExist": true,
+    "mandatoryUnknown": [],
+    "memoryReady": false,
+    "nextPhaseImplemented": false,
+    "requirements": [
+      {
+        "requirement": "incremental count cache",
+        "status": "PASS",
+        "evidence": "test_m7_context: digest-only counts, mutation/tokenizer/fallback invariants"
+      },
+      {
+        "requirement": "long-session optimization",
+        "status": "PASS",
+        "evidence": "10k full private harness history, bounded generation projection + delta"
+      },
+      {
+        "requirement": "Knowledge/Plan budget alignment",
+        "status": "PASS",
+        "evidence": "five windows + live Knowledge/legacy role tests; common Application plan"
+      },
+      {
+        "requirement": "RAG+Memory scheduling",
+        "status": "PASS",
+        "evidence": "one admission/query per service, exact dedup + shared cap + RAG_BUSY/lexical fallback"
+      },
+      {
+        "requirement": "delegated child capsule",
+        "status": "PASS",
+        "evidence": "admitted ID/revision subset, bounded relevance, no global retrieval"
+      },
+      {
+        "requirement": "memory proposal from child",
+        "status": "PASS",
+        "evidence": "normal StartSubAgent and ToolRuntime agent, SUBAGENT_PROPOSAL/WORKSPACE/human confirm"
+      },
+      {
+        "requirement": "provider remote boundary",
+        "status": "PASS",
+        "evidence": "child/main denial default; no remote network in fixtures; real local path regression"
+      },
+      {
+        "requirement": "maintenance/quota",
+        "status": "PASS",
+        "evidence": "one worker, four-job idle batch, retained observed receipts, pause at engineering soft limits"
+      },
+      {
+        "requirement": "10k history not 10k retrieval",
+        "status": "PASS",
+        "evidence": "real SQLite 10k + current query tracing + 10k Application history"
+      },
+      {
+        "requirement": "no duplicate memory/RAG payload",
+        "status": "PASS",
+        "evidence": "pre-budget literal dedup and final capsule counts/caps"
+      },
+      {
+        "requirement": "large Knowledge not mandatory system",
+        "status": "PASS",
+        "evidence": "optional data role + Core budget; archived canonical not rewritten"
+      },
+      {
+        "requirement": "child only delegated/no global commit",
+        "status": "PASS",
+        "evidence": "normal paths + authority field rejection + records unchanged before confirmation"
+      },
+      {
+        "requirement": "delete invalidates caches",
+        "status": "PASS",
+        "evidence": "external delete between real loop generations and explicit terminal forget"
+      }
+    ]
+  },
+  "baseline": {
+    "branch": "main",
+    "initialHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "finalHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "workingTree": "Dirty additive M0-M6/64K/audit/architecture preserved, no staged changes",
+    "tags": [
+      "nova-core-v1-stable",
+      "nova-security-v1.2-ready"
+    ],
+    "preflight": {
+      "passed": 959,
+      "skippedPreexisting": 3,
+      "failed": 0,
+      "seconds": 72.79
+    },
+    "platform": "Windows 11 build 26200 / local C: NTFS",
+    "primary": "Python 3.14.6 / SQLite 3.50.4 / no NumPy",
+    "auxiliary": "Existing Python 3.12.14 / SQLite 3.53.1 / NumPy 2.3.5",
+    "node": "24.16.0",
+    "initialHashedFiles": 1672,
+    "priorEvidenceChecked": 1256,
+    "priorEvidenceChanged": 0,
+    "architectureDocumentsChanged": false,
+    "securityImplementationChanged": false,
+    "ciChanged": false,
+    "globalConfigurationChanged": false,
+    "modelsDownloaded": false,
+    "gpuChanged": false,
+    "commitPushTags": false
+  },
+  "modifiedFiles": [
+    {
+      "path": "local_cli/application/auxiliary.py",
+      "before": "5d5caba2cecb263044c527f39cca7a08bdb68c95c2c7260c7580e60bfddf5d15",
+      "after": "b386ce18c0ce1a93f15a980d8e9fc15f40f5756811518d765b4bda497bf1a93c"
+    },
+    {
+      "path": "local_cli/application/context.py",
+      "before": "8b5ef5dd09820caae15b4921908cd7bdd5c1ef37eaa3ad7f46dc61e3bb3ef6a0",
+      "after": "fec49d3d7349944f185553eff87c5af16a4dc53810ad4c61ec5098de4480ef94"
+    },
+    {
+      "path": "local_cli/application/memory_maintenance.py",
+      "before": "12c0132bd0efccb62ef63b8df5022fdafeec4c8c89300099ea587f3e5a2aa834",
+      "after": "a238e09dd696c82ce152dabc704024f70f81459a0c74503acb32615487ce14c6"
+    },
+    {
+      "path": "local_cli/application/memory_recall.py",
+      "before": "32288ce2b379b493ec787b2a47a496532e8d6570feba26514d1a454a4c0afa32",
+      "after": "8356c0a4a955761787ecc9a60a34334127dbb36a808035c43e666ab1c4e4b953"
+    },
+    {
+      "path": "local_cli/application/memory.py",
+      "before": "2b4d0bd030d2282a40ba8c57875e35d05a9adeb71d07d2283338e4ff14421dd9",
+      "after": "8031c4112691a9503ba8b3b75abc3a032880a60275b86ce9d54cfe461c52b65e"
+    },
+    {
+      "path": "local_cli/application/providers.py",
+      "before": "aff3327e1bf4063350f70f1f946dae5b900cd42568680e50f0aa405d1b7e410e",
+      "after": "7ccd05b31aa134550e63326fde8159b5c02d290224a1d9c6a3a114c5cb6d9f6d"
+    },
+    {
+      "path": "local_cli/application/rag.py",
+      "before": "b4dc75f37e9d82961c7d9755c89a5dc0a120639c336825850ba4d4b8874f91a7",
+      "after": "f7814dffa9d39465f02a4b2e8ea2f3e51262c746dc382cb5384d3fc49508eb68"
+    },
+    {
+      "path": "local_cli/application/session.py",
+      "before": "9bb6ba3521675d9e900bf043c41fc93dcb4cc20f20dfbdb2c652be61441122e1",
+      "after": "b9b2750d510683769cfb357232ec5998cd0dfb9535c441f9bda1b92da8bce582"
+    },
+    {
+      "path": "local_cli/bootstrap_cli.py",
+      "before": "76199b6ed181ac9da09f0b7d6b7706dbbe0ef5a24df69cda4427cb2f3552485d",
+      "after": "341bbf11c95cb8e9300505861d6c8285d20ec79a78853d37d72ae1f8efa393d1"
+    },
+    {
+      "path": "local_cli/core/context.py",
+      "before": "64b7765a7ab9672a808e412dd465a9cd3235c449e975b694e62f5d9a727d5dcc",
+      "after": "5d6f640124c0adb6125ad9b5cdb1c7c5c2e2f6fe4f882a2ca9df0141734cfa8d"
+    },
+    {
+      "path": "local_cli/core/memory_maintenance.py",
+      "before": "5c641b71089ebcbe1aa560d7b595edefb2a2fdb46a22359e76d5c85949eb3026",
+      "after": "888754004bf20eb600e4aa925bb877e6c9d16a0c8b213e3ec3ef7730870cfc45"
+    },
+    {
+      "path": "local_cli/infrastructure/memory_maintenance.py",
+      "before": "4add7d59e7a496b19c9c122644ef4bb0515bf11072dc484c96e39a65db95c325",
+      "after": "9fb87fc1f392a71e1b68196c1b048a29b45c0ce3f274af57a6c5f807b63bb8b6"
+    },
+    {
+      "path": "local_cli/memory_config.py",
+      "before": "11a48f8a9d49b155e7bb7bde3e1762615c81cc4cf6a83ae514e0051aa957bc1d",
+      "after": "f013c714890ec770bcd110c8677c3f7d05cb83ce0e43b9c2d6a0b85a3b2b6701"
+    },
+    {
+      "path": "local_cli/sub_agent.py",
+      "before": "b36165db1eaa4460ce9db1b21690ea6cc30c50fb8feac26342c54116998a9b63",
+      "after": "d32cc28c055818afc600884be44e092cbdbf4e2fa606dda62a0a874256302db0"
+    },
+    {
+      "path": "tests/memory_v1/legacy_baseline.py",
+      "before": "cdc0b4ca88856a2e6d4b0c065eef2f0ef71f18103a8369301dcd8e3b9efa70a9",
+      "after": "347a6fc52335416e80c64328a8d2c7082a68ac8ab0f69b1cc1f8206d9f2a70b4"
+    },
+    {
+      "path": "tests/memory_v1/test_m0_legacy.py",
+      "before": "8eb376f5f79fbfc99f63086b86c9c0e68c4f110f5f90d0e5357a0655a16a5ccc",
+      "after": "e0125982b93ba05748f0208b737f3df6dfbf3b389f1798c3c5ed8b37f5d70f2f"
+    },
+    {
+      "path": "tests/memory_v1/test_m4_application.py",
+      "before": "adece470b88ffcce08fe0c06f8b3bfc2d3b97de58034b15968cf84f53bcb6c9e",
+      "after": "ff34430662c11da410ef2374b58bb0376126a1df3455d3e6f90edb4c3bca69e6"
+    }
+  ],
+  "newSources": [
+    {
+      "path": "local_cli/application/memory_children.py",
+      "sha256": "6d6e1b701d7f84cf74786f9ea1737749f2406f2371472a17d3c556af0150d3bc"
+    },
+    {
+      "path": "local_cli/application/retrieval_context.py",
+      "sha256": "43e3462e78cdb33019dfb2c8b0278116634b83a25f71856e8b7af6fad7ea16dc"
+    },
+    {
+      "path": "tests/memory_v1/test_m7_context.py",
+      "sha256": "3a688f9c49f6c3e1df1147dfdf8a7922d5c5b58e3c573d81b59a4aca92ac3126"
+    },
+    {
+      "path": "tests/memory_v1/test_m7_integration.py",
+      "sha256": "61988c3ca4ae6aa44808a742474fd1d09670eb4af4f5dc2b1c941e3222603602"
+    },
+    {
+      "path": "tests/memory_v1/run_m7_metrics.py",
+      "sha256": "c0e19c6e12d2f3bd52f184b1e0fdb244b495fdf614e5f9214089e6b80964c6d1"
+    }
+  ],
+  "contracts": {
+    "preparedContext": "Additive host-only context_kinds/private_view; clean public model messages",
+    "maintenancePort": "usage/find_by_origin",
+    "memoryStatus": "readonly capacity pause/engineering limits",
+    "childEnvelope": "MEMORY_PROPOSAL_JSON: + existing schema v2; body literal before marker; no authority fields",
+    "memoryRecordSchema": 1,
+    "jobSchema": 1,
+    "sqliteUserVersion": 1,
+    "migrationsIntroduced": [],
+    "publicToolSchemasChanged": false,
+    "oneMainSession": true,
+    "secondAgentLoop": false,
+    "newGrants": false,
+    "processModel": "HOST_UNISOLATED",
+    "physicalIsolationClaim": false
+  },
+  "operationalBounds": {
+    "countCacheEntries": 512,
+    "childCandidatesBeforeCoreBudget": 4,
+    "ragRenderCandidates": 24,
+    "mainMemoryCandidates": 8,
+    "idleBatch": 4,
+    "workers": 1,
+    "maintenanceDeadlineSeconds": 30,
+    "recordSoftLimit": 20000,
+    "dbWalShmSoftLimitBytes": 134217728,
+    "limitsAreNotFinalOD04OrOSQuotas": true,
+    "purgeStableFacts": false,
+    "childAutoWrite": false
+  },
+  "tests": [
+    {
+      "name": "Final M7 cases",
+      "passed": 28,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "m7_evidence/m7_regression_closed_20261006/tests.xml",
+      "types": [
+        "unit",
+        "contract",
+        "adversarial",
+        "real SQLite",
+        "real loops/ToolRuntime with scripted providers (not LLM quality)"
+      ]
+    },
+    {
+      "name": "Final pertinent regression",
+      "passed": 987,
+      "failed": 0,
+      "skippedPreexisting": 3,
+      "seconds": 80.44,
+      "evidence": "m7_evidence/m7_regression_closed_20261006"
+    },
+    {
+      "name": "Final HEAD",
+      "passed": 3990,
+      "failed": 0,
+      "skippedPreexisting": 11,
+      "subtestsPassed": 53,
+      "seconds": 257.48,
+      "evidence": "m7_evidence/m7_head_closed_20261006"
+    },
+    {
+      "name": "Auxiliary NumPy",
+      "passed": 634,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 50.52,
+      "evidence": "m7_evidence/m7_aux_20261006"
+    },
+    {
+      "name": "Desktop",
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "typecheckExit": 0,
+      "evidence": "m7_evidence/m7_desktop_20261006"
+    },
+    {
+      "name": "Real local provider path (M6 corpus regression, NOT M8 quality)",
+      "passed": 12,
+      "failed": 0,
+      "model": "qwen3.5:9b",
+      "normalBackendE2E": true,
+      "scripted": false,
+      "context": 4096,
+      "evidence": "m7_evidence/m7_local_path_20261006/report.json"
+    }
+  ],
+  "performance": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "syntheticOnly": true,
+    "externalInference": false,
+    "windows": [
+      {
+        "window": 4096,
+        "historyMessages": 10000,
+        "fullRebuildMedianMs": 89.20860000216635,
+        "initialProjectionMs": 1000.0226000047405,
+        "warmMedianMs": 0.81079999654321,
+        "appendMedianMs": 0.7635000001755543,
+        "initialPythonAllocationPeakBytes": 7349652,
+        "visibleMessages": 31,
+        "metrics": {
+          "fullMaterializations": 1,
+          "boundedMaterializations": 10,
+          "sourceMessages": 10002
+        },
+        "budget": {
+          "selected_context_window": 4096,
+          "system_tokens": 41,
+          "tool_schema_tokens": 0,
+          "project_instruction_tokens": 0,
+          "skill_tokens": 0,
+          "output_reserve": 1024,
+          "safety_margin": 512,
+          "available": 2519,
+          "current_message_tokens": 30,
+          "working_context_tokens": 2410,
+          "tool_result_tokens": 0,
+          "retrieval_tokens": 0,
+          "estimated": true,
+          "count_source": "utf8_bytes_div_3",
+          "selection_verified": true,
+          "selection_reason": "manual_verified",
+          "removed_messages": 0,
+          "memory_tokens": 0,
+          "shared_retrieval_cap": 377,
+          "memory_token_budget": 327,
+          "memory_selected_count": 0
+        },
+        "countsEstimated": true
+      },
+      {
+        "window": 8192,
+        "historyMessages": 10000,
+        "fullRebuildMedianMs": 87.52930000628112,
+        "initialProjectionMs": 954.0839000037522,
+        "warmMedianMs": 1.9979000062448904,
+        "appendMedianMs": 1.757700003508944,
+        "initialPythonAllocationPeakBytes": 7343183,
+        "visibleMessages": 76,
+        "metrics": {
+          "fullMaterializations": 1,
+          "boundedMaterializations": 10,
+          "sourceMessages": 10002
+        },
+        "budget": {
+          "selected_context_window": 8192,
+          "system_tokens": 41,
+          "tool_schema_tokens": 0,
+          "project_instruction_tokens": 0,
+          "skill_tokens": 0,
+          "output_reserve": 1024,
+          "safety_margin": 820,
+          "available": 6307,
+          "current_message_tokens": 30,
+          "working_context_tokens": 6236,
+          "tool_result_tokens": 0,
+          "retrieval_tokens": 0,
+          "estimated": true,
+          "count_source": "utf8_bytes_div_3",
+          "selection_verified": true,
+          "selection_reason": "manual_verified",
+          "removed_messages": 0,
+          "memory_tokens": 0,
+          "shared_retrieval_cap": 946,
+          "memory_token_budget": 655,
+          "memory_selected_count": 0
+        },
+        "countsEstimated": true
+      },
+      {
+        "window": 16384,
+        "historyMessages": 10000,
+        "fullRebuildMedianMs": 90.39859999757027,
+        "initialProjectionMs": 982.2570000033011,
+        "warmMedianMs": 3.618100003222935,
+        "appendMedianMs": 4.133899994485546,
+        "initialPythonAllocationPeakBytes": 7349353,
+        "visibleMessages": 151,
+        "metrics": {
+          "fullMaterializations": 1,
+          "boundedMaterializations": 10,
+          "sourceMessages": 10002
+        },
+        "budget": {
+          "selected_context_window": 16384,
+          "system_tokens": 41,
+          "tool_schema_tokens": 0,
+          "project_instruction_tokens": 0,
+          "skill_tokens": 0,
+          "output_reserve": 2048,
+          "safety_margin": 1639,
+          "available": 12656,
+          "current_message_tokens": 30,
+          "working_context_tokens": 12610,
+          "tool_result_tokens": 0,
+          "retrieval_tokens": 0,
+          "estimated": true,
+          "count_source": "utf8_bytes_div_3",
+          "selection_verified": true,
+          "selection_reason": "manual_verified",
+          "removed_messages": 0,
+          "memory_tokens": 0,
+          "shared_retrieval_cap": 1898,
+          "memory_token_budget": 1024,
+          "memory_selected_count": 0
+        },
+        "countsEstimated": true
+      },
+      {
+        "window": 32768,
+        "historyMessages": 10000,
+        "fullRebuildMedianMs": 95.455700000457,
+        "initialProjectionMs": 1013.3432000002358,
+        "warmMedianMs": 7.628700004715938,
+        "appendMedianMs": 8.186599996406585,
+        "initialPythonAllocationPeakBytes": 7386122,
+        "visibleMessages": 300,
+        "metrics": {
+          "fullMaterializations": 1,
+          "boundedMaterializations": 10,
+          "sourceMessages": 10002
+        },
+        "budget": {
+          "selected_context_window": 32768,
+          "system_tokens": 41,
+          "tool_schema_tokens": 0,
+          "project_instruction_tokens": 0,
+          "skill_tokens": 0,
+          "output_reserve": 4096,
+          "safety_margin": 3277,
+          "available": 25354,
+          "current_message_tokens": 30,
+          "working_context_tokens": 25276,
+          "tool_result_tokens": 0,
+          "retrieval_tokens": 0,
+          "estimated": true,
+          "count_source": "utf8_bytes_div_3",
+          "selection_verified": true,
+          "selection_reason": "manual_verified",
+          "removed_messages": 0,
+          "memory_tokens": 0,
+          "shared_retrieval_cap": 3803,
+          "memory_token_budget": 1024,
+          "memory_selected_count": 0
+        },
+        "countsEstimated": true
+      },
+      {
+        "window": 65536,
+        "historyMessages": 10000,
+        "fullRebuildMedianMs": 92.34120000473922,
+        "initialProjectionMs": 1000.8245999997598,
+        "warmMedianMs": 17.61409999744501,
+        "appendMedianMs": 18.09050000156276,
+        "initialPythonAllocationPeakBytes": 7513156,
+        "visibleMessages": 647,
+        "metrics": {
+          "fullMaterializations": 1,
+          "boundedMaterializations": 10,
+          "sourceMessages": 10002
+        },
+        "budget": {
+          "selected_context_window": 65536,
+          "system_tokens": 41,
+          "tool_schema_tokens": 0,
+          "project_instruction_tokens": 0,
+          "skill_tokens": 0,
+          "output_reserve": 4096,
+          "safety_margin": 6554,
+          "available": 54845,
+          "current_message_tokens": 30,
+          "working_context_tokens": 54770,
+          "tool_result_tokens": 0,
+          "retrieval_tokens": 0,
+          "estimated": true,
+          "count_source": "utf8_bytes_div_3",
+          "selection_verified": true,
+          "selection_reason": "manual_verified",
+          "removed_messages": 0,
+          "memory_tokens": 0,
+          "shared_retrieval_cap": 8226,
+          "memory_token_budget": 1024,
+          "memory_selected_count": 0
+        },
+        "countsEstimated": true
+      }
+    ],
+    "recall": [
+      {
+        "historyMessages": 20,
+        "storeRecords": 10000,
+        "medianMs": 1.4635999978054315,
+        "queriesPerCall": 1,
+        "hydratedPerCall": 1,
+        "selected": 1,
+        "queryIndependentOfTranscript": true
+      },
+      {
+        "historyMessages": 2000,
+        "storeRecords": 10000,
+        "medianMs": 0.90970000019297,
+        "queriesPerCall": 1,
+        "hydratedPerCall": 1,
+        "selected": 1,
+        "queryIndependentOfTranscript": true
+      },
+      {
+        "historyMessages": 10000,
+        "storeRecords": 10000,
+        "medianMs": 0.8888000011211261,
+        "queriesPerCall": 1,
+        "hydratedPerCall": 1,
+        "selected": 1,
+        "queryIndependentOfTranscript": true
+      }
+    ],
+    "store": {
+      "schemaVersion": 1,
+      "applicationId": 1314278705,
+      "journalMode": "wal",
+      "synchronous": 2,
+      "foreignKeys": 1,
+      "sqliteVersion": "3.50.4",
+      "records": 10000,
+      "activeRecords": 10000,
+      "sources": 10000,
+      "tombstones": 0,
+      "allocatedBytes": 9584640,
+      "filesBytes": 19344760
+    },
+    "pass": true
+  },
+  "invariants": {
+    "userFirst": true,
+    "sharedRetrievalCap": true,
+    "optionalMemoryZeroAllowed": true,
+    "canonicalTranscriptDestructivelyRewritten": false,
+    "numericCacheContainsMemoryText": false,
+    "scopeBoundByHost": true,
+    "provenanceChildOperationId": true,
+    "summaryAutoCommits": false,
+    "childStoreCommitAPI": false,
+    "lateDeletedDataInjected": false,
+    "coreTerminalReopened": false,
+    "authorityCeilingExpanded": false,
+    "securityAuditConversationStore": false
+  },
+  "failuresPreserved": [
+    {
+      "evidence": "incremental/m7_block2.xml",
+      "classification": "HARNESS_BUG fallback provenance; STALE_EXPECTATION RAG wrapper"
+    },
+    {
+      "evidence": "incremental/m7_block3.xml",
+      "classification": "HARNESS_BUG mandatory RAG expectation/empty ceiling"
+    },
+    {
+      "evidence": "m7_regression_intermediate_20261006",
+      "classification": "REAL_REGRESSION M7 optional plan hook and iterable schema cache; fixed without changing Core tests/golden"
+    },
+    {
+      "evidence": "incremental/m7_regression_repair.xml",
+      "classification": "REAL_REGRESSION still present iterable hash; repair2 verifies fix"
+    }
+  ],
+  "openDecisions": {
+    "neededForM7": [],
+    "preservedHumanM6": "MEM1-OD-03 conservative AUTO_SAFE unchanged; no new classes",
+    "earlierResolution": "MEM1-OD-01 M5 exact derived NumPy adapter; selected embedding model not universal recommendation",
+    "future": [
+      "MEM1-OD-02 universal embedding/co-residency recommendation",
+      "MEM1-OD-04 final quotas (initial engineering values used only)",
+      "MEM1-OD-05 physical EPISODE retention",
+      "MEM1-OD-06 encryption/key lifecycle",
+      "MEM1-OD-07 M8 READY thresholds"
+    ]
+  },
+  "unknownNonBlocking": [
+    "First materialization/redaction/checkpoint still O(history)",
+    "General LLM quality/adversarial corpus M8",
+    "Physical compute preemption/RAM-VRAM co-residency",
+    "RAG backend uncooperative IO and universal ranking behavior",
+    "Large-scale receipt retention",
+    "M7 native/real-model Linux/macOS certification"
+  ],
+  "residualRegressionsDemonstrated": [],
+  "nextPhaseReferenceOnly": "M8",
+  "evidenceFiles": [
+    {
+      "path": "docs/memory_v1/m7_evidence/initial_hashes.json",
+      "sha256": "f386cce680c846f886f25f7cc4a20c719916a4d40d3f2d7ae9dd50f80971781d",
+      "bytes": 264890
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/source_changes.json",
+      "sha256": "64afa2674ba36a4a8eeb0ccd83605b99bdf8795cd2ecd8c3b7924bf104c9d65e",
+      "bytes": 4007
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/incremental/m7_block_context.xml",
+      "sha256": "a7e2efdb2cb9d7e2b2d59b43f83edb634772e418b860dcd96ae980cb4c09719e",
+      "bytes": 18278
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/incremental/m7_block2.xml",
+      "sha256": "b04aa46853630e87f7c582aa23b6a862441f87f7494ef45cde75828cb2933bf5",
+      "bytes": 12782
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/incremental/m7_block3.xml",
+      "sha256": "33b8e8c3683d2e3efdaafc3e747c8245ac624b0c63d74fb63469cd17622da4c0",
+      "bytes": 22102
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/incremental/m7_block3b.xml",
+      "sha256": "dec905fb4d7d8a08588738e1ac8ffe10015d0d703725edfed2fe5d71ef06f7ba",
+      "bytes": 3873
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/incremental/m7_block4.xml",
+      "sha256": "5558ae5d391ea1fbd91bd5ed2fd9be9082623b9c351cd19abbbe4ed4afdd3273",
+      "bytes": 10009
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/incremental/m7_child_path.xml",
+      "sha256": "bbfcc936c547b7fdfd9e99b6f1535bbffdd0b2a60f4b85b593012d74fb20a436",
+      "bytes": 1901
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/incremental/m7_regression_repair.xml",
+      "sha256": "9c5d766bfbc89eef9db8211f88dc67a0fbc4d965dcadfc6f3b9157bbffb004d2",
+      "bytes": 7383
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/incremental/m7_regression_repair2.xml",
+      "sha256": "db7bf1d4ee2e1115e080d0f368acd301096de70809aaf7deed032afe10b2eda5",
+      "bytes": 6474
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/incremental/m7_tool_route.xml",
+      "sha256": "cb552c4dca99fc6d7dafc861b8299c5b3e15df7da8ae38c7ed178f985ca6aebc",
+      "bytes": 2362
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_aux_20261006/run.json",
+      "sha256": "4b97a7c954582ca2c65a5d2fdf086ed2ea92ccf2966738829ebb69fa6f8cba16",
+      "bytes": 756
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_aux_20261006/run.log",
+      "sha256": "390bea6dbb3c96320ca8de776c1c22bab219b4a1ac74fe6344995ae01902bc17",
+      "bytes": 751
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_aux_20261006/tests.xml",
+      "sha256": "151f5dfbdcb4150734fabb3207a91970fb9ab69912c9133fdd34b41dd10d2c19",
+      "bytes": 98278
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_baseline_20261006/run.json",
+      "sha256": "e9e8d6f408680388d671f65470e13de4791e5120833aa550544708255a7f693e",
+      "bytes": 1490
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_baseline_20261006/run.log",
+      "sha256": "b60926a1eb3990e88f5bea7f53004b11bd462165303b3ea9a185fd038480c073",
+      "bytes": 1177
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_baseline_20261006/tests.xml",
+      "sha256": "aac0131af43d6ad6e338215399820890aaf846ebc37c18534a2031accdd50f58",
+      "bytes": 144481
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_desktop_20261006/node.log",
+      "sha256": "eeb0a1492481f6b4b0a1d5d96d87e735cb21b2a894b0025c0e634d7703b57f8e",
+      "bytes": 4153
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_desktop_20261006/run.json",
+      "sha256": "ec3e1a0c1c892f16f5beee1099995a3bbd004ca7203f0dc0c91d15c7e7aa9815",
+      "bytes": 981
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_desktop_20261006/typescript.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_head_closed_20261006/run.json",
+      "sha256": "9a5aef6e26b1b0b0c939e074c5977b8d8ae142fe84f33556eb5638092b3d56a8",
+      "bytes": 1409
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_head_closed_20261006/run.log",
+      "sha256": "d2583cfeddcb4b11e237b7f6ef76593c57f4bd5ac06b118d781e8730b3fb3b64",
+      "bytes": 4621
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_head_closed_20261006/tests.xml",
+      "sha256": "dc15a01eaa07849fa10381a566a572820f8e2bf7607a1141291d2d3351766797",
+      "bytes": 538898
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_head_final_20261006/run.json",
+      "sha256": "73f3c454e516193f890d56176a9853902c60c8718088bd8bf61ed5a6b41db953",
+      "bytes": 1407
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_head_final_20261006/run.log",
+      "sha256": "d965ac0ca72672381ef0e1e54e99e0802eacb062a9663b420ec54492deceeb9c",
+      "bytes": 4621
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_head_final_20261006/tests.xml",
+      "sha256": "72008401cf16408c6f930e118f93904a873fa2cb62678a12f64a974855cf232a",
+      "bytes": 538740
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_local_path_20261006/report.json",
+      "sha256": "5adeb3657b51e07e531bfb8a43ed18381fa99ff83a13f6f47759a69eeff28326",
+      "bytes": 15149
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_metrics_20261006/metrics.json",
+      "sha256": "552cbb3766fafa08c40051760242effc1e9e6b4813afe7129ced65509474629a",
+      "bytes": 7655
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_regression_closed_20261006/run.json",
+      "sha256": "4bc3610dc880a39919407f47cac2e90d79c74d5609993d2363953c123ecfcd28",
+      "bytes": 1508
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_regression_closed_20261006/run.log",
+      "sha256": "25458a5a02b28980cc00134c7de394379ee03dcbf8bad8e8a0e7aee695db31d7",
+      "bytes": 1177
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_regression_closed_20261006/tests.xml",
+      "sha256": "50dea6621b626d372f117e60270f4dc6c25dd7dbb60ee031d737e9c5a1ff361b",
+      "bytes": 148714
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_regression_final_20261006/run.json",
+      "sha256": "160bccdafb9b2aede17cc3d1713e4aa6d44a287d6e79c02f945955e74700e507",
+      "bytes": 1506
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_regression_final_20261006/run.log",
+      "sha256": "689a4ec5746263243feb834b4e73882a793f40a4f41600596c716ac8bd3dae20",
+      "bytes": 1177
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_regression_final_20261006/tests.xml",
+      "sha256": "a240aeab306318d54949fcf78be96e00e149cc38b4b05c95bc5a701e4d861449",
+      "bytes": 148560
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_regression_intermediate_20261006/run.json",
+      "sha256": "6dbe6f15e4eb72d818616da3a5ec75b4a4f5f891020d5fbb621d469cc118925c",
+      "bytes": 1520
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_regression_intermediate_20261006/run.log",
+      "sha256": "d7deac0f2185c5a3103eaef885abb1cd7db7bd98afa36a61730df1fde0110e52",
+      "bytes": 4149
+    },
+    {
+      "path": "docs/memory_v1/m7_evidence/m7_regression_intermediate_20261006/tests.xml",
+      "sha256": "ccaf1e0a9e5e2ad59c20fba0e419d7913d5b406ded26be2f30dc00447395ad05",
+      "bytes": 150900
+    }
+  ]
+}

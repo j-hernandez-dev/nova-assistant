@@ -1,0 +1,635 @@
+{
+  "schemaVersion": 1,
+  "phase": "M3",
+  "status": "PASS",
+  "date": "2026-10-06",
+  "gate": {
+    "normative": "NOVA_MEMORY_ARQUITECTURA_V1.md §37 M3",
+    "literal": "usuario puede crear, inspeccionar, corregir y olvidar recuerdos sin LLM extractor",
+    "satisfied": true,
+    "mandatoryUnknown": [],
+    "evidence": [
+      "tests/memory_v1/test_m3_service.py",
+      "tests/memory_v1/test_m3_application.py",
+      "tests/memory_v1/test_m3_composition.py",
+      "desktop/tests/memory_control.test.cjs"
+    ],
+    "allDeliverablesExist": true,
+    "noLaterPhaseImplemented": true,
+    "memoryReadyDeclared": false
+  },
+  "baseline": {
+    "branch": "main",
+    "initialHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "finalHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "subject": "ci: align unsupported filesystem gates across platforms",
+    "tags": [
+      "nova-core-v1-stable",
+      "nova-security-v1.2-ready"
+    ],
+    "workingTreeInitiallyDirty": true,
+    "preexistingTrackedModifications": [
+      "desktop/tests/application_client.test.cjs",
+      "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+      "docs/nova_core_od_05_contexto_v1.md",
+      "local_cli/cli.py",
+      "local_cli/config.py",
+      "local_cli/core/context.py",
+      "tests/test_nova_core_phase9_context.py",
+      "tests/test_nova_core_phase9_integration.py"
+    ],
+    "preexistingUntrackedGroups": [
+      "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md",
+      "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+      "docs/context64/",
+      "docs/memory_v1/",
+      "local_cli/core/memory.py",
+      "local_cli/application/memory_admission.py",
+      "local_cli/infrastructure/memory_sqlite.py",
+      "local_cli/infrastructure/memory_codec.py",
+      "local_cli/infrastructure/memory_migrations.py",
+      "tests/memory_v1/",
+      "tests/test_context_64k.py"
+    ],
+    "prerequisites": "Actual checkout M0/M1/M2/64K present; baseline native regression passed, not presumed from committed HEAD",
+    "version": "0.12.6",
+    "python": "3.14.6",
+    "sqlite": "3.50.4",
+    "node": "24.16.0",
+    "platform": "Windows 11 build 26200 / local NTFS"
+  },
+  "scope": {
+    "implemented": [
+      "Explicit Application MemoryService/WritePolicy",
+      "CLI controls and signed Desktop adapter contract",
+      "Inspection / bounded exact+FTS search",
+      "Correction/supersession",
+      "Exact dedup and atomic absence CAS",
+      "Forget/owned projection invalidation",
+      "Read-only versioned export",
+      "Source provenance / host identity",
+      "Basic sensitivity + known secret denial",
+      "S7 audit pre-effect barrier / post-effect observed outcome and gap",
+      "Summary-only Core OtherOperation and idempotency receipts"
+    ],
+    "notImplemented": [
+      "M4 Turn recall/MemoryCapsule/TAC budgeting",
+      "M5 semantic MEMORY adapter/embeddings",
+      "M6 auto-capture/extraction/semantic consolidation/maintenance",
+      "M7 full remote/privacy/subagent memory integration",
+      "M8 MEMORY READY thresholds/quotas/certification"
+    ],
+    "processModel": "HOST_UNISOLATED",
+    "sandboxOrProcessIsolation": false,
+    "securityProductChanged": false,
+    "coreLifecycleChanged": false,
+    "coreMemoryPortsExtended": true,
+    "toolSchemasChanged": false,
+    "contextOrConfigChanged": false,
+    "normalCliServerMemoryControlsActivated": true,
+    "normalPromptMemoryActivated": false,
+    "ciChanged": false,
+    "dependenciesAdded": false,
+    "modelsDownloaded": false,
+    "cloudEnabled": false,
+    "globalConfigurationChanged": false,
+    "gpuChanged": false,
+    "legacyStoresDestroyed": false,
+    "commitOrPush": false,
+    "tagsCreatedOrMoved": false,
+    "otherPlatformsCertified": false
+  },
+  "contracts": {
+    "memoryControlSchemaVersion": 1,
+    "commandResultSemantics": "Synchronous observed completion, NOT asynchronous Core receipt acceptance",
+    "commands": [
+      "memory_status",
+      "memory_list",
+      "memory_search",
+      "memory_show",
+      "memory_remember",
+      "memory_correct",
+      "memory_forget",
+      "memory_export"
+    ],
+    "memoryDatabaseSchemaVersion": 1,
+    "newMigration": false,
+    "codecAndMigrationsUnchanged": true,
+    "exportFormat": "nova-memory-export",
+    "exportVersion": 1,
+    "exportReadOnlyAfterStoreInitialization": true,
+    "identitySource": "Trusted host ports; UI cannot provide subject/workspace/provenance/grants",
+    "defaultControlScope": "WORKSPACE",
+    "globalScope": "Explicit selection",
+    "policy": "EXPLICIT only; NORMAL no redundant confirmation; SECRET_DENIED rejected; SENSITIVE exact consent; no silent declassification",
+    "perItemOperationalLimits": {
+      "canonicalChars": 4096,
+      "canonicalEstimatedTokens": 512,
+      "keyChars": 256
+    },
+    "inspectionLimits": {
+      "default": 20,
+      "max": 100
+    },
+    "limitsAreNotFinalOd04QuotasOrM4Caps": true,
+    "exactInsert": "Atomic absence precondition under SQLite BEGIN IMMEDIATE; race loser MEMORY_CONFLICT, no retry/LWW",
+    "forget": "Target record and owned projections/tombstone; no external sources/audit/backups erase",
+    "contentCache": "none; idempotency holds digests and write summaries only"
+  },
+  "tests": {
+    "baselineNative": {
+      "passed": 3705,
+      "subtestsPassed": 53,
+      "skipped": 11,
+      "failed": 0,
+      "seconds": 232.57,
+      "path": "m3_evidence/m3_before_native"
+    },
+    "gateFinal": {
+      "passed": 354,
+      "skipped": 2,
+      "failed": 0,
+      "xfail": 0,
+      "seconds": 32.19,
+      "newM3Tests": 46,
+      "path": "m3_evidence/m3_gate_final"
+    },
+    "headFinal": {
+      "passed": 3751,
+      "subtestsPassed": 53,
+      "skipped": 11,
+      "failed": 0,
+      "xfail": 0,
+      "seconds": 225.47,
+      "path": "m3_evidence/m3_head_closed"
+    },
+    "desktop": {
+      "passed": 38,
+      "newM3Tests": 8,
+      "skipped": 0,
+      "failed": 0,
+      "typescriptExit": 0,
+      "path": "m3_evidence/m3_desktop_final"
+    },
+    "skipPolicy": "No new skips/xfail; exact historical opt-in/platform skips and current HEAD classifications retained; CI unchanged",
+    "evidenceClasses": {
+      "unitContract": "DTO/policy/ports/CLI parser/JS host; TTY/dialog/provider catalog synthetic",
+      "integrationPersistence": "Real private SQLite/FTS/JSONL Audit/Coordinator/CLI and server composition; no LLM inference",
+      "nativeRegression": "Current Core/native gates and M2 real subprocess crash/locking regressions",
+      "faultInjection": "Controlled audit flush / uncertain effect / interleaved real SQLite connections",
+      "realLlm": "NOT_RUN_NOT_REQUIRED_M3",
+      "electronVisual": "NOT_RUN_NOT_REQUIRED_M3",
+      "linuxMacNative": "NOT_RUN_NOT_CERTIFIED"
+    },
+    "performance": {
+      "requiredByM3": false,
+      "repeatedM2": true,
+      "path": "m3_evidence/m2_regression_benchmark_final.json",
+      "interpretation": "Measured synthetic 10k/20k; descriptive, no M8 thresholds resolved"
+    }
+  },
+  "failedRunsPreserved": [
+    "m3_before",
+    "m3_block2",
+    "m3_block2_fixed",
+    "m3_block2_corrected",
+    "m3_desktop",
+    "m3_desktop_env_corrected",
+    "m3_duplicate_race"
+  ],
+  "directTypecheckObservations": "m3_evidence/typecheck_observations.json",
+  "failuresRemaining": [],
+  "unknownAndDebt": [
+    "Non-universal sensitivity/secret heuristics; only known/evident credentials demonstrated",
+    "Sensitive local storage is not encryption or OS isolation",
+    "Explicit export materializes snapshot; large export scalability not benchmarked",
+    "Semantic normalization/consolidation/recall and future runtime invariant obligations deferred",
+    "No actual Electron interaction, real local LLM quality or POSIX native M3 certification"
+  ],
+  "openDecisions": {
+    "neededForM3": [],
+    "remainOpen": [
+      "MEM1-OD-01",
+      "MEM1-OD-02",
+      "MEM1-OD-03",
+      "MEM1-OD-04",
+      "MEM1-OD-05",
+      "MEM1-OD-06",
+      "MEM1-OD-07"
+    ]
+  },
+  "preservation": {
+    "capturedFiles": 267,
+    "unchanged": 253,
+    "necessaryOverlaps": 14,
+    "path": "m3_evidence/preservation.json",
+    "historicalEvidenceUntouched": true,
+    "scope": "Scoped preflight hash capture, not universal repository byte coverage"
+  },
+  "files": {
+    "created": [
+      "local_cli/application/memory.py",
+      "local_cli/application/memory_policy.py",
+      "local_cli/memory_config.py",
+      "local_cli/interfaces/memory_cli.py",
+      "desktop/electron/memory_control.cjs",
+      "desktop/electron/memory_control.d.cts",
+      "desktop/tests/memory_control.test.cjs",
+      "tests/memory_v1/test_m3_service.py",
+      "tests/memory_v1/test_m3_application.py",
+      "tests/memory_v1/test_m3_composition.py",
+      "tests/memory_v1/run_m3_desktop.py"
+    ],
+    "modified": [
+      "local_cli/application/session.py",
+      "local_cli/core/memory.py",
+      "local_cli/infrastructure/memory_sqlite.py",
+      "local_cli/bootstrap_cli.py",
+      "local_cli/bootstrap_server.py",
+      "local_cli/interfaces/cli_application.py",
+      "local_cli/interfaces/jsonl_application.py",
+      "local_cli/cli.py",
+      "desktop/electron/application_client.ts",
+      "desktop/electron/main.ts",
+      "desktop/electron/preload.ts",
+      "desktop/shared/application.ts",
+      "desktop/src/types.ts",
+      "tests/memory_v1/run_regression.py",
+      "tests/memory_v1/test_m1_admission_ports.py"
+    ],
+    "closure": [
+      "docs/memory_v1/m3_resultados.md",
+      "docs/memory_v1/m3_manifest.json",
+      "docs/memory_v1/m3_invariants.json",
+      "docs/memory_v1/m3_evidence/"
+    ]
+  },
+  "nextPhase": {
+    "name": "M4",
+    "referenceOnly": true,
+    "implemented": false
+  },
+  "hashes": [
+    {
+      "path": "local_cli/application/memory.py",
+      "sha256": "AE64A8CEB7CF4F3587A8C0666E1E892917AC3F1DE73BC43C19596582047F93E6"
+    },
+    {
+      "path": "local_cli/application/memory_policy.py",
+      "sha256": "14EF39C4F34EEE43EDFB1E2F14B6133C6CC224B925782C68E523FF540EC3D343"
+    },
+    {
+      "path": "local_cli/application/session.py",
+      "sha256": "DC0F8D55A4EFFFEC39AEF70526658D70306F914933E85F4E9BAC42982263EBB6"
+    },
+    {
+      "path": "local_cli/core/memory.py",
+      "sha256": "265838220C8D2DBB784E292D2D2D3E2E02A145822479F1158F6BC5C216FAD4F7"
+    },
+    {
+      "path": "local_cli/infrastructure/memory_sqlite.py",
+      "sha256": "106ED52CABD3FE7B953D58A6B6A1D03BA875871CC6071D92CC0D9EAC38D18AB0"
+    },
+    {
+      "path": "local_cli/memory_config.py",
+      "sha256": "2E5D80BA900D46EEA73807EE6FAD069804F0515EEC838D49C86E66D04EB09A01"
+    },
+    {
+      "path": "local_cli/bootstrap_cli.py",
+      "sha256": "7597310434848B204D4102D71241FB53FCF5169D5280B984E00D7211BAA43963"
+    },
+    {
+      "path": "local_cli/bootstrap_server.py",
+      "sha256": "F55355F94E4EE179C84A0FFACEDA864C311B52DAB32302C61568203BE1831C4B"
+    },
+    {
+      "path": "local_cli/interfaces/memory_cli.py",
+      "sha256": "C1C27D39D6FF48BD6EA53908A3AFB6A014526AA8C5C6D05E7D109AE05A3BC998"
+    },
+    {
+      "path": "local_cli/interfaces/cli_application.py",
+      "sha256": "6A9DDCB1EB60B5758C73C559CA0AAA7127E5380D6A922255F9DC434B5FD4F065"
+    },
+    {
+      "path": "local_cli/interfaces/jsonl_application.py",
+      "sha256": "1A06B437206BEB13950F3CC345C94BA050DCEB717DF6FBE5A38A0E837B87C21C"
+    },
+    {
+      "path": "local_cli/cli.py",
+      "sha256": "FC6DB5CE52D6AD78B2FBD0DBEA0D41FE6D76C6FA214D7D8DEB46787916A33165"
+    },
+    {
+      "path": "desktop/electron/application_client.ts",
+      "sha256": "5D4F3C6EDF88352B1AD4F471602160CC7DDBC1579B5A165E8034EB6884A57709"
+    },
+    {
+      "path": "desktop/electron/main.ts",
+      "sha256": "53878DF54747C388100C913C5D6A316960A4628B35ED33AFCCCDA4D15CADEBED"
+    },
+    {
+      "path": "desktop/electron/preload.ts",
+      "sha256": "50A3EB41A39335EE1BE462E1890B140177951A1441B5B68C0D1B8794E202A651"
+    },
+    {
+      "path": "desktop/shared/application.ts",
+      "sha256": "7E60791768C146FE63E0CD4F7C831346B4C10CC5FD2B08082445EDA521F95AD3"
+    },
+    {
+      "path": "desktop/src/types.ts",
+      "sha256": "341AEBD116D963651C9BBBB937FEC508E7B61A5D14748138D5D25183EEE9C23B"
+    },
+    {
+      "path": "desktop/electron/memory_control.cjs",
+      "sha256": "3DAAF0C5DE4DF913FF8F43DE384E30076F6D6272FC6FF996EF8E7C11919D8D6F"
+    },
+    {
+      "path": "desktop/electron/memory_control.d.cts",
+      "sha256": "D02051EE1461ACC338E2289469AF9886E845C61735FEEBE68AD3BB3A92A1FE70"
+    },
+    {
+      "path": "desktop/tests/memory_control.test.cjs",
+      "sha256": "9BF91C32A804163D629BE1ADD13325DAF6E10C2BB49C799F222E1A95A1AE883B"
+    },
+    {
+      "path": "tests/memory_v1/test_m3_service.py",
+      "sha256": "19B7BCA6EDFFD336ADB9D37F566FFEE0B924CDA2ED560031CDA0FE3A40939380"
+    },
+    {
+      "path": "tests/memory_v1/test_m3_application.py",
+      "sha256": "7CA5A78A496C3609DFFE4B25D0CAF7A62D70C0EE489A4A07B95C010AC549E7C1"
+    },
+    {
+      "path": "tests/memory_v1/test_m3_composition.py",
+      "sha256": "44E87B40DDB40D40D2F9D561650C62CA3E0A6D6A4F62F1DF540AB6A42A998869"
+    },
+    {
+      "path": "tests/memory_v1/run_regression.py",
+      "sha256": "D6C79D8CB15727078043ED915F0BC1BB966B9EA939B95BDEA401800AFFE8FE91"
+    },
+    {
+      "path": "tests/memory_v1/run_m3_desktop.py",
+      "sha256": "3F4D00B04104062AE25E81F66192DD7B7303C84B158BBC9D7A5D2E5B54373E71"
+    },
+    {
+      "path": "tests/memory_v1/test_m1_admission_ports.py",
+      "sha256": "CF5344BBE61EDD7D32A85838CF1DECF2CDF438A4348C06B747E909DFC372BBCC"
+    },
+    {
+      "path": "docs/memory_v1/m3_resultados.md",
+      "sha256": "903500250F14E8909C4880316EAEDAAF59011354412E525E3F06B4138CD380D9"
+    },
+    {
+      "path": "docs/memory_v1/m3_invariants.json",
+      "sha256": "C33D8B0DB0BF81F3A91D14ADBB74ED48EAFCF1C51C70F9055C0E80BB701C650E"
+    },
+    {
+      "path": "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+      "sha256": "A5711F372CD9AC9BEE5AC800E638665E2E06CDB4405974C2CD12C14587715792"
+    },
+    {
+      "path": "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md",
+      "sha256": "B13814A0F1C99528AB4F4D2F5C874DACDC1017C8F3F13B1053C90C67EB848147"
+    },
+    {
+      "path": "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md",
+      "sha256": "3FB67DF88DAE2428217E937FC8D890A3BCDF5C80524F16C207A2D8EF8C10CC80"
+    },
+    {
+      "path": "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+      "sha256": "AEC8E75EB346A48995EDC91A7384D7E838F9057FA230AB2C8971450A4FAED817"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m2_regression_benchmark_final.json",
+      "sha256": "19746164C2B32914698B41B48FBEDF24A74ACBA96B63C338CBA869A8792E190E"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m2_regression_benchmark.json",
+      "sha256": "D54BC499DE104EDE044C66BA2D1DD38B7D35D74084F1A21BA2CE8BC78ACEA015"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/preservation.json",
+      "sha256": "5D97634FD3D5EB068324661AB64F6E1A7B1922D8E3953816D3CDCFCD2D949D11"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/typecheck_observations.json",
+      "sha256": "4A88B151508DC4E8767C8707E2C0F2A829AC1F4D9C1005DD916380ED2A281F6B"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_before/run.json",
+      "sha256": "674CE2DC0C73D52AF72ECF4A125B31C92BAEDDE324C365FF551C22BECE31734E"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_before/run.log",
+      "sha256": "F477EF719C5786DDFC4BB50162B9D695EA90977B558F496CBFCA6F267D9CBEB1"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_before/tests.xml",
+      "sha256": "A8C2493C654BC414DB2ACBA67825E7252A88A08283FB05CC7688B6B7EC1E11D0"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_before_native/run.json",
+      "sha256": "224C6B371113D89B07A336F31515944D9F3AFD947B17B5550D0635D035F217FB"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_before_native/run.log",
+      "sha256": "BA10CB5EF71C3A06130D79D526E19CC75ABA2B743203DCC862FBBA5F517185B5"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_before_native/tests.xml",
+      "sha256": "858B22F64972DC1F4B505A72507044C0DBC88B4A6F237D538D2C20F269768B0F"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block1/run.json",
+      "sha256": "0C698D77493307AD974ADBB7D53AE9FA2232D571A2D2EB0B9E03A85C592A8B6B"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block1/run.log",
+      "sha256": "B0B1562C6B2B8181A95BCE3C4C9E32F1C33D4155C2A64A58B561397F3810BF88"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block1/tests.xml",
+      "sha256": "BA370D1A04D405935A444D75ACB000FE2CAB7C8D161E54362A08101B063225E5"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block2/run.json",
+      "sha256": "D255388D83502ECD2F3A4F2AC957E666694528240E34B9FAE53E77E4352E9687"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block2/run.log",
+      "sha256": "A96DD9780989FFC54DE0AFEE26ADBADC1D00B6B957607F3908C0A0269AA134FF"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block2/tests.xml",
+      "sha256": "EDEDDA913EE95705379500BFF004AB3A98278E9055C094EF84C424A6FF7B320F"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block2_corrected/run.json",
+      "sha256": "473FD1CC9668889C47F1245D542A361024EFCC7B7627CF7E96E6BE7E716DDDE9"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block2_corrected/run.log",
+      "sha256": "6B01FE1351E91DDB74D34F956BA8830C5D45DEC1D2853B28564A1B4329A2B2E9"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block2_corrected/tests.xml",
+      "sha256": "E1EC0091066710DB58F42FD0D268498D9E4173F162BCBF628DE4931E203A8F85"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block2_fixed/run.json",
+      "sha256": "ED404D81AB94AB83AC7E9412E13B7A2AD428705B56B6D9DBC455C60AE650C4E2"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block2_fixed/run.log",
+      "sha256": "1A8492DA7614A0284B37BDAB83DEF5EC87E0CC12234F6361D2C5C9C8635A3443"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block2_fixed/tests.xml",
+      "sha256": "0F7DBA98C225A8DBBE96E598EFAD3D483B30BABA89EE04B7C15B177FD90EB615"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block3/run.json",
+      "sha256": "79259515B714B3E8FD74558F7DAA378C967A97CD3FFE1A9E30877ECF723877FF"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block3/run.log",
+      "sha256": "CC3787E8F9044EE62F345C70A580A42A961882C1C08BC0DCA90E23A99207F5D1"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block3/tests.xml",
+      "sha256": "4D3D6A4CC13CCF5CDDC03163FC6C788482CA8F97564DAE4AE309F2D49C186A31"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block4/run.json",
+      "sha256": "293AE4D2C3296ADAC035E816EA19618B772B7739BF6AD3ACFB1F0B82679083C2"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block4/run.log",
+      "sha256": "27B0E62885858044D5422C6A016503A780E4EDC278F7DF57208689CDC26E8A8B"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_block4/tests.xml",
+      "sha256": "8CB354608CB027F4DBC22A2DFC99F9101D34C44C6AD2E0372BCB2EEC7DE7D9C9"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_conformance_final/run.json",
+      "sha256": "E1AAAFA1D21BFCF44713D7867AC67B251A0F6EB7EF794C9212BCCB61BEBBEFBC"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_conformance_final/run.log",
+      "sha256": "0D354A1C294EBA42CE864D4D593A4D8A5D3100308B71F02A6CFE5166602FE06D"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_conformance_final/tests.xml",
+      "sha256": "25DC8B0E97659C64405375E439F50EB7704DBB9C7274F43051D7237C268AAF95"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_desktop/node.log",
+      "sha256": "CA3AEF12EE55AD4C80DF07DA1A7353122856B9A5D1A8361E33E331B4C8421CB1"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_desktop/run.json",
+      "sha256": "CC22D501E4A9028DD51232F11EFF13AD1797005F996EE3FFD8B971B693C2ADF2"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_desktop/typescript.log",
+      "sha256": "3EBA349C4DE72237E2FFE4A7C51CA4E8FB427C76D447CE64BF23277DF218E482"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_desktop_env_corrected/node.log",
+      "sha256": "B3F5A6A39A600C9D9CA344186AA948428C5BF0E90E90C6EAB8A3B099164F521B"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_desktop_env_corrected/run.json",
+      "sha256": "0AC397F86541ED1F75D302A126F88490A8F1D1190F38280C2BD650551B5D9D9F"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_desktop_env_corrected/typescript.log",
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_desktop_final/node.log",
+      "sha256": "BB7812C5C1C16121CEAD49A708A1B72D943A1663587337364586A1C230B113B9"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_desktop_final/run.json",
+      "sha256": "DDC0F2CE49BFB9A4E773A46129D71C7562C388600665948055728A74916E1B9E"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_desktop_final/typescript.log",
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_duplicate_race/run.json",
+      "sha256": "01E4C9DFA10A27540C720B8F74AD352C2A33B12BE7ADD1C0B508B21299021606"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_duplicate_race/run.log",
+      "sha256": "AD814348F81AE2090427BBD84E24F440F3E0FAAC53CA39C46F6FE635B6A7E761"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_duplicate_race/tests.xml",
+      "sha256": "C71C4906243AB6B60BD7455C89D3386A2C6AEF86904B6E783F9D1C202B34EC93"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_final/run.json",
+      "sha256": "87F34660E6A90BF82BE054821C1EB22F8CEFEC54E7064808B2361C8731D30F76"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_final/run.log",
+      "sha256": "595370FB96899445B0C3E476994E72AD0087ACE6F1822200F3BCE859AAE3C7FF"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_final/tests.xml",
+      "sha256": "C70FFA7742319A87859113FA7125E3FB8FCEDA1F7EF0B5583F2B220B3E7F0C8B"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_gate_final/run.json",
+      "sha256": "24FCDA3882AD7D2EEA638C187A2FB5B7D836750E8C0A9C36B681DC88C46B0E2B"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_gate_final/run.log",
+      "sha256": "9165B46B1F6E80FADB7822558ECC3E6EEF3EDA5531BBBE808F0B568F00BC1D6D"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_gate_final/tests.xml",
+      "sha256": "BFB412C8DC9F35B7AADBFC37595207AE51DBB71A0DDEFF05AACB6F9A0D0B4997"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_head_after/run.json",
+      "sha256": "F53A80731677ED78F8A2384E77E4FCE042FA7E0874CB6A10631728F0796ECCCC"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_head_after/run.log",
+      "sha256": "2FE3EDC020DA630B75D2C137B389867E33328F6C2E9697BA8FFE665E8BC740EF"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_head_after/tests.xml",
+      "sha256": "1F0657D22C888FB936231BD2C39623E8EC19E5C77CA3FEAE46B7BA16420DB914"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_head_closed/run.json",
+      "sha256": "714F9044130E0309AD327050304670C9B194C3F4F0FF0889EE541633372941D5"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_head_closed/run.log",
+      "sha256": "67ED5C24DD3F350B8AEB74CC80FC91CAAACD9598BAEBCF68E97550478C748117"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_head_closed/tests.xml",
+      "sha256": "F4CD85FB42FD3CF6F727FC11DDE76BDFDFC23C347DC9A417EFD94B25B97797A8"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_head_final/run.json",
+      "sha256": "6EBE75DD90FA1A16824D28300EB9F6553789E7976226269605B387C86CD8B6DE"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_head_final/run.log",
+      "sha256": "0B79C65B90B521577530DE16516873D43B602A0B874BB64419DBFD1EFB2DC615"
+    },
+    {
+      "path": "docs/memory_v1/m3_evidence/m3_head_final/tests.xml",
+      "sha256": "F2FAC581397548C0CCA27F2AAD8FCB4B4AF7419927CAB3BBA134C7F14210AF13"
+    }
+  ],
+  "hashPolicy": "Final hashes of sources/references/evidence/closure except this manifest (no circular self hash); prior manifests remain historical"
+}

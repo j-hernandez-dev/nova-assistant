@@ -25,6 +25,7 @@ export type SessionSnapshot = {
   modelRuntime: { modelId: string; providerId: string; providerRevision: number }
   services: {
     rag: RAGStatus
+    memory?: { lexicalRecall: boolean; semantic: boolean; autoCapture: boolean; allowRemoteMemoryInjection: boolean }
     filesystem?: { revision: number }
     securityAudit?: { deliveryFailures: number; lastError: string | null; storageGapCodes: string[] }
     interactions?: { approvals: Approval[]; inputs: UserInputRequest[] }
@@ -40,9 +41,18 @@ export type DesktopSessionView = {
   ragResult: { matches?: Array<Record<string, any>> } | null
   error: { code: string; message: string } | null; gap: boolean
   fileRevision: number
+  memoryNotice?: string | null
 }
 
 export type CommandReceipt = {
   schemaVersion: number; commandId: string; accepted: boolean
   createdIds: Record<string, string>; error?: { code: string; message: string } | null
+}
+
+// Explicit synchronous MEMORY controls, separate from asynchronous Core receipts.
+export type MemoryControlResult = {
+  schemaVersion: 1; commandId: string; completed: boolean; stateRevision?: number
+  operationId?: string; data?: Record<string, any>
+  error?: { code: string; message: string; outcomeUnknown?: boolean; retryable?: boolean }
+  securityAudit?: { gap: boolean; errorCode: string; retryAllowed: false }
 }

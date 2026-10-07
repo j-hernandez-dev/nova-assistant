@@ -17,6 +17,8 @@ export type PythonMessage = {
 }
 
 contextBridge.exposeInMainWorld('api', {
+  memoryCommand: (name: string, args: Record<string, unknown>, commandId?: string) =>
+    ipcRenderer.invoke('memory-command', name, args, commandId),
   applicationCommand: (kind: string, payload: Record<string, unknown>, commandId?: string) =>
     ipcRenderer.invoke('application-command', kind, payload, commandId),
   restartBackend: () => ipcRenderer.invoke('restart-backend'),

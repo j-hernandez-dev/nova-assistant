@@ -6,6 +6,8 @@ Priority: CLI args > env vars > config file > defaults.
 import os
 from pathlib import Path
 
+from local_cli.core.context import PRESET_LABELS
+
 CONFIG_DEFAULTS: dict[str, object] = {
     "model": "qwen3.5:9b-q4_K_M",
     "sidecar_model": "",
@@ -16,6 +18,10 @@ CONFIG_DEFAULTS: dict[str, object] = {
     "shell_backend": "native",
     "debug": False,
     "rag": False,
+    "allow_remote_memory_injection": False,  # Host config only; no implicit consent from model/UI.
+    "memory_embedding_model": "",  # OD-02 has no benchmarked recommended model yet.
+    "memory_embedding_endpoint": "http://127.0.0.1:11434",  # Separate from RAG/chat provider.
+    "memory_auto_capture": "off",  # Trusted opt-in: off / propose_only / low_risk.
     "rag_path": ".",
     "rag_topk": 5,
     "rag_model": "all-minilm",
@@ -259,6 +265,12 @@ class Config:
             raise ValueError("shell_backend must be 'native' or 'git-bash'")
         self.debug: bool = _parse_bool(merged["debug"])
         self.rag: bool = _parse_bool(merged["rag"])
+        self.allow_remote_memory_injection: bool = _parse_bool(merged["allow_remote_memory_injection"])
+        self.memory_embedding_model: str = str(merged["memory_embedding_model"])
+        self.memory_embedding_endpoint: str = str(merged["memory_embedding_endpoint"])
+        self.memory_auto_capture: str = str(merged['memory_auto_capture'])
+        if self.memory_auto_capture not in ('off','propose_only','low_risk'):
+            raise ValueError('memory_auto_capture must be off, propose_only or low_risk')
         self.rag_path: str = str(merged["rag_path"])
         self.rag_topk: int = int(merged["rag_topk"])
         self.rag_model: str = str(merged["rag_model"])
@@ -273,8 +285,8 @@ class Config:
         # it is never silently clamped or sent past a known limit.
         raw_num_ctx = str(merged["num_ctx"]).strip().lower()
         self.num_ctx: int = (0 if raw_num_ctx == "auto" else
-                            {"4k": 4096, "8k": 8192, "16k": 16384, "32k": 32768}[raw_num_ctx]
-                            if raw_num_ctx in ("4k", "8k", "16k", "32k") else int(raw_num_ctx))
+                            PRESET_LABELS[raw_num_ctx.upper()]
+                            if raw_num_ctx.upper() in PRESET_LABELS else int(raw_num_ctx))
         for key in ("context_output_reserve", "context_safety_margin", "context_resource_limit"):
             value = _parse_optional_int(merged[key])
             if value is not None and value < 1:

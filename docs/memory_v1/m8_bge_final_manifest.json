@@ -1,0 +1,403 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "iteration": "final-independent-BGE-standalone-once",
+  "status": "PARTIAL",
+  "standaloneGateStatus": "FAIL",
+  "semanticQualityStatus": "NOT_EVALUATED_NO_REAL_WARM_ADMISSION",
+  "reason": "3 TIMEOUT and 69 BUSY; no real WARM query admitted. Observed ranks are lexical fallback, not semantic quality evidence. Mandatory standalone gate failed; no E2E or new held-out.",
+  "baseline": {
+    "branch": "main",
+    "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "workingTreeInitiallyDirty": true,
+    "preexistingChangesPreserved": true,
+    "platform": "Windows-11-10.0.26200-SP0",
+    "filesystem": "local NTFS",
+    "processModel": "HOST_UNISOLATED",
+    "processIsolation": false,
+    "python": "3.12.14",
+    "ollamaServer": "0.40.0"
+  },
+  "dataset": {
+    "version": "m8-bge-final-heldout-v1",
+    "path": "tests/memory_v1/fixtures/m8_bge_final_heldout_v1.json",
+    "sha256": "97b8d9e98ac74ad4b54efb31f35977eb4fe758ecef45d7e75bf044b2aafc7dfe",
+    "syntheticOnly": true,
+    "positive": 60,
+    "negative": 12,
+    "records": 90,
+    "nearDistractors": 30,
+    "exact": 12,
+    "lexical": 18,
+    "paraphrase": 30,
+    "crossLanguage": 12,
+    "esToEn": 6,
+    "enToEs": 6,
+    "paraphraseLiteralSharedTokens": {
+      "zero": 23,
+      "one": 6,
+      "two": 1
+    },
+    "structureOnlyValidatedBeforeInference": true,
+    "historicalFixtureCount": 10,
+    "exactTextLeakageCount": 0,
+    "inferenceUsedForSelection": false,
+    "scoresUsedForSelection": false,
+    "criticalInvariantsUsedAsRankingCases": false,
+    "goldExcludedFromInferenceInputs": true,
+    "goldChangedAfterResults": false
+  },
+  "freeze": {
+    "path": "docs/memory_v1/m8_bge_final_evidence/freeze.json",
+    "sha256": "20b4d68574b706a827fe59f24dea24c32a247153e33d3d3bb1818b3a938c2b67",
+    "fileCount": 753,
+    "productVerifiedUnchanged": true,
+    "previousOperationalInputsVerified": true
+  },
+  "backend": {
+    "model": "BGE-M3:latest",
+    "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+    "spaceId": "ollama-810a779df15ccf6b50ccd4e4da669cd99ae7da990e5585a42393640cc4e9fcd9",
+    "dimension": 1024,
+    "profile": "plain",
+    "capability": "embedding",
+    "normalization": "l2",
+    "storageFormat": "nova-f32le-revision-v1",
+    "residentBefore": true,
+    "residentAfter": true,
+    "oldQwenVectorsReused": false,
+    "coldAutoLoadRequested": false,
+    "modelsDownloaded": false
+  },
+  "operationalGateHistorical": {
+    "status": "PASS",
+    "reEvaluatedThisIteration": false,
+    "optimizedThisIteration": false,
+    "evidence": {
+      "path": "docs/memory_v1/m8_ps_evidence/operational_report.json",
+      "sha256": "5ee9cf898dcd1e7d4684631a798917ce17ed1d463adde744d910ffe31e4dc642"
+    },
+    "manifest": {
+      "path": "docs/memory_v1/m8_ps_manifest.json",
+      "sha256": "1e7c1a71cb50f3ec6d420489e5c2c58294457822641afe6d2a9f4e9687a66ff5"
+    },
+    "note": "Prior workload retained unchanged; this standalone cannot sustain WARM admission, not a rewritten outcome."
+  },
+  "preservedContracts": {
+    "recall3": 0.85,
+    "precision1": 0.9,
+    "paraphraseGainMin": 0.05,
+    "softMs": 350,
+    "hardMs": 600,
+    "fallbackReserveMs": 50,
+    "aggregateNonRegression": "Unchanged standalone_verdict compares the same frozen positive cases without lowering the prior criterion.",
+    "queryComposerChanged": false,
+    "rrfChanged": false,
+    "similarityFloorChanged": false,
+    "candidateCapsChanged": false,
+    "publicSchemaChanged": false,
+    "securityChanged": false,
+    "coreChanged": false,
+    "ciChanged": false,
+    "globalConfigChanged": false,
+    "gpuChanged": false
+  },
+  "attempt": {
+    "count": 1,
+    "exitCode": 1,
+    "standaloneGate": {
+      "pass": false,
+      "failures": [
+        "recall3",
+        "precision1",
+        "paraphrase_gain",
+        "not_all_real_warm",
+        "query_payload_not_verified"
+      ],
+      "paraphraseGainPP": 0,
+      "warmP95Ms": 4.457,
+      "warmTargetMs": 350,
+      "warmTargetMet": true
+    },
+    "frozenInputsUnchanged": true,
+    "rows": 72,
+    "positive": 60,
+    "warm": 0,
+    "degradedTimeout": 3,
+    "degradedBusy": 69,
+    "effectiveRetrievalModeCounts": {
+      "exact": 12,
+      "lexical": 50,
+      "none": 10
+    },
+    "queryEmbedRequestsObserved": 3,
+    "observedPlainQueriesMatchComposer": true,
+    "all72PlainQueriesVerified": false,
+    "queryPayloadCompletenessReason": "Only three queries entered embed; BUSY fallbacks issued no embed. No evidence of Qwen-style formatting.",
+    "observedQueryCases": [
+      "heldout-shoe",
+      "heldout-message",
+      "negative-salary"
+    ],
+    "raw": "docs/memory_v1/m8_bge_final_evidence/heldout_report.json"
+  },
+  "observedRanks": {
+    "classification": "LEXICAL_FALLBACK_ONLY_NOT_BGE_QUALITY",
+    "lexical": {
+      "cases": 72,
+      "measured": 0,
+      "recall3": 0.6333333333333333,
+      "precision1": 0.5833333333333334,
+      "answerAccuracy": null,
+      "attributableAnswerAccuracy": null,
+      "attributableMeasured": 0,
+      "abstentionAccuracy": null,
+      "failures": 0
+    },
+    "configuredHybridButEffectiveFallback": {
+      "cases": 72,
+      "measured": 0,
+      "recall3": 0.6333333333333333,
+      "precision1": 0.5833333333333334,
+      "answerAccuracy": null,
+      "attributableAnswerAccuracy": null,
+      "attributableMeasured": 0,
+      "abstentionAccuracy": null,
+      "failures": 0
+    },
+    "paraphraseGainPP": 0,
+    "subsets": {
+      "exact": {
+        "cases": 12,
+        "measured": 0,
+        "recall3": 1,
+        "precision1": 1,
+        "answerAccuracy": null,
+        "attributableAnswerAccuracy": null,
+        "attributableMeasured": 0,
+        "abstentionAccuracy": null,
+        "failures": 0
+      },
+      "lexical": {
+        "cases": 18,
+        "measured": 0,
+        "recall3": 1,
+        "precision1": 1,
+        "answerAccuracy": null,
+        "attributableAnswerAccuracy": null,
+        "attributableMeasured": 0,
+        "abstentionAccuracy": null,
+        "failures": 0
+      },
+      "paraphrase": {
+        "cases": 30,
+        "measured": 0,
+        "recall3": 0.26666666666666666,
+        "precision1": 0.16666666666666666,
+        "answerAccuracy": null,
+        "attributableAnswerAccuracy": null,
+        "attributableMeasured": 0,
+        "abstentionAccuracy": null,
+        "failures": 0
+      },
+      "abstention": {
+        "cases": 12,
+        "measured": 0,
+        "recall3": null,
+        "precision1": null,
+        "answerAccuracy": null,
+        "attributableAnswerAccuracy": null,
+        "attributableMeasured": 0,
+        "abstentionAccuracy": null,
+        "failures": 0
+      },
+      "cross_language": {
+        "cases": 12,
+        "measured": 0,
+        "recall3": 0.25,
+        "precision1": 0.16666666666666666,
+        "answerAccuracy": null,
+        "attributableAnswerAccuracy": null,
+        "attributableMeasured": 0,
+        "abstentionAccuracy": null,
+        "failures": 0
+      }
+    },
+    "aggregateRegressionObserved": false,
+    "semanticRecall3": null,
+    "semanticPrecision1": null,
+    "semanticParaphraseGain": null,
+    "ordinaryAbstention": "NOT_EVALUATED_NO_CHAT",
+    "criticalScenarios": "NOT_RUN_STANDALONE_FAILED"
+  },
+  "performance": {
+    "projectionMs": 22060.7794,
+    "projectionOutsideInteractivePath": true,
+    "lexicalP95Ms": 4.234,
+    "degradedRouteP95Ms": 4.457,
+    "warmPipelineP95Ms": null,
+    "maxRecallMs": 560.392,
+    "hardExceeded": false,
+    "rawWarmTargetFlagDoesNotRepresentWarmMeasurement": true,
+    "endpointTiming": "NOT_OBSERVED_IN_THIS_PROTOCOL"
+  },
+  "projection": {
+    "embeddingBatches": 3,
+    "vectors": 90,
+    "dimension": 1024,
+    "matrixBytes": 368640,
+    "spaceCount": 1
+  },
+  "footprint": {
+    "activeRecords": 90,
+    "filesBytes": 749568,
+    "allocatedBytes": 716800,
+    "footprintStable": true,
+    "checkpointBusy": false,
+    "ollamaReportedSizeBytes": 664000265,
+    "ollamaReportedSizeVramBytes": 664000265,
+    "independentPeakRamOrVram": "NOT_EVALUATED"
+  },
+  "unknowns": [
+    "Initial timeout cause; no per-endpoint timing captured",
+    "Model semantic ranking quality with real WARM admission",
+    "Chat/BGE co-residency between Turns; E2E not permitted after failed standalone"
+  ],
+  "tests": [
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/preflight_run.json",
+      "kind": "Full MEMORY baseline, synthetic unit/contract/integration/persistence",
+      "passed": 723,
+      "failed": 0,
+      "skipped": 0,
+      "xfail": 0,
+      "seconds": 59,
+      "externalInference": false
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/contracts_run.json",
+      "kind": "Full MEMORY including 11 new harness/structure tests",
+      "passed": 734,
+      "failed": 0,
+      "skipped": 0,
+      "xfail": 0,
+      "seconds": 56.51,
+      "externalInference": false
+    }
+  ],
+  "changes": {
+    "productFilesModified": [],
+    "historicalFilesModified": [],
+    "newSources": [
+      {
+        "path": "tests/memory_v1/fixtures/m8_bge_final_heldout_v1.json",
+        "sha256": "97b8d9e98ac74ad4b54efb31f35977eb4fe758ecef45d7e75bf044b2aafc7dfe"
+      },
+      {
+        "path": "tests/memory_v1/run_m8_bge_final.py",
+        "sha256": "a20909e4b13a607a9e2d2b2c95e25de73d43173dd1053342b408217efd9dc312"
+      },
+      {
+        "path": "tests/memory_v1/test_m8_bge_final.py",
+        "sha256": "61a9128fd7f7b64ba73fa4b0e762b0073c58113241d4c3a6803fc8741930f5d3"
+      }
+    ],
+    "preflight": {
+      "path": "docs/memory_v1/m8_bge_final_preflight.md",
+      "sha256": "84ab04a810ea612e8f19bcf5b16430520ee5af7f90d1ca033612bdfd5ff61a91"
+    },
+    "report": {
+      "path": "docs/memory_v1/m8_bge_final_resultados.md",
+      "sha256": "b7578abe2ba0b0e69c2d7327922cf38919acf252443d22e0bafcb5dd76f45391"
+    },
+    "evidenceDirectory": "docs/memory_v1/m8_bge_final_evidence"
+  },
+  "evidence": [
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/contracts_run.json",
+      "sha256": "6ae008c9feab32b7a6ff4272cbbbc521b634e7d991f664536276cddeb4ca44b7"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/contracts_run.log",
+      "sha256": "0d7625142b61a3ea0f6fb87d51bc5581994a32b6dd2263f267c4bf912c0319ae"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/freeze.json",
+      "sha256": "20b4d68574b706a827fe59f24dea24c32a247153e33d3d3bb1818b3a938c2b67"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/heldout_report.json",
+      "sha256": "5d76a6194a588305144dd3da10a8fdb36751819e2cf7f132a240baa352c9ba1a"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/preflight_run.json",
+      "sha256": "455ce13e696d0b91e8901693fefa3dcaba5180840f048d6d67925c442269a0e5"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/preflight_run.log",
+      "sha256": "d740cb3c0b9c4cdbd68227e8d57448453beeb66136e918218f112aa383755e0f"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/standalone_attempt.json",
+      "sha256": "fd586a57cadf107f7be3d24f99e8840bcea4add086a8723caf97560964f5f90c"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/structure.json",
+      "sha256": "48fd4c9eeef00f1e21c16706445a4aa5f01ac0df73706457c57cbdfa425967d5"
+    },
+    {
+      "path": "tests/memory_v1/fixtures/m8_bge_final_heldout_v1.json",
+      "sha256": "97b8d9e98ac74ad4b54efb31f35977eb4fe758ecef45d7e75bf044b2aafc7dfe"
+    },
+    {
+      "path": "tests/memory_v1/run_m8_bge_final.py",
+      "sha256": "a20909e4b13a607a9e2d2b2c95e25de73d43173dd1053342b408217efd9dc312"
+    },
+    {
+      "path": "tests/memory_v1/test_m8_bge_final.py",
+      "sha256": "61a9128fd7f7b64ba73fa4b0e762b0073c58113241d4c3a6803fc8741930f5d3"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_preflight.md",
+      "sha256": "84ab04a810ea612e8f19bcf5b16430520ee5af7f90d1ca033612bdfd5ff61a91"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_resultados.md",
+      "sha256": "b7578abe2ba0b0e69c2d7327922cf38919acf252443d22e0bafcb5dd76f45391"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_final_evidence/execution.json",
+      "sha256": "05601efa4546fcc1710c320027b38957fa1b9b2314fa2a2f3a31ceaf35a074e2"
+    }
+  ],
+  "historicalEvidencePreserved": [
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/operational_report.json",
+      "sha256": "5ee9cf898dcd1e7d4684631a798917ce17ed1d463adde744d910ffe31e4dc642"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_manifest.json",
+      "sha256": "1e7c1a71cb50f3ec6d420489e5c2c58294457822641afe6d2a9f4e9687a66ff5"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/heldout_report.json",
+      "sha256": "a5ebfa50e2db2b7add9776bc04f285550b713fbf8d413570d26168129df0ff20"
+    },
+    {
+      "path": "docs/memory_v1/m8_metadata_evidence/operational_report.json",
+      "sha256": "b192a31b097b7a458f03ca79d8f0a45b96a0430c1bc0e86c0c72c624395bf8c4"
+    }
+  ],
+  "e2eExecuted": false,
+  "criticalCampaignExecuted": false,
+  "postE2eHeadExecuted": false,
+  "stopRuleHonored": true,
+  "newDatasetAfterFailure": false,
+  "rerunPerformed": false,
+  "openDecisionsChanged": [],
+  "commitMade": false,
+  "pushMade": false,
+  "tagsModified": false,
+  "novaMemoryV1ReadyDeclared": false,
+  "nextPhaseImplemented": false
+}

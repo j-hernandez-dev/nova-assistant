@@ -7,6 +7,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'path'
 import { DesktopApplicationClient } from './application_client'
+import { memoryControl } from './memory_control.cjs'
 import { signApproval, confirmApproval, validFrame } from './approval_host.cjs'
 
 // Keep the user profile independent of the legacy package name. Set both paths
@@ -448,9 +449,21 @@ function validApplicationSender(event: Electron.IpcMainEvent | Electron.IpcMainI
 }
 
 ipcMain.on('send-to-python', (event, data) => {
-  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'confirm_response' ||
+  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'memory_command' || data.type === 'confirm_response' ||
       (data.type === 'application_command' && data.command?.kind === 'ResolveApproval')) return
   sendToPython(data)
+})
+ipcMain.handle('memory-command', async (event, name: string, args: Record<string, unknown>, commandId?: string) => {
+  if (!validApplicationSender(event) || typeof name !== 'string' || !validFrame(args)) {
+    return { schemaVersion: 1, commandId: commandId || '', completed: false,
+      error: { code: 'MEMORY_UNTRUSTED_INPUT', message: 'Invalid memory action.' } }
+  }
+  return memoryControl(applicationClient, name, args, commandId, (request: { name: string; workspace: string | null; write: boolean }) =>
+    dialog.showMessageBox(mainWindow!, { type: 'warning', title: 'Nova — sensitive memory',
+      message: request.write ? 'Allow this exact sensitive memory write?' : 'Reveal sensitive content for this memory inspection/export?',
+      detail: request.name + '\nWorkspace: ' + request.workspace + '\nLocal storage is not process isolation or encryption. '
+        + 'Forget does not erase audit, logs, source conversations or backups.',
+      buttons: ['Cancel', 'Allow'], defaultId: 0, cancelId: 0, noLink: true }))
 })
 
 ipcMain.handle('get-python-status', () => {

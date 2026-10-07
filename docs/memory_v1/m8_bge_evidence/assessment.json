@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "iteration": "BGE-M3 installed candidate / single HELD-OUT measurement",
+  "status": "PARTIAL",
+  "standaloneStatus": "FAIL",
+  "classification": "OPERATIONAL_SEMANTIC_UNAVAILABILITY_DURING_MEASUREMENT",
+  "rawReport": "docs/memory_v1/m8_bge_evidence/heldout_report.json",
+  "rawReportSha256": "a5ebfa50e2db2b7add9776bc04f285550b713fbf8d413570d26168129df0ff20",
+  "rawReportUnmodified": true,
+  "semanticQuality": {
+    "status": "NOT_EVALUATED",
+    "reason": "No query returned WARM semantic results; do not attribute lexical fallback metrics to BGE-M3 quality.",
+    "successfulWarmQueries": 0,
+    "totalQueries": 24,
+    "recall3": null,
+    "precision1": null,
+    "paraphraseGainPP": null
+  },
+  "effectiveFallbackQuality": {
+    "recall3": 0.85,
+    "precision1": 0.85,
+    "paraphraseRecall3": 0.75,
+    "paraphrasePrecision1": 0.75,
+    "paraphraseGainOverLexicalPP": 0,
+    "aggregateRegressionFromLexical": false,
+    "semanticGateSatisfied": false,
+    "requestedMode": "hybrid",
+    "actualModeCounts": {"exact": 4, "lexical": 18, "none": 2},
+    "embeddingStatusCounts": {"DEGRADED_TIMEOUT": 1, "DEGRADED_BUSY": 23}
+  },
+  "latency": {
+    "softMs": 350,
+    "hardMs": 600,
+    "coldOutsideTurnMs": 7470.619500003522,
+    "coldOllamaLoadDurationNs": 6402909900,
+    "projectionOutsideTurnMs": 2192.6880000028177,
+    "firstQuerySemanticMs": 602.433,
+    "firstQueryTotalMs": 605.052,
+    "firstQueryCode": "MEMORY_RETRIEVAL_TIMEOUT",
+    "otherQueriesCode": "MEMORY_EMBEDDING_UNAVAILABLE",
+    "lexicalP95Ms": 4.26,
+    "mixedFallbackP95Ms": 2.414,
+    "warmSemanticP95Ms": null,
+    "warmSemanticP95Status": "NOT_EVALUATED",
+    "warmTargetSatisfied": null,
+    "hardDeadlineGateSatisfied": false,
+    "noRetry": true
+  },
+  "rawReportInterpretation": {
+    "warmP95Ms": "The unchanged helper computed p95 across degraded rows. Its 2.414 ms and warmTargetMet=true are not evidence of warm semantic latency.",
+    "queryPayloadNotVerified": "Only one of 24 requested queries reached /api/embed. That payload was plain and correctly composed; the other 23 were rejected as busy. This is incomplete coverage, not evidence of a Qwen prefix on BGE queries.",
+    "hybridStatus": "REAL_BACKEND_MEASURED means the real backend was invoked, not that successful hybrid rankings were returned.",
+    "metricsFailuresZero": "The scoring helper has no top-level row error; typed semantic errors live in row metadata. Zero here does not mean zero embedding failures.",
+    "metricsMeasuredZero": "Standalone did not generate chat answers; this field does not count semantic requests. WARM metadata count is the relevant semantic availability observation."
+  },
+  "preprocessing": {
+    "queryInstructionProfile": null,
+    "queryFormat": "Unchanged QueryComposer text, plain",
+    "documentFormat": "MemoryRecord canonical_text, plain",
+    "documentTextsVerified": 16,
+    "queryPayloadsVerified": 1,
+    "queryPayloadCoverage": "1/24",
+    "actualQueryInput": "source heat profile use when cooking",
+    "qwenVectorsReused": false
+  },
+  "residency": {
+    "bgeInitiallyResident": false,
+    "bgeResidentAfterColdAndAfterStandalone": true,
+    "chatCoResidentInSnapshots": true,
+    "previousQwenEmbeddingAlsoResident": true,
+    "qwenEmbeddingInferencePerformed": false,
+    "betweenChatTurnsUsability": "NOT_EVALUATED",
+    "causalMemoryPressureClaim": "UNKNOWN",
+    "modelRunnerPeakRSS": "NOT_MEASURED",
+    "physicalVramPeak": "NOT_MEASURED",
+    "ollamaReportedBgeSizeVramBytes": 664000265
+  },
+  "e2e": {
+    "4096": "NOT_RUN_STANDALONE_FAILED",
+    "8192": "NOT_RUN_STANDALONE_FAILED",
+    "16384": "NOT_RUN_STANDALONE_FAILED",
+    "memoryCapsulePromptAttribution": "NOT_EVALUATED",
+    "newCriticalScenarios": "NOT_RUN_STANDALONE_FAILED"
+  },
+  "historicalDatasetRerun": false,
+  "productBugDemonstrated": false,
+  "qualityUnsuitabilityOfBgeProven": false,
+  "nextActionAuthorizedByThisResult": "STOP; do not execute E2E, tune, repeat HELD-OUT or declare READY."
+}

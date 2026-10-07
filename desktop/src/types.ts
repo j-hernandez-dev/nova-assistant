@@ -78,6 +78,7 @@ export type PythonMessage = {
 declare global {
   interface Window {
     api: {
+      memoryCommand: (name: string, args: Record<string, unknown>, commandId?: string) => Promise<import('../shared/application').MemoryControlResult>
       applicationCommand: (kind: string, payload: Record<string, unknown>, commandId?: string) => Promise<import('../shared/application').CommandReceipt>
       restartBackend: () => Promise<{ success: boolean; error?: string }>
       onSessionView: (cb: (view: import('../shared/application').DesktopSessionView) => void) => () => void

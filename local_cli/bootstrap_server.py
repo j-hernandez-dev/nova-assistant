@@ -10,6 +10,7 @@ from local_cli.agent import run_agent
 from local_cli.harness import HarnessConfig
 from local_cli.config import Config
 from local_cli.audit_config import create_security_audit
+from local_cli.memory_config import memory_factory,memory_extractor_factory
 from local_cli.application.context import bind_context, policy_from_config
 from local_cli.application.persistence import create_persistence_service
 from local_cli.application.rag import RAGService, create_rag_service
@@ -206,6 +207,13 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
         return result
 
     self._application = AgentSessionCoordinator(
+        memory_factory=memory_factory(self._config.state_dir,
+            embedding_model=getattr(self._config,'memory_embedding_model',''),
+            embedding_endpoint=getattr(self._config,'memory_embedding_endpoint','http://127.0.0.1:11434'),
+            capture_mode=getattr(self._config,'memory_auto_capture','off')),
+        memory_capture_mode=getattr(self._config,'memory_auto_capture','off'),
+        memory_extractor_factory=memory_extractor_factory,
+        allow_remote_memory_injection=getattr(self._config, 'allow_remote_memory_injection', False),
         security_audit_port=create_security_audit(self._cwd),
         provider=self._provider, model=self._config.model,
         provider_manager=self._provider_manager,

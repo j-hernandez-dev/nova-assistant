@@ -63,6 +63,9 @@ class CliApplicationClient:
         self._on_turn_complete = on_turn_complete or (lambda _error: None)
         self._approval_actor = application.register_approval_actor(
             'cli_tty', self._human_tty)
+        self._memory_closed = False
+        self._memory_actor = application.register_memory_actor('cli_tty',
+            lambda: not self._memory_closed and self._human_tty())
         state = application.get_snapshot(session_id)
         self._cursor = application.subscribe_events(
             session_id, after_sequence=state.last_sequence,
@@ -73,6 +76,7 @@ class CliApplicationClient:
         return bool(sys.stdin.isatty() and sys.stdout.isatty())
 
     def close(self) -> None:
+        self._memory_closed = True
         self._cursor._stream.close(self._cursor)
 
     def snapshot(self):
@@ -80,6 +84,12 @@ class CliApplicationClient:
 
     def execute_auxiliary(self, name: str, arguments: dict[str, Any] | None = None):
         return self.application.execute_auxiliary(self.session_id, name, arguments or {})
+
+    def memory(self, name, arguments=None, *, command_id=None):
+        from local_cli.application.memory import MemoryCommand
+        snapshot=self.snapshot()
+        return self.application.execute_memory(MemoryCommand(command_id or new_command_id(),
+            self.session_id,name,arguments or {},snapshot.state_revision),actor=self._memory_actor)
 
     def command(self, kind: CommandKind, payload: dict[str, Any] | None = None,
                 *, command_id: str | None = None) -> CommandReceipt:
@@ -177,7 +187,14 @@ class CliApplicationClient:
                 self._write_error(str(data.get("text", "")) + "\n")
         elif event.kind is EventKind.HARNESS_INTERVENTION:
             rule = event.payload.get("rule")
-            if rule not in ("context_budget", "context_usage"):
+            if rule == 'memory_recall':
+                if event.payload.get('remoteMemoryInjection'):
+                    self._write_error('  [memory] Selected memories will be sent to the configured remote provider (host opt-in).\n')
+                if event.payload.get('errorCode'):
+                    mode=event.payload.get('retrievalMode','none')
+                    continuing=f'with {mode} recall' if mode!='none' else 'without recall'
+                    self._write_error(f"  [memory] {event.payload['errorCode']}; continuing {continuing}.\n")
+            elif rule not in ("context_budget", "context_usage"):
                 self._write_error(f"  [harness] {rule}\n")
         elif event.kind is EventKind.OPERATION_PROGRESS:
             self._write(f"RAG {event.payload.get('action', '')}: {event.payload.get('phase', '')}\n")

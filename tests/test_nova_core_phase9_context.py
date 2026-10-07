@@ -178,7 +178,7 @@ def test_late_tokenizer_failure_recomputes_all_counts_and_margin():
     assert prepared.budget == fallback.budget
 
 
-@pytest.mark.parametrize("preset", [False, True, "64K", 65536, -1])
+@pytest.mark.parametrize("preset", [False, True, "128K", 131072, -1])
 def test_invalid_presets_are_rejected(preset):
     with pytest.raises(ContextError):
         ContextSelection(preset).resolve(model_limit=None, provider_limit=None, resource_limit=None)

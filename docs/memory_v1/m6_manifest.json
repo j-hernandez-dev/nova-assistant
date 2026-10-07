@@ -1,0 +1,659 @@
+{
+  "schemaVersion": 1,
+  "phase": "M6",
+  "date": "2026-10-06",
+  "status": "PASS",
+  "gate": {
+    "normative": "NOVA_MEMORY_ARQUITECTURA_V1.md §37 M6",
+    "literal": "auto-memory es útil en corpus sintético y no viola write/provenance/sensitivity invariants.",
+    "satisfied": true,
+    "allDeliverablesExist": true,
+    "mandatoryUnknown": [],
+    "requirements": [
+      {
+        "requirement": "post-Turn queue, cancellation, quota, deadline, independent terminal",
+        "status": "PASS",
+        "evidence": "test_m6_application.py"
+      },
+      {
+        "requirement": "cheap prefilter / sensitive capture denied",
+        "status": "PASS",
+        "evidence": "test_m6_application.py + test_m6_extraction.py"
+      },
+      {
+        "requirement": "local extractor schema / literal evidence / no tools/download/cloud",
+        "status": "PASS",
+        "evidence": "test_m6_extractor.py + real model report"
+      },
+      {
+        "requirement": "WritePolicy / AUTO_SAFE decision",
+        "status": "PASS",
+        "evidence": "test_m6_extraction.py + human MEM1-OD-03 + real corpus"
+      },
+      {
+        "requirement": "proposals, exact host confirmation, rejection, CAS",
+        "status": "PASS",
+        "evidence": "test_m6_application.py + Desktop maintenance test"
+      },
+      {
+        "requirement": "dedup / no truth boost",
+        "status": "PASS",
+        "evidence": "test_m6_extraction.py"
+      },
+      {
+        "requirement": "supersession / conflict groups / no LWW or ambiguous injection",
+        "status": "PASS",
+        "evidence": "test_m6_extraction.py"
+      },
+      {
+        "requirement": "episodic memory / literal temporal validity / procedure explicit-only",
+        "status": "PASS",
+        "evidence": "test_m6_extraction.py"
+      },
+      {
+        "requirement": "maintenance aggregate receipt / crash/retry idempotency / uncertainty",
+        "status": "PASS",
+        "evidence": "test_m6_persistence.py"
+      },
+      {
+        "requirement": "privacy/forget, queue invalidation, no resurrection, Audit untouched",
+        "status": "PASS",
+        "evidence": "test_m6_persistence.py + inherited M2/M3/M5 contracts"
+      },
+      {
+        "requirement": "useful synthetic corpus / real normal-backend persistence and recall",
+        "status": "PASS",
+        "evidence": "m6_evidence/m6_local_model_final_20261006/report.json"
+      },
+      {
+        "requirement": "Core/Security compatibility / numeric contexts / no later phase",
+        "status": "PASS",
+        "evidence": "final head + m4 regression + preserved source hashes"
+      }
+    ],
+    "noLaterPhaseImplemented": true,
+    "memoryReadyDeclared": false
+  },
+  "baseline": {
+    "branch": "main",
+    "initialHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "finalHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "initialWorkingTree": "Dirty, no staged changes; preexisting M0-M5/64K/audit/architecture preserved",
+    "finalWorkingTree": "Dirty additive M6; no commit/push/tags",
+    "tags": [
+      "nova-core-v1-stable",
+      "nova-security-v1.2-ready"
+    ],
+    "platform": "Windows 11 build 26200, local C: NTFS",
+    "primaryRuntime": "Python 3.14.6 / SQLite 3.50.4 / no NumPy",
+    "auxiliaryRuntime": "Existing Python 3.12.14 / SQLite 3.53.1 / NumPy 2.3.5",
+    "node": "24.16.0",
+    "baselineTests": {
+      "passed": 881,
+      "skippedPreexisting": 3,
+      "failed": 0,
+      "seconds": 60.09
+    },
+    "initialUniquePaths": 1182,
+    "priorEvidenceChecked": 781,
+    "priorEvidenceChanged": 0,
+    "ciChanged": false,
+    "securityImplementationChanged": false,
+    "architecturesChangedByM6": false,
+    "globalConfigurationChanged": false
+  },
+  "decision": {
+    "id": "MEM1-OD-03",
+    "status": "RESOLVED_FOR_M6_ONLY",
+    "authority": "Human answer in this chat",
+    "version": "mem6-conservative-span-v1",
+    "autoClasses": [
+      "direct stable user PREFERENCE",
+      "direct user WORKSPACE_FACT convention"
+    ],
+    "sensitivity": "NORMAL only",
+    "literalEvidenceRequired": true,
+    "scopeBoundByHost": true,
+    "noContradictionOrInstructionContent": true,
+    "llmConfidenceAuthorizesWrites": false,
+    "otherClasses": "PROPOSE_ONLY / human confirmation",
+    "procedure": "EXPLICIT_ONLY",
+    "defaultCapture": "off",
+    "configuredModes": [
+      "off",
+      "propose_only",
+      "low_risk"
+    ],
+    "expansionRequiresNewDecision": true
+  },
+  "contracts": {
+    "corePorts": [
+      "MemoryExtractorPort",
+      "MemoryMaintenancePort"
+    ],
+    "values": [
+      "MemoryExtractionInput",
+      "MemoryRecordChange"
+    ],
+    "newError": "MEMORY_EXTRACTION_UNAVAILABLE",
+    "memoryQueryExtension": "exclude_ids <=512 host-bound IDs, pre-scoring filter",
+    "jobFormat": "nova-memory-maintenance-v1",
+    "jobSchemaVersion": 1,
+    "extractorWireVersion": 2,
+    "extractorV1ParserRetained": true,
+    "authoritativeMemoryRecordSchemaChanged": false,
+    "sqliteUserVersionChanged": false,
+    "destructiveMigrations": false,
+    "publicToolSchemasChanged": false,
+    "commandsAdded": [
+      "memory_proposals",
+      "memory_confirm",
+      "memory_reject"
+    ]
+  },
+  "limits": {
+    "evidenceChars": 4096,
+    "literalSpanChars": 512,
+    "candidates": 4,
+    "jobPayloadBytes": 65536,
+    "pendingJobs": 64,
+    "proposalJobs": 128,
+    "concurrentWorkers": 1,
+    "idleJobsPerOperation": 1,
+    "deadlineSeconds": 30,
+    "modelOutputTokens": 384,
+    "httpBodyRetainedBytes": 65536,
+    "claim": "Operational client/queue bounds, not OS isolation/final OD-04 quotas"
+  },
+  "tests": [
+    {
+      "name": "M6 final cases",
+      "passed": 78,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "m6_evidence/m6_regression_final_20261006/tests.xml",
+      "kinds": [
+        "unit",
+        "contract",
+        "adversarial",
+        "real SQLite",
+        "native controlled HTTP",
+        "real process crash",
+        "Application integration (scripted model contracts only)"
+      ]
+    },
+    {
+      "name": "Final pertinent regression",
+      "passed": 959,
+      "failed": 0,
+      "skippedPreexisting": 3,
+      "seconds": 72.93,
+      "evidence": "m6_evidence/m6_regression_final_20261006"
+    },
+    {
+      "name": "Final HEAD selection",
+      "passed": 3962,
+      "failed": 0,
+      "skippedPreexisting": 11,
+      "subtestsPassed": 53,
+      "seconds": 261.68,
+      "evidence": "m6_evidence/m6_head_guarded_20261006"
+    },
+    {
+      "name": "Final optional NumPy positive/runtime regression",
+      "passed": 606,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 41.19,
+      "evidence": "m6_evidence/m6_aux_guarded_20261006"
+    },
+    {
+      "name": "Desktop contracts/typecheck",
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "typecheckExitCode": 0,
+      "evidence": "m6_evidence/m6_desktop_final_20261006"
+    },
+    {
+      "name": "Local model final",
+      "passed": 12,
+      "failed": 0,
+      "normalBackendE2E": true,
+      "scriptedInference": false,
+      "model": "qwen3.5:9b",
+      "contextWindow": 4096,
+      "evidence": "m6_evidence/m6_local_model_final_20261006/report.json"
+    }
+  ],
+  "metrics": {
+    "normalE2EMs": 3704.0258000015456,
+    "minMs": 931.9542999983241,
+    "recall": {
+      "memoryEnabled": true,
+      "memoryMode": "low_risk",
+      "memoryScopeCount": 2,
+      "memoryCandidateCount": 1,
+      "memorySelectedCount": 1,
+      "memoryTokens": 62,
+      "memoryTokenBudget": 327,
+      "retrievalMode": "lexical",
+      "embeddingStatus": "DISABLED",
+      "semanticLatencyMs": 0,
+      "lexicalLatencyMs": 2.328,
+      "retrievalLatencyMs": 2.889,
+      "memoryTruncated": false,
+      "errorCode": null,
+      "remoteMemoryInjection": false
+    },
+    "pass": true,
+    "realCalls": 8,
+    "cases": 12,
+    "maxMs": 2853.26619999978,
+    "passed": 12,
+    "autoEligiblePositives": 4,
+    "positiveCases": 4,
+    "negativeAutoAdmissions": 0,
+    "negativeCases": 8,
+    "metricCaveat": "Corpus autoWrites counts validated parser/policy disposition, not DB mutations; normalBackend separately verifies one durable record + actual recall",
+    "semanticQualityReevaluated": false,
+    "generalModelQualityCertified": false
+  },
+  "changedSourceFiles": [
+    {
+      "path": "desktop/electron/application_client.ts",
+      "before": "8beef27312d6979292b14cdbc2e1f02f69bec7ff39958b471ddbaab1b7ef2cab",
+      "after": "640e2e50c950dd3c00c38ed3a069fc46feb72c1dcefb6b7836084bca5ed20d1a"
+    },
+    {
+      "path": "local_cli/application/memory_recall.py",
+      "before": "0cdb20d01e98e4be0489ad38a2f4cff74a0b2f353e1a8398e11753a1ecd1fb51",
+      "after": "32288ce2b379b493ec787b2a47a496532e8d6570feba26514d1a454a4c0afa32"
+    },
+    {
+      "path": "local_cli/application/memory.py",
+      "before": "7e256f915a973f2357ebd480cca65f1bf1882f3a978f4e2c2848e8d401d1039e",
+      "after": "2b4d0bd030d2282a40ba8c57875e35d05a9adeb71d07d2283338e4ff14421dd9"
+    },
+    {
+      "path": "local_cli/application/session.py",
+      "before": "0f4ed8a00621b689e6b4e13a73d7c48a82367e3d9f81d628ab91cd9e163549b7",
+      "after": "9bb6ba3521675d9e900bf043c41fc93dcb4cc20f20dfbdb2c652be61441122e1"
+    },
+    {
+      "path": "local_cli/bootstrap_cli.py",
+      "before": "068106b2131a94908ce9d8c99c37626e21c9bdd6e483b13c1ad968f3cd5754d0",
+      "after": "76199b6ed181ac9da09f0b7d6b7706dbbe0ef5a24df69cda4427cb2f3552485d"
+    },
+    {
+      "path": "local_cli/bootstrap_server.py",
+      "before": "05c1269fe1a09320b192dec20f6a098656d9614886a123d5f37386f7d97e247e",
+      "after": "1c264e331f052935f9c7c8830557e4c3be059acd1605825d5697ec9a43f7f34a"
+    },
+    {
+      "path": "local_cli/config.py",
+      "before": "55e1c86252ca3eaef3cd557017eeb7c9e8051816aaeabbc5cea9d9fa41ef79fa",
+      "after": "d7cf7c8956ca93a59092192931a582040f5c315d21ad05b453f457dd559ee514"
+    },
+    {
+      "path": "local_cli/core/memory.py",
+      "before": "99120febb96ca76a7baa338dd09cd22f4ecee09f1cb9639cd2725a75b5a592b2",
+      "after": "672eefb5c99d04ff10349b25d7dfe5269ec398d84b3187b1c8bbfa0565970ffa"
+    },
+    {
+      "path": "local_cli/infrastructure/memory_semantic.py",
+      "before": "28ec2c112898b292ecdcc68d503b45b34d30a9e614d58e403e78269c5ad0be82",
+      "after": "3254bd664a2b06a43e602f3be8f698c0c1aa6b5502fc7a6e3b5bfbbd6e74aa57"
+    },
+    {
+      "path": "local_cli/infrastructure/memory_sqlite.py",
+      "before": "b23b6615660aceb85fe681532a94c0d01a25bb46134ab627f56139c783e77bde",
+      "after": "b04ce5111e7391bd202a41c6f1f12e83710302ae773c3e61c1efd3af42417e27"
+    },
+    {
+      "path": "local_cli/interfaces/memory_cli.py",
+      "before": "c1c27d39d6ff48bd6ea53908a3afb6a014526aa8c5c6d05e7d109ae05a3bc998",
+      "after": "911d110077e6e55e8bcf8172695cc759123d9c60abb43e76e3dcbe3c9f72e33a"
+    },
+    {
+      "path": "local_cli/memory_config.py",
+      "before": "fd92603bd14d621e82bf89683e4aaea89a5a50f428d216e61369dd31fe8c0cfb",
+      "after": "11a48f8a9d49b155e7bb7bde3e1762615c81cc4cf6a83ae514e0051aa957bc1d"
+    }
+  ],
+  "newSourceTestFiles": [
+    {
+      "path": "local_cli/core/memory_maintenance.py",
+      "sha256": "5c641b71089ebcbe1aa560d7b595edefb2a2fdb46a22359e76d5c85949eb3026"
+    },
+    {
+      "path": "local_cli/application/memory_extraction.py",
+      "sha256": "a9b6cfdb7299086e2173e2848f502e94e3707e45c65c7c08887e4a2fa8cc35b0"
+    },
+    {
+      "path": "local_cli/application/memory_maintenance.py",
+      "sha256": "12c0132bd0efccb62ef63b8df5022fdafeec4c8c89300099ea587f3e5a2aa834"
+    },
+    {
+      "path": "local_cli/infrastructure/memory_extractor.py",
+      "sha256": "2e063f94ef827027a4f2e963a45742a5c88d8a00be8b13bcc730531e6d1f7435"
+    },
+    {
+      "path": "local_cli/infrastructure/memory_maintenance.py",
+      "sha256": "4add7d59e7a496b19c9c122644ef4bb0515bf11072dc484c96e39a65db95c325"
+    },
+    {
+      "path": "tests/memory_v1/m6_fixtures.py",
+      "sha256": "20242655d0100abdcb5716ef10a5ce764f1c4079ee1b06c9d250e35ab9990904"
+    },
+    {
+      "path": "tests/memory_v1/run_m6_model.py",
+      "sha256": "364eae96a645c4fd68af2486fb52ac47c62df8e6028760d86dac97878fa90248"
+    },
+    {
+      "path": "tests/memory_v1/test_m6_application.py",
+      "sha256": "40760ed7c00eb39acd36f469a79f42c5e9be53064f64dcf05710e27ecfdee388"
+    },
+    {
+      "path": "tests/memory_v1/test_m6_extraction.py",
+      "sha256": "f78c10d6f65f5105dee2a9009ba720b34c73561e7b0fec4bc9891b11f1cfa685"
+    },
+    {
+      "path": "tests/memory_v1/test_m6_persistence.py",
+      "sha256": "8d2ca512687a42a298d7ed3d3eebf518444fc866ed73bf2d127170d549c68074"
+    },
+    {
+      "path": "tests/memory_v1/test_m6_extractor.py",
+      "sha256": "2ae7d2e0ce6cca3369bf88d9f45b14818738de3cce6ac74b0f80bd0525b823d3"
+    },
+    {
+      "path": "desktop/tests/memory_maintenance.test.cjs",
+      "sha256": "4f95da6629d73ec3800dbdc46c335c0096d4d86b9e38050015f57e69731fba24"
+    }
+  ],
+  "historicalFailures": [
+    {
+      "evidence": "incremental/m6_block2.xml",
+      "classification": "HARNESS_BUG"
+    },
+    {
+      "evidence": "incremental/m6_block2b.xml",
+      "classification": "HARNESS_BUG"
+    },
+    {
+      "evidence": "incremental/m6_block3.xml",
+      "classification": "HARNESS_BUG"
+    },
+    {
+      "evidence": "incremental/m6_block3b.xml",
+      "classification": "HARNESS_BUG_AND_M6_INTEGRATION_BUG"
+    },
+    {
+      "evidence": "incremental/m6_extractor.xml",
+      "classification": "M6_PRODUCT_BUG_FIXED"
+    },
+    {
+      "evidence": "incremental/m6_extractor_fixed.xml",
+      "classification": "M6_PRODUCT_BUG_NOT_YET_FIXED"
+    },
+    {
+      "evidence": "m6_local_model_20261006/report.json",
+      "classification": "INVALID_PROPOSAL_CAUSE_UNKNOWN_AND_HARNESS_CLOSE_RACE",
+      "statusStillFalse": true
+    },
+    {
+      "evidence": "m6_local_model_literal_20261006/report.json",
+      "classification": "MODEL_BEHAVIOR_AND_INVALID_KEY_SCHEMA",
+      "statusStillFalse": true
+    }
+  ],
+  "remainingOpenDecisions": [
+    "MEM1-OD-02 universal embedding recommendation/co-residency (selected M5 model evidence is not universal)",
+    "MEM1-OD-04 final quotas",
+    "MEM1-OD-05 physical EPISODE retention",
+    "MEM1-OD-06 encryption/key lifecycle",
+    "MEM1-OD-07 READY quality thresholds",
+    "AUTO_SAFE expansion beyond authorized M6 classes"
+  ],
+  "unknownNonBlocking": [
+    "General multilingual extraction and LLM episode/profile extraction quality",
+    "RAM/VRAM co-residency / physical cold-start performance",
+    "Physical compute cancellation by Ollama after HTTP closure",
+    "Linux/macOS M6 native/model certification",
+    "Large-scale maintenance receipt retention/performance"
+  ],
+  "residualRegressionDemonstrated": [],
+  "nextPhaseReferenceOnly": "M7",
+  "evidenceFiles": [
+    {
+      "path": "docs/memory_v1/m6_evidence/initial_hashes.json",
+      "sha256": "db01e59f453efc758145eeae7ee9fac1c16d8e8ca62c7d06cd0aac6953d769eb",
+      "bytes": 183754
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/source_changes.json",
+      "sha256": "914fd1b4f7afa6a96d7f3bca49f0f7234f0391194e1aa4e89b11e281cde7cafe",
+      "bytes": 5408
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block1.xml",
+      "sha256": "1f5ddb934fca4ab0f3349cfa90e4e8c9b68ac004e431eaad192748d84f15637b",
+      "bytes": 11093
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block2.xml",
+      "sha256": "16eda71932e93af037d38e42578ca0896fa358fb0784e1a15288919142f82c77",
+      "bytes": 776
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block2b.xml",
+      "sha256": "682bc3ce4265cf5dc80a9cb7c5c972ed1fc13432591be1a2ea1d19cbe9bd1c72",
+      "bytes": 6914
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block2c.xml",
+      "sha256": "5ea5be5b7f61cdeae577e5a124958e61d506c9f1f36b247810bd1b3572b38955",
+      "bytes": 9048
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block3.xml",
+      "sha256": "23a515e5779cb99ffb3388a23b9d62bf0073f84607a1bd59dc03385f0a648f87",
+      "bytes": 18912
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block3b.xml",
+      "sha256": "e2d96c4fff77919852b80f95ea897ec19c706234c9f57441f43954f79c107a59",
+      "bytes": 9749
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block3c.xml",
+      "sha256": "988912897cc704ec891a0952cc4403aecf0c447a55726978987c73fc1b97c30d",
+      "bytes": 6506
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block4.xml",
+      "sha256": "016bde32f9e0b51451e2c29baecd85e335cd1180e3e0b5e7fb41060bd5ad5ab0",
+      "bytes": 6506
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block5.xml",
+      "sha256": "59c850ec69ddd6544a339f3e54a96127cbba3cea724ec08861a9347382ada2c9",
+      "bytes": 10507
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_block6.xml",
+      "sha256": "4f3b354c9022918d2b08b5afde6b6eb69e263329d91060f9a1084f9ac7c0ae36",
+      "bytes": 11497
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_extractor_fixed.xml",
+      "sha256": "409261e637d3f8f3af6e5072d68b67065b165422d53bf7c8e9897eb7236b70fa",
+      "bytes": 4837
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_extractor_poll.xml",
+      "sha256": "2c30956ed04956261bc7ba78fda4beaf981169601b7f8d6c633d2af41eea65d3",
+      "bytes": 3216
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/incremental/m6_extractor.xml",
+      "sha256": "8b9f3e7327d49b0fd6fe92adde821cb3fe2a4b6afaabf99b59525c4140d5001e",
+      "bytes": 4837
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_aux_final_20261006/run.json",
+      "sha256": "4d77aaf6c0b5dae07c9da0ea4638358cf8b37cae6a6da575e137598e62b1dcf4",
+      "bytes": 768
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_aux_final_20261006/run.log",
+      "sha256": "d9a691017846bd65ceecf72a8e78716261c748fed5dac6d531ad4e5de354185f",
+      "bytes": 751
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_aux_final_20261006/tests.xml",
+      "sha256": "3cb5b9469802b44295bf96732d2eb4edec4cf03a2be3151e28c740044aa49a56",
+      "bytes": 93761
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_aux_guarded_20261006/run.json",
+      "sha256": "a007ff37e78b1e36179fb7019990d44586964321b55b23b9358f3e3e3cacac50",
+      "bytes": 772
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_aux_guarded_20261006/run.log",
+      "sha256": "3d49bd8fe50e486ac2ef3e3c057653c06db09a1876072cdfe28ae83088e19508",
+      "bytes": 751
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_aux_guarded_20261006/tests.xml",
+      "sha256": "c6d400a3efecd2b99ca1f25c0b8238bfcdf5f9a6493c9f1ece2da897d2a61eb1",
+      "bytes": 94045
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_baseline_20261006/run.json",
+      "sha256": "78c58c38f7e2b9b9b46b53c2fe0073a3fcdea145f0fa67793a97ad2417e9678e",
+      "bytes": 1490
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_baseline_20261006/run.log",
+      "sha256": "04bf5cde8862a5fa16cfdb79b54e82cd34771ec135c96212e87d186a703157a2",
+      "bytes": 1096
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_baseline_20261006/tests.xml",
+      "sha256": "96ee5c5b5d81a9ff3cb706a2e44af1fc398d070c5e4195fb8f73a6ad75fa79a6",
+      "bytes": 132950
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_desktop_20261006/node.log",
+      "sha256": "4badd95fb6227c083fce8b26607bb048504939fa6e94dab7df6efa33fc9ad66d",
+      "bytes": 4046
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_desktop_20261006/run.json",
+      "sha256": "ddc0f2ce49bfb9a4e773a46129d71c7562c388600665948055728a74916e1b9e",
+      "bytes": 866
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_desktop_20261006/typescript.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_desktop_final_20261006/node.log",
+      "sha256": "2a823f596b7387fad397fb8ea3204e74ecd26c593eec6a13fe15844c564ab2fc",
+      "bytes": 4151
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_desktop_final_20261006/run.json",
+      "sha256": "ec3e1a0c1c892f16f5beee1099995a3bbd004ca7203f0dc0c91d15c7e7aa9815",
+      "bytes": 981
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_desktop_final_20261006/typescript.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_head_final_20261006/run.json",
+      "sha256": "517c5c4405066c9d934e8eec87485c10738c41a7cdc3c2249eb1a19625f1a527",
+      "bytes": 1407
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_head_final_20261006/run.log",
+      "sha256": "77ecb09b5eb9bcc96ec2598945fbfe2f206aa2408d08534362a665b2445eebe2",
+      "bytes": 4549
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_head_final_20261006/tests.xml",
+      "sha256": "d16aa091e3cb25fc6520ccb0df5c7910115efae2571e6807f093d58696af711e",
+      "bytes": 534377
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_head_guarded_20261006/run.json",
+      "sha256": "2132644bcfd811c0a0955f005837962e5c35b7978ec692236b40de26f0b5b06b",
+      "bytes": 1411
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_head_guarded_20261006/run.log",
+      "sha256": "03c470f64af726bb83b605707988a9150d5ec290af3d4f7384fe0661a0102137",
+      "bytes": 4540
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_head_guarded_20261006/tests.xml",
+      "sha256": "aa98c0dc3f73d323fb610a17c57e76bcee7e9c03117267c56a00dacc2df52111",
+      "bytes": 534669
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_local_model_20261006/report.json",
+      "sha256": "a908de20c99886aea6876ece863596b80c7b4dd2f2acfba422b75c04b5daf982",
+      "bytes": 14893
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_local_model_final_20261006/report.json",
+      "sha256": "b593fc159fdc9f21cad75c7c05c361bae51ae7e630e10c01cd055d7eeee4060a",
+      "bytes": 15126
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_local_model_literal_20261006/report.json",
+      "sha256": "87df27a236db12f0ab3cfedd748da007d08dfd11623044a322203223b24d96ba",
+      "bytes": 8729
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_local_model_schema2_examples_20261006/report.json",
+      "sha256": "48d0dbd39af9864f20c0d3da974f9e755590bd73c8f929a4d990d5d16ce5feb6",
+      "bytes": 15124
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_regression_final_20261006/run.json",
+      "sha256": "1d294f81f475fcace21c1f84a5f27003e22097641290a025892deb167c86835e",
+      "bytes": 1506
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_regression_final_20261006/run.log",
+      "sha256": "98dfda4f8602cf481f8c1bc4a0136230e71f479d52cee80edc9dc6fe2f6d18db",
+      "bytes": 1177
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_regression_final_20261006/tests.xml",
+      "sha256": "b4e11c393b4d85493fa5b48a4fb7d795e64a9c2c9b6a1d722927a199b78d6efc",
+      "bytes": 144481
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_regression_preclosure_20261006/run.json",
+      "sha256": "75ca741f750f7f9a06dfb2bd02df60268064da98801d270930752a25ef61a486",
+      "bytes": 1516
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_regression_preclosure_20261006/run.log",
+      "sha256": "a47a14bf9d8f340f2344e7e505bceeed14cf75a487ce5354d474d0907ba6f6fe",
+      "bytes": 1096
+    },
+    {
+      "path": "docs/memory_v1/m6_evidence/m6_regression_preclosure_20261006/tests.xml",
+      "sha256": "6f735ceddfc0bca481849fcbdc0b103fb523acbdc0ee8f4e526e0dde25feb5a1",
+      "bytes": 139207
+    }
+  ]
+}

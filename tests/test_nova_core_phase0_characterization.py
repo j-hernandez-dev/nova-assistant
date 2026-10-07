@@ -188,14 +188,22 @@ class TestPhase0Characterization(unittest.TestCase):
         actual = capture_server_and_provider()
         # The Application route adds deterministic context-budget telemetry
         # (phase 9). Freeze all original frames and their order unchanged;
-        # do not regenerate the phase-0 golden or hide other new frames.
+        # do not regenerate the phase-0 golden or hide unverified new frames.
         budget_events = [event for event in actual["jsonl_events"]
                          if event.get("type") == "harness"
                          and event.get("event") == "context_budget"]
         self.assertEqual(len(budget_events), 2)
+        # M4 adds one admission observation. The unverified 'test' provider
+        # MUST NOT receive memory by default. The legacy bridge intentionally
+        # exports only the intervention rule (typed metadata is checked by M4's
+        # Application tests); retain the original ordered golden independently.
+        memory_events = [event for event in actual['jsonl_events']
+            if event.get('type') == 'harness' and event.get('event') == 'memory_recall']
+        self.assertEqual(len(memory_events), 1)
+        self.assertEqual(memory_events[0], {'id':7, 'type':'harness', 'event':'memory_recall', 'data':{}})
         actual["jsonl_events"] = [event for event in actual["jsonl_events"]
             if not (event.get("type") == "harness"
-                    and event.get("event") == "context_budget")]
+                    and event.get("event") in ("context_budget", "memory_recall"))]
         self.assertEqual(
             actual, self.expected["server_and_provider"]
         )

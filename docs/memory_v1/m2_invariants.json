@@ -1,0 +1,443 @@
+{
+  "schemaVersion": 1,
+  "phase": "M2",
+  "meaning": "Store/adapter evidence only; not full MEMORY READY/runtime invariants.",
+  "invariants": [
+    {
+      "id": "MEM1-INV-001",
+      "requirement": "sessionId no identidad durable",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Real durable UUID profile create/reopen; session/provider not inputs. No user profile UI."
+    },
+    {
+      "id": "MEM1-INV-002",
+      "requirement": "subject y scope explícitos",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Typed identity/scope persisted with foreign keys and SQL predicates."
+    },
+    {
+      "id": "MEM1-INV-003",
+      "requirement": "sin recall cross-workspace",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "SQL get/metadata/FTS deny cross-subject/workspace; Turn recall integration deferred."
+    },
+    {
+      "id": "MEM1-INV-004",
+      "requirement": "cwd no amplía scope MEMORY",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Trusted host resolver canonicalizes explicit paths; no cwd mutation/implicit cognitive rebind."
+    },
+    {
+      "id": "MEM1-INV-005",
+      "requirement": "current user no trim silencioso",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_context.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-006",
+      "requirement": "cap compartido MEMORY/RAG",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_context.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-007",
+      "requirement": "capsule evictable no trusted instruction",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-008",
+      "requirement": "capsule no canon por inyección",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "local_cli/application/context.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-009",
+      "requirement": "recall una vez admission",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "local_cli/application/session.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-010",
+      "requirement": "no embeddings por generación",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-011",
+      "requirement": "budget MEMORY cero válido",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-012",
+      "requirement": "transcript/MEMORY/audit separados",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Independent state/memory/v1 namespace; no conversion or deletion of RAG/transcript/audit stores."
+    },
+    {
+      "id": "MEM1-INV-013",
+      "requirement": "provenance requerido",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Required sources persisted atomically; strict reload/migration, no skipped invalid rows."
+    },
+    {
+      "id": "MEM1-INV-014",
+      "requirement": "similarity no confidence factual",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Ranked IDs are relevance only; no factual confidence field."
+    },
+    {
+      "id": "MEM1-INV-015",
+      "requirement": "repetición no verdad",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-016",
+      "requirement": "embedding spaces separados",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "local_cli/rag.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-017",
+      "requirement": "FTS/vector proyecciones",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Real FTS projection corruption/rebuild from truth; reserved vector tables only, M5 adapter deferred."
+    },
+    {
+      "id": "MEM1-INV-018",
+      "requirement": "migration fail no READY",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Failed v0 copy migration preserves data/version; rejects unknown/future formats, no READY claim."
+    },
+    {
+      "id": "MEM1-INV-019",
+      "requirement": "extractor no direct write",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-020",
+      "requirement": "assistant/tool/child no global authority",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-021",
+      "requirement": "correction conserva lineage",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Atomic explicit infrastructure supersede keeps history/source/lineage; user correction policy/UI deferred."
+    },
+    {
+      "id": "MEM1-INV-022",
+      "requirement": "conflicto no LWW",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-023",
+      "requirement": "summary no factual durable",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "local_cli/application/context.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-024",
+      "requirement": "maintenance no reabre terminal",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-025",
+      "requirement": "known secrets denied MEMORY",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Supplied S6 known-value registry guards canonical/metadata persistence, redacts excerpts. Unknown secrets not universally detected."
+    },
+    {
+      "id": "MEM1-INV-026",
+      "requirement": "sensitive no auto",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Necessary explicit-user-source condition for sensitive writes; normal eligibility excludes sensitive. Full user consent/auto-capture policy deferred."
+    },
+    {
+      "id": "MEM1-INV-027",
+      "requirement": "delete afecta derivados",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Transactional delete removes sources/FTS/FK-derived rows; no live memory caches/capsules yet."
+    },
+    {
+      "id": "MEM1-INV-028",
+      "requirement": "rebuild no resurrect",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Tombstone blocks deleted ID reinsertion and stale projection/rebuild resurrection. No general import or physical secure-erasure claim."
+    },
+    {
+      "id": "MEM1-INV-029",
+      "requirement": "forget no afirma borrar sources/audit",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Only owned memory rows/projections are modified; audit/backups/snapshots untouched."
+    },
+    {
+      "id": "MEM1-INV-030",
+      "requirement": "remote opt-in",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-031",
+      "requirement": "lexical offline sin embeddings",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "Exact/FTS adapter offline, no embedding dependency; actual Turn recall M4 deferred."
+    },
+    {
+      "id": "MEM1-INV-032",
+      "requirement": "no autodownload",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-033",
+      "requirement": "sin reranker pesado obligatorio",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-034",
+      "requirement": "no full scan Python MEMORY READY",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "local_cli/rag.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-035",
+      "requirement": "render final candidates only",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "SQL metadata/ID queries bounded; full records loaded only by explicit get/page/export. Capsule rendering later."
+    },
+    {
+      "id": "MEM1-INV-036",
+      "requirement": "cold semantic degrada lexical",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-037",
+      "requirement": "RAG no personal auto",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-038",
+      "requirement": "memory no grants/approval",
+      "m2Status": "STORE_OR_DOMAIN_CONTRACT_PASS_WITH_SCOPE_LIMITS",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m2_store.py",
+        "tests/memory_v1/test_m2_recovery.py",
+        "tests/memory_v1/test_m2_performance.py"
+      ],
+      "note": "No grant/approval fields or execution path; normal tools/Core/Security unchanged."
+    },
+    {
+      "id": "MEM1-INV-039",
+      "requirement": "child sin store global default",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    },
+    {
+      "id": "MEM1-INV-040",
+      "requirement": "child proposal no commit/delete",
+      "m2Status": "OUT_OF_M2_SCOPE",
+      "runtimeMemoryActivation": false,
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "note": "Existing baseline preserved; first production behavior belongs to its later normative phase."
+    }
+  ]
+}

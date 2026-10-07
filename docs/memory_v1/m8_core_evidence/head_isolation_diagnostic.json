@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "originalRun": "final_head_20261007",
+  "originalOutcome": {"failed": 6, "passed": 4132, "skipped": 11, "subtestsPassed": 53, "seconds": 407.76},
+  "classification": "HARNESS_BUG: fixtures/state directories located inside the audited Git workspace",
+  "observations": [
+    "git -C docs/memory_v1/m8_core_evidence/final_head_20261007/private/temp rev-parse --show-toplevel returned the real Nova repository.",
+    "git -C C:/Users/joseh/AppData/Local/Temp/nova-m8-od08-20261007 rev-parse --show-toplevel returned not-a-git-repository (expected).",
+    "Default audit/profile state inside the workspace was denied by the unchanged SECURITY pre-effect boundary.",
+    "Initial staged state was empty. The in-repo fixture run caused 3147 entries to be staged; HEAD/reflog/tags did not change.",
+    "442 frozen source/protocol files and 556 historical evidence files remained byte-identical.",
+    "Only accidental staging was restored via git restore --staged --source=HEAD -- .; no working-tree file was restored/deleted, staged count returned to zero."
+  ],
+  "failedTests": [
+    {"id": "tests/test_git_ops.py::TestIsGitRepo::test_returns_false_outside_git_repo", "cause": "Nominal non-repo fixture inherited ancestor .git."},
+    {"id": "tests/test_git_ops.py::TestDiffWorkingTree::test_diff_outside_git_repo_raises", "cause": "Nominal non-repo fixture inspected actual dirty repository; secondary cp1252 stdout decoding exception occurred on this unintended path."},
+    {"id": "tests/test_nova_core_phase0_characterization.py::TestPhase0Characterization::test_legacy_jsonl_and_provider_message_conversion", "cause": "Audit state inside actual workspace failed pre-effect; tool/error trajectory produced three budget events instead of the intended two-generation fixture."},
+    {"id": "tests/test_project_map.py::TestBuildProjectMap::test_walk_lists_sorted_and_prunes", "cause": "Fixture took inherited Git listing path, not the non-Git walk/pruning path."},
+    {"id": "tests/test_server.py::TestHandleChat::test_chat_executes_tool_with_tool_name", "cause": "Default audit state inside workspace correctly denied tool effect with SECURITY_AUDIT_PRE_EFFECT_FAILED."},
+    {"id": "tests/test_undo.py::TestUndoLastChange::test_undo_outside_git_repo_raises", "cause": "Nominal non-repo fixture inherited actual Git repository."}
+  ],
+  "repair": {
+    "sourceCodeOrTestsChanged": false,
+    "thresholdsChanged": false,
+    "skipsAdded": false,
+    "runtimeChanged": false,
+    "privateOutputRoot": "C:/Users/joseh/AppData/Local/Temp/nova-m8-od08-20261007/head",
+    "sameGateSelection": true,
+    "samePython312Runtime": true,
+    "purpose": "Controlled repeat with isolated fixtures/state outside Git; does not replace the historical failed run."
+  },
+  "secondaryWarningScope": "No product encoding fix inferred from an unintended dirty-repo traversal. Such behavior would need its own valid fixture/diagnosis; no product change authorized here."
+}

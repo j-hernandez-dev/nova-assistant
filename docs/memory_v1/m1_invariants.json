@@ -1,0 +1,554 @@
+{
+  "schemaVersion": 1,
+  "phase": "M1",
+  "meaning": "Additive traceability against original M0 invariant list; domain/fixture PASS is NOT full MEMORY runtime/READY certification.",
+  "originalM0Unmodified": true,
+  "invariants": [
+    {
+      "id": "MEM1-INV-001",
+      "requirement": "sessionId no identidad durable",
+      "originalFuturePhases": [
+        "M1"
+      ],
+      "m1Status": "DOMAIN_CONTRACT_PASS",
+      "references": [
+        "tests/memory_v1/test_m1_identity_scope.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "Opaque SubjectId UUID4 separate from Core session identity. SessionId is optional source correlation only; durable profile creation/reopen adapter is M2."
+    },
+    {
+      "id": "MEM1-INV-002",
+      "requirement": "subject y scope explícitos",
+      "originalFuturePhases": [
+        "M1"
+      ],
+      "m1Status": "DOMAIN_CONTRACT_PASS",
+      "references": [
+        "tests/memory_v1/test_m1_identity_scope.py",
+        "tests/memory_v1/test_m1_domain.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "Immutable explicit SubjectId, WorkspaceId and GLOBAL_PROFILE/WORKSPACE values; no implicit cwd or username identity."
+    },
+    {
+      "id": "MEM1-INV-003",
+      "requirement": "sin recall cross-workspace",
+      "originalFuturePhases": [
+        "M1",
+        "M4"
+      ],
+      "m1Status": "DOMAIN_PREDICATE_PASS_RUNTIME_DEFERRED",
+      "references": [
+        "tests/memory_v1/test_m1_identity_scope.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "Pure access/eligibility predicate denies other subjects/workspaces. Actual scoped store/index/recall enforcement remains M2/M4/M5."
+    },
+    {
+      "id": "MEM1-INV-004",
+      "requirement": "cwd no amplía scope MEMORY",
+      "originalFuturePhases": [
+        "M1",
+        "M4"
+      ],
+      "m1Status": "DOMAIN_PREDICATE_PASS_RUNTIME_DEFERRED",
+      "references": [
+        "tests/memory_v1/test_m1_identity_scope.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "Bound scope has no cwd field and cannot be mutated/widened. No active workspace-change memory integration yet."
+    },
+    {
+      "id": "MEM1-INV-005",
+      "requirement": "current user no trim silencioso",
+      "originalFuturePhases": [
+        "M4"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_context.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-006",
+      "requirement": "cap compartido MEMORY/RAG",
+      "originalFuturePhases": [
+        "M4"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_context.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-007",
+      "requirement": "capsule evictable no trusted instruction",
+      "originalFuturePhases": [
+        "M4"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-008",
+      "requirement": "capsule no canon por inyección",
+      "originalFuturePhases": [
+        "M4"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "local_cli/application/context.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-009",
+      "requirement": "recall una vez admission",
+      "originalFuturePhases": [
+        "M4"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "local_cli/application/session.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-010",
+      "requirement": "no embeddings por generación",
+      "originalFuturePhases": [
+        "M4",
+        "M5"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-011",
+      "requirement": "budget MEMORY cero válido",
+      "originalFuturePhases": [
+        "M4"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-012",
+      "requirement": "transcript/MEMORY/audit separados",
+      "originalFuturePhases": [
+        "M2"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-013",
+      "requirement": "provenance requerido",
+      "originalFuturePhases": [
+        "M1"
+      ],
+      "m1Status": "DOMAIN_CONTRACT_PASS",
+      "references": [
+        "tests/memory_v1/test_m1_domain.py",
+        "tests/memory_v1/test_m1_admission_ports.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "Typed nonempty unique correlated source references required. Source class is not truth/authority; redaction/host source capture remain later phases."
+    },
+    {
+      "id": "MEM1-INV-014",
+      "requirement": "similarity no confidence factual",
+      "originalFuturePhases": [
+        "M1",
+        "M5"
+      ],
+      "m1Status": "DOMAIN_CONTRACT_PASS_RUNTIME_DEFERRED",
+      "references": [
+        "tests/memory_v1/test_m1_admission_ports.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "Ranked IDs do not carry factual confidence; EmbeddingSpace is metadata only. No semantic scoring/reranking adapter."
+    },
+    {
+      "id": "MEM1-INV-015",
+      "requirement": "repetición no verdad",
+      "originalFuturePhases": [
+        "M6"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-016",
+      "requirement": "embedding spaces separados",
+      "originalFuturePhases": [
+        "M5"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "local_cli/rag.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-017",
+      "requirement": "FTS/vector proyecciones",
+      "originalFuturePhases": [
+        "M2",
+        "M5"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-018",
+      "requirement": "migration fail no READY",
+      "originalFuturePhases": [
+        "M2",
+        "M8"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "local_cli/infrastructure/persistence.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-019",
+      "requirement": "extractor no direct write",
+      "originalFuturePhases": [
+        "M6"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-020",
+      "requirement": "assistant/tool/child no global authority",
+      "originalFuturePhases": [
+        "M6"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-021",
+      "requirement": "correction conserva lineage",
+      "originalFuturePhases": [
+        "M1",
+        "M3",
+        "M6"
+      ],
+      "m1Status": "DOMAIN_LINEAGE_PASS_RUNTIME_DEFERRED",
+      "references": [
+        "tests/memory_v1/test_m1_domain.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "Complete supplied lineage checked for gaps/cycles/cross-scope/cross-subject/forks; no mutation, correction service or persistence implemented."
+    },
+    {
+      "id": "MEM1-INV-022",
+      "requirement": "conflicto no LWW",
+      "originalFuturePhases": [
+        "M6"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-023",
+      "requirement": "summary no factual durable",
+      "originalFuturePhases": [
+        "M4",
+        "M6"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "local_cli/application/context.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-024",
+      "requirement": "maintenance no reabre terminal",
+      "originalFuturePhases": [
+        "M6",
+        "M7"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-025",
+      "requirement": "known secrets denied MEMORY",
+      "originalFuturePhases": [
+        "M3",
+        "M6"
+      ],
+      "m1Status": "CLASSIFIED_INPUT_CONTRACT_PASS_RUNTIME_DEFERRED",
+      "references": [
+        "tests/memory_v1/test_m1_domain.py",
+        "tests/memory_v1/test_m1_admission_ports.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "SECRET_DENIED cannot become a MemoryRecord. Classification itself is trusted input, not an implemented secret detector/write policy."
+    },
+    {
+      "id": "MEM1-INV-026",
+      "requirement": "sensitive no auto",
+      "originalFuturePhases": [
+        "M3",
+        "M6"
+      ],
+      "m1Status": "CLASSIFIED_INPUT_CONTRACT_PASS_RUNTIME_DEFERRED",
+      "references": [
+        "tests/memory_v1/test_m1_domain.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "SENSITIVE admission precondition requires explicit host consent; default eligibility excludes it. No active auto-capture/user consent interface."
+    },
+    {
+      "id": "MEM1-INV-027",
+      "requirement": "delete afecta derivados",
+      "originalFuturePhases": [
+        "M2",
+        "M3",
+        "M5"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-028",
+      "requirement": "rebuild no resurrect",
+      "originalFuturePhases": [
+        "M2",
+        "M3",
+        "M5"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-029",
+      "requirement": "forget no afirma borrar sources/audit",
+      "originalFuturePhases": [
+        "M3"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-030",
+      "requirement": "remote opt-in",
+      "originalFuturePhases": [
+        "M4"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-031",
+      "requirement": "lexical offline sin embeddings",
+      "originalFuturePhases": [
+        "M2",
+        "M4"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-032",
+      "requirement": "no autodownload",
+      "originalFuturePhases": [
+        "M4",
+        "M5"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-033",
+      "requirement": "sin reranker pesado obligatorio",
+      "originalFuturePhases": [
+        "M5"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-034",
+      "requirement": "no full scan Python MEMORY READY",
+      "originalFuturePhases": [
+        "M5",
+        "M8"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "local_cli/rag.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-035",
+      "requirement": "render final candidates only",
+      "originalFuturePhases": [
+        "M4",
+        "M5"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_context.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-036",
+      "requirement": "cold semantic degrada lexical",
+      "originalFuturePhases": [
+        "M5"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-037",
+      "requirement": "RAG no personal auto",
+      "originalFuturePhases": [
+        "M4",
+        "M6"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-038",
+      "requirement": "memory no grants/approval",
+      "originalFuturePhases": [
+        "M1",
+        "M4"
+      ],
+      "m1Status": "DOMAIN_BOUNDARY_PASS_RUNTIME_DEFERRED",
+      "references": [
+        "tests/memory_v1/test_m1_domain.py",
+        "tests/memory_v1/test_m1_admission_ports.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No grant/approval/authority fields in record/proposal. Candidate binder rejects host-field spoofing and is not runtime-wired; no OS isolation claim."
+    },
+    {
+      "id": "MEM1-INV-039",
+      "requirement": "child sin store global default",
+      "originalFuturePhases": [
+        "M6"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_legacy.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    },
+    {
+      "id": "MEM1-INV-040",
+      "requirement": "child proposal no commit/delete",
+      "originalFuturePhases": [
+        "M6"
+      ],
+      "m1Status": "OUT_OF_M1_SCOPE",
+      "references": [
+        "tests/memory_v1/test_m0_evaluation.py"
+      ],
+      "productionMemoryEnforcement": "DEFERRED_NOT_IMPLEMENTED",
+      "note": "No runtime invariant certification in M1. Existing M0 characterization remains historical; implement/test only at its normative future phase."
+    }
+  ]
+}

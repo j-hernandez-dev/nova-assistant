@@ -1,0 +1,333 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-06",
+  "phase": "M8",
+  "iteration": "Quality-independent BGE operational characterization",
+  "status": "PARTIAL",
+  "characterizationStatus": "COMPLETE",
+  "memoryReadyDeclared": false,
+  "baseline": {
+    "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "branch": "main",
+    "workingTree": "PREEXISTING_DIRTY_NO_STAGING",
+    "platform": "Windows 11 build 26200 / local NTFS / HOST_UNISOLATED",
+    "runtime": "Python 3.12.14 / SQLite 3.53.1 / NumPy 2.3.5 / Ollama 0.35.1",
+    "existingFilesIndexed": 684,
+    "existingFilesUnchanged": 684,
+    "filesChanged": [],
+    "originalHeldoutSha256": "a5ebfa50e2db2b7add9776bc04f285550b713fbf8d413570d26168129df0ff20",
+    "originalHeldoutStatus": "FAIL_UNCHANGED"
+  },
+  "model": {
+    "name": "BGE-M3:latest",
+    "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+    "dimension": 1024,
+    "quantization": "F16",
+    "capabilities": [
+      "embedding"
+    ],
+    "queryInstructionProfile": null,
+    "space": "ollama-810a779df15ccf6b50ccd4e4da669cd99ae7da990e5585a42393640cc4e9fcd9",
+    "projection": "New private 3-record BGE projection; no old store/vector reuse"
+  },
+  "protocol": {
+    "workload": "m8-bge-operational-independent-v1",
+    "workloadSha256": "6f597123ee4e03a3da3d1286aa188d205f71ffd54de5e1fa03178bcadd50a2db",
+    "fixture": "tests/memory_v1/fixtures/m8_bge_operational_v1.json",
+    "queries": 40,
+    "distinctComposedInputs": 40,
+    "distinctSuccessfulVectorHashes": 40,
+    "samplesStartWithIdleWorker": true,
+    "softMs": 350,
+    "hardMs": 600,
+    "productionQueryHttpTimeoutMs": 600,
+    "preparationOutsideTurnTimeoutSeconds": 30,
+    "admissionTimeoutExtended": false,
+    "goldenData": false,
+    "qualityEvaluated": false,
+    "heldoutExecuted": false,
+    "noBlindRetry": true,
+    "noWarmupBetweenQueries": true,
+    "rawApiElapsedIncludes": "Real client HTTP, JSON decoding and observer vector hash accounting; no overhead subtraction",
+    "p50": "Median",
+    "p95": "Nearest rank ceil(0.95*n), tail retained",
+    "recoveryFixtureExcludedFromTiming": true,
+    "frozenFiles": 687,
+    "frozenFilesUnchanged": true,
+    "freeze": "docs/memory_v1/m8_bge_ops_evidence/freeze.json"
+  },
+  "endpoint": {
+    "classification": "OPERATIONALLY_ADEQUATE",
+    "stats": {
+      "count": 40,
+      "p50Ms": 114.52384999984133,
+      "p95Ms": 155.39940000007846,
+      "maxMs": 229.82439999987037
+    },
+    "realQueries": 40,
+    "errors": 0,
+    "distinctInputs": 40,
+    "distinctVectorHashes": 40
+  },
+  "fullPipeline": {
+    "classificationBySameLatencyBands": "OPTIONAL_DEGRADED_PERFORMANCE_ONLY",
+    "stats": {
+      "count": 40,
+      "p50Ms": 504.74649999999997,
+      "p95Ms": 583.337,
+      "maxMs": 615.433
+    },
+    "warm39Stats": {
+      "count": 39,
+      "p50Ms": 503.993,
+      "p95Ms": 583.337,
+      "maxMs": 584.713
+    },
+    "embeddingStatusCounts": {
+      "WARM": 39,
+      "DEGRADED_TIMEOUT": 1
+    },
+    "measuredBusyCount": 0,
+    "hardDeadlineStrictlySatisfied": false,
+    "overshootTotalMs": 15.433,
+    "overshootSemanticMs": 13.197,
+    "timeoutCode": "MEMORY_RETRIEVAL_TIMEOUT",
+    "sourceOfOvershoot": "UNKNOWN_NOT_FIXED",
+    "endpointAdequacyIsNotFullPipeline350msPass": true
+  },
+  "perQueryRequests": {
+    "embed": 1,
+    "tags": 3,
+    "ps": 2,
+    "queryShow": 0,
+    "pathStats": {
+      "/api/tags": {
+        "count": 120,
+        "p50Ms": 115.854000000013,
+        "p95Ms": 143.15420000002632,
+        "maxMs": 171.54590000018288
+      },
+      "/api/ps": {
+        "count": 80,
+        "p50Ms": 25.389949999976125,
+        "p95Ms": 32.56210000017745,
+        "maxMs": 36.18349999987913
+      }
+    },
+    "interpretation": "Repeated existing capability/revision checks contribute observable cost; no cache/config/product adjustment was made."
+  },
+  "naturalRecovery": {
+    "demonstrated": true,
+    "timeoutCase": "ops-18",
+    "laterCase": "ops-19",
+    "firstMode": "lexical",
+    "firstStatus": "DEGRADED_TIMEOUT",
+    "firstTotalMs": 615.433,
+    "workerPendingAtFallback": true,
+    "recoveredAfterReturnMs": 29.942599999913,
+    "workerIdleAfterCompletion": true,
+    "laterMode": "hybrid",
+    "laterStatus": "WARM",
+    "laterTotalMs": 503.993,
+    "nextStartedIdle": true,
+    "noBlindRetry": true,
+    "lateModelResultWasNotInjectedIntoReturnedLexicalSnapshot": true,
+    "futureOutcomeForNaturalCase": "NOT_SEPARATELY_RECORDED"
+  },
+  "controlledRecovery": {
+    "demonstrated": true,
+    "realHttp": true,
+    "fakeVectors": false,
+    "forcedCompletionDelay": true,
+    "naturalModelLatencyEvidence": false,
+    "includedInP95": false,
+    "busyObserved": true,
+    "lateFutureOutcome": "EMPTY_ABANDONED_RESULT",
+    "idleAfterCompletion": true,
+    "subsequentRealQueryMode": "hybrid",
+    "subsequentRealQueryStatus": "WARM"
+  },
+  "residency": {
+    "initialModels": [],
+    "bgePreparedOutsideTurn": true,
+    "preparationMs": 21313.36229999988,
+    "ollamaPreparationLoadDurationNs": 15295862200,
+    "bgeResidentBeforeAndAfterMeasurement": true,
+    "otherModelsResident": false,
+    "ollamaReportedSizeVramBytes": 664000265,
+    "physicalVramPeak": "NOT_MEASURED",
+    "modelRunnerPeakRSS": "NOT_MEASURED",
+    "chatCoexistence": "NOT_EVALUATED",
+    "productionTurnColdLoadingIntroduced": false
+  },
+  "regression": {
+    "restricted": {
+      "passed": 546,
+      "failed": 125,
+      "seconds": 61.23,
+      "exitCode": 1,
+      "preserved": true,
+      "class": "EXECUTION_CONTEXT_PERMISSION_FAILURE",
+      "proof": "Same fixture Path.resolve(strict=True) fails with WinError5 restricted and succeeds native."
+    },
+    "native": {
+      "passed": 671,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 64.74,
+      "exitCode": 0
+    },
+    "afterHarnessNative": {
+      "passed": 679,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 58.88,
+      "exitCode": 0
+    }
+  },
+  "evidence": {
+    "report": "docs/memory_v1/m8_bge_ops_evidence/operational_report.json",
+    "reportSha256": "11c33c3e78a714cf9faedea402de1c26394d8d5d844c7d7ea79cbd8f63f266ec",
+    "assessment": "docs/memory_v1/m8_bge_ops_evidence/assessment.json",
+    "restrictedBaselinePreserved": true,
+    "pathProbe": "docs/memory_v1/m8_bge_ops_evidence/path_probe.json",
+    "rawReportUnmodified": true,
+    "dbCopiedToRepository": false
+  },
+  "gate": {
+    "classificationEndpoint": "OPERATIONALLY_ADEQUATE",
+    "classificationFullPipeline": "OPTIONAL_DEGRADED_PERFORMANCE_ONLY",
+    "fullPipelineP95AtMost350": false,
+    "strictHardAtMost600": false,
+    "workerRecoveryDemonstrated": true,
+    "permanentBusyObserved": false,
+    "semanticQuality": "NOT_EVALUATED_IN_THIS_ITERATION",
+    "historicalHeldoutReinterpreted": false,
+    "e2e": "NOT_RUN_OUT_OF_SCOPE",
+    "standaloneQualityGateStillUnclosed": true,
+    "result": "M8_PARTIAL_NOT_READY"
+  },
+  "constraints": {
+    "productChanged": false,
+    "schemasChanged": false,
+    "migrationsChanged": false,
+    "coreChanged": false,
+    "securityChanged": false,
+    "configChanged": false,
+    "ciChanged": false,
+    "rrfChanged": false,
+    "similarityFloorChanged": false,
+    "datasetHistoricalChanged": false,
+    "goldChanged": false,
+    "thresholdsChanged": false,
+    "deadlinesChanged": false,
+    "qwenRetested": false,
+    "otherModelTested": false,
+    "download": false,
+    "globalOllamaGpuChange": false,
+    "unloadOrKeepAliveChange": false,
+    "cloud": false,
+    "personalData": false,
+    "commit": false,
+    "push": false,
+    "tagsChanged": false,
+    "ready": false
+  },
+  "decisions": {
+    "newlyResolved": [],
+    "remaining": "Final backend-quality/E2E closure remains unresolved; no quality rerun or new model is authorized by this characterization."
+  },
+  "changes": [
+    "tests/memory_v1/run_m8_bge_operational.py",
+    "tests/memory_v1/test_m8_bge_operational.py",
+    "tests/memory_v1/fixtures/m8_bge_operational_v1.json",
+    "docs/memory_v1/m8_bge_operacional_resultados.md",
+    "docs/memory_v1/m8_bge_operacional_manifest.json",
+    "docs/memory_v1/m8_bge_ops_evidence/*"
+  ],
+  "commands": {
+    "runtime": "C:/Users/joseh/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe",
+    "pytestSite": "C:/Users/joseh/AppData/Roaming/Python/Python314/site-packages",
+    "baselineRestricted": "-B -m tests.memory_v1.run_regression --mode m0 --extra-test-site <pytestSite> --output <private>/m8_bge_ops_baseline_20261006",
+    "baselineNative": "-B -m tests.memory_v1.run_regression --mode m0 --extra-test-site <pytestSite> --output <private>/m8_bge_ops_baseline_native_20261006",
+    "contractsNative": "-B -m tests.memory_v1.run_regression --mode m0 --extra-test-site <pytestSite> --output <private>/m8_bge_ops_contracts_native_20261006",
+    "characterizationNative": "-B -m tests.memory_v1.run_m8_bge_operational --freeze docs/memory_v1/m8_bge_ops_evidence/freeze.json --output <private>/m8_bge_operational_once_20261006",
+    "exactRegressionArguments": "Stored in each *_run.json",
+    "characterizationExitCode": 0,
+    "characterizationRuns": 1
+  },
+  "artifactHashes": [
+    {
+      "path": "tests/memory_v1/run_m8_bge_operational.py",
+      "sha256": "e299217fb7e36cb62d3cca74d9e579d0469d452f0283cdf53676550c9b6e28cd"
+    },
+    {
+      "path": "tests/memory_v1/test_m8_bge_operational.py",
+      "sha256": "4a636f6c3a9fec56efa8d5c91728ba0aec05e46485a2a1ce311f70c189091cd8"
+    },
+    {
+      "path": "tests/memory_v1/fixtures/m8_bge_operational_v1.json",
+      "sha256": "6f597123ee4e03a3da3d1286aa188d205f71ffd54de5e1fa03178bcadd50a2db"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_operacional_resultados.md",
+      "sha256": "12301ecb7cab625d9e4f1ae3b1ce99cfe88788d6528ba5e843b9716b72447561"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/assessment.json",
+      "sha256": "a07ab8aed689a0e70250a1cbcaedeaf26187acbb2b1bc6f7a7dec4bb5ec589c5"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/freeze.json",
+      "sha256": "f5a36af935a62b5f24c2d85bd6c688a0f22c825a0bad8a7d55396f1bd5919dfa"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/initial_hashes.json",
+      "sha256": "b3d3aed215ca1ec0bc8c4cd233c485d09725072f8a077f1498a9b45efb7d2809"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/native_baseline_run.json",
+      "sha256": "c8cafea311af975eedc1b1db218a277ca86651d8f0c5bce5ea1b4cb9b2b9a4bf"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/native_baseline_run.log",
+      "sha256": "525f0e3cc2682a55467f8d1b98f68ef4f9b89ba78bcf91ae89fcc115848bd3f2"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/native_baseline_tests.xml",
+      "sha256": "47401e0a92e363432e19d1e1f95190cd99d3cd685343473adfb8092828254fda"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/native_contracts_run.json",
+      "sha256": "1c9edd77f43a39511d4e53dd78c06724c3def5e38e156f912b21ee2ed4bac05d"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/native_contracts_run.log",
+      "sha256": "16936d57cfbf9943a788cc50b0e38f255cac04e9c45f50bc2cb315766e797d86"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/native_contracts_tests.xml",
+      "sha256": "c801adcdf383cc45318769fc34958d12ff8b7837fcbda349284d2d8d183af056"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/operational_report.json",
+      "sha256": "11c33c3e78a714cf9faedea402de1c26394d8d5d844c7d7ea79cbd8f63f266ec"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/path_probe.json",
+      "sha256": "56f26d894d03ce60f8e12c445973e5a4c95a17c0828066f3b9408bb422dc6bd1"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/restricted_baseline_run.json",
+      "sha256": "71676a3958808c5b82ce8c742d5f0feeb806335ceb68a90cfd66e0dd86769459"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/restricted_baseline_run.log",
+      "sha256": "0d811b325b628510165f9039a823b6c34c74c5e29287bc1b2bd1b3a0d085c01a"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/restricted_baseline_tests.xml",
+      "sha256": "1d80ca45918e8bd363848e9c4fc49416bc3c14c002180bf7cedd9342ab3bdc9b"
+    }
+  ]
+}

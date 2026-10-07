@@ -25,6 +25,43 @@ function event(ctx, sequence, kind, payload = {}, extra = {}) {
       turnId: 'turn', generationId: 'generation', kind, payload, stateRevision: 1, ...extra } })
 }
 
+test('64K numeric backend metadata needs no preset enum or Desktop authority', () => {
+  const snapshot = state(1, {
+    modelRuntime: { modelId: 'synthetic:high-capacity', providerId: 'ollama', providerRevision: 1,
+      modelContextWindow: 65536, providerContextWindow: 131072 },
+    turns: [{ turnId: 'turn', status: 'completed', contextReports: [{ rule: 'context_budget',
+      budget: { selected_context_window: 65536, output_reserve: 4096, safety_margin: 6554,
+        selection_verified: true, selection_reason: 'manual_verified' } }] }],
+  })
+  const c = setup(snapshot)
+  assert.equal(c.client.view.status.ready, true)
+  assert.equal(c.client.view.status.model, 'synthetic:high-capacity')
+  assert.equal(c.client.view.error, null)
+  assert.equal(snapshot.turns[0].contextReports[0].budget.selected_context_window, 65536)
+  assert.equal(c.sent.filter(f => f.type === 'application_command').length, 0)
+})
+
+test('Desktop preserves typed manual context rejection from Application', async () => {
+  const c = setup()
+  const pending = c.client.command('SubmitUserInput', { content: 'synthetic' }, 'cmd-64k')
+  const id = c.sent.at(-1).id
+  const error = { code: 'CONTEXT_LIMIT_EXCEEDED', message: 'Manual preset exceeds a known limit' }
+  c.client.receive({ type: 'application_result', id,
+    data: { schemaVersion: 1, commandId: 'cmd-64k', accepted: false, createdIds: {}, error } })
+  assert.deepEqual((await pending).error, error)
+  assert.deepEqual(c.client.view.error, error)
+})
+
+test('M4 remote memory notice comes from backend config, not transcript or renderer consent', () => {
+  const snapshot = state(1, { services: { rag: { enabled: false, availability: 'DISABLED' },
+    memory: { lexicalRecall: true, semantic: false, autoCapture: false, allowRemoteMemoryInjection: true } } })
+  const c = setup(snapshot)
+  assert.match(c.client.view.memoryNotice, /Selected memories may leave this host/)
+  assert.equal(c.client.view.messages.some(m => m.content.includes('MEMORY CONTEXT')), false)
+  assert.equal(c.sent.filter(f => f.type === 'application_command').length, 0)
+  assert.equal(setup().client.view.memoryNotice, null)
+})
+
 test('snapshot reconstructs the single live chat, tool view and Unicode', () => {
   const c = setup()
   assert.equal(c.client.view.messages.length, 2)

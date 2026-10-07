@@ -126,7 +126,7 @@ class BoundModelRuntime:
         if model != self.snapshot.model_id:
             raise ProviderTransitionError("MODEL_SNAPSHOT_CONFLICT", "Model does not match snapshot", "MODEL")
         merged = self._kwargs(kwargs)
-        messages = self._redactor.messages(messages) if self._redactor else messages
+        messages = self._inference_messages(messages,merged)
         prepared = self._prepare(messages, merged)
         stream = self._provider.chat_stream(model, prepared.messages if prepared else messages, **merged)
         streams = {key: self._redactor.stream() for key in ('content', 'thinking')} if self._redactor else {}
@@ -168,7 +168,7 @@ class BoundModelRuntime:
         if model != self.snapshot.model_id:
             raise ProviderTransitionError("MODEL_SNAPSHOT_CONFLICT", "Model does not match snapshot", "MODEL")
         merged = self._kwargs(kwargs)
-        messages = self._redactor.messages(messages) if self._redactor else messages
+        messages = self._inference_messages(messages,merged)
         prepared = self._prepare(messages, merged)
         try:
             result = self._provider.chat(model, prepared.messages if prepared else messages, **merged)
@@ -179,6 +179,14 @@ class BoundModelRuntime:
         if prepared is not None:
             self._context.observe(result, prepared.budget)
         return self._redactor.value(result) if self._redactor else result
+
+    def _inference_messages(self,messages,kwargs):
+        from local_cli.application.context import WorkingMessages
+        if self._context is not None and self._context.memory_source is not None:
+            self._context.memory_source()
+        if self._context is not None and isinstance(messages,WorkingMessages):
+            return messages.inference_source(self._context.manager,kwargs.get('tools') or (),self._redactor)
+        return self._redactor.messages(messages) if self._redactor else messages
 
     def _prepare(self, messages, kwargs):
         if self._context is None:

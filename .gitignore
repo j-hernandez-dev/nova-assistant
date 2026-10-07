@@ -42,6 +42,20 @@ ENV/
 # Local RAG index (project data, not source)
 rag_index.db*
 
+# Local MEMORY fixture state (not certification reports or datasets)
+/docs/memory_v1/**/pytest-private/
+/docs/memory_v1/**/private/
+/docs/memory_v1/**/state/
+/docs/memory_v1/**/*.db
+/docs/memory_v1/**/*.db-wal
+/docs/memory_v1/**/*.db-shm
+/docs/memory_v1/**/*.sqlite
+/docs/memory_v1/**/*.sqlite3
+/docs/memory_v1/**/audit/*.lease
+/docs/memory_v1/**/audit/rotation.lock
+# Standalone seed audits are runtime output, not the certified E2E audits.
+/docs/memory_v1/m8_core_evidence/standalone_v1/**/audit/
+
 # Node and Electron generated files
 node_modules/
 /desktop/dist/
