@@ -5,6 +5,11 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/j-hernandez-dev/nova-assistant/actions/workflows/nova_core_v1.yml"><img src="https://github.com/j-hernandez-dev/nova-assistant/actions/workflows/nova_core_v1.yml/badge.svg?branch=main" alt="Nova Core V1 gates"></a>
+  <a href="https://github.com/j-hernandez-dev/nova-assistant/actions/workflows/nova_memory_v1.yml"><img src="https://github.com/j-hernandez-dev/nova-assistant/actions/workflows/nova_memory_v1.yml/badge.svg?branch=main" alt="Nova Memory V1 gates"></a>
+</p>
+
+<p align="center">
   <a href="#what-is-nova">Overview</a> &nbsp;·&nbsp;
   <a href="#features">Features</a> &nbsp;·&nbsp;
   <a href="#quick-start">Quick Start</a> &nbsp;·&nbsp;
@@ -32,23 +37,26 @@ Nova builds on Local CLI. The Python package, module, and executable still use `
 - **Work with real project tools.** Read, write, and edit files; search paths and contents; run host-shell commands; and fetch public web pages.
 - **Keep the model and execution separate.** The model proposes tool calls. Application services evaluate policy, request approval when needed, and return actual tool results.
 - **Use one backend across interfaces.** Desktop and CLI use the same Application services for session management, model selection, tool execution, approvals, and persistence.
+- **Carry relevant memory between sessions.** MEMORY Core stores scoped preferences and facts locally, retrieves them through exact/lexical search, and supports explicit correction and forgetting. Retrieved memory is bounded context, not execution authority.
 - **Support local models.** A deterministic harness helps recover malformed tool calls, detect repetition, and manage context. It does not guarantee that a model will complete every task correctly.
 - **Add project context when needed.** Optional RAG provides project retrieval. It is not long-term conversational memory, and its absence does not prevent normal chat.
 - **Track work and delegate within scope.** Task lists, user questions, and capability-gated subagents use the same execution and authority rules.
 - **Keep Git optional.** Conversation, native shell execution, and supported file tools do not require Git or Git Bash.
 - **Make lifecycle observable.** Session persistence, operation status, cancellation reporting, and a local security audit support diagnosis without presenting uncertain effects as success.
 
-The current Core V1 scope has one main active agent session. Multiple chats, voice, external connectors, and long-term conversational memory are not part of this stage.
+The current Core V1 scope has one main active agent session. Multiple concurrent main chats, voice, and external connectors are not part of this stage. Persistent MEMORY is separate from the conversation transcript and project RAG.
 
 ---
 
 ## Project status
 
-At the latest evaluated baseline, Nova Core V1 is implemented and the **SECURITY V1.2 product gate is closed**: `NOVA_SECURITY_V1_2_READY = true`.
+Nova Core V1 is implemented, **SECURITY V1.2 is READY**, and **MEMORY V1 is READY** with `MEMORY_CORE=READY` and `SEMANTIC_PROFILE=NOT_CERTIFIED`.
 
 The validated scope is **Windows 11 + local NTFS + `HOST_UNISOLATED`**. Linux and macOS are **not certified** by this evaluation. This is a scoped product-quality gate, not an external security certification or a guarantee about future changes.
 
-The historical single-turn `qwen2.5:7b` failure remains recorded as a non-blocking model-behavior limitation. A passing gate does not mean every prompt or model behaves reliably. See the [READY evaluation](docs/security_v12/nova_security_v12_ready.md) for the exact evidence and limitations.
+MEMORY Core covers local persistence, subject/workspace scopes, correction/supersession, forgetting with no-resurrection, conflicts/temporal handling, secret/sensitivity policy, and bounded MemoryCapsules. Real local-model E2E was validated at 4K/8K/16K on the published model and host. Advanced 32K/64K budgeting contracts are tested; real LLM inference at those sizes is not certified. Semantic and cross-language recall are not certified, and embeddings are not required for exact/lexical memory.
+
+The historical single-turn `qwen2.5:7b` failure remains recorded as a non-blocking model-behavior limitation. A passing gate does not mean every prompt or model behaves reliably. See the [Security READY evaluation](docs/security_v12/nova_security_v12_ready.md) and [Memory READY evaluation](docs/memory_v1/memory_v1_ready_resultados.md) for the evidence and limitations. CI regression on Linux/macOS does not extend the certified host-real scope.
 
 > Nova does not provide a sandbox or process isolation. Commands run with your account's normal permissions. Review proposed actions and verify their results.
 
@@ -65,7 +73,7 @@ For the currently validated workflow:
 - Ollama running locally, with a model already installed that can handle tool use and fits your available resources.
 - Node.js and npm if you want to develop or run Desktop from source.
 
-The Python package has no third-party runtime dependencies. Ollama is still a required runtime for local inference; Desktop has its own dependencies.
+The base Python package has no third-party runtime dependencies; MEMORY Core uses the standard-library SQLite/FTS adapter. The optional `memory-semantic` extra adds NumPy for vector contracts and infrastructure, not a certified Semantic Profile. Nova does not automatically download models. Ollama is still a required runtime for local inference; Desktop has its own dependencies.
 
 ### Get the source
 
@@ -113,6 +121,7 @@ Review file changes and command results before relying on them. Natural-language
 | `/status` | Inspect the current model and session status. |
 | `/models` | Open the model selector. |
 | `/model <name>` | Request a model change between turns. |
+| `/memory help` | Show memory inspection, remember, correct, forget, and proposal commands. |
 | `/exit` | Leave the CLI. |
 
 Use `python -m local_cli --help` for startup options. Model and provider changes are rejected while a main turn is active; they do not silently interrupt ongoing work.
@@ -151,6 +160,7 @@ Nova separates consent, policy, and mediated tool access from the permissions of
 - **`web_fetch` has a separate public-only contract.** It allows public HTTP(S) destinations and revalidates DNS and redirects. Private, loopback, link-local, special destinations, and `file://` are denied. This is not a firewall for shell, Git, or provider traffic.
 - **Environment handling and audit have explicit limits.** Nova filters deliberate environment inheritance and redacts known secrets. Audit is local and durable, but not tamper-proof against the host account or a record of every effect inside a shell process.
 - **Cancellation is best-effort.** Requesting cancellation does not prove termination or rollback. Uncertain outcomes remain uncertain and are not automatically retried.
+- **Memory remains untrusted data.** Memories cannot issue grants or override system/security instructions. Forgetting removes Nova-owned memory and invalidates its retrieval, not source conversations, security audit, external logs, or backups. It is not secure erase or universal encryption.
 
 Output limits, timeouts, and concurrency limits are operational controls—not OS quotas or isolation. See [product limits](docs/security_v12/s8_limits.md) for the full, surface-specific contract.
 
@@ -164,8 +174,10 @@ This README is the project entry point. Detailed architecture, decisions, and va
 |---|---|
 | [Nova Core V1](docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md) | Backend boundaries, session lifecycle, providers, tools, and shared interfaces. |
 | [SECURITY V1.2](docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md) | Security contracts, implementation stages, and the normative gate. |
+| [MEMORY V1](docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md) | Memory identity/scope, persistence, policies, retrieval, budgeting, and profile gates. |
 | [Product limits](docs/security_v12/s8_limits.md) | What is enforced on each surface—and what is not. |
-| [READY evaluation](docs/security_v12/nova_security_v12_ready.md) · [Manifest](docs/security_v12/nova_security_v12_ready_manifest.json) | Validated scope, evidence, historical failures, and traceability. |
+| [Security READY evaluation](docs/security_v12/nova_security_v12_ready.md) · [Manifest](docs/security_v12/nova_security_v12_ready_manifest.json) | Security scope, evidence, historical failures, and traceability. |
+| [Memory READY evaluation](docs/memory_v1/memory_v1_ready_resultados.md) · [Manifest](docs/memory_v1/memory_v1_ready_manifest.json) | MEMORY Core certification, Semantic Profile limitations, and M0-M8 evidence. |
 
 The detailed architecture and validation documents are currently written in Spanish.
 
@@ -173,15 +185,24 @@ The detailed architecture and validation documents are currently written in Span
 
 ## Development and Tests
 
-The Python regression suite uses pytest:
+GitHub Actions separates two workflow groups:
+
+- **Nova Core V1 gates:** native Core/contract regression on Windows, Ubuntu, and macOS, plus the Windows/NTFS Security gate.
+- **Nova Memory V1 gates:** `memory-core` on the same three operating systems, plus `memory-windows-ntfs`. The portable checks cover MEMORY contracts; the Windows check also verifies supported local NTFS roots and integrated Core/Application regression. Neither runs real Ollama/embeddings nor certifies Semantic Profile or Linux/macOS host-real support.
+
+For a local MEMORY regression, install test dependencies in your chosen development environment and use a **new output directory outside every Git workspace**:
 
 ```powershell
-python -m pytest tests/ -q
+python -m pip install -e ".[memory-semantic]" pytest pytest-subtests
+$memoryRun = Join-Path $env:TEMP ("nova-memory-tests-" + [guid]::NewGuid().ToString("N"))
+python -B -m tests.memory_v1.run_regression --mode m0 --output $memoryRun
 ```
 
-Install pytest in your development environment before running it. Desktop checks live under [desktop/tests](desktop/tests), and Python tests under [tests](tests).
+The historical `m0` mode runs the entire current MEMORY test directory, including M1-M8. It isolates profile/config/state, SQLite, audit, logs, and pytest temporaries under the output directory. NumPy enables synthetic vector tests; no real embedding model is required. On supported Windows/NTFS, `--mode m4` adds the focused Core/Application regression. `--mode head` reproduces the current native CI selection, preserving documented historical/legacy exclusions rather than treating a blanket `pytest tests/` run as the HEAD gate.
 
-Host-real and local-model E2E checks have separate prerequisites and evidence. A default regression run alone is not proof that the full SECURITY gate passes; consult the READY evaluation for the distinction between unit, contract, integration, and host-real results.
+The workflow selections live in [.github/workflows](.github/workflows). Desktop checks live under [desktop/tests](desktop/tests), and Python tests under [tests](tests).
+
+Host-real and local-model E2E campaigns have separate prerequisites, authorization, and evidence. Normal CI does not repeat READY certification or real-model quality measurements. `SEMANTIC_PROFILE=NOT_CERTIFIED` remains explicit; passing synthetic adapter contracts is not a semantic-quality PASS. Consult the READY evaluations for the distinction between unit, contract, integration, host-real, and real-model E2E results.
 
 When contributing, keep execution decisions in Application, preserve the shared CLI/Desktop backend, and include tests for the behavior you change. New platforms or security claims need their own validation.
 
@@ -189,4 +210,4 @@ When contributing, keep execution decisions in Application, preserve the shared 
 
 ## License
 
-MIT, as declared in [pyproject.toml](pyproject.toml).
+MIT. See [LICENCE](LICENCE) for the license text.

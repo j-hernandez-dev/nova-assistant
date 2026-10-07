@@ -1,0 +1,103 @@
+name: Nova Memory V1 gates
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+# Regression of the certified Core contracts, not a new READY evaluation.
+# Hosted CI never runs the real-model E2E campaign or certifies Semantic Profile.
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  NOVA_MEMORY_SEMANTIC_PROFILE: NOT_CERTIFIED
+
+jobs:
+  memory-core:
+    name: memory-core (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        # Preserve frozen fixture/source hashes; process-local, not global config.
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      # NumPy enables synthetic vector contracts, NOT real embedding inference.
+      - run: python -m pip install -e ".[memory-semantic]" pytest pytest-subtests
+      - name: Require temporary state outside any Git workspace
+        run: >-
+          python -B -c "import os,subprocess; from pathlib import Path;
+          root=Path.cwd().resolve(); temp=Path(os.environ['RUNNER_TEMP']).resolve(strict=True);
+          assert not temp.is_relative_to(root), 'Temporary state inside checkout';
+          result=subprocess.run(['git','-C',str(temp),'rev-parse','--show-toplevel'],capture_output=True,text=True);
+          assert result.returncode!=0, 'Temporary state inside a Git working tree'"
+      - name: Portable MEMORY contract regression (no real models)
+        # The historical m0 mode selects ALL of tests/memory_v1, including M1-M8.
+        # No platform exclusions or skip/xfail additions; native failures fail CI.
+        run: >-
+          python -B -m tests.memory_v1.run_regression --mode m0
+          --output "${{ runner.temp }}/nova-memory-core"
+      - name: Report gate scope
+        if: always()
+        run: >-
+          python -B -c "import os; from pathlib import Path;
+          assert os.environ['NOVA_MEMORY_SEMANTIC_PROFILE']=='NOT_CERTIFIED';
+          summary='MEMORY Core portable contract regression only.\n\nSEMANTIC_PROFILE=NOT_CERTIFIED. Real Ollama/embedding E2E: NOT_RUN. Linux/macOS host-real certification: NOT_CLAIMED. No sandbox/process isolation.\n';
+          print(summary); Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(summary,encoding='utf-8')"
+
+  memory-windows-ntfs:
+    name: memory-windows-ntfs
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e ".[memory-semantic]" pytest pytest-subtests
+      - name: Require temporary state outside any Git workspace
+        run: >-
+          python -B -c "import os,subprocess; from pathlib import Path;
+          root=Path.cwd().resolve(); temp=Path(os.environ['RUNNER_TEMP']).resolve(strict=True);
+          assert not temp.is_relative_to(root), 'Temporary state inside checkout';
+          result=subprocess.run(['git','-C',str(temp),'rev-parse','--show-toplevel'],capture_output=True,text=True);
+          assert result.returncode!=0, 'Temporary state inside a Git working tree'"
+      - name: Require native Windows and supported local NTFS roots
+        shell: python
+        run: |
+          import os
+          import platform
+          from pathlib import Path
+          from local_cli.infrastructure.windows_filesystem import WindowsFilesystemBroker
+
+          assert os.name == 'nt', 'Windows native host required'
+          broker = WindowsFilesystemBroker()
+          try:
+              for path in (Path.cwd(), Path(os.environ['RUNNER_TEMP'])):
+                  assert broker.bind_root(path.resolve()).identity
+              print(platform.platform())
+              print('Windows + local NTFS + HOST_UNISOLATED; no sandbox/process isolation')
+          finally:
+              broker.close()
+      - name: Windows NTFS MEMORY and Core integration regression (no real models)
+        # Includes native SQLite WAL/FTS, process crash/locking/recovery, audit,
+        # common CLI/JSONL Application paths, context and RAG regression.
+        run: >-
+          python -B -m tests.memory_v1.run_regression --mode m4
+          --output "${{ runner.temp }}/nova-memory-windows-ntfs"
+      - name: Report gate scope
+        if: always()
+        run: >-
+          python -B -c "import os; from pathlib import Path;
+          assert os.environ['NOVA_MEMORY_SEMANTIC_PROFILE']=='NOT_CERTIFIED';
+          summary='MEMORY Core regression for Windows + local NTFS + HOST_UNISOLATED.\n\nSEMANTIC_PROFILE=NOT_CERTIFIED. Real Ollama/embedding E2E: NOT_RUN. No sandbox/process isolation. This CI run does not replace the published Windows 11 READY evaluation.\n';
+          print(summary); Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(summary,encoding='utf-8')"
