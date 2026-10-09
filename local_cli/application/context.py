@@ -129,6 +129,9 @@ class InferenceContext:
     def __init__(self, manager: ContextManager, capabilities, report: Callable = lambda _: None):
         self.manager, self.capabilities, self.report = manager, capabilities, report
         self.memory_source=None
+        self.knowledge_source=None
+        self.knowledge_output=False
+        self.turn_effect_constraints=None
 
     def prepare(self, messages, tools):
         prepared = self.manager.prepare(messages, tools or ())

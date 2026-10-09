@@ -139,6 +139,7 @@ class AgentTool(Tool):
         network_service=None,
         redactor=None,
         security_audit=None,
+        turn_effect_constraints=None,
         **kwargs: object,
     ) -> str:
         """Spawn a sub-agent to execute the given task.
@@ -173,6 +174,14 @@ class AgentTool(Tool):
         try:
             runtime = self._model_runtime_source() if self._model_runtime_source else None
             fresh_provider = runtime.fresh() if runtime else self._create_fresh_provider()
+            # The child uses the same loop guard even with zero tools. Carry
+            # the already-resolved host reduction to its inference boundary;
+            # neither the child's prompt nor a lexical heuristic may lift it.
+            guard_context = getattr(fresh_provider, '_context', None)
+            if guard_context is not None and turn_effect_constraints is not None:
+                existing = guard_context.turn_effect_constraints
+                if existing is None or turn_effect_constraints.filesystem_mutation_denied:
+                    guard_context.turn_effect_constraints = turn_effect_constraints
         except Exception as exc:
             return f"Error: failed to create provider for sub-agent: {exc}"
 
@@ -193,6 +202,7 @@ class AgentTool(Tool):
             redactor=redactor,
             security_audit=security_audit,
         )
+        sub_agent._turn_effect_constraints = turn_effect_constraints
 
         child_operation_id = new_operation_id() if context else None
         if context is not None and child_operation_id is not None and on_started is not None:

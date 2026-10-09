@@ -231,6 +231,12 @@ def test_cli_and_server_use_identical_service_available_query_disable(tmp_path, 
 
 def test_server_rag_failure_nonfatal_and_retrieval_budget_shared(tmp_path, monkeypatch):
     class Recording(Provider):
+        def __init__(self):
+            super().__init__()
+            from types import SimpleNamespace
+            # Local inference-port double must announce its local destination.
+            # Missing/unknown endpoints are correctly denied by KI §38.
+            self.client = SimpleNamespace(base_url='http://127.0.0.1:11434')
         def chat_stream(self, model, messages, **kwargs):
             self.seen = messages
             yield from super().chat_stream(model, messages, **kwargs)
@@ -290,6 +296,10 @@ def test_cli_repl_common_rag_budget_no_retrieval_in_raw_transcript(tmp_path, mon
     from local_cli.tools.read_tool import ReadTool
     from local_cli.conversation_store import ConversationStore
     class Recording(Provider):
+        def __init__(self):
+            super().__init__()
+            from types import SimpleNamespace
+            self.client = SimpleNamespace(base_url='http://127.0.0.1:11434')
         def chat_stream(self, model, messages, **kwargs):
             self.seen = messages
             yield from super().chat_stream(model, messages, **kwargs)

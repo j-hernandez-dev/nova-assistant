@@ -2,12 +2,13 @@
 from __future__ import annotations
 
 from dataclasses import asdict
+from datetime import datetime, timezone
 import ipaddress
 import re
 from urllib.parse import urljoin, urlsplit
 
 from local_cli.core.contracts import EffectState, ToolResult, ToolStatus
-from local_cli.core.network import FetchBudget, FetchLimits, HttpFetchPort, NetworkError
+from local_cli.core.network import FetchBudget, FetchLimits, HttpFetchPort, NetworkError, FetchedSnapshot
 from local_cli.core.security import Capability, ControlClass, Permission, ResourceScope, ScopeKind, SecurityError
 
 
@@ -74,7 +75,7 @@ class NetworkFetchService:
         if not endpoints or len(endpoints) > 64 or not all(public_address(e.address) for e in endpoints):
             raise NetworkError('NETWORK_DESTINATION_DENIED')
 
-    def execute(self, invocation, grant, issuer, *, parent, validate_dispatch):
+    def execute(self, invocation, grant, issuer, *, parent, validate_dispatch, capture=None):
         url = canonical_url(invocation.arguments['url'])
         if dict(grant.request.network_intent) != self.binding(url):
             raise NetworkError('NETWORK_BINDING_MISMATCH')
@@ -123,6 +124,13 @@ class NetworkFetchService:
                     raise NetworkError('NETWORK_HTTP_ERROR')
                 text, truncated = self._text(hop, invocation.arguments.get('max_length', self.limits.published_chars))
                 budget.check()
+                if capture is not None:
+                    # Only the trusted per-call Application seam receives raw
+                    # bytes. No second fetch, ambient handler or ToolResult field.
+                    validate_dispatch()
+                    budget.check()
+                    capture(FetchedSnapshot(url, effective, datetime.now(timezone.utc),
+                        hop.content_type, hop.body, hop.truncated, hop.safe_headers))
                 return ToolResult(ToolStatus.COMPLETED, EffectState.NONE, legacy_text=text,
                     metadata=self._metadata(url, contacted, records, truncated))
             raise NetworkError('NETWORK_REDIRECT_LIMIT')

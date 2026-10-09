@@ -205,6 +205,10 @@ class JsonLineServer:
             except Exception as exc:
                 _send({"id": req_id, "type": "error", "message": str(exc)})
 
+        # EOF closes host source ownership; pending acquisition is cancelled
+        # cooperatively, not joined in the JSONL reader or declared rolled back.
+        self._app_adapter.close()
+
     def _handle_stop(self, req_id: int) -> None:
         """Compatibility frame; execution belongs exclusively to Application."""
         self._app_adapter.handle({"id": req_id, "type": "stop"})

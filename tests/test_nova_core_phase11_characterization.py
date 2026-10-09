@@ -52,10 +52,13 @@ def test_application_adapter_failure_is_typed_and_reader_continues(monkeypatch):
     server._conversation_store = SimpleNamespace(info=lambda: {})
     class FailingAdapter:
         session_id = "active"
+        closed = False
         def start(self):
             pass
         def handle(self, _request):
             raise RuntimeError("provider secret must not leak")
+        def close(self):
+            self.closed = True
     server._app_adapter = FailingAdapter()
     monkeypatch.setattr("local_cli.updater.check_for_updates", lambda: (False, ""))
     monkeypatch.setattr("local_cli.server.sys.stdin", iter((
@@ -63,6 +66,7 @@ def test_application_adapter_failure_is_typed_and_reader_continues(monkeypatch):
         json.dumps({"id": 2, "type": "status"}),
     )))
     server.run()
+    assert server._app_adapter.closed is True
     errors = [frame for frame in sent if frame.get("type") == "error"]
     assert [frame["id"] for frame in errors] == [1, 2]
     assert all(frame["code"] == "APPLICATION_ADAPTER_FAILED" and

@@ -54,6 +54,7 @@ from local_cli.spinner import Spinner
 from local_cli.token_tracker import TokenTracker
 from local_cli.tool_cache import ToolCache
 from local_cli.tools.base import Tool
+from local_cli.guard_intent import positive_build_intent, positive_file_deliverable
 
 # ---------------------------------------------------------------------------
 # Result truncation for tool output displayed to the user
@@ -728,25 +729,11 @@ def compact_messages(
 # "Use the tools" nudge
 # ---------------------------------------------------------------------------
 
-# English build/edit verbs, matched as whole words so "add" does not fire on
-# "address" nor "fix" on "prefix".
-_BUILD_KEYWORDS_EN: frozenset[str] = frozenset({
-    "create", "write", "make", "build", "implement", "generate",
-    "add", "fix", "refactor", "edit", "modify", "save", "rename",
-})
-
-# Japanese stems, matched as substrings (Japanese is not whitespace-delimited).
-_BUILD_KEYWORDS_JA: tuple[str, ...] = (
-    "作", "書", "実装", "追加", "修正", "生成", "直",
-)
-
-
 def _mentions_build_intent(user_text: str) -> bool:
     """Whether the user's request implies a file should be written or changed.
 
-    English verbs match on whole words to avoid false positives like
-    "address" (contains "add") or "prefix" (contains "fix"); Japanese stems
-    match as substrings since Japanese has no word boundaries.
+    Only conservative positive action clauses justify a reminder. This does
+    not authorize effects; host Turn reductions are consulted independently.
 
     Args:
         user_text: The most recent user message text.
@@ -754,10 +741,23 @@ def _mentions_build_intent(user_text: str) -> bool:
     Returns:
         True if the request mentions a build/edit intent.
     """
-    if any(stem in user_text for stem in _BUILD_KEYWORDS_JA):
-        return True
-    words = set(re.findall(r"[a-z]+", user_text.lower()))
-    return bool(words & _BUILD_KEYWORDS_EN)
+    return positive_build_intent(user_text)
+
+
+def _filesystem_reminders_allowed(provider, tools) -> bool:
+    """Read host-owned effect reductions, independently of lexical detection.
+
+    Explicit adapter properties only (not dynamic provider/model attributes).
+    Every available boundary must allow the reminder; failure is conservative.
+    ToolRuntime still independently authorizes/denies the eventual tool call.
+    """
+    for boundary in (provider, *tools):
+        if isinstance(getattr(type(boundary), 'filesystem_reminders_allowed', None), property):
+            try:
+                if boundary.filesystem_reminders_allowed is not True:return False
+            except Exception:
+                return False
+    return True
 
 
 def _last_user_text(messages: list[dict[str, Any]]) -> str:
@@ -782,6 +782,7 @@ def _should_nudge_to_use_tools(
     messages: list[dict[str, Any]],
     assistant_message: dict[str, Any],
     already_nudged: bool,
+    *, user_text: str | None = None,
 ) -> bool:
     """Decide whether to nudge the model to use tools instead of printing code.
 
@@ -803,7 +804,7 @@ def _should_nudge_to_use_tools(
     content = assistant_message.get("content", "") or ""
     if "```" not in content:
         return False
-    if not _mentions_build_intent(_last_user_text(messages)):
+    if not _mentions_build_intent(_last_user_text(messages) if user_text is None else user_text):
         return False
     if _wrote_file_this_turn(messages):
         return False
@@ -1161,6 +1162,12 @@ def run_agent(
         ProviderStreamError: Only when *raise_provider_errors* is set.
     """
     hc = harness or HarnessConfig()
+    # Capture once, before any harness message. Managed contexts hold the
+    # original current input, not an optional capsule or a later reminder.
+    context = getattr(provider, '_context', None)
+    current_user_text = (getattr(getattr(context, 'manager', None), 'current_message', None)
+                         if getattr(type(provider), 'context_managed', None) is not None else None)
+    if not isinstance(current_user_text, str):current_user_text = _last_user_text(messages)
     tool_map: dict[str, Tool] = {t.name: t for t in tools}
     if isinstance(provider, LLMProvider):
         tool_defs: list[dict[str, Any]] = provider.format_tools(tools)
@@ -1189,6 +1196,7 @@ def run_agent(
     tools_disabled = False  # endpoint rejected tools; text-driven fallback
     final_content = ""
     iteration = 0
+    filesystem_attempted = False
 
     # Read-before-edit gate state: files any read/write/edit has
     # addressed so far (seeded from the conversation history), plus the
@@ -1377,8 +1385,11 @@ def run_agent(
                 emit(AgentEvent("rescue", {"count": len(rescued)}))
 
         if not tool_calls or force_final:
-            if not force_final and _should_nudge_to_use_tools(
-                messages, assistant_message, nudged,
+            # A harness follow-up is not a new user Turn. Preserve the existing
+            # write/edit-attempt guard across error-stop/reminder messages too.
+            filesystem_attempted |= _wrote_file_this_turn(messages)
+            if not force_final and not filesystem_attempted and _filesystem_reminders_allowed(provider, tools) and _should_nudge_to_use_tools(
+                messages, assistant_message, nudged, user_text=current_user_text,
             ):
                 # On the no-tool-support fallback the standard "call the
                 # write tool" wording is meaningless — restate the
@@ -1424,8 +1435,9 @@ def run_agent(
                 not force_final
                 and hc.deliverable_guard
                 and not deliverable_nudged
-                and mentions_file_deliverable(_last_user_text(messages))
-                and _mentions_build_intent(_last_user_text(messages))
+                and not filesystem_attempted
+                and _filesystem_reminders_allowed(provider, tools)
+                and positive_file_deliverable(current_user_text, mentions_file_deliverable)
                 and not _wrote_file_this_turn(messages)
             ):
                 messages.append(deliverable_missing_message())

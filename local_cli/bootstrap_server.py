@@ -11,6 +11,7 @@ from local_cli.harness import HarnessConfig
 from local_cli.config import Config
 from local_cli.audit_config import create_security_audit
 from local_cli.memory_config import memory_factory,memory_extractor_factory
+from local_cli.bootstrap_knowledge import knowledge_factory
 from local_cli.application.context import bind_context, policy_from_config
 from local_cli.application.persistence import create_persistence_service
 from local_cli.application.rag import RAGService, create_rag_service
@@ -187,6 +188,8 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
     from local_cli.application.commands import ApplicationCommand, CommandKind
     from local_cli.core.contracts import new_command_id
     from local_cli.interfaces.jsonl_application import JsonlApplicationAdapter
+    from local_cli.bootstrap_passive_web import passive_web_tools
+    self._tools = passive_web_tools(self._tools,self._config)
 
     def inference_options() -> dict[str, Any]:
         if self._provider.name != "ollama":
@@ -207,6 +210,7 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
         return result
 
     self._application = AgentSessionCoordinator(
+        knowledge_factory=knowledge_factory(self._config.state_dir),
         memory_factory=memory_factory(self._config.state_dir,
             embedding_model=getattr(self._config,'memory_embedding_model',''),
             embedding_endpoint=getattr(self._config,'memory_embedding_endpoint','http://127.0.0.1:11434'),

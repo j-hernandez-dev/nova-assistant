@@ -1,0 +1,2390 @@
+{
+  "schemaVersion": 1,
+  "name": "K8 Post-Certification Remediation — Multi-source Conflict Retrieval",
+  "verdict": "K8 POST-CERT REMEDIATION PARTIAL",
+  "complete": false,
+  "at": "2026-10-08T12:18:02.645375-06:00",
+  "originalCampaign": {
+    "status": "CLOSED",
+    "verdict": "K8 PARTIAL — FINAL CERTIFICATION RESULT: 13/14",
+    "sourceConflict": "FAIL / RETRIEVAL_FAILURE",
+    "repeatConsumed": true,
+    "originalE2ERepeated": false,
+    "retrospectivePass": false
+  },
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "dirty": true,
+    "preflight": {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\preflight.json",
+      "sha256": "2ffc23cc540e271980892766363c8a177c81f8b90d51b48c2f361a4e23ab873e"
+    },
+    "repositoryFiles": 1941,
+    "passingTests": 79,
+    "stagingEmpty": true,
+    "tagsUnchanged": true,
+    "interruptedOwnDeltaRemoved": true
+  },
+  "runtime": {
+    "executable": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe",
+    "version": "3.14.6",
+    "pypdf": "6.19.0",
+    "extraTestSite": "C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies",
+    "privateRunners": true,
+    "pytestDisablePluginAutoload": true,
+    "pytestCacheDisabled": true,
+    "outputsOutsideRepository": true,
+    "freshOutputs": true,
+    "newModelInference": false,
+    "modelsDownloaded": false,
+    "globalConfigChanged": false
+  },
+  "audit": {
+    "normativeArchitecture": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+    "protectedContractsUnchanged": [
+      "Core V1",
+      "SECURITY V1.2",
+      "MEMORY V1",
+      "prompts",
+      "UNKNOWN canonicalization",
+      "TurnEffectConstraints",
+      "deliverable guard",
+      "Desktop"
+    ],
+    "delta": [
+      {
+        "path": "local_cli/infrastructure/knowledge_query.py",
+        "before": "6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c",
+        "after": "15dd6f01ccdd8aedce0808543a9ffea68bc5866b6c857a4bce1f72c8a8886cea"
+      },
+      {
+        "path": "local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+        "before": "f8b499ed545c6ed1e12d3f5ca9dc47b3b7b3b7103bd65c6b4d1c55a655b25412",
+        "after": "a3a59bf40823fa74950e7da9ddd58837850f2098d881b2491b3d14911021c7cf"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/k8_post_cert_evidence.py",
+        "before": "6c41a5fd1cf5c16c2e1ec24c8089d68f9c869de4319c8bbec92fa11377ee802c",
+        "after": "e49e2ec7a12020091dc85076d6a22f42fb966ca83365db4ff3edc5ef1b62669b"
+      }
+    ],
+    "productChanges": [
+      {
+        "path": "local_cli/infrastructure/knowledge_query.py",
+        "before": "6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c",
+        "after": "15dd6f01ccdd8aedce0808543a9ffea68bc5866b6c857a4bce1f72c8a8886cea"
+      },
+      {
+        "path": "local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+        "before": "f8b499ed545c6ed1e12d3f5ca9dc47b3b7b3b7103bd65c6b4d1c55a655b25412",
+        "after": "a3a59bf40823fa74950e7da9ddd58837850f2098d881b2491b3d14911021c7cf"
+      }
+    ],
+    "separation": [
+      "factual_spans",
+      "comparison_controls",
+      "cardinality_controls/source_cardinality/source_diversity",
+      "presentation_controls (compatible legacy output_controls view)",
+      "epistemic_controls"
+    ],
+    "sourceSelection": "Scoped/current FTS -> identical strict lexical floor and identifier checks -> BM25 ordered row_number per sourceId before cap32 -> distinct-source first lexical ranking -> existing RRF/dedup/validation/final cap10 -> existing KnowledgeAdmission.stage/freeze.",
+    "lexicalFloor": ">0.5",
+    "caps": {
+      "lexical": 32,
+      "semantic": 32,
+      "merged": 24,
+      "final": 10
+    },
+    "rrfK": 60,
+    "rankingWeightsTuned": false,
+    "sourceQuotasFilledWithIrrelevant": false,
+    "unchangedConsumers": [
+      "knowledge_lexical.py",
+      "DocumentRetriever/fuse",
+      "KnowledgeService",
+      "KnowledgeAdmission",
+      "ContextManager"
+    ],
+    "pending": "Required multi-source admission remains incomplete under the frozen 4K condition; source cardinality is not a grant to exceed the shared cap."
+  },
+  "prospective": {
+    "id": "k8-post-cert-conflict-prospective-v1",
+    "frozenBeforeMeasurement": true,
+    "structuralValidationBeforeScores": true,
+    "selectionByScores": false,
+    "corpusChangedAfterOutcomes": false,
+    "goldChangedAfterOutcomes": false,
+    "scorerChangedAfterOutcomes": false,
+    "corpusSources": 24,
+    "denominators": {
+      "total": 40,
+      "positive": 20,
+      "negative": 20,
+      "multiPositive": 15,
+      "critical": 40
+    },
+    "window": 4096,
+    "windowWasProspectiveImplementationChoice": true,
+    "gates": {
+      "recallAt5": 1,
+      "precisionAt1": 1,
+      "multiSourceRequiredAdmissions": 1,
+      "abstention": 0.95,
+      "scopeCurrentDelete": 1,
+      "falseSourceExpansion": 0
+    },
+    "firstMetrics": {
+      "recallAt5": {
+        "passed": 19,
+        "total": 20,
+        "value": 0.95
+      },
+      "precisionAt1": {
+        "passed": 19,
+        "total": 20,
+        "value": 0.95
+      },
+      "multiSourceRequiredAdmissions": {
+        "passed": 10,
+        "total": 15,
+        "value": 0.6666666666666666
+      },
+      "abstention": {
+        "passed": 20,
+        "total": 20,
+        "value": 1
+      },
+      "scopeCurrentDelete": {
+        "passed": 40,
+        "total": 40,
+        "value": 1
+      },
+      "falseSourceExpansion": {
+        "count": 0,
+        "total": 40
+      }
+    },
+    "finalMetrics": {
+      "recallAt5": {
+        "passed": 20,
+        "total": 20,
+        "value": 1
+      },
+      "precisionAt1": {
+        "passed": 20,
+        "total": 20,
+        "value": 1
+      },
+      "multiSourceRequiredAdmissions": {
+        "passed": 10,
+        "total": 15,
+        "value": 0.6666666666666666
+      },
+      "abstention": {
+        "passed": 20,
+        "total": 20,
+        "value": 1
+      },
+      "scopeCurrentDelete": {
+        "passed": 40,
+        "total": 40,
+        "value": 1
+      },
+      "falseSourceExpansion": {
+        "count": 0,
+        "total": 40
+      }
+    },
+    "requiredSourcesMicro": {
+      "passed": 28,
+      "total": 33
+    },
+    "p95Ms": 10.378500010119751,
+    "performanceCertification": false,
+    "cases": [
+      {
+        "id": "pc-en-agree",
+        "gold": [
+          "pc-agree-a",
+          "pc-agree-b"
+        ],
+        "requiredSources": [
+          "pc-agree-a",
+          "pc-agree-b"
+        ],
+        "ranking": [
+          "pc-agree-a",
+          "pc-agree-b"
+        ],
+        "admitted": [
+          "pc-agree-a",
+          "pc-agree-b"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "bfd01138-e8ff-5dbb-845f-01934b50db4b",
+            "sourceKey": "pc-agree-a",
+            "revisionId": "d0016f0e-ae41-4f5c-bf20-e37ef6347925",
+            "chunkId": "67e21a76-663e-5d9e-ad21-79cd01cf1e6f",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "VELUMA10431 nozzle alloy is PCC_MAT_A31.",
+            "truncated": false
+          },
+          {
+            "sourceId": "2cf555e9-02e2-50cf-8202-0d21bf49c1fa",
+            "sourceKey": "pc-agree-b",
+            "revisionId": "f9de8d90-24c7-4caa-9bfd-fa0b02077a39",
+            "chunkId": "d1510062-d012-5070-8368-101c684f98a6",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "VELUMA10431 nozzle alloy is PCC_MAT_A31.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-conflict",
+        "gold": [
+          "pc-conflict-a",
+          "pc-conflict-b"
+        ],
+        "requiredSources": [
+          "pc-conflict-a",
+          "pc-conflict-b"
+        ],
+        "ranking": [
+          "pc-conflict-a",
+          "pc-conflict-b"
+        ],
+        "admitted": [
+          "pc-conflict-a",
+          "pc-conflict-b"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "75adfecd-3939-564e-ad50-7d35e685e6b4",
+            "sourceKey": "pc-conflict-a",
+            "revisionId": "cd93b72c-d1a0-42e6-85a1-4a0314cf2410",
+            "chunkId": "26a2a3d5-72b8-5d2f-a742-43c42678fb05",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ORVENA10542 aperture mode is PCC_MODE_B42.",
+            "truncated": false
+          },
+          {
+            "sourceId": "b1720b70-4204-549e-a899-a9a0625f9cc6",
+            "sourceKey": "pc-conflict-b",
+            "revisionId": "d82c790b-da51-4893-8bf3-ab562d423392",
+            "chunkId": "20fe5186-3217-5058-ad6e-7e1652e2b527",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ORVENA10542 aperture mode is PCC_MODE_C42.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-three",
+        "gold": [
+          "pc-triple-a",
+          "pc-triple-b",
+          "pc-triple-c"
+        ],
+        "requiredSources": [
+          "pc-triple-a",
+          "pc-triple-b",
+          "pc-triple-c"
+        ],
+        "ranking": [
+          "pc-triple-b",
+          "pc-triple-a",
+          "pc-triple-c"
+        ],
+        "admitted": [
+          "pc-triple-b",
+          "pc-triple-a"
+        ],
+        "requiredAdmitted": false,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "02dd16a1-9820-5f6c-9f5a-532603a80bc2",
+            "sourceKey": "pc-triple-b",
+            "revisionId": "2ab33847-4185-4664-b2e2-65506efef404",
+            "chunkId": "76220f29-9c55-5e16-bf69-36f2238d0448",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "TALVORA10653 beacon cadence is PCC_CAD_E53.",
+            "truncated": false
+          },
+          {
+            "sourceId": "faf5138d-a410-5a30-a198-233b34d680db",
+            "sourceKey": "pc-triple-a",
+            "revisionId": "621c42ae-e42b-48ee-8e78-dff81d7f81ca",
+            "chunkId": "6d559c87-a8d1-524d-b0bb-ead04e5cde90",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "TALVORA10653 beacon cadence is PCC_CAD_D53.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-all",
+        "gold": [
+          "pc-triple-a",
+          "pc-triple-b",
+          "pc-triple-c"
+        ],
+        "requiredSources": [
+          "pc-triple-a",
+          "pc-triple-b",
+          "pc-triple-c"
+        ],
+        "ranking": [
+          "pc-triple-b",
+          "pc-triple-a",
+          "pc-triple-c"
+        ],
+        "admitted": [
+          "pc-triple-b",
+          "pc-triple-a"
+        ],
+        "requiredAdmitted": false,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "02dd16a1-9820-5f6c-9f5a-532603a80bc2",
+            "sourceKey": "pc-triple-b",
+            "revisionId": "2ab33847-4185-4664-b2e2-65506efef404",
+            "chunkId": "76220f29-9c55-5e16-bf69-36f2238d0448",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "TALVORA10653 beacon cadence is PCC_CAD_E53.",
+            "truncated": false
+          },
+          {
+            "sourceId": "faf5138d-a410-5a30-a198-233b34d680db",
+            "sourceKey": "pc-triple-a",
+            "revisionId": "621c42ae-e42b-48ee-8e78-dff81d7f81ca",
+            "chunkId": "6d559c87-a8d1-524d-b0bb-ead04e5cde90",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "TALVORA10653 beacon cadence is PCC_CAD_D53.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-two-missing",
+        "gold": [
+          "pc-only-a"
+        ],
+        "requiredSources": [
+          "pc-only-a"
+        ],
+        "ranking": [
+          "pc-only-a"
+        ],
+        "admitted": [
+          "pc-only-a"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "48b4a839-e618-5fd8-a2cc-f8fe0cfec466",
+            "sourceKey": "pc-only-a",
+            "revisionId": "db8db6bf-73cb-48f3-8e19-6b96e8f34a78",
+            "chunkId": "ecc98492-954f-50f6-9476-bc56abaafa28",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "NIVORRA10764 chamber lining is PCC_LIN_G64.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-single",
+        "gold": [
+          "pc-only-a"
+        ],
+        "requiredSources": [
+          "pc-only-a"
+        ],
+        "ranking": [
+          "pc-only-a"
+        ],
+        "admitted": [
+          "pc-only-a"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "48b4a839-e618-5fd8-a2cc-f8fe0cfec466",
+            "sourceKey": "pc-only-a",
+            "revisionId": "db8db6bf-73cb-48f3-8e19-6b96e8f34a78",
+            "chunkId": "ecc98492-954f-50f6-9476-bc56abaafa28",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "NIVORRA10764 chamber lining is PCC_LIN_G64.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-single-with-control",
+        "gold": [
+          "pc-only-a"
+        ],
+        "requiredSources": [
+          "pc-only-a"
+        ],
+        "ranking": [
+          "pc-only-a"
+        ],
+        "admitted": [
+          "pc-only-a"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "48b4a839-e618-5fd8-a2cc-f8fe0cfec466",
+            "sourceKey": "pc-only-a",
+            "revisionId": "db8db6bf-73cb-48f3-8e19-6b96e8f34a78",
+            "chunkId": "ecc98492-954f-50f6-9476-bc56abaafa28",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "NIVORRA10764 chamber lining is PCC_LIN_G64.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-es-two",
+        "gold": [
+          "pc-es-a",
+          "pc-es-b"
+        ],
+        "requiredSources": [
+          "pc-es-a",
+          "pc-es-b"
+        ],
+        "ranking": [
+          "pc-es-b",
+          "pc-es-a"
+        ],
+        "admitted": [
+          "pc-es-b",
+          "pc-es-a"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "e799d9cd-cb74-55dd-adcc-37f49cda9303",
+            "sourceKey": "pc-es-b",
+            "revisionId": "5cecb215-9267-4971-a646-0dc9271904ee",
+            "chunkId": "42ddb9cb-8891-522d-9131-6a50499fd177",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "QELORIA10875 espesor panel es PCC_ESP_L75.",
+            "truncated": false
+          },
+          {
+            "sourceId": "31ffca2d-d053-5eae-b008-e0d4f063cbef",
+            "sourceKey": "pc-es-a",
+            "revisionId": "ef7e5c26-745c-4f55-9ab6-cde1e8efc130",
+            "chunkId": "e9cec3fc-81f7-5ea9-9105-a3eaa1773c08",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "QELORIA10875 espesor panel es PCC_ESP_K75.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-es-compare",
+        "gold": [
+          "pc-es-a",
+          "pc-es-b"
+        ],
+        "requiredSources": [
+          "pc-es-a",
+          "pc-es-b"
+        ],
+        "ranking": [
+          "pc-es-b",
+          "pc-es-a"
+        ],
+        "admitted": [
+          "pc-es-b",
+          "pc-es-a"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "e799d9cd-cb74-55dd-adcc-37f49cda9303",
+            "sourceKey": "pc-es-b",
+            "revisionId": "5cecb215-9267-4971-a646-0dc9271904ee",
+            "chunkId": "42ddb9cb-8891-522d-9131-6a50499fd177",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "QELORIA10875 espesor panel es PCC_ESP_L75.",
+            "truncated": false
+          },
+          {
+            "sourceId": "31ffca2d-d053-5eae-b008-e0d4f063cbef",
+            "sourceKey": "pc-es-a",
+            "revisionId": "ef7e5c26-745c-4f55-9ab6-cde1e8efc130",
+            "chunkId": "e9cec3fc-81f7-5ea9-9105-a3eaa1773c08",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "QELORIA10875 espesor panel es PCC_ESP_K75.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-es-three",
+        "gold": [
+          "pc-es3-a",
+          "pc-es3-b",
+          "pc-es3-c"
+        ],
+        "requiredSources": [
+          "pc-es3-a",
+          "pc-es3-b",
+          "pc-es3-c"
+        ],
+        "ranking": [
+          "pc-es3-a",
+          "pc-es3-b",
+          "pc-es3-c"
+        ],
+        "admitted": [
+          "pc-es3-a",
+          "pc-es3-b"
+        ],
+        "requiredAdmitted": false,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "3557b62b-3f0d-5bfc-8ec6-94eb5d87b633",
+            "sourceKey": "pc-es3-a",
+            "revisionId": "7b74c2b3-8c04-4526-b5c4-286103b6a0f2",
+            "chunkId": "5a95bc4b-81fb-503d-a62e-5145e94f5165",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ZEVORIA10986 intervalo baliza es PCC_INT_M86.",
+            "truncated": false
+          },
+          {
+            "sourceId": "73823e41-7cb3-5537-baec-de6b748f5adf",
+            "sourceKey": "pc-es3-b",
+            "revisionId": "83f233fa-f6f6-413d-8e91-8c8bd10f5806",
+            "chunkId": "87e81b26-4654-561a-8fe1-8b37effffdaf",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ZEVORIA10986 intervalo baliza es PCC_INT_N86.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-current",
+        "gold": [
+          "pc-current-a",
+          "pc-current-b"
+        ],
+        "requiredSources": [
+          "pc-current-a",
+          "pc-current-b"
+        ],
+        "ranking": [
+          "pc-current-b",
+          "pc-current-a"
+        ],
+        "admitted": [
+          "pc-current-b",
+          "pc-current-a"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "ee8189d1-8c31-5877-8f4e-32be64d310bc",
+            "sourceKey": "pc-current-b",
+            "revisionId": "370ed91d-5a7d-4d57-b8e1-410242da463e",
+            "chunkId": "ccf52d0c-b603-501e-920b-45ec261d9446",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ELMORA11097 valve setting is PCC_SET_Q97.",
+            "truncated": false
+          },
+          {
+            "sourceId": "45a6a313-aa25-5510-8099-1b8b3a3776cd",
+            "sourceKey": "pc-current-a",
+            "revisionId": "e3953ad6-89ed-4607-b1d0-34a0b97d5d63",
+            "chunkId": "7755fa06-67c8-5ec1-a749-08293545b317",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ELMORA11097 valve setting is PCC_SET_P97.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-session",
+        "gold": [
+          "pc-session"
+        ],
+        "requiredSources": [
+          "pc-session"
+        ],
+        "ranking": [
+          "pc-session"
+        ],
+        "admitted": [
+          "pc-session"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "fee3900a-e42a-5885-b437-c2dbadd0e9b8",
+            "sourceKey": "pc-session",
+            "revisionId": "f822e248-961e-4c82-a213-af6668f595c1",
+            "chunkId": "18898971-170e-5129-a3af-b2f2afd13d29",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "CERORIA11431 gasket blend is PCC_BLE_U31.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-factual-control-words",
+        "gold": [
+          "pc-truth"
+        ],
+        "requiredSources": [
+          "pc-truth"
+        ],
+        "ranking": [
+          "pc-truth"
+        ],
+        "admitted": [
+          "pc-truth"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "b4ffd382-769c-5330-8f61-0346c9d6d930",
+            "sourceKey": "pc-truth",
+            "revisionId": "1325f9c5-201d-48c3-b7f2-358345fee7da",
+            "chunkId": "613093bc-e92b-5b5c-95e2-57088c397302",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "LERORIA11542 document truth policy is PCC_POL_V42. The term compare describes an archival field.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-ref-only-a",
+        "gold": [
+          "pc-conflict-a"
+        ],
+        "requiredSources": [
+          "pc-conflict-a"
+        ],
+        "ranking": [
+          "pc-conflict-a"
+        ],
+        "admitted": [
+          "pc-conflict-a"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "75adfecd-3939-564e-ad50-7d35e685e6b4",
+            "sourceKey": "pc-conflict-a",
+            "revisionId": "cd93b72c-d1a0-42e6-85a1-4a0314cf2410",
+            "chunkId": "26a2a3d5-72b8-5d2f-a742-43c42678fb05",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ORVENA10542 aperture mode is PCC_MODE_B42.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-ref-both",
+        "gold": [
+          "pc-conflict-a",
+          "pc-conflict-b"
+        ],
+        "requiredSources": [
+          "pc-conflict-a",
+          "pc-conflict-b"
+        ],
+        "ranking": [
+          "pc-conflict-a",
+          "pc-conflict-b"
+        ],
+        "admitted": [
+          "pc-conflict-a",
+          "pc-conflict-b"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "75adfecd-3939-564e-ad50-7d35e685e6b4",
+            "sourceKey": "pc-conflict-a",
+            "revisionId": "cd93b72c-d1a0-42e6-85a1-4a0314cf2410",
+            "chunkId": "26a2a3d5-72b8-5d2f-a742-43c42678fb05",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ORVENA10542 aperture mode is PCC_MODE_B42.",
+            "truncated": false
+          },
+          {
+            "sourceId": "b1720b70-4204-549e-a899-a9a0625f9cc6",
+            "sourceKey": "pc-conflict-b",
+            "revisionId": "d82c790b-da51-4893-8bf3-ab562d423392",
+            "chunkId": "20fe5186-3217-5058-ad6e-7e1652e2b527",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ORVENA10542 aperture mode is PCC_MODE_C42.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-citation-controls",
+        "gold": [
+          "pc-agree-a",
+          "pc-agree-b"
+        ],
+        "requiredSources": [
+          "pc-agree-a",
+          "pc-agree-b"
+        ],
+        "ranking": [
+          "pc-agree-a",
+          "pc-agree-b"
+        ],
+        "admitted": [
+          "pc-agree-a",
+          "pc-agree-b"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "bfd01138-e8ff-5dbb-845f-01934b50db4b",
+            "sourceKey": "pc-agree-a",
+            "revisionId": "d0016f0e-ae41-4f5c-bf20-e37ef6347925",
+            "chunkId": "67e21a76-663e-5d9e-ad21-79cd01cf1e6f",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "VELUMA10431 nozzle alloy is PCC_MAT_A31.",
+            "truncated": false
+          },
+          {
+            "sourceId": "2cf555e9-02e2-50cf-8202-0d21bf49c1fa",
+            "sourceKey": "pc-agree-b",
+            "revisionId": "f9de8d90-24c7-4caa-9bfd-fa0b02077a39",
+            "chunkId": "d1510062-d012-5070-8368-101c684f98a6",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "VELUMA10431 nozzle alloy is PCC_MAT_A31.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-es-no-truth",
+        "gold": [
+          "pc-es-a",
+          "pc-es-b"
+        ],
+        "requiredSources": [
+          "pc-es-a",
+          "pc-es-b"
+        ],
+        "ranking": [
+          "pc-es-b",
+          "pc-es-a"
+        ],
+        "admitted": [
+          "pc-es-b",
+          "pc-es-a"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "e799d9cd-cb74-55dd-adcc-37f49cda9303",
+            "sourceKey": "pc-es-b",
+            "revisionId": "5cecb215-9267-4971-a646-0dc9271904ee",
+            "chunkId": "42ddb9cb-8891-522d-9131-6a50499fd177",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "QELORIA10875 espesor panel es PCC_ESP_L75.",
+            "truncated": false
+          },
+          {
+            "sourceId": "31ffca2d-d053-5eae-b008-e0d4f063cbef",
+            "sourceKey": "pc-es-a",
+            "revisionId": "ef7e5c26-745c-4f55-9ab6-cde1e8efc130",
+            "chunkId": "e9cec3fc-81f7-5ea9-9105-a3eaa1773c08",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "QELORIA10875 espesor panel es PCC_ESP_K75.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-summarize",
+        "gold": [
+          "pc-triple-a",
+          "pc-triple-b",
+          "pc-triple-c"
+        ],
+        "requiredSources": [
+          "pc-triple-a",
+          "pc-triple-b",
+          "pc-triple-c"
+        ],
+        "ranking": [
+          "pc-triple-b",
+          "pc-triple-a",
+          "pc-triple-c"
+        ],
+        "admitted": [
+          "pc-triple-b",
+          "pc-triple-a"
+        ],
+        "requiredAdmitted": false,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "02dd16a1-9820-5f6c-9f5a-532603a80bc2",
+            "sourceKey": "pc-triple-b",
+            "revisionId": "2ab33847-4185-4664-b2e2-65506efef404",
+            "chunkId": "76220f29-9c55-5e16-bf69-36f2238d0448",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "TALVORA10653 beacon cadence is PCC_CAD_E53.",
+            "truncated": false
+          },
+          {
+            "sourceId": "faf5138d-a410-5a30-a198-233b34d680db",
+            "sourceKey": "pc-triple-a",
+            "revisionId": "621c42ae-e42b-48ee-8e78-dff81d7f81ca",
+            "chunkId": "6d559c87-a8d1-524d-b0bb-ead04e5cde90",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "TALVORA10653 beacon cadence is PCC_CAD_D53.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-en-source-ref",
+        "gold": [
+          "pc-only-a"
+        ],
+        "requiredSources": [
+          "pc-only-a"
+        ],
+        "ranking": [
+          "pc-only-a"
+        ],
+        "admitted": [
+          "pc-only-a"
+        ],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "48b4a839-e618-5fd8-a2cc-f8fe0cfec466",
+            "sourceKey": "pc-only-a",
+            "revisionId": "db8db6bf-73cb-48f3-8e19-6b96e8f34a78",
+            "chunkId": "ecc98492-954f-50f6-9476-bc56abaafa28",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "NIVORRA10764 chamber lining is PCC_LIN_G64.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-es-all",
+        "gold": [
+          "pc-es3-a",
+          "pc-es3-b",
+          "pc-es3-c"
+        ],
+        "requiredSources": [
+          "pc-es3-a",
+          "pc-es3-b",
+          "pc-es3-c"
+        ],
+        "ranking": [
+          "pc-es3-a",
+          "pc-es3-b",
+          "pc-es3-c"
+        ],
+        "admitted": [
+          "pc-es3-a",
+          "pc-es3-b"
+        ],
+        "requiredAdmitted": false,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": [
+          {
+            "sourceId": "3557b62b-3f0d-5bfc-8ec6-94eb5d87b633",
+            "sourceKey": "pc-es3-a",
+            "revisionId": "7b74c2b3-8c04-4526-b5c4-286103b6a0f2",
+            "chunkId": "5a95bc4b-81fb-503d-a62e-5145e94f5165",
+            "citationId": "K1",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ZEVORIA10986 intervalo baliza es PCC_INT_M86.",
+            "truncated": false
+          },
+          {
+            "sourceId": "73823e41-7cb3-5537-baec-de6b748f5adf",
+            "sourceKey": "pc-es3-b",
+            "revisionId": "83f233fa-f6f6-413d-8e91-8c8bd10f5806",
+            "chunkId": "87e81b26-4654-561a-8fe1-8b37effffdaf",
+            "citationId": "K2",
+            "locator": {
+              "kind": "TEXT_LINES",
+              "coordinates": {
+                "lineStart": 1,
+                "lineEnd": 1
+              },
+              "schemaVersion": 1
+            },
+            "text": "ZEVORIA10986 intervalo baliza es PCC_INT_N86.",
+            "truncated": false
+          }
+        ]
+      },
+      {
+        "id": "pc-neg-absent",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-nearkey",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-deleted",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-foreign",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-other-session",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-stale-value",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-unknown-property",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-half-overlap",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-es-absent",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-es-nearkey",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-es-property",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-empty",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-controls",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-es-controls",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-no-subject",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-stopwords",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-cross-key",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-typo",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-refs-foreign",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      },
+      {
+        "id": "pc-neg-refs-stale",
+        "gold": [],
+        "requiredSources": [],
+        "ranking": [],
+        "admitted": [],
+        "requiredAdmitted": true,
+        "scopeCurrentDelete": true,
+        "falseExpansion": false,
+        "provenance": []
+      }
+    ]
+  },
+  "historicalRegression": {
+    "purpose": "Regression only, excluded from prospective metrics. Historical source-conflict remains FAIL.",
+    "test": "tests/knowledge_inputs_v1/test_k8_post_cert_conflict.py::test_historical_source_conflict_regression_only",
+    "passed": true,
+    "window": 8192,
+    "sourceCount": 2,
+    "values": [
+      "NORTH",
+      "SOUTH"
+    ],
+    "fullApplicationRoute": true,
+    "originalInputPreserved": true,
+    "retrievalCount": 1,
+    "provider": "SCRIPTED, no LLM inference",
+    "raw": [
+      {
+        "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\pytest-private\\test_historical_source_conflic0\\historical-regression.json",
+        "sha256": "813056ae72fead36f0cff5404ef450bac709ebcb5c72c92bfb6231b4918b29a7"
+      }
+    ]
+  },
+  "diagnosis": {
+    "window": 4096,
+    "sharedRetrievalCap": 314,
+    "relevantSources": 3,
+    "admittedSources": 2,
+    "minimumThreeNonemptyEvidenceTokens": 307,
+    "fullThreeEvidenceTokens": 350,
+    "framingUnchanged": true,
+    "guardUnchanged": true,
+    "coreUnchanged": true,
+    "diversityCapContract": {
+      "firstSourceChunks": 40,
+      "candidateCount": 10,
+      "distinctFirstTwo": 2,
+      "bothSourcesRetrieved": true
+    }
+  },
+  "unmetRequirements": [
+    {
+      "requirement": "multi-source required sources admitted=100%",
+      "observed": "10/15 cases; 28/33 required source identities; five triples retrieve 3 but admit 2.",
+      "classification": "PRODUCT_BUG",
+      "qualification": "The required admission behavior is incomplete. Core cap compliance is correct; no independent Core bug is claimed.",
+      "caseIds": [
+        "pc-en-three",
+        "pc-en-all",
+        "pc-es-three",
+        "pc-en-summarize",
+        "pc-es-all"
+      ]
+    },
+    {
+      "requirement": "Knowledge and HEAD complete with zero FAIL/ERROR",
+      "observed": "Each has 3 FAIL / 0 ERROR.",
+      "classification": "HARNESS_BUG",
+      "qualification": "Two failures are unchanged V6 historical product-hash guards detecting the authorized query delta; the third is the unmet admission gate. No evidence or tests repinned."
+    }
+  ],
+  "runs": [
+    {
+      "name": "baseline",
+      "run": {
+        "mode": "postcert-baseline",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\baseline\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\baseline\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k8_repair6_query.py",
+          "tests/knowledge_inputs_v1/test_k8_repair6_quality.py",
+          "tests/knowledge_inputs_v1/test_k4_retrieval.py",
+          "tests/knowledge_inputs_v1/test_k5_context.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "counts": {
+        "testcases": 79,
+        "passed": 79,
+        "failed": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "passedSubtests": 0,
+      "summary": "79 passed in 18.16s",
+      "artifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\baseline\\run.json",
+          "sha256": "7f19e02cfa7b78fea041412ec3690c0b5f368b2559d4b870a187ec10dc1fc569"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\baseline\\run.log",
+          "sha256": "fdf626d28cd3e8202afa1bfbb9714f81a06e76866cfdbfd9ff70c60b42491d35"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\baseline\\tests.xml",
+          "sha256": "8548284e4eb6e0150f6d41e6a8cdf54705cb389207d39de890427e9fef26db32"
+        }
+      ],
+      "qualityArtifacts": null,
+      "historicalRegressionArtifacts": null,
+      "skipIds": [],
+      "failures": []
+    },
+    {
+      "name": "quality-first",
+      "run": {
+        "mode": "postcert",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k8_post_cert_conflict.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "counts": {
+        "testcases": 3,
+        "passed": 2,
+        "failed": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "passedSubtests": 0,
+      "summary": "1 failed, 2 passed in 3.38s",
+      "artifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\run.json",
+          "sha256": "ed6d075cf27b9d9703ee92d0119b84bd728493c76bb956302a91ac3410b2f10f"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\run.log",
+          "sha256": "3ec0ada89bd2c03a460e5c11ed2bcde2c8b91f0d6272ab04dc437fe957ee5fe1"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\tests.xml",
+          "sha256": "b81898a3d64d00be62d318e0d794e8b726fcf29a1844f743542918f3680bf6ca"
+        }
+      ],
+      "qualityArtifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\pytest-private\\test_frozen_prospective_qualit0\\postcert-quality.json",
+          "sha256": "9d4f39fa373a77b480d496aa21690b458207206c79793f89b54962e10c5f5e3a"
+        }
+      ],
+      "historicalRegressionArtifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\pytest-private\\test_historical_source_conflic0\\historical-regression.json",
+          "sha256": "2aa50173d3bbcae49a47aa26798b74d455fe2c9dadac61e85f0bafa085e4593e"
+        }
+      ],
+      "skipIds": [],
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_post_cert_conflict::test_frozen_prospective_quality",
+          "classification": "PRODUCT_BUG",
+          "reason": "AssertionError: {'recallAt5': {'passed': 19, 'total': 20, 'value': 0.95}, 'precisionAt1': {'passed': 19, 'total': 20, 'value': 0.95}, ...{'passed': 10, 'total': 15, 'value': 0.6666666666666666}, 'abstention': {'passed': 20, 'total': 20, 'value': 1.0}, ...}\nassert False\n +  where False = all(dict_values([False, False, False, True, True, True]))\n +    where dict_values([False, False, False, True, True, True]) = <built-in method values of dict object at 0x0000023A17AF5A40>()\n +      where <built-in method values of dict object at 0x0000023A17AF5A40> = {'recallAt5': False, 'precisionAt1': False, 'multiSourceRequiredAdmissions': False, 'abstention': True, ...}.values"
+        }
+      ]
+    },
+    {
+      "name": "quality-final",
+      "run": {
+        "mode": "postcert",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k8_post_cert_conflict.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "counts": {
+        "testcases": 3,
+        "passed": 2,
+        "failed": 1,
+        "errors": 0,
+        "skips": 0
+      },
+      "passedSubtests": 0,
+      "summary": "1 failed, 2 passed in 3.26s",
+      "artifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\run.json",
+          "sha256": "4514b6709ecb8453afcbe7170862be522a240184b2b400acd9b30810a6f07bf1"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\run.log",
+          "sha256": "f891f293476836beb9ed713dff1d8fcb610f49cc65258f930908e2b76489d515"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\tests.xml",
+          "sha256": "ea625332b4cd91bf90b1dc688e97f33f593abd3fd44a334418817ab69519cda9"
+        }
+      ],
+      "qualityArtifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\pytest-private\\test_frozen_prospective_qualit0\\postcert-quality.json",
+          "sha256": "802150088f8384ec32d497ca2d83c967f8cf7de11960bcb199f73c2738a8bce6"
+        }
+      ],
+      "historicalRegressionArtifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\pytest-private\\test_historical_source_conflic0\\historical-regression.json",
+          "sha256": "813056ae72fead36f0cff5404ef450bac709ebcb5c72c92bfb6231b4918b29a7"
+        }
+      ],
+      "skipIds": [],
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_post_cert_conflict::test_frozen_prospective_quality",
+          "classification": "PRODUCT_BUG",
+          "reason": "AssertionError: {'recallAt5': {'passed': 20, 'total': 20, 'value': 1.0}, 'precisionAt1': {'passed': 20, 'total': 20, 'value': 1.0}, 'm...{'passed': 10, 'total': 15, 'value': 0.6666666666666666}, 'abstention': {'passed': 20, 'total': 20, 'value': 1.0}, ...}\nassert False\n +  where False = all(dict_values([True, True, False, True, True, True]))\n +    where dict_values([True, True, False, True, True, True]) = <built-in method values of dict object at 0x000001E57CF8C100>()\n +      where <built-in method values of dict object at 0x000001E57CF8C100> = {'recallAt5': True, 'precisionAt1': True, 'multiSourceRequiredAdmissions': False, 'abstention': True, ...}.values"
+        }
+      ]
+    },
+    {
+      "name": "knowledge",
+      "run": {
+        "mode": "contracts",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\tests.xml",
+          "tests/knowledge_inputs_v1"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "counts": {
+        "testcases": 1011,
+        "passed": 1008,
+        "failed": 3,
+        "errors": 0,
+        "skips": 0
+      },
+      "passedSubtests": 0,
+      "summary": "3 failed, 1008 passed in 158.84s (0:02:38)",
+      "artifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\run.json",
+          "sha256": "58796825e24f5f4b59074cffc75b419823e61b2dc1fbf06766e8b1db825ce9cb"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\run.log",
+          "sha256": "4044bcef58589e60427fe1b48f8bc885a691e89e4abf5bc54ef490a68105fa14"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\tests.xml",
+          "sha256": "b8c8a0bed880747b50865dd03618ace9695815799371834e64eb8a42865c7180"
+        }
+      ],
+      "qualityArtifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\pytest-private\\test_frozen_prospective_qualit0\\postcert-quality.json",
+          "sha256": "5e7be8fb912e18a54d0d792c5e1d3682cd7cf92cec265fe08f8ff0405c390992"
+        }
+      ],
+      "historicalRegressionArtifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\pytest-private\\test_historical_source_conflic0\\historical-regression.json",
+          "sha256": "99333ff299ca3a444f43a40e40f8322ea64913031aa176f0771bad263056c066"
+        }
+      ],
+      "skipIds": [],
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_post_cert_conflict::test_frozen_prospective_quality",
+          "classification": "PRODUCT_BUG",
+          "reason": "AssertionError: {'recallAt5': {'passed': 20, 'total': 20, 'value': 1.0}, 'precisionAt1': {'passed': 20, 'total': 20, 'value': 1.0}, 'm...{'passed': 10, 'total': 15, 'value': 0.6666666666666666}, 'abstention': {'passed': 20, 'total': 20, 'value': 1.0}, ...}\nassert False\n +  where False = all(dict_values([True, True, False, True, True, True]))\n +    where dict_values([True, True, False, True, True, True]) = <built-in method values of dict object at 0x000001BCBF862CC0>()\n +      where <built-in method values of dict object at 0x000001BCBF862CC0> = {'recallAt5': True, 'precisionAt1': True, 'multiSourceRequiredAdmissions': False, 'abstention': True, ...}.values"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_repair6_quality::test_prospective_structure_and_frozen_artifacts",
+          "classification": "HARNESS_BUG",
+          "reason": "AssertionError: local_cli/infrastructure/knowledge_query.py\nassert '15dd6f01ccdd...f72c8a8886cea' == '6590bab13e77...09dffb302df2c'\n  \n  - 6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c\n  + 15dd6f01ccdd8aedce0808543a9ffea68bc5866b6c857a4bce1f72c8a8886cea"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_repair6_quality::test_frozen_v6_quality",
+          "classification": "HARNESS_BUG",
+          "reason": "AssertionError: local_cli/infrastructure/knowledge_query.py\nassert '15dd6f01ccdd...f72c8a8886cea' == '6590bab13e77...09dffb302df2c'\n  \n  - 6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c\n  + 15dd6f01ccdd8aedce0808543a9ffea68bc5866b6c857a4bce1f72c8a8886cea"
+        }
+      ]
+    },
+    {
+      "name": "memory",
+      "run": {
+        "mode": "m0",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\memory\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\memory\\tests.xml",
+          "tests/memory_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "counts": {
+        "testcases": 791,
+        "passed": 791,
+        "failed": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "passedSubtests": 0,
+      "summary": "791 passed in 79.73s (0:01:19)",
+      "artifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\memory\\run.json",
+          "sha256": "04cb9f6607da28591830f3684b5a3c7b09c69295d6c0dcfbd79608fd616f6330"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\memory\\run.log",
+          "sha256": "635408ff65d9fd37400cec11d37a3fb3b70d1b9f4aa1f0ef39554b5991e071f2"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\memory\\tests.xml",
+          "sha256": "1b07d8ff4c89e946921501edd1a26649904a1a1ca8b82e5168f7d803fbe4684a"
+        }
+      ],
+      "qualityArtifacts": null,
+      "historicalRegressionArtifacts": null,
+      "skipIds": [],
+      "failures": []
+    },
+    {
+      "name": "core",
+      "run": {
+        "mode": "repair5-core",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\core\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\core\\tests.xml",
+          "tests/test_harness_deliverable_guard.py",
+          "tests/test_agent.py",
+          "tests/test_run_agent.py",
+          "tests/test_sub_agent.py",
+          "tests/test_nova_core_phase4_session.py",
+          "tests/test_nova_core_phase8_providers.py",
+          "tests/test_nova_core_phase14_architecture.py",
+          "tests/knowledge_inputs_v1/test_k8_repair5_guard.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "counts": {
+        "testcases": 437,
+        "passed": 437,
+        "failed": 0,
+        "errors": 0,
+        "skips": 0
+      },
+      "passedSubtests": 0,
+      "summary": "437 passed in 42.47s",
+      "artifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\core\\run.json",
+          "sha256": "4e26cb4b55702eea03f5a467675d01cf7b0bddf1be89abf188c4c411ccd83627"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\core\\run.log",
+          "sha256": "8d51ac21ef12ea691b96c16973fef1ffb2f89b5e56ad3228cf5ed5bde06e52fb"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\core\\tests.xml",
+          "sha256": "7bbbdbb9ba3f75cb026c44c9ef1dc27b3fd078cd21683d1fa93ffbe4ff573724"
+        }
+      ],
+      "qualityArtifacts": null,
+      "historicalRegressionArtifacts": null,
+      "skipIds": [],
+      "failures": []
+    },
+    {
+      "name": "desktop",
+      "run": {
+        "phase": "K7",
+        "groups": [
+          {
+            "name": "contracts",
+            "command": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "--experimental-transform-types",
+              "--test",
+              "tests/knowledge_k7.test.cjs",
+              "tests/knowledge_control.test.cjs",
+              "tests/application_client.test.cjs",
+              "tests/approval_host.test.cjs",
+              "tests/security_audit.test.cjs",
+              "tests/memory_control.test.cjs",
+              "tests/memory_maintenance.test.cjs"
+            ],
+            "exitCode": 0
+          },
+          {
+            "name": "typescript",
+            "command": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "node_modules/typescript/bin/tsc",
+              "--project",
+              "tsconfig.json",
+              "--noEmit"
+            ],
+            "exitCode": 0
+          },
+          {
+            "name": "frontend",
+            "command": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "--input-type=module",
+              "-e",
+              "import {build} from 'vite';import react from '@vitejs/plugin-react';await build({configFile:false,plugins:[react()],build:{outDir:\"C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k8-post-cert-conflict-20261008-a\\\\desktop\\\\frontend\",emptyOutDir:false}})"
+            ],
+            "exitCode": 0
+          }
+        ],
+        "packaged": false,
+        "installed": false,
+        "externalInference": false,
+        "nativeElectron": false,
+        "outputOutsideGit": true
+      },
+      "counts": {
+        "passed": 68,
+        "failed": 0,
+        "errors": 0,
+        "skips": 0,
+        "typescriptExit": 0,
+        "frontendExit": 0
+      },
+      "passedSubtests": null,
+      "summary": null,
+      "artifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\desktop\\contracts.log",
+          "sha256": "3feed463710ee5656175e6a3677acb2096b561ca6740bffcdcdc82105d79374f"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\desktop\\frontend.log",
+          "sha256": "a1b786d7a9648870cd62cad1853ff17689bb7ebd51b96b91658ff7288effde23"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\desktop\\run.json",
+          "sha256": "57267329091b431762eb099850e4d72590932977768af4d823c3e50cc92563b6"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\desktop\\typescript.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "qualityArtifacts": null,
+      "historicalRegressionArtifacts": null,
+      "skipIds": null,
+      "failures": []
+    },
+    {
+      "name": "head",
+      "run": {
+        "mode": "head",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\tests.xml",
+          "tests",
+          "--ignore=tests/security_v12/test_s0_frontends.py",
+          "--ignore=tests/security_v12/test_s0_process.py",
+          "--ignore=tests/security_v12/test_s0_surfaces.py",
+          "--ignore=tests/security_v12/test_s3_windows.py",
+          "--ignore=tests/security_v12/test_s4_host.py",
+          "--ignore=tests/security_v12/test_s5_network.py",
+          "--ignore=tests/security_v12/test_s6_host.py",
+          "--ignore=tests/security_v12/test_s8_host.py",
+          "--ignore=tests/security_v12/test_s8_e2e.py",
+          "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+          "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+          "--ignore=tests/test_security_gates.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "counts": {
+        "testcases": 5169,
+        "passed": 5155,
+        "failed": 3,
+        "errors": 0,
+        "skips": 11
+      },
+      "passedSubtests": 53,
+      "summary": "3 failed, 5155 passed, 11 skipped, 53 subtests passed in 405.97s (0:06:45)",
+      "artifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\run.json",
+          "sha256": "46286c6389db4469773c3d198c32c698bccbf903d8ebb9cd616df31318471692"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\run.log",
+          "sha256": "b4bac732a8d22c57aa88736ab329e2c4543f5ff779f2566481c209e845f92ff4"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\tests.xml",
+          "sha256": "a23aef8a8d1ce33d672e5f6a3e2525424ba30c39046ee996c703859e92472d36"
+        }
+      ],
+      "qualityArtifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\pytest-private\\test_frozen_prospective_qualit0\\postcert-quality.json",
+          "sha256": "048e869fbbe657eb2f17ad33c359569450a91c24b17cbcb72c2ebc09d7f39cdc"
+        }
+      ],
+      "historicalRegressionArtifacts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\pytest-private\\test_historical_source_conflic0\\historical-regression.json",
+          "sha256": "e1ed52b668ed9b8a46d123a725811138a9461516635ea18c0a2843e756739e2f"
+        }
+      ],
+      "skipIds": [
+        "::tests.test_model_selector",
+        "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+        "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+        "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+        "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+        "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+        "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+        "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+        "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+        "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+        "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent"
+      ],
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_post_cert_conflict::test_frozen_prospective_quality",
+          "classification": "PRODUCT_BUG",
+          "reason": "AssertionError: {'recallAt5': {'passed': 20, 'total': 20, 'value': 1.0}, 'precisionAt1': {'passed': 20, 'total': 20, 'value': 1.0}, 'm...{'passed': 10, 'total': 15, 'value': 0.6666666666666666}, 'abstention': {'passed': 20, 'total': 20, 'value': 1.0}, ...}\nassert False\n +  where False = all(dict_values([True, True, False, True, True, True]))\n +    where dict_values([True, True, False, True, True, True]) = <built-in method values of dict object at 0x0000020C002D4A00>()\n +      where <built-in method values of dict object at 0x0000020C002D4A00> = {'recallAt5': True, 'precisionAt1': True, 'multiSourceRequiredAdmissions': False, 'abstention': True, ...}.values"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_repair6_quality::test_prospective_structure_and_frozen_artifacts",
+          "classification": "HARNESS_BUG",
+          "reason": "AssertionError: local_cli/infrastructure/knowledge_query.py\nassert '15dd6f01ccdd...f72c8a8886cea' == '6590bab13e77...09dffb302df2c'\n  \n  - 6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c\n  + 15dd6f01ccdd8aedce0808543a9ffea68bc5866b6c857a4bce1f72c8a8886cea"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_repair6_quality::test_frozen_v6_quality",
+          "classification": "HARNESS_BUG",
+          "reason": "AssertionError: local_cli/infrastructure/knowledge_query.py\nassert '15dd6f01ccdd...f72c8a8886cea' == '6590bab13e77...09dffb302df2c'\n  \n  - 6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c\n  + 15dd6f01ccdd8aedce0808543a9ffea68bc5866b6c857a4bce1f72c8a8886cea"
+        }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "name": "preflight",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.knowledge_inputs_v1.k8_post_cert_evidence --preflight C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a"
+    },
+    {
+      "name": "baseline",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.knowledge_inputs_v1.run_k8_post_cert_conflict --mode postcert-baseline --output C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/baseline --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies"
+    },
+    {
+      "name": "quality-first",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.knowledge_inputs_v1.run_k8_post_cert_conflict --mode postcert --output C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/quality-first --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies"
+    },
+    {
+      "name": "quality-final",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.knowledge_inputs_v1.run_k8_post_cert_conflict --mode postcert --output C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/quality-final --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies"
+    },
+    {
+      "name": "knowledge",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.knowledge_inputs_v1.run_k8 --mode contracts --output C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/knowledge --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies"
+    },
+    {
+      "name": "memory",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.memory_v1.run_regression --mode m0 --output C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/memory --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies"
+    },
+    {
+      "name": "core",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.knowledge_inputs_v1.run_k8_repair5 --mode repair5-core --output C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/core --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies"
+    },
+    {
+      "name": "desktop",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.knowledge_inputs_v1.run_k7_desktop --output C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/desktop"
+    },
+    {
+      "name": "diagnostic",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.knowledge_inputs_v1.k8_post_cert_conflict_diagnostics C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/diagnostic-final"
+    },
+    {
+      "name": "head",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.memory_v1.run_regression --mode head --output C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/head --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies"
+    },
+    {
+      "name": "collect",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B -m tests.knowledge_inputs_v1.k8_post_cert_evidence --collect C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a"
+    }
+  ],
+  "headIsolated": true,
+  "headHistoricalSkipIdsUnchanged": true,
+  "newSkips": false,
+  "newXfails": false,
+  "newExclusions": false,
+  "integrity": {
+    "historicalChecks": {
+      "examPins": {
+        "total": 17,
+        "mismatches": []
+      },
+      "productPins": {
+        "total": 241,
+        "mismatches": [
+          "local_cli/infrastructure/knowledge_query.py",
+          "local_cli/infrastructure/knowledge_retrieval_sqlite.py"
+        ]
+      },
+      "files": {
+        "total": 1931,
+        "mismatches": [
+          "local_cli/infrastructure/knowledge_query.py",
+          "local_cli/infrastructure/knowledge_retrieval_sqlite.py"
+        ]
+      },
+      "historicalEvidencePins": {
+        "total": 585,
+        "mismatches": []
+      }
+    },
+    "historicalRaws": {
+      "total": 138,
+      "mismatches": [],
+      "inventory": {
+        "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-final-execution-20261008/artifacts_sha256.json",
+        "sha256": "f388ac9cef5ecb5e8116863c1ea694181cfa59c3f41d748a7605eac79cdc36c3",
+        "bytes": 39624
+      }
+    },
+    "baselineFilesUnchanged": 1938,
+    "baselineFilesChanged": 3,
+    "authorizedHistoricalProductPinDeltas": 2,
+    "closureManifestSha": "fb2c736ebb509b3a97b909487b52b6d4d7792902b94b61b45d782eb6ac0c40bb",
+    "historicalPinsRepinned": false,
+    "historicalEvidenceEdited": false
+  },
+  "artifacts": [
+    {
+      "path": "local_cli/infrastructure/knowledge_query.py",
+      "sha256": "15dd6f01ccdd8aedce0808543a9ffea68bc5866b6c857a4bce1f72c8a8886cea"
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+      "sha256": "a3a59bf40823fa74950e7da9ddd58837850f2098d881b2491b3d14911021c7cf"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_post_cert_conflict_corpus_v1.json",
+      "sha256": "3f2078bbf93abda43bdd2eacbf85ba36b97debc8638c83f9698c3cdd776f13bd"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_post_cert_conflict_protocol_v1.json",
+      "sha256": "b6e7555ba7216df7d0a563ba430668a9e39ec26edb1e77c34ce66b37bc599f54"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_post_cert_conflict_freeze_v1.json",
+      "sha256": "6f353006c17d092cf0602fa85226c3991647ff01c33fc062b8fb220fab2eb8fd"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_post_cert_conflict.py",
+      "sha256": "ce4eec225fabcaa1170f5a19d7b50dd6571af913784aaf84180261a98818cb1a"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_post_cert_conflict.py",
+      "sha256": "926e13152cfb4c28075eadf6b2e9e2e02e81ab90472bdb1498a58dd31405edaf"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_post_cert_evidence.py",
+      "sha256": "e49e2ec7a12020091dc85076d6a22f42fb966ca83365db4ff3edc5ef1b62669b"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_post_cert_conflict_diagnostics.py",
+      "sha256": "b7b679df0f5519fb3706516d297d429f9b81006850dd93829274363f05f846d1"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_post_cert_conflict_resultados.md",
+      "sha256": "ffdea16813bbc7446b82153cb933928fa5d3178b5b1a31c1e1fc281838aeb684"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\preflight.json",
+      "sha256": "2ffc23cc540e271980892766363c8a177c81f8b90d51b48c2f361a4e23ab873e"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/final-evidence.json",
+      "sha256": "36973fce23dbbf4832a0d66c5e207c123c92f6488161a6a17d338021dd4762fb"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-post-cert-conflict-20261008-a/diagnostic-final/diagnosis.json",
+      "sha256": "81d729837abaa89d95b39e115443828416926562f5f3fd62bfa629fdd0991c0b"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\baseline\\run.json",
+      "sha256": "7f19e02cfa7b78fea041412ec3690c0b5f368b2559d4b870a187ec10dc1fc569"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\baseline\\run.log",
+      "sha256": "fdf626d28cd3e8202afa1bfbb9714f81a06e76866cfdbfd9ff70c60b42491d35"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\baseline\\tests.xml",
+      "sha256": "8548284e4eb6e0150f6d41e6a8cdf54705cb389207d39de890427e9fef26db32"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\run.json",
+      "sha256": "ed6d075cf27b9d9703ee92d0119b84bd728493c76bb956302a91ac3410b2f10f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\run.log",
+      "sha256": "3ec0ada89bd2c03a460e5c11ed2bcde2c8b91f0d6272ab04dc437fe957ee5fe1"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\tests.xml",
+      "sha256": "b81898a3d64d00be62d318e0d794e8b726fcf29a1844f743542918f3680bf6ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\pytest-private\\test_frozen_prospective_qualit0\\postcert-quality.json",
+      "sha256": "9d4f39fa373a77b480d496aa21690b458207206c79793f89b54962e10c5f5e3a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-first\\pytest-private\\test_historical_source_conflic0\\historical-regression.json",
+      "sha256": "2aa50173d3bbcae49a47aa26798b74d455fe2c9dadac61e85f0bafa085e4593e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\run.json",
+      "sha256": "4514b6709ecb8453afcbe7170862be522a240184b2b400acd9b30810a6f07bf1"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\run.log",
+      "sha256": "f891f293476836beb9ed713dff1d8fcb610f49cc65258f930908e2b76489d515"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\tests.xml",
+      "sha256": "ea625332b4cd91bf90b1dc688e97f33f593abd3fd44a334418817ab69519cda9"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\pytest-private\\test_frozen_prospective_qualit0\\postcert-quality.json",
+      "sha256": "802150088f8384ec32d497ca2d83c967f8cf7de11960bcb199f73c2738a8bce6"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\quality-final\\pytest-private\\test_historical_source_conflic0\\historical-regression.json",
+      "sha256": "813056ae72fead36f0cff5404ef450bac709ebcb5c72c92bfb6231b4918b29a7"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\run.json",
+      "sha256": "58796825e24f5f4b59074cffc75b419823e61b2dc1fbf06766e8b1db825ce9cb"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\run.log",
+      "sha256": "4044bcef58589e60427fe1b48f8bc885a691e89e4abf5bc54ef490a68105fa14"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\tests.xml",
+      "sha256": "b8c8a0bed880747b50865dd03618ace9695815799371834e64eb8a42865c7180"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\pytest-private\\test_frozen_prospective_qualit0\\postcert-quality.json",
+      "sha256": "5e7be8fb912e18a54d0d792c5e1d3682cd7cf92cec265fe08f8ff0405c390992"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\knowledge\\pytest-private\\test_historical_source_conflic0\\historical-regression.json",
+      "sha256": "99333ff299ca3a444f43a40e40f8322ea64913031aa176f0771bad263056c066"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\memory\\run.json",
+      "sha256": "04cb9f6607da28591830f3684b5a3c7b09c69295d6c0dcfbd79608fd616f6330"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\memory\\run.log",
+      "sha256": "635408ff65d9fd37400cec11d37a3fb3b70d1b9f4aa1f0ef39554b5991e071f2"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\memory\\tests.xml",
+      "sha256": "1b07d8ff4c89e946921501edd1a26649904a1a1ca8b82e5168f7d803fbe4684a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\core\\run.json",
+      "sha256": "4e26cb4b55702eea03f5a467675d01cf7b0bddf1be89abf188c4c411ccd83627"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\core\\run.log",
+      "sha256": "8d51ac21ef12ea691b96c16973fef1ffb2f89b5e56ad3228cf5ed5bde06e52fb"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\core\\tests.xml",
+      "sha256": "7bbbdbb9ba3f75cb026c44c9ef1dc27b3fd078cd21683d1fa93ffbe4ff573724"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\desktop\\contracts.log",
+      "sha256": "3feed463710ee5656175e6a3677acb2096b561ca6740bffcdcdc82105d79374f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\desktop\\frontend.log",
+      "sha256": "a1b786d7a9648870cd62cad1853ff17689bb7ebd51b96b91658ff7288effde23"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\desktop\\run.json",
+      "sha256": "57267329091b431762eb099850e4d72590932977768af4d823c3e50cc92563b6"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\desktop\\typescript.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\run.json",
+      "sha256": "46286c6389db4469773c3d198c32c698bccbf903d8ebb9cd616df31318471692"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\run.log",
+      "sha256": "b4bac732a8d22c57aa88736ab329e2c4543f5ff779f2566481c209e845f92ff4"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\tests.xml",
+      "sha256": "a23aef8a8d1ce33d672e5f6a3e2525424ba30c39046ee996c703859e92472d36"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\pytest-private\\test_frozen_prospective_qualit0\\postcert-quality.json",
+      "sha256": "048e869fbbe657eb2f17ad33c359569450a91c24b17cbcb72c2ebc09d7f39cdc"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-post-cert-conflict-20261008-a\\head\\pytest-private\\test_historical_source_conflic0\\historical-regression.json",
+      "sha256": "e1ed52b668ed9b8a46d123a725811138a9461516635ea18c0a2843e756739e2f"
+    }
+  ],
+  "preliminaryFailures": {
+    "interruptedAttempt": {
+      "passed": 39,
+      "failed": 2,
+      "qualifyingEvidence": false,
+      "raw": "Conversation only; no XML, default pytest temp; own product delta removed before 79-test baseline."
+    },
+    "structuralDependency": {
+      "classification": "ENVIRONMENT",
+      "cause": "Direct structural invocation omitted the existing pypdf site; corrected PYTHONPATH before freeze without obtaining scores."
+    },
+    "diagnosticAssumption": {
+      "classification": "HARNESS_BUG",
+      "cause": "An initial diagnostic assertion assumed minimum 3-source nonempty framing exceeded the cap; measured minimum=307, full=350, cap=314. Fixed only unfrozen instrumentation; initial temp diagnostic directory preserved."
+    }
+  },
+  "limitations": [
+    "No LLM answer/citation semantic quality claim",
+    "Finite EN/ES conservative grammar, not universal natural language understanding",
+    "No universal large-corpus performance claim",
+    "The unchanged admission renderer can lose source diversity under tight budgets; the frozen 4K triple cases demonstrate this",
+    "Actual native Electron/packaging not tested by the historical Desktop runner",
+    "Historical V6 guard failures remain failures under the unchanged full-suite selection"
+  ],
+  "humanReviewRequired": true,
+  "stoppedForHumanReview": true,
+  "certificationV2": false,
+  "ready": false,
+  "commit": false,
+  "push": false,
+  "tag": false
+}

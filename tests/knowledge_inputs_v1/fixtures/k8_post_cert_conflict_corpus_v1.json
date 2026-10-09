@@ -1,0 +1,750 @@
+{
+  "schemaVersion": 1,
+  "id": "k8-post-cert-conflict-prospective-v1",
+  "purpose": "Independent deterministic retrieval/admission quality; no original K8 inference",
+  "sources": [
+    {
+      "id": "pc-agree-a",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-agree-a.txt",
+      "text": "VELUMA10431 nozzle alloy is PCC_MAT_A31."
+    },
+    {
+      "id": "pc-agree-b",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-agree-b.txt",
+      "text": "VELUMA10431 nozzle alloy is PCC_MAT_A31."
+    },
+    {
+      "id": "pc-conflict-a",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-conflict-a.txt",
+      "text": "ORVENA10542 aperture mode is PCC_MODE_B42."
+    },
+    {
+      "id": "pc-conflict-b",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-conflict-b.txt",
+      "text": "ORVENA10542 aperture mode is PCC_MODE_C42."
+    },
+    {
+      "id": "pc-triple-a",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-triple-a.txt",
+      "text": "TALVORA10653 beacon cadence is PCC_CAD_D53."
+    },
+    {
+      "id": "pc-triple-b",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-triple-b.txt",
+      "text": "TALVORA10653 beacon cadence is PCC_CAD_E53."
+    },
+    {
+      "id": "pc-triple-c",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-triple-c.txt",
+      "text": "TALVORA10653 beacon cadence is PCC_CAD_F53."
+    },
+    {
+      "id": "pc-only-a",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-only-a.txt",
+      "text": "NIVORRA10764 chamber lining is PCC_LIN_G64."
+    },
+    {
+      "id": "pc-only-d1",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-only-d1.txt",
+      "text": "NIVORRA10765 chamber lining is PCC_LIN_H65."
+    },
+    {
+      "id": "pc-only-d2",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-only-d2.txt",
+      "text": "ELVORIA20764 chamber lining is PCC_LIN_I64."
+    },
+    {
+      "id": "pc-only-d3",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-only-d3.txt",
+      "text": "NIVORRA10764 unrelated ledger heading is PCC_LED_J64."
+    },
+    {
+      "id": "pc-es-a",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-es-a.txt",
+      "text": "QELORIA10875 espesor panel es PCC_ESP_K75."
+    },
+    {
+      "id": "pc-es-b",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-es-b.txt",
+      "text": "QELORIA10875 espesor panel es PCC_ESP_L75."
+    },
+    {
+      "id": "pc-es3-a",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-es3-a.txt",
+      "text": "ZEVORIA10986 intervalo baliza es PCC_INT_M86."
+    },
+    {
+      "id": "pc-es3-b",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-es3-b.txt",
+      "text": "ZEVORIA10986 intervalo baliza es PCC_INT_N86."
+    },
+    {
+      "id": "pc-es3-c",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-es3-c.txt",
+      "text": "ZEVORIA10986 intervalo baliza es PCC_INT_O86."
+    },
+    {
+      "id": "pc-current-a",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-current-a.txt",
+      "text": "ELMORA11097 valve setting is PCC_SET_P97.",
+      "priorText": "ELMORA11097 valve setting is PCC_SET_OLD97."
+    },
+    {
+      "id": "pc-current-b",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-current-b.txt",
+      "text": "ELMORA11097 valve setting is PCC_SET_Q97."
+    },
+    {
+      "id": "pc-deleted",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "DELETED",
+      "filename": "pc-deleted.txt",
+      "text": "DELORIA11108 ballast type is PCC_BAL_R08."
+    },
+    {
+      "id": "pc-foreign",
+      "scope": "FOREIGN_WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-foreign.txt",
+      "text": "FERORIA11219 lattice weave is PCC_WEA_S19."
+    },
+    {
+      "id": "pc-other-session",
+      "scope": "OTHER_SESSION",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-other-session.txt",
+      "text": "SERORIA11320 hinge torque is PCC_TOR_T20."
+    },
+    {
+      "id": "pc-session",
+      "scope": "SESSION",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-session.txt",
+      "text": "CERORIA11431 gasket blend is PCC_BLE_U31."
+    },
+    {
+      "id": "pc-truth",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-truth.txt",
+      "text": "LERORIA11542 document truth policy is PCC_POL_V42. The term compare describes an archival field."
+    },
+    {
+      "id": "pc-distractor",
+      "scope": "WORKSPACE",
+      "kind": "LOCAL_FILE",
+      "state": "READY",
+      "filename": "pc-distractor.txt",
+      "text": "The archive discusses two sources and conflicting values, but has no equipment specifications."
+    }
+  ],
+  "cases": [
+    {
+      "id": "pc-en-agree",
+      "query": "What do the two sources say about VELUMA10431 nozzle alloy? Report both values; do not choose one as truth.",
+      "gold": [
+        "pc-agree-a",
+        "pc-agree-b"
+      ],
+      "requiredSources": [
+        "pc-agree-a",
+        "pc-agree-b"
+      ],
+      "allowedSources": [
+        "pc-agree-a",
+        "pc-agree-b"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-en-conflict",
+      "query": "Compare both sources about ORVENA10542 aperture mode; report their conflicting values.",
+      "gold": [
+        "pc-conflict-a",
+        "pc-conflict-b"
+      ],
+      "requiredSources": [
+        "pc-conflict-a",
+        "pc-conflict-b"
+      ],
+      "allowedSources": [
+        "pc-conflict-a",
+        "pc-conflict-b"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-en-three",
+      "query": "Compare the three sources about TALVORA10653 beacon cadence. Report all values.",
+      "gold": [
+        "pc-triple-a",
+        "pc-triple-b",
+        "pc-triple-c"
+      ],
+      "requiredSources": [
+        "pc-triple-a",
+        "pc-triple-b",
+        "pc-triple-c"
+      ],
+      "allowedSources": [
+        "pc-triple-a",
+        "pc-triple-b",
+        "pc-triple-c"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-en-all",
+      "query": "What do all sources say about TALVORA10653 beacon cadence?",
+      "gold": [
+        "pc-triple-a",
+        "pc-triple-b",
+        "pc-triple-c"
+      ],
+      "requiredSources": [
+        "pc-triple-a",
+        "pc-triple-b",
+        "pc-triple-c"
+      ],
+      "allowedSources": [
+        "pc-triple-a",
+        "pc-triple-b",
+        "pc-triple-c"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-en-two-missing",
+      "query": "Compare two sources about NIVORRA10764 chamber lining. Do not choose either as truth.",
+      "gold": [
+        "pc-only-a"
+      ],
+      "requiredSources": [
+        "pc-only-a"
+      ],
+      "allowedSources": [
+        "pc-only-a"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-en-single",
+      "query": "What is NIVORRA10764 chamber lining?",
+      "gold": [
+        "pc-only-a"
+      ],
+      "requiredSources": [
+        "pc-only-a"
+      ],
+      "allowedSources": [
+        "pc-only-a"
+      ],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-en-single-with-control",
+      "query": "NIVORRA10764 chamber lining; answer here; do not choose one as truth.",
+      "gold": [
+        "pc-only-a"
+      ],
+      "requiredSources": [
+        "pc-only-a"
+      ],
+      "allowedSources": [
+        "pc-only-a"
+      ],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-es-two",
+      "query": "¿Qué dicen las dos fuentes sobre QELORIA10875 espesor panel? Informa ambos valores; no elijas una como verdad.",
+      "gold": [
+        "pc-es-a",
+        "pc-es-b"
+      ],
+      "requiredSources": [
+        "pc-es-a",
+        "pc-es-b"
+      ],
+      "allowedSources": [
+        "pc-es-a",
+        "pc-es-b"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-es-compare",
+      "query": "Compara ambas fuentes sobre QELORIA10875 espesor panel; informa los valores con sus citas.",
+      "gold": [
+        "pc-es-a",
+        "pc-es-b"
+      ],
+      "requiredSources": [
+        "pc-es-a",
+        "pc-es-b"
+      ],
+      "allowedSources": [
+        "pc-es-a",
+        "pc-es-b"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-es-three",
+      "query": "Compara las tres fuentes sobre ZEVORIA10986 intervalo baliza. Informa todos los valores.",
+      "gold": [
+        "pc-es3-a",
+        "pc-es3-b",
+        "pc-es3-c"
+      ],
+      "requiredSources": [
+        "pc-es3-a",
+        "pc-es3-b",
+        "pc-es3-c"
+      ],
+      "allowedSources": [
+        "pc-es3-a",
+        "pc-es3-b",
+        "pc-es3-c"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-en-current",
+      "query": "Compare the two sources about ELMORA11097 valve setting.",
+      "gold": [
+        "pc-current-a",
+        "pc-current-b"
+      ],
+      "requiredSources": [
+        "pc-current-a",
+        "pc-current-b"
+      ],
+      "allowedSources": [
+        "pc-current-a",
+        "pc-current-b"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-en-session",
+      "query": "What is CERORIA11431 gasket blend?",
+      "gold": [
+        "pc-session"
+      ],
+      "requiredSources": [
+        "pc-session"
+      ],
+      "allowedSources": [
+        "pc-session"
+      ],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-factual-control-words",
+      "query": "What is LERORIA11542 document truth policy?",
+      "gold": [
+        "pc-truth"
+      ],
+      "requiredSources": [
+        "pc-truth"
+      ],
+      "allowedSources": [
+        "pc-truth"
+      ],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-ref-only-a",
+      "query": "Compare both sources about ORVENA10542 aperture mode.",
+      "gold": [
+        "pc-conflict-a"
+      ],
+      "requiredSources": [
+        "pc-conflict-a"
+      ],
+      "allowedSources": [
+        "pc-conflict-a"
+      ],
+      "critical": true,
+      "multi": true,
+      "refs": [
+        "pc-conflict-a"
+      ]
+    },
+    {
+      "id": "pc-ref-both",
+      "query": "What do both sources say about ORVENA10542 aperture mode?",
+      "gold": [
+        "pc-conflict-a",
+        "pc-conflict-b"
+      ],
+      "requiredSources": [
+        "pc-conflict-a",
+        "pc-conflict-b"
+      ],
+      "allowedSources": [
+        "pc-conflict-a",
+        "pc-conflict-b"
+      ],
+      "critical": true,
+      "multi": true,
+      "refs": [
+        "pc-conflict-a",
+        "pc-conflict-b"
+      ]
+    },
+    {
+      "id": "pc-citation-controls",
+      "query": "Contrast the two accounts about VELUMA10431 nozzle alloy; report both values with citations.",
+      "gold": [
+        "pc-agree-a",
+        "pc-agree-b"
+      ],
+      "requiredSources": [
+        "pc-agree-a",
+        "pc-agree-b"
+      ],
+      "allowedSources": [
+        "pc-agree-a",
+        "pc-agree-b"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-es-no-truth",
+      "query": "¿Qué afirman ambas fuentes acerca de QELORIA10875 espesor panel? No selecciones una como verdad.",
+      "gold": [
+        "pc-es-a",
+        "pc-es-b"
+      ],
+      "requiredSources": [
+        "pc-es-a",
+        "pc-es-b"
+      ],
+      "allowedSources": [
+        "pc-es-a",
+        "pc-es-b"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-en-summarize",
+      "query": "Compare sources about TALVORA10653 beacon cadence; summarize the results.",
+      "gold": [
+        "pc-triple-a",
+        "pc-triple-b",
+        "pc-triple-c"
+      ],
+      "requiredSources": [
+        "pc-triple-a",
+        "pc-triple-b",
+        "pc-triple-c"
+      ],
+      "allowedSources": [
+        "pc-triple-a",
+        "pc-triple-b",
+        "pc-triple-c"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-en-source-ref",
+      "query": "Using the attached document, NIVORRA10764 chamber lining; answer here.",
+      "gold": [
+        "pc-only-a"
+      ],
+      "requiredSources": [
+        "pc-only-a"
+      ],
+      "allowedSources": [
+        "pc-only-a"
+      ],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-es-all",
+      "query": "¿Qué indican todas las fuentes sobre ZEVORIA10986 intervalo baliza?",
+      "gold": [
+        "pc-es3-a",
+        "pc-es3-b",
+        "pc-es3-c"
+      ],
+      "requiredSources": [
+        "pc-es3-a",
+        "pc-es3-b",
+        "pc-es3-c"
+      ],
+      "allowedSources": [
+        "pc-es3-a",
+        "pc-es3-b",
+        "pc-es3-c"
+      ],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-absent",
+      "query": "What do the two sources say about UVORIA11653 nozzle alloy?",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-nearkey",
+      "query": "Compare sources about VELUMA10432 nozzle alloy.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-deleted",
+      "query": "Compare the two sources about DELORIA11108 ballast type.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-foreign",
+      "query": "Compare sources about FERORIA11219 lattice weave.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-other-session",
+      "query": "What do both sources say about SERORIA11320 hinge torque?",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-stale-value",
+      "query": "What is ELMORA11097 PCC_SET_OLD97?",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-neg-unknown-property",
+      "query": "Compare sources about ORVENA10542 unknown permeability.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-half-overlap",
+      "query": "What is NIVORRA10764 viscosity?",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-neg-es-absent",
+      "query": "Compara las dos fuentes sobre YELORIA11764 espesor panel.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-es-nearkey",
+      "query": "¿Qué dicen ambas fuentes sobre QELORIA10876 espesor panel?",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-es-property",
+      "query": "Compara fuentes sobre ZEVORIA10986 conductividad desconocida.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-empty",
+      "query": "",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-neg-controls",
+      "query": "Report both values; do not choose one as truth.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-neg-es-controls",
+      "query": "Informa ambos valores; no elijas una como verdad.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-neg-no-subject",
+      "query": "Compare both sources and cite the sources.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-stopwords",
+      "query": "the and of",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-neg-cross-key",
+      "query": "What is FERORIA11219 chamber lining?",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": false
+    },
+    {
+      "id": "pc-neg-typo",
+      "query": "Compare sources about ORVENA10543 aperture mode.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true
+    },
+    {
+      "id": "pc-neg-refs-foreign",
+      "query": "Compare sources about ORVENA10542 aperture mode.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true,
+      "refs": [
+        "pc-foreign"
+      ]
+    },
+    {
+      "id": "pc-neg-refs-stale",
+      "query": "Compare sources about ELMORA11097 valve setting.",
+      "gold": [],
+      "requiredSources": [],
+      "allowedSources": [],
+      "critical": true,
+      "multi": true,
+      "refs": [
+        "pc-current-a"
+      ],
+      "previousRevision": "pc-current-a"
+    }
+  ]
+}

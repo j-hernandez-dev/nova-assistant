@@ -46,6 +46,24 @@ class HttpHop:
     location: str | None
     body: bytes
     truncated: bool = False
+    # K6 private acquisition metadata. Never raw headers/cookies/credentials.
+    safe_headers: tuple[tuple[str, str], ...] = ()
+
+
+@dataclass(frozen=True)
+class FetchedSnapshot:
+    """Private, bounded response from the S5 mediated path, not a ToolResult.
+
+    Full URLs/bytes are for explicit snapshot extraction only. Audit continues
+    to publish S5's redacted URL summaries, never this object or its body.
+    """
+    requested_url: str
+    effective_url: str
+    acquired_at: datetime
+    content_type: str
+    body: bytes
+    truncated: bool
+    safe_headers: tuple[tuple[str, str], ...] = ()
 
 
 class FetchBudget:

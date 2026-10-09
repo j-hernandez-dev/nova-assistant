@@ -88,6 +88,11 @@ class BoundModelRuntime:
     def context_managed(self):
         return self._context is not None
 
+    @property
+    def filesystem_reminders_allowed(self):
+        constraints = self._context.turn_effect_constraints if self._context is not None else None
+        return constraints is None or not constraints.filesystem_mutation_denied
+
     def fresh(self):
         if self._fresh_factory is None:
             raise ProviderTransitionError("UNSUPPORTED_CLONE", "No fresh provider factory")
@@ -96,6 +101,7 @@ class BoundModelRuntime:
         provider = self._fresh_factory()
         context = self._context
         if context is not None:
+            turn_effect_constraints = context.turn_effect_constraints
             from local_cli.application.context import InferenceContext
             from local_cli.core.context import ContextManager
             manager = context.manager
@@ -104,6 +110,7 @@ class BoundModelRuntime:
             context = InferenceContext(ContextManager(manager.selection, policy=manager.policy,
                 model_limit=manager.model_limit, provider_limit=manager.provider_limit,
                 max_output_tokens=manager.max_output_tokens, tokenizer=tokenizer), context.capabilities)
+            context.turn_effect_constraints = turn_effect_constraints
         if self._redactor is not None:
             self._redactor.observe_provider(provider)
         return BoundModelRuntime(self.snapshot, provider, self._fresh_factory, context, self._redactor)
@@ -129,6 +136,9 @@ class BoundModelRuntime:
         messages = self._inference_messages(messages,merged)
         prepared = self._prepare(messages, merged)
         stream = self._provider.chat_stream(model, prepared.messages if prepared else messages, **merged)
+        if self._context is not None and self._context.knowledge_output:
+            from local_cli.application.knowledge_output import canonical_stream
+            stream = canonical_stream(stream)
         streams = {key: self._redactor.stream() for key in ('content', 'thinking')} if self._redactor else {}
         try:
             for chunk in stream:
@@ -178,12 +188,17 @@ class BoundModelRuntime:
             raise
         if prepared is not None:
             self._context.observe(result, prepared.budget)
+        if self._context is not None and self._context.knowledge_output:
+            from local_cli.application.knowledge_output import canonical_message
+            result = canonical_message(result)
         return self._redactor.value(result) if self._redactor else result
 
     def _inference_messages(self,messages,kwargs):
         from local_cli.application.context import WorkingMessages
         if self._context is not None and self._context.memory_source is not None:
             self._context.memory_source()
+        if self._context is not None and self._context.knowledge_source is not None:
+            self._context.knowledge_source()
         if self._context is not None and isinstance(messages,WorkingMessages):
             return messages.inference_source(self._context.manager,kwargs.get('tools') or (),self._redactor)
         return self._redactor.messages(messages) if self._redactor else messages

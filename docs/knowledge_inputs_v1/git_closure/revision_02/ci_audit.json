@@ -1,0 +1,226 @@
+{
+  "schema": "git-closure-final-ci-audit-2",
+  "scope": "CI configuration/collection, not product certification or evidence relabeling",
+  "status": "STATIC_AND_COLLECTION_PASS; REMOTE_CI_NOT_RUN",
+  "positive_manifest": "ci/pytest_contracts.json",
+  "positive_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+  "all_contracts": 3795,
+  "categories": {
+    "CURRENT_PORTABLE_CI": 3632,
+    "CURRENT_LOCAL_EVIDENCE_ONLY": 7,
+    "HISTORICAL_CERTIFICATION_ARTIFACT": 89,
+    "SPECIAL_INFRASTRUCTURE_ONLY": 67
+  },
+  "unclassified": [],
+  "current_coverage": {
+    "Windows": {
+      "counts": {
+        "core": 2630,
+        "security": 274,
+        "memory": 326,
+        "knowledge": 335
+      },
+      "duplicates": []
+    },
+    "Linux": {
+      "counts": {
+        "core": 2638,
+        "security": 274,
+        "memory": 326
+      },
+      "duplicates": []
+    },
+    "macOS": {
+      "counts": {
+        "core": 2638,
+        "security": 274,
+        "memory": 326
+      },
+      "duplicates": []
+    }
+  },
+  "local_only_functions": [
+    {
+      "nodeid": "tests/knowledge_inputs_v1/test_context_capability_profiles.py::test_preserved_4k_profile_is_limitation_evidence",
+      "classification": "CURRENT_LOCAL_EVIDENCE_ONLY",
+      "rule": "LOCAL_4K8K"
+    },
+    {
+      "nodeid": "tests/knowledge_inputs_v1/test_context_capability_profiles.py::test_supplemental_8k_profile_is_complete_without_remeasuring_4k",
+      "classification": "CURRENT_LOCAL_EVIDENCE_ONLY",
+      "rule": "LOCAL_4K8K"
+    },
+    {
+      "nodeid": "tests/knowledge_inputs_v1/test_k8_applicability_contracts.py::test_historical_head_skip_baseline_remains_eleven",
+      "classification": "CURRENT_LOCAL_EVIDENCE_ONLY",
+      "rule": "LOCAL_SKIPS"
+    },
+    {
+      "nodeid": "tests/knowledge_inputs_v1/test_k8_execution.py::test_complete_product_identity_not_eleven_file_allowlist",
+      "classification": "CURRENT_LOCAL_EVIDENCE_ONLY",
+      "rule": "LOCAL_PREFLIGHT"
+    },
+    {
+      "nodeid": "tests/knowledge_inputs_v1/test_k8_repair6_quality.py::test_prospective_structure_and_frozen_artifacts",
+      "classification": "CURRENT_LOCAL_EVIDENCE_ONLY",
+      "rule": "LOCAL_CURRENT_IDENTITY"
+    },
+    {
+      "nodeid": "tests/knowledge_inputs_v1/test_k8_repair6_quality.py::test_current_post_cert_identity_is_separate_from_historical_v6",
+      "classification": "CURRENT_LOCAL_EVIDENCE_ONLY",
+      "rule": "LOCAL_CURRENT_IDENTITY"
+    },
+    {
+      "nodeid": "tests/knowledge_inputs_v1/test_k8_repair6_quality.py::test_frozen_v6_quality",
+      "classification": "CURRENT_LOCAL_EVIDENCE_ONLY",
+      "rule": "LOCAL_CURRENT_IDENTITY"
+    }
+  ],
+  "mixed_files_kept_in_CI": true,
+  "frozen_SCF_unit_contracts_outside_ordinary_CI": 29,
+  "responsibility_reference": "ci/README.md",
+  "prior_m4_redistribution_reference": "docs/knowledge_inputs_v1/git_closure/revision_02/positive_selection_validation.json",
+  "synthetic_K8_unit_regression_scope": "Only functions explicitly recognized by the accepted current-regression manifest are current contract tests; no K8/SCF campaign/one-shot runner is a job. Historical certification outcomes/ledgers are not re-evaluated.",
+  "native_security_infrastructure": "59 Windows native contracts are explicit manual workflow_dispatch native_security=true only; prior auto job had opt-in flags unset. No ordinary skip or model E2E.",
+  "desktop": {
+    "platform": "windows-latest",
+    "node": "24.19.0",
+    "cwd": "desktop",
+    "suites": [
+      "application_client",
+      "approval_host",
+      "security_audit",
+      "memory_control",
+      "memory_maintenance",
+      "knowledge_control",
+      "knowledge_k7"
+    ],
+    "commands": [
+      "npm ci",
+      "node --experimental-transform-types --test [seven exact existing .test.cjs files]",
+      "npx --no-install tsc --noEmit"
+    ],
+    "GUI": false,
+    "package": false,
+    "publish": false,
+    "local_execution": false
+  },
+  "yaml_reference": "docs/knowledge_inputs_v1/git_closure/revision_02/static_ci_validation.json",
+  "bash_commands_parse_only": 16,
+  "workflow_diff": "docs/knowledge_inputs_v1/git_closure/revision_02/workflow_changes.patch",
+  "exact_workflow_patch_reverse_check": "PASS git apply --check --reverse (read-only)",
+  "collection_reference": "docs/knowledge_inputs_v1/git_closure/revision_02/collection_validation.json",
+  "collection_runs": [
+    {
+      "schema": "positive-contract-ci-run-1",
+      "scope": "COLLECTION_ONLY",
+      "job": "core",
+      "host": "Windows",
+      "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+      "pytest": "9.1.1",
+      "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+      "positive_base_contracts": 2630,
+      "collected_parameter_instances": 2747,
+      "collected_nodeids_sha256": "734682a0f363a0b82bd3c461d8a23bffd27325a4d864709a682de6a89016e0af",
+      "collection_guard": "PASS",
+      "tests_executed": 0,
+      "quality_attempts": 0,
+      "model_campaigns": 0,
+      "exit_code": 0,
+      "special_infrastructure": false,
+      "new_skips_xfails_or_deselection": false,
+      "collection_output": "C:/Users/joseh/Downloads/nova-local-cli/k8-certification-evidence/git-ci-configuration/revision02-20261009/core-final-collection"
+    },
+    {
+      "schema": "positive-contract-ci-run-1",
+      "scope": "COLLECTION_ONLY",
+      "job": "security",
+      "host": "Windows",
+      "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+      "pytest": "9.1.1",
+      "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+      "positive_base_contracts": 274,
+      "collected_parameter_instances": 615,
+      "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+      "collection_guard": "PASS",
+      "tests_executed": 0,
+      "quality_attempts": 0,
+      "model_campaigns": 0,
+      "exit_code": 0,
+      "special_infrastructure": false,
+      "new_skips_xfails_or_deselection": false,
+      "collection_output": "C:/Users/joseh/Downloads/nova-local-cli/k8-certification-evidence/git-ci-configuration/revision02-20261009/security-final-collection"
+    },
+    {
+      "schema": "positive-contract-ci-run-1",
+      "scope": "COLLECTION_ONLY",
+      "job": "memory",
+      "host": "Windows",
+      "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+      "pytest": "9.1.1",
+      "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+      "positive_base_contracts": 326,
+      "collected_parameter_instances": 791,
+      "collected_nodeids_sha256": "fca4a626c1be00daeb8ba3169fdab113d7a3dcd9668a10f9336422a78073d7cf",
+      "collection_guard": "PASS",
+      "tests_executed": 0,
+      "quality_attempts": 0,
+      "model_campaigns": 0,
+      "exit_code": 0,
+      "special_infrastructure": false,
+      "new_skips_xfails_or_deselection": false,
+      "collection_output": "C:/Users/joseh/Downloads/nova-local-cli/k8-certification-evidence/git-ci-configuration/revision02-20261009/memory-final-collection"
+    },
+    {
+      "schema": "positive-contract-ci-run-1",
+      "scope": "COLLECTION_ONLY",
+      "job": "knowledge",
+      "host": "Windows",
+      "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+      "pytest": "9.1.1",
+      "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+      "positive_base_contracts": 335,
+      "collected_parameter_instances": 1015,
+      "collected_nodeids_sha256": "40aed5a5c3606c0091ce3ee4323381343bc40e3ab561ebe5b04950785d5821dd",
+      "collection_guard": "PASS",
+      "tests_executed": 0,
+      "quality_attempts": 0,
+      "model_campaigns": 0,
+      "exit_code": 0,
+      "special_infrastructure": false,
+      "new_skips_xfails_or_deselection": false,
+      "collection_output": "C:/Users/joseh/Downloads/nova-local-cli/k8-certification-evidence/git-ci-configuration/revision02-20261009/knowledge-final-collection"
+    },
+    {
+      "schema": "positive-contract-ci-run-1",
+      "scope": "COLLECTION_ONLY",
+      "job": "security-native",
+      "host": "Windows",
+      "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+      "pytest": "9.1.1",
+      "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+      "positive_base_contracts": 59,
+      "collected_parameter_instances": 89,
+      "collected_nodeids_sha256": "e905ae1f902a3ffa637149eaffe8e459cd470a28fe281ef80a345a50ef11e941",
+      "collection_guard": "PASS",
+      "tests_executed": 0,
+      "quality_attempts": 0,
+      "model_campaigns": 0,
+      "exit_code": 0,
+      "special_infrastructure": true,
+      "new_skips_xfails_or_deselection": false,
+      "collection_output": "C:/Users/joseh/Downloads/nova-local-cli/k8-certification-evidence/git-ci-configuration/revision02-20261009/native-final-collection"
+    }
+  ],
+  "no_personal_paths_in_executable_CI": true,
+  "no_external_evidence_dependency": true,
+  "no_Ollama_dependency": true,
+  "no_new_skips_xfails_filters_suppression": true,
+  "no_remote_workflows": true,
+  "version_unchanged": "0.12.6",
+  "official_references": [
+    "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax",
+    "https://github.com/actions/setup-node/blob/v4/action.yml",
+    "https://github.com/actions/upload-artifact/blob/v4/action.yml"
+  ]
+}

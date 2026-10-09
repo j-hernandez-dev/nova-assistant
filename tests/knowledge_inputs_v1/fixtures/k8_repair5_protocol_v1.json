@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "k8-repair-v5-protocol-v1",
+  "metrics": {
+    "guardRespectsTurnEffects": 1,
+    "terminalWithoutPendingEffect": 1,
+    "citationGrounding": 1,
+    "noWriteEffects": 1,
+    "positiveWriteCompatibility": 1,
+    "auditDelivery": 1,
+    "noUnexpectedEffects": 1,
+    "noUnrelatedNetwork": 1
+  },
+  "denominators": {
+    "abstention": 2,
+    "grounding": 4,
+    "effects": 2,
+    "real": 8
+  },
+  "model": {
+    "name": "qwen3.5:9b",
+    "expectedDigest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+    "runner": "llamacpp",
+    "endpoint": "http://127.0.0.1:11434",
+    "contextWindow": 8192,
+    "temperature": 0,
+    "think": false,
+    "maxIterations": 6,
+    "turnWaitSeconds": 180
+  },
+  "retries": 0,
+  "originalCampaignExecuted": false,
+  "embeddings": false,
+  "cloud": false,
+  "freezeBeforeMeasurement": true,
+  "qualityScorer": "V4 contract scorer unchanged, plus no FS reminders in forbidden/non-output Turns and exactly one Generation when no tool operation is needed. Only strict public UNKNOWN is abstention; no guesses count as grounded recall.",
+  "sourceProtocol": "Existing K8 system prompt only reused as a helper, not original corpus execution.",
+  "noPostOutcomeChanges": true
+}

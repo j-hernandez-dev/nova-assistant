@@ -51,6 +51,8 @@ export default function App() {
   const explorerRefreshKey = view?.fileRevision || 0
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const [selectedSources,setSelectedSources] = useState<string[]>([])
+  const [sourceUrl,setSourceUrl]=useState('')
   const [inputText, setInputText] = useState('')
 
   const scrollToBottom = useCallback(() => {
@@ -251,8 +253,11 @@ export default function App() {
 
   const sendMessage = useCallback((text: string) => {
     if (!text.trim()) return
-    void window.api.applicationCommand('SubmitUserInput', { content: text })
-  }, [])
+    const attachmentRefs=(view?.knowledge?.attachmentRefs || []).filter(r => selectedSources.includes(r.sourceId))
+    void window.api.applicationCommand('SubmitUserInput', { content: text, attachmentRefs }).then(receipt => {
+      if (receipt.accepted) setSelectedSources([])
+    })
+  }, [view?.knowledge?.attachmentRefs,selectedSources])
 
   const handleStop = useCallback(() => {
     if (view?.activeTurnId) void window.api.applicationCommand('CancelTurn', { turnId: view.activeTurnId })
@@ -559,6 +564,38 @@ export default function App() {
           )}
 
           <div className="input-area">
+            {view?.knowledge?.hostAcquisition && <div aria-label="Knowledge sources">
+              <button disabled={!status.ready || streaming} onClick={() => void window.api.knowledgePick()}>Attach file</button>
+              <button disabled={!status.ready} onClick={() => void window.api.knowledgeCommand('source_list',{})}>List sources</button>
+              <button disabled={!status.ready} onClick={()=>void window.api.knowledgeCommand('source_status',{})}>Capacity/status</button>
+              <input aria-label="Source URL" value={sourceUrl} onChange={e=>setSourceUrl(e.target.value)} placeholder="Public HTTP(S) snapshot"/>
+              <button disabled={!status.ready||streaming||!sourceUrl} onClick={()=>void window.api.knowledgeCommand('source_import_url',{url:sourceUrl,scope:'WORKSPACE'})}>Import URL to workspace</button>
+              {(view.knowledge.capacity?.usage || []).map(u=><div key={u.scope} role="status">
+                {u.scope}: {u.state} — {u.bytes} bytes / {u.byteLimit}; {u.sources} sources; {u.chunks} chunks (operational limits, not OS quotas)
+              </div>)}
+              {!view.knowledge.extraction && <span> Extraction not available yet; files cannot be used as context.</span>}
+              {view.knowledge.attachmentRefs.map(ref => <div key={ref.attachmentId}>
+                <label><input type="checkbox" checked={selectedSources.includes(ref.sourceId)}
+                  onChange={e => setSelectedSources(ids => e.target.checked ? [...ids,ref.sourceId] : ids.filter(id => id!==ref.sourceId))}/>
+                  {ref.displayName} — {ref.state}</label>
+                <button disabled={streaming} onClick={() => void window.api.knowledgeCommand('source_promote',{sourceId:ref.sourceId})}>Keep in workspace</button>
+                <button disabled={streaming} onClick={()=>void window.api.knowledgeCommand('source_detail',{sourceId:ref.sourceId})}>Detail</button>
+                <button disabled={streaming} onClick={()=>void window.api.knowledgeRefresh(ref.sourceId)}>Refresh from selected file</button>
+                <button disabled={streaming||!sourceUrl} onClick={()=>void window.api.knowledgeCommand('source_refresh_url',{sourceId:ref.sourceId,url:sourceUrl})}>Refresh URL</button>
+                <button disabled={streaming} onClick={()=>void window.api.knowledgeExport(ref.sourceId)}>Export</button>
+                <button disabled={streaming} onClick={()=>void window.api.knowledgeCommand('source_remote',{sourceId:ref.sourceId,allowed:true})}>Allow remote forwarding…</button>
+                <button disabled={streaming} onClick={()=>void window.api.knowledgeCommand('source_remote',{sourceId:ref.sourceId,allowed:false})}>Revoke forwarding</button>
+                <button disabled={streaming} onClick={() => {
+                  setSelectedSources(ids => ids.filter(id => id!==ref.sourceId))
+                  void window.api.knowledgeCommand('source_delete',{sourceId:ref.sourceId})
+                }}>Delete source</button>
+              </div>)}
+              {(view.knowledgeOperations || []).map(op => <div key={op.operationId} role="status">
+                {op.phase}: {op.status}{op.result?.error?.code ? ` — ${op.result.error.code}` : ''}
+                  {op.result?.data && <details><summary>Backend metadata</summary><pre>{JSON.stringify(op.result.data,null,2)}</pre></details>}
+                {op.status==='running' && <button onClick={() => void window.api.knowledgeCommand('source_cancel',{operationId:op.operationId})}>Cancel import</button>}
+              </div>)}
+            </div>}
             <div className="input-row">
               <span className="input-marker">&gt;</span>
               <textarea

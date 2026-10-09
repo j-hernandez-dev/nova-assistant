@@ -257,7 +257,10 @@ class HttpFetchBroker:
                 # One-byte probe is not retained in the result body.
                 truncated = bool(response.read1(1))
             budget.check()
-            return HttpHop(response.status, content_type, location, bytes(body), truncated)
+            safe_headers = tuple((name, value[:256]) for name in ('ETag', 'Last-Modified')
+                if (value := response.getheader(name)) is not None
+                and not any(ord(c) < 32 or ord(c) == 127 for c in value))
+            return HttpHop(response.status, content_type, location, bytes(body), truncated, safe_headers)
         except NetworkError as exc:
             raise NetworkError(exc.code, dispatched=dispatched or exc.dispatched) from None
         except Exception as error:

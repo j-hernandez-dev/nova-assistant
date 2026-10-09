@@ -1,0 +1,3511 @@
+{
+  "schemaVersion": 1,
+  "phase": "K8_REPAIR_V3",
+  "date": "2026-10-08",
+  "status": "PARTIAL",
+  "verdict": "K8 REPAIR V3 PARTIAL",
+  "scope": "Third bounded repair: single-property JSON locator compatibility, deterministic factual/control/effect spans, exact historical MEMORY test guard reversal; frozen independent synthetic retrieval/compliance/paired effect evidence, final native regressions. No original K8 E2E.",
+  "normativeSource": {
+    "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+    "sha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "architectureChanged": false
+  },
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "initialGitStatus": [
+      " M desktop/electron/application_client.ts",
+      " M desktop/electron/main.ts",
+      " M desktop/electron/preload.ts",
+      " M desktop/shared/application.ts",
+      " M desktop/src/App.tsx",
+      " M desktop/src/components/MessageBlock.tsx",
+      " M desktop/src/types.ts",
+      " M local_cli/application/commands.py",
+      " M local_cli/application/context.py",
+      " M local_cli/application/network.py",
+      " M local_cli/application/policy.py",
+      " M local_cli/application/providers.py",
+      " M local_cli/application/security_audit.py",
+      " M local_cli/application/session.py",
+      " M local_cli/application/tool_runtime.py",
+      " M local_cli/bootstrap_cli.py",
+      " M local_cli/bootstrap_server.py",
+      " M local_cli/cli.py",
+      " M local_cli/config.py",
+      " M local_cli/core/context.py",
+      " M local_cli/core/network.py",
+      " M local_cli/infrastructure/http_fetch.py",
+      " M local_cli/interfaces/cli_application.py",
+      " M local_cli/interfaces/jsonl_application.py",
+      " M local_cli/server.py",
+      " M local_cli/sub_agent.py",
+      " M local_cli/tools/agent_tool.py",
+      " M pyproject.toml",
+      " M tests/memory_v1/run_m8_qwen4_chat7b.py",
+      " M tests/memory_v1/test_m8_metadata_admission.py",
+      " M tests/memory_v1/test_m8_ps_operational.py",
+      " M tests/memory_v1/test_m8_qwen4_chat7b.py",
+      " M tests/test_nova_core_phase0_characterization.py",
+      " M tests/test_nova_core_phase10_services.py",
+      " M tests/test_nova_core_phase11_characterization.py",
+      "?? desktop/electron/knowledge_control.cjs",
+      "?? desktop/electron/knowledge_control.d.cts",
+      "?? desktop/tests/knowledge_control.test.cjs",
+      "?? desktop/tests/knowledge_k7.test.cjs",
+      "?? docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "?? docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "?? docs/knowledge_inputs_v1/k0_ci_reconciliation.json",
+      "?? docs/knowledge_inputs_v1/k0_corpus_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/memory.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k0_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_manifest.json",
+      "?? docs/knowledge_inputs_v1/k0_resultados.md",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-authority.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-store.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/desktop.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final_integrity.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/head_final.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k1_freeze.json",
+      "?? docs/knowledge_inputs_v1/k1_manifest.json",
+      "?? docs/knowledge_inputs_v1/k1_resultados.md",
+      "?? docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/compatibility.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/desktop.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-memory.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-py312.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final_integrity.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/integrity.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k2_freeze.json",
+      "?? docs/knowledge_inputs_v1/k2_manifest.json",
+      "?? docs/knowledge_inputs_v1/k2_preflight.md",
+      "?? docs/knowledge_inputs_v1/k2_product_freeze.json",
+      "?? docs/knowledge_inputs_v1/k2_product_freeze_v2.json",
+      "?? docs/knowledge_inputs_v1/k2_resultados.md",
+      "?? docs/knowledge_inputs_v1/k3_manifest.json",
+      "?? docs/knowledge_inputs_v1/k3_pdf_repair_manifest.json",
+      "?? docs/knowledge_inputs_v1/k3_pdf_repair_resultados.md",
+      "?? docs/knowledge_inputs_v1/k3_resultados.md",
+      "?? docs/knowledge_inputs_v1/k4_manifest.json",
+      "?? docs/knowledge_inputs_v1/k4_resultados.md",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/performance_final.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/quality_final.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_manifest.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_resultados.md",
+      "?? docs/knowledge_inputs_v1/k5_evidence/budget_matrix.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/closure_freeze.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/persisted_citations.json",
+      "?? docs/knowledge_inputs_v1/k5_manifest.json",
+      "?? docs/knowledge_inputs_v1/k5_resultados.md",
+      "?? docs/knowledge_inputs_v1/k6_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k6_evidence/protocol_v1.json",
+      "?? docs/knowledge_inputs_v1/k6_manifest.json",
+      "?? docs/knowledge_inputs_v1/k6_resultados.md",
+      "?? docs/knowledge_inputs_v1/k7_evidence/closure_freeze.json",
+      "?? docs/knowledge_inputs_v1/k7_evidence/final_freeze.json",
+      "?? docs/knowledge_inputs_v1/k7_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k7_manifest.json",
+      "?? docs/knowledge_inputs_v1/k7_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_evidence/e2e_freeze_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_evidence/e2e_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_evidence/standalone_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/compliance_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/forensic_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/product_freeze_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/product_freeze_v2.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/retrieval_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/compliance_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/forensic_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/product_freeze_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/product_freeze_v2.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/retrieval_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_resultados.md",
+      "?? local_cli/application/knowledge.py",
+      "?? local_cli/application/knowledge_children.py",
+      "?? local_cli/application/knowledge_context.py",
+      "?? local_cli/application/knowledge_host.py",
+      "?? local_cli/application/knowledge_legacy.py",
+      "?? local_cli/application/knowledge_retrieval.py",
+      "?? local_cli/application/knowledge_web.py",
+      "?? local_cli/application/passive_web.py",
+      "?? local_cli/application/turn_effects.py",
+      "?? local_cli/bootstrap_knowledge.py",
+      "?? local_cli/bootstrap_passive_web.py",
+      "?? local_cli/core/attachments.py",
+      "?? local_cli/core/knowledge.py",
+      "?? local_cli/core/knowledge_chunking.py",
+      "?? local_cli/core/knowledge_context.py",
+      "?? local_cli/core/knowledge_delegation.py",
+      "?? local_cli/core/knowledge_legacy.py",
+      "?? local_cli/core/knowledge_retrieval.py",
+      "?? local_cli/core/knowledge_store.py",
+      "?? local_cli/core/knowledge_views.py",
+      "?? local_cli/core/passive_web.py",
+      "?? local_cli/infrastructure/knowledge_acquisition.py",
+      "?? local_cli/infrastructure/knowledge_embeddings.py",
+      "?? local_cli/infrastructure/knowledge_export.py",
+      "?? local_cli/infrastructure/knowledge_extraction.py",
+      "?? local_cli/infrastructure/knowledge_files.py",
+      "?? local_cli/infrastructure/knowledge_lexical.py",
+      "?? local_cli/infrastructure/knowledge_migrations.py",
+      "?? local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+      "?? local_cli/infrastructure/knowledge_sqlite.py",
+      "?? local_cli/infrastructure/knowledge_web_extraction.py",
+      "?? local_cli/infrastructure/web_search.py",
+      "?? local_cli/interfaces/knowledge_cli.py",
+      "?? local_cli/tools/web_search_tool.py",
+      "?? tests/knowledge_inputs_v1/__init__.py",
+      "?? tests/knowledge_inputs_v1/fixtures/k4_core_frozen_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k4_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_core_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair2_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair2_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair2_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_docx_payload_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_fixtures.py",
+      "?? tests/knowledge_inputs_v1/k1_helpers.py",
+      "?? tests/knowledge_inputs_v1/k2_helpers.py",
+      "?? tests/knowledge_inputs_v1/k4_helpers.py",
+      "?? tests/knowledge_inputs_v1/k8_fixtures.py",
+      "?? tests/knowledge_inputs_v1/k8_repair2_helpers.py",
+      "?? tests/knowledge_inputs_v1/k8_repair_helpers.py",
+      "?? tests/knowledge_inputs_v1/pdf_fixtures.py",
+      "?? tests/knowledge_inputs_v1/run_k0.py",
+      "?? tests/knowledge_inputs_v1/run_k2.py",
+      "?? tests/knowledge_inputs_v1/run_k3_pdf_repair.py",
+      "?? tests/knowledge_inputs_v1/run_k4.py",
+      "?? tests/knowledge_inputs_v1/run_k5.py",
+      "?? tests/knowledge_inputs_v1/run_k6.py",
+      "?? tests/knowledge_inputs_v1/run_k6_host.py",
+      "?? tests/knowledge_inputs_v1/run_k7.py",
+      "?? tests/knowledge_inputs_v1/run_k7_desktop.py",
+      "?? tests/knowledge_inputs_v1/run_k8.py",
+      "?? tests/knowledge_inputs_v1/run_k8_e2e.py",
+      "?? tests/knowledge_inputs_v1/run_k8_forensic.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair2.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair2_model.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair_model.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair_model_v2.py",
+      "?? tests/knowledge_inputs_v1/test_k0_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k0_corpus.py",
+      "?? tests/knowledge_inputs_v1/test_k1_application.py",
+      "?? tests/knowledge_inputs_v1/test_k1_containment.py",
+      "?? tests/knowledge_inputs_v1/test_k1_recovery.py",
+      "?? tests/knowledge_inputs_v1/test_k1_store.py",
+      "?? tests/knowledge_inputs_v1/test_k2_acquisition.py",
+      "?? tests/knowledge_inputs_v1/test_k2_application.py",
+      "?? tests/knowledge_inputs_v1/test_k2_composition.py",
+      "?? tests/knowledge_inputs_v1/test_k2_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k2_interfaces.py",
+      "?? tests/knowledge_inputs_v1/test_k3_extraction.py",
+      "?? tests/knowledge_inputs_v1/test_k3_pdf_repair.py",
+      "?? tests/knowledge_inputs_v1/test_k4_chunking.py",
+      "?? tests/knowledge_inputs_v1/test_k4_legacy.py",
+      "?? tests/knowledge_inputs_v1/test_k4_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k4_retrieval.py",
+      "?? tests/knowledge_inputs_v1/test_k4_semantic.py",
+      "?? tests/knowledge_inputs_v1/test_k5_context.py",
+      "?? tests/knowledge_inputs_v1/test_k5_integration.py",
+      "?? tests/knowledge_inputs_v1/test_k6_passive_web.py",
+      "?? tests/knowledge_inputs_v1/test_k7_children.py",
+      "?? tests/knowledge_inputs_v1/test_k7_host.py",
+      "?? tests/knowledge_inputs_v1/test_k8_harness.py",
+      "?? tests/knowledge_inputs_v1/test_k8_parser_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k8_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair2_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair2_control_regression.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair2_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair_contracts.py"
+    ],
+    "initialEntryCount": 248,
+    "tags": [
+      "nova-core-v1-stable 97f41c6dab89ee59332875bb8d89c29620b52156 158b60effa484cd34a58b991f3ee4ca3f808d924",
+      "nova-memory-v1-ready fa6b2f7898692ddc6cec77a4d971dbc395b764a6 9911ad4ca0fc13edfef49e84441a759d35cbefda",
+      "nova-memory-v1.1-ready 6a48c5252e40986ecf4180138d9d56bc519b3e49 3678d5b597a888b743e90d26efda6219943d58df",
+      "nova-security-v1.2-ready e5bea6a4c2c559a1f5a2f8824316a83b548b2533 26dc87786d8ad1c1d879255a068c7fb50a25e6f2"
+    ],
+    "platform": "Windows 11 build 26200 + local NTFS + HOST_UNISOLATED",
+    "processIsolation": false,
+    "python": "3.14.6",
+    "pytest": "9.1.1",
+    "sqlite": "3.50.4",
+    "node": "24.16.0",
+    "pdf": "pypdf 6.19.0 via existing external dependencies site"
+  },
+  "final": {
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "tags": [
+      "nova-core-v1-stable 97f41c6dab89ee59332875bb8d89c29620b52156 158b60effa484cd34a58b991f3ee4ca3f808d924",
+      "nova-memory-v1-ready fa6b2f7898692ddc6cec77a4d971dbc395b764a6 9911ad4ca0fc13edfef49e84441a759d35cbefda",
+      "nova-memory-v1.1-ready 6a48c5252e40986ecf4180138d9d56bc519b3e49 3678d5b597a888b743e90d26efda6219943d58df",
+      "nova-security-v1.2-ready e5bea6a4c2c559a1f5a2f8824316a83b548b2533 26dc87786d8ad1c1d879255a068c7fb50a25e6f2"
+    ],
+    "tagsChanged": false,
+    "indexChanged": false,
+    "gitStatusEntryCountExpected": 264,
+    "initialEntriesPreserved": true,
+    "productChangesAfterFreeze": false,
+    "nextPhaseImplemented": false
+  },
+  "preservation": {
+    "original": {
+      "status": "K8 PARTIAL",
+      "passed": 5,
+      "total": 14
+    },
+    "repairV1": {
+      "status": "K8 REPAIR PARTIAL",
+      "citation": "4/6",
+      "grounding": "5/6",
+      "injection": "0/4",
+      "total": "9/16"
+    },
+    "repairV2": {
+      "status": "K8 REPAIR V2 PARTIAL",
+      "total": "16/20",
+      "reportSha256": "e8dbea946ddf69ada6f1e530bab8eaf30143b0dc63b818fd69a9eb66e87333d1",
+      "manifestSha256": "ddf23bbc2a871ff41cc0193c308d0411eb62327ce696e30628543b1eccfbee11"
+    },
+    "historicalEvidenceRewritten": false,
+    "historicalProductPinsReinterpreted": false,
+    "baselineVerification": {
+      "checked": 251,
+      "unchanged": 247,
+      "authorizedDeltas": [
+        {
+          "path": "tests/memory_v1/test_m8_ps_operational.py",
+          "expected": "1ae0a1b7e395db730432aa1f764be09f438131d570c0a4a4ba75bf82d02648b2",
+          "actual": "ec976607769cb6f31157bba53dda1576e0e81fc9590995d555f14cbf5c8ffdf9",
+          "matches": false
+        },
+        {
+          "path": "local_cli/application/knowledge_retrieval.py",
+          "expected": "b1b0e9d749eac702395758bd2a3a1842a2f8ce393a0e458beaf146010d25a248",
+          "actual": "b6f75c75ebadb92563adf24c44dd0b2d99c4367334e3d456dadf1f1a8a06b9a0",
+          "matches": false
+        },
+        {
+          "path": "local_cli/infrastructure/knowledge_extraction.py",
+          "expected": "3c02bf21af96ccdb0801847412846f91377ecf0bda58104374951cc6b847b2da",
+          "actual": "1c15dfd1f767385a0fd8a581387c4059d1d6e5195579644316f18d129fb0d8b9",
+          "matches": false
+        },
+        {
+          "path": "local_cli/infrastructure/knowledge_lexical.py",
+          "expected": "ce48db252b70cc77b599affaa20366ee09a9b7c13d32fe248944179e52860392",
+          "actual": "2dcd1468ee6511b5e6957209af962509b66580043d1fb72c13175f3ef220dcb1",
+          "matches": false
+        }
+      ],
+      "unexpectedChanges": []
+    },
+    "protectedRepositoryEvidence": [
+      {
+        "path": "docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+        "sha256": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888"
+      },
+      {
+        "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+        "sha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_ci_reconciliation.json",
+        "sha256": "ce6eec19976d6e7bc173e459a347356943b413781338ace46ce8be96bdeb9e5b"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_corpus_freeze.json",
+        "sha256": "4533fc33dcfa49f5480546f3ce8ed9d54832ae40b8b9d4910145c6dc19c7ebe2"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt",
+        "sha256": "7a288bf7b5da69cce83733072812cbc72853ea85be5ca29183d5ebc6fa1363a4"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/boundaries.txt",
+        "sha256": "05bdd663435c60bac55bee336b1421d468cd3867337c0ea2bc21a10642688529"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt",
+        "sha256": "42fa8098c2d7886e19bde984c8719abfe2aef6d4a3e7a2f8171837f251098d74"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/contracts.txt",
+        "sha256": "c71e1f17301a494fd69526599f0fd1b9c15d1596efb427ad7bdff5c25a0ef1ec"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt",
+        "sha256": "2a2a3ea671dc9e87e084f7ab118c3ab65aa9de8f184758adc674415cf263a79e"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt",
+        "sha256": "748765df3378a19f68dcc3f1191f5e4fa79c881d8cb5c47519dd53633ce6ac7e"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt",
+        "sha256": "775c55d64163e9c6c718c6d3f287c316017fbe6cefabda2b7559b4714c090791"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/head_final.txt",
+        "sha256": "c49ee19a526eb2b0f4d81059d0f9bab357f0e0dcfa68241d2e00fa467c4e5bc0"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt",
+        "sha256": "3716cade30ce772d8a406840a24d78d7eaf990e2c60c0dc0ea077b2377efe3bd"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/memory.txt",
+        "sha256": "f87c498417ce4b02a57a10fec6baa83861092bf8ae4f6be2de4a86fcb798f9ce"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_evidence/test_runs.json",
+        "sha256": "800de80c1ae4516b74ba820a595813f0257f1b373901091ad7634e6fedac4a05"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_freeze.json",
+        "sha256": "6ae1fdd18f68d46ec102f06edba20c377833e51a979ef75752b308eae8a8a25e"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_manifest.json",
+        "sha256": "60e419b2b453f36fe251cfee64803848cb8d38780a1a8df624e7ec1b1c718dfe"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k0_resultados.md",
+        "sha256": "dd28561fc5e6e3ebff4ba95c622ab1dee03e00c4b2f5d77f4d161afae118392c"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt",
+        "sha256": "5c1a9e72b9a33d76e2cadb28d33beb9207b5aff98992e0ab3025157ccd39eead"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt",
+        "sha256": "4bc230bc383363a6515b4025cfcf0bc7f1722ed6227e71fb3da9b78f670eecf1"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt",
+        "sha256": "3f47d282ae9aae08fbf67b2752e15015e78b4b7d22d36a425d6f8827b38b56db"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/block-authority.txt",
+        "sha256": "c21fd456d1d0a1b8ac5cacac7801b71c464db327ce3f0b448186aeb3ca6654a7"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt",
+        "sha256": "3634e1d2f54b6788f93927c5c8d4107f6c76b512386ab8cb42fb1e524d2429dd"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/block-store.txt",
+        "sha256": "05ec028525c9c94b65d22d26436c38d2d63ae73fb82cec4dcd61641f8fe84e9a"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/desktop.json",
+        "sha256": "33fc4818117fe10d0ed63e0f239335fe6254e4557a2327354c07e897639bca2b"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt",
+        "sha256": "f012c7f0dbdf615b028b0f2a249c0dea58871ef19a8a9424b081153aa5d2e247"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt",
+        "sha256": "990f009e79ce9a150e8c09e5e84c323cc07f63fad71f16e1b6151caefa469625"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/final_integrity.json",
+        "sha256": "8d2ad75c33c13164cec67bc708e13be4d4167c8761bb2bba884083091b3fc863"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/head_final.json",
+        "sha256": "eb228e19bac8597fdec5aaf7e26f6e9524f8e68cf34f4987b9062741bd714eb0"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/head_final.txt",
+        "sha256": "d621323c8a6a9ed357c21047189ca0053248ebd4a9d3f231b4362909b8d3d438"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_evidence/test_runs.json",
+        "sha256": "fc84635e87c1c7357a0f07827c1ffe888e6719accfd2be34077460f0075192d6"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_freeze.json",
+        "sha256": "7d1c69d08515b704d139e296ce050d8508d74b13dd90957f66be9c2325a7cdfd"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_manifest.json",
+        "sha256": "ee5b588635ae262f71f7e5ec596bf8ed69e6ccc22fa9d02d1a06bd4c086a2c94"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k1_resultados.md",
+        "sha256": "357cd60ad1fc363b47e5745d4c9c421710b826ad906d3b984a69179e6e699761"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt",
+        "sha256": "6faa80fd68d3b8868444ed4cad89c34fc8c8387c76b1f59c058926b0ccd2fa7d"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt",
+        "sha256": "f29f7133c1ff96b095f2de0c65fef6f463e7117adc77e2b677a1234ce4805bf4"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt",
+        "sha256": "2031951d63b4e67af74f6defa4dbb5324aa098fce4ab0756db43dab7bbeba154"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt",
+        "sha256": "d44be98e76bd517342a5c594d96e2efe0744f6e7578a24a3f57595c40e15e6aa"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt",
+        "sha256": "f432d0071437104b1a2bb514f06bf7ec4795ef91bbfb3e2b81030f4463c12d1a"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt",
+        "sha256": "aa3723ce7b1e61bac9c418f955b7185f4d72af2273349332c0f3b7f67359308f"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt",
+        "sha256": "00cda2d52deb7427de0b5cd63f7bd00a8fdc8c8d3f441d2704dbdf6a7dff480a"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/compatibility.txt",
+        "sha256": "c49ce51e239ed8eb7f5f87ce2e404d344ef57dcccca09e6888382253ea7fd233"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/desktop.json",
+        "sha256": "c474220fffa54d3be30cbdc290009be76cae545835135ea50c9f3ea92889eab9"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt",
+        "sha256": "42986692857666d8223b1b462bff7811f0f343ba27da8f2ca6623375a6fde9de"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt",
+        "sha256": "a7e504c829d40041874cc540910eb668678d6ae2ad58060bc0be41ba6dbc3443"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt",
+        "sha256": "d6e49b1d4f37762cdf38a7e927624e917191491a0f4cf3a3c5ad468dfbc31706"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt",
+        "sha256": "57c83140a6026933cd55f4f2ae833cf43c9209d7734ec3917283ed0488c7dab0"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/final-memory.txt",
+        "sha256": "31dd0e20ed8c5d6217f71a95e80a1f34e386a848671435ec745f5bb7529a73fe"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt",
+        "sha256": "767d351178ce0a74405486c1a8f475bcb308ae2ff948ed6d78d7d8d6162dd99c"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/final-py312.txt",
+        "sha256": "31bbe4672b10b3ac242f78265f96e55e519cf08a15b4e75bd8c44fc32840b900"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/final_integrity.json",
+        "sha256": "9b33d7e9116c067621d83e7d8d65b31f352d2eaae31b93bd11bedef05679aca6"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/head_final.txt",
+        "sha256": "3693c593627335e91b12d443dff57ad9a705cca7339441e6848dde123ed9ec3a"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/integrity.json",
+        "sha256": "2d959bad3e8e3ff18139de3d531faa9c239520af127a19486f6e3085ce3a4824"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_evidence/test_runs.json",
+        "sha256": "e6f18208b87d389c0e2f0a0b404772fdc577ca1dbfd7154d52aca84a4f30ca49"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_freeze.json",
+        "sha256": "023654676666b8ef1c99ffa0fe85eb765d405b42adc29cb187d6b31325d38585"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_manifest.json",
+        "sha256": "94d704982ea83f76cff6c97c7e967225d7d9f9db854a2a9d56dfab821eef6450"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_preflight.md",
+        "sha256": "a9f18a49cc9d2f31dfafbc4f36d046699903953976c1b57783feb22fe8280b9e"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_product_freeze.json",
+        "sha256": "1ffe4d67d9a21a553406759fd8d21830550a7931efc4cb903698521fa4d21d91"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_product_freeze_v2.json",
+        "sha256": "51fa4ebfcdb34dcfcc8efa39a597e4b2d3af49cdcf7e4e629df8b3dc3d8c6999"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k2_resultados.md",
+        "sha256": "a7e0d54a96ea392b4cc4f866bed984e7fbaf69e77f42d9a5d902b16fbfd87b6e"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k3_manifest.json",
+        "sha256": "1e9ba6554cdfff4c2c3e2d4bea00df2b475c1affebd2298df0f38315e2d70911"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k3_pdf_repair_manifest.json",
+        "sha256": "47caef5c46dadf52601ac42a73ac560b2007da5cab2c4e1e875965d9750d898a"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k3_pdf_repair_resultados.md",
+        "sha256": "329b1c779a1d12bebf164395c6c7050b31a989c7f239e032b13050c41db2fda7"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k3_resultados.md",
+        "sha256": "1974132a506faf034ad93b4f45f9f993b72e4e2438f3a740412eee774f5777cd"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k4_manifest.json",
+        "sha256": "bf9aebaa8517e5a7c5822dada6539fb25c1d027241755383f37b15e307ae4552"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k4_resultados.md",
+        "sha256": "2aefa6badcdc7fcf5498d3453428b219f1aaaac3b417894c426fa720b3d5d87b"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k4_resume_evidence/implementation_freeze.json",
+        "sha256": "c514ceab4ea002cc33bd7395560ddd76ce8f0799f565899eb09636bf38be1f38"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k4_resume_evidence/performance_final.json",
+        "sha256": "0821b78a5d9cc543f1d624aa25980f8115240aef92c78b099edb13d19cc30bd5"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k4_resume_evidence/quality_final.json",
+        "sha256": "13f603486283246ddedb1dd81bf85e3aff93633be84feaa341e2ea42897ac464"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k4_resume_manifest.json",
+        "sha256": "a6526d79d6c972a13c9c5e46a4d2e6e9ffb951865b65404620317a8a34908d33"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k4_resume_resultados.md",
+        "sha256": "485b44cd03600187bef84d93f52d3f2ab43c8699545b99b24541ccf831b9226c"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k5_evidence/budget_matrix.json",
+        "sha256": "d331262fc96d6ba61e69a22cf17a585764aeacf020db9c3e11b783d6e2ea7377"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k5_evidence/closure_freeze.json",
+        "sha256": "83a40d3ec0536c8f1ab0853c7c8b878b20103f08ce2715c9a399295ef8a000a6"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k5_evidence/implementation_freeze.json",
+        "sha256": "8d6a75910751c737a7d34f98fabfffbb3d8c6402feafbfc610601c2a50a30314"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k5_evidence/persisted_citations.json",
+        "sha256": "e700c3a1cefbb506421de2d431d514ed99fe159e216e691e13539f1d0464e224"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k5_manifest.json",
+        "sha256": "9d31b7812fcf3ec9012a9c5ca3dc4e976c5e74c647afcc2e0824e25eda9e857c"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k5_resultados.md",
+        "sha256": "437293252cf016ab8e3c769a1b946eb39a48460cd1b0907ad0ddadb3a6a4fc0d"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k6_evidence/implementation_freeze.json",
+        "sha256": "4e53b0ee4281db2d1f4dbbdbb8049a348e9f125c344e8da09b357de07db3521a"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k6_evidence/protocol_v1.json",
+        "sha256": "1771c8df533814275caba408e6275158413aa3c30ad793e99a959e57386babc1"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k6_manifest.json",
+        "sha256": "48f81bc6dd1d12f28748eb60b8b38a78dc728d4b64b50b60554df06c59df274c"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k6_resultados.md",
+        "sha256": "364c2523e82261b8913c927a729bab988c2412995a09bab5edfc107ad5539527"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k7_evidence/closure_freeze.json",
+        "sha256": "084b5a3a6860060d376c33f6c2bd9be9071feb6345e95a5e82d950fd05b72478"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k7_evidence/final_freeze.json",
+        "sha256": "a6411a786e435d54cc328403e8782f27aff277e10022a3f2ba19a2466f9f49e1"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k7_evidence/implementation_freeze.json",
+        "sha256": "e9730ac1aab59b724b6fa59b84198f30d329b1741dd6ff4860e3f8cb2b92c029"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k7_manifest.json",
+        "sha256": "2de495d157ab12ebdd6f266a2f2742ec08705dca532def338d67bc8ffef0c1ae"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k7_resultados.md",
+        "sha256": "136afd6daaf2647277c2b2896aaa0e65aa0b723cf27a65a1de077e4aa6f709a7"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_evidence/e2e_freeze_v1.json",
+        "sha256": "2c95d25b26d90e11e1333a5d5f1db6ae45fe09813b06a094b9d1649e9a6009e9"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_evidence/e2e_result_v1.json",
+        "sha256": "ce719c8e4d0164b90f0d462a67c791ed0185e2c660c67bdf60b94df32db5f10e"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_evidence/standalone_result_v1.json",
+        "sha256": "f8858c33f2c496eec6927b47d81c8364882cbcbcafe8bf9d32cd3e520533874d"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_manifest.json",
+        "sha256": "69672b37947ea6aaaa84f53d003f3a753301da8a68d8125a8189d77812f477fe"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/compliance_result_v1.json",
+        "sha256": "2a0c23fc6e25707b023a0b096fe39a0d65fe22419d5f068b64ce9dfdd18fe103"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/forensic_result_v1.json",
+        "sha256": "ca35884d729fcdc6cae2963f9e2ac604a50e5cc4f1ba694edf0142326e2bd6a3"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/product_freeze_v1.json",
+        "sha256": "7bd52586da9a8be1965fca79969ef124cea1cdc3e0271d89a08c0266f27f8e52"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/product_freeze_v2.json",
+        "sha256": "02164af35f8ca3ccaa77dc7bb8a5f0a88bd5ab0bb89cd95f96328dd82d6931e8"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/retrieval_result_v1.json",
+        "sha256": "ea7d76c30f8b65a5fdac71174b461226bade60eb551c01b3e121b59c6e79b466"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair2_manifest.json",
+        "sha256": "ddf23bbc2a871ff41cc0193c308d0411eb62327ce696e30628543b1eccfbee11"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair2_resultados.md",
+        "sha256": "e8dbea946ddf69ada6f1e530bab8eaf30143b0dc63b818fd69a9eb66e87333d1"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair_evidence/compliance_result_v1.json",
+        "sha256": "d70d3149ef2a62944637e58930abae9dea187019cfbce0fa1d70b1313923632c"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair_evidence/forensic_result_v1.json",
+        "sha256": "745d6eb51d7e6cadc68f080c29bc1e70a763a12b50adb28436891f3f5b3f0eb2"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair_evidence/product_freeze_v1.json",
+        "sha256": "b72aae438216cfa80c652505d416a98a501e5e0cd6d342a106d44e92e8d6bb72"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair_evidence/product_freeze_v2.json",
+        "sha256": "ee073e3688124187fb519411c06645c1a2d10cbd8dd80d437c790b78cd0917ee"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair_evidence/retrieval_result_v1.json",
+        "sha256": "851d056d4d3030fa636d59f2c7ede0310fd4ad61d10a3e909c936325f31d8cb5"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair_manifest.json",
+        "sha256": "da16b5e4d894a2755565c0a26420e3ac85b8dbbcd1e1288efc08afeeaa63a7b2"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_repair_resultados.md",
+        "sha256": "dc7c2bddfef897a25596b4fd5b9ac363dcd2a4551018293bc5ffc62f82a03489"
+      },
+      {
+        "path": "docs/knowledge_inputs_v1/k8_resultados.md",
+        "sha256": "9a9b06c48f50f993073da832536f0e65e7233c2d17eeb9da118ac7f32f0ac840"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k4_core_frozen_v1.json",
+        "sha256": "72fabd4b1c43a33438ee3f67e29693e2c1299f93d19eb932ef6958eb4a8e2b65"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k4_protocol_v1.json",
+        "sha256": "31045a14ae3a50a3cbd4d4990c9fb6966394597748437758b108ac7bc6aa0586"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_core_v1.json",
+        "sha256": "832be39fa3efa475cd74b89c8f5d1632e445f5a6a67cecb72833d4f12814cd1a"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_freeze_v1.json",
+        "sha256": "84512b3fe5042afd2cc46fcd74fc0f1385ba7156b8f04d048f5126b0592d97ba"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_protocol_v1.json",
+        "sha256": "c0eb231bb2cbc812e49524cd295dc237c29265d4b4671cf7c2d97c285e11c092"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_repair2_corpus_v1.json",
+        "sha256": "bf40a7136ef0e6618ce11fcf2295aec9d2943800dd5e07133b70d27de92c5fd8"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_repair2_freeze_v1.json",
+        "sha256": "1cec185c4eca7632b7c0e92fc2abede8b9a48e688e20d50aed4486d102070be0"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_repair2_protocol_v1.json",
+        "sha256": "ff7fc1596d07bca890f544a31c5242c60f582ff1818ef106678c8c8e7309ae34"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_repair_corpus_v1.json",
+        "sha256": "f2f23ab24058396e6c42dded8753d0aa7aab1925603c9ff05f5ba3483f42849c"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_repair_freeze_v1.json",
+        "sha256": "0c9e78026d6f91c4cda05e1df5ba6952cbd31b4d7018b50e54b4de4b5369e925"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_repair_protocol_v1.json",
+        "sha256": "e67234eea50fc20cc06587fe7fd029749a5d66412d4dca931ed969ecbcce6ae6"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/k8_repair2_helpers.py",
+        "sha256": "63336d025abd32fd430e80fc21b3dabb3863b129584cf0c13a2c80bcb6ce3ac9"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/k8_repair_helpers.py",
+        "sha256": "4548772215d43589338cc848c44dc37d63a472611064baecca8bd5c9584d3521"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8.py",
+        "sha256": "6ad697a69844f0d07d7e1076f5857e4149a03ac90918ef6ea3333177b3a32515"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_e2e.py",
+        "sha256": "27b745dc3a6a087c61156c10ed47ed03bd6f7df0c4cc5f787fdfda5645d46c4b"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_forensic.py",
+        "sha256": "80363f56c14c36abe2c40a14df6269731417d2b71547a2f29b93b97b7add26f8"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_repair.py",
+        "sha256": "234fc5d35779e37d3cdd4361b966b2c5f06a77ce2f52e023b24dd9e5f182e350"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_repair2.py",
+        "sha256": "ce425ca29c62586ef653cdc2f82512001173253f9e44ba2119cfb7dcedaf699c"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_repair2_model.py",
+        "sha256": "469696a51a9a7e06d7d7e86418d267eb15b31282b19015f9eba26fc5fa3956a0"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_repair_model.py",
+        "sha256": "2ed5e6c389f4a3c5dc1ecf261e1821dfcb032ec9437d9a7d487d73ade89a3c3e"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_repair_model_v2.py",
+        "sha256": "f1be376dad9651f704ca5b20fb32380b1c184eb882553c03452ac8760776c729"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_harness.py",
+        "sha256": "acf0e4470725a27d938e76305bb994f60c624ebef4ff0b4d8c7ddbf5854a4c56"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_parser_contracts.py",
+        "sha256": "317a1bdf1c875b0c729006c32746912fae2dff0cf50959d72b7145be9f33c90f"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_quality.py",
+        "sha256": "12fc9b7e0e7d93e69a8998b2fa296d47f2cd284bfc7489b3cf31f1ac11b634e0"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_repair.py",
+        "sha256": "2c248d88ef395f0a2a8e18833ce0a5537774352e2c1b758b830e85e8c25a4d00"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_repair2_contracts.py",
+        "sha256": "299e2c1c1245b5b1f513690cd739563aaf23d2c705c81fc70febfd12a14098f6"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_repair2_control_regression.py",
+        "sha256": "db133bcdc7b73011dc1df9ad2c74ba4a4a339b153df278778efb210777890f22"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_repair2_quality.py",
+        "sha256": "5b85ad44998348ac15d650c049c345fcdba40e88d77437bdfc5aa7fa4b6e2d39"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_repair_contracts.py",
+        "sha256": "35d2eb150eb7342d556bf87e8684975b9b161723fa4ac31cf434ed478bbc88f5"
+      },
+      {
+        "path": "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+        "sha256": "a5711f372cd9ac9bee5ac800e638665e2e06cdb4405974c2cd12c14587715792"
+      },
+      {
+        "path": "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md",
+        "sha256": "b13814a0f1c99528ab4f4d2f5c874dacdc1017c8f3f13b1053c90c67eb848147"
+      },
+      {
+        "path": "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+        "sha256": "886a4788d55282aefbbc776344ec507b779519e15ea940dcad62ea24ef57e9cd"
+      }
+    ],
+    "historicalExternalV1V2": {
+      "checked": 150,
+      "mismatches": [],
+      "pins": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\attempt.json",
+          "sha256": "6cd1eb3d1d19209f85b84788dfe3fe2e905ef0fc321cf5f54c71537b0a039ba1"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\report.json",
+          "sha256": "890b138bba7885c7a2f23713dce8b58794d62466650659fbc908d6493eaa4c89"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-detail\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-detail\\result.json",
+          "sha256": "a79169e0ee8e47441035e1881d7dd8462fb0c8fb669e24c2cae3acf09f0117bc"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-es\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-es\\result.json",
+          "sha256": "628403270581af5f6eb0df0b587f96a5740bfbbd199a886ad47c282474fd7f61"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-json\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-json\\result.json",
+          "sha256": "ba418ce8a6cc3d2510f2afe7b0b26742359438399ef2e40fd7fb1c8a95b6a340"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-md\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-md\\result.json",
+          "sha256": "dfac20113f4baf14f8308c69a39e9483f943c89d6a13f709b0a8254c579ddc37"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-two\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-two\\result.json",
+          "sha256": "eb470c832eb321862f9b38e2b53879e3f21ebb71a4e50afc9208ddd5314a0caf"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-txt\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\cite-txt\\result.json",
+          "sha256": "0f835f26650e8d13a75766abde302a3f1b7ff2a4063b65a067dd165ce3a52235"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-es-negative\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-es-negative\\result.json",
+          "sha256": "5e25ab65907d572867365abf1a7d6b27e54ead8743778f43f64672ae0b393e99"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-memory\\requests.json",
+          "sha256": "ac2cc3c6d70ec7c64388e9bd9fb7f69137be9f45e4dcb87b7779b7dea2116826"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-memory\\result.json",
+          "sha256": "9d8174fa9e69af1c661a6efba0deaca2ebb2b73499cdc6fd2a1e77092214ac2f"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-missing-attribute\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-missing-attribute\\result.json",
+          "sha256": "4b043b63c8badc94f29297964a3d8ba75fe4662070655b31643bfbe52b7aa4b2"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-no-source\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-no-source\\result.json",
+          "sha256": "388a9c5aa16e6d3737adc2f771909c0724039c2ccca5ce1a91c48ce9340af4e8"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-present\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-present\\result.json",
+          "sha256": "cb9935f937460c8517452b415c75a1620ee2741733242c3124d9354ec6d0a600"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-wrong-id\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\ground-wrong-id\\result.json",
+          "sha256": "08e0caafe8d164983d1ad9bd38be06a439e4487353f74470648bdccb8f4a7c13"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\inject-citation-forgery\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\inject-citation-forgery\\result.json",
+          "sha256": "61cc582b40efc6e7f596930bb0fb6e67281944d6417de4e278b4dfc657a30f31"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\inject-fake-system\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\inject-fake-system\\result.json",
+          "sha256": "73e347b0f6923b830c62354783e57e4cab9c79d64d51103f1cbce57d0663c98a"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\inject-memory-request\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\inject-memory-request\\result.json",
+          "sha256": "d7286112f5f69cc8c12a31d2c84fc9e8980e19dc1169948e090f68cfad7dfc8b"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\inject-write-request\\requests.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-first\\inject-write-request\\result.json",
+          "sha256": "46f5d27c6c120535e8f922712371f6e6b2f64332c58d8599a833de850c23cbb2"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\attempt.json",
+          "sha256": "de6d9ea5350c2cec81a6a6fa41e670a234e275cadc7f048dfa98d5d64aeb0e43"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\report.json",
+          "sha256": "e77dd5510a9fcfd886b277e703ddf9f7581977f33eb2d1167e2b5530cc463be3"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-detail\\requests.json",
+          "sha256": "04ff6a836421a89725bd350b5634b90ef74ee508d023a8bd69dadd44dd05f702"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-detail\\result.json",
+          "sha256": "986a4f47660587e956e4dd355a039f4f3a4074824f6fe08ddf22f11f8ba0b034"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-es\\requests.json",
+          "sha256": "8a342e86ad4a10603d0ea39fe5b5489c818a5bf49647dd75bc7756b23b7de232"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-es\\result.json",
+          "sha256": "c3e0bab982b1abbed3cc9b51e9aaab00f4280bd38d74e40fb6346381e9f05da3"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-json\\requests.json",
+          "sha256": "d303995a0f52e1dcac7e26ca2de4dfd08364f86d1bacf7d59cfbd38dccf33032"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-json\\result.json",
+          "sha256": "2de5a57654c6c2fc07dd7d2579632ef07c4ec433791d80faf58f59f2918b5592"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-md\\requests.json",
+          "sha256": "0a09090a1f0373002e071fa6f40074b364c5f25309d0ec3311465407a8b43616"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-md\\result.json",
+          "sha256": "781df114912e0fdffb85ce26eb2fe3e2c1c3c8309f27d3f67c7b7f14311b1945"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-two\\requests.json",
+          "sha256": "b3d5ddb1f449ec14c7abb54959166469834ba9a616b14073dbba23aa2eeb3691"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-two\\result.json",
+          "sha256": "df0dc78fc952bffbb13c4b3e06dbc421402c2a4c140907617a0cc542853f2aec"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-txt\\requests.json",
+          "sha256": "76f5a428d879cc906565bf63c7e061b7e297eb2325da40f906fc4ef9355e15ff"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\cite-txt\\result.json",
+          "sha256": "d5ecf4ecadd8d92492b392dcd5da76268e9e31e45c17eb7805ef69189c6bdff8"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-es-negative\\requests.json",
+          "sha256": "a53ecf4e60b2c61f72e4be022e9e55d27c22ef54f2d0d0e953d51217fb4a194f"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-es-negative\\result.json",
+          "sha256": "565dd16bcc7aa674d39d9004295a106a7666fb9194cc37e783a966a6e1d1953d"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-missing-attribute\\requests.json",
+          "sha256": "1d849d3251a1defa77b130ef6b5010fb87cc76b8a7ff5b4af61d85c9df3fc275"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-missing-attribute\\result.json",
+          "sha256": "dc62fd423bd98f52cb4b009c3585f0f140fec4c54ee83a3703bddf0ee39fef75"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-no-source\\requests.json",
+          "sha256": "fb7d0bfe210fdd781db04badd4a3b4853d1f0df49cab5a6c071b9824460d2108"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-no-source\\result.json",
+          "sha256": "ce59c6f4d69bd8646537aa1da678b693703a686f20ef618a6a9f1e4f6f56bd7c"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-present\\requests.json",
+          "sha256": "cf4215d7bd8e6d5961510bdc89bb36d0b0a577db02d85be7897be47aadfe3a35"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-present\\result.json",
+          "sha256": "b5965bbedb643c78087839edd62075849003dec202f89ca3f6590c1822e1b377"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-wrong-id\\requests.json",
+          "sha256": "418231ab14486f7dec34014654f0fd22fd6f8c1b17400d25553f0118b51e9c01"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\ground-wrong-id\\result.json",
+          "sha256": "457e28718d2694580eab129e7d3b1900f942f5348b6ce41b616e2386a96e455f"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\inject-citation-forgery\\requests.json",
+          "sha256": "f0979c9d69ed31d5fc58274aea6dca6da608f5764caee471b7f449edb6de6080"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\inject-citation-forgery\\result.json",
+          "sha256": "9ce1974da20ab71ba08968d8b5b8864335ec52efa18fda8f9e61eb5de6bac44e"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\inject-fake-system\\requests.json",
+          "sha256": "20e16fd9d674296f490fda3d69ed0de3cd06e8eaa725eecc6c9db8320fd94d87"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\inject-fake-system\\result.json",
+          "sha256": "f514e09f29559e7a050824a35d067533a3f5b260cca526f84f95f41006e4ac16"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\inject-memory-request\\requests.json",
+          "sha256": "49d7803d0054ba0994d529d5173800ff3ba1867f2debfa127edbb5afec76ef4a"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\inject-memory-request\\result.json",
+          "sha256": "39ac4482d89a595eb565225fc8cbf90491b5ea45c9061229d31da4e288a12387"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\inject-write-request\\requests.json",
+          "sha256": "6a178e5b0c069739c24b543353995f3ba1b308781145cfcd079782350906e508"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-20261008\\model-independent-validity-repair\\inject-write-request\\result.json",
+          "sha256": "2f58ec840509588d2e5c69e5713903afda406ec52fdada05c190fbc7f0548664"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/baseline-knowledge/run.log",
+          "sha256": "e3c619a37f38739bd733b01345b8c106051d797f3c092b8022e516026772fbc0"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/baseline-knowledge/run.json",
+          "sha256": "bb83793340dc9b3a1c7e841b77f90c5b90d9b86b261e9041d7163a071f80631d"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/baseline-knowledge/tests.xml",
+          "sha256": "790013377d4059c257b0576ec281494daba3eb8add1db98777a6fefaced0d1e2"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/focused-contracts/tests.xml",
+          "sha256": "4abad6d0cea5b252bd26cf1b13acd6f55952be13dc8412d268573606dc5bb31c"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/focused-contracts-environment-repair/tests.xml",
+          "sha256": "976102a8affab9c70f2531a7138f2b3e305ae3b058aaf5e7fd14c5482962e956"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/head-final/run.log",
+          "sha256": "aac598025abd7f1327a54f5e7d83908cd5cf3f0ce1a4435ce7863d7cce9a19e4"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/head-final/run.json",
+          "sha256": "60fbee6b74bcaa6a9526b1bb8777646b7edd142157002d07bf9d151c3407109b"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/head-final/tests.xml",
+          "sha256": "26e426f8c200804e7c4c4d30b611be652a6ab4d73a1aa4992cfea674b51b2b47"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/knowledge-complete/run.log",
+          "sha256": "b1190aa0e12a5d2ac8a200a8878dab1829303c2f2052ac2d3442678578aed823"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/knowledge-complete/run.json",
+          "sha256": "ff1fa7fa719b236201b29812b490c0dff07db47c297454add7d023e7ab16e63c"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/knowledge-complete/tests.xml",
+          "sha256": "6c769bfca9155b77d18bf4bf2fc30c082c5369804e54149c71b167a38c03810c"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/knowledge-final/run.log",
+          "sha256": "bf154c10f9f26ee1bf72408f97db246c857e9b6443d40b95da7a6aee0607fefc"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/knowledge-final/run.json",
+          "sha256": "9fa89d55f5dbe31ff396fe13e657d79fbcc3004dcd822e6cd7a6aa1cb94ef2bc"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/knowledge-final/tests.xml",
+          "sha256": "cbfac938a8d3edc98783baa3749bb7575c02b3cc66d6efb946558369688f8a17"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/memory-final/run.log",
+          "sha256": "49ed4cbf8044fd3d34b8c4acd25b98a650ea7a4ca0113991478af0372f33378d"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/memory-final/run.json",
+          "sha256": "3b6cc598ee779ed4dea7d17981f2531557d7e3a4e3ad88c0cab00b02788643a7"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/memory-final/tests.xml",
+          "sha256": "1bc5f38c87f99f4dcde2bb96015aa9931c2e71dab416c87a028bc04756cfa855"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/retrieval-after/run.log",
+          "sha256": "de4dcba45a39f379c5075f5e0a4b576b5eb57f258020ed72e1e202f8a50f025c"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/retrieval-after/run.json",
+          "sha256": "ff1ec0bd5a0a5d5ff1dee3ffa09f30cbd7f075d6efb6002bec2d6924661716e9"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-20261008/retrieval-after/tests.xml",
+          "sha256": "9b1f91d3f59fd3e7ef737d637f83338247156d68e5638d1072745faced4e3d20"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\attempt.json",
+          "sha256": "666548e1c2dad1e36c70a2799a905507e8fb94273acbdf7c476f8500cf211acd"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\report.json",
+          "sha256": "3a26d6d877c5fbdfe336a91c484780705909a7a92302c1b268eaaf50dd0f1712"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-conflict\\requests.json",
+          "sha256": "8af2f174f9edd28e077ca5b34f183dc1db7ae72e321d1963a768bc3a40e6dc95"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-conflict\\result.json",
+          "sha256": "dc546a7040142578e2a74f687856c2d3ea608d5b58eb42a474dcb70f6a0d8763"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-es\\requests.json",
+          "sha256": "bdb43213c43a49c433b815c45643c56c502ef67578b7ceb6fc30869bac2d37b5"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-es\\result.json",
+          "sha256": "d81250bdffe27cf5df7ae9365febd3c6682af9ca80661821265bb7266b42c7c2"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-json\\requests.json",
+          "sha256": "62ca1b03aec8daf0f7ba4bee0e6b37c7f485b45b4646e15d717084ab475ebaf6"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-json\\result.json",
+          "sha256": "bd1792940a8b63b9ab2422bca9b7118b281114c1c3754b5218983466062ac7f7"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-md\\requests.json",
+          "sha256": "6f4cb1547309a87a05b25f9e551258706dd80bac3f274eced010aea1d63789f4"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-md\\result.json",
+          "sha256": "df7ca820c188a8ba44f94c3e880d4f6faa4bfc4922175efb7ec4caea37acf610"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-object\\requests.json",
+          "sha256": "39f4887ae571eda3386ca4d6cf7392b37f02691fa1116330b4d91abb14f81b7e"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-object\\result.json",
+          "sha256": "650b8e3977a7754b91793dac7d1fb84c21fc6970b91943b431de2fe489460cf6"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-txt\\requests.json",
+          "sha256": "f6d05f0f14dc833fca7e908102c970180e879102c99a12c928aa6e4b7f854d3a"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\citation-txt\\result.json",
+          "sha256": "03f56410996edfd6bb77a151ac84cd79c010084f288146623fb5d50254e867a1"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-absent\\requests.json",
+          "sha256": "46ed1aed3510858bf75fa8288a96267b4023e64cd29d8d69ea96a26e8433c0b0"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-absent\\result.json",
+          "sha256": "08d7dbc276f1bd24fb57d2a18a25c9f72668fee90a087f2bc5afd486806011e5"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-attribute\\requests.json",
+          "sha256": "11eea855a231d2d4d1f5d94549b0a370cfa98d93aeb63d5db00bbcf0e5e3c6dc"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-attribute\\result.json",
+          "sha256": "9bd790cb563a3e86f3a35ba33a36308b6afc49c0d0a57af4a014cb5023e238c4"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-es\\requests.json",
+          "sha256": "353a0ab89a95b1bd4871cd78a241ba3c35368d0287e0f1933347ebf44d3256f8"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-es\\result.json",
+          "sha256": "c6e040e0e1bc02bb9cad719f5dce8fbae2f8930f5b0fd6fa920875ec7ed5d0df"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-known\\requests.json",
+          "sha256": "780a0c46e8c85a4f28f488e33f007e77d4db48e76cc4975c8db87bcb54bba5d1"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-known\\result.json",
+          "sha256": "cf34db1442ed8781ce8b372ef320f15e39eac9558233fa62a5d294dc33a6f2c6"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-memory\\requests.json",
+          "sha256": "90becc85f24982062f7c16e6053f4fe6aba03619e379ba01780ef5d61ffc3d41"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-memory\\result.json",
+          "sha256": "9329ee9c28bed9d070f212aa862cd7e1a5733bcca37a3017515d5439893ab9d8"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-wrong-id\\requests.json",
+          "sha256": "4f7778b2440dc17709b3d2fd5b0c0ad84bd5243fd4ba67142743c1e4af6c2547"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\ground-wrong-id\\result.json",
+          "sha256": "584229ed233f519251a31d440a89dfa97608cc3cee22d45a03fe7cc4a3395585"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-0-benign-deny\\requests.json",
+          "sha256": "04af84876615dfa39ef2afce68d1e49d1613afc585e007021c9539967c1ca85f"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-0-benign-deny\\result.json",
+          "sha256": "910d5197da8b02057d4017b232fb6a631dcf7295c7567345dc9dba8f383fae9e"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-0-hostile-allow\\requests.json",
+          "sha256": "20713c982448119040f9a442475996540e74ce3ed9e8ef6a1f511a4b9c861817"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-0-hostile-allow\\result.json",
+          "sha256": "127e183e37b33a1f1f23a18670dd2cc4a554559b63a557869e511878544061f4"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-0-hostile-deny\\requests.json",
+          "sha256": "ae0e91f8b9606533e34a1b96ea8bb9362c17c85bfbdc4bd13e7393c6a16d8bd7"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-0-hostile-deny\\result.json",
+          "sha256": "f6f22f0f7adb558fe706afe1d1e1153092c9f46e6498c3ca3d6d695320ab12ef"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-0-none-deny\\requests.json",
+          "sha256": "b3044713e687d0396ea132d0f985b7b6df782ed1df79aba75c2c3a7ea46e7e2e"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-0-none-deny\\result.json",
+          "sha256": "a22310c3ff7927ffaa5477c29c8d23e748b1fc117bc70c8f0aaafde02f8f48a8"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-1-benign-deny\\requests.json",
+          "sha256": "7b80748817b3b5efdd2e686c0dbe022fbf1fdcfa2e77a4eff19f4becb5d0f635"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-1-benign-deny\\result.json",
+          "sha256": "59545811206a8a66734e1249fcfb5037f2bc46b6798decef600d34272c517a09"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-1-hostile-allow\\requests.json",
+          "sha256": "7d1b5ecfa093abe99927d3cf860a3e916e940c1cd058789282c98d0271a27572"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-1-hostile-allow\\result.json",
+          "sha256": "704113faeb5c1eb0f9ba1d7c65367f417f10f8bbcb7dcf7dd49e1823b11dc062"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-1-hostile-deny\\requests.json",
+          "sha256": "98c2c5f8381d0c9ef48c283317470d34ef06a1d6dabca9126f4c2e95db236990"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-1-hostile-deny\\result.json",
+          "sha256": "42146521fda61e1c593a5e0760681550a4e1985e0c67e47c0548952d11bed1f6"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-1-none-deny\\requests.json",
+          "sha256": "50ec242e464975151fec660e2c78f46adc1652e079e281189a0cb7258d73410d"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\model-independent\\pair-1-none-deny\\result.json",
+          "sha256": "8c44431ba98982cae43e6011d3da80c65b4a160bc01545e240f612fff4b706e3"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\desktop-final\\contracts.log",
+          "sha256": "53a15cfea01d235a3584afd60450526633bb235c00b5b8be812dd7529cf2c87e"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\desktop-final\\frontend.log",
+          "sha256": "661bf7f5845f22f2d1483d0afeb16397e41fcc420353d009d6cb0ce24e2d238b"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\desktop-final\\run.json",
+          "sha256": "430bd98098226999dd157cec3db0e00deab1e8cf87a49438286d274ac6fa2f96"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\desktop-final\\typescript.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\baseline\\run.json",
+          "sha256": "2953a6ad0ff4b16a3ebab5c4fb9b375e11be3a4c04a2c34801bf2f313e78098d"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\baseline\\run.log",
+          "sha256": "01a9c6b0852542b39fa2a974a6b13d6b5353330d0a7fda5f47e9662fbe2630fd"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\baseline\\tests.xml",
+          "sha256": "027f7a646b8cb661e24691598924c5179831bfedcdc9761a37ffae04b8f232da"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\focused-v1\\run.json",
+          "sha256": "db8637d9cd69073613d38ce6ca40e10bd5f4e00d7c59e471fbcefd2e5026a5f2"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\focused-v1\\run.log",
+          "sha256": "46a2b87f25be058f0f357a45b9dda3510881bc187c5eefde879a219f1dbf2de9"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\focused-v1\\tests.xml",
+          "sha256": "a8e90be4ecb14e40e444f94d92d55c42fd65dec23338f1f8dc38177508b2d227"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\focused-v2\\run.json",
+          "sha256": "963091ae07f5f7ecf2af000c751dccf7b7c2bdaeccef5ddeb23d7137d048a64e"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\focused-v2\\run.log",
+          "sha256": "959e23c2f04945308c622b9624885d14c2ceb6df443c6ad8e74a4d3a6d735f5e"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\focused-v2\\tests.xml",
+          "sha256": "a22d5a0099446bbdbfc4cfe25327a4dc70198986207611f016875568dc231172"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\knowledge-final\\run.json",
+          "sha256": "b90f1cd0d255969ac2eeb350141ceeaf5113d357147cd14ed763bc2b147e074a"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\knowledge-final\\run.log",
+          "sha256": "a02548fc741df9eb0de814b3a55905e356cc7f317d7b683b04ddfb96c86fa085"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\knowledge-final\\tests.xml",
+          "sha256": "7b286af4549288476091fc573a51ea6ce2d79205e04890cd4f591d7daf65ade6"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\memory-final\\run.json",
+          "sha256": "cac87d112ee8fb6ea93468222528137013a8e33844fc9a047f233e3b9cd15113"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\memory-final\\run.log",
+          "sha256": "0fd994f58841bc2ae5875321eea1d95570c70d6d02e8dc7d00b39792f7277c3d"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\memory-final\\tests.xml",
+          "sha256": "cbb0b1122cb95ce4c8b8d34ebf537afca4a704f0fee690ea9e10c4069cce341f"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\head-final\\run.json",
+          "sha256": "d136366ec70acd335b9aa7ff4153a4eb8b7455d788177036ce8aef6df998ce5d"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\head-final\\run.log",
+          "sha256": "8442efa0a39f2ce44a83a2c82601e3dc6cdef5e0ad2468854229f14fcdd4b1c5"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v2-20261008\\head-final\\tests.xml",
+          "sha256": "2869a6df5dd53f457912eb5f7d80fc6a48ee239e229aa097411e488feea3d85a"
+        }
+      ]
+    },
+    "historicalExternalOriginal": {
+      "checked": 77,
+      "pins": [
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/baseline-knowledge/run.json",
+          "sha256": "94b8e35049b5a8b40c3f2a504df0733f22d46b4210e977f64213a419ba21041c"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/baseline-knowledge/run.log",
+          "sha256": "1c70d96e32d35ad514bcd40f4d99c9637510b20079e93593dbd957cfb0943edd"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/baseline-knowledge/tests.xml",
+          "sha256": "4d06de58fac918759b4878375ba2f7c3a4c1769b49b93e5ef6090bc7b0b757a1"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/core-boundaries-final/run.json",
+          "sha256": "ac5e8617a7957fbc0150f4f00144cbb7480995d89e0cc1c50f68b12f206677ef"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/core-boundaries-final/run.log",
+          "sha256": "052dcb0ba93e1314cca4ba58a2211edd1718d34f40c278bef61b174539f4cbdb"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/core-boundaries-final/tests.xml",
+          "sha256": "7435c2974c984862071a875cb052cfbc533c24ed15d755dc8e4e077097821dba"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/critical-final/run.json",
+          "sha256": "22125a8da1db62a16861095652c97c0756e19047a8bc999fbd2473f7d809885d"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/critical-final/run.log",
+          "sha256": "301f408980ffa85afc9c9ae6fca82d53b34cd38a226f7be99076444de171d1d4"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/critical-final/tests.xml",
+          "sha256": "bdf68e5854442914afdb98770a5b1ca6412bfd5fb020a756ed5b010839f043e1"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/desktop-final/contracts.log",
+          "sha256": "5d0df91c19ad9d09a599eb00e485e23e6d7fd2fb0d27992dbb07c0dadd73a7f0"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/desktop-final/frontend.log",
+          "sha256": "6be0ec793ccc35dc17ef7bac997ff5661c74c8782de22024ec353dae58491e1b"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/desktop-final/run.json",
+          "sha256": "fb2a1cfe5f6d253c4ed1c8696038540ab344484b0e0ace2952ab147f8d38c2b6"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/desktop-final/typescript.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/e2e-forensic/report.json",
+          "sha256": "560608f76a60af95104958097834086b3564e07ac0c8b75cda447650dcf95622"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-final/run.json",
+          "sha256": "90fce4fccb1885b3a34835da22e7e65dde7d0886a8801672a498f2676e0bfd0b"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-final/run.log",
+          "sha256": "d26795b10077ae50bd3980cb1790768a89a445c6e951f3b481c8578bff38f1f9"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-final/tests.xml",
+          "sha256": "45126a47d51ff416a0fe025f8c4d61831efab8b663df3843e256eaa0db3fe997"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-first/run.json",
+          "sha256": "1405efe762812d23b8d737f4efbd98cb7668bb39461b8dd59ff9c5fe4b19fd12"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-first/run.log",
+          "sha256": "7ba4007219e2f743c8ed7b06631e3697cf8bd4af218656686e7fa99783eb2a8d"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-first/tests.xml",
+          "sha256": "4f2ef35c730e219dc36ba84d9921045e6d054509c7ab8dd0523afb7ee2060fd3"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-second/run.json",
+          "sha256": "664c4340576006b7a73a9803843e67cc71d0eebcd6532d88d0add1d987225abb"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-second/run.log",
+          "sha256": "7859da4f75c4cad3c5eaf10dda2134baf12e3957dafe33558fe9c67ca5edd2d8"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-second/tests.xml",
+          "sha256": "2dfc23574b21e877ae02ac575e3b06a3f0bed8e737916bf0773b8f85cef0d245"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-third/run.json",
+          "sha256": "d918bf81c61f435ad2b36cd9e2b601d81710d8f87379ae22bf515a477183794f"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-third/run.log",
+          "sha256": "5f5bcb28b9c99d2a64f6f48ae44e731405bc053228408e68a4e339d65cfe4e12"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/harness-parser-contracts-third/tests.xml",
+          "sha256": "971b274b802613d0e8c3db97d4f4ab696fb1826ca8a002f6094bc5f8baa0d9f9"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/head-final/run.json",
+          "sha256": "9baaccd8330474c207a6702af58b6cc020dd5657f33f9f8d9f4b3669c702adb7"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/head-final/run.log",
+          "sha256": "cbe3b83ee2da3ebc7de7186dad20d77f1e8a76987f7a675695fa81a086bfee09"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/head-final/tests.xml",
+          "sha256": "01a671fd03bdbe04b4860d969cef84468d026cf3e3838de9b615c3ea5f2d52e9"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/knowledge-final/run.json",
+          "sha256": "0c619eda095734e0abad39f60494715ec238dd1647ee947dac0fecb4e609c0f7"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/knowledge-final/run.log",
+          "sha256": "f7d3c71c58a633e106ae2333f0b1ad362e9ceabad30e8c40c452e4a27e4580f5"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/knowledge-final/tests.xml",
+          "sha256": "4b0e925af886d7e95026d56a214d749febe71cc00b6ab7f7db73e8e96e74edcc"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/memory-final/run.json",
+          "sha256": "2947bebed620129a22576508df33d503f2caf071e8ecca848b6481773d3207bb"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/memory-final/run.log",
+          "sha256": "86f4f35373cfd0111cb742f1c65b49488ef875b705e3e3f72f287184d1cc5eae"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/memory-final/tests.xml",
+          "sha256": "24f079b553119fb7b4b767e32d3cb4ba6cf4abf7d72365dbd8fc8386b243700d"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/standalone-final/run.json",
+          "sha256": "7b454599b654b951e4b7dd0838c351839b9dd50280d7c65f28f837a438240684"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/standalone-final/run.log",
+          "sha256": "d7ac860471fa96281eaf91eeca2a1ac10b185ab57010033736eed3b76b7e58d0"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/standalone-final/tests.xml",
+          "sha256": "19cde0f1b5df6be0e0c20f2df6447e350e03163e29ac277513157395a0a6b3ee"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/standalone-first/run.json",
+          "sha256": "03ffba8d482e4c1137356db678e229228eb50478974ebd12709e8154d20c7693"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/standalone-first/run.log",
+          "sha256": "562f3963bd8b5fe51f32a971db7f5dfe78b35efa8273cdbfc9d63cea9064e01a"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/standalone-first/tests.xml",
+          "sha256": "835bc66082ede863d5bc3f0fb81c1cc047dbcc621009dfe4fd3205720565909d"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/standalone-parser-repair/run.json",
+          "sha256": "e0a45026af9f728dd5819043b0fcb304625268aaa65cad2ef8c0bd7a0f689c6d"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/standalone-parser-repair/run.log",
+          "sha256": "2a07850efaee0b923c0bf25ab7ea6cc5731309a46473832bb6a375fa5b0e7741"
+        },
+        {
+          "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-20261008/standalone-parser-repair/tests.xml",
+          "sha256": "0f44ceb6fb645c5b00a8519a622023d749a1432280c85d587e7257f8ac830363"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\attachment-txt\\requests.json",
+          "sha256": "4d79f27d073a6cabd2d477676870e1c5c836cbd389c7b83c7233a4502e8460f7"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\attachment-txt\\result.json",
+          "sha256": "48d1f2a62e87cae5fdbacfb34cb635aff825a36474b5dd963343948b68839f1f"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\attempt.json",
+          "sha256": "fed614a7775a8a2d8de0a5a0c67ee145af2d2cd4133fa171478f7e53fc1e9e50"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\code-answer\\requests.json",
+          "sha256": "01680343f0d8a0dbf268c3b4ec53d6afdbd74f8688110c161e474d52af0e5dce"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\code-answer\\result.json",
+          "sha256": "4c1b339af21c626e148feb238355d5626f60e06648fe47688f1ab04c3ea6fe6e"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\deleted-abstain\\requests.json",
+          "sha256": "3fd683a9aaffa7753b495ff2688dc7bf795299540ee87c8be5a5d9322bc8408b"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\deleted-abstain\\result.json",
+          "sha256": "e680f909366990ef9476e43c3596cdd9df8284f68195411ed0cde3d476679e15"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\document-injection\\requests.json",
+          "sha256": "8c101ad6d71b2df31dd412752437d56f695e7343f2884008b7c7703e7c21a169"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\document-injection\\result.json",
+          "sha256": "5843fd78e699214518d846eb11fd9d1277ed6aca96de1b01dc9158b63596d499"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\docx-citation\\requests.json",
+          "sha256": "c94e967f949042ca8460de3167536a2767f3f2e52993ad0a2eb7dbdb6971ce41"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\docx-citation\\result.json",
+          "sha256": "af7a49e0ac00fb1bdf226c9c6642e30619df7b098e29bee51c5bf2dc9c5cd54d"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\json-answer\\requests.json",
+          "sha256": "e03a3fc7bce3c1252c4e428bfdd167740ab714b901377beef53917d6af6e27a8"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\json-answer\\result.json",
+          "sha256": "aa15f1657443536cd60932edb6a38e135208c302098dd6a396ca26cc6eb6b79c"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\library-restart\\requests.json",
+          "sha256": "cc424e0b1f135df90985dcfe7b11bca39fa3158230baa394cd23c72c1eadf7f2"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\library-restart\\result.json",
+          "sha256": "a667a906e880cb8e7b9f9b5d8e652a0c291e0c6d06fa5f55c329608be93e5062"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\memory-plus-knowledge\\requests.json",
+          "sha256": "9c01b1f89b1e914623aeb342ee9ebb74c6995a5380b84d4633e280c24c30e223"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\memory-plus-knowledge\\result.json",
+          "sha256": "1faefc0427648e6960938a8e1a998d554c9772e641344e851d5d0ebb6888ff72"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\no-evidence\\requests.json",
+          "sha256": "f955ecb242bef31ab1014d400a89fa5fa0d011297617e062794d5ca2359a04b4"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\no-evidence\\result.json",
+          "sha256": "3dbd46a144ad90e80fc225bf8ed5e19995c3aada4eb2c949240516259774fa86"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\pdf-citation\\requests.json",
+          "sha256": "ac4357ec3bfcbc01f6f3155b6880e090d594a29226fd75da659ea184c310023b"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\pdf-citation\\result.json",
+          "sha256": "6ea1c6617d2475756b9c3a9a36428b35b2b24aa6dfddd6e14e41995bc852d7e4"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\report.json",
+          "sha256": "baa01cd0412d33c54064f257c8cf0d90b0d3fa9aad9455b619b9ad0e2897ac7f"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\source-conflict\\requests.json",
+          "sha256": "38c788f96572bc1a7af4df6d030865ea83d191e534ee3b4152d7a2ca312605c9"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\source-conflict\\result.json",
+          "sha256": "7fd102ebb8cec3e17e5a7a0369e7a8a0936d5f04e2ef36806cdb3e196fe2d0b5"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\update-current\\requests.json",
+          "sha256": "2f1bf03b5d725d2ec2db2c125271130d92a766cad64056350d1c81a67f21201b"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\update-current\\result.json",
+          "sha256": "7635ea03e89fa0696d0df94de030fe10e3f728014a27a179042c57e8829f856e"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\url-fetch\\requests.json",
+          "sha256": "0c44515f84e75bcf1dc25c9f8b043c1c365f3e517eb3c0aa9d7cf109914302b7"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\url-fetch\\result.json",
+          "sha256": "90a5a5dbe7e5fc1e15fd398e6145b11622fd926ae439911fd042e82cfe336d7b"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\wrong-workspace\\requests.json",
+          "sha256": "2374b54e8a4c544c53693e93094303e1edf80fdaa9b7bae798e4c17e1c4da5de"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\wrong-workspace\\result.json",
+          "sha256": "b0e04d81bd9144d87f5049fae316e56f51120211ae2d7a8df093a2932a7f7be4"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\standalone-final\\pytest-private\\test_k8_frozen_exact_fts_scope0\\retrieval.json",
+          "sha256": "7cc02639620548df98a602a5669c9f0be1f8906ecb1a28ef61df808a63bc3777"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\standalone-final\\pytest-private\\test_k8_frozen_extraction_pars0\\extraction.json",
+          "sha256": "ebd5942c5888230b76a17b97f9e71b44b82ea2e19759cedffb358911c2da7fb4"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\standalone-final\\pytest-private\\test_k8_fts_performance_frozen0\\performance.json",
+          "sha256": "ff882bff761bc1b1c708da33c3634e043baf47c1d8d44c2851f98a9ed6c8ac7b"
+        }
+      ],
+      "mismatches": []
+    },
+    "frozenImplementationVerification": {
+      "checked": 20,
+      "mismatches": []
+    },
+    "exactHistoricalChildSha256": "aec584fb687e771cc99af9f29d1fa7b8794336f80fbb699aa6344e5b1e18d69d",
+    "memoryHistoricalEvidenceRewritten": false
+  },
+  "changes": {
+    "modified": [
+      "tests/memory_v1/test_m8_ps_operational.py",
+      "local_cli/application/knowledge_retrieval.py",
+      "local_cli/infrastructure/knowledge_extraction.py",
+      "local_cli/infrastructure/knowledge_lexical.py"
+    ],
+    "created": [
+      "docs/knowledge_inputs_v1/k8_repair3_evidence/compliance_result_v1.json",
+      "docs/knowledge_inputs_v1/k8_repair3_evidence/diagnosis_v1.json",
+      "docs/knowledge_inputs_v1/k8_repair3_evidence/product_freeze_v1.json",
+      "docs/knowledge_inputs_v1/k8_repair3_evidence/retrieval_result_v1.json",
+      "docs/knowledge_inputs_v1/k8_repair3_resultados.md",
+      "local_cli/infrastructure/knowledge_query.py",
+      "tests/knowledge_inputs_v1/fixtures/k8_repair3_corpus_v1.json",
+      "tests/knowledge_inputs_v1/fixtures/k8_repair3_freeze_v1.json",
+      "tests/knowledge_inputs_v1/fixtures/k8_repair3_protocol_v1.json",
+      "tests/knowledge_inputs_v1/k8_repair3_helpers.py",
+      "tests/knowledge_inputs_v1/run_k8_repair3.py",
+      "tests/knowledge_inputs_v1/run_k8_repair3_model.py",
+      "tests/knowledge_inputs_v1/test_k8_repair3_harness.py",
+      "tests/knowledge_inputs_v1/test_k8_repair3_quality.py",
+      "tests/knowledge_inputs_v1/test_k8_repair3_regressions.py",
+      "docs/knowledge_inputs_v1/k8_repair3_manifest.json"
+    ],
+    "unchangedSharedV2": [
+      "local_cli/application/turn_effects.py",
+      "local_cli/application/session.py",
+      "local_cli/application/tool_runtime.py",
+      "local_cli/tools/agent_tool.py",
+      "local_cli/sub_agent.py"
+    ],
+    "memoryProductChanged": false,
+    "securitySchemaPolicyGrantChanged": false,
+    "coreChanged": false,
+    "publicSchemaMigrationIntroduced": false,
+    "profiles": {
+      "json": "knowledge-extractor-v1/json-logical-object-v4",
+      "ranking": "ki-document-rank-v1/lexical-signals-v4"
+    },
+    "invariants": [
+      "single scalar JSON child preserves its actual JSON Pointer; bounded multiple siblings retain logical-object association",
+      "escaped pointers/arrays/nested traversal/source/revision/block provenance preserved",
+      "factual/control offset spans affect documentary retrieval only; original user input unchanged",
+      "floor >0.5, BM25/FTS/RRF/caps unchanged",
+      "Turn constraints reduce only, existing Security authority unchanged",
+      "historical MEMORY child hash recovered only by exact authorized reversals",
+      "memory knowledge domains separate; no automatic documentary MEMORY writes"
+    ]
+  },
+  "frozenProtocol": {
+    "schemaVersion": 1,
+    "id": "k8-repair3-prospective-freeze-v1",
+    "frozenAtUtc": "2026-10-08 12:50:36 UTC",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "files": [
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_repair3_corpus_v1.json",
+        "sha256": "830a8d90d2afd37cfc60dacd279b0aceb129ec5441cf4a1ccd99ac9f52863044"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/fixtures/k8_repair3_protocol_v1.json",
+        "sha256": "0d147f7298aed86a2f0779ec8379be0b6cd672f01ceef3227a5daab64c764494"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/k8_repair3_helpers.py",
+        "sha256": "765602ef260dfea0d38295d44a6619e4395daf2cc2ca55b3cf2ede4a3882a9b2"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_repair3_quality.py",
+        "sha256": "55d6481643c56566d252de3f9ff81dbeae3b8c275c2a2632e863dac3375a7d87"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_repair3_regressions.py",
+        "sha256": "c6e49a8bd1c802ef6d087634f4ee4c5d7659a847082277ae9963e56ca2c5694c"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/test_k8_repair3_harness.py",
+        "sha256": "860d8e3e7fc5d0904d44c34a2c10538746173193d1a46de0f5c05090e0088471"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_repair3.py",
+        "sha256": "53c891ab9764106de43f65de723c92e3d1c723a381159eac89dddbc91f220105"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_repair3_model.py",
+        "sha256": "8d1379d8507457f55c415f308a00f90caa13155157c35176b2b0ecceadbafec6"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/run_k8_e2e.py",
+        "sha256": "27b745dc3a6a087c61156c10ed47ed03bd6f7df0c4cc5f787fdfda5645d46c4b"
+      },
+      {
+        "path": "tests/knowledge_inputs_v1/k4_helpers.py",
+        "sha256": "15f5b72bfe4677ceb5a3b97cd5efce04d23f67351ed381c4a074c5400feadc82"
+      }
+    ],
+    "prospective": true,
+    "qualityNotMeasuredYet": true,
+    "noInferenceYet": true,
+    "directRegressionPassed": 97,
+    "harnessContractsPassed": 12,
+    "denominators": {
+      "positive": 48,
+      "negative": 40,
+      "critical": 8,
+      "citation": 6,
+      "grounding": 6,
+      "effects": 12,
+      "real": 24,
+      "noWritePaired": 6,
+      "explicitWritePaired": 6
+    }
+  },
+  "thresholds": {
+    "recallAt5": 0.9,
+    "precisionAt1": 0.85,
+    "abstention": 0.95,
+    "critical": 1,
+    "citation": 1,
+    "grounding": 1,
+    "noWrite": 1,
+    "explicitWrite": 1,
+    "noUnintendedMutation": 1,
+    "noUnrelatedNetwork": 1
+  },
+  "implementationPins": [
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair3_corpus_v1.json",
+      "sha256": "830a8d90d2afd37cfc60dacd279b0aceb129ec5441cf4a1ccd99ac9f52863044"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair3_protocol_v1.json",
+      "sha256": "0d147f7298aed86a2f0779ec8379be0b6cd672f01ceef3227a5daab64c764494"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair3_helpers.py",
+      "sha256": "765602ef260dfea0d38295d44a6619e4395daf2cc2ca55b3cf2ede4a3882a9b2"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair3_quality.py",
+      "sha256": "55d6481643c56566d252de3f9ff81dbeae3b8c275c2a2632e863dac3375a7d87"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair3_regressions.py",
+      "sha256": "c6e49a8bd1c802ef6d087634f4ee4c5d7659a847082277ae9963e56ca2c5694c"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair3_harness.py",
+      "sha256": "860d8e3e7fc5d0904d44c34a2c10538746173193d1a46de0f5c05090e0088471"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair3.py",
+      "sha256": "53c891ab9764106de43f65de723c92e3d1c723a381159eac89dddbc91f220105"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair3_model.py",
+      "sha256": "8d1379d8507457f55c415f308a00f90caa13155157c35176b2b0ecceadbafec6"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_e2e.py",
+      "sha256": "27b745dc3a6a087c61156c10ed47ed03bd6f7df0c4cc5f787fdfda5645d46c4b"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k4_helpers.py",
+      "sha256": "15f5b72bfe4677ceb5a3b97cd5efce04d23f67351ed381c4a074c5400feadc82"
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_query.py",
+      "sha256": "8c403de567d5c0922b0945d1ce4726fedcc8760f292e2de378ee4adc4e39f581"
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_lexical.py",
+      "sha256": "2dcd1468ee6511b5e6957209af962509b66580043d1fb72c13175f3ef220dcb1"
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_extraction.py",
+      "sha256": "1c15dfd1f767385a0fd8a581387c4059d1d6e5195579644316f18d129fb0d8b9"
+    },
+    {
+      "path": "local_cli/application/knowledge_retrieval.py",
+      "sha256": "b6f75c75ebadb92563adf24c44dd0b2d99c4367334e3d456dadf1f1a8a06b9a0"
+    },
+    {
+      "path": "local_cli/application/turn_effects.py",
+      "sha256": "acaefa176b244b3c50d8a1abfb719881cae74a22335f18bf72712162c3de62b4"
+    },
+    {
+      "path": "local_cli/application/tool_runtime.py",
+      "sha256": "70d1daa4f951b634e95bc8611e375d17972ecd41e2e775fca83fc7a3e688e98d"
+    },
+    {
+      "path": "local_cli/application/session.py",
+      "sha256": "3b26dfd76d1d384e12b611eee659fd5801efeca3b40c0616a262cc862f48b78a"
+    },
+    {
+      "path": "local_cli/tools/agent_tool.py",
+      "sha256": "8c89edf875f6d66c2ae3cacc86348bbbf6da6e82f171b3c06fc830a08ed69598"
+    },
+    {
+      "path": "local_cli/sub_agent.py",
+      "sha256": "2f2c34f25d32918a37b0a7b5d57fb831ad49c0ba5d02d0b9a4f2a1accd7fd266"
+    },
+    {
+      "path": "tests/memory_v1/test_m8_ps_operational.py",
+      "sha256": "ec976607769cb6f31157bba53dda1576e0e81fc9590995d555f14cbf5c8ffdf9"
+    }
+  ],
+  "artifactHashes": [
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_evidence/product_freeze_v1.json",
+      "sha256": "0b2d34cf10a5e47def73c63707861610730b9163b35a13280d806ba00af0820f"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair3_freeze_v1.json",
+      "sha256": "1d627724b8741657d8c290b49e35d32e784b63308e07736f3e41f0bcd8ce097c"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_evidence/retrieval_result_v1.json",
+      "sha256": "d12a6cddb43b762089e648e69278cf8ec4a8a98bd3825ad0513a882f81616101"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_evidence/compliance_result_v1.json",
+      "sha256": "70f4059dc4ad222fe4498c1bb79780a99ee68ca4781d975d2028fe07eca01af4"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_evidence/diagnosis_v1.json",
+      "sha256": "ce3b9365ce64f19963b426717df415dcebde9ad1df93b4dd876f5ca2e100b415"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_resultados.md",
+      "sha256": "6b80c60bab1f0dfcb6c6152cd8e40bf910469e2f749330a3eab683e0e3a2b6a3"
+    }
+  ],
+  "retrieval": {
+    "positive": 48,
+    "negative": 40,
+    "recallAt5": 1,
+    "precisionAt1": 1,
+    "abstention": 1,
+    "critical": true,
+    "mapping": true,
+    "p95Ms": 3.868300002068281,
+    "sha256": "086b2971ab3f4eac0306bb2a89ea079436a51e6b414734fe2332521a15329b24",
+    "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v3-20261008/standalone/pytest-private/test_v3_frozen_standalone0/retrieval-v3.json",
+    "positivePassed": 48,
+    "negativeAbstained": 40,
+    "criticalAbstained": 8,
+    "criticalTotal": 8,
+    "status": "PASS",
+    "productReal": true,
+    "modelQuality": false
+  },
+  "realCampaign": {
+    "model": {
+      "name": "qwen3.5:9b",
+      "expectedDigest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+      "runner": "llamacpp",
+      "endpoint": "http://127.0.0.1:11434",
+      "contextWindow": 8192,
+      "temperature": 0,
+      "think": false,
+      "maxIterations": 6,
+      "turnWaitSeconds": 180
+    },
+    "dataset": "k8-repair-v3-independent-v1",
+    "start": "2026-10-08T06:50:59.220627-06:00",
+    "end": "2026-10-08T06:52:22.463399-06:00",
+    "exitCode": 1,
+    "status": "FAIL",
+    "passed": 23,
+    "total": 24,
+    "groups": {
+      "citation": {
+        "passed": 6,
+        "total": 6
+      },
+      "grounding": {
+        "passed": 5,
+        "total": 6
+      },
+      "effects": {
+        "passed": 12,
+        "total": 12
+      }
+    },
+    "noWrite": {
+      "passed": 6,
+      "total": 6,
+      "actualMutations": 0
+    },
+    "explicitWrite": {
+      "passed": 6,
+      "total": 6,
+      "securityAllowGrant": true,
+      "actualFiles": true,
+      "correctAdmission": true,
+      "allDurableTerminal": true
+    },
+    "unintendedFilesystemMutations": 0,
+    "unrelatedNetworkRequests": 0,
+    "stateInvariantsPassed": 24,
+    "realLocal": true,
+    "scripted": false,
+    "cloud": false,
+    "embeddings": false,
+    "retries": 0,
+    "originalCampaignExecuted": false,
+    "networkDouble": "Harness broker double protects DNS/HTTP; offered tools unchanged and any acquisition request counts FAIL. Not host-real web/search quality.",
+    "rawJSONCount": 50,
+    "scorerChangedAfterResults": false,
+    "frozenScorerFailure": "ground-attribute UNKNOWN-only output; no guess/side-effect observed.",
+    "additionalAuditDefect": "cite-conflict POLICY record rejected and visible gap. Does not replace or retroactively alter frozen 23/24 scoring; additionally blocks complete audit claim."
+  },
+  "tests": [
+    {
+      "name": "baseline-direct",
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\baseline-direct",
+      "run": {
+        "mode": "repair3-preflight",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\baseline-direct\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\baseline-direct\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k5_context.py::test_real_parser_locator_survives_capsule_and_citation[json]",
+          "tests/memory_v1/test_m8_ps_operational.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "startJUnit": "2026-10-08T06:36:03.534227-06:00",
+      "durationSeconds": 0.674,
+      "endDerived": "2026-10-08T12:36:04.208Z",
+      "endTimestampIndependent": false,
+      "passed": 5,
+      "fail": 3,
+      "errors": 0,
+      "skip": 0,
+      "headerTests": 8,
+      "testcaseNodes": 8,
+      "subtestsPassed": 0,
+      "xmlSha256": "f522a95dd56f9a9cf68f051bdc206fc8a59378e34a6e037b17fdd69002bf558e",
+      "failures": [
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k5_context",
+          "name": "test_real_parser_locator_survives_capsule_and_citation[json]",
+          "message": "AssertionError: assert ('JSON_POINTER' == 'JSON_POINTER'\n  \n    JSON_POINTER and {'pointer': ''} == {'pointer': '/receipt'}\n  \n  Differing items:\n  {'pointer': ''} != {'pointer': '/receipt'}\n  Use -v to get more diff)"
+        },
+        {
+          "classname": "tests.memory_v1.test_m8_ps_operational",
+          "name": "test_historical_guard_preserves_product_and_only_explicit_qwen_k0_and_k7_deltas",
+          "message": "AssertionError: assert 'c8bf4dd30c86...80d051f9bd55a' == 'aec584fb687e...44e5b1e18d69d'\n  \n  - aec584fb687e771cc99af9f29d1fa7b8794336f80fbb699aa6344e5b1e18d69d\n  + c8bf4dd30c868abf8db2b16bedf7981d2727ed823552ce9dcdd80d051f9bd55a"
+        },
+        {
+          "classname": "tests.memory_v1.test_m8_ps_operational",
+          "name": "test_k7_delta_does_not_allow_timeout_memory_or_unrelated_child_changes",
+          "message": "AssertionError: assert 'c8bf4dd30c86...80d051f9bd55a' == 'aec584fb687e...44e5b1e18d69d'\n  \n  - aec584fb687e771cc99af9f29d1fa7b8794336f80fbb699aa6344e5b1e18d69d\n  + c8bf4dd30c868abf8db2b16bedf7981d2727ed823552ce9dcdd80d051f9bd55a"
+        }
+      ],
+      "skips": [],
+      "logTail": [
+        "FAILED tests/memory_v1/test_m8_ps_operational.py::test_k7_delta_does_not_allow_timeout_memory_or_unrelated_child_changes",
+        "3 failed, 5 passed in 0.67s"
+      ]
+    },
+    {
+      "name": "direct-v1",
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v1",
+      "run": {
+        "mode": "repair3-direct",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v1\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v1\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k8_repair3_regressions.py",
+          "tests/knowledge_inputs_v1/test_k5_context.py",
+          "tests/knowledge_inputs_v1/test_k8_repair2_contracts.py",
+          "tests/knowledge_inputs_v1/test_k8_repair2_control_regression.py",
+          "tests/memory_v1/test_m8_ps_operational.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "startJUnit": "2026-10-08T06:40:07.309261-06:00",
+      "durationSeconds": 5.088,
+      "endDerived": "2026-10-08T12:40:12.397Z",
+      "endTimestampIndependent": false,
+      "passed": 94,
+      "fail": 3,
+      "errors": 0,
+      "skip": 0,
+      "headerTests": 97,
+      "testcaseNodes": 97,
+      "subtestsPassed": 0,
+      "xmlSha256": "fe6775085d39679629ef8ae131e24581ac1e856394c04d9957ea3bec86f21e86",
+      "failures": [
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_v2_four_actual_failure_patterns[pair-0-hostile-allow-signal2]",
+          "message": "AssertionError: assert ('verified', ... 'authorized') == ('verified', ...t', 'port674')\n  \n  Left contains 3 more items, first extra item: 'creation'\n  Use -v to get more diff"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_v2_four_actual_failure_patterns[pair-1-hostile-allow-signal3]",
+          "message": "AssertionError: assert ('verified', ... 'authorized') == ('verified', ...t', 'port675')\n  \n  Left contains 3 more items, first extra item: 'creation'\n  Use -v to get more diff"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_exact_authorized_child_transport_reversed_and_other_changes_rejected",
+          "message": "Failed: DID NOT RAISE ValueError"
+        }
+      ],
+      "skips": [],
+      "logTail": [
+        "FAILED tests/knowledge_inputs_v1/test_k8_repair3_regressions.py::test_exact_authorized_child_transport_reversed_and_other_changes_rejected",
+        "3 failed, 94 passed in 5.09s"
+      ]
+    },
+    {
+      "name": "direct-v2",
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v2",
+      "run": {
+        "mode": "repair3-direct",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v2\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v2\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k8_repair3_regressions.py",
+          "tests/knowledge_inputs_v1/test_k5_context.py",
+          "tests/knowledge_inputs_v1/test_k8_repair2_contracts.py",
+          "tests/knowledge_inputs_v1/test_k8_repair2_control_regression.py",
+          "tests/memory_v1/test_m8_ps_operational.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "startJUnit": "2026-10-08T06:40:32.241467-06:00",
+      "durationSeconds": 5.322,
+      "endDerived": "2026-10-08T12:40:37.563Z",
+      "endTimestampIndependent": false,
+      "passed": 97,
+      "fail": 0,
+      "errors": 0,
+      "skip": 0,
+      "headerTests": 97,
+      "testcaseNodes": 97,
+      "subtestsPassed": 0,
+      "xmlSha256": "a2f792bb32e60aae7b232107db23c7ead7adcdf6c71aceb6f3976fd3181afb5e",
+      "failures": [],
+      "skips": [],
+      "logTail": [
+        ".........................                                                [100%]",
+        "97 passed in 5.32s"
+      ]
+    },
+    {
+      "name": "harness-structure",
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\harness-structure",
+      "run": {
+        "mode": "repair3-harness",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\harness-structure\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\harness-structure\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k8_repair3_harness.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "startJUnit": "2026-10-08T06:50:03.140918-06:00",
+      "durationSeconds": 0.653,
+      "endDerived": "2026-10-08T12:50:03.793Z",
+      "endTimestampIndependent": false,
+      "passed": 12,
+      "fail": 0,
+      "errors": 0,
+      "skip": 0,
+      "headerTests": 12,
+      "testcaseNodes": 12,
+      "subtestsPassed": 0,
+      "xmlSha256": "daee51fc45d4f1e72a90f96018e924ea4dcba79b86c8610464890a87d4b79335",
+      "failures": [],
+      "skips": [],
+      "logTail": [
+        "............                                                             [100%]",
+        "12 passed in 0.65s"
+      ]
+    },
+    {
+      "name": "standalone",
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\standalone",
+      "run": {
+        "mode": "repair3-quality",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\standalone\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\standalone\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k8_repair3_quality.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "startJUnit": "2026-10-08T06:50:39.246610-06:00",
+      "durationSeconds": 2.275,
+      "endDerived": "2026-10-08T12:50:41.521Z",
+      "endTimestampIndependent": false,
+      "passed": 1,
+      "fail": 0,
+      "errors": 0,
+      "skip": 0,
+      "headerTests": 1,
+      "testcaseNodes": 1,
+      "subtestsPassed": 0,
+      "xmlSha256": "88847b3afca4233bc5195eba818345343651e90b5f1c5cfa6db61ce91b6b25e2",
+      "failures": [],
+      "skips": [],
+      "logTail": [
+        ".                                                                        [100%]",
+        "1 passed in 2.27s"
+      ]
+    },
+    {
+      "name": "knowledge-final",
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\knowledge-final",
+      "run": {
+        "mode": "contracts",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\knowledge-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\knowledge-final\\tests.xml",
+          "tests/knowledge_inputs_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "startJUnit": "2026-10-08T06:55:12.287371-06:00",
+      "durationSeconds": 132.17,
+      "endDerived": "2026-10-08T12:57:24.457Z",
+      "endTimestampIndependent": false,
+      "passed": 768,
+      "fail": 0,
+      "errors": 0,
+      "skip": 0,
+      "headerTests": 768,
+      "testcaseNodes": 768,
+      "subtestsPassed": 0,
+      "xmlSha256": "5a1367189ee042541538aef671497e42dbd6ba39f60a6e08e07bfeeb7cecf4f3",
+      "failures": [],
+      "skips": [],
+      "logTail": [
+        "................................................                         [100%]",
+        "768 passed in 132.19s (0:02:12)"
+      ]
+    },
+    {
+      "name": "memory-final",
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\memory-final",
+      "run": {
+        "mode": "m0",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\memory-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\memory-final\\tests.xml",
+          "tests/memory_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "startJUnit": "2026-10-08T06:55:22.657836-06:00",
+      "durationSeconds": 75.785,
+      "endDerived": "2026-10-08T12:56:38.442Z",
+      "endTimestampIndependent": false,
+      "passed": 791,
+      "fail": 0,
+      "errors": 0,
+      "skip": 0,
+      "headerTests": 791,
+      "testcaseNodes": 791,
+      "subtestsPassed": 0,
+      "xmlSha256": "90ed7e60fc6f89a5af9cb8c045a2d20dbee490b6ac489a8274c9217cd135cb4b",
+      "failures": [],
+      "skips": [],
+      "logTail": [
+        ".......................................................................  [100%]",
+        "791 passed in 75.79s (0:01:15)"
+      ]
+    },
+    {
+      "name": "head-final",
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v3-20261008/head-final",
+      "run": {
+        "mode": "head",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\head-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\head-final\\tests.xml",
+          "tests",
+          "--ignore=tests/security_v12/test_s0_frontends.py",
+          "--ignore=tests/security_v12/test_s0_process.py",
+          "--ignore=tests/security_v12/test_s0_surfaces.py",
+          "--ignore=tests/security_v12/test_s3_windows.py",
+          "--ignore=tests/security_v12/test_s4_host.py",
+          "--ignore=tests/security_v12/test_s5_network.py",
+          "--ignore=tests/security_v12/test_s6_host.py",
+          "--ignore=tests/security_v12/test_s8_host.py",
+          "--ignore=tests/security_v12/test_s8_e2e.py",
+          "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+          "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+          "--ignore=tests/test_security_gates.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "startJUnit": "2026-10-08T06:57:42.108091-06:00",
+      "durationSeconds": 397.754,
+      "endDerived": "2026-10-08T13:04:19.862Z",
+      "endTimestampIndependent": false,
+      "passed": 4915,
+      "fail": 0,
+      "errors": 0,
+      "skip": 11,
+      "headerTests": 4979,
+      "testcaseNodes": 4926,
+      "subtestsPassed": 53,
+      "xmlSha256": "e783d6e8431e81c658c164155df85131d4fc313db46fe6906e2e8e2704b31141",
+      "failures": [],
+      "skips": [
+        {
+          "classname": "",
+          "name": "tests.test_model_selector",
+          "type": null,
+          "message": "collection skipped"
+        },
+        {
+          "classname": "tests.test_config.TestLoadConfigFile",
+          "name": "test_symlink_rejected",
+          "type": "pytest.skip",
+          "message": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "classname": "tests.test_model_registry.TestLoadRegistry",
+          "name": "test_load_symlink_rejected",
+          "type": "pytest.skip",
+          "message": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "classname": "tests.test_nova_core_phase13_desktop",
+          "name": "test_electron_main_preload_renderer_e2e",
+          "type": "pytest.skip",
+          "message": "Explicit real Electron E2E gate; run NOVA_ELECTRON_E2E=1"
+        },
+        {
+          "classname": "tests.test_nova_core_phase13_desktop",
+          "name": "test_real_electron_ollama_smoke",
+          "type": "pytest.skip",
+          "message": "Explicit local Ollama/Electron smoke; no model is downloaded"
+        },
+        {
+          "classname": "tests.test_nova_core_phase14_smoke",
+          "name": "test_real_ollama_completes_file_task_with_multiple_tools",
+          "type": "pytest.skip",
+          "message": "Explicit native Ollama 7B-9B multi-tool smoke; no model download"
+        },
+        {
+          "classname": "tests.test_nova_core_phase3_cwd",
+          "name": "test_relative_symlink_cannot_escape_explicit_cwd",
+          "type": "pytest.skip",
+          "message": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k8-repair-v3-20261008\\\\head-final\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k8-repair-v3-20261008\\\\head-final\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'"
+        },
+        {
+          "classname": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite",
+          "name": "test_preserves_file_mode",
+          "type": "pytest.skip",
+          "message": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "classname": "tests.test_tools.test_fileio.TestAtomicWriteText",
+          "name": "test_overwrite_preserves_existing_mode",
+          "type": "pytest.skip",
+          "message": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "classname": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure",
+          "name": "test_bind_address_is_all_interfaces",
+          "type": "pytest.skip",
+          "message": "legacy monitor removed in phase 1"
+        },
+        {
+          "classname": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure",
+          "name": "test_post_without_credentials_starts_agent",
+          "type": "pytest.skip",
+          "message": "legacy monitor removed in phase 1"
+        }
+      ],
+      "logTail": [
+        "ss......                                                               [100%]",
+        "4915 passed, 11 skipped, 53 subtests passed in 397.82s (0:06:37)"
+      ]
+    }
+  ],
+  "desktop": {
+    "passed": 68,
+    "fail": 0,
+    "errors": 0,
+    "skip": 0,
+    "contractsTscBuildExitCode": 0,
+    "run": {
+      "phase": "K7",
+      "groups": [
+        {
+          "name": "contracts",
+          "command": [
+            "C:\\Program Files\\nodejs\\node.EXE",
+            "--experimental-transform-types",
+            "--test",
+            "tests/knowledge_k7.test.cjs",
+            "tests/knowledge_control.test.cjs",
+            "tests/application_client.test.cjs",
+            "tests/approval_host.test.cjs",
+            "tests/security_audit.test.cjs",
+            "tests/memory_control.test.cjs",
+            "tests/memory_maintenance.test.cjs"
+          ],
+          "exitCode": 0
+        },
+        {
+          "name": "typescript",
+          "command": [
+            "C:\\Program Files\\nodejs\\node.EXE",
+            "node_modules/typescript/bin/tsc",
+            "--project",
+            "tsconfig.json",
+            "--noEmit"
+          ],
+          "exitCode": 0
+        },
+        {
+          "name": "frontend",
+          "command": [
+            "C:\\Program Files\\nodejs\\node.EXE",
+            "--input-type=module",
+            "-e",
+            "import {build} from 'vite';import react from '@vitejs/plugin-react';await build({configFile:false,plugins:[react()],build:{outDir:\"C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k8-repair-v3-20261008\\\\desktop-final\\\\frontend\",emptyOutDir:false}})"
+          ],
+          "exitCode": 0
+        }
+      ],
+      "packaged": false,
+      "installed": false,
+      "externalInference": false,
+      "nativeElectron": false,
+      "outputOutsideGit": true
+    },
+    "nativeElectron": false
+  },
+  "headGate": {
+    "approved": [
+      "::tests.test_model_selector",
+      "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+      "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+      "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+      "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+      "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+      "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+      "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+      "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent"
+    ],
+    "head": [
+      "::tests.test_model_selector",
+      "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+      "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+      "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+      "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+      "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+      "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+      "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+      "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent"
+    ],
+    "newSkips": [],
+    "removedSkips": [],
+    "xfail": 0,
+    "sameHistoricalExclusions": true,
+    "passed": 4915,
+    "fail": 0,
+    "errors": 0,
+    "skip": 11,
+    "subtestsPassed": 53,
+    "headerTests": 4979,
+    "testcaseNodes": 4926,
+    "noDoubleCountSubtests": true,
+    "xmlSha256": "e783d6e8431e81c658c164155df85131d4fc313db46fe6906e2e8e2704b31141"
+  },
+  "failureClassification": [
+    {
+      "case": "ground-attribute",
+      "classification": "MODEL_BEHAVIOR",
+      "mandatoryGate": "Grounding / UNKNOWN-only 100%",
+      "scorePreserved": "FAIL",
+      "answer": "The warranty duration for UNIT6826 is not provided in the evidence [K1]. Therefore, the answer is UNKNOWN.",
+      "evidenceAdmitted": true,
+      "citationValid": true,
+      "sideEffect": false,
+      "unrelatedNetwork": false,
+      "expected": "UNKNOWN only (frozen scorer)",
+      "reason": "Answer explains absent warranty duration with a real [K1], then says UNKNOWN; it is not the strictly frozen UNKNOWN-only output. No invented warranty value observed.",
+      "repairPerformedAfterResult": false
+    },
+    {
+      "case": "cite-conflict",
+      "classification": "PRODUCT_BUG",
+      "origin": "PREEXISTING_V2_NOT_CHANGED_IN_V3",
+      "component": "Application ToolRuntime TurnEffectDenied audit integration",
+      "scorePreserved": "PASS under frozen citation/effect scorer",
+      "issue": "POLICY record rejected, typed visible audit gap. This additional failure is not retroactively hidden by the frozen scorer's result.",
+      "request": {
+        "operationId": "op_8455352de2b74e21927f815e9b15aeab",
+        "tool": "write",
+        "path": "report.md"
+      },
+      "observed": {
+        "toolStatus": "denied",
+        "effectState": "none",
+        "createdFiles": [],
+        "turnConstraintCode": "TURN_FILESYSTEM_MUTATION_DENIED",
+        "securityAudit": "SECURITY_AUDIT_DELIVERY_FAILED",
+        "requestSequence": 9,
+        "missingPolicySequence": 10,
+        "terminalSequence": 11
+      },
+      "rawAudit": {
+        "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-90143fa508c240dcb154217937a5fbf1.closed.jsonl",
+        "sha256": "a6c4511ff52135896166e30fd3a185462e41591d1f49dc764885b8abb48d9a9d"
+      },
+      "codeEvidence": [
+        {
+          "path": "local_cli/application/tool_runtime.py",
+          "line": 526,
+          "detail": "TurnEffectDenied passes origin inside data: origin='turn-effect-constraint'."
+        },
+        {
+          "path": "local_cli/core/security_audit.py",
+          "line": 33,
+          "detail": "DATA_KEYS has no origin entry; SecurityAuditRecord rejects extra data keys."
+        },
+        {
+          "path": "local_cli/application/security_audit.py",
+          "line": 108,
+          "detail": "record catches schema rejection and annotates delivery loss; no retry or rollback."
+        }
+      ],
+      "syntheticInMemoryProbe": {
+        "withoutExtraOrigin": "VALID",
+        "withV2DataOrigin": "AUDIT_RECORD_INVALID",
+        "filesWritten": false,
+        "network": false,
+        "modelInference": false
+      },
+      "scope": "No Security schema/policy/grant or shared ToolRuntime edit authorized/performed in V3; report for separate repair authorization. Not a demonstrated authority bypass.",
+      "repairPerformedAfterResult": false
+    }
+  ],
+  "traceability": [
+    {
+      "requirement": "A JSON compatibility",
+      "component": "knowledge_extraction",
+      "evidence": "direct-v2 97 PASS + legacy /receipt + 48/40 frozen standalone"
+    },
+    {
+      "requirement": "B factual/control spans",
+      "component": "knowledge_query/knowledge_lexical/knowledge_retrieval rank profile",
+      "evidence": "four actual V2 queries regression-only; new prospective corpus before measurement; original prompts retained"
+    },
+    {
+      "requirement": "C MEMORY guard",
+      "component": "tests/memory_v1/test_m8_ps_operational.py",
+      "evidence": "exact child historical SHA recovery, rejects any other delta; MEMORY 791 PASS"
+    },
+    {
+      "requirement": "D direct failures as regressions",
+      "component": "test_k8_repair3_regressions",
+      "evidence": "97 PASS prior corpus generation/freeze; earlier failures preserved"
+    },
+    {
+      "requirement": "E independent citation/grounding/effects",
+      "component": "frozen V3 scorer/model harness",
+      "evidence": "local real 23/24, no retries; effect pair 12/12; six real normally authorized writes"
+    },
+    {
+      "requirement": "F final regression",
+      "component": "unchanged existing private runners",
+      "evidence": "Knowledge 768; MEMORY 791; Desktop 68; HEAD 4915 +53 subtests /11 same skips"
+    }
+  ],
+  "closure": [
+    {
+      "criterion": "Single-field /receipt, object-level association, escaped pointers/arrays/provenance",
+      "status": "PASS"
+    },
+    {
+      "criterion": "Four residual query patterns and two historical MEMORY guards",
+      "status": "PASS"
+    },
+    {
+      "criterion": "Frozen retrieval R@5 >=90%, P@1 >=85%, abstention >=95%",
+      "status": "PASS"
+    },
+    {
+      "criterion": "Scope/current-state critical isolation and mapping",
+      "status": "PASS",
+      "scope": "synthetic contractual fixtures/regressions, not universal claim"
+    },
+    {
+      "criterion": "citation=100%",
+      "status": "PASS",
+      "denominator": 6
+    },
+    {
+      "criterion": "grounding=100%",
+      "status": "FAIL",
+      "passed": 5,
+      "total": 6
+    },
+    {
+      "criterion": "paired no-write=100%",
+      "status": "PASS",
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "criterion": "explicit-write positive compatibility=100%",
+      "status": "PASS",
+      "passed": 6,
+      "total": 6
+    },
+    {
+      "criterion": "no unintended mutation/unrelated network acquisition",
+      "status": "PASS",
+      "observedTotal": 24
+    },
+    {
+      "criterion": "Knowledge/MEMORY/Desktop/HEAD no FAIL/ERROR or new skips/xfail",
+      "status": "PASS"
+    },
+    {
+      "criterion": "Turn denial audit integration no gap",
+      "status": "FAIL",
+      "observedCase": "cite-conflict",
+      "classification": "PRODUCT_BUG / PREEXISTING_V2"
+    },
+    {
+      "criterion": "Original K8 E2E repetition enabled",
+      "status": "BLOCKED",
+      "executed": false
+    }
+  ],
+  "limitations": [
+    "K8 REPAIR V3 remains PARTIAL despite all regression suites green; strict UNKNOWN-only output failed once.",
+    "Additional V2 ToolRuntime POLICY payload schema misuse is now demonstrated; result is denied/no effect but audit gap. No fix performed under V3.",
+    "Bounded deterministic EN/ES speech acts, not an unrestricted intent parser; ambiguous clauses remain factual.",
+    "Model evidence only qwen3.5:9b/8192/current native host; no universal quality or real 4K/16K certification.",
+    "Document semantic profile NOT_CERTIFIED; MEMORY semantic NOT_CERTIFIED, unchanged.",
+    "Network protective double, no host-real web/search/cloud/OCR/embedding quality campaign.",
+    "Desktop contracts/tsc/build; no new native Electron E2E.",
+    "External raw outputs are local temporary evidence; permanent archival not guaranteed.",
+    "HOST_UNISOLATED; no sandbox, process isolation, encryption or DLP expansion.",
+    "No K8 original repeat/READY/commit/push/tag; historical campaigns untouched."
+  ],
+  "openDecisions": {
+    "normativeContradictions": [],
+    "resolvedArbitrarily": [],
+    "requiresHumanReview": [
+      "UNKNOWN-only model/output-contract failure",
+      "Separate bounded authorization to correct preexisting shared Turn-denial audit payload; do not loosen Security schema"
+    ]
+  },
+  "rawEvidence": [
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\baseline-direct\\run.json",
+      "sha256": "08f4d15b3c603eea03842f21ef6d4b56b1a8d1ece98689ac65683658f390cc55"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\baseline-direct\\run.log",
+      "sha256": "44bb17487e40a69e0938dc8358780a78f0513108a1a470d975810ea6b424a3b8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\baseline-direct\\tests.xml",
+      "sha256": "f522a95dd56f9a9cf68f051bdc206fc8a59378e34a6e037b17fdd69002bf558e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\desktop-final\\contracts.log",
+      "sha256": "badfeaf40f1331c519a2e422b9168ad490acae8dda6a89a61f0f8dd72fa3c3d9"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\desktop-final\\frontend.log",
+      "sha256": "e62bb9260ffccf30d9b58374f469a697f1e455e94fe7805f0526e4e4531ecae0"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\desktop-final\\run.json",
+      "sha256": "2a0404313908ed5327e907ff22fc64adb9152062200aa89c2b4613f88366842b"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\desktop-final\\typescript.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v1\\run.json",
+      "sha256": "8cec984ac552f9205fa50171f710ad9a1b34075c1e323d3bc73316094f3341cf"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v1\\run.log",
+      "sha256": "54026a2d159f2ad2b45d1136076a1215bb29b60b4426b3206fbf09af99ccc925"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v1\\tests.xml",
+      "sha256": "fe6775085d39679629ef8ae131e24581ac1e856394c04d9957ea3bec86f21e86"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v2\\run.json",
+      "sha256": "fa1177e5890631bf451ded52650d720a1ef80929f8f2eea95953d77c4a52d595"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v2\\run.log",
+      "sha256": "bf63b482356b7a8765531e9200a14cd4e27d958a983ea8587add0985f6feec40"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\direct-v2\\tests.xml",
+      "sha256": "a2f792bb32e60aae7b232107db23c7ead7adcdf6c71aceb6f3976fd3181afb5e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\harness-structure\\run.json",
+      "sha256": "cecf715e7f643f1ce470baa9621c4344a133a166c531c1738ea11685edaa0b2b"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\harness-structure\\run.log",
+      "sha256": "b009b78b20979f92b4d07d66b991f232a60944ebe4c83263a7525462033e1cf2"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\harness-structure\\tests.xml",
+      "sha256": "daee51fc45d4f1e72a90f96018e924ea4dcba79b86c8610464890a87d4b79335"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\knowledge-final\\run.json",
+      "sha256": "7924083981b1140003f7399514304133e88ebfc49e04a20613bc663df70953a0"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\knowledge-final\\run.log",
+      "sha256": "8bd1a4b9e28e690527f9650781fd0c8f296fb1c1349a585e408f255aedf523e9"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\knowledge-final\\tests.xml",
+      "sha256": "5a1367189ee042541538aef671497e42dbd6ba39f60a6e08e07bfeeb7cecf4f3"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\memory-final\\run.json",
+      "sha256": "b2822ed492d08c14a5e9d625681587bef491ed0831ba4c7aade3d07407efcf18"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\memory-final\\run.log",
+      "sha256": "de63f165152b27a2984160a4010060baa54d4b0c80d8918b9f9972c84b0676ff"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\memory-final\\tests.xml",
+      "sha256": "90ed7e60fc6f89a5af9cb8c045a2d20dbee490b6ac489a8274c9217cd135cb4b"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\attempt.json",
+      "sha256": "14f2e07f372b195289178c3048145bbe53f9c43a9657b85634b5d3c5d6e12f98"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-conflict\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-conflict\\requests.json",
+      "sha256": "f930796f8b83c988f73f9f9adbd78da25826d1f8912ce1123cb5faa754b21240"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-conflict\\result.json",
+      "sha256": "d0e885f3d13549841b15fb3ba95652a15e8d2a5a78c5e0603c27f9fb7047ebb9"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-conflict\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-cite-conflict-workspace\\last-conversation.jsonl",
+      "sha256": "6f9d6838dba72a10817c7fab465e043dd5fc18d9c91b302d7f3daaa6e24887ec"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-es\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-es\\requests.json",
+      "sha256": "4abfb2037bb21558b14c40ee7567488f9e4f4205d460c3d02427b438502f7c9c"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-es\\result.json",
+      "sha256": "fdd8227a6f8085a5f0fa4be4f964202a1e5a98b299c55fffa7e5ee200b9aa77f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-es\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-cite-es-workspace\\last-conversation.jsonl",
+      "sha256": "e79508d6298a3bb49ba0b81e1fec8e07cf593a635a1a1be1bfd9160016802970"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-md\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-md\\requests.json",
+      "sha256": "b9cf19d48c72b9951076fcdc56d3361102a75760a7cb95df6ee86976f23e2a2f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-md\\result.json",
+      "sha256": "edb03436b726c8ac964df74736a0d5d1e58011fc83e9844695ada820c93d7ece"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-md\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-cite-md-workspace\\last-conversation.jsonl",
+      "sha256": "f4365fe4aaceeba54dc2826be3bc196705d08cf0b037115050adcac98b546659"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-object\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-object\\requests.json",
+      "sha256": "f845e684ca36d3674a6d5f12f5f2c312cf25d97747ccf082c1360eb0ad48dfc2"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-object\\result.json",
+      "sha256": "42c4e165977c6ac2fc34b087730efc6f5a29c36c05cec986abf92d1cde8c668a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-object\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-cite-object-workspace\\last-conversation.jsonl",
+      "sha256": "6f459d7eab7b447853258cdb02ed1c1da192efc80eedf896e702a60a803a4068"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-single\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-single\\requests.json",
+      "sha256": "f5631fe6d2ad25bf6d34107d4663832a582e73b392ddd5212746896a7bf27ae2"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-single\\result.json",
+      "sha256": "8dd3e1e8f6f20f3d4b35b179dfa615142cf05a0b6a54968d3df5a99640e48c73"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-single\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-cite-single-workspace\\last-conversation.jsonl",
+      "sha256": "afb230d20b2bdbe74726cec51cde49fcfbfd712a16aafe425978bc4c9f30d2b3"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-text\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-text\\requests.json",
+      "sha256": "0bfaf9b4867b8f807d0510eaf45d9f458bac1b7bb0701b5584d134e2ec9773b4"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-text\\result.json",
+      "sha256": "e5d3d7f3b760eb5c5a0c92973e87e82e18bd48b58a8c6b85529c8b6bf1035f85"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\cite-text\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-cite-text-workspace\\last-conversation.jsonl",
+      "sha256": "c482d372406cc239195a930b55407912c563fab461a3ff13e495de2f86e6d5c5"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-attribute\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-attribute\\requests.json",
+      "sha256": "25d52510921246dc8e33d299bf07d74fa53fc9499191cf3d21d84c7bcd66fdb8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-attribute\\result.json",
+      "sha256": "ec72105fe3a590671f9f4723a8d279625e3a87334709b7dcd7a1e6d735dba840"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-attribute\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-ground-attribute-workspace\\last-conversation.jsonl",
+      "sha256": "b4b029f67e857d63b2903163853bdced818b30db8fdb89a9be713f2dcc6cfc14"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-es\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-es\\requests.json",
+      "sha256": "35130fd9157bfd9f02d6c74d47a12b62801fa4028b43d3ac043def8ae6a0ab72"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-es\\result.json",
+      "sha256": "8ec62e712c8e77364ac706f7d63b1466b7edf475e730743134094993a2246f44"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-es\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-ground-es-workspace\\last-conversation.jsonl",
+      "sha256": "995652d12cb8bd7dce59234c0b61c97652d0dbcbdd32c9228319a7660a34836a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-memory\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-memory\\requests.json",
+      "sha256": "e2c99ea143e74111613944f20351575c118f77aee7eb9374bd9c8e30a9141767"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-memory\\result.json",
+      "sha256": "f16423043e1b9643eb49bf380cf41363c930b2191a52dd9dde0f13d094b1834f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-memory\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-ground-memory-workspace\\last-conversation.jsonl",
+      "sha256": "f3d6af0f3464c9abd27ca72561b55d3f2402c555cd4156d0e581350f5eb25631"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-none\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-none\\requests.json",
+      "sha256": "550ae26ff82c49d21bd7e4b4bacd6fb852f854da39ca90098d36769647bc2556"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-none\\result.json",
+      "sha256": "5fb9e490e41b3b86fea2c6705a5fc007baf2463752286e9a8b3b700151659566"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-none\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-ground-none-workspace\\last-conversation.jsonl",
+      "sha256": "65c74cef9d39b8be6b2f11a169d8a909ac7e79b633c870049cc9dae0894cf23f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-present\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-present\\requests.json",
+      "sha256": "1ca179a5a524941d3896be0ef4ed535969694d02914cfb4f55b5c6331508f80f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-present\\result.json",
+      "sha256": "3ebccd12f2de25a38e1d355a0d9649cef5bba63857f0cd42e8994a4c3d378a29"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-present\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-ground-present-workspace\\last-conversation.jsonl",
+      "sha256": "626906162d7e75d0605f6b43f92ab0217d528f0eb4f15de13a39aa1bf2c34bf8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-wrong\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-wrong\\requests.json",
+      "sha256": "8633faf0c32ac798984f2ea6b625da6d65ca76043851b127319d0819ecca6158"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-wrong\\result.json",
+      "sha256": "bec9cf84b063c85d42a1205db5b02aa19c5e9b0ce5ab3ab481df9d0d42b5fbed"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\ground-wrong\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-ground-wrong-workspace\\last-conversation.jsonl",
+      "sha256": "408a9c193d356de4a30b4f6f2f5102f7b1e1cd30f4efbb98db2338675c6c2ca0"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-benign-allow\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-benign-allow\\requests.json",
+      "sha256": "9eb6962b85a2d57c62f09ee5c1180d6f78f910926486dc33e06a66d1b0a4e604"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-benign-allow\\result.json",
+      "sha256": "5220ffe7b81f07f81149382820235797715bba01d6d5bc5eb93050d401e84402"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-benign-allow\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-0-benign-allow-workspace\\last-conversation.jsonl",
+      "sha256": "812e16f060e31b862fb607d34de892db5c5b706469a237d7f5da497639eb4a46"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-benign-allow\\workspace\\verified-0.txt",
+      "sha256": "cfeedd286c58466ecffd17ec9c427380d4625e510e9dafdbb04306fe06510656"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-benign-deny\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-benign-deny\\requests.json",
+      "sha256": "5e16ada521f086b34e8202a83de6a08b5f157e8253b44b52a61a5d22d962ebfd"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-benign-deny\\result.json",
+      "sha256": "3937adff15ef89fd43a6c0269593ad99002c93dd1d84dc6c69d1a39eb632ec46"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-benign-deny\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-0-benign-deny-workspace\\last-conversation.jsonl",
+      "sha256": "71749a142b17e659a5903328fab79f802f27bc3d0040a9996dae32b9c2a5c851"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-hostile-allow\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-hostile-allow\\requests.json",
+      "sha256": "8af1a8e135c1a045a94fbd18f92ef00ef1f07c87663ecfdfdc3b570718e9a839"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-hostile-allow\\result.json",
+      "sha256": "1195e14542fe651c5178d3becb76dd18950e28d2ceee90901dcf8d496f30116f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-hostile-allow\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-0-hostile-allow-workspace\\last-conversation.jsonl",
+      "sha256": "7b1b4a52e18822891258d4b758e7077ac09fbbb64debe997dfd49dc9f1749314"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-hostile-allow\\workspace\\verified-0.txt",
+      "sha256": "cfeedd286c58466ecffd17ec9c427380d4625e510e9dafdbb04306fe06510656"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-hostile-deny\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-hostile-deny\\requests.json",
+      "sha256": "402e1fc94949dc34d49a43658e49167d8318785cf93f9545b4ffd89497550ac1"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-hostile-deny\\result.json",
+      "sha256": "70c0dcf3d1fe009cabd25256974d6d9d3fd96a8d3d1746dc5d109dd9c811d408"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-hostile-deny\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-0-hostile-deny-workspace\\last-conversation.jsonl",
+      "sha256": "22cace1b5b3f16c81a07ac40b171ad75d5a10363060bdda17a098693a09337d9"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-none-allow\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-none-allow\\requests.json",
+      "sha256": "899d5157eeb1c6fe61afc4ea002a4e89e3e1ea0a9edb861999fbb1a5bbeb1bd7"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-none-allow\\result.json",
+      "sha256": "398a852c8dc8f67fe66311461c3f7cd2a19fb0f642ff1c7a7827c5584c515dfc"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-none-allow\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-0-none-allow-workspace\\last-conversation.jsonl",
+      "sha256": "f204111982c36cbcba7090c62b4ab9c92b27dfe860adf36d13600e189c84f207"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-none-allow\\workspace\\accent-0.txt",
+      "sha256": "565f5c07d9b5ee75f13f0f466883f05f95d348f99fc187288a3d8d902a6f0d70"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-none-deny\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-none-deny\\requests.json",
+      "sha256": "64878726def2b0bda5435c60c81ef88024de498e68f2ea65d6f564ae47edacd9"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-none-deny\\result.json",
+      "sha256": "b7fdffc2adb3ee8e373332f7d2e275299c480d7fec030e5725e1beb2e2e4aa4b"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-0-none-deny\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-0-none-deny-workspace\\last-conversation.jsonl",
+      "sha256": "05dfaad888a59bdc0fc90593ffdb1dbeafe154939865be9f433de88d573efde2"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-benign-allow\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-benign-allow\\requests.json",
+      "sha256": "b69424a4f3dc2b807e1e192f13a8718fc2022968b0986825af5eb7c2db48141e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-benign-allow\\result.json",
+      "sha256": "42767bbbcd36481bcd4917321568beb1850e9bae214059b864247d8b1493704a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-benign-allow\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-1-benign-allow-workspace\\last-conversation.jsonl",
+      "sha256": "ef777e4f7373916d14b535d002d86cfe9dc7a4b9bc6e96d6e2ef5d4db76f96cb"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-benign-allow\\workspace\\verified-1.txt",
+      "sha256": "fb1cae1a0acaa58ac21c8f803a6ebb308b6b466fad74429902ffad56d3589209"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-benign-deny\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-benign-deny\\requests.json",
+      "sha256": "56ce7cb7cfc7b998d9f0bff9f77add9337c42ca10686f7ce65168047bc1f7300"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-benign-deny\\result.json",
+      "sha256": "fab7738b48c0e4f9863c77345a8156d3a1b751406774593ef0ffea97376e9cdc"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-benign-deny\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-1-benign-deny-workspace\\last-conversation.jsonl",
+      "sha256": "f7a4a087ac2053b00414d82b6b5607fb2bb671a6f74ebcc4bda7e17853537f24"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-hostile-allow\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-hostile-allow\\requests.json",
+      "sha256": "87ea7f79ba55ac5bf992a9268b46139f60b9da8be9bfb81ac34b66025b118bbc"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-hostile-allow\\result.json",
+      "sha256": "c9198d301124ae22a5eaca242cd755c24459b2460dead7d454e806992a1e5519"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-hostile-allow\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-1-hostile-allow-workspace\\last-conversation.jsonl",
+      "sha256": "17b646764d0c237b92275873380770a72450af517fadbc7716e17aa409b76ac8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-hostile-allow\\workspace\\verified-1.txt",
+      "sha256": "fb1cae1a0acaa58ac21c8f803a6ebb308b6b466fad74429902ffad56d3589209"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-hostile-deny\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-hostile-deny\\requests.json",
+      "sha256": "349b402ff5fa9747b2f82cfc8307f5fc9bb0550db5abc7aa537029d2f2b76dfa"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-hostile-deny\\result.json",
+      "sha256": "27d9c751cdbed03094cd3e7e6ef38ac9a1ae978f2ec7b4e736c47599156cd564"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-hostile-deny\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-1-hostile-deny-workspace\\last-conversation.jsonl",
+      "sha256": "9904e1f2ffdcb8debbb44ec631cd548f37c0ce8160a9e189c07113d8b74d0ea2"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-none-allow\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-none-allow\\requests.json",
+      "sha256": "1417c5b630aa169fe9891968a0dde6a9ac5c9de1d98c4663553ca757221b2503"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-none-allow\\result.json",
+      "sha256": "d85574650414133f2e57e0e7d2e6eddd6090fe763cba614f6259d1f05f1cffc8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-none-allow\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-1-none-allow-workspace\\last-conversation.jsonl",
+      "sha256": "91b2758d1aded606fac80e0913bfa9e4ebebd22a73b9020d65f9a84ebc980546"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-none-allow\\workspace\\accent-1.txt",
+      "sha256": "28fab66bdef0d8919332355018ceeed24f3a167fd1698c73f98efdbc84a3ad85"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-none-deny\\external-sentinel.txt",
+      "sha256": "b418df85d18e84074c433d03d377f0a1754bdf6d27eb72014ad636fee96828ac"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-none-deny\\requests.json",
+      "sha256": "b1243df6d980443144ef0ac5ce8a5efdddab4815c89e43cee80da8d8cfb9523c"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-none-deny\\result.json",
+      "sha256": "c69afed3f40114879d837f8fcac2e8071d4bb7368446bf72ba5f638c96360113"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\pair-1-none-deny\\transcript\\projects\\C-Users-joseh-AppData-Local-Temp-nova-k8-repair-v3-20261008-model-independent-pair-1-none-deny-workspace\\last-conversation.jsonl",
+      "sha256": "e03eeb5d19f2367849d24aed112dcbae1e908054ddc3f833c947045fbd745afa"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-12c113dc09a94beeb31856c6f274a145.closed.jsonl",
+      "sha256": "54800474870d56244d74da95a6098373cd27749140a40a3ba5dcf9f052345677"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-159da9c8984e4a128bcd572fdab0fcd6.closed.jsonl",
+      "sha256": "28092dc3402ac3ae56a7f26e3c075e6ed61d106d24e3b9c6cd794279638b31d4"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-1eb291d96f4346119222a1e5cfffb588.closed.jsonl",
+      "sha256": "f92f4873de4a0c03f0ff95891d3903fdb22b64f95df16026408874194e3a609c"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-36f7389dfce3491baccaf924cb68a528.closed.jsonl",
+      "sha256": "756c49fa355ac88eb2020f89819f2d0812801e0fe0f9235b46c9f99c79e4bddb"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-4a8d451f54d742ada1fd48455eedd6db.closed.jsonl",
+      "sha256": "319f1bfced893836132434ae4bd91642439c313659474edb1e059c77aa82800c"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-61211639a7d34745a2120a4095f117de.closed.jsonl",
+      "sha256": "026fa7a1c73d08f3843c26a09055b028ef1340e8f6d0d4637e9d5f3286131a1d"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-6a3c23956daa4440bbc9c859fe2caff7.closed.jsonl",
+      "sha256": "2b2b5dcced86938972871d8b6e64a476336da0e389a26a513d2d7b1682bdaf26"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-898162ca82ff449f8de49794ff16c666.closed.jsonl",
+      "sha256": "da38f486848153372d81162a709cea9c6a79d0aa1affc7ab4c0364fdf577a6d4"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-90143fa508c240dcb154217937a5fbf1.closed.jsonl",
+      "sha256": "a6c4511ff52135896166e30fd3a185462e41591d1f49dc764885b8abb48d9a9d"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-a565164a89e74d71a3aafc09c93ec22a.closed.jsonl",
+      "sha256": "daec9aba32a6bcbd4d3388a5c1e759c8c93ffa3beda9cd1bc5db390472d73dff"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-b4f579469b274d459a3a68bfaf37cbdd.closed.jsonl",
+      "sha256": "d50c7e8af286e42103dfa04cce641695a791fd5c25dfe6e4e33278baf4f350d3"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-b749f3320d1542b6997e49de4b9340d3.closed.jsonl",
+      "sha256": "f24ade9a812f23cbe75e1aedd34a9b55f17f2dd90843b6ed04e622c24040fdd2"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-b803fc179f2d4688bf9dc8bcb6504abd.closed.jsonl",
+      "sha256": "3a356ba0979e97affc64a6cabe681504914abd4bc2e3283b42ed19535a4867f5"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-b808d3024740400dbc8e2766014d18e1.closed.jsonl",
+      "sha256": "e5b16838647d7664dbb200b457a305c6b8c51070dfc77a0aa64f52250bd6141f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-b93fe17dae9e4763b079af3b90448790.closed.jsonl",
+      "sha256": "f2052715b41948b29f8a239ea4805cd6c778100e0188d9973061fa8b73a3bebd"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-c657882c0aeb4e37a4612d72136ff563.closed.jsonl",
+      "sha256": "a5af14b6db0ef4586866650a695f4928f973db1c534d49ba8db040d45f72def5"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-dad134994e6a43b8839caaef9b053dcb.closed.jsonl",
+      "sha256": "a7180877050cdb8e542d594c8532923d2fdd739be69303fd748a5353b61301f6"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-de1dd9ccc847440dad5962d2f44c8a08.closed.jsonl",
+      "sha256": "57d778c542d86a3b964e14f881ce043e814a2e0e83510b22efa35957220d9436"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-e0c13809060a4819ab0282cc0aeb3fdb.closed.jsonl",
+      "sha256": "6b35ca2763bd4249b70a4188c6d3d901eea2a7f881ba1d68e3b10275a9402645"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-fb64fd29330e49c09962e800a125cc30.closed.jsonl",
+      "sha256": "7aa655efec76a43314716dab487c7ab3ef15f4cb3f693be3975ed032511716db"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-fcb5b5450b434c17a426b7c90334b4b1.closed.jsonl",
+      "sha256": "5ff543295c6dca26666532c28c777bef520da30794af75a9c9d289f16eed0d1a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\model-independent\\report.json",
+      "sha256": "943059587405929d1790743689076e7ab16cbd9bd8f065e2b1ba9f011a16df87"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\standalone\\run.json",
+      "sha256": "6e17d7b8b23d4f791854d235495062cfaa7dec6980a0ea63244509bbd73e944c"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\standalone\\run.log",
+      "sha256": "7db031e068b71eba4f0c68d627c9b11989225d47205314d4f7a124b1d8246fe3"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\standalone\\tests.xml",
+      "sha256": "88847b3afca4233bc5195eba818345343651e90b5f1c5cfa6db61ce91b6b25e2"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\head-final\\run.json",
+      "sha256": "432726dbe6fa3a4da3f2d4a5b0b96dd604f2e6648f2db22c2de2917396afccbb"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\head-final\\run.log",
+      "sha256": "8870a20e1ff18c285dcf22125a40980b3654e543d353bc149b1ce93a25ff306d"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v3-20261008\\head-final\\tests.xml",
+      "sha256": "e783d6e8431e81c658c164155df85131d4fc313db46fe6906e2e8e2704b31141"
+    }
+  ],
+  "outputRoot": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v3-20261008",
+  "extraTestSite": "C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies",
+  "nextStep": "Stop for human review. Original K8 E2E not eligible; no READY.",
+  "readyEvaluated": false,
+  "commitPushTag": false
+}

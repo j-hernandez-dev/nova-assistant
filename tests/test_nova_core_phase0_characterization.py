@@ -201,9 +201,15 @@ class TestPhase0Characterization(unittest.TestCase):
             if event.get('type') == 'harness' and event.get('event') == 'memory_recall']
         self.assertEqual(len(memory_events), 1)
         self.assertEqual(memory_events[0], {'id':7, 'type':'harness', 'event':'memory_recall', 'data':{}})
+        # K5 adds a documentary admission observation, not a new legacy tool
+        # frame. Validate it explicitly before comparing the immutable golden.
+        knowledge_events = [event for event in actual['jsonl_events']
+            if event.get('type') == 'harness' and event.get('event') == 'knowledge_recall']
+        self.assertEqual(knowledge_events, [{'id':7, 'type':'harness',
+            'event':'knowledge_recall', 'data':{}}])
         actual["jsonl_events"] = [event for event in actual["jsonl_events"]
             if not (event.get("type") == "harness"
-                    and event.get("event") in ("context_budget", "memory_recall"))]
+                    and event.get("event") in ("context_budget", "memory_recall", "knowledge_recall"))]
         self.assertEqual(
             actual, self.expected["server_and_provider"]
         )

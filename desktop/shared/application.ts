@@ -25,6 +25,7 @@ export type SessionSnapshot = {
   modelRuntime: { modelId: string; providerId: string; providerRevision: number }
   services: {
     rag: RAGStatus
+    knowledge?: KnowledgeStatus
     memory?: { lexicalRecall: boolean; semantic: boolean; autoCapture: boolean; allowRemoteMemoryInjection: boolean }
     filesystem?: { revision: number }
     securityAudit?: { deliveryFailures: number; lastError: string | null; storageGapCodes: string[] }
@@ -42,7 +43,25 @@ export type DesktopSessionView = {
   error: { code: string; message: string } | null; gap: boolean
   fileRevision: number
   memoryNotice?: string | null
+  knowledge?: KnowledgeStatus
+  knowledgeOperations?: Array<{operationId:string;status:string;phase?:string;result?:any}>
 }
+
+export type AttachmentRef = {
+  schemaVersion:1;attachmentId:string;sourceId:string;revisionId:string|null
+  displayName:string;state:string
+}
+export type KnowledgeStatus = {
+  hostAcquisition:boolean;extraction:boolean;lexicalRetrieval:boolean
+  attachmentRefs:AttachmentRef[];closing:boolean
+  capabilities?:{schemaVersion:number;capabilities:Array<{name:string;state:string;reason:string}>}
+  sources?:Array<{schemaVersion:number;source:{sourceId:string;kind:string;scope:{kind:string};displayName:string;
+    lifecycleState:string;remotePolicy:{remoteDocumentForwarding:boolean}};byteLength:number;chunkCount:number;errorCode:string|null}>
+  capacity?:{schemaVersion:number;usage:Array<{scope:string;state:string;bytes:number;pendingBytes:number;byteLimit:number;sources:number;chunks:number}>;operationalOnly:boolean;automaticPurge:boolean}|null
+}
+export type KnowledgeCitations={schemaVersion:number;turnId:string;structuralOnly:boolean;
+  valid:Array<{citationId:string;sourceId:string;revisionId:string;displayLabel:string;originDisplay:string;
+    locator:{kind:string;coordinates:Record<string,string|number>}}>;invalid:string[]}
 
 export type CommandReceipt = {
   schemaVersion: number; commandId: string; accepted: boolean

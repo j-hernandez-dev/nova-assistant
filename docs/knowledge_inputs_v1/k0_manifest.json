@@ -1,0 +1,401 @@
+{
+  "schemaVersion": 1,
+  "phase": "K0",
+  "normativeSection": "NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md §55",
+  "verdict": "K0 PASS",
+  "status": "PASS",
+  "evaluatedDate": "2026-10-07",
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "freeze": "docs/knowledge_inputs_v1/k0_freeze.json",
+    "initialWorkingTree": [
+      "?? docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "?? docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md"
+    ],
+    "initialUserFilesPreserved": true,
+    "workingTreeDirtyAtClose": true,
+    "evaluatedState": "HEAD plus the explicit file hashes below, not HEAD alone",
+    "tagsPreserved": [
+      "nova-core-v1-stable",
+      "nova-security-v1.2-ready",
+      "nova-memory-v1-ready",
+      "nova-memory-v1.1-ready"
+    ],
+    "tagsAncestorsOfHead": true,
+    "unchangedProtectedHashes": 15,
+    "protectedHashMismatches": []
+  },
+  "architecture": {
+    "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+    "sha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "approvedByUser": true,
+    "modified": false,
+    "precedence": "Core V1 > SECURITY V1.2 > MEMORY V1 > Knowledge Inputs V1 (§3)",
+    "blockingContradictions": []
+  },
+  "executionScope": {
+    "os": "Windows 11",
+    "build": "10.0.26200",
+    "filesystem": "local NTFS (C:)",
+    "processModel": "HOST_UNISOLATED",
+    "python": "3.14.6",
+    "pytest": "9.1.1",
+    "sqlite": "3.50.4",
+    "node": "24.19.0",
+    "packageVersion": "0.12.6",
+    "alternateContractRuntime": "Python 3.12.14, already installed",
+    "sandbox": false,
+    "processIsolation": false,
+    "nativeUbuntuMacosRun": "NOT_RUN"
+  },
+  "scope": {
+    "implemented": [
+      "Versioned Source/SourceRevision/SourceLocator representation and codecs",
+      "SESSION/WORKSPACE data bindings",
+      "Typed errors and non-advertised capability contracts",
+      "Initial frozen synthetic corpus/payloads",
+      "Minimal relevant CI harness reconciliation"
+    ],
+    "explicitlyNotImplemented": [
+      "KnowledgeStore",
+      "migrations/recovery/publication",
+      "acquisition/import/attachments",
+      "extraction/parsers",
+      "DocumentBlock/DocumentChunk",
+      "retrieval/index/embedding spaces",
+      "KnowledgeCapsule/CitationRegistry",
+      "web_search",
+      "UI/delegation",
+      "K1 or later"
+    ]
+  },
+  "contracts": {
+    "schemaVersion": 1,
+    "sourceKinds": 7,
+    "trustClasses": 5,
+    "scopeKinds": [
+      "SESSION",
+      "WORKSPACE"
+    ],
+    "globalLibrary": false,
+    "locatorKinds": 6,
+    "sourceLifecycleStates": 6,
+    "extractionStatuses": 8,
+    "normativeErrorCodes": 21,
+    "additionalValidationErrorCodes": [
+      "KNOWLEDGE_INVALID_CONTRACT",
+      "KNOWLEDGE_SCHEMA_UNSUPPORTED"
+    ],
+    "capabilityNames": 10,
+    "capabilityStates": 5,
+    "remoteDocumentForwardingDefault": false,
+    "newApplicationIntegration": false,
+    "newKnowledgeCapabilitiesAdvertised": false,
+    "corePublicSnapshotOrToolSchemasModified": false,
+    "storagePublicationEnforcement": "DEFERRED_K1; frozen dataclasses prove representation, not persistent lineage/access enforcement"
+  },
+  "corpus": {
+    "id": "ki-k0-initial-synthetic-v1",
+    "path": "tests/knowledge_inputs_v1/k0_corpus_v1.json",
+    "sha256Lf": "b5edffa72833d49df358ce8da143ef123da6df818dab4fb3647241ceb98efac2",
+    "cases": 18,
+    "payloadFreeze": "docs/knowledge_inputs_v1/k0_corpus_freeze.json",
+    "frozenBeforeFirstContractExecution": true,
+    "selectedUsingOutcomes": false,
+    "qualityDataset": false,
+    "corpusOrExpectedPayloadsModifiedAfterResults": false,
+    "docxOriginalPayloadSha256": "af4dccdad0bbf593b1857367ac60316157ff574f750de19de44044014ba9c4b3",
+    "docxCanonicalPayload": "tests/knowledge_inputs_v1/k0_docx_payload_v1.json",
+    "docxRepair": "Persist identical frozen bytes, no runtime recompression",
+    "realParserQuality": "NOT_EVALUATED",
+    "retrievalQuality": "NOT_EVALUATED",
+    "realModelQuality": "NOT_EVALUATED"
+  },
+  "decisionsApplicable": [
+    "KI-OD-01",
+    "KI-OD-02 (separation only)",
+    "KI-OD-03",
+    "KI-OD-04 (representation)",
+    "KI-OD-06/07 (codes/status, not extraction)",
+    "KI-OD-16",
+    "KI-OD-17",
+    "KI-OD-18/19 (preserve existing boundaries)",
+    "KI-OD-21 (no UI business logic)",
+    "KI-OD-25 (no legacy vector reinterpretation)",
+    "KI-OD-26 (initial fixture freeze only)",
+    "KI-OD-27",
+    "KI-OD-28"
+  ],
+  "invariants": {
+    "representationDemonstrated": [
+      "KI-INV-001",
+      "KI-INV-002",
+      "KI-INV-003",
+      "KI-INV-004",
+      "KI-INV-005",
+      "KI-INV-006",
+      "KI-INV-007"
+    ],
+    "preservedByNoNewIntegrationAndRegression": [
+      "KI-INV-009",
+      "KI-INV-010",
+      "KI-INV-014",
+      "KI-INV-015",
+      "KI-INV-026",
+      "KI-INV-027",
+      "KI-INV-031",
+      "KI-INV-032",
+      "KI-INV-036",
+      "KI-INV-037",
+      "KI-INV-038",
+      "KI-INV-039"
+    ],
+    "limitation": "Only K0-applicable representation/no-integration invariants are claimed. Runtime publication/containment/acquisition/retrieval/citation/delegation enforcement remains with its normative phase.",
+    "allKnowledgeV1InvariantsCertified": false
+  },
+  "compatibility": {
+    "core": "PASS (current HEAD contracts/native regression)",
+    "security": "PASS (applicable HEAD contracts; historical READY unchanged; no fresh S3/E2E opt-in campaign)",
+    "memory": "PASS (790 portable contracts, final HEAD and unchanged READY)",
+    "memoryCore": "READY (prior certification preserved)",
+    "memorySemanticProfile": "NOT_CERTIFIED",
+    "existingTrackedRuntimeChanges": [],
+    "architectureChanges": [],
+    "historicalEvidenceChanges": [],
+    "workflowChanges": []
+  },
+  "tests": {
+    "baselineHead": {
+      "passed": 4138,
+      "failed": 0,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "durationSeconds": 310.64
+    },
+    "phaseFinalPy314": {
+      "passed": 167,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 0.31
+    },
+    "phaseFinalPy312": {
+      "passed": 167,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 0.4
+    },
+    "ciHarness": {
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 1.17
+    },
+    "boundaries": {
+      "passed": 131,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 3.86
+    },
+    "memory": {
+      "passed": 790,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 57.73
+    },
+    "headFirstFailure": {
+      "passed": 4309,
+      "failed": 1,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "durationSeconds": 275.34,
+      "classification": "HARNESS_BUG; preserved in k0_evidence/head_first_failure.txt"
+    },
+    "headAfterGuard": {
+      "passed": 4312,
+      "failed": 0,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "durationSeconds": 285.04
+    },
+    "headFrozenFinal": {
+      "passed": 4313,
+      "failed": 0,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "durationSeconds": 280.94,
+      "junitCaseCountIncludingSubtests": 4377,
+      "caseBuckets": {
+        "memory": 790,
+        "knowledge": 167,
+        "security": 615
+      }
+    },
+    "desktop": {
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 713.3515,
+      "priorInvocation": {
+        "passed": 38,
+        "failed": 2,
+        "classification": "HARNESS_INVOCATION_ERROR (HARNESS_BUG)",
+        "preservedIn": "k0_ci_reconciliation.json"
+      },
+      "scope": "Native Node/TS contract tests; IPC/dialog doubles, not Electron GUI"
+    },
+    "evidence": "docs/knowledge_inputs_v1/k0_evidence/test_runs.json",
+    "exactCommandsAndExternalOriginalHashesRecorded": true,
+    "externalInference": false,
+    "newSkips": 0,
+    "newXfail": 0,
+    "newExclusions": 0,
+    "unchangedSkippedIds": true,
+    "interpretation": "Overlapping suites are not added as unique coverage; 53 subtests are reported separately. Doubles do not certify parser, model, semantic or remote-provider quality.",
+    "notRequiredAndNotRun": [
+      "new S3 host-real permission campaign",
+      "new Electron graphical E2E",
+      "Ollama/embedding inference",
+      "Knowledge K8 quality/E2E"
+    ],
+    "newRemoteGithubActionsRun": "NOT_RUN"
+  },
+  "ciReconciliation": {
+    "evidence": "docs/knowledge_inputs_v1/k0_ci_reconciliation.json",
+    "classifications": [
+      "K0-CI-01 HARNESS_BUG: pinned report LF/CRLF",
+      "K0-CI-02 HARNESS_BUG: CI wall-clock assertion vs semantic contract budget",
+      "K0-CI-03 HARNESS_BUG: Node strip-only invocation",
+      "K0-CI-04 HARNESS_BUG: historical test guard requires explicit K0 harness revision",
+      "K0-CI-05 HARNESS_BUG: DOCX recompression differs by zlib"
+    ],
+    "rawHistoricalCampaignsReinterpreted": false,
+    "productiveDeadlinesModified": false,
+    "oldPsGuardSha256": "846f013a4d1886227bfc187c32aadd763889e325b3f67a49f3fdb09f2a66890f",
+    "originalImplementationFreezeSha256": "722a31b1fd2db2fd66440e09e9bfccdd6b872546815b46559a715325cc2bb518"
+  },
+  "gate": [
+    {
+      "criterion": "Congelar HEAD y tags",
+      "result": "PASS",
+      "evidence": "k0_freeze.json; final raw protected pins and ancestry checked"
+    },
+    {
+      "criterion": "Reconciliar CI relevante",
+      "result": "PASS",
+      "evidence": "31 harness tests; MEMORY 790; HEAD 4313; no workflow/new skip/xfail/exclusion changes",
+      "scope": "Local current CI selection; new GitHub Actions run NOT_RUN"
+    },
+    {
+      "criterion": "Fijar fixtures/corpus iniciales",
+      "result": "PASS",
+      "evidence": "18 synthetic cases, frozen corpus/payload hashes; 167 contracts on both installed runtimes"
+    },
+    {
+      "criterion": "Implementar Source/Revision/Locator/errors/capabilities",
+      "result": "PASS",
+      "evidence": "core/knowledge.py, strict schema v1 contracts"
+    },
+    {
+      "criterion": "No anunciar capabilities todavía",
+      "result": "PASS",
+      "evidence": "No Application/UI wiring, no new public tools/snapshots; K0 snapshot UNAVAILABLE"
+    },
+    {
+      "criterion": "Core/Security/Memory verdes y contratos versionados",
+      "result": "PASS",
+      "evidence": "Final frozen HEAD 4313 PASS +53 subtests; 0 FAIL; original 11 skips; MEMORY 790; Desktop 40; schema v1"
+    }
+  ],
+  "createdFiles": [
+    "local_cli/core/knowledge.py",
+    "tests/knowledge_inputs_v1/k0_corpus_v1.json",
+    "tests/knowledge_inputs_v1/k0_docx_payload_v1.json",
+    "tests/knowledge_inputs_v1/k0_fixtures.py",
+    "tests/knowledge_inputs_v1/run_k0.py",
+    "tests/knowledge_inputs_v1/test_k0_contracts.py",
+    "tests/knowledge_inputs_v1/test_k0_corpus.py",
+    "tests/knowledge_inputs_v1/__init__.py",
+    "docs/knowledge_inputs_v1/k0_ci_reconciliation.json",
+    "docs/knowledge_inputs_v1/k0_corpus_freeze.json",
+    "docs/knowledge_inputs_v1/k0_freeze.json",
+    "docs/knowledge_inputs_v1/k0_resultados.md",
+    "docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/boundaries.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/contracts.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/head_final.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/memory.txt",
+    "docs/knowledge_inputs_v1/k0_evidence/test_runs.json",
+    "docs/knowledge_inputs_v1/k0_manifest.json"
+  ],
+  "modifiedFiles": [
+    "tests/memory_v1/run_m8_qwen4_chat7b.py",
+    "tests/memory_v1/test_m8_qwen4_chat7b.py",
+    "tests/memory_v1/test_m8_metadata_admission.py",
+    "tests/memory_v1/test_m8_ps_operational.py"
+  ],
+  "criticalArtifactSha256": {
+    "local_cli/core/knowledge.py": "3515305ae6eb1e03b458f43c631d77d47739dee888a547088dac3650824edb47",
+    "tests/knowledge_inputs_v1/k0_corpus_v1.json": "b5edffa72833d49df358ce8da143ef123da6df818dab4fb3647241ceb98efac2",
+    "tests/knowledge_inputs_v1/k0_docx_payload_v1.json": "ace3015609ff5af3bd48fd87d76544c373b372bf6130670dce4449f68fb8a1c8",
+    "tests/knowledge_inputs_v1/k0_fixtures.py": "6b97e4378b2bc13d76a6b156077f1f190b63fcd23a928d2d76b2dfb8ed914077",
+    "tests/knowledge_inputs_v1/run_k0.py": "3a93c6d334b81fe387409a48abe6624ccd0512cb456571987b6eb825af1d21ec",
+    "tests/knowledge_inputs_v1/test_k0_contracts.py": "9ae8f6e08c4132df867771f52619842da8cad3f4ed679efc43177e89a04d4616",
+    "tests/knowledge_inputs_v1/test_k0_corpus.py": "c012a941ac92a07b3e1b7127cc9ad7a4ec2a277100326fdf009f41b6706e1ae2",
+    "tests/knowledge_inputs_v1/__init__.py": "84e9306b4e668d6cc34dff95ff5fc50b225c6ac9a62deddd25beba14c48c1b1f",
+    "docs/knowledge_inputs_v1/k0_ci_reconciliation.json": "ce6eec19976d6e7bc173e459a347356943b413781338ace46ce8be96bdeb9e5b",
+    "docs/knowledge_inputs_v1/k0_corpus_freeze.json": "4533fc33dcfa49f5480546f3ce8ed9d54832ae40b8b9d4910145c6dc19c7ebe2",
+    "docs/knowledge_inputs_v1/k0_freeze.json": "6ae1fdd18f68d46ec102f06edba20c377833e51a979ef75752b308eae8a8a25e",
+    "docs/knowledge_inputs_v1/k0_resultados.md": "dd28561fc5e6e3ebff4ba95c622ab1dee03e00c4b2f5d77f4d161afae118392c",
+    "docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt": "7a288bf7b5da69cce83733072812cbc72853ea85be5ca29183d5ebc6fa1363a4",
+    "docs/knowledge_inputs_v1/k0_evidence/boundaries.txt": "05bdd663435c60bac55bee336b1421d468cd3867337c0ea2bc21a10642688529",
+    "docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt": "42fa8098c2d7886e19bde984c8719abfe2aef6d4a3e7a2f8171837f251098d74",
+    "docs/knowledge_inputs_v1/k0_evidence/contracts.txt": "c71e1f17301a494fd69526599f0fd1b9c15d1596efb427ad7bdff5c25a0ef1ec",
+    "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt": "2a2a3ea671dc9e87e084f7ab118c3ab65aa9de8f184758adc674415cf263a79e",
+    "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt": "748765df3378a19f68dcc3f1191f5e4fa79c881d8cb5c47519dd53633ce6ac7e",
+    "docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt": "775c55d64163e9c6c718c6d3f287c316017fbe6cefabda2b7559b4714c090791",
+    "docs/knowledge_inputs_v1/k0_evidence/head_final.txt": "c49ee19a526eb2b0f4d81059d0f9bab357f0e0dcfa68241d2e00fa467c4e5bc0",
+    "docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt": "3716cade30ce772d8a406840a24d78d7eaf990e2c60c0dc0ea077b2377efe3bd",
+    "docs/knowledge_inputs_v1/k0_evidence/memory.txt": "f87c498417ce4b02a57a10fec6baa83861092bf8ae4f6be2de4a86fcb798f9ce",
+    "docs/knowledge_inputs_v1/k0_evidence/test_runs.json": "800de80c1ae4516b74ba820a595813f0257f1b373901091ad7634e6fedac4a05",
+    "tests/memory_v1/run_m8_qwen4_chat7b.py": "cb53d7bb3b16ddb7b3d36e8e15f3143b2b2c53ed6c43bf52a9a694676d88c018",
+    "tests/memory_v1/test_m8_qwen4_chat7b.py": "0d3535c65c624d19fe791911c46a472e1a94e2caed4b9247c17e9ee4b235b412",
+    "tests/memory_v1/test_m8_metadata_admission.py": "40a9b16ed22b19648e830c9951a924c69bf5d11e144c528f692bb77851d421f1",
+    "tests/memory_v1/test_m8_ps_operational.py": "5b5ff3fd4e332db5df37e910d3a7015a0492e2108ed1ccc21cba8e91ad5d7d3d"
+  },
+  "hashPolicy": "Raw SHA-256 of this evaluated checkout. Corpus LF representation and binary payload pins are explicit. Published text log copies normalize LF/trailing newline; external original hashes are in test_runs.json. No manifest self-hash (avoid circular reference). Historical files are not rewritten.",
+  "limitations": [
+    "K0 is not Knowledge V1 READY",
+    "No productive acquisition, extraction, store, retrieval, citations or Active Web yet",
+    "No new native Linux/macOS certification or remote CI run",
+    "Dataclass representation is not persistent lineage, authorization or containment enforcement",
+    "No new real parser/model/semantic quality/performance claim",
+    "Existing opt-in/platform/historical skips and CI exclusions remain unchanged",
+    "No sandbox/process isolation; HOST_UNISOLATED remains explicit"
+  ],
+  "remainingDebt": "K1–K8 work only, as defined by approved architecture; no unfinished mandatory K0 requirement",
+  "openDecisions": {
+    "blockingK0": [],
+    "newProductDecisionsTaken": [],
+    "futureDecisionsResolvedInArchitecture": "KI-OD-01…28; implementation deferred to their phase, not reopened"
+  },
+  "nextPhase": {
+    "name": "K1",
+    "implemented": false,
+    "automaticAdvance": false
+  },
+  "operationalProhibitions": {
+    "commit": false,
+    "push": false,
+    "tagCreatedOrMoved": false,
+    "globalConfigChanged": false,
+    "gpuChanged": false,
+    "modelsDownloaded": false,
+    "architectureModified": false
+  }
+}

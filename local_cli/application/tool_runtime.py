@@ -44,6 +44,7 @@ from local_cli.shell_executor import PlatformShellExecutor
 from local_cli.tool_cache import ToolCache
 from local_cli.tools.base import Tool
 from local_cli.tools.shell_tool import ShellTool
+from local_cli.application.turn_effects import TurnEffectConstraints, TurnEffectDenied
 
 
 @dataclass(frozen=True)
@@ -120,7 +121,7 @@ class ToolRuntime:
                  process_service: ProcessExecutionService | None = None,
                  network_service: NetworkFetchService | None = None,
                  redactor=None, environment_service=None, environment_selector=None,
-                 security_audit=None) -> None:
+                 security_audit=None, turn_effect_constraints=None) -> None:
         self.registry = registry
         self._publish = publish or (lambda _event: None)
         self._auto_approve = auto_approve
@@ -130,6 +131,10 @@ class ToolRuntime:
         self._on_agent_completed = on_agent_completed
         self._cache = cache or ToolCache()
         self._lock = RLock()
+        self._inherited_turn_effects = turn_effect_constraints or TurnEffectConstraints()
+        if not isinstance(self._inherited_turn_effects, TurnEffectConstraints):
+            raise TypeError('invalid inherited Turn constraints')
+        self._turn_effects = {}
         self._outcomes: dict[str, tuple[str, ToolResult]] = {}
         self.policy = policy or PolicyEngineV2()
         self._issuer = issuer
@@ -163,6 +168,8 @@ class ToolRuntime:
         self._environment_selections = {}
         if self._network_service is None and 'web_fetch' in registry.names:
             self._network_service = registry.tool('web_fetch').create_network_service()
+        if self._network_service is None and 'web_search' in registry.names:
+            self._network_service = registry.tool('web_search').create_network_service()
         if self._network_service is not None:
             self._network_service.redactor = self.redactor
         if self._process_service is None:
@@ -211,6 +218,19 @@ class ToolRuntime:
     def close(self):
         if self._filesystem_owner and self._filesystem is not None:
             self._filesystem.close()
+
+    def bind_turn_effects(self, session_id, turn_id, constraints):
+        """Application-only binding; absent from tools/frontends' schemas."""
+        if not isinstance(constraints, TurnEffectConstraints):raise TypeError('invalid Turn constraints')
+        with self._lock:
+            key=(session_id,turn_id)
+            if key in self._turn_effects and self._turn_effects[key]!=constraints:
+                raise ValueError('TURN_EFFECT_CONSTRAINTS_IMMUTABLE')
+            self._turn_effects[key]=constraints
+
+    def _effects_for(self, context):
+        bound=self._turn_effects.get((context.session_id,context.turn_id),TurnEffectConstraints())
+        return TurnEffectConstraints(self._inherited_turn_effects.filesystem_mutation_denied or bound.filesystem_mutation_denied)
 
     def update_policy_revision(self, revision: int) -> None:
         self.policy.update_revision(revision)
@@ -324,6 +344,7 @@ class ToolRuntime:
                 and tool._executor.descriptor != tool.descriptor):
             raise PolicyInputError('REQUEST_MISMATCH')
         intent = self.policy.intent(invocation, self.registry, self._issuer.ceiling)
+        self._effects_for(ctx).check(intent)
         decision = self.policy.evaluate(invocation, self.registry, self._issuer.ceiling,
                                         intent, parent=self._parent_grant)
         if decision.action is ToolPolicyAction.DENY:
@@ -341,10 +362,10 @@ class ToolRuntime:
         process_binding = {}
         environment_intent = None
         network_intent = intent.network
-        if invocation.name == 'web_fetch':
+        if invocation.name in ('web_fetch', 'web_search'):
             if self._network_service is None:
                 raise NetworkError('NETWORK_BROKER_UNAVAILABLE')
-            network_intent = self._network_service.binding(invocation.arguments['url'])
+            network_intent = self._network_service.binding(intent.network['requestedUrl'])
             environment_intent = {}  # HTTP has no ambient credential/environment surface.
         if isinstance(tool, ShellTool):
             if self._process_service is None:
@@ -378,7 +399,19 @@ class ToolRuntime:
             process_binding=process_binding)
         return request, decision
 
-    def execute(self, invocation: ToolInvocation) -> ToolResult:
+    def fetch_snapshot(self, invocation: ToolInvocation):
+        """Trusted host acquisition through the identical S5 policy/grant path.
+
+        Not a public tool argument. Raw bytes are not cached, logged or replayed.
+        Replaying an operation returns its result but no fresh snapshot.
+        """
+        if invocation.name != 'web_fetch':
+            raise ValueError('snapshot acquisition requires web_fetch')
+        captured = []
+        result = self.execute(invocation, _fetch_capture=captured.append)
+        return result, captured[0] if captured and result.status is ToolStatus.COMPLETED else None
+
+    def execute(self, invocation: ToolInvocation, *, _fetch_capture=None) -> ToolResult:
         if invocation.operation_id != invocation.context.operation_id:
             raise ValueError("operationId differs from execution context")
         resolved = self.registry.resolve(invocation.name)
@@ -484,7 +517,15 @@ class ToolRuntime:
                 result = self._execute_bound(self.registry.tool(resolved), resolved,
                     json_safe_copy(request.arguments), bound,
                     approved_request=approved, grant=grant, filesystem_plan=filesystem_plan,
-                    validate_launch=lambda: self._issuer.validate_claimed(grant, current_request()))
+                    validate_launch=lambda: self._issuer.validate_claimed(grant, current_request()),
+                    fetch_capture=_fetch_capture)
+            except TurnEffectDenied as exc:
+                result = self._error(ToolStatus.DENIED, 'Error: '+exc.code)
+                metadata['turnConstraintCode'] = exc.code
+                if self._security_audit is not None:
+                    self._security_audit.record(invocation, AuditKind.POLICY, {
+                        'decision':'DENY','reason':exc.code},
+                        parents=self._audit_parents)
             except NetworkError as exc:
                 status = (ToolStatus.OUTCOME_UNKNOWN if exc.dispatched else ToolStatus.CANCELLED
                           if exc.code in ('NETWORK_CANCELLED', 'NETWORK_TIMEOUT') else ToolStatus.DENIED)
@@ -567,7 +608,7 @@ class ToolRuntime:
                        args: dict[str, Any], invocation: ToolInvocation, *,
                        approved_request: bool = False,
                        grant: CapabilityGrant | None = None,
-                       filesystem_plan=None, validate_launch=None) -> ToolResult:
+                       filesystem_plan=None, validate_launch=None, fetch_capture=None) -> ToolResult:
         context = invocation.context
         if context.cancellation_token.is_cancel_requested():
             return self._error(ToolStatus.CANCELLED,
@@ -603,7 +644,7 @@ class ToolRuntime:
             if filesystem_plan is None or grant is None or self._filesystem is None:
                 raise FilesystemError('FILESYSTEM_AUTHORITY_UNAVAILABLE')
             return self._filesystem.execute(filesystem_plan, grant, self._issuer)
-        if name == 'web_fetch':
+        if name in ('web_fetch', 'web_search'):
             # No legacy urllib, cache or fallback when the controlled client fails.
             if self._network_service is None or grant is None:
                 raise NetworkError('NETWORK_BROKER_UNAVAILABLE')
@@ -613,8 +654,11 @@ class ToolRuntime:
                 except (PolicyInputError, SecurityError) as exc:
                     code = exc.code.value if isinstance(exc, SecurityError) else exc.code
                     raise NetworkError(code) from None
+            if name == 'web_search':
+                return tool.search_service.execute(invocation, grant, self._issuer, self._network_service,
+                    parent=self._parent_grant, validate_dispatch=network_guard)
             return self._network_service.execute(invocation, grant, self._issuer,
-                parent=self._parent_grant, validate_dispatch=network_guard)
+                parent=self._parent_grant, validate_dispatch=network_guard, capture=fetch_capture)
         if tool.cacheable:
             cached = self._cache.get(name, args)
             if cached is not None:
@@ -669,6 +713,7 @@ class ToolRuntime:
                         network_service=self._network_service,
                         redactor=self.redactor,
                         security_audit=self._security_audit,
+                        turn_effect_constraints=self._effects_for(context),
                         **args,
                     )
                 else:
@@ -712,13 +757,26 @@ class LegacyToolAdapter(Tool):
     """Keep model-visible names, schemas and strings while using ToolRuntime."""
 
     def __init__(self, tool: Tool, runtime: ToolRuntime,
-                 context_factory: Callable[[], ExecutionContext]) -> None:
+                 context_factory: Callable[[], ExecutionContext], *, guard_effects=None) -> None:
         self._tool = tool
         self._runtime = runtime
         self._context_factory = context_factory
+        self._guard_effects = guard_effects
         if hasattr(tool, "cwd"):
             self.cwd = tool.cwd
         self._last_result = None
+
+    @property
+    def filesystem_reminders_allowed(self):
+        # Read-only bridge for the same loop in parent and subagent. No grant,
+        # policy mutation or execution. Inherited restrictions are intersected
+        # by the existing runtime, never reconstructed from a model prompt.
+        # Creating an ExecutionContext can allocate a ToolOperation. A guard
+        # read must not do that. Main Turn supplies a side-effect-free getter;
+        # a child runtime already owns its immutable inherited reduction.
+        inherited = self._runtime._inherited_turn_effects
+        bound = self._guard_effects() if self._guard_effects is not None else inherited
+        return not (inherited.filesystem_mutation_denied or bound.filesystem_mutation_denied)
 
     def verify_file_write(self, arguments, result):
         # AgentLoop's post-write verifier must not reopen an unmediated path.

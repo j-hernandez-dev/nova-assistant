@@ -1,0 +1,355 @@
+{
+  "schema": "knowledge-git-closure-ci-static-audit-1",
+  "purpose": "Repository CI review only, not recertification",
+  "overall": "STATIC_SYNTAX_PASS; GENERAL_CI_SCOPE_REQUIRES_HUMAN_DECISION",
+  "applied": [
+    {
+      "path": ".github/workflows/nova_core_v1.yml",
+      "delta": "Two checkout steps gain process-local core.autocrlf=false, matching MEMORY; every trigger, matrix, test command and inherited exclusion is unchanged"
+    }
+  ],
+  "static_yaml": {
+    "scope": "STATIC_YAML_AND_CONFIGURATION_ONLY",
+    "parser": "js-yaml 4.1.1 (YAML 1.2)",
+    "actionlint": "NOT_INSTALLED; no claim of full GitHub expression validation",
+    "executed_product_tests": 0,
+    "inference": 0,
+    "remote_workflows": 0,
+    "workflows": [
+      {
+        "path": ".github/workflows/nova_core_v1.yml",
+        "sha256": "346446714601660d943ac77aa201e01c4d5c2af9d51c1b8d64ee2363986d1327",
+        "triggers": [
+          "push",
+          "pull_request",
+          "workflow_dispatch"
+        ],
+        "yaml_syntax": "PASS",
+        "duplicate_keys": "REJECTED_BY_PARSER",
+        "unchanged_test_commands_and_existing_filters": true,
+        "jobs": [
+          {
+            "id": "native-backend",
+            "runs_on": "${{ matrix.os }}",
+            "matrix": {
+              "os": [
+                "windows-latest",
+                "ubuntu-latest",
+                "macos-latest"
+              ]
+            },
+            "python": "3.14",
+            "checkout_bytes_preserved": true,
+            "commands": [
+              "python -m pip install -e . pytest pytest-subtests",
+              "python -m pytest tests/test_nova_core_phase14_architecture.py tests/test_nova_core_phase14_platform.py -q",
+              "args=(\n  --ignore=tests/security_v12/test_s0_frontends.py\n  --ignore=tests/security_v12/test_s0_process.py\n  --ignore=tests/security_v12/test_s0_surfaces.py\n  --ignore=tests/security_v12/test_s3_windows.py\n  --ignore=tests/security_v12/test_s4_host.py\n  --ignore=tests/security_v12/test_s5_network.py\n  --ignore=tests/security_v12/test_s6_host.py\n  --ignore=tests/security_v12/test_s8_host.py\n  --ignore=tests/security_v12/test_s8_e2e.py\n  --ignore=tests/test_nova_core_phase7_legacy_bridge.py\n  --ignore=tests/test_nova_core_phase7_server_legacy.py\n  --ignore=tests/test_security_gates.py\n)\n# These four Core-era filesystem characterizations exercise the S3\n# Windows/NTFS adapter. On other hosts the normative result is the\n# fail-closed FILESYSTEM_PLATFORM_UNSUPPORTED contract, covered by\n# the Security suite rather than by a successful filesystem test.\nif [ \"$RUNNER_OS\" != \"Windows\" ]; then\n  args+=(\n    --ignore=tests/test_nova_core_phase12_client.py\n    --ignore=tests/test_nova_core_phase3_cwd.py\n    --ignore=tests/test_nova_core_phase6_runtime.py\n    --ignore=tests/test_nova_core_phase7_session.py\n  )\nfi\npython -m pytest -q tests \"${args[@]}\"\n"
+            ],
+            "referenced_test_files": [
+              "tests/test_nova_core_phase14_architecture.py",
+              "tests/test_nova_core_phase14_platform.py",
+              "tests/security_v12/test_s0_frontends.py",
+              "tests/security_v12/test_s0_process.py",
+              "tests/security_v12/test_s0_surfaces.py",
+              "tests/security_v12/test_s3_windows.py",
+              "tests/security_v12/test_s4_host.py",
+              "tests/security_v12/test_s5_network.py",
+              "tests/security_v12/test_s6_host.py",
+              "tests/security_v12/test_s8_host.py",
+              "tests/security_v12/test_s8_e2e.py",
+              "tests/test_nova_core_phase7_legacy_bridge.py",
+              "tests/test_nova_core_phase7_server_legacy.py",
+              "tests/test_security_gates.py",
+              "tests/test_nova_core_phase12_client.py",
+              "tests/test_nova_core_phase3_cwd.py",
+              "tests/test_nova_core_phase6_runtime.py",
+              "tests/test_nova_core_phase7_session.py"
+            ],
+            "missing_files": [],
+            "node_setup": false,
+            "npm_ci": false,
+            "cache": false,
+            "artifact_upload": false,
+            "timeout_minutes": "GitHub default (not overridden)",
+            "conditions": [],
+            "working_directory": "repository root (implicit)",
+            "continue_on_error": false
+          },
+          {
+            "id": "security-windows-ntfs",
+            "runs_on": "windows-latest",
+            "matrix": null,
+            "python": "3.14",
+            "checkout_bytes_preserved": true,
+            "commands": [
+              "python -m pip install -e . pytest pytest-subtests",
+              "python -m pytest -q tests/security_v12/test_s3_windows.py tests/security_v12/test_s4_host.py tests/security_v12/test_s5_network.py tests/security_v12/test_s6_host.py tests/security_v12/test_s8_host.py"
+            ],
+            "referenced_test_files": [
+              "tests/security_v12/test_s3_windows.py",
+              "tests/security_v12/test_s4_host.py",
+              "tests/security_v12/test_s5_network.py",
+              "tests/security_v12/test_s6_host.py",
+              "tests/security_v12/test_s8_host.py"
+            ],
+            "missing_files": [],
+            "node_setup": false,
+            "npm_ci": false,
+            "cache": false,
+            "artifact_upload": false,
+            "timeout_minutes": "GitHub default (not overridden)",
+            "conditions": [],
+            "working_directory": "repository root (implicit)",
+            "continue_on_error": false
+          }
+        ]
+      },
+      {
+        "path": ".github/workflows/nova_memory_v1.yml",
+        "sha256": "44f6d9373c1fba7f9d8e8f64977338ac190a3d5bd0192429b8f9c483630841f0",
+        "triggers": [
+          "push",
+          "pull_request",
+          "workflow_dispatch"
+        ],
+        "yaml_syntax": "PASS",
+        "duplicate_keys": "REJECTED_BY_PARSER",
+        "unchanged_test_commands_and_existing_filters": true,
+        "jobs": [
+          {
+            "id": "memory-core",
+            "runs_on": "${{ matrix.os }}",
+            "matrix": {
+              "os": [
+                "ubuntu-latest",
+                "macos-latest",
+                "windows-latest"
+              ]
+            },
+            "python": "3.14",
+            "checkout_bytes_preserved": true,
+            "commands": [
+              "python -m pip install -e \".[memory-semantic]\" pytest pytest-subtests",
+              "python -B -c \"import os,subprocess; from pathlib import Path; root=Path.cwd().resolve(); temp=Path(os.environ['RUNNER_TEMP']).resolve(strict=True); assert not temp.is_relative_to(root), 'Temporary state inside checkout'; result=subprocess.run(['git','-C',str(temp),'rev-parse','--show-toplevel'],capture_output=True,text=True); assert result.returncode!=0, 'Temporary state inside a Git working tree'\"",
+              "python -B -m tests.memory_v1.run_regression --mode m0 --output \"${{ runner.temp }}/nova-memory-core\"",
+              "python -B -c \"import os; from pathlib import Path; assert os.environ['NOVA_MEMORY_SEMANTIC_PROFILE']=='NOT_CERTIFIED'; summary='MEMORY Core portable contract regression only.\\n\\nSEMANTIC_PROFILE=NOT_CERTIFIED. Real Ollama/embedding E2E: NOT_RUN. Linux/macOS host-real certification: NOT_CLAIMED. No sandbox/process isolation.\\n'; print(summary); Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(summary,encoding='utf-8')\""
+            ],
+            "referenced_test_files": [],
+            "missing_files": [],
+            "node_setup": false,
+            "npm_ci": false,
+            "cache": false,
+            "artifact_upload": false,
+            "timeout_minutes": "GitHub default (not overridden)",
+            "conditions": [
+              "always()"
+            ],
+            "working_directory": "repository root (implicit)",
+            "continue_on_error": false
+          },
+          {
+            "id": "memory-windows-ntfs",
+            "runs_on": "windows-latest",
+            "matrix": null,
+            "python": "3.14",
+            "checkout_bytes_preserved": true,
+            "commands": [
+              "python -m pip install -e \".[memory-semantic]\" pytest pytest-subtests",
+              "python -B -c \"import os,subprocess; from pathlib import Path; root=Path.cwd().resolve(); temp=Path(os.environ['RUNNER_TEMP']).resolve(strict=True); assert not temp.is_relative_to(root), 'Temporary state inside checkout'; result=subprocess.run(['git','-C',str(temp),'rev-parse','--show-toplevel'],capture_output=True,text=True); assert result.returncode!=0, 'Temporary state inside a Git working tree'\"",
+              "import os\nimport platform\nfrom pathlib import Path\nfrom local_cli.infrastructure.windows_filesystem import WindowsFilesystemBroker\n\nassert os.name == 'nt', 'Windows native host required'\nbroker = WindowsFilesystemBroker()\ntry:\n    for path in (Path.cwd(), Path(os.environ['RUNNER_TEMP'])):\n        assert broker.bind_root(path.resolve()).identity\n    print(platform.platform())\n    print('Windows + local NTFS + HOST_UNISOLATED; no sandbox/process isolation')\nfinally:\n    broker.close()\n",
+              "python -B -m tests.memory_v1.run_regression --mode m4 --output \"${{ runner.temp }}/nova-memory-windows-ntfs\"",
+              "python -B -c \"import os; from pathlib import Path; assert os.environ['NOVA_MEMORY_SEMANTIC_PROFILE']=='NOT_CERTIFIED'; summary='MEMORY Core regression for Windows + local NTFS + HOST_UNISOLATED.\\n\\nSEMANTIC_PROFILE=NOT_CERTIFIED. Real Ollama/embedding E2E: NOT_RUN. No sandbox/process isolation. This CI run does not replace the published Windows 11 READY evaluation.\\n'; print(summary); Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(summary,encoding='utf-8')\""
+            ],
+            "referenced_test_files": [],
+            "missing_files": [],
+            "node_setup": false,
+            "npm_ci": false,
+            "cache": false,
+            "artifact_upload": false,
+            "timeout_minutes": "GitHub default (not overridden)",
+            "conditions": [
+              "always()"
+            ],
+            "working_directory": "repository root (implicit)",
+            "continue_on_error": false
+          }
+        ]
+      }
+    ]
+  },
+  "bash_parse_exit_code": 0,
+  "scope": {
+    "new_product_tests": 0,
+    "new_inference": 0,
+    "remote_dispatch": 0,
+    "actionlint_run": false
+  },
+  "inventory": {
+    "ci_yaml_files": [
+      ".github/workflows/nova_core_v1.yml",
+      ".github/workflows/nova_memory_v1.yml"
+    ],
+    "other_ci_yaml_found": [],
+    "python_project_minimum": ">=3.10",
+    "ci_python": "3.14",
+    "package_dependency": "pypdf==6.19.0",
+    "memory_optional_dependency": "numpy>=1.24 (synthetic vectors, not a real embedding model)",
+    "desktop_versions_from_lockfile": true
+  },
+  "findings": [
+    {
+      "id": "CI-DISCOVERY",
+      "status": "REQUIRES_HUMAN_DECISION",
+      "evidence": "nova_core_v1.yml recursively discovers tests/. Accepted HEAD selection distinguishes 43 current Knowledge files and 2 historical certification artifacts.",
+      "historical_artifacts": [
+        "tests/knowledge_inputs_v1/test_k8_post_cert_conflict.py",
+        "tests/knowledge_inputs_v1/test_k8_quality.py"
+      ],
+      "normative_selection_source": "docs/knowledge_inputs_v1/knowledge_context_capability_resolution_v1_head_evidence/selection.json",
+      "existing_new_exclusions": [],
+      "proposed": "Review an explicit auditable active-test selection; keep historical scorers as immutable archival code, not a CI certification job. Do not merely add --ignore flags to obtain green.",
+      "applied": false
+    },
+    {
+      "id": "CI-LOCAL-EVIDENCE",
+      "status": "OBJECTIVE_HOSTED_CI_INCOMPATIBILITY",
+      "cases": [
+        {
+          "path": "tests/knowledge_inputs_v1/test_context_capability_profiles.py",
+          "functions": [
+            "test_preserved_4k_profile_is_limitation_evidence",
+            "test_supplemental_8k_profile_is_complete_without_remeasuring_4k"
+          ],
+          "dependency": "Absolute archived 4K/8K JSON in C:/Users/joseh/AppData/Local/Temp"
+        },
+        {
+          "path": "tests/knowledge_inputs_v1/test_k8_applicability_contracts.py",
+          "functions": [
+            "test_historical_head_skip_baseline_remains_eleven"
+          ],
+          "dependency": "Archived tests.xml absolute local path"
+        },
+        {
+          "path": "tests/knowledge_inputs_v1/test_k8_execution.py",
+          "functions": [
+            "test_complete_product_identity_not_eleven_file_allowlist"
+          ],
+          "dependency": "V6 baseline.preflight references external evidence"
+        },
+        {
+          "path": "tests/knowledge_inputs_v1/test_k8_repair6_quality.py",
+          "functions": [
+            "test_prospective_structure_and_frozen_artifacts",
+            "test_current_post_cert_identity_is_separate_from_historical_v6",
+            "test_frozen_v6_quality (through measure)"
+          ],
+          "dependency": "verify_current_post_cert_identity() reads the external 241-pin proof directly in two checks and through measure() in the native frozen V6 quality regression"
+        }
+      ],
+      "proposed": "Separate archive verification from ordinary product regression at function granularity; preserve and account for every active contract. Do not change frozen tests, copy local state into fake paths, add skips, or assert that a model/historical campaign must run on GitHub.",
+      "applied": false
+    },
+    {
+      "id": "CI-DESKTOP",
+      "status": "COVERAGE_NOT_WIRED",
+      "evidence": "No setup-node/npm ci job. Python Desktop contract wrapper can take its preexisting devdeps-unavailable skip, and does not run the two new Knowledge JS contract suites.",
+      "proposed": {
+        "runs_on": "windows-latest",
+        "working_directory": "desktop",
+        "node": "24.19.0 (known invocation evidence)",
+        "install": "npm ci",
+        "contracts": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs",
+        "typecheck": "npx --no-install tsc --noEmit",
+        "note": "Ordinary current contracts, not Electron GUI/Ollama E2E; do not use packaging/publish scripts."
+      },
+      "applied": false
+    },
+    {
+      "id": "CI-DEPENDENCIES",
+      "status": "REVIEWED",
+      "evidence": "Editable Python install now includes pinned pypdf. MEMORY jobs install memory-semantic for synthetic NumPy coverage. Core does not install that optional extra, but Memory jobs provide it; Knowledge vectors are dependency-free doubles. No real local backend installation is proposed."
+    },
+    {
+      "id": "CI-EXIT",
+      "status": "REVIEWED",
+      "evidence": "Direct pytest exits propagate; run_regression raises SystemExit(subprocess returncode). No continue-on-error or || true. always() steps report scope, they do not override prior test failure. fail-fast=false only retains matrix diagnostics."
+    },
+    {
+      "id": "CI-REPORTING",
+      "status": "OPTIONAL_PROPOSAL_NOT_APPLIED",
+      "evidence": "No explicit timeout/caches/artifact uploads; Memory writes run.json/run.log/tests.xml outside checkout and step summaries. Not a YAML syntax defect.",
+      "proposed": "If CI scope is approved, preserve exit codes while adding bounded timeouts and always-upload only fresh synthetic logs/JUnit. Caches must be keyed by pyproject/desktop package-lock; never cache operational stores or certification evidence."
+    },
+    {
+      "id": "CI-LOCAL-ONLY",
+      "status": "NOT_GENERAL_CI",
+      "paths": [
+        "tests/test_nova_core_phase13_desktop.py::test_electron_main_preload_renderer_e2e",
+        "tests/test_nova_core_phase13_desktop.py::test_real_electron_ollama_smoke",
+        "docs/knowledge_inputs_v1/ready_closure/verify_integrity.ps1"
+      ],
+      "note": "Explicit Electron/local Ollama and external-archive integrity require special infrastructure. Existing optional environment guards unchanged. No campaign runner, AUTHORIZED file or quality ledger is invoked by the proposed general CI."
+    }
+  ],
+  "current_Knowledge_regression_from_accepted_manifest": [
+    "tests/knowledge_inputs_v1/test_k8_applicability_contracts.py",
+    "tests/knowledge_inputs_v1/test_context_capability_profiles.py",
+    "tests/knowledge_inputs_v1/test_k0_contracts.py",
+    "tests/knowledge_inputs_v1/test_k0_corpus.py",
+    "tests/knowledge_inputs_v1/test_k1_application.py",
+    "tests/knowledge_inputs_v1/test_k1_containment.py",
+    "tests/knowledge_inputs_v1/test_k1_recovery.py",
+    "tests/knowledge_inputs_v1/test_k1_store.py",
+    "tests/knowledge_inputs_v1/test_k2_acquisition.py",
+    "tests/knowledge_inputs_v1/test_k2_application.py",
+    "tests/knowledge_inputs_v1/test_k2_composition.py",
+    "tests/knowledge_inputs_v1/test_k2_contracts.py",
+    "tests/knowledge_inputs_v1/test_k2_interfaces.py",
+    "tests/knowledge_inputs_v1/test_k3_extraction.py",
+    "tests/knowledge_inputs_v1/test_k3_pdf_repair.py",
+    "tests/knowledge_inputs_v1/test_k4_chunking.py",
+    "tests/knowledge_inputs_v1/test_k4_legacy.py",
+    "tests/knowledge_inputs_v1/test_k4_quality.py",
+    "tests/knowledge_inputs_v1/test_k4_retrieval.py",
+    "tests/knowledge_inputs_v1/test_k4_semantic.py",
+    "tests/knowledge_inputs_v1/test_k5_context.py",
+    "tests/knowledge_inputs_v1/test_k5_integration.py",
+    "tests/knowledge_inputs_v1/test_k6_passive_web.py",
+    "tests/knowledge_inputs_v1/test_k7_children.py",
+    "tests/knowledge_inputs_v1/test_k7_host.py",
+    "tests/knowledge_inputs_v1/test_k8_execution.py",
+    "tests/knowledge_inputs_v1/test_k8_harness.py",
+    "tests/knowledge_inputs_v1/test_k8_parser_contracts.py",
+    "tests/knowledge_inputs_v1/test_k8_repair_contracts.py",
+    "tests/knowledge_inputs_v1/test_k8_repair.py",
+    "tests/knowledge_inputs_v1/test_k8_repair2_contracts.py",
+    "tests/knowledge_inputs_v1/test_k8_repair2_control_regression.py",
+    "tests/knowledge_inputs_v1/test_k8_repair2_quality.py",
+    "tests/knowledge_inputs_v1/test_k8_repair3_harness.py",
+    "tests/knowledge_inputs_v1/test_k8_repair3_quality.py",
+    "tests/knowledge_inputs_v1/test_k8_repair3_regressions.py",
+    "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+    "tests/knowledge_inputs_v1/test_k8_repair4_harness.py",
+    "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+    "tests/knowledge_inputs_v1/test_k8_repair5_guard.py",
+    "tests/knowledge_inputs_v1/test_k8_repair5_harness.py",
+    "tests/knowledge_inputs_v1/test_k8_repair6_quality.py",
+    "tests/knowledge_inputs_v1/test_k8_repair6_query.py"
+  ],
+  "historical_K8_artifacts": [
+    "tests/knowledge_inputs_v1/test_k8_post_cert_conflict.py",
+    "tests/knowledge_inputs_v1/test_k8_quality.py"
+  ],
+  "synthetic_focal_harness_tests": [
+    "tests/knowledge_inputs_v1/source_conflict_focal/test_scorer.py",
+    "tests/knowledge_inputs_v1/source_conflict_focal/revision_02/test_parameter_guard.py"
+  ],
+  "versioned_but_not_current_certification": [
+    "tests/knowledge_inputs_v2/**",
+    "tests/knowledge_inputs_v1/run_k8_e2e.py",
+    "tests/knowledge_inputs_v1/source_conflict_focal/runner.py",
+    "tests/knowledge_inputs_v1/source_conflict_focal/revision_02/runner.py"
+  ],
+  "no_new_skips_xfails_exclusions": true,
+  "no_claim_of_remote_CI_pass": true
+}

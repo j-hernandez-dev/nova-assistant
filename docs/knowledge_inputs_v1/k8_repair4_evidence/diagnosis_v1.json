@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "k8-repair4-forensic-v1",
+  "noNewInference": true,
+  "caseId": "abstain-absent-attribute",
+  "classification": "PREEXISTING_PRODUCT_BUG_IN_LEGACY_DELIVERABLE_GUARD_WITH_MODEL_BEHAVIOR",
+  "metricClassificationPreserved": "MODEL_BEHAVIOR",
+  "firstRawModelResponse": "UNKNOWN",
+  "terminalRawModelResponse": "The user requested a file deliverable (a report), but I have not written any file this turn. The system reminder instructs me to create the file NOW with the write tool.\n\nI will create a report.md file containing my findings: that the warranty duration for RIVET7307 is UNKNOWN based on the admitted document [K1].",
+  "currentUserInput": "RIVET7307 warranty duration? Use only the admitted document; if absent answer UNKNOWN only. Do not write files.",
+  "deterministicCodeObservation": {
+    "buildIntent": true,
+    "fileDeliverable": true,
+    "turnMutationDenied": true,
+    "buildKeyword": "write",
+    "buildKeywordSource": "current explicit prohibition Do not write files",
+    "deliverableKeyword": "document",
+    "deliverableKeywordSource": "Use only the admitted document",
+    "guardLocation": "local_cli/agent.py:1423",
+    "classifierLocations": [
+      "local_cli/agent.py:744",
+      "local_cli/harness.py:680"
+    ],
+    "loopGuardIgnoresEffectReduction": true
+  },
+  "trace": {
+    "generations": 2,
+    "firstResponse": "UNKNOWN",
+    "nextUserRoleReminder": "<system-reminder>The request asked for a file deliverable (a report/document), but no file has been written this turn. Create it NOW with the write tool — pick a sensible file name (e.g. report.md) and put your full findings in it. Only if no file is actually needed, say so explicitly.</system-reminder>",
+    "toolCalls": 0,
+    "actualFiles": [],
+    "auditDeliveryFailures": 0,
+    "securityAuthorityExpansion": false
+  },
+  "whyNotCanonicalized": "UNKNOWN occurs as a nonterminal documentary fact in a plan to create report.md, not an explicit terminal abstention decision. Converting it would violate V4 negative contracts.",
+  "sourceFilesModified": false,
+  "repairAuthorized": false,
+  "requiredNextStep": "Separate authorization needed before modifying certified loop/harness intent resolution; no original K8 E2E eligibility.",
+  "rawEvidence": [
+    "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/model-independent/abstain-absent-attribute/requests.json",
+    "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/model-independent/abstain-absent-attribute/result.json"
+  ]
+}

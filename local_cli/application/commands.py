@@ -84,6 +84,9 @@ class ApplicationCommand:
                 not isinstance(self.payload["content"], str) or
                 not self.payload["content"].strip()):
             raise ValueError("SubmitUserInput requires non-empty content")
+        if self.kind is CommandKind.SUBMIT_USER_INPUT and 'attachmentRefs' in self.payload:
+            from local_cli.core.attachments import attachment_refs
+            attachment_refs(self.payload['attachmentRefs'])
         if self.kind is CommandKind.START_SESSION and (
                 not isinstance(self.payload["workspace"], str) or
                 not self.payload["workspace"].strip()):

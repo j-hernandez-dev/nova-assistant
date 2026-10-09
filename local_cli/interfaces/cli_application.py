@@ -66,6 +66,9 @@ class CliApplicationClient:
         self._memory_closed = False
         self._memory_actor = application.register_memory_actor('cli_tty',
             lambda: not self._memory_closed and self._human_tty())
+        register = getattr(application, 'register_knowledge_actor', None)
+        self._knowledge_actor = register('cli_tty', lambda: not self._memory_closed and self._human_tty()) if register else None
+        self._attachment_refs = []
         state = application.get_snapshot(session_id)
         self._cursor = application.subscribe_events(
             session_id, after_sequence=state.last_sequence,
@@ -78,6 +81,8 @@ class CliApplicationClient:
     def close(self) -> None:
         self._memory_closed = True
         self._cursor._stream.close(self._cursor)
+        close = getattr(self.application, 'close_knowledge', None)
+        if close: close()
 
     def snapshot(self):
         return self.application.get_snapshot(self.session_id)
@@ -91,6 +96,11 @@ class CliApplicationClient:
         return self.application.execute_memory(MemoryCommand(command_id or new_command_id(),
             self.session_id,name,arguments or {},snapshot.state_revision),actor=self._memory_actor)
 
+    def knowledge(self, name, arguments=None, *, command_id=None):
+        from local_cli.application.knowledge_host import KnowledgeCommand
+        return self.application.execute_knowledge(KnowledgeCommand(command_id or new_command_id(),
+            self.session_id,name,arguments or {},self.snapshot().state_revision),actor=self._knowledge_actor)
+
     def command(self, kind: CommandKind, payload: dict[str, Any] | None = None,
                 *, command_id: str | None = None) -> CommandReceipt:
         command_payload = payload or {}
@@ -102,9 +112,12 @@ class CliApplicationClient:
             self._on_command(kind, command_payload, receipt)
         return receipt
 
-    def submit_user_input(self, content: str) -> CommandReceipt:
+    def submit_user_input(self, content: str, *, attachment_refs=None) -> CommandReceipt:
         self._on_submit(content)
-        receipt = self.command(CommandKind.SUBMIT_USER_INPUT, {"content": content})
+        refs = self._attachment_refs if attachment_refs is None else attachment_refs
+        receipt = self.command(CommandKind.SUBMIT_USER_INPUT, {"content": content,
+            **({'attachmentRefs': refs} if refs else {})})
+        if receipt.accepted: self._attachment_refs = []
         if not receipt.accepted:
             self._write(f"{receipt.error.code}: {receipt.error.safe_message}\n")
             self._on_turn_complete(True)

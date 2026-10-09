@@ -1,0 +1,1542 @@
+{
+  "schemaVersion": 1,
+  "phase": "K6",
+  "verdict": "K6 PASS",
+  "status": "PASS",
+  "normativeSection": "§61; §§3,6–11,14–15,19–20,30–31,34,36–40,42,45–46,53–54",
+  "scope": "Passive Web only. No K7/Active Web/READY.",
+  "profile": "Windows 11 + local NTFS + HOST_UNISOLATED",
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "initialWorkingTree": [
+      " M desktop/electron/application_client.ts",
+      " M desktop/electron/main.ts",
+      " M desktop/electron/preload.ts",
+      " M desktop/shared/application.ts",
+      " M desktop/src/App.tsx",
+      " M desktop/src/types.ts",
+      " M local_cli/application/commands.py",
+      " M local_cli/application/context.py",
+      " M local_cli/application/providers.py",
+      " M local_cli/application/session.py",
+      " M local_cli/bootstrap_cli.py",
+      " M local_cli/bootstrap_server.py",
+      " M local_cli/cli.py",
+      " M local_cli/core/context.py",
+      " M local_cli/interfaces/cli_application.py",
+      " M local_cli/interfaces/jsonl_application.py",
+      " M local_cli/server.py",
+      " M pyproject.toml",
+      " M tests/memory_v1/run_m8_qwen4_chat7b.py",
+      " M tests/memory_v1/test_m8_metadata_admission.py",
+      " M tests/memory_v1/test_m8_ps_operational.py",
+      " M tests/memory_v1/test_m8_qwen4_chat7b.py",
+      " M tests/test_nova_core_phase0_characterization.py",
+      " M tests/test_nova_core_phase10_services.py",
+      " M tests/test_nova_core_phase11_characterization.py",
+      "?? desktop/electron/knowledge_control.cjs",
+      "?? desktop/electron/knowledge_control.d.cts",
+      "?? desktop/tests/knowledge_control.test.cjs",
+      "?? docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "?? docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "?? docs/knowledge_inputs_v1/k0_ci_reconciliation.json",
+      "?? docs/knowledge_inputs_v1/k0_corpus_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/memory.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k0_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_manifest.json",
+      "?? docs/knowledge_inputs_v1/k0_resultados.md",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-authority.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-store.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/desktop.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final_integrity.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/head_final.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k1_freeze.json",
+      "?? docs/knowledge_inputs_v1/k1_manifest.json",
+      "?? docs/knowledge_inputs_v1/k1_resultados.md",
+      "?? docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/compatibility.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/desktop.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-memory.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-py312.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final_integrity.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/integrity.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k2_freeze.json",
+      "?? docs/knowledge_inputs_v1/k2_manifest.json",
+      "?? docs/knowledge_inputs_v1/k2_preflight.md",
+      "?? docs/knowledge_inputs_v1/k2_product_freeze.json",
+      "?? docs/knowledge_inputs_v1/k2_product_freeze_v2.json",
+      "?? docs/knowledge_inputs_v1/k2_resultados.md",
+      "?? docs/knowledge_inputs_v1/k3_manifest.json",
+      "?? docs/knowledge_inputs_v1/k3_pdf_repair_manifest.json",
+      "?? docs/knowledge_inputs_v1/k3_pdf_repair_resultados.md",
+      "?? docs/knowledge_inputs_v1/k3_resultados.md",
+      "?? docs/knowledge_inputs_v1/k4_manifest.json",
+      "?? docs/knowledge_inputs_v1/k4_resultados.md",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/performance_final.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/quality_final.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_manifest.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_resultados.md",
+      "?? docs/knowledge_inputs_v1/k5_evidence/budget_matrix.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/closure_freeze.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/persisted_citations.json",
+      "?? docs/knowledge_inputs_v1/k5_manifest.json",
+      "?? docs/knowledge_inputs_v1/k5_resultados.md",
+      "?? local_cli/application/knowledge.py",
+      "?? local_cli/application/knowledge_context.py",
+      "?? local_cli/application/knowledge_host.py",
+      "?? local_cli/application/knowledge_legacy.py",
+      "?? local_cli/application/knowledge_retrieval.py",
+      "?? local_cli/bootstrap_knowledge.py",
+      "?? local_cli/core/attachments.py",
+      "?? local_cli/core/knowledge.py",
+      "?? local_cli/core/knowledge_chunking.py",
+      "?? local_cli/core/knowledge_context.py",
+      "?? local_cli/core/knowledge_legacy.py",
+      "?? local_cli/core/knowledge_retrieval.py",
+      "?? local_cli/core/knowledge_store.py",
+      "?? local_cli/infrastructure/knowledge_acquisition.py",
+      "?? local_cli/infrastructure/knowledge_embeddings.py",
+      "?? local_cli/infrastructure/knowledge_extraction.py",
+      "?? local_cli/infrastructure/knowledge_files.py",
+      "?? local_cli/infrastructure/knowledge_migrations.py",
+      "?? local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+      "?? local_cli/infrastructure/knowledge_sqlite.py",
+      "?? local_cli/interfaces/knowledge_cli.py",
+      "?? tests/knowledge_inputs_v1/__init__.py",
+      "?? tests/knowledge_inputs_v1/fixtures/k4_core_frozen_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k4_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_docx_payload_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_fixtures.py",
+      "?? tests/knowledge_inputs_v1/k1_helpers.py",
+      "?? tests/knowledge_inputs_v1/k2_helpers.py",
+      "?? tests/knowledge_inputs_v1/k4_helpers.py",
+      "?? tests/knowledge_inputs_v1/pdf_fixtures.py",
+      "?? tests/knowledge_inputs_v1/run_k0.py",
+      "?? tests/knowledge_inputs_v1/run_k2.py",
+      "?? tests/knowledge_inputs_v1/run_k3_pdf_repair.py",
+      "?? tests/knowledge_inputs_v1/run_k4.py",
+      "?? tests/knowledge_inputs_v1/run_k5.py",
+      "?? tests/knowledge_inputs_v1/test_k0_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k0_corpus.py",
+      "?? tests/knowledge_inputs_v1/test_k1_application.py",
+      "?? tests/knowledge_inputs_v1/test_k1_containment.py",
+      "?? tests/knowledge_inputs_v1/test_k1_recovery.py",
+      "?? tests/knowledge_inputs_v1/test_k1_store.py",
+      "?? tests/knowledge_inputs_v1/test_k2_acquisition.py",
+      "?? tests/knowledge_inputs_v1/test_k2_application.py",
+      "?? tests/knowledge_inputs_v1/test_k2_composition.py",
+      "?? tests/knowledge_inputs_v1/test_k2_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k2_interfaces.py",
+      "?? tests/knowledge_inputs_v1/test_k3_extraction.py",
+      "?? tests/knowledge_inputs_v1/test_k3_pdf_repair.py",
+      "?? tests/knowledge_inputs_v1/test_k4_chunking.py",
+      "?? tests/knowledge_inputs_v1/test_k4_legacy.py",
+      "?? tests/knowledge_inputs_v1/test_k4_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k4_retrieval.py",
+      "?? tests/knowledge_inputs_v1/test_k4_semantic.py",
+      "?? tests/knowledge_inputs_v1/test_k5_context.py",
+      "?? tests/knowledge_inputs_v1/test_k5_integration.py"
+    ],
+    "initialVersionableFiles": 1784,
+    "tags": [
+      "nova-core-v1-stable 97f41c6dab89ee59332875bb8d89c29620b52156 158b60effa484cd34a58b991f3ee4ca3f808d924",
+      "nova-memory-v1-ready fa6b2f7898692ddc6cec77a4d971dbc395b764a6 9911ad4ca0fc13edfef49e84441a759d35cbefda",
+      "nova-memory-v1.1-ready 6a48c5252e40986ecf4180138d9d56bc519b3e49 3678d5b597a888b743e90d26efda6219943d58df",
+      "nova-security-v1.2-ready e5bea6a4c2c559a1f5a2f8824316a83b548b2533 26dc87786d8ad1c1d879255a068c7fb50a25e6f2"
+    ],
+    "python": "CPython 3.14.6 AMD64",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "volume": "C: NTFS Fixed local",
+    "baselineTests": [
+      "baseline-knowledge: 573 PASS",
+      "baseline-boundaries (Core/context/S5): 182 PASS"
+    ]
+  },
+  "architectures": {
+    "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md": "b13814a0f1c99528ab4f4d2f5c874dacdc1017c8f3f13b1053c90c67eb848147",
+    "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md": "a5711f372cd9ac9bee5ac800e638665e2e06cdb4405974c2cd12c14587715792",
+    "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md": "886a4788d55282aefbbc776344ec507b779519e15ea940dcad62ea24ef57e9cd",
+    "docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888"
+  },
+  "prerequisites": {
+    "k0ThroughK5": "Evidence present, K5 PASS and hashes verified at preflight",
+    "coreSecurityMemoryTagsUnchanged": true,
+    "k3PdfRepairUnchanged": true,
+    "k4BlockedAndResumeHistoryUnchanged": true,
+    "k5HistoryUnchanged": true,
+    "protectedHashes": {
+      "docs/knowledge_inputs_v1/k2_evidence/compatibility.txt": "c49ce51e239ed8eb7f5f87ce2e404d344ef57dcccca09e6888382253ea7fd233",
+      "docs/knowledge_inputs_v1/k0_evidence/head_final.txt": "c49ee19a526eb2b0f4d81059d0f9bab357f0e0dcfa68241d2e00fa467c4e5bc0",
+      "docs/knowledge_inputs_v1/k1_resultados.md": "357cd60ad1fc363b47e5745d4c9c421710b826ad906d3b984a69179e6e699761",
+      "docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt": "f012c7f0dbdf615b028b0f2a249c0dea58871ef19a8a9424b081153aa5d2e247",
+      "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md": "3fb67df88dae2428217e937fc8d890a3bcdf5c80524f16c207a2d8ef8c10cc80",
+      "docs/architecture/historical_deprecated/INFORME_NOVA_SECURITY_v1_a_v1_1.md": "8c8bb50f3bc12bf1f690c0b6dc647b25cfac1775f9e46de964332001e663fd1c",
+      "docs/knowledge_inputs_v1/k5_evidence/implementation_freeze.json": "8d6a75910751c737a7d34f98fabfffbb3d8c6402feafbfc610601c2a50a30314",
+      "docs/knowledge_inputs_v1/k1_evidence/head_final.json": "eb228e19bac8597fdec5aaf7e26f6e9524f8e68cf34f4987b9062741bd714eb0",
+      "docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt": "990f009e79ce9a150e8c09e5e84c323cc07f63fad71f16e1b6151caefa469625",
+      "docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt": "42fa8098c2d7886e19bde984c8719abfe2aef6d4a3e7a2f8171837f251098d74",
+      "docs/architecture/AUDITORIA_ARQUITECTONICA_NOVA_CORE.md": "754205064c543aecf19da1c5162c03d1a8e1e3fbe4f3895262fd3b811b51c213",
+      "docs/knowledge_inputs_v1/k1_evidence/test_runs.json": "fc84635e87c1c7357a0f07827c1ffe888e6719accfd2be34077460f0075192d6",
+      "docs/knowledge_inputs_v1/k0_evidence/boundaries.txt": "05bdd663435c60bac55bee336b1421d468cd3867337c0ea2bc21a10642688529",
+      "docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt": "d6e49b1d4f37762cdf38a7e927624e917191491a0f4cf3a3c5ad468dfbc31706",
+      "docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt": "775c55d64163e9c6c718c6d3f287c316017fbe6cefabda2b7559b4714c090791",
+      "docs/knowledge_inputs_v1/k2_manifest.json": "94d704982ea83f76cff6c97c7e967225d7d9f9db854a2a9d56dfab821eef6450",
+      "docs/knowledge_inputs_v1/k4_resultados.md": "2aefa6badcdc7fcf5498d3453428b219f1aaaac3b417894c426fa720b3d5d87b",
+      "docs/knowledge_inputs_v1/k0_freeze.json": "6ae1fdd18f68d46ec102f06edba20c377833e51a979ef75752b308eae8a8a25e",
+      "docs/knowledge_inputs_v1/k4_resume_evidence/implementation_freeze.json": "c514ceab4ea002cc33bd7395560ddd76ce8f0799f565899eb09636bf38be1f38",
+      "docs/architecture/historical_deprecated/NOVA_SECURITY_ARQUITECTURA_V1_1.md": "55f5170ef1fbd80188197c11dd2c66bc76c2477f5101fe24a25763f5256ccd11",
+      "docs/knowledge_inputs_v1/k1_evidence/block-authority.txt": "c21fd456d1d0a1b8ac5cacac7801b71c464db327ce3f0b448186aeb3ca6654a7",
+      "docs/knowledge_inputs_v1/k0_corpus_freeze.json": "4533fc33dcfa49f5480546f3ce8ed9d54832ae40b8b9d4910145c6dc19c7ebe2",
+      "docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt": "f29f7133c1ff96b095f2de0c65fef6f463e7117adc77e2b677a1234ce4805bf4",
+      "docs/knowledge_inputs_v1/k5_resultados.md": "437293252cf016ab8e3c769a1b946eb39a48460cd1b0907ad0ddadb3a6a4fc0d",
+      "docs/knowledge_inputs_v1/k4_resume_resultados.md": "485b44cd03600187bef84d93f52d3f2ab43c8699545b99b24541ccf831b9226c",
+      "docs/knowledge_inputs_v1/k2_product_freeze.json": "1ffe4d67d9a21a553406759fd8d21830550a7931efc4cb903698521fa4d21d91",
+      "docs/knowledge_inputs_v1/k2_freeze.json": "023654676666b8ef1c99ffa0fe85eb765d405b42adc29cb187d6b31325d38585",
+      "docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt": "aa3723ce7b1e61bac9c418f955b7185f4d72af2273349332c0f3b7f67359308f",
+      "docs/knowledge_inputs_v1/k2_resultados.md": "a7e0d54a96ea392b4cc4f866bed984e7fbaf69e77f42d9a5d902b16fbfd87b6e",
+      "docs/knowledge_inputs_v1/k1_evidence/head_final.txt": "d621323c8a6a9ed357c21047189ca0053248ebd4a9d3f231b4362909b8d3d438",
+      "docs/security_v12/nova_security_v12_ready.md": "7f459d1ca179312c960b4293ab24995e731400561069ad61de90dd5cb35406f6",
+      "docs/knowledge_inputs_v1/k1_freeze.json": "7d1c69d08515b704d139e296ce050d8508d74b13dd90957f66be9c2325a7cdfd",
+      "docs/knowledge_inputs_v1/k0_evidence/memory.txt": "f87c498417ce4b02a57a10fec6baa83861092bf8ae4f6be2de4a86fcb798f9ce",
+      "docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt": "7a288bf7b5da69cce83733072812cbc72853ea85be5ca29183d5ebc6fa1363a4",
+      "docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt": "767d351178ce0a74405486c1a8f475bcb308ae2ff948ed6d78d7d8d6162dd99c",
+      "docs/knowledge_inputs_v1/k4_resume_evidence/performance_final.json": "0821b78a5d9cc543f1d624aa25980f8115240aef92c78b099edb13d19cc30bd5",
+      "docs/knowledge_inputs_v1/k2_evidence/desktop.json": "c474220fffa54d3be30cbdc290009be76cae545835135ea50c9f3ea92889eab9",
+      "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md": "b13814a0f1c99528ab4f4d2f5c874dacdc1017c8f3f13b1053c90c67eb848147",
+      "docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt": "2031951d63b4e67af74f6defa4dbb5324aa098fce4ab0756db43dab7bbeba154",
+      "docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt": "6faa80fd68d3b8868444ed4cad89c34fc8c8387c76b1f59c058926b0ccd2fa7d",
+      "docs/knowledge_inputs_v1/k1_evidence/desktop.json": "33fc4818117fe10d0ed63e0f239335fe6254e4557a2327354c07e897639bca2b",
+      "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md": "a5711f372cd9ac9bee5ac800e638665e2e06cdb4405974c2cd12c14587715792",
+      "docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt": "42986692857666d8223b1b462bff7811f0f343ba27da8f2ca6623375a6fde9de",
+      "docs/knowledge_inputs_v1/k2_evidence/final-memory.txt": "31dd0e20ed8c5d6217f71a95e80a1f34e386a848671435ec745f5bb7529a73fe",
+      "docs/knowledge_inputs_v1/k1_manifest.json": "ee5b588635ae262f71f7e5ec596bf8ed69e6ccc22fa9d02d1a06bd4c086a2c94",
+      "docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt": "a7e504c829d40041874cc540910eb668678d6ae2ad58060bc0be41ba6dbc3443",
+      "docs/knowledge_inputs_v1/k5_manifest.json": "9d31b7812fcf3ec9012a9c5ca3dc4e976c5e74c647afcc2e0824e25eda9e857c",
+      "docs/knowledge_inputs_v1/k4_manifest.json": "bf9aebaa8517e5a7c5822dada6539fb25c1d027241755383f37b15e307ae4552",
+      "docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt": "3716cade30ce772d8a406840a24d78d7eaf990e2c60c0dc0ea077b2377efe3bd",
+      "tests/knowledge_inputs_v1/fixtures/k4_core_frozen_v1.json": "72fabd4b1c43a33438ee3f67e29693e2c1299f93d19eb932ef6958eb4a8e2b65",
+      "docs/security_v12/nova_security_v12_ready_manifest.json": "4240fb8f5774159f58e3644048b016772547af2d268a42bf7deb6bef4393b08c",
+      "docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt": "f432d0071437104b1a2bb514f06bf7ec4795ef91bbfb3e2b81030f4463c12d1a",
+      "docs/knowledge_inputs_v1/k5_evidence/persisted_citations.json": "e700c3a1cefbb506421de2d431d514ed99fe159e216e691e13539f1d0464e224",
+      "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt": "748765df3378a19f68dcc3f1191f5e4fa79c881d8cb5c47519dd53633ce6ac7e",
+      "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "docs/knowledge_inputs_v1/k3_resultados.md": "1974132a506faf034ad93b4f45f9f993b72e4e2438f3a740412eee774f5777cd",
+      "docs/knowledge_inputs_v1/k0_evidence/contracts.txt": "c71e1f17301a494fd69526599f0fd1b9c15d1596efb427ad7bdff5c25a0ef1ec",
+      "docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt": "00cda2d52deb7427de0b5cd63f7bd00a8fdc8c8d3f441d2704dbdf6a7dff480a",
+      "docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt": "4bc230bc383363a6515b4025cfcf0bc7f1722ed6227e71fb3da9b78f670eecf1",
+      "docs/architecture/AUDITORIA_SEGURIDAD_NOVA_V1.md": "7ff49506d7077d60a8165badf0ad8ccfe00592eb871439ce0e642122d3e28ee1",
+      "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md": "886a4788d55282aefbbc776344ec507b779519e15ea940dcad62ea24ef57e9cd",
+      "tests/knowledge_inputs_v1/fixtures/k4_protocol_v1.json": "31045a14ae3a50a3cbd4d4990c9fb6966394597748437758b108ac7bc6aa0586",
+      "docs/knowledge_inputs_v1/k2_evidence/final-py312.txt": "31bbe4672b10b3ac242f78265f96e55e519cf08a15b4e75bd8c44fc32840b900",
+      "docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt": "d44be98e76bd517342a5c594d96e2efe0744f6e7578a24a3f57595c40e15e6aa",
+      "docs/knowledge_inputs_v1/k0_manifest.json": "60e419b2b453f36fe251cfee64803848cb8d38780a1a8df624e7ec1b1c718dfe",
+      "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt": "2a2a3ea671dc9e87e084f7ab118c3ab65aa9de8f184758adc674415cf263a79e",
+      "docs/knowledge_inputs_v1/k0_evidence/test_runs.json": "800de80c1ae4516b74ba820a595813f0257f1b373901091ad7634e6fedac4a05",
+      "docs/knowledge_inputs_v1/k1_evidence/block-store.txt": "05ec028525c9c94b65d22d26436c38d2d63ae73fb82cec4dcd61641f8fe84e9a",
+      "docs/memory_v1/memory_v1_ready_manifest.json": "ff1185bab2c45d0f1e33e67a80997e20d0281792dc01684fdf3214cc9a6e4c3c",
+      "docs/knowledge_inputs_v1/k1_evidence/final_integrity.json": "8d2ad75c33c13164cec67bc708e13be4d4167c8761bb2bba884083091b3fc863",
+      "docs/knowledge_inputs_v1/k2_evidence/integrity.json": "2d959bad3e8e3ff18139de3d531faa9c239520af127a19486f6e3085ce3a4824",
+      "docs/knowledge_inputs_v1/k0_ci_reconciliation.json": "ce6eec19976d6e7bc173e459a347356943b413781338ace46ce8be96bdeb9e5b",
+      "docs/knowledge_inputs_v1/k4_resume_evidence/quality_final.json": "13f603486283246ddedb1dd81bf85e3aff93633be84feaa341e2ea42897ac464",
+      "docs/knowledge_inputs_v1/k0_resultados.md": "dd28561fc5e6e3ebff4ba95c622ab1dee03e00c4b2f5d77f4d161afae118392c",
+      "docs/knowledge_inputs_v1/k2_evidence/test_runs.json": "e6f18208b87d389c0e2f0a0b404772fdc577ca1dbfd7154d52aca84a4f30ca49",
+      "docs/knowledge_inputs_v1/k2_evidence/head_final.txt": "3693c593627335e91b12d443dff57ad9a705cca7339441e6848dde123ed9ec3a",
+      "docs/knowledge_inputs_v1/k3_manifest.json": "1e9ba6554cdfff4c2c3e2d4bea00df2b475c1affebd2298df0f38315e2d70911",
+      "docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888",
+      "docs/knowledge_inputs_v1/k2_evidence/final_integrity.json": "9b33d7e9116c067621d83e7d8d65b31f352d2eaae31b93bd11bedef05679aca6",
+      "docs/knowledge_inputs_v1/k3_pdf_repair_manifest.json": "47caef5c46dadf52601ac42a73ac560b2007da5cab2c4e1e875965d9750d898a",
+      "docs/architecture/historical_deprecated/NOVA_SECURITY_ARQUITECTURA_V1.md": "96924c222e78d8080de03e4c259e1e8ab36e1e15edb749910aad5c2b3abf1975",
+      "docs/knowledge_inputs_v1/k4_resume_manifest.json": "a6526d79d6c972a13c9c5e46a4d2e6e9ffb951865b65404620317a8a34908d33",
+      "docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt": "5c1a9e72b9a33d76e2cadb28d33beb9207b5aff98992e0ab3025157ccd39eead",
+      "docs/knowledge_inputs_v1/k5_evidence/closure_freeze.json": "83a40d3ec0536c8f1ab0853c7c8b878b20103f08ce2715c9a399295ef8a000a6",
+      "docs/knowledge_inputs_v1/k2_product_freeze_v2.json": "51fa4ebfcdb34dcfcc8efa39a597e4b2d3af49cdcf7e4e629df8b3dc3d8c6999",
+      "docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt": "3634e1d2f54b6788f93927c5c8d4107f6c76b512386ab8cb42fb1e524d2429dd",
+      "docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt": "57c83140a6026933cd55f4f2ae833cf43c9209d7734ec3917283ed0488c7dab0",
+      "docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt": "3f47d282ae9aae08fbf67b2752e15015e78b4b7d22d36a425d6f8827b38b56db",
+      "docs/knowledge_inputs_v1/k3_pdf_repair_resultados.md": "329b1c779a1d12bebf164395c6c7050b31a989c7f239e032b13050c41db2fda7",
+      "docs/knowledge_inputs_v1/k2_preflight.md": "a9f18a49cc9d2f31dfafbc4f36d046699903953976c1b57783feb22fe8280b9e",
+      "docs/knowledge_inputs_v1/k5_evidence/budget_matrix.json": "d331262fc96d6ba61e69a22cf17a585764aeacf020db9c3e11b783d6e2ea7377"
+    },
+    "codeEvolution": "Historical pins remain immutable. Shared K5 seams intentionally evolved in K6; old code freezes are not reinterpreted as current code."
+  },
+  "inventory": {
+    "productive": [
+      "S5 web_fetch Policy/grant/DNS/TLS/redirect/limits/audit",
+      "K1 Source/Revision/store/recovery/scopes",
+      "K2 trusted host controls/Operations/attachment references",
+      "K3 real parsers/pypdf repair",
+      "K4 chunk/exact/FTS/optional documentary semantic",
+      "K5 capsule/citations/shared cap/Memory separation"
+    ],
+    "missingBeforeK6": [
+      "WebSearchPort/provider/capability",
+      "web_search ToolRuntime binding",
+      "URL snapshot import/remote extraction/explicit refresh"
+    ],
+    "legacy": [
+      "model_search is model administration, not passive web",
+      "RAG/notes not used as web transport; vectors unchanged"
+    ],
+    "preserved": [
+      "Session/Turn/Generation/Operation and common backend",
+      "Existing tool schemas/public names",
+      "PUBLIC_ONLY",
+      "MEMORY policies/records/semantic profile",
+      "No Active Web"
+    ]
+  },
+  "changes": {
+    "changed": [
+      "local_cli/application/tool_runtime.py",
+      "local_cli/application/security_audit.py",
+      "local_cli/application/network.py",
+      "local_cli/bootstrap_cli.py",
+      "local_cli/core/network.py",
+      "local_cli/config.py",
+      "local_cli/bootstrap_knowledge.py",
+      "local_cli/application/knowledge_host.py",
+      "local_cli/application/knowledge.py",
+      "local_cli/infrastructure/http_fetch.py",
+      "local_cli/bootstrap_server.py",
+      "local_cli/application/policy.py"
+    ],
+    "added": [
+      "local_cli/application/knowledge_web.py",
+      "local_cli/core/passive_web.py",
+      "local_cli/application/passive_web.py",
+      "tests/knowledge_inputs_v1/test_k6_passive_web.py",
+      "local_cli/infrastructure/web_search.py",
+      "local_cli/infrastructure/knowledge_web_extraction.py",
+      "tests/knowledge_inputs_v1/run_k6_host.py",
+      "tests/knowledge_inputs_v1/run_k6.py",
+      "local_cli/bootstrap_passive_web.py",
+      "local_cli/tools/web_search_tool.py"
+    ],
+    "evidenceAdded": [
+      "docs/knowledge_inputs_v1/k6_evidence/implementation_freeze.json",
+      "docs/knowledge_inputs_v1/k6_evidence/protocol_v1.json",
+      "docs/knowledge_inputs_v1/k6_resultados.md",
+      "docs/knowledge_inputs_v1/k6_manifest.json"
+    ]
+  },
+  "contracts": {
+    "core": [
+      "SearchOptions/SearchResult/SearchResponse schemaVersion 1",
+      "WebSearchPort + WebSearchState",
+      "Private FetchedSnapshot/HttpHop safe_headers additive, never ToolResult DTO"
+    ],
+    "application": [
+      "WebSearchService bound acquisition exactly once",
+      "ToolRuntime.fetch_snapshot trusted private acquisition",
+      "KnowledgeService.import_url",
+      "KnowledgeCommand source_import_url/source_refresh_url additive schema 1"
+    ],
+    "configuration": {
+      "web_search_enabled": false,
+      "web_search_endpoint": "",
+      "hostOnly": true,
+      "globalConfigurationChanged": false
+    },
+    "adapter": {
+      "providerId": "searxng-json-v1",
+      "officialContract": "https://docs.searxng.org/dev/search_api.html",
+      "transport": "GET q/format=json via S5",
+      "fixedInstance": null,
+      "credentialsSupported": false,
+      "ambientCredentials": false,
+      "availability": "AVAILABLE means explicitly configured invocable adapter; not tested public endpoint uptime/quality."
+    },
+    "persistence": {
+      "storeSchemaChanged": false,
+      "sqliteMigrations": [],
+      "originFingerprint": "JSON schemaVersion 1; requested/effective URL, acquisition timestamp/content digest/mediaType/contentType/safe headers/truncated flag",
+      "immutableRevisions": true
+    },
+    "privateSecurityExtension": {
+      "reason": "S5 public text output is unsuitable for raw K3 extraction/provenance. Private per-call snapshot captures the same validated bounded response; no second HTTP path.",
+      "publicWebFetchSchemaChanged": false,
+      "generalPolicyChanged": false,
+      "newPermissions": [],
+      "existingPermission": "network.fetch",
+      "beforeEffectAudit": true,
+      "networkObservationsForSearch": true,
+      "oneClaimOneBoundedChain": true,
+      "replayRawBody": false
+    }
+  },
+  "decisions": [
+    "KI-OD-14",
+    "KI-OD-15",
+    "KI-OD-16",
+    "KI-OD-17",
+    "KI-OD-18",
+    "KI-OD-21",
+    "KI-OD-22",
+    "KI-OD-24",
+    "KI-OD-27",
+    "KI-OD-28"
+  ],
+  "invariants": [
+    "KI-INV-001",
+    "KI-INV-002",
+    "KI-INV-003",
+    "KI-INV-004",
+    "KI-INV-005",
+    "KI-INV-006",
+    "KI-INV-007",
+    "KI-INV-010",
+    "KI-INV-011",
+    "KI-INV-012",
+    "KI-INV-013",
+    "KI-INV-014",
+    "KI-INV-015",
+    "KI-INV-016",
+    "KI-INV-017",
+    "KI-INV-020",
+    "KI-INV-021",
+    "KI-INV-024",
+    "KI-INV-025",
+    "KI-INV-026",
+    "KI-INV-027",
+    "KI-INV-028",
+    "KI-INV-029",
+    "KI-INV-031",
+    "KI-INV-032",
+    "KI-INV-033",
+    "KI-INV-034",
+    "KI-INV-035",
+    "KI-INV-037",
+    "KI-INV-038",
+    "KI-INV-039"
+  ],
+  "gate": [
+    {
+      "criterion": "WebSearchPort (§30/61)",
+      "status": "PASS",
+      "evidence": "Core SearchOptions/Result/Response versionados; provider id, query SHA-256, timestamp, URL/title/snippet/rank; callback S5 bound/one-shot."
+    },
+    {
+      "criterion": "Provider capability (§31/45/61)",
+      "status": "PASS",
+      "evidence": "DISABLED/UNAVAILABLE/AVAILABLE/DEGRADED; adapter/config normal, snapshot de Application, errores observables."
+    },
+    {
+      "criterion": "Remote opt-in (§31/38/61)",
+      "status": "PASS",
+      "evidence": "Host boolean explícito + endpoint; default false/empty, no DNS/grant/dispatch en disabled; no credential support, no implicit instances."
+    },
+    {
+      "criterion": "web_search en ToolRuntime (§9.2/61)",
+      "status": "PASS",
+      "evidence": "Schema exclusivo query/max_results, policy/intent network.fetch exacto, claim único, S5 checked chain y Security Audit; dos Generations/ToolResult real."
+    },
+    {
+      "criterion": "Result provenance (§6.6/7/30/31/61)",
+      "status": "PASS",
+      "evidence": "SEARCH_PROVIDER_SNIPPET/WEB_SEARCH_SNIPPET, timestamp/fingerprint/rank, fetchedPage=false; no page autofetch, persist/index/write MEMORY."
+    },
+    {
+      "criterion": "URL snapshot import (§11/19/20/40/61)",
+      "status": "PASS",
+      "evidence": "Host Operation → ToolRuntime/S5 raw snapshot private → remote decode/K3 parser/K4 chunk/FTS atomic K1; Source/Revision/digest/MIME/URLs/headers/locators; explicit unchanged/new refresh, failed refresh preserves old."
+    },
+    {
+      "criterion": "PUBLIC_ONLY intacto (cierre §61)",
+      "status": "PASS",
+      "evidence": "93 S5 contracts + 29 native private HTTP/TLS; denied private/mixed DNS/redirect downgrade; 30s/2MiB/5redirects/50kchars no ambient creds/proxy, TLS verified."
+    },
+    {
+      "criterion": "Sin browser/click/forms (cierre §61)",
+      "status": "PASS",
+      "evidence": "SearXNG GET JSON only; parsing bytes/HTML passive, no DOM execution/clicks/forms/cookies/sessions or Active Web adapter."
+    },
+    {
+      "criterion": "Core/Security/Memory compatibles; scope/authority/context",
+      "status": "PASS",
+      "evidence": "K6 61; Knowledge 634; MEMORY 790; PDF 26; Core/context 131; HEAD 4780 PASS + 53 subtests PASS, 0 FAIL/ERROR, same 11 historical skips. No architecture/dependency/CI change."
+    }
+  ],
+  "tests": [
+    {
+      "name": "baseline-boundaries",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\baseline-boundaries",
+      "run": {
+        "mode": "boundaries",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\baseline-boundaries\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\baseline-boundaries\\tests.xml",
+          "tests/test_nova_core_phase14_architecture.py",
+          "tests/test_nova_core_phase9_context.py",
+          "tests/test_nova_core_phase9_integration.py",
+          "tests/test_context_64k.py",
+          "tests/test_nova_core_phase10_rag.py",
+          "tests/security_v12/test_s5_contracts.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 182,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "4.648",
+      "timestamp": "2026-10-08T01:29:04.863799-06:00",
+      "artifacts": {
+        "tests.xml": "f4bfcc3739ad02bb5f5ab03cd875d3988e8325f05865710071ccd3a12aec436e",
+        "run.log": "e47bdeaa75a2cc69b3432ea981ed133c637ae78bc343504b77ee0a0cc64fabf8",
+        "run.json": "68abb4f7d97121c66c0e54021a5f436bc0925f06a8d8aa187e402302b0ad5217"
+      },
+      "passed": 182
+    },
+    {
+      "name": "baseline-knowledge",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\baseline-knowledge",
+      "run": {
+        "mode": "contracts",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\baseline-knowledge\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\baseline-knowledge\\tests.xml",
+          "tests/knowledge_inputs_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 573,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "52.235",
+      "timestamp": "2026-10-08T01:27:46.559091-06:00",
+      "artifacts": {
+        "tests.xml": "39693740c683f604e32148e7065bf3de28910e67b7c18dfdd5061a7d57442f9a",
+        "run.log": "a41b9b19fba530845a1683faaa478ed9b6ab1432cad9961c0223fcda3d33e918",
+        "run.json": "e9fa286012ee4bddb7565d7bf9cf9556b1faadef128657adaa4f022a0c719650"
+      },
+      "passed": 573
+    },
+    {
+      "name": "block1",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block1",
+      "run": {
+        "mode": "k6",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block1\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block1\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 30,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "0.437",
+      "timestamp": "2026-10-08T01:34:09.702448-06:00",
+      "artifacts": {
+        "tests.xml": "8a442f002a7cdb26ed225b8408bac3578bc37162a707b853cbf704ee83f62863",
+        "run.log": "9aba52b399a377be5a27cf4e205cc48942a2aec28732b64da833ad75d103242c",
+        "run.json": "ed60cd050ddc390dd9ff394defc4a5ffda191d931a6e71325f9be3f32ba7cb89"
+      },
+      "passed": 30
+    },
+    {
+      "name": "block2",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block2",
+      "run": {
+        "mode": "k6",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block2\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block2\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 47,
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_url_snapshot_real_pipeline_metadata_locator_citation_and_no_auto_memory",
+          "message": "AttributeError: 'MemoryService' object has no attribute 'service'"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_refresh_failed_preserves_previous_url_snapshot_and_projection",
+          "message": "IndexError: tuple index out of range"
+        }
+      ],
+      "errors": 0,
+      "failed": 2,
+      "skipped": 0,
+      "duration": "10.526",
+      "timestamp": "2026-10-08T01:38:30.973617-06:00",
+      "artifacts": {
+        "tests.xml": "7126b85a0764357d9cb564d8c818ee2c322d05b02a02f8dc4c9b505d2ab8587d",
+        "run.log": "266c252dc46840178de32980196e82fae9d0ed87034f370dd7b2c41d81fdfe2c",
+        "run.json": "5b51309471be1b12fbf6ed0bbf5511d189cbfe60113507c2106c4dfb990d2e24"
+      },
+      "passed": 45
+    },
+    {
+      "name": "block2-corrected",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block2-corrected",
+      "run": {
+        "mode": "k6",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block2-corrected\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block2-corrected\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 47,
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_url_snapshot_real_pipeline_metadata_locator_citation_and_no_auto_memory",
+          "message": "AttributeError: 'SQLiteMemoryStore' object has no attribute 'list_active'"
+        }
+      ],
+      "errors": 0,
+      "failed": 1,
+      "skipped": 0,
+      "duration": "10.552",
+      "timestamp": "2026-10-08T01:39:45.738816-06:00",
+      "artifacts": {
+        "tests.xml": "3979db70bd365ce2b6e7a502ce216f57eb4dfe7d197fbe6f179d82134e9b75ba",
+        "run.log": "be93be7bb8b7892b32d71f665b8a440409b4bf70e76151de3fe57d81e78e19fd",
+        "run.json": "fb73139fda653c2edef3f8f0681b71d6e0c0ada138bb05e056869043e0683f89"
+      },
+      "passed": 46
+    },
+    {
+      "name": "block3",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block3",
+      "run": {
+        "mode": "k6",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block3\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block3\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 56,
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_search_zero_results_honest_bounded_results_and_no_result_page_dispatch",
+          "message": "ValueError: IDEMPOTENCY_CONFLICT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_search_real_audit_grant_network_terminal_no_query_or_snippet_storage",
+          "message": "AssertionError: assert <ToolStatus.DENIED: 'denied'> is <ToolStatus.COMPLETED: 'completed'>\n +  where <ToolStatus.DENIED: 'denied'> = ToolResult(status=<ToolStatus.DENIED: 'denied'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...T_PRE_EFFECT_FAILED\\nWarning: SECURITY_AUDIT_DELIVERY_FAILED; audit gap. Observed result retained; no retry/rollback.').status\n +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED"
+        }
+      ],
+      "errors": 0,
+      "failed": 2,
+      "skipped": 0,
+      "duration": "13.131",
+      "timestamp": "2026-10-08T01:41:50.812406-06:00",
+      "artifacts": {
+        "tests.xml": "21ec78576195cc48beb55ea070939f32514db93d42411eb80a65a907c4f732f5",
+        "run.log": "4e5c10598228e3da8fa6c0378fcb47271f20c33b0c942a322a7becb05f4a0ee9",
+        "run.json": "9e3e3b13f8989f87b7937762563bf54aed932afe5709b93e2f163fd8c719a455"
+      },
+      "passed": 54
+    },
+    {
+      "name": "block3-corrected",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block3-corrected",
+      "run": {
+        "mode": "k6",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block3-corrected\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block3-corrected\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 56,
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_search_real_audit_grant_network_terminal_no_query_or_snippet_storage",
+          "message": "KeyError: 'kind'"
+        }
+      ],
+      "errors": 0,
+      "failed": 1,
+      "skipped": 0,
+      "duration": "12.512",
+      "timestamp": "2026-10-08T01:43:38.833590-06:00",
+      "artifacts": {
+        "tests.xml": "4ce4b66d933324b107e7dffc5a9db07b1f5a353140720f4f36c65c063cd1e209",
+        "run.log": "289819becbbb1425fe2d26d4376a51faedd8fc1362b9dcba5d1b4cfd2a01da65",
+        "run.json": "ca5376e482f96164bf15349a9a9e0c6ea60da31a91ee8515d8f1e4cb1b295fa3"
+      },
+      "passed": 55
+    },
+    {
+      "name": "block4",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block4",
+      "run": {
+        "mode": "k6",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block4\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\block4\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 59,
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_search_real_audit_grant_network_terminal_no_query_or_snippet_storage",
+          "message": "KeyError: 'kind'"
+        }
+      ],
+      "errors": 0,
+      "failed": 1,
+      "skipped": 0,
+      "duration": "13.693",
+      "timestamp": "2026-10-08T01:44:59.178273-06:00",
+      "artifacts": {
+        "tests.xml": "b02cae2e0e6a33c0474c1551fc420ee9da7353cf0007ce5c8a26df51f644040f",
+        "run.log": "e4e8a768e8e64451d7cc6c1134b15845d64d7102dabbc31d11d7329c849a3a8b",
+        "run.json": "6c5fa44f61c55b2439d4b70081c67c90e2e5cc7ae697e632762078cccbe7a353"
+      },
+      "passed": 58
+    },
+    {
+      "name": "boundaries-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\boundaries-final",
+      "run": {
+        "mode": "boundaries",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\boundaries-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\boundaries-final\\tests.xml",
+          "tests/test_nova_core_phase14_architecture.py",
+          "tests/test_nova_core_phase9_context.py",
+          "tests/test_nova_core_phase9_integration.py",
+          "tests/test_context_64k.py",
+          "tests/test_nova_core_phase10_rag.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 131,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "5.360",
+      "timestamp": "2026-10-08T01:51:11.877915-06:00",
+      "artifacts": {
+        "tests.xml": "f3e93fb20cb082508a5f0805f4c966121273b7ddf751203419bd8fa5d0e2508f",
+        "run.log": "8acdd69535082e42eb51d815d3a17c478e7c07a063ccba6bee3d9d35d3dd53a7",
+        "run.json": "7c9c358c89a7708ff38e357f2488678ac4edd1fed2636200c138493bc1cd0c1d"
+      },
+      "passed": 131
+    },
+    {
+      "name": "focused-expanded",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\focused-expanded",
+      "run": {
+        "mode": "k6",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\focused-expanded\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\focused-expanded\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 60,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "14.398",
+      "timestamp": "2026-10-08T01:47:39.671599-06:00",
+      "artifacts": {
+        "tests.xml": "f7d59f74586d1a561d63279e8b3fdbf308e771926e60cc54e5b3e94ad7c014d9",
+        "run.log": "7fdb8793bcd1a8f8971021f160c81e98241da4d9cf6a437a4d45a4c7dabd1665",
+        "run.json": "2a9950897feb88c5981d0c71653ecefa5deee97af9e312286c2f27761170608f"
+      },
+      "passed": 60
+    },
+    {
+      "name": "focused-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\focused-final",
+      "run": {
+        "mode": "k6",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\focused-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\focused-final\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 61,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "14.311",
+      "timestamp": "2026-10-08T01:50:33.272349-06:00",
+      "artifacts": {
+        "tests.xml": "c34c53cfd365049f82c219f99c377dc4abfefe67406bc8ac3ecae9fc72b80fc7",
+        "run.log": "f7a7dbbce9c521a9905bec934deb2d6c3288137f4326bf717b009d43aaa560b9",
+        "run.json": "a5281ec6e93605079ab523a642810d824a8d49bd69dde6dc97715ef81d561cf6"
+      },
+      "passed": 61
+    },
+    {
+      "name": "focused-prehost",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\focused-prehost",
+      "run": {
+        "mode": "k6",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\focused-prehost\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\focused-prehost\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 59,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "13.751",
+      "timestamp": "2026-10-08T01:46:03.183925-06:00",
+      "artifacts": {
+        "tests.xml": "bcf92f6bf9fc2444cf35cf45fe36177a4a3b1fce890e942d070c0bc4b35d9cbd",
+        "run.log": "6450834acbcee2313ebcb815ddcffe6b5d38e2970e7069aa3a6da0874f477593",
+        "run.json": "8e939a7c40456c1d6cb81b24de1f39a24d564d6824b9105f24b120f7151b5038"
+      },
+      "passed": 59
+    },
+    {
+      "name": "host-network",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\host-network",
+      "run": {
+        "mode": "host-network",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\host-network\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\host-network\\tests.xml",
+          "tests/security_v12/test_s5_network.py",
+          "tests/knowledge_inputs_v1/test_k6_passive_web.py::test_native_private_http_parser_headers_and_s5_denies_fixture_by_default"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false,
+        "externalInternet": false,
+        "fixtureSubstitutions": "K6: DNS maps native.example.test to loopback; admission overridden ONLY for positive private fixture. Product S5 denial verified first."
+      },
+      "count": 29,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "5.562",
+      "timestamp": "2026-10-08T01:49:17.342376-06:00",
+      "artifacts": {
+        "tests.xml": "6915eff5e06880f8efdc04692de94ef5e4301298984297a2b0d88eb0139620c8",
+        "run.log": "779961f728ee27c3f39b56facc0b9a9d0d39e5d727ef9090d45117cdeb227f3b",
+        "run.json": "e56782ba143c3071550a43cd05120edf1a1f250dce9a361b8e28a54e71b6729a",
+        "network_observations.json": "f48e5b65446dadb44e9adf878052adeb339c92818d7da4b61dda9c4cb8075b0a"
+      },
+      "passed": 29
+    },
+    {
+      "name": "knowledge-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\knowledge-final",
+      "run": {
+        "mode": "contracts",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\knowledge-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\knowledge-final\\tests.xml",
+          "tests/knowledge_inputs_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 634,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "73.616",
+      "timestamp": "2026-10-08T01:49:27.367168-06:00",
+      "artifacts": {
+        "tests.xml": "d731212dc9e81a7572084e437e639b6d3b4f2357a2430f4f82e8d4bc24fc4c82",
+        "run.log": "5dbef2c04a1899dd2fe83886a11c7c12a8c90b46fb86b228068a6d6e6da819de",
+        "run.json": "cc352cc5e070368daeebf30264bd2f1cba915444059547500488f4d8da3964c5"
+      },
+      "passed": 634
+    },
+    {
+      "name": "memory-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\memory-final",
+      "run": {
+        "mode": "m0",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\memory-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\memory-final\\tests.xml",
+          "tests/memory_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 790,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "63.808",
+      "timestamp": "2026-10-08T01:50:45.217785-06:00",
+      "artifacts": {
+        "tests.xml": "ccdf696a4040ec724cdcd334823fc2b81aa4423049e81d6595adbc2ec6ee404b",
+        "run.log": "6aedff58d7edc4433fa3c91d30ee5f85c467ec43bc37d9c40b04010c808b4fc2",
+        "run.json": "485c5333d3a490c3f369ea0bb5e8b4c136d4f52c62ddc65a4639ea4466522446"
+      },
+      "passed": 790
+    },
+    {
+      "name": "pdf-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\pdf-final",
+      "run": {
+        "mode": "pdf",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\pdf-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\pdf-final\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k3_pdf_repair.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 26,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "3.428",
+      "timestamp": "2026-10-08T01:51:21.841392-06:00",
+      "artifacts": {
+        "tests.xml": "fd2fc1c85876c8fc4ac6e3d9b66542cc01910c6505fa573aefd72a5900b023be",
+        "run.log": "023b26f1826a9e6989e3fada2c7cf3567ac7ced9cd281bbffe9b05611a286471",
+        "run.json": "9815faeb344d01affcee31dbbfe1933835f3c8a93f14c4627050bfc1a68ddffb"
+      },
+      "passed": 26
+    },
+    {
+      "name": "s5-contracts",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\s5-contracts",
+      "run": {
+        "mode": "s5",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\s5-contracts\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\s5-contracts\\tests.xml",
+          "tests/security_v12/test_s5_contracts.py",
+          "tests/security_v12/test_s5_runtime.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 93,
+      "failures": [],
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "duration": "1.693",
+      "timestamp": "2026-10-08T01:46:15.605449-06:00",
+      "artifacts": {
+        "tests.xml": "0c9dd1f2b99c52b89d6f99eaf3ef232c0f6de30623d8191a70ce42c3b123c921",
+        "run.log": "56ad232aabe831e9a81d4a7fe9dd50af6df02234ceae35244a066d19f4e90d34",
+        "run.json": "15826fbea8a19c6d788d5b101cdc526e38ab8a140b21a04e46e6d32fd3411c51"
+      },
+      "passed": 93
+    }
+  ],
+  "head": {
+    "root": "C:/Users/joseh/AppData/Local/Temp/nova-k6-20261008/head-final",
+    "run": {
+      "mode": "head",
+      "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "command": [
+        "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\head-final\\pytest-private",
+        "--junitxml",
+        "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k6-20261008\\head-final\\tests.xml",
+        "tests",
+        "--ignore=tests/security_v12/test_s0_frontends.py",
+        "--ignore=tests/security_v12/test_s0_process.py",
+        "--ignore=tests/security_v12/test_s0_surfaces.py",
+        "--ignore=tests/security_v12/test_s3_windows.py",
+        "--ignore=tests/security_v12/test_s4_host.py",
+        "--ignore=tests/security_v12/test_s5_network.py",
+        "--ignore=tests/security_v12/test_s6_host.py",
+        "--ignore=tests/security_v12/test_s8_host.py",
+        "--ignore=tests/security_v12/test_s8_e2e.py",
+        "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+        "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+        "--ignore=tests/test_security_gates.py"
+      ],
+      "exitCode": 0,
+      "privateState": true,
+      "externalInference": false
+    },
+    "count": 4791,
+    "headerTests": "4844",
+    "skipped": 11,
+    "failed": 0,
+    "errors": 0,
+    "skips": [
+      "::tests.test_model_selector",
+      "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+      "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+      "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+      "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+      "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+      "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+      "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+      "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent"
+    ],
+    "skipDifferences": [],
+    "timestamp": "2026-10-08T01:51:54.216137-06:00",
+    "duration": "365.639",
+    "endTimeUtc": "2026-10-08T07:58:01.1751459Z",
+    "artifacts": {
+      "run.log": "a97b5bf832d307e59f3f0ef1e8894dde37b3565da64271d9f3d0443ac06b7d60",
+      "tests.xml": "8747e73e29dee5d10630a58a9f38c96c9f8d0bde50ace5ce7f3b80f76a8f5e0e",
+      "run.json": "3bf08959e28c16a7de0ce37de541665825ffa51dffb8a27fc98724050a4f537b"
+    },
+    "exclusionsUnchanged": true,
+    "passed": 4780,
+    "subtestsPassed": 53,
+    "startRecordedUtc": "2026-10-08 07:51:49 UTC"
+  },
+  "classification": {
+    "unitContract": {
+      "cases": 38,
+      "real": "Policy/grants/claim/network coordination/data DTOs",
+      "double": "HTTP port"
+    },
+    "integration": {
+      "cases": 22,
+      "real": "Source/Revision/SQLite/FTS/K3/K4/K5/Application/ToolRuntime/CLI/JSONL/audit/persistence",
+      "double": "HTTP port and scripted chat provider"
+    },
+    "nativeSocketFocused": {
+      "cases": 1,
+      "real": "HttpFetchBroker HTTP/body/safe headers + real parser/SQLite publication",
+      "fixture": "Private localhost. Production denial checked first. DNS/admission substitutions only for positive test."
+    },
+    "hostNetwork": {
+      "cases": 29,
+      "includes": "28 unchanged S5 native tests plus 1 focused K6 native socket test",
+      "real": "Private HTTP/TLS IPv4/IPv6, 2MiB/50k limits, cancel, trickle/timeout, redirects, pinning, hostname verification, resolver busy",
+      "publicInternet": false
+    },
+    "realSearchProviderQuality": "NOT_EVALUATED",
+    "realLocalLLMQuality": "NOT_EVALUATED",
+    "embeddingCalls": false,
+    "externalCloud": false
+  },
+  "observedFailures": [
+    {
+      "runs": [
+        "block2"
+      ],
+      "classification": "HARNESS_BUG",
+      "cause": "MemoryService.service does not exist. Query by JSON key zircon not in K3 value-only content projection.",
+      "repair": "Use public store.list; compare query 72 candidates before and after failed refresh. Same preservation invariant."
+    },
+    {
+      "runs": [
+        "block2-corrected"
+      ],
+      "classification": "HARNESS_BUG",
+      "cause": "SQLiteMemoryStore.list_active does not exist.",
+      "repair": "Use store.list(maintenance.scope(work),limit=100); zero-write assertion retained."
+    },
+    {
+      "runs": [
+        "block3"
+      ],
+      "classification": "HARNESS_BUG",
+      "cause": "Fixture reused operation ID across distinct search queries; correctly raised IDEMPOTENCY_CONFLICT.",
+      "repair": "Distinct Core operation IDs per new query; same-invocation replay assertions retained."
+    },
+    {
+      "runs": [
+        "block3"
+      ],
+      "classification": "HARNESS_BUG",
+      "cause": "Audit output fixture inside workspace; S7 correctly denied before dispatch.",
+      "repair": "Sibling audit directory, same workspace context; no Security relaxation."
+    },
+    {
+      "runs": [
+        "block3-corrected",
+        "block4"
+      ],
+      "classification": "HARNESS_BUG",
+      "cause": "Storage JSONL header/envelope mistaken for AuditRecord (KeyError kind).",
+      "repair": "Read via actual audit.read_operation; validate all required record kinds/query/body omission."
+    },
+    {
+      "source": "Incremental source inspection before freeze",
+      "classification": "PRODUCT_BUG",
+      "cause": "Initial K6 CLI composition insertion landed in resources function without a tools variable.",
+      "repair": "Moved insertion to create_cli_application; roots integration and HEAD prove final behavior."
+    },
+    {
+      "source": "Shared dependency inspection",
+      "classification": "PRODUCT_BUG",
+      "cause": "Existing host event callback retained the first Operation ID across successive source operations.",
+      "repair": "Bind current serialized host Operation callback, necessary for K6 refresh correlation. No broad refactor."
+    },
+    {
+      "source": "Read-only sandbox runtime/CIM diagnostic",
+      "classification": "ENVIRONMENT",
+      "cause": "Native runtime launcher/CIM denied in sandbox.",
+      "repair": "Native runners provide runtime; escalated read-only volume query confirms NTFS Fixed."
+    }
+  ],
+  "regression": {
+    "remainingFailures": [],
+    "newSkips": 0,
+    "newXfails": 0,
+    "newExclusions": 0,
+    "approvedExclusionCount": 12,
+    "approvedHistoricalSkipCount": 11,
+    "skipDifference": [],
+    "coreSecurityMemoryCompatible": true,
+    "coreContractWeakening": false
+  },
+  "metrics": {
+    "focusedCounts": {
+      "unitContract": 38,
+      "sourceIntegration": 22,
+      "nativePrivateSocket": 1,
+      "total": 61
+    },
+    "final": {
+      "knowledge": 634,
+      "memory": 790,
+      "pdf": 26,
+      "boundaries": 131,
+      "s5Contracts": 93,
+      "hostNetwork": 29,
+      "head": 4780,
+      "headSubtests": 53,
+      "headSkips": 11
+    },
+    "existingFtsPerformance": {
+      "source": "docs/knowledge_inputs_v1/k4_resume_evidence/performance_final.json",
+      "sha256": "0821b78a5d9cc543f1d624aa25980f8115240aef92c78b099edb13d19cc30bd5",
+      "chunks": 1000,
+      "queries": 60,
+      "p95Ms": 2.2483,
+      "thresholdMs": 100,
+      "newK6Benchmark": false
+    },
+    "newSearchLatencyBenchmark": false,
+    "searchQualityBenchmark": false,
+    "thresholdsOrGoldChanged": false
+  },
+  "semantic": {
+    "documentSemanticProfile": "NOT_CERTIFIED",
+    "memorySemanticProfile": "NOT_CERTIFIED",
+    "recertification": false
+  },
+  "limitations": [
+    "No browser automation/DOM/click/form/authenticated web session/JavaScript execution/Active Web.",
+    "No implicit SearXNG instance or credentials. Endpoint must support JSON; host opt-in required. AVAILABLE is not a real-provider quality/uptime claim.",
+    "Remote document forwarding remains false and independent of web search.",
+    "Remote PDF/DOCX binary MIME support is not expanded beyond S5 textual policy.",
+    "Only explicit URL refresh; snapshots can become stale. No auto-fetch of search result pages/cache/polling.",
+    "Search results are ToolResult data, not automatically indexed/persisted Source or MEMORY. Canonical transcript may retain ToolResults under Core.",
+    "No real LLM/provider/semantic quality campaign in K6; K8 remains separate.",
+    "No universal DLP/secret detection/ciphering/sandbox/process isolation/secure erase.",
+    "K7 interface UX/source details/delegation/hardening not implemented."
+  ],
+  "openDecisions": [],
+  "nextPhase": {
+    "phase": "K7",
+    "implemented": false
+  },
+  "git": {
+    "commit": false,
+    "push": false,
+    "tag": false
+  },
+  "artifacts": {
+    "docs/knowledge_inputs_v1/k6_evidence/implementation_freeze.json": {
+      "sha256": "4e53b0ee4281db2d1f4dbbdbb8049a348e9f125c344e8da09b357de07db3521a"
+    },
+    "docs/knowledge_inputs_v1/k6_evidence/protocol_v1.json": {
+      "sha256": "1771c8df533814275caba408e6275158413aa3c30ad793e99a959e57386babc1"
+    },
+    "docs/knowledge_inputs_v1/k6_resultados.md": {
+      "sha256": "364c2523e82261b8913c927a729bab988c2412995a09bab5edfc107ad5539527"
+    },
+    "local_cli/application/tool_runtime.py": {
+      "sha256": "ef7d08e3107264d6a2871375d76fdc59bdf367f0997cb116e9fcd290c66b03ef"
+    },
+    "local_cli/application/security_audit.py": {
+      "sha256": "165f5976348ba120f8d7b4f408da177d130d03a1f19b5e3534e5fdacc1b59005"
+    },
+    "local_cli/application/network.py": {
+      "sha256": "2bdda05c23e71efdc6c19259e2fa9e7923f32c9c12a745e6ed38bba8def93dfc"
+    },
+    "local_cli/bootstrap_cli.py": {
+      "sha256": "eabd3c7b9c62e481e0b94268ec6f45120a5f7fa213f5a0cc29b9216dce17aecd"
+    },
+    "local_cli/core/network.py": {
+      "sha256": "d614cb9af7b9cc745d4232b797dec71b9b282c679d08909443e4d1717e3d276e"
+    },
+    "local_cli/config.py": {
+      "sha256": "ac0573d38c37f2dff1f5c8fabbfbedca5f89dfa406e165b41d4584f407726522"
+    },
+    "local_cli/bootstrap_knowledge.py": {
+      "sha256": "1891f46d2f2b18696bcff29fd17321a668535b46a3452e16a9051cf7b4b3da41"
+    },
+    "local_cli/application/knowledge_host.py": {
+      "sha256": "1c81ee87d633e776e7f518b8749433dd8c04fd97951766cf1d2984c9ecf42c2b"
+    },
+    "local_cli/application/knowledge.py": {
+      "sha256": "3418a3c493a0c5bf2bab5f438d1afb539bdfc578854e32e0edf9eb58f13d166b"
+    },
+    "local_cli/infrastructure/http_fetch.py": {
+      "sha256": "bd228be5c1530a3d7983965ca1a495789709e4644696a6a84f6791f352af1986"
+    },
+    "local_cli/bootstrap_server.py": {
+      "sha256": "24d1a0dcd25fbbf2ab8069ab3fe28439a3cb7b2da77b0101cee2af923c956dd3"
+    },
+    "local_cli/application/policy.py": {
+      "sha256": "a0f6e00a00ec3d9fcc932ad3bdf706594330f180d1193edf62f1d8080362d6fa"
+    },
+    "local_cli/application/knowledge_web.py": {
+      "sha256": "3394fd5808e3a493068c936542b65fe202b75224b692aa27c331b847fad6a449"
+    },
+    "local_cli/core/passive_web.py": {
+      "sha256": "b81a31bbd4e0846f6c5932b8093a2fc0ac2438c8030052617af8ec100c3d2836"
+    },
+    "local_cli/application/passive_web.py": {
+      "sha256": "40d15e0a5b9cb3fb82c7a31a4d3da29661f92f165af2530a1c290a910be442ee"
+    },
+    "tests/knowledge_inputs_v1/test_k6_passive_web.py": {
+      "sha256": "c4333b311c9f6db899bdb4e6a56fa1194e137ecd6eccd0f5c24f8340146124c7"
+    },
+    "local_cli/infrastructure/web_search.py": {
+      "sha256": "cbf6bb1b83774e00862a122aaa681eb202e4c62bd2a95c96fc4e7466f38a1c1d"
+    },
+    "local_cli/infrastructure/knowledge_web_extraction.py": {
+      "sha256": "556b47faf415166fbffc346eae7e9b58d0eda254298abf757fa6236e544e8d37"
+    },
+    "tests/knowledge_inputs_v1/run_k6_host.py": {
+      "sha256": "c54f967791cbe3fe41c6fd85d4aa0fe0b902ea3f17853920eb12e45eab50cbce"
+    },
+    "tests/knowledge_inputs_v1/run_k6.py": {
+      "sha256": "47db863b82152632729e840198d688591984c4057c2367b870c2ab400cd502f9"
+    },
+    "local_cli/bootstrap_passive_web.py": {
+      "sha256": "61861c902c3c26709cca2075925b54d21ff80ff2bddbfe9cc975d3c9ff0bba3f"
+    },
+    "local_cli/tools/web_search_tool.py": {
+      "sha256": "a286c29b8200d8d0f99e5ba643b222472c81967a4e363d7acd2897237a7945d6"
+    }
+  },
+  "integrity": {
+    "verifiedAtUtc": "2026-10-08 08:04:55 UTC",
+    "headBranchUnchanged": true,
+    "tagsUnchanged": true,
+    "changedExistingExactlyPlanned": true,
+    "changedExistingFiles": [
+      "local_cli/application/tool_runtime.py",
+      "local_cli/application/security_audit.py",
+      "local_cli/application/network.py",
+      "local_cli/bootstrap_cli.py",
+      "local_cli/core/network.py",
+      "local_cli/config.py",
+      "local_cli/bootstrap_knowledge.py",
+      "local_cli/application/knowledge_host.py",
+      "local_cli/application/knowledge.py",
+      "local_cli/infrastructure/http_fetch.py",
+      "local_cli/bootstrap_server.py",
+      "local_cli/application/policy.py"
+    ],
+    "initialVersionableFileCount": 1784,
+    "deletedPreexistingFiles": [],
+    "historicalEvidenceAndArchitectureUnchanged": true,
+    "protectedArtifactCount": 91,
+    "protectedMismatch": [],
+    "implementationFreezeMismatch": [],
+    "corpusGoldAndThresholdsUnchanged": true,
+    "existingTestFilesUnchanged": true,
+    "ciAndDependenciesUnchanged": true,
+    "rawRuntimeOutputsOutsideGit": true,
+    "externalEvidenceRoot": "C:/Users/joseh/AppData/Local/Temp/nova-k6-20261008",
+    "noNewSkipsXfailsExclusions": true,
+    "reportSha256": "364c2523e82261b8913c927a729bab988c2412995a09bab5edfc107ad5539527",
+    "selfHashExcluded": true
+  }
+}

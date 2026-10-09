@@ -185,7 +185,7 @@ class SecurityAuditService:
                 'controlClasses': ['BROKER_ENFORCED'], 'outcome': result.status.value,
                 'effectState': result.effect_state.value,
                 'observationScope': 'mediated_operation_only'}, parents=parents)
-        if invocation.name == 'web_fetch' and 'networkAudit' in m:
+        if invocation.name in ('web_fetch','web_search') and 'networkAudit' in m:
             self.record(invocation, AuditKind.NETWORK, {
                 'requestedUrl': safe_url(m.get('requestedUrl')),
                 'effectiveUrl': safe_url(m.get('effectiveUrl')),

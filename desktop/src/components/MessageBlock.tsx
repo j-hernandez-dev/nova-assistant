@@ -88,6 +88,16 @@ export function MessageBlock({ message }: Props) {
 
       {harnessChips}
 
+      {message.knowledgeCitations && <details aria-label="Knowledge citations">
+        <summary>Sources — structural references, not guaranteed entailment</summary>
+        {message.knowledgeCitations.valid.map(c=><div key={c.citationId}>
+          [{c.citationId}] {c.displayLabel} — revision {c.revisionId}
+          <pre>{JSON.stringify(c.locator)}</pre>
+          <button onClick={()=>void window.api.knowledgeCommand('source_detail',{sourceId:c.sourceId,revisionId:c.revisionId})}>Source/revision detail</button>
+        </div>)}
+        {message.knowledgeCitations.invalid.length>0 && <div>Invalid references: {message.knowledgeCitations.invalid.join(', ')}</div>}
+      </details>}
+
       {/* Waiting for next LLM response after tools executed */}
       {toolCalls && toolCalls.length > 0 && toolResults && toolResults.length >= toolCalls.length && streaming && (
         <div className="thinking-after-tool">

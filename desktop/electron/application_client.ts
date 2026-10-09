@@ -4,12 +4,14 @@ import type { DesktopSessionView, SessionSnapshot, EventEnvelope, CommandReceipt
 import type { MemoryControlResult } from '../shared/application'
 
 const PRODUCT_COMMANDS = new Set([
-  'SubmitUserInput', 'CancelTurn', 'StopGeneration', 'ChangeModel', 'ChangeProvider',
+  'SubmitUserInput', 'CancelTurn', 'CancelOperation', 'StopGeneration', 'ChangeModel', 'ChangeProvider',
   'ResolveApproval', 'ResolveUserInput', 'ExecuteCommand', 'SetRAGEnabled', 'QueryRAG',
 ])
 const MEMORY_COMMANDS = new Set(['memory_status','memory_list','memory_search','memory_show',
   'memory_remember','memory_correct','memory_forget','memory_export',
   'memory_proposals','memory_confirm','memory_reject'])
+const KNOWLEDGE_COMMANDS = new Set(['source_import','source_promote','source_delete','source_list','source_status','source_cancel',
+  'source_import_url','source_refresh_url','source_refresh','source_detail','source_remote','source_export'])
 
 export function projectTranscript(transcript: Array<Record<string, any>>, prefix: string): Message[] {
   const messages: Message[] = []
@@ -19,6 +21,8 @@ export function projectTranscript(transcript: Array<Record<string, any>>, prefix
         name: call.function?.name || '', args: call.function?.arguments || {},
       }))
       messages.push({ id: `${prefix}:${index}`, sourceIndex: index, role: raw.role, content: raw.content || '',
+        ...(raw.role==='assistant' && raw.knowledgeCitations ? {knowledgeCitations:raw.knowledgeCitations} : {}),
+        ...(raw.role === 'user' && Array.isArray(raw.attachmentRefs) ? {attachmentRefs:raw.attachmentRefs} : {}),
         ...(calls.length ? { toolCalls: calls, toolResults: [] } : {}) })
     } else if (raw.role === 'tool') {
       const last = messages[messages.length - 1]
@@ -47,6 +51,7 @@ export class DesktopApplicationClient {
   private reconnectCursor: { sessionId: string; sequence: number } | null = null
   private pending = new Map<string, { commandId: string; resolve: (receipt: CommandReceipt) => void }>()
   private memoryPending = new Map<string, { commandId: string; resolve: (result: MemoryControlResult) => void }>()
+  private knowledgePending = new Map<string, {commandId:string;resolve:(receipt:CommandReceipt)=>void}>()
   constructor(private send: (frame: object) => boolean | void,
               private publish: (view: DesktopSessionView) => void,
               private approvalProof?: (command: Record<string, unknown>) => string) {}
@@ -78,6 +83,9 @@ export class DesktopApplicationClient {
     for (const { commandId, resolve } of this.pending.values()) resolve({ schemaVersion: 1, commandId,
       accepted: false, createdIds: {}, error: { code: 'OUTCOME_UNKNOWN', message: 'Connection lost; command outcome is unknown. It will not be retried.' } })
     this.pending.clear()
+    for (const {commandId,resolve} of this.knowledgePending.values()) resolve({schemaVersion:1,commandId,
+      accepted:false,createdIds:{},error:{code:'OUTCOME_UNKNOWN',message:'Source outcome unknown. No retry.'}})
+    this.knowledgePending.clear()
     for (const { commandId, resolve } of this.memoryPending.values()) resolve({ schemaVersion: 1,
       commandId, completed: false, error: { code: 'OUTCOME_UNKNOWN', message: 'Connection lost; memory outcome is unknown. No retry.',
         outcomeUnknown: true, retryable: false } })
@@ -115,6 +123,19 @@ export class DesktopApplicationClient {
       this.transmit({ id, type: 'memory_command', command, hostMemoryProof: this.approvalProof!(command) })
     })
   }
+  knowledge(name:string,args:Record<string,unknown>,commandId=`cmd_${randomUUID()}`): Promise<CommandReceipt> {
+    if (!KNOWLEDGE_COMMANDS.has(name) || !this.view.status.ready || !this.view.sessionId || !this.approvalProof) {
+      return Promise.resolve({schemaVersion:1,commandId,accepted:false,createdIds:{},
+        error:{code:'KNOWLEDGE_UNAVAILABLE',message:'Authenticated source control is unavailable.'}})
+    }
+    return new Promise(resolve => {
+      const id=this.id()
+      this.knowledgePending.set(id,{commandId,resolve})
+      const command={schemaVersion:1,kind:'KnowledgeControl',commandId,sessionId:this.view.sessionId,
+        name,arguments:args,expectedRevision:this.view.stateRevision}
+      this.transmit({id,type:'knowledge_command',command,hostKnowledgeProof:this.approvalProof!(command)})
+    })
+  }
   receive(frame: Record<string, any>) {
     if (frame.type === 'ready') {
       this.view = { ...this.view, sessionId: frame.sessionId,
@@ -139,6 +160,10 @@ export class DesktopApplicationClient {
       this.pending.delete(frame.id)
       this.view = { ...this.view, error: receipt.accepted ? null : receipt.error || null }
       this.refresh()
+    } else if (frame.type === 'knowledge_result' && this.knowledgePending.has(frame.id)) {
+      this.knowledgePending.get(frame.id)!.resolve(frame.data as CommandReceipt)
+      this.knowledgePending.delete(frame.id)
+      this.refresh()
     } else if (frame.type === 'memory_result' && this.memoryPending.has(frame.id)) {
       this.memoryPending.get(frame.id)!.resolve(frame.data as MemoryControlResult)
       this.memoryPending.delete(frame.id)
@@ -155,6 +180,11 @@ export class DesktopApplicationClient {
         const pending = this.memoryPending.get(frame.id)!
         pending.resolve({ schemaVersion: 1, commandId: pending.commandId, completed: false, error })
         this.memoryPending.delete(frame.id)
+      }
+      if (this.knowledgePending.has(frame.id)) {
+        const p=this.knowledgePending.get(frame.id)!
+        p.resolve({schemaVersion:1,commandId:p.commandId,accepted:false,createdIds:{},error})
+        this.knowledgePending.delete(frame.id)
       }
       if (frame.id === this.snapshotRequest) this.snapshotRequest = null
       this.view = { ...this.view, error }
@@ -191,6 +221,8 @@ export class DesktopApplicationClient {
         model: state.modelRuntime.modelId, provider: state.modelRuntime.providerId },
       approvals: state.services.interactions?.approvals || [], inputs: state.services.interactions?.inputs || [],
       rag: state.services.rag,
+      knowledge: state.services.knowledge,
+      knowledgeOperations: (state.services.operations || []).filter(op => op.service === 'knowledge'),
       memoryNotice: state.services.memory?.allowRemoteMemoryInjection
         ? 'Remote memory injection is enabled by host configuration. Selected memories may leave this host.' : null,
       ragProgress: state.services.operations?.find(op => op.service === 'rag' &&

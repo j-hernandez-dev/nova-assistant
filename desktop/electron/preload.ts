@@ -19,6 +19,11 @@ export type PythonMessage = {
 contextBridge.exposeInMainWorld('api', {
   memoryCommand: (name: string, args: Record<string, unknown>, commandId?: string) =>
     ipcRenderer.invoke('memory-command', name, args, commandId),
+  knowledgePick: () => ipcRenderer.invoke('knowledge-pick'),
+  knowledgeRefresh:(sourceId:string)=>ipcRenderer.invoke('knowledge-refresh',sourceId),
+  knowledgeExport:(sourceId:string)=>ipcRenderer.invoke('knowledge-export',sourceId),
+  knowledgeCommand: (name:string,args:Record<string,unknown>,commandId?:string) =>
+    ipcRenderer.invoke('knowledge-command',name,args,commandId),
   applicationCommand: (kind: string, payload: Record<string, unknown>, commandId?: string) =>
     ipcRenderer.invoke('application-command', kind, payload, commandId),
   restartBackend: () => ipcRenderer.invoke('restart-backend'),

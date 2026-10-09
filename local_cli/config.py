@@ -18,6 +18,8 @@ CONFIG_DEFAULTS: dict[str, object] = {
     "shell_backend": "native",
     "debug": False,
     "rag": False,
+    "web_search_enabled": False,  # Trusted host opt-in; unrelated to document forwarding.
+    "web_search_endpoint": "",  # No implicit instance or credentials; SearXNG JSON API.
     "allow_remote_memory_injection": False,  # Host config only; no implicit consent from model/UI.
     "memory_embedding_model": "",  # OD-02 has no benchmarked recommended model yet.
     "memory_embedding_endpoint": "http://127.0.0.1:11434",  # Separate from RAG/chat provider.
@@ -265,6 +267,8 @@ class Config:
             raise ValueError("shell_backend must be 'native' or 'git-bash'")
         self.debug: bool = _parse_bool(merged["debug"])
         self.rag: bool = _parse_bool(merged["rag"])
+        self.web_search_enabled: bool = _parse_bool(merged["web_search_enabled"])
+        self.web_search_endpoint: str = str(merged["web_search_endpoint"])
         self.allow_remote_memory_injection: bool = _parse_bool(merged["allow_remote_memory_injection"])
         self.memory_embedding_model: str = str(merged["memory_embedding_model"])
         self.memory_embedding_endpoint: str = str(merged["memory_embedding_endpoint"])

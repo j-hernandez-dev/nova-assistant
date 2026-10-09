@@ -1,68 +1,124 @@
-name: Nova Core V1 gates
+name: Nova Core V1 contracts
 on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      native_security:
+        description: Explicit private Windows/NTFS Security host contracts (no model)
+        required: false
+        type: boolean
+        default: false
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
 jobs:
-  native-backend:
+  core-contracts:
+    name: Core (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
       - run: python -m pip install -e . pytest pytest-subtests
-      - name: Core architecture and native process smoke
-        run: python -m pytest tests/test_nova_core_phase14_architecture.py tests/test_nova_core_phase14_platform.py -q
-      - name: Core and Security contract regression (no external LLM required)
-        shell: bash
-        run: |
-          args=(
-            --ignore=tests/security_v12/test_s0_frontends.py
-            --ignore=tests/security_v12/test_s0_process.py
-            --ignore=tests/security_v12/test_s0_surfaces.py
-            --ignore=tests/security_v12/test_s3_windows.py
-            --ignore=tests/security_v12/test_s4_host.py
-            --ignore=tests/security_v12/test_s5_network.py
-            --ignore=tests/security_v12/test_s6_host.py
-            --ignore=tests/security_v12/test_s8_host.py
-            --ignore=tests/security_v12/test_s8_e2e.py
-            --ignore=tests/test_nova_core_phase7_legacy_bridge.py
-            --ignore=tests/test_nova_core_phase7_server_legacy.py
-            --ignore=tests/test_security_gates.py
-          )
-          # These four Core-era filesystem characterizations exercise the S3
-          # Windows/NTFS adapter. On other hosts the normative result is the
-          # fail-closed FILESYSTEM_PLATFORM_UNSUPPORTED contract, covered by
-          # the Security suite rather than by a successful filesystem test.
-          if [ "$RUNNER_OS" != "Windows" ]; then
-            args+=(
-              --ignore=tests/test_nova_core_phase12_client.py
-              --ignore=tests/test_nova_core_phase3_cwd.py
-              --ignore=tests/test_nova_core_phase6_runtime.py
-              --ignore=tests/test_nova_core_phase7_session.py
-            )
-          fi
-          python -m pytest -q tests "${args[@]}"
-
-  security-windows-ntfs:
-    name: security-windows-ntfs
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.14'
-      - run: python -m pip install -e . pytest pytest-subtests
-      - name: Windows NTFS Security host gate
+      - name: Require complete contract classification
+        run: python -B ci/contract_inventory.py
+      - name: Core positive current regression
         run: >-
-          python -m pytest -q
-          tests/security_v12/test_s3_windows.py
-          tests/security_v12/test_s4_host.py
-          tests/security_v12/test_s5_network.py
-          tests/security_v12/test_s6_host.py
-          tests/security_v12/test_s8_host.py
+          python -B ci/run_contracts.py --job core
+          --output "${{ runner.temp }}/nova-core-contracts"
+      - name: Preserve current CI diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-contracts-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/nova-core-contracts/run.json
+            ${{ runner.temp }}/nova-core-contracts/selection.json
+            ${{ runner.temp }}/nova-core-contracts/collected_nodeids.json
+            ${{ runner.temp }}/nova-core-contracts/tests.xml
+            ${{ runner.temp }}/nova-core-contracts/pytest.log
+          if-no-files-found: error
+
+  security-contracts:
+    name: Security contracts (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - uses: actions/setup-node@v4
+        # The existing Python/Node proof contract needs Node, not Desktop/GUI.
+        with:
+          node-version: '24.19.0'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - name: Security positive current regression
+        run: >-
+          python -B ci/run_contracts.py --job security
+          --output "${{ runner.temp }}/nova-security-contracts"
+      - name: Preserve current CI diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-contracts-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/nova-security-contracts/run.json
+            ${{ runner.temp }}/nova-security-contracts/selection.json
+            ${{ runner.temp }}/nova-security-contracts/collected_nodeids.json
+            ${{ runner.temp }}/nova-security-contracts/tests.xml
+            ${{ runner.temp }}/nova-security-contracts/pytest.log
+          if-no-files-found: error
+
+  security-native-manual:
+    name: Manual private Windows/NTFS Security host contracts
+    # The original native scope is explicit and manual, never an ordinary skip.
+    if: github.event_name == 'workflow_dispatch' && inputs.native_security
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - name: Explicit positive native Security contracts
+        run: >-
+          python -B ci/run_contracts.py --job security-native --special
+          --output "${{ runner.temp }}/nova-security-native"
+      - name: Preserve native CI diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-native-windows
+          path: |
+            ${{ runner.temp }}/nova-security-native/run.json
+            ${{ runner.temp }}/nova-security-native/selection.json
+            ${{ runner.temp }}/nova-security-native/collected_nodeids.json
+            ${{ runner.temp }}/nova-security-native/tests.xml
+            ${{ runner.temp }}/nova-security-native/pytest.log
+          if-no-files-found: error

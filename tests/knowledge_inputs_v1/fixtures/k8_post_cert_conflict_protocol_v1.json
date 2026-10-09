@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "k8-post-cert-conflict-protocol-v1",
+  "denominators": {
+    "total": 40,
+    "positive": 20,
+    "negative": 20,
+    "multiPositive": 15,
+    "critical": 40
+  },
+  "gates": {
+    "recallAt5": 1,
+    "precisionAt1": 1,
+    "multiSourceRequiredAdmissions": 1,
+    "abstention": 0.95,
+    "scopeCurrentDelete": 1,
+    "falseSourceExpansion": 0
+  },
+  "definitions": {
+    "recallAt5": "All gold sourceIds appear among first five candidates (not deduplicated source ranks); macro all-required pass over positive cases.",
+    "precisionAt1": "First actual candidate sourceId is gold; positive cases only.",
+    "multiSourceRequiredAdmissions": "All required sourceIds in frozen KnowledgeCapsule for each multi-positive case, including limited evidence; micro counts also recorded.",
+    "abstention": "No retrieval candidate and empty frozen KnowledgeCapsule on negatives.",
+    "scopeCurrentDelete": "All candidate/admitted revisions are current and from authorized scope, refs and revision filters; critical no-expansion must hold.",
+    "falseSourceExpansion": "Number of critical cases with retrieved or admitted sourceIds outside explicit allowedSources.",
+    "identity": "Evaluate sourceId + revisionId + chunkId + locator, never text-only.",
+    "context": "4096 tokens, mandatory synthetic system, full unchanged query, no memory/tools in quality. Budget invariants checked. Lack of budget never grants permission to expand.",
+    "limitations": "Lexical deterministic corpus, not LLM answer quality or universal semantics."
+  }
+}

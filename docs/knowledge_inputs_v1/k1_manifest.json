@@ -1,0 +1,525 @@
+{
+  "schemaVersion": 1,
+  "phase": "K1",
+  "normativeSection": "NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md §56",
+  "status": "PASS",
+  "verdict": "K1 PASS",
+  "evaluatedDate": "2026-10-07",
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "initialWorkingTree": [
+      " M tests/memory_v1/run_m8_qwen4_chat7b.py",
+      " M tests/memory_v1/test_m8_metadata_admission.py",
+      " M tests/memory_v1/test_m8_ps_operational.py",
+      " M tests/memory_v1/test_m8_qwen4_chat7b.py",
+      "?? docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "?? docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "?? docs/knowledge_inputs_v1/k0_ci_reconciliation.json",
+      "?? docs/knowledge_inputs_v1/k0_corpus_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/memory.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k0_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_manifest.json",
+      "?? docs/knowledge_inputs_v1/k0_resultados.md",
+      "?? local_cli/core/knowledge.py",
+      "?? tests/knowledge_inputs_v1/__init__.py",
+      "?? tests/knowledge_inputs_v1/k0_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_docx_payload_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_fixtures.py",
+      "?? tests/knowledge_inputs_v1/run_k0.py",
+      "?? tests/knowledge_inputs_v1/test_k0_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k0_corpus.py"
+    ],
+    "freeze": "docs/knowledge_inputs_v1/k1_freeze.json",
+    "initialWorkingTreePreserved": true,
+    "workingTreeDirtyAtClose": true,
+    "tagVerification": {
+      "nova-security-v1.2-ready": {
+        "unchanged": true,
+        "ancestor": true,
+        "object": "e5bea6a4c2c559a1f5a2f8824316a83b548b2533",
+        "commit": "26dc87786d8ad1c1d879255a068c7fb50a25e6f2"
+      },
+      "nova-memory-v1.1-ready": {
+        "unchanged": true,
+        "ancestor": true,
+        "object": "6a48c5252e40986ecf4180138d9d56bc519b3e49",
+        "commit": "3678d5b597a888b743e90d26efda6219943d58df"
+      },
+      "nova-core-v1-stable": {
+        "unchanged": true,
+        "ancestor": true,
+        "object": "97f41c6dab89ee59332875bb8d89c29620b52156",
+        "commit": "158b60effa484cd34a58b991f3ee4ca3f808d924"
+      },
+      "nova-memory-v1-ready": {
+        "unchanged": true,
+        "ancestor": true,
+        "object": "fa6b2f7898692ddc6cec77a4d971dbc395b764a6",
+        "commit": "9911ad4ca0fc13edfef49e84441a759d35cbefda"
+      }
+    },
+    "protectedAndPreexistingHashCount": 43,
+    "hashMismatches": [],
+    "evaluatedState": "HEAD plus explicit new file hashes; preserves the dirty K0 baseline, not HEAD alone"
+  },
+  "architecture": {
+    "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+    "sha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "approvedByUser": true,
+    "modified": false,
+    "precedence": "Core V1 > SECURITY V1.2 > MEMORY V1 > Knowledge (§3)",
+    "blockingContradictions": []
+  },
+  "scope": {
+    "os": "Windows 11",
+    "build": "10.0.26200",
+    "filesystem": "C: local NTFS",
+    "processModel": "HOST_UNISOLATED",
+    "sandbox": false,
+    "processIsolation": false,
+    "inheritsS3Claim": false,
+    "package": "0.12.6",
+    "python": "3.14.6",
+    "alternateContractRuntime": "Python 3.12.14",
+    "pytest": "9.1.1",
+    "sqlite": "3.50.4",
+    "node": "24.19.0",
+    "nativeLinuxMacos": "NOT_RUN",
+    "memorySemanticProfile": "NOT_CERTIFIED"
+  },
+  "implementation": {
+    "contracts": [
+      "KnowledgeStorePort",
+      "KnowledgeAccess",
+      "KnowledgeLimits",
+      "DocumentBlock V1",
+      "ExtractedDocument V1",
+      "DocumentChunk V1 (prepared storage only)",
+      "PreparedKnowledgeRevision",
+      "ImportRecord/Core OperationStatus",
+      "RecoveryReport",
+      "KnowledgeStorageError: typed, safe, outcomeUnknown"
+    ],
+    "storage": "<state_dir>/knowledge/v1/{knowledge.db,blobs/,staging/,cache/}",
+    "schemaVersion": 1,
+    "migrations": [
+      "Recognized empty SQLite format 0 -> V1, transactional and explicit; no populated pre-K1 Knowledge V1 format exists"
+    ],
+    "tables": [
+      "knowledge_meta",
+      "sources",
+      "source_revisions",
+      "revision_publication",
+      "documents",
+      "document_blocks",
+      "chunks",
+      "chunk_fts",
+      "semantic_spaces",
+      "semantic_vectors",
+      "source_tombstones",
+      "import_operations"
+    ],
+    "sqlite": {
+      "applicationId": "0x4E4B5631",
+      "format": "nova-knowledge-v1",
+      "foreignKeys": true,
+      "synchronous": "FULL",
+      "journalMode": "WAL",
+      "singleNovaWriterLease": true
+    },
+    "authority": "Trusted composition binds physical workspace/session and opaque scope ID; origins/locators/metadata never open arbitrary paths. No public model import route.",
+    "publication": "Bounded bytes + fsync before mandatory document/block/chunk/FTS transaction and currentRevision switch. Old revision superseded only after valid commit.",
+    "delete": "Current/FTS/vector/document projections/caches/owned bytes removed with tombstone; immutable revision metadata retained. Never erases MEMORY/transcript/audit/backups.",
+    "recovery": "Observed commits vs interrupted/invalid; OUTCOME_UNKNOWN without invented success, no retry. Owned-only cleanup.",
+    "caps": {
+      "sourceBytes": 52428800,
+      "sessionBytes": 268435456,
+      "workspaceBytes": 2147483648,
+      "workspaceSources": 2000,
+      "workspaceChunks": 100000,
+      "sourceChunks": 5000,
+      "extractedCharacters": 5000000,
+      "writeUnitBytes": 1048576,
+      "claim": "Operational accounting of managed acquisitions/chunks, not OS quotas or a certified total SQLite/physical footprint ceiling"
+    },
+    "normalFrontendRoutesActivated": false,
+    "newKnowledgeCapabilitiesAdvertised": false,
+    "semanticProjectionAPI": false,
+    "newRecall": false,
+    "newParser": false,
+    "newTools": false,
+    "knowledgeWritesMemory": false,
+    "activeWeb": false
+  },
+  "traceability": [
+    {
+      "criterion": "KnowledgeStore V1",
+      "norm": "§18, §56; KI-OD-01/02",
+      "components": [
+        "local_cli/core/knowledge_store.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_versioned_store_native_schema_and_ports",
+        "test_publish_only_after_real_mandatory_projections_commit"
+      ],
+      "result": "PASS"
+    },
+    {
+      "criterion": "Migrations/recovery",
+      "norm": "§18/20/42, §56; KI-OD-24",
+      "components": [
+        "local_cli/infrastructure/knowledge_migrations.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_migration_empty_v0_copy_explicit_idempotent_original_unchanged",
+        "test_failed_migration_rolls_back_not_claimed_v1",
+        "test_real_process_exit_atomic_publication_recovery"
+      ],
+      "result": "PASS"
+    },
+    {
+      "criterion": "Blobs/staging",
+      "norm": "§10/16/20, §56",
+      "components": [
+        "local_cli/infrastructure/knowledge_files.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_byte_units_bounded_no_coercion",
+        "test_recovery_scope_and_orphan_cleanup_only_owned"
+      ],
+      "result": "PASS"
+    },
+    {
+      "criterion": "Scope SESSION/WORKSPACE",
+      "norm": "§8/41, §56; KI-OD-03/04",
+      "components": [
+        "local_cli/core/knowledge_store.py",
+        "local_cli/application/knowledge.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_scope_all_store_surfaces",
+        "test_close_session_and_restart_preserve_only_workspace_sources",
+        "test_bound_host_scope_cannot_be_invented_by_caller_or_child"
+      ],
+      "result": "PASS"
+    },
+    {
+      "criterion": "Containment",
+      "norm": "§10, §56; KI-INV-008/009",
+      "components": [
+        "local_cli/infrastructure/knowledge_files.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_native_directory_reparse_escape_denied_no_external_read_write_delete",
+        "test_corrupt_persisted_blob_key_rejected_before_read",
+        "test_native_blob_hardlink_rejected_and_external_bytes_preserved"
+      ],
+      "result": "PASS"
+    },
+    {
+      "criterion": "Delete/no-resurrection",
+      "norm": "§19, §56; KI-INV-024/025",
+      "components": [
+        "local_cli/infrastructure/knowledge_migrations.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_delete_projections_vectors_cache_bytes_and_tombstone_no_resurrection",
+        "test_native_crash_during_delete_no_resurrection",
+        "test_cancelled_late_pipeline_cannot_publish_deleted_source"
+      ],
+      "result": "PASS"
+    },
+    {
+      "criterion": "Legacy isolation",
+      "norm": "§43, §56; KI-OD-25, KI-INV-023",
+      "components": [
+        "local_cli/bootstrap_knowledge.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_legacy_notes_vectors_memory_audit_untouched_no_automatic_import",
+        "test_unsupported_store_never_initialized_or_legacy_migrated"
+      ],
+      "result": "PASS"
+    },
+    {
+      "criterion": "Crash/cancel exit gate",
+      "norm": "§56 cierre; KI-INV-033/034",
+      "components": [
+        "local_cli/application/knowledge.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_real_process_exit_atomic_publication_recovery",
+        "test_cooperative_cancel_never_ready_or_supersedes_old",
+        "test_uncertain_commit_no_ack_no_retry_reopen_recovers_truth"
+      ],
+      "result": "PASS"
+    },
+    {
+      "criterion": "Cross-workspace exit gate",
+      "norm": "§56 cierre; KI-INV-029",
+      "components": [
+        "local_cli/application/knowledge.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_scope_all_store_surfaces",
+        "test_recovery_scope_and_orphan_cleanup_only_owned"
+      ],
+      "result": "PASS"
+    },
+    {
+      "criterion": "Metadata traversal exit gate",
+      "norm": "§56 cierre; KI-INV-008",
+      "components": [
+        "local_cli/infrastructure/knowledge_files.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_path_metadata_never_opened",
+        "test_source_metadata_control_or_scope_corruption_fail_closed",
+        "test_current_revision_cannot_be_rebound_to_other_source"
+      ],
+      "result": "PASS"
+    }
+  ],
+  "invariantsDemonstrated": [
+    "KI-INV-001",
+    "KI-INV-002",
+    "KI-INV-003",
+    "KI-INV-004",
+    "KI-INV-005",
+    "KI-INV-006",
+    "KI-INV-007",
+    "KI-INV-008",
+    "KI-INV-009",
+    "KI-INV-011",
+    "KI-INV-023",
+    "KI-INV-024",
+    "KI-INV-025",
+    "KI-INV-029",
+    "KI-INV-033",
+    "KI-INV-034",
+    "KI-INV-035",
+    "KI-INV-038",
+    "KI-INV-039 (existing routes intact; shared internal Application service, frontend wiring deferred K2)"
+  ],
+  "decisionsApplicable": [
+    "KI-OD-01",
+    "KI-OD-02",
+    "KI-OD-03",
+    "KI-OD-04",
+    "KI-OD-11",
+    "KI-OD-12",
+    "KI-OD-23",
+    "KI-OD-24",
+    "KI-OD-25",
+    "KI-OD-28"
+  ],
+  "tests": {
+    "details": "docs/knowledge_inputs_v1/k1_evidence/test_runs.json",
+    "baseline": {
+      "knowledge": 167,
+      "boundaries": 131,
+      "memory": 790,
+      "failures": 0
+    },
+    "incremental": [
+      225,
+      260,
+      321,
+      329
+    ],
+    "phaseFinal": {
+      "k1": 162,
+      "k0": 167,
+      "total": 329,
+      "failed": 0,
+      "skipped": 0,
+      "xfail": 0
+    },
+    "alternateRuntime": {
+      "passed": 329,
+      "failed": 0,
+      "skipped": 0
+    },
+    "head": {
+      "passed": 4475,
+      "failed": 0,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "xmlCases": 4486,
+      "durationPrintedSeconds": 323.29,
+      "xmlDurationSeconds": 323.219,
+      "memory": 790,
+      "security": 615,
+      "knowledge": 329,
+      "unchangedSkippedIds": true,
+      "previousSelectionExclusionsUnchanged": true,
+      "details": "docs/knowledge_inputs_v1/k1_evidence/head_final.json"
+    },
+    "desktop": {
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "details": "docs/knowledge_inputs_v1/k1_evidence/desktop.json"
+    },
+    "failuresObserved": [],
+    "nonTestDiagnostic": [
+      {
+        "firstAttempt": "Restricted CIM read denied",
+        "readOnlyElevatedAttempt": "PASS; C: NTFS",
+        "classification": "ENVIRONMENT",
+        "command": "Get-Volume -DriveLetter C"
+      }
+    ]
+  },
+  "evidenceTypes": {
+    "unitContract": "DTOs/ports/invariants, scopes, limits, authority/dependency checks and adversarial metadata",
+    "integration": "Real Application + real SQLite + test-only prepared-projection producer",
+    "persistence": "Real SQLite/FTS/transactions/copied format fixtures, reopen/corruption/tombstones",
+    "doubles": [
+      "Prepared document/chunk producer, not real parser quality",
+      "Connection acknowledgment failure injection, not physical crash"
+    ],
+    "hostReal": [
+      "8 native process exit import scenarios",
+      "2 native process exit delete scenarios",
+      "Separate process writer lease BUSY",
+      "Real NTFS directory junction escapes",
+      "Real hard-linked file artifact rejection"
+    ],
+    "realModels": false,
+    "realParsers": false,
+    "remoteProviders": false,
+    "realE2E": "NOT_RUN; not required for K1 §56"
+  },
+  "performance": {
+    "gateRequired": false,
+    "benchmark": "NOT_RUN",
+    "boundedWriteUnits": true,
+    "operationalCapsTested": true,
+    "growthAndTotalFootprint": "UNKNOWN; later observability/efficiency phase"
+  },
+  "limitations": [
+    "No productive parsers/chunking/retrieval, attachments/search/context/citations or normal frontend import route; K2+ not implemented",
+    "No Linux/macOS certification",
+    "No S3 inheritance, sandbox/process isolation or guarantee against hostile concurrent same-user state replacement",
+    "Process crash recovery demonstrated, not physical power-loss or universal cross-DB/filesystem atomicity",
+    "Delete not secure erase nor audit/transcript/memory/backups deletion",
+    "No universal secret detection or DLP; no document forwarding path added",
+    "No model/provider/semantic quality evidence in K1",
+    "Full growth/physical footprint/performance not certified; source publication reads bounded bytes into memory"
+  ],
+  "debt": [
+    "K2 trusted acquisition/UI/Application Operation dispatch wiring",
+    "K3 actual parsers/normalization",
+    "K4 productive chunking/retrieval/current-revision filtering and explicit legacy corpus rebuild",
+    "K5 context/capsule/citations; K6 search; K7 delegation/observability; K8 quality/certification"
+  ],
+  "openDecisions": {
+    "blockingK1": [],
+    "future": "No later OPEN DECISION resolved by K1; approved KI-OD decisions unchanged"
+  },
+  "filesCreated": [
+    "tests/knowledge_inputs_v1/test_k1_store.py",
+    "tests/knowledge_inputs_v1/k1_helpers.py",
+    "local_cli/infrastructure/knowledge_migrations.py",
+    "local_cli/application/knowledge.py",
+    "tests/knowledge_inputs_v1/test_k1_recovery.py",
+    "local_cli/core/knowledge_store.py",
+    "local_cli/bootstrap_knowledge.py",
+    "local_cli/infrastructure/knowledge_sqlite.py",
+    "tests/knowledge_inputs_v1/test_k1_containment.py",
+    "tests/knowledge_inputs_v1/test_k1_application.py",
+    "local_cli/infrastructure/knowledge_files.py",
+    "docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt",
+    "docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt",
+    "docs/knowledge_inputs_v1/k1_evidence/block-authority.txt",
+    "docs/knowledge_inputs_v1/k1_evidence/final_integrity.json",
+    "docs/knowledge_inputs_v1/k1_evidence/test_runs.json",
+    "docs/knowledge_inputs_v1/k1_evidence/desktop.json",
+    "docs/knowledge_inputs_v1/k1_evidence/head_final.txt",
+    "docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt",
+    "docs/knowledge_inputs_v1/k1_freeze.json",
+    "docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt",
+    "docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt",
+    "docs/knowledge_inputs_v1/k1_evidence/block-store.txt",
+    "docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt",
+    "docs/knowledge_inputs_v1/k1_evidence/head_final.json",
+    "docs/knowledge_inputs_v1/k1_resultados.md",
+    "docs/knowledge_inputs_v1/k1_manifest.json"
+  ],
+  "preexistingFilesModifiedByK1": [],
+  "artifacts": {
+    "tests/knowledge_inputs_v1/test_k1_store.py": "8ca64bbd0cb381cb2cd0c838a3649f296a7b5e9710ff51c103034281c0aaeab3",
+    "tests/knowledge_inputs_v1/k1_helpers.py": "89b0ba74d04cfbafc1e5a0a61992499bcf28851a358cf297fd48517894795136",
+    "local_cli/infrastructure/knowledge_migrations.py": "cf0b2b1b27bc7e6b07ad9a0db6af42c2686f82dfdd7d5b41f66e5be358479161",
+    "local_cli/application/knowledge.py": "a9a9f2a42b819af5fcf8820c636a3340bced0a78463e69256c5c75dd0037bc50",
+    "tests/knowledge_inputs_v1/test_k1_recovery.py": "b9938927ba84e7fc95c20f175f77aff96811837b22ac29cff85b6d0124e9e1f3",
+    "local_cli/core/knowledge_store.py": "bd3af08a209326e5077b809360d00d2897de1c5217367d77acf0f83393387e20",
+    "local_cli/bootstrap_knowledge.py": "4327a677b2001c20fdad6c70509bcbc413d0aa6742da7b60a64b53d91c875123",
+    "local_cli/infrastructure/knowledge_sqlite.py": "c0ddc11e7a24be1eb89d082a2b4a7bba3b3b46da0302798fc8f5f20331c43e7d",
+    "tests/knowledge_inputs_v1/test_k1_containment.py": "6e03620859fe24cae0ff2ea6abea8d97c36d11bec8afb27a1046bc797814636f",
+    "tests/knowledge_inputs_v1/test_k1_application.py": "102d37061059c1e3a7e5afb99889ada77fc695253db1f365e6f256a25a11e624",
+    "local_cli/infrastructure/knowledge_files.py": "acded39f72774cff9346f30a62115301499a7d819ba51a5d227db0299263491f",
+    "docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt": "5c1a9e72b9a33d76e2cadb28d33beb9207b5aff98992e0ab3025157ccd39eead",
+    "docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt": "f012c7f0dbdf615b028b0f2a249c0dea58871ef19a8a9424b081153aa5d2e247",
+    "docs/knowledge_inputs_v1/k1_evidence/block-authority.txt": "c21fd456d1d0a1b8ac5cacac7801b71c464db327ce3f0b448186aeb3ca6654a7",
+    "docs/knowledge_inputs_v1/k1_evidence/final_integrity.json": "8d2ad75c33c13164cec67bc708e13be4d4167c8761bb2bba884083091b3fc863",
+    "docs/knowledge_inputs_v1/k1_evidence/test_runs.json": "fc84635e87c1c7357a0f07827c1ffe888e6719accfd2be34077460f0075192d6",
+    "docs/knowledge_inputs_v1/k1_evidence/desktop.json": "33fc4818117fe10d0ed63e0f239335fe6254e4557a2327354c07e897639bca2b",
+    "docs/knowledge_inputs_v1/k1_evidence/head_final.txt": "d621323c8a6a9ed357c21047189ca0053248ebd4a9d3f231b4362909b8d3d438",
+    "docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt": "4bc230bc383363a6515b4025cfcf0bc7f1722ed6227e71fb3da9b78f670eecf1",
+    "docs/knowledge_inputs_v1/k1_freeze.json": "7d1c69d08515b704d139e296ce050d8508d74b13dd90957f66be9c2325a7cdfd",
+    "docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt": "990f009e79ce9a150e8c09e5e84c323cc07f63fad71f16e1b6151caefa469625",
+    "docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt": "3f47d282ae9aae08fbf67b2752e15015e78b4b7d22d36a425d6f8827b38b56db",
+    "docs/knowledge_inputs_v1/k1_evidence/block-store.txt": "05ec028525c9c94b65d22d26436c38d2d63ae73fb82cec4dcd61641f8fe84e9a",
+    "docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt": "3634e1d2f54b6788f93927c5c8d4107f6c76b512386ab8cb42fb1e524d2429dd",
+    "docs/knowledge_inputs_v1/k1_evidence/head_final.json": "eb228e19bac8597fdec5aaf7e26f6e9524f8e68cf34f4987b9062741bd714eb0",
+    "docs/knowledge_inputs_v1/k1_resultados.md": "357cd60ad1fc363b47e5745d4c9c421710b826ad906d3b984a69179e6e699761"
+  },
+  "protectedPins": {
+    "docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888",
+    "docs/security_v12/nova_security_v12_ready_manifest.json": "4240fb8f5774159f58e3644048b016772547af2d268a42bf7deb6bef4393b08c",
+    "docs/memory_v1/memory_v1_ready_manifest.json": "ff1185bab2c45d0f1e33e67a80997e20d0281792dc01684fdf3214cc9a6e4c3c",
+    "local_cli/core/context.py": "5d6f640124c0adb6125ad9b5cdb1c7c5c2e2f6fe4f882a2ca9df0141734cfa8d",
+    "local_cli/application/session.py": "b9b2750d510683769cfb357232ec5998cd0dfb9535c441f9bda1b92da8bce582",
+    "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md": "a5711f372cd9ac9bee5ac800e638665e2e06cdb4405974c2cd12c14587715792",
+    "local_cli/application/tool_runtime.py": "144c61b603d31c556b99b24869bd8dc710d8fdb85b2c13052d1332c80d1ae62c",
+    "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md": "886a4788d55282aefbbc776344ec507b779519e15ea940dcad62ea24ef57e9cd",
+    ".github/workflows/nova_core_v1.yml": "53881e86e84962b196752a64654b84bc56f74ef109b4b9624f9d81eaa0d57325",
+    "local_cli/infrastructure/memory_embeddings.py": "c6284bca43e47a4bd606a77f4ec62350ac09936178318b253731abb9f726e611",
+    ".github/workflows/nova_memory_v1.yml": "44f6d9373c1fba7f9d8e8f64977338ac190a3d5bd0192429b8f9c483630841f0",
+    "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md": "b13814a0f1c99528ab4f4d2f5c874dacdc1017c8f3f13b1053c90c67eb848147",
+    "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "docs/memory_v1/m8_qwen4_evidence/operational_report.json": "cdbde2d10dade3b2cda75a2c7fc60244f1ea7449e837aa09f20eafd24cb508e2",
+    "local_cli/application/memory_semantic.py": "23ed54e289d54ce16681f45f5c3362541979d9c34c08c3d3a5c49aa12de95ef3"
+  },
+  "nextPhase": "K2 (reference only; not implemented)",
+  "commit": false,
+  "push": false,
+  "newTags": false,
+  "ciModified": false,
+  "dependenciesChanged": false,
+  "globalConfigChanged": false,
+  "downloads": false
+}

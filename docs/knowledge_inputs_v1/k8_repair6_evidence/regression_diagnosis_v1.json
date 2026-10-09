@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "phase": "K8_REPAIR_V6",
+  "status": "PRODUCT_BUG_REPAIRED_FINAL_GATES_PASS",
+  "baseline": "717a24218dea7fb60d8b630896d653e39091bc7b",
+  "firstFrozenQuality": {
+    "output": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v6-20261008/quality-frozen",
+    "result": "PASS 62/62 positives, 40/40 negatives; not erased"
+  },
+  "regressionFailures": [
+    {
+      "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v6-20261008\\knowledge-final",
+      "junit": {
+        "total": 965,
+        "successful": 962,
+        "failures": [
+          {
+            "classname": "tests.knowledge_inputs_v1.test_k8_repair",
+            "name": "test_independent_frozen_retrieval_repair",
+            "time": "1.124"
+          },
+          {
+            "classname": "tests.knowledge_inputs_v1.test_k8_repair2_quality",
+            "name": "test_v2_frozen_quality_and_critical",
+            "time": "1.482"
+          },
+          {
+            "classname": "tests.knowledge_inputs_v1.test_k8_repair3_quality",
+            "name": "test_v3_frozen_standalone",
+            "time": "1.795"
+          }
+        ],
+        "errors": [],
+        "skips": []
+      },
+      "classification": "PRODUCT_BUG",
+      "cause": "Structured plan omitted generic presentation/conditional/anaphoric/MEMORY grammar variants previously handled by the flat blacklist; their tokens increased the unchanged coverage denominator."
+    }
+  ],
+  "repair": {
+    "productFiles": [
+      "local_cli/infrastructure/knowledge_lexical.py",
+      "local_cli/infrastructure/knowledge_query.py"
+    ],
+    "method": "Bounded speech-act grammar: generic output complements, deictic conditional antecedents, standalone personal-recall requests, request operators. No global token blacklist, floor/ranking changes or case-specific names/values.",
+    "historicalAssertionsChanged": false,
+    "corpusGoldThresholdsChanged": false,
+    "newDirectGrammarRegressions": 11,
+    "firstFreeze": "tests/knowledge_inputs_v1/fixtures/k8_repair6_freeze_v1.json",
+    "secondFreeze": "tests/knowledge_inputs_v1/fixtures/k8_repair6_freeze_v2.json",
+    "freezeSelectorOnlyChangedInHarness": true,
+    "firstHarnessSnapshot": "docs/knowledge_inputs_v1/k8_repair6_evidence/quality_harness_first_freeze.py"
+  },
+  "intermediateFailures": [
+    {
+      "name": "compatibility-1",
+      "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v6-20261008\\compatibility-1",
+      "classification": "PRODUCT_BUG_DEVELOPMENT_INTERMEDIATE",
+      "success": 36,
+      "failures": [
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair_contracts",
+          "name": "test_documentary_focus_not_authority_and_constants_unchanged",
+          "time": "0.004"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_v2_four_actual_failure_patterns[citation-conflict-signal1]",
+          "time": "0.005"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_v2_four_actual_failure_patterns[pair-0-hostile-allow-signal2]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_v2_four_actual_failure_patterns[pair-1-hostile-allow-signal3]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_general_spans_en_es_and_original_input_unchanged[Compara ambas fuentes sobre LATCH975 capacidad; informa los valores con sus citas.-expected2]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_general_spans_en_es_and_original_input_unchanged[LATCH975 seal. Si falta la evidencia, responde UNKNOWN.-expected3]",
+          "time": "0.001"
+        }
+      ]
+    },
+    {
+      "name": "direct-1",
+      "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v6-20261008\\direct-1",
+      "classification": "PRODUCT_BUG_DEVELOPMENT_INTERMEDIATE",
+      "success": 57,
+      "failures": [
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair_contracts",
+          "name": "test_documentary_focus_not_authority_and_constants_unchanged",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_v2_four_actual_failure_patterns[citation-conflict-signal1]",
+          "time": "0.005"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_v2_four_actual_failure_patterns[pair-0-hostile-allow-signal2]",
+          "time": "0.003"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_v2_four_actual_failure_patterns[pair-1-hostile-allow-signal3]",
+          "time": "0.004"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_general_spans_en_es_and_original_input_unchanged[Compara ambas fuentes sobre LATCH975 capacidad; informa los valores con sus citas.-expected2]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair3_regressions",
+          "name": "test_general_spans_en_es_and_original_input_unchanged[LATCH975 seal. Si falta la evidencia, responde UNKNOWN.-expected3]",
+          "time": "0.001"
+        }
+      ]
+    },
+    {
+      "name": "direct-final",
+      "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v6-20261008\\direct-final",
+      "classification": "PRODUCT_BUG_DEVELOPMENT_INTERMEDIATE",
+      "success": 62,
+      "failures": [
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair6_query",
+          "name": "test_five_v5_failures_are_retrieval_regressions_only[positive-note-es-expected2]",
+          "time": "0.004"
+        }
+      ]
+    },
+    {
+      "name": "direct-post-regression",
+      "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v6-20261008\\direct-post-regression",
+      "classification": "PRODUCT_BUG_DEVELOPMENT_INTERMEDIATE",
+      "success": 72,
+      "failures": [
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair6_query",
+          "name": "test_general_control_grammar_historical_regression_variants[Explain briefly using the document, cite the source, and do not write files.]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.knowledge_inputs_v1.test_k8_repair6_query",
+          "name": "test_general_control_grammar_historical_regression_variants[Please cite your sources.]",
+          "time": "0.001"
+        }
+      ]
+    }
+  ],
+  "directFinal": "74 PASS",
+  "historicalQualityRegression": "5 PASS",
+  "frozenV6Revalidation": {
+    "dataset": "k8-repair-v6-prospective-deterministic-v1",
+    "positive": 62,
+    "negative": 40,
+    "total": 102,
+    "recallAt5": 1,
+    "precisionAt1": 1,
+    "abstention": 1,
+    "critical": true,
+    "mapping": true,
+    "identifiers": 1,
+    "factualPreservation": 1,
+    "controlSeparation": 1,
+    "falseStripping": 0,
+    "p95Ms": 6.372499978169799
+  }
+}

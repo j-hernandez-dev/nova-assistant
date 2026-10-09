@@ -55,6 +55,8 @@ _SLASH_COMMANDS: dict[str, str] = {
     "/diff": "Show uncommitted changes in the working tree.",
     "/context": "Show context window usage (messages, tokens, compaction).",
     "/memory <action>": "Explicit local memory controls; /memory help for syntax and privacy limits.",
+    "/attach <path>": "Explicit host attachment import (SESSION); extraction capability required before READY.",
+    "/source <action>": "List/select/detach/promote/import/delete/cancel sources through Application.",
     "/copy": "Copy last assistant response to clipboard.",
     "/usage": "Show per-message token usage and session totals.",
     "/agents": "List background sub-agent status.",
@@ -449,6 +451,10 @@ def _handle_application_slash_command(command: str, console, ctx: SimpleNamespac
     if cmd == '/memory':
         from local_cli.interfaces.memory_cli import handle_memory_command
         handle_memory_command(argument,console)
+        return True
+    if cmd in ('/attach', '/source'):
+        from local_cli.interfaces.knowledge_cli import handle_knowledge_command
+        handle_knowledge_command(argument, console, attach=cmd == '/attach')
         return True
     if cmd in ("/exit", "/quit", "/help"):
         if cmd == "/help":

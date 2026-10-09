@@ -45,3 +45,34 @@ def test_repeat_does_not_relax_residency_or_semantic_admission_gate():
         assert not assessment['pass_']
         assert 'models_not_co_resident_after_chat' in assessment['failures']
         assert assessment['semanticQuality'] == 'NOT_EVALUATED'
+
+
+@pytest.mark.parametrize('newline', [b'\n', b'\r\n'])
+def test_historical_report_accepts_only_pinned_git_lf_or_windows_crlf(monkeypatch, newline):
+    raw = repeat.PRIOR_REPORT.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', newline)
+    assert hashlib.sha256(raw).hexdigest() in (repeat.PRIOR_SHA, repeat.PRIOR_GIT_LF_SHA)
+    monkeypatch.setattr(type(repeat.PRIOR_REPORT), 'read_bytes', lambda _: raw)
+    monkeypatch.setattr(repeat, '_base_freeze', lambda: {})
+    with repeat.selected_profile():
+        proof = repeat.make_freeze()['previousOperationalReport']
+    assert proof['sha256'] == hashlib.sha256(raw).hexdigest()
+    assert proof['historicalCrLfSha256'] == repeat.PRIOR_SHA
+    assert proof['gitLfSha256'] == repeat.PRIOR_GIT_LF_SHA
+
+
+@pytest.mark.parametrize('mutation', ['content', 'whitespace', 'key'])
+def test_historical_report_tampering_remains_fail_closed(monkeypatch, mutation):
+    raw = repeat.PRIOR_REPORT.read_bytes().replace(b'\r\n', b'\n')
+    altered = {'content': raw.replace(b'NOT_EVALUATED', b'CERTIFIED', 1),
+               'whitespace': raw + b' ', 'key': raw.replace(b'"', b'"changed-', 1)}[mutation]
+    assert raw != altered
+    monkeypatch.setattr(type(repeat.PRIOR_REPORT), 'read_bytes', lambda _: altered)
+    monkeypatch.setattr(repeat, '_base_freeze', lambda: pytest.fail('Tampered report must stop before freeze'))
+    with repeat.selected_profile(), pytest.raises(ValueError, match='Previous campaign changed'):
+        repeat.make_freeze()
+
+
+def test_wrong_chat_profile_remains_rejected(monkeypatch):
+    monkeypatch.setattr(repeat.harness, 'CHAT', 'synthetic-wrong-profile')
+    with pytest.raises(ValueError, match='Wrong chat profile'):
+        repeat.make_freeze()

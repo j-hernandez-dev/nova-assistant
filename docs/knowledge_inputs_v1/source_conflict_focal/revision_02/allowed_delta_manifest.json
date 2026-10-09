@@ -1,0 +1,83 @@
+{
+  "timestamp": "2026-10-09T09:28:34.158173+00:00",
+  "identity": "SCF-R2_ALLOWED_DELTA",
+  "bridge_changes_only_parameter_guard": true,
+  "common_only_routing_reference_bytes": true,
+  "byte_identity": [
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\corpus.json",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\corpus.json",
+      "sha256": "5847b0b791e318ef11a5be8a9861c1d3c4f77597727f033f7106944dbced41fa",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\gold.json",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\gold.json",
+      "sha256": "39b907f0607aba38af4ec753cfe428ea4613613fbf769aa6cfaf2179e0f6cc64",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\execution_profile.json",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\execution_profile.json",
+      "sha256": "7c641b8c504a0af37f800e6ea711030c6c3bb2cf0dc2f460c097b01ee262f94e",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\protocol.json",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\protocol.json",
+      "sha256": "91661d80eb812d5438beea33ea84d8999aba5a62771affd0bf9881397c392dd7",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\authorization_schema.json",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\authorization_schema.json",
+      "sha256": "9693327e22239ef79aa31b33622f91fa2c041b6fb996770dafd438f5e90a49f7",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\SCORER.md",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\SCORER.md",
+      "sha256": "3b23595e61456e4a6f9f363cea738d7f3b3b18dbb328a4b164e328514499d336",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\fixtures\\Selenvyr_Seal_Record.txt",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\fixtures\\Selenvyr_Seal_Record.txt",
+      "sha256": "cb1e1f852f10ac549916362aa8d47431352701ec2dd42472de48f03788826f97",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\fixtures\\Orquendel_Seal_Record.txt",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\fixtures\\Orquendel_Seal_Record.txt",
+      "sha256": "266456ccc2026cae83b1e106a0fc4467c644226b06f009b01a1e56c5b32ca939",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\knowledge_inputs_v1\\source_conflict_focal\\__init__.py",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\__init__.py",
+      "sha256": "0e7a2dac337a17d32f6015e30994b7e5053ecb2f22f6bfc77b07de3749f69614",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\knowledge_inputs_v1\\source_conflict_focal\\runner.py",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\runner.py",
+      "sha256": "552f7b007f57f6f7e4216e22d36f12bee7f92fe45e8aa6c07e4606dd8a70b90b",
+      "byte_identical": true
+    },
+    {
+      "original": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\knowledge_inputs_v1\\source_conflict_focal\\scorer.py",
+      "revision": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\knowledge_inputs_v1\\source_conflict_focal\\revision_02\\scorer.py",
+      "sha256": "518030a104ffd2b820db9a240879efec675de66947fb5bc8385b02559401af26",
+      "byte_identical": true
+    }
+  ],
+  "bridge_diff": "--- original/bridge.py\n+++ SCF-R2/bridge.py\n@@ -28,14 +28,7 @@\n         def stream(name, messages, **kwargs):\n             if not self.execution or not self.network.allow_chat:\n                 raise StopExecution('PREPARATION_INFERENCE_FORBIDDEN')\n-            self.check()  # Pins/runtime/authorization immediately before every generation.\n-            from .common import runtime_identity\n-            expected = runtime_identity(self.profile)['effective_options']\n-            if name != self.profile['model'] or kwargs.get('options') != expected or kwargs.get('think') is not False:\n-                raise StopExecution('MODEL_REQUEST_PARAMETERS_DRIFT')\n-            if kwargs.get('format') is not None or 'seed' in kwargs.get('options', {}):\n-                raise StopExecution('RESPONSE_FORMAT_OR_SEED_DRIFT')\n-            identity = backend(self.profile)\n+            identity = self._verify_model_request(name, kwargs)\n             request = dict(timestamp=now(), model=name, messages=deepcopy(messages),\n                            kwargs=deepcopy(kwargs), identity_before=identity, response=[])\n             self.requests.append(request)\n@@ -79,6 +72,41 @@\n         self.app = self.cli.application\n         self.actor = self.app.register_knowledge_actor('cli_tty', lambda: True)\n         self.host('source_list', {})  # One real owner, no competing application.\n+\n+    def _verify_model_request(self, name, kwargs):\n+        self.check()  # Same pins/runtime/authorization gate before each generation.\n+        from .common import runtime_identity\n+        expected = runtime_identity(self.profile)['effective_options']\n+        options = kwargs.get('options')\n+        if (type(options) is not dict or\n+                any(type(options.get(key)) not in (int, float) for key in expected) or\n+                type(options.get('top_k')) is not int or type(options.get('num_ctx')) is not int):\n+            raise StopExecution('MODEL_REQUEST_PARAMETERS_DRIFT')\n+        allowed = dict(expected)\n+        if isinstance(options, dict) and 'num_predict' in options:\n+            # Read the report emitted synchronously by productive _prepare for\n+            # this Turn, not the request value, gold, or a caller-supplied flag.\n+            # The session owns the Turn before the worker starts; last_turn can\n+            # still be unset while submit returns on the runner's thread.\n+            turns = self.app._session.turns\n+            reports = turns[-1].context_reports if turns else []\n+            budgets = [report.get('budget') for report in reports\n+                       if report.get('rule') == 'context_budget']\n+            budget = budgets[-1] if budgets else None\n+            if not isinstance(budget, dict) or 'output_reserve' not in budget:\n+                raise StopExecution('PRODUCTIVE_OUTPUT_RESERVE_NOT_OBSERVED')\n+            reserve = budget['output_reserve']\n+            if (type(reserve) is not int or reserve != 1024 or\n+                    budget.get('selected_context_window') != self.profile['context']):\n+                raise StopExecution('PRODUCTIVE_OUTPUT_RESERVE_DRIFT')\n+            if type(options['num_predict']) is not int or options['num_predict'] != reserve:\n+                raise StopExecution('NUM_PREDICT_OUTPUT_RESERVE_MISMATCH')\n+            allowed['num_predict'] = reserve\n+        if name != self.profile['model'] or options != allowed or kwargs.get('think') is not False:\n+            raise StopExecution('MODEL_REQUEST_PARAMETERS_DRIFT')\n+        if kwargs.get('format') is not None or 'seed' in options:\n+            raise StopExecution('RESPONSE_FORMAT_OR_SEED_DRIFT')\n+        return backend(self.profile)  # Unchanged exact name+digest/runner/residency.\n \n     def host(self, name, arguments):\n         from local_cli.application.knowledge_host import KnowledgeCommand\n",
+  "common_diff": "--- original/common.py\n+++ SCF-R2/common.py\n@@ -9,8 +9,8 @@\n import sys\n import urllib.request\n \n-ROOT = Path(__file__).resolve().parents[3]\n-DOCS = ROOT / 'docs/knowledge_inputs_v1/source_conflict_focal'\n+ROOT = Path(__file__).resolve().parents[4]\n+DOCS = ROOT / 'docs/knowledge_inputs_v1/source_conflict_focal/revision_02'\n OUTPUT = ROOT.parent / 'k8-certification-evidence/source-conflict-focal'\n \n \n",
+  "new_case_counters": {
+    "quality_attempts": 0,
+    "inference": 0,
+    "retrieval": 0,
+    "admission": 0
+  },
+  "authorization_created": false
+}

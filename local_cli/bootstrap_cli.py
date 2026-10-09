@@ -20,6 +20,8 @@ from local_cli.application.legacy_runtime import LegacyAgentRuntime
 from local_cli.application.session import AgentSessionCoordinator
 from local_cli.audit_config import create_security_audit
 from local_cli.memory_config import memory_factory,memory_extractor_factory
+from local_cli.bootstrap_knowledge import knowledge_factory
+from local_cli.bootstrap_passive_web import passive_web_tools
 from local_cli.application.rag import RAGService
 from local_cli.application.rag import create_rag_service, adapt_legacy_rag_service
 from local_cli.application.persistence import create_persistence_service
@@ -228,6 +230,7 @@ def create_cli_application(*, config: Any, provider_manager: Any,
                            on_submit: Any = None,
                            on_turn_complete: Any = None) -> CliApplicationClient:
     workspace = Path(workspace).resolve()
+    tools = passive_web_tools(tools, config)
 
     def inference_options() -> dict[str, Any]:
         state = provider_manager.snapshot()
@@ -247,6 +250,7 @@ def create_cli_application(*, config: Any, provider_manager: Any,
         return result
 
     coordinator = AgentSessionCoordinator(
+        knowledge_factory=knowledge_factory(config.state_dir),
         memory_factory=memory_factory(config.state_dir,
             embedding_model=getattr(config,'memory_embedding_model',''),
             embedding_endpoint=getattr(config,'memory_embedding_endpoint','http://127.0.0.1:11434'),

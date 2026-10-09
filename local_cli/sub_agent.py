@@ -77,6 +77,7 @@ class SubAgentResult:
     tool_calls_count: int
     error_message: str = ""
     worktree_path: str = ""
+    knowledge_citations: dict | None = None
 
     def format_result(self) -> str:
         """Format the result as a human-readable string for the LLM.
@@ -98,6 +99,8 @@ class SubAgentResult:
             lines.append(f"Worktree: {self.worktree_path}")
         if self.content:
             lines.append(f"\nResult:\n{self.content}")
+        if self.knowledge_citations:
+            lines.append('Knowledge citations (structural only): '+json.dumps(self.knowledge_citations,ensure_ascii=True))
         return "\n".join(lines)
 
 
@@ -209,6 +212,7 @@ class SubAgent:
         self._messages: list[dict[str, Any]] = []
         self._tool_calls_count = 0
         self._memory_delegate=None
+        self._knowledge_delegate=None
 
         # Worktree isolation state -- populated by _setup_worktree().
         self._worktree_path: str = ""
@@ -303,7 +307,8 @@ class SubAgent:
                               filesystem_authority=self._filesystem_authority,
                               process_service=self._process_service,
                               network_service=self._network_service,
-                              redactor=self._redactor, security_audit=self._security_audit)
+                              redactor=self._redactor, security_audit=self._security_audit,
+                              turn_effect_constraints=getattr(self,'_turn_effect_constraints',None))
         sub_session_id = new_session_id()
         capability = RuntimeCapabilitySnapshot(
             captured_at=datetime.now(timezone.utc), source="sub_agent_unprobed",
@@ -333,6 +338,17 @@ class SubAgent:
             {"role": "user", "content": self._prompt},
         ]
         self._messages = self._redactor.messages(self._messages)
+        child_knowledge=None
+        if self._knowledge_delegate is not None:
+            from local_cli.application.context import WorkingMessages
+            from local_cli.application.knowledge_children import ChildKnowledgeAdmission
+            if not isinstance(self._messages,WorkingMessages):self._messages=WorkingMessages(self._messages)
+            context=getattr(self._provider,'_context',None)
+            if context is not None:
+                child_knowledge=ChildKnowledgeAdmission(self._knowledge_delegate,self._messages,context.manager,
+                    self._provider.format_tools(self._tools),self._redactor)
+                context.knowledge_source=child_knowledge.refresh
+                child_knowledge.refresh()
         if self._memory_delegate is not None:
             from local_cli.application.memory_children import CHILD_HINT
             from local_cli.application.memory_recall import admit_capsule
@@ -342,7 +358,7 @@ class SubAgent:
             # Latest user task stays current; memory admission precedes this
             # older optional working message under the unchanged Core caps.
             self._messages.insert(1,{'role':'user','content':CHILD_HINT})
-            self._messages=WorkingMessages(self._messages)
+            if not isinstance(self._messages,WorkingMessages):self._messages=WorkingMessages(self._messages)
             context=getattr(self._provider,'_context',None)
             if context is not None:
                 last_capsule=[None]
@@ -395,7 +411,7 @@ class SubAgent:
         duration = time.monotonic() - start_time
         context=getattr(self._provider,'_context',None)
         if context is not None:
-            context.memory_source=None;context.manager.invalidate_cache()
+            context.memory_source=None;context.knowledge_source=None;context.manager.invalidate_cache()
 
         # Clean up worktree; preserve if changes were detected.
         preserved_worktree = ""
@@ -413,7 +429,12 @@ class SubAgent:
             tool_calls_count=self._tool_calls_count,
             error_message=self._redactor.text(error_message),
             worktree_path=preserved_worktree,
+            knowledge_citations=child_knowledge.receipt(final_content) if child_knowledge else None,
         )
+
+    def bind_knowledge_delegate(self,source):
+        """Application-owned data callback; never a store/retriever/authority."""
+        self._knowledge_delegate=source
 
     # ------------------------------------------------------------------
     # Internal: silent agent loop

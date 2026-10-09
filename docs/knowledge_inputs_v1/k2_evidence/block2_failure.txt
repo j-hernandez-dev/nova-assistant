@@ -1,0 +1,1940 @@
+........................................................................ [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 50%]
+........................................................................ [ 67%]
+............................................F.F......F...FFFFFFFFFFFFFFF [ 84%]
+FFFFFFFFFF........................FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF         [100%]
+================================== FAILURES ===================================
+________ test_real_bounded_reads_unicode_path_bytes_and_progress[256] _________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_real_bounded_reads_unicod3')
+size = 256
+
+    @pytest.mark.parametrize('size',[0,1,255,256,257,8192])
+    def test_real_bounded_reads_unicode_path_bytes_and_progress(tmp_path,size):
+        file=tmp_path/'synthetic ñ 日本語.bin';payload=(b'\x00\xffsynthetic'*1000)[:size];file.write_bytes(payload)
+        sizes=[];reader=LocalHostFileAcquisition(unit_bytes=256)
+>       blocks=list(reader.read(str(file),cancelled=lambda:False,progress=sizes.append))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_acquisition.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.infrastructure.knowledge_acquisition.LocalHostFileAcquisition object at 0x000001D8378B4FC0>
+selected_path = 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block2-20261007\\pytest-private\\test_real_bounded_reads_unicod3\\synthetic ñ 日本語.bin'
+cancelled = <function test_real_bounded_reads_unicode_path_bytes_and_progress.<locals>.<lambda> at 0x000001D8378ACE00>
+progress = <built-in method append of list object at 0x000001D8363BAF40>
+
+    def read(self, selected_path, *, cancelled, progress):
+        # Fresh explicit host selection, not S3 workspace mediation. Fail closed
+        # on redirects/reparse/hardlinks and object replacement. This is not OS
+        # sandboxing or protection against an adversarial host process.
+        try:
+            if not isinstance(selected_path, str) or '\x00' in selected_path:
+                raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+            path = Path(selected_path)
+            if not path.is_absolute(): raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+            def check_path():
+                for part in (path, *path.parents):
+                    info = part.lstat()
+                    if stat.S_ISLNK(info.st_mode) or getattr(info, 'st_file_attributes', 0) & 0x400:
+                        raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+                return path.lstat()
+            before = check_path()
+            if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
+                raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+            if before.st_size > self.max_bytes: raise KnowledgeError(KnowledgeErrorCode.SOURCE_TOO_LARGE)
+            if cancelled(): raise KnowledgeError(KnowledgeErrorCode.IMPORT_CANCELLED)
+            flags = os.O_RDONLY | getattr(os, 'O_BINARY', 0) | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+            with os.fdopen(os.open(path, flags), 'rb') as stream:
+                opened = os.fstat(stream.fileno())
+                signature = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+                if signature(before) != signature(opened) or not stat.S_ISREG(opened.st_mode):
+>                   raise KnowledgeError(KnowledgeErrorCode.STALE_SOURCE)
+E                   local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\infrastructure\knowledge_acquisition.py:38: KnowledgeError
+________ test_real_bounded_reads_unicode_path_bytes_and_progress[8192] ________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_real_bounded_reads_unicod5')
+size = 8192
+
+    @pytest.mark.parametrize('size',[0,1,255,256,257,8192])
+    def test_real_bounded_reads_unicode_path_bytes_and_progress(tmp_path,size):
+        file=tmp_path/'synthetic ñ 日本語.bin';payload=(b'\x00\xffsynthetic'*1000)[:size];file.write_bytes(payload)
+        sizes=[];reader=LocalHostFileAcquisition(unit_bytes=256)
+>       blocks=list(reader.read(str(file),cancelled=lambda:False,progress=sizes.append))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_acquisition.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.infrastructure.knowledge_acquisition.LocalHostFileAcquisition object at 0x000001D8377A3650>
+selected_path = 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block2-20261007\\pytest-private\\test_real_bounded_reads_unicod5\\synthetic ñ 日本語.bin'
+cancelled = <function test_real_bounded_reads_unicode_path_bytes_and_progress.<locals>.<lambda> at 0x000001D8378B8BF0>
+progress = <built-in method append of list object at 0x000001D83611ED00>
+
+    def read(self, selected_path, *, cancelled, progress):
+        # Fresh explicit host selection, not S3 workspace mediation. Fail closed
+        # on redirects/reparse/hardlinks and object replacement. This is not OS
+        # sandboxing or protection against an adversarial host process.
+        try:
+            if not isinstance(selected_path, str) or '\x00' in selected_path:
+                raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+            path = Path(selected_path)
+            if not path.is_absolute(): raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+            def check_path():
+                for part in (path, *path.parents):
+                    info = part.lstat()
+                    if stat.S_ISLNK(info.st_mode) or getattr(info, 'st_file_attributes', 0) & 0x400:
+                        raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+                return path.lstat()
+            before = check_path()
+            if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
+                raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+            if before.st_size > self.max_bytes: raise KnowledgeError(KnowledgeErrorCode.SOURCE_TOO_LARGE)
+            if cancelled(): raise KnowledgeError(KnowledgeErrorCode.IMPORT_CANCELLED)
+            flags = os.O_RDONLY | getattr(os, 'O_BINARY', 0) | getattr(os, 'O_NOFOLLOW', 0) | getattr(os, 'O_NONBLOCK', 0)
+            with os.fdopen(os.open(path, flags), 'rb') as stream:
+                opened = os.fstat(stream.fileno())
+                signature = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+                if signature(before) != signature(opened) or not stat.S_ISREG(opened.st_mode):
+>                   raise KnowledgeError(KnowledgeErrorCode.STALE_SOURCE)
+E                   local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\infrastructure\knowledge_acquisition.py:38: KnowledgeError
+______________ test_real_cancel_before_or_between_units[during] _______________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_real_cancel_before_or_bet1')
+moment = 'during'
+
+    @pytest.mark.parametrize('moment',['before','during'])
+    def test_real_cancel_before_or_between_units(tmp_path,moment):
+        path=tmp_path/'synthetic';path.write_bytes(b'12345678');sizes=[]
+        with pytest.raises(KnowledgeError) as err:
+            read(LocalHostFileAcquisition(unit_bytes=2),path,
+                 cancelled=lambda:moment=='before' or len(sizes)>=1,progress=sizes.append)
+>       assert err.value.code=='IMPORT_CANCELLED'
+E       AssertionError: assert 'STALE_SOURCE' == 'IMPORT_CANCELLED'
+E         
+E         - IMPORT_CANCELLED
+E         + STALE_SOURCE
+
+tests\knowledge_inputs_v1\test_k2_acquisition.py:42: AssertionError
+_ test_real_session_acquisition_operation_publication_progress_no_paths_or_content _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_real_session_acquisition_0')
+
+    def test_real_session_acquisition_operation_publication_progress_no_paths_or_content(tmp_path):
+        c=setup(tmp_path)
+>       cursor=c.app.subscribe_events(c.sid,include_internal=True)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D83773F4D0>
+session_id = 'ses_7863dd2171444fe993d27b4bb37eed41', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+_ test_explicit_scope_and_reopen_session_cleanup_workspace_persistence[SESSION] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_explicit_scope_and_reopen0')
+scope = 'SESSION'
+
+    @pytest.mark.parametrize('scope',['SESSION','WORKSPACE'])
+    def test_explicit_scope_and_reopen_session_cleanup_workspace_persistence(tmp_path,scope):
+>       c=setup(tmp_path);invoke(c,args={'path':str(c.file),'scope':scope})
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_explicit_scope_and_reopen_session_cleanup_workspace_persistence[WORKSPACE] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_explicit_scope_and_reopen1')
+scope = 'WORKSPACE'
+
+    @pytest.mark.parametrize('scope',['SESSION','WORKSPACE'])
+    def test_explicit_scope_and_reopen_session_cleanup_workspace_persistence(tmp_path,scope):
+>       c=setup(tmp_path);invoke(c,args={'path':str(c.file),'scope':scope})
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_promotion_is_independent_new_source_revision_preserves_original_and_no_origin_reopen _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_promotion_is_independent_0')
+
+    def test_promotion_is_independent_new_source_revision_preserves_original_and_no_origin_reopen(tmp_path):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);original=refs(c)[0];svc=c.app._knowledge.service
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_missing_producer_real_route_acquires_but_typed_failure_no_fake_ready_and_cleanup _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_missing_producer_real_rou0')
+
+    def test_missing_producer_real_route_acquires_but_typed_failure_no_fake_ready_and_cleanup(tmp_path):
+        c=setup(tmp_path,prepare=None)
+        try:
+>           _,op=invoke(c)
+                 ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_authority_and_freshness_rejections_before_file_or_store_effect[unknown] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_authority_and_freshness_r0')
+reason = 'unknown'
+
+    @pytest.mark.parametrize('reason',['unknown','unverified','throws','wrong-session','stale-revision','no-factory'])
+    def test_authority_and_freshness_rejections_before_file_or_store_effect(tmp_path,reason):
+        c=setup(tmp_path)
+        try:
+            actor=c.actor
+            if reason=='unknown':actor=object()
+            if reason=='unverified':actor=c.app.register_knowledge_actor('cli_tty',lambda:False)
+            if reason=='throws':
+                def bad(): raise RuntimeError('Synthetic')
+                actor=c.app.register_knowledge_actor('cli_tty',bad)
+            if reason=='no-factory':c.app._knowledge.factory=None
+>           cmd=command(c,session_id='ses_foreign' if reason=='wrong-session' else c.sid,
+                        revision=0 if reason=='stale-revision' else c.app.get_snapshot(c.sid).state_revision)
+
+tests\knowledge_inputs_v1\test_k2_application.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_authority_and_freshness_rejections_before_file_or_store_effect[unverified] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_authority_and_freshness_r1')
+reason = 'unverified'
+
+    @pytest.mark.parametrize('reason',['unknown','unverified','throws','wrong-session','stale-revision','no-factory'])
+    def test_authority_and_freshness_rejections_before_file_or_store_effect(tmp_path,reason):
+        c=setup(tmp_path)
+        try:
+            actor=c.actor
+            if reason=='unknown':actor=object()
+            if reason=='unverified':actor=c.app.register_knowledge_actor('cli_tty',lambda:False)
+            if reason=='throws':
+                def bad(): raise RuntimeError('Synthetic')
+                actor=c.app.register_knowledge_actor('cli_tty',bad)
+            if reason=='no-factory':c.app._knowledge.factory=None
+>           cmd=command(c,session_id='ses_foreign' if reason=='wrong-session' else c.sid,
+                        revision=0 if reason=='stale-revision' else c.app.get_snapshot(c.sid).state_revision)
+
+tests\knowledge_inputs_v1\test_k2_application.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_authority_and_freshness_rejections_before_file_or_store_effect[throws] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_authority_and_freshness_r2')
+reason = 'throws'
+
+    @pytest.mark.parametrize('reason',['unknown','unverified','throws','wrong-session','stale-revision','no-factory'])
+    def test_authority_and_freshness_rejections_before_file_or_store_effect(tmp_path,reason):
+        c=setup(tmp_path)
+        try:
+            actor=c.actor
+            if reason=='unknown':actor=object()
+            if reason=='unverified':actor=c.app.register_knowledge_actor('cli_tty',lambda:False)
+            if reason=='throws':
+                def bad(): raise RuntimeError('Synthetic')
+                actor=c.app.register_knowledge_actor('cli_tty',bad)
+            if reason=='no-factory':c.app._knowledge.factory=None
+>           cmd=command(c,session_id='ses_foreign' if reason=='wrong-session' else c.sid,
+                        revision=0 if reason=='stale-revision' else c.app.get_snapshot(c.sid).state_revision)
+
+tests\knowledge_inputs_v1\test_k2_application.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_authority_and_freshness_rejections_before_file_or_store_effect[wrong-session] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_authority_and_freshness_r3')
+reason = 'wrong-session'
+
+    @pytest.mark.parametrize('reason',['unknown','unverified','throws','wrong-session','stale-revision','no-factory'])
+    def test_authority_and_freshness_rejections_before_file_or_store_effect(tmp_path,reason):
+        c=setup(tmp_path)
+        try:
+            actor=c.actor
+            if reason=='unknown':actor=object()
+            if reason=='unverified':actor=c.app.register_knowledge_actor('cli_tty',lambda:False)
+            if reason=='throws':
+                def bad(): raise RuntimeError('Synthetic')
+                actor=c.app.register_knowledge_actor('cli_tty',bad)
+            if reason=='no-factory':c.app._knowledge.factory=None
+>           cmd=command(c,session_id='ses_foreign' if reason=='wrong-session' else c.sid,
+                        revision=0 if reason=='stale-revision' else c.app.get_snapshot(c.sid).state_revision)
+
+tests\knowledge_inputs_v1\test_k2_application.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_authority_and_freshness_rejections_before_file_or_store_effect[stale-revision] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_authority_and_freshness_r4')
+reason = 'stale-revision'
+
+    @pytest.mark.parametrize('reason',['unknown','unverified','throws','wrong-session','stale-revision','no-factory'])
+    def test_authority_and_freshness_rejections_before_file_or_store_effect(tmp_path,reason):
+        c=setup(tmp_path)
+        try:
+            actor=c.actor
+            if reason=='unknown':actor=object()
+            if reason=='unverified':actor=c.app.register_knowledge_actor('cli_tty',lambda:False)
+            if reason=='throws':
+                def bad(): raise RuntimeError('Synthetic')
+                actor=c.app.register_knowledge_actor('cli_tty',bad)
+            if reason=='no-factory':c.app._knowledge.factory=None
+>           cmd=command(c,session_id='ses_foreign' if reason=='wrong-session' else c.sid,
+                        revision=0 if reason=='stale-revision' else c.app.get_snapshot(c.sid).state_revision)
+
+tests\knowledge_inputs_v1\test_k2_application.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_authority_and_freshness_rejections_before_file_or_store_effect[no-factory] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_authority_and_freshness_r5')
+reason = 'no-factory'
+
+    @pytest.mark.parametrize('reason',['unknown','unverified','throws','wrong-session','stale-revision','no-factory'])
+    def test_authority_and_freshness_rejections_before_file_or_store_effect(tmp_path,reason):
+        c=setup(tmp_path)
+        try:
+            actor=c.actor
+            if reason=='unknown':actor=object()
+            if reason=='unverified':actor=c.app.register_knowledge_actor('cli_tty',lambda:False)
+            if reason=='throws':
+                def bad(): raise RuntimeError('Synthetic')
+                actor=c.app.register_knowledge_actor('cli_tty',bad)
+            if reason=='no-factory':c.app._knowledge.factory=None
+>           cmd=command(c,session_id='ses_foreign' if reason=='wrong-session' else c.sid,
+                        revision=0 if reason=='stale-revision' else c.app.get_snapshot(c.sid).state_revision)
+
+tests\knowledge_inputs_v1\test_k2_application.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+__ test_idempotency_bound_to_exact_arguments_no_reimport_no_automatic_retry ___
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_idempotency_bound_to_exac0')
+
+    def test_idempotency_bound_to_exact_arguments_no_reimport_no_automatic_retry(tmp_path):
+        c=setup(tmp_path)
+        try:
+>           cmd=command(c);receipt=c.app.execute_knowledge(cmd,actor=c.actor)
+                ^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_progress_status_cooperative_cancel_single_terminal_and_no_publish[host] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_progress_status_cooperati0')
+cancel_route = 'host'
+
+    @pytest.mark.parametrize('cancel_route',['host','core','close'])
+    def test_progress_status_cooperative_cancel_single_terminal_and_no_publish(tmp_path,cancel_route):
+        entered,release=Event(),Event()
+        def prepare(op,digest,size):
+            entered.set();assert release.wait(5)
+            return projection(op,digest,size)
+        c=setup(tmp_path,prepare=prepare)
+        try:
+>           receipt=c.app.execute_knowledge(command(c),actor=c.actor)
+                                            ^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_progress_status_cooperative_cancel_single_terminal_and_no_publish[core] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_progress_status_cooperati1')
+cancel_route = 'core'
+
+    @pytest.mark.parametrize('cancel_route',['host','core','close'])
+    def test_progress_status_cooperative_cancel_single_terminal_and_no_publish(tmp_path,cancel_route):
+        entered,release=Event(),Event()
+        def prepare(op,digest,size):
+            entered.set();assert release.wait(5)
+            return projection(op,digest,size)
+        c=setup(tmp_path,prepare=prepare)
+        try:
+>           receipt=c.app.execute_knowledge(command(c),actor=c.actor)
+                                            ^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_progress_status_cooperative_cancel_single_terminal_and_no_publish[close] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_progress_status_cooperati2')
+cancel_route = 'close'
+
+    @pytest.mark.parametrize('cancel_route',['host','core','close'])
+    def test_progress_status_cooperative_cancel_single_terminal_and_no_publish(tmp_path,cancel_route):
+        entered,release=Event(),Event()
+        def prepare(op,digest,size):
+            entered.set();assert release.wait(5)
+            return projection(op,digest,size)
+        c=setup(tmp_path,prepare=prepare)
+        try:
+>           receipt=c.app.execute_knowledge(command(c),actor=c.actor)
+                                            ^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_attachment_refs_separate_from_user_memory_capture_provider_and_system __
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_attachment_refs_separate_0')
+
+    def test_attachment_refs_separate_from_user_memory_capture_provider_and_system(tmp_path):
+        seen=[]
+        def runtime(provider,model,tools,messages,**kwargs):
+            seen.extend(deepcopy(messages));return 'Synthetic response'
+        c=setup(tmp_path,run_agent_fn=runtime,memory_capture_mode='propose_only')
+        try:
+>           invoke(c);ref=refs(c)[0]
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:156: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[source] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_attachment_identity_state0')
+tamper = 'source'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);ref=refs(c)[0]
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[revision] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_attachment_identity_state1')
+tamper = 'revision'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);ref=refs(c)[0]
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[display] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_attachment_identity_state2')
+tamper = 'display'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);ref=refs(c)[0]
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[attachment] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_attachment_identity_state3')
+tamper = 'attachment'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);ref=refs(c)[0]
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[state] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_attachment_identity_state4')
+tamper = 'state'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);ref=refs(c)[0]
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[deleted] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_attachment_identity_state5')
+tamper = 'deleted'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);ref=refs(c)[0]
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[wrong-session] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_attachment_identity_state6')
+tamper = 'wrong-session'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);ref=refs(c)[0]
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[wrong-workspace] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_attachment_identity_state7')
+tamper = 'wrong-workspace'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);ref=refs(c)[0]
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:174: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_________ test_delete_no_resurrection_and_no_memory_or_audit_erasure __________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_delete_no_resurrection_an0')
+
+    def test_delete_no_resurrection_and_no_memory_or_audit_erasure(tmp_path):
+        c=setup(tmp_path)
+        try:
+>           invoke(c);ref=refs(c)[0];svc=c.app._knowledge.service
+            ^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:193: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:30: in invoke
+    receipt=case.app.execute_knowledge(command(case,name,args,**kw),actor=case.actor)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\knowledge_inputs_v1\k2_helpers.py:24: in command
+    return KnowledgeCommand(kw.get('command_id') or new_command_id(),kw.get('session_id') or case.sid,
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_host_control_version_roundtrip_bound_session_revision[source_import-args0] _
+
+name = 'source_import', args = {'path': '/synthetic/file'}
+
+    @pytest.mark.parametrize('name,args',[
+        ('source_import',{'path':'/synthetic/file'}),('source_import',{'path':'/synthetic/file','scope':'WORKSPACE'}),
+        ('source_promote',{'sourceId':new_source_id()}),('source_delete',{'sourceId':new_source_id()}),
+        ('source_list',{}),('source_status',{}),('source_cancel',{'operationId':'op_synthetic'})])
+    def test_host_control_version_roundtrip_bound_session_revision(name,args):
+>       cmd=KnowledgeCommand(new_command_id(),'ses_synthetic',name,args,3)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_host_control_version_roundtrip_bound_session_revision[source_import-args1] _
+
+name = 'source_import', args = {'path': '/synthetic/file', 'scope': 'WORKSPACE'}
+
+    @pytest.mark.parametrize('name,args',[
+        ('source_import',{'path':'/synthetic/file'}),('source_import',{'path':'/synthetic/file','scope':'WORKSPACE'}),
+        ('source_promote',{'sourceId':new_source_id()}),('source_delete',{'sourceId':new_source_id()}),
+        ('source_list',{}),('source_status',{}),('source_cancel',{'operationId':'op_synthetic'})])
+    def test_host_control_version_roundtrip_bound_session_revision(name,args):
+>       cmd=KnowledgeCommand(new_command_id(),'ses_synthetic',name,args,3)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_host_control_version_roundtrip_bound_session_revision[source_promote-args2] _
+
+name = 'source_promote'
+args = {'sourceId': '572cd42d-7576-4ab5-b578-9b65956f8699'}
+
+    @pytest.mark.parametrize('name,args',[
+        ('source_import',{'path':'/synthetic/file'}),('source_import',{'path':'/synthetic/file','scope':'WORKSPACE'}),
+        ('source_promote',{'sourceId':new_source_id()}),('source_delete',{'sourceId':new_source_id()}),
+        ('source_list',{}),('source_status',{}),('source_cancel',{'operationId':'op_synthetic'})])
+    def test_host_control_version_roundtrip_bound_session_revision(name,args):
+>       cmd=KnowledgeCommand(new_command_id(),'ses_synthetic',name,args,3)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_host_control_version_roundtrip_bound_session_revision[source_delete-args3] _
+
+name = 'source_delete'
+args = {'sourceId': 'e318ee1f-0c0f-4725-85a5-da63cbb72d77'}
+
+    @pytest.mark.parametrize('name,args',[
+        ('source_import',{'path':'/synthetic/file'}),('source_import',{'path':'/synthetic/file','scope':'WORKSPACE'}),
+        ('source_promote',{'sourceId':new_source_id()}),('source_delete',{'sourceId':new_source_id()}),
+        ('source_list',{}),('source_status',{}),('source_cancel',{'operationId':'op_synthetic'})])
+    def test_host_control_version_roundtrip_bound_session_revision(name,args):
+>       cmd=KnowledgeCommand(new_command_id(),'ses_synthetic',name,args,3)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_host_control_version_roundtrip_bound_session_revision[source_list-args4] _
+
+name = 'source_list', args = {}
+
+    @pytest.mark.parametrize('name,args',[
+        ('source_import',{'path':'/synthetic/file'}),('source_import',{'path':'/synthetic/file','scope':'WORKSPACE'}),
+        ('source_promote',{'sourceId':new_source_id()}),('source_delete',{'sourceId':new_source_id()}),
+        ('source_list',{}),('source_status',{}),('source_cancel',{'operationId':'op_synthetic'})])
+    def test_host_control_version_roundtrip_bound_session_revision(name,args):
+>       cmd=KnowledgeCommand(new_command_id(),'ses_synthetic',name,args,3)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_host_control_version_roundtrip_bound_session_revision[source_status-args5] _
+
+name = 'source_status', args = {}
+
+    @pytest.mark.parametrize('name,args',[
+        ('source_import',{'path':'/synthetic/file'}),('source_import',{'path':'/synthetic/file','scope':'WORKSPACE'}),
+        ('source_promote',{'sourceId':new_source_id()}),('source_delete',{'sourceId':new_source_id()}),
+        ('source_list',{}),('source_status',{}),('source_cancel',{'operationId':'op_synthetic'})])
+    def test_host_control_version_roundtrip_bound_session_revision(name,args):
+>       cmd=KnowledgeCommand(new_command_id(),'ses_synthetic',name,args,3)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_host_control_version_roundtrip_bound_session_revision[source_cancel-args6] _
+
+name = 'source_cancel', args = {'operationId': 'op_synthetic'}
+
+    @pytest.mark.parametrize('name,args',[
+        ('source_import',{'path':'/synthetic/file'}),('source_import',{'path':'/synthetic/file','scope':'WORKSPACE'}),
+        ('source_promote',{'sourceId':new_source_id()}),('source_delete',{'sourceId':new_source_id()}),
+        ('source_list',{}),('source_status',{}),('source_cancel',{'operationId':'op_synthetic'})])
+    def test_host_control_version_roundtrip_bound_session_revision(name,args):
+>       cmd=KnowledgeCommand(new_command_id(),'ses_synthetic',name,args,3)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[kind-MemoryControl] _
+
+field = 'kind', value = 'MemoryControl'
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[schemaVersion-2] _
+
+field = 'schemaVersion', value = 2
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[schemaVersion-True] _
+
+field = 'schemaVersion', value = True
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[extra-x] _
+
+field = 'extra', value = 'x'
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[sessionId-42] _
+
+field = 'sessionId', value = 42
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[commandId-None] _
+
+field = 'commandId', value = None
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[expectedRevision-None] _
+
+field = 'expectedRevision', value = None
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[expectedRevision-True] _
+
+field = 'expectedRevision', value = True
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[expectedRevision--1] _
+
+field = 'expectedRevision', value = -1
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[name-web_fetch] _
+
+field = 'name', value = 'web_fetch'
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[arguments-value10] _
+
+field = 'arguments', value = {'path': 'x', 'scope': 'GLOBAL'}
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[arguments-value11] _
+
+field = 'arguments', value = {'path': 'x', 'grant': 'yes'}
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+_ test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[arguments-value12] _
+
+field = 'arguments', value = {'path': 'x', 'prepare': {}}
+
+    @pytest.mark.parametrize('field,value',[
+        ('kind','MemoryControl'),('schemaVersion',2),('schemaVersion',True),('extra','x'),
+        ('sessionId',42),('commandId',None),('expectedRevision',None),('expectedRevision',True),
+        ('expectedRevision',-1),('name','web_fetch'),('arguments',{'path':'x','scope':'GLOBAL'}),
+        ('arguments',{'path':'x','grant':'yes'}),('arguments',{'path':'x','prepare':{}})])
+    def test_untrusted_control_shapes_cannot_select_scope_producer_or_authority(field,value):
+>       raw=KnowledgeCommand(new_command_id(),'ses_synthetic','source_import',{'path':'/synthetic'},0).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+___________ test_control_domain_and_revision_are_part_of_host_proof ___________
+
+    def test_control_domain_and_revision_are_part_of_host_proof():
+        from local_cli.interfaces.approval_proof import approval_proof, verify_approval_proof
+        key='12'*32
+>       wire=KnowledgeCommand(new_command_id(),'ses_synthetic','source_list',{},1).to_dict()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_contracts.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+<string>:8: in __init__
+    ???
+local_cli\application\knowledge_host.py:30: in __post_init__
+    _require(isinstance(self.command_id,str) and self.command_id.startswith('cmd_') and isinstance(self.session_id,str) and bool(self.session_id))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False
+
+    def _require(condition):
+        if not condition:
+>           raise KnowledgeError(KnowledgeErrorCode.INVALID_CONTRACT)
+E           local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\core\knowledge.py:136: KnowledgeError
+______ test_jsonl_import_requires_authenticated_exact_host_intent[valid] ______
+
+proof_kind = 'valid'
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_jsonl_import_requires_aut0')
+
+    @pytest.mark.parametrize('proof_kind',['valid','missing','tampered','wrong-session','no-key'])
+    def test_jsonl_import_requires_authenticated_exact_host_intent(proof_kind,tmp_path):
+        c=setup(tmp_path);sent=[];key='34'*32
+>       adapter=JsonlApplicationAdapter(c.app,c.sid,sent.append,host_approval_key=None if proof_kind=='no-key' else key)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_interfaces.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:51: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D83600CC20>
+session_id = 'ses_d67e83b96e664b77949763b6f44d73ff', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+_____ test_jsonl_import_requires_authenticated_exact_host_intent[missing] _____
+
+proof_kind = 'missing'
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_jsonl_import_requires_aut1')
+
+    @pytest.mark.parametrize('proof_kind',['valid','missing','tampered','wrong-session','no-key'])
+    def test_jsonl_import_requires_authenticated_exact_host_intent(proof_kind,tmp_path):
+        c=setup(tmp_path);sent=[];key='34'*32
+>       adapter=JsonlApplicationAdapter(c.app,c.sid,sent.append,host_approval_key=None if proof_kind=='no-key' else key)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_interfaces.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:51: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D83773F770>
+session_id = 'ses_e34c6792590243df8e3683739dc074be', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+____ test_jsonl_import_requires_authenticated_exact_host_intent[tampered] _____
+
+proof_kind = 'tampered'
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_jsonl_import_requires_aut2')
+
+    @pytest.mark.parametrize('proof_kind',['valid','missing','tampered','wrong-session','no-key'])
+    def test_jsonl_import_requires_authenticated_exact_host_intent(proof_kind,tmp_path):
+        c=setup(tmp_path);sent=[];key='34'*32
+>       adapter=JsonlApplicationAdapter(c.app,c.sid,sent.append,host_approval_key=None if proof_kind=='no-key' else key)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_interfaces.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:51: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D83773E660>
+session_id = 'ses_a8468ecfa1054142a2334f742526cdc2', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+__ test_jsonl_import_requires_authenticated_exact_host_intent[wrong-session] __
+
+proof_kind = 'wrong-session'
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_jsonl_import_requires_aut3')
+
+    @pytest.mark.parametrize('proof_kind',['valid','missing','tampered','wrong-session','no-key'])
+    def test_jsonl_import_requires_authenticated_exact_host_intent(proof_kind,tmp_path):
+        c=setup(tmp_path);sent=[];key='34'*32
+>       adapter=JsonlApplicationAdapter(c.app,c.sid,sent.append,host_approval_key=None if proof_kind=='no-key' else key)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_interfaces.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:51: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D837935940>
+session_id = 'ses_ae7e3a686e054ae1b7b39de7f5beaf9c', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+_____ test_jsonl_import_requires_authenticated_exact_host_intent[no-key] ______
+
+proof_kind = 'no-key'
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_jsonl_import_requires_aut4')
+
+    @pytest.mark.parametrize('proof_kind',['valid','missing','tampered','wrong-session','no-key'])
+    def test_jsonl_import_requires_authenticated_exact_host_intent(proof_kind,tmp_path):
+        c=setup(tmp_path);sent=[];key='34'*32
+>       adapter=JsonlApplicationAdapter(c.app,c.sid,sent.append,host_approval_key=None if proof_kind=='no-key' else key)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_interfaces.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:51: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D837934AD0>
+session_id = 'ses_385549e8e4a549a3b9bd602a86af4d5f', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+___________ test_closed_pipe_cannot_reuse_authenticated_host_actor ____________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_closed_pipe_cannot_reuse_0')
+
+    def test_closed_pipe_cannot_reuse_authenticated_host_actor(tmp_path):
+>       c=setup(tmp_path);adapter=JsonlApplicationAdapter(c.app,c.sid,lambda value:None,host_approval_key='45'*32)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_interfaces.py:33: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:51: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D837934D70>
+session_id = 'ses_364674ae390941c390566d0e44bda147', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+_ test_cli_explicit_path_spaces_default_session_and_host_tty_enforcement[True] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_cli_explicit_path_spaces_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D837E51B70>
+tty = True
+
+    @pytest.mark.parametrize('tty',[True,False])
+    def test_cli_explicit_path_spaces_default_session_and_host_tty_enforcement(tmp_path,monkeypatch,tty):
+        monkeypatch.setattr(CliApplicationClient,'_human_tty',staticmethod(lambda:tty))
+>       c=setup(tmp_path);out=[];console=CliApplicationClient(c.app,c.sid,write=out.append)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_interfaces.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:73: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D837935010>
+session_id = 'ses_b2851669d433432b86bd198639d8d44a', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+_ test_cli_explicit_path_spaces_default_session_and_host_tty_enforcement[False] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_cli_explicit_path_spaces_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D837E426D0>
+tty = False
+
+    @pytest.mark.parametrize('tty',[True,False])
+    def test_cli_explicit_path_spaces_default_session_and_host_tty_enforcement(tmp_path,monkeypatch,tty):
+        monkeypatch.setattr(CliApplicationClient,'_human_tty',staticmethod(lambda:tty))
+>       c=setup(tmp_path);out=[];console=CliApplicationClient(c.app,c.sid,write=out.append)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_interfaces.py:42: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:73: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D83773E660>
+session_id = 'ses_1a446cd20c644464b55fe41627ec4636', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+_ test_cli_workspace_import_list_promote_delete_share_backend_no_second_loop __
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block2-20261007/pytest-private/test_cli_workspace_import_list0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D837E433F0>
+
+    def test_cli_workspace_import_list_promote_delete_share_backend_no_second_loop(tmp_path,monkeypatch):
+        monkeypatch.setattr(CliApplicationClient,'_human_tty',staticmethod(lambda:True))
+>       c=setup(tmp_path);console=CliApplicationClient(c.app,c.sid,write=lambda x:None)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_interfaces.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:73: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D83773F770>
+session_id = 'ses_d520cc85cab54625b8027ddafc26d592', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1938: ValueError
+=========================== short test summary info ===========================
+FAILED tests/knowledge_inputs_v1/test_k2_acquisition.py::test_real_bounded_reads_unicode_path_bytes_and_progress[256]
+FAILED tests/knowledge_inputs_v1/test_k2_acquisition.py::test_real_bounded_reads_unicode_path_bytes_and_progress[8192]
+FAILED tests/knowledge_inputs_v1/test_k2_acquisition.py::test_real_cancel_before_or_between_units[during]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_real_session_acquisition_operation_publication_progress_no_paths_or_content
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_explicit_scope_and_reopen_session_cleanup_workspace_persistence[SESSION]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_explicit_scope_and_reopen_session_cleanup_workspace_persistence[WORKSPACE]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_promotion_is_independent_new_source_revision_preserves_original_and_no_origin_reopen
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_missing_producer_real_route_acquires_but_typed_failure_no_fake_ready_and_cleanup
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_authority_and_freshness_rejections_before_file_or_store_effect[unknown]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_authority_and_freshness_rejections_before_file_or_store_effect[unverified]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_authority_and_freshness_rejections_before_file_or_store_effect[throws]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_authority_and_freshness_rejections_before_file_or_store_effect[wrong-session]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_authority_and_freshness_rejections_before_file_or_store_effect[stale-revision]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_authority_and_freshness_rejections_before_file_or_store_effect[no-factory]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_idempotency_bound_to_exact_arguments_no_reimport_no_automatic_retry
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_progress_status_cooperative_cancel_single_terminal_and_no_publish[host]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_progress_status_cooperative_cancel_single_terminal_and_no_publish[core]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_progress_status_cooperative_cancel_single_terminal_and_no_publish[close]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_refs_separate_from_user_memory_capture_provider_and_system
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[source]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[revision]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[display]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[attachment]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[state]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[deleted]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[wrong-session]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[wrong-workspace]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_delete_no_resurrection_and_no_memory_or_audit_erasure
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_host_control_version_roundtrip_bound_session_revision[source_import-args0]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_host_control_version_roundtrip_bound_session_revision[source_import-args1]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_host_control_version_roundtrip_bound_session_revision[source_promote-args2]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_host_control_version_roundtrip_bound_session_revision[source_delete-args3]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_host_control_version_roundtrip_bound_session_revision[source_list-args4]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_host_control_version_roundtrip_bound_session_revision[source_status-args5]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_host_control_version_roundtrip_bound_session_revision[source_cancel-args6]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[kind-MemoryControl]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[schemaVersion-2]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[schemaVersion-True]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[extra-x]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[sessionId-42]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[commandId-None]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[expectedRevision-None]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[expectedRevision-True]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[expectedRevision--1]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[name-web_fetch]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[arguments-value10]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[arguments-value11]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_untrusted_control_shapes_cannot_select_scope_producer_or_authority[arguments-value12]
+FAILED tests/knowledge_inputs_v1/test_k2_contracts.py::test_control_domain_and_revision_are_part_of_host_proof
+FAILED tests/knowledge_inputs_v1/test_k2_interfaces.py::test_jsonl_import_requires_authenticated_exact_host_intent[valid]
+FAILED tests/knowledge_inputs_v1/test_k2_interfaces.py::test_jsonl_import_requires_authenticated_exact_host_intent[missing]
+FAILED tests/knowledge_inputs_v1/test_k2_interfaces.py::test_jsonl_import_requires_authenticated_exact_host_intent[tampered]
+FAILED tests/knowledge_inputs_v1/test_k2_interfaces.py::test_jsonl_import_requires_authenticated_exact_host_intent[wrong-session]
+FAILED tests/knowledge_inputs_v1/test_k2_interfaces.py::test_jsonl_import_requires_authenticated_exact_host_intent[no-key]
+FAILED tests/knowledge_inputs_v1/test_k2_interfaces.py::test_closed_pipe_cannot_reuse_authenticated_host_actor
+FAILED tests/knowledge_inputs_v1/test_k2_interfaces.py::test_cli_explicit_path_spaces_default_session_and_host_tty_enforcement[True]
+FAILED tests/knowledge_inputs_v1/test_k2_interfaces.py::test_cli_explicit_path_spaces_default_session_and_host_tty_enforcement[False]
+FAILED tests/knowledge_inputs_v1/test_k2_interfaces.py::test_cli_workspace_import_list_promote_delete_share_backend_no_second_loop
+58 failed, 366 passed in 19.98s

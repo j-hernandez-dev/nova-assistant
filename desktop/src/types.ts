@@ -15,6 +15,8 @@ export type Message = {
   role: MessageRole
   content: string
   sourceIndex?: number
+  attachmentRefs?: import('../shared/application').AttachmentRef[]
+  knowledgeCitations?:import('../shared/application').KnowledgeCitations
   toolCalls?: ToolCall[]
   toolResults?: ToolResult[]
   streaming?: boolean
@@ -79,6 +81,10 @@ declare global {
   interface Window {
     api: {
       memoryCommand: (name: string, args: Record<string, unknown>, commandId?: string) => Promise<import('../shared/application').MemoryControlResult>
+      knowledgePick: () => Promise<import('../shared/application').CommandReceipt>
+      knowledgeRefresh:(sourceId:string)=>Promise<import('../shared/application').CommandReceipt>
+      knowledgeExport:(sourceId:string)=>Promise<import('../shared/application').CommandReceipt>
+      knowledgeCommand: (name:string,args:Record<string,unknown>,commandId?:string) => Promise<import('../shared/application').CommandReceipt>
       applicationCommand: (kind: string, payload: Record<string, unknown>, commandId?: string) => Promise<import('../shared/application').CommandReceipt>
       restartBackend: () => Promise<{ success: boolean; error?: string }>
       onSessionView: (cb: (view: import('../shared/application').DesktopSessionView) => void) => () => void

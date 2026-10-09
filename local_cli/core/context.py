@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass
 import json
 import math
 from typing import Any, Callable
+from local_cli.core.knowledge_context import KNOWLEDGE_HEADER, KNOWLEDGE_FOOTER
 
 
 # Manual high-capacity support must not change the conservative AUTO policy.
@@ -175,7 +176,7 @@ class PreparedContext:
 
 
 def message_kind(message):
-    if message.get("_context_kind") in ("memory", "retrieval", "skills", "project"):
+    if message.get("_context_kind") in ("memory", "retrieval", "knowledge", "skills", "project"):
         return message["_context_kind"]
     content = message.get("content", "")
     if message.get("role") == "system" and isinstance(content, str):
@@ -319,7 +320,7 @@ class ContextManager:
             shared_cap = max(0, min(math.floor(admission_available * .15), retrieval_cap,
                                     remaining, combined_cap - tools_used))
             hard_cap = min(shared_cap, math.floor(window * .08), 1024)
-            rag_demand = sum(count(m) for _, k, m in items if k == "retrieval")
+            rag_demand = sum(count(m) for _, k, m in items if k in ("retrieval", "knowledge"))
             memory_limit = min(hard_cap, max(math.floor(shared_cap * .60), shared_cap - rag_demand))
             for i, kind, message in items:
                 if kind != "memory" or memory_used:
@@ -385,9 +386,23 @@ class ContextManager:
                 admit_memory()
         retrieval_used = memory_used
         for i, kind, message in reversed(items):
-            if kind == "retrieval":
-                reduced = clipped(message, min(remaining, shared_cap - retrieval_used,
-                                               combined_cap - tools_used - retrieval_used))
+            if kind in ("retrieval", "knowledge"):
+                limit = min(remaining, shared_cap - retrieval_used,
+                            combined_cap - tools_used - retrieval_used)
+                if kind == "knowledge":
+                    # Host-rendered JSON evidence rows are atomic. Never clip a
+                    # citation ID, locator, quoted datum or its safety wrapper.
+                    lines = message.get('content', '').splitlines()
+                    kept = []
+                    if message.get('role') == 'user' and len(lines) >= 3 and (
+                            lines[0] == KNOWLEDGE_HEADER and lines[-1] == KNOWLEDGE_FOOTER):
+                        for line in lines[1:-1][:10]:
+                            candidate = {**message, 'content': '\n'.join([KNOWLEDGE_HEADER, *kept, line, KNOWLEDGE_FOOTER])}
+                            if count(candidate) > limit: break
+                            kept.append(line)
+                    reduced = {**message, 'content': '\n'.join([KNOWLEDGE_HEADER, *kept, KNOWLEDGE_FOOTER])} if kept else None
+                else:
+                    reduced = clipped(message, limit)
                 if reduced is not None:
                     chosen.append((i, kind, reduced))
                     used = count(reduced)

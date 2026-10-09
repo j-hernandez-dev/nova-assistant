@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "dataset": "k4-core-frozen-synthetic-v1",
+  "quality": {
+    "recallAt5": 0.9,
+    "precisionAt1": 0.85,
+    "abstention": 0.95
+  },
+  "critical": {
+    "scope": 1,
+    "provenance": 1,
+    "currentRevision": 1,
+    "mixedSpacesAccepted": 0,
+    "semanticFailureLexical": 1,
+    "legacyVectorReinterpretations": 0
+  },
+  "performance": {
+    "ftsP95Ms": 100
+  },
+  "chunking": {
+    "target": 700,
+    "hard": 1000,
+    "overlap": 100,
+    "counter": "Core TokenCounter; utf8_bytes_div_3 fallback"
+  },
+  "ranking": {
+    "profile": "ki-document-rank-v1",
+    "normalization": "NFKD casefold alphanumeric; fixed EN/ES stopwords",
+    "queryTermsMax": 32,
+    "lexicalCoverageFloor": 0.5,
+    "positiveBM25Required": true,
+    "exact": "all normalized terms in contiguous phrase",
+    "semanticCosineFloor": 0.35,
+    "rrfK": 60,
+    "exactTierFirst": true
+  },
+  "caps": {
+    "lexical": 32,
+    "semantic": 32,
+    "merged": 24,
+    "final": 10
+  },
+  "denominators": {
+    "positive": 53,
+    "negative": 20
+  },
+  "semanticQuality": "NOT_EVALUATED",
+  "documentSemanticProfile": "NOT_CERTIFIED",
+  "mutationAfterObservation": false
+}

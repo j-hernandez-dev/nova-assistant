@@ -1,0 +1,339 @@
+{
+  "status": "PASS",
+  "yaml_parser": "js-yaml 4.1.1 / YAML 1.2",
+  "workflows": [
+    {
+      "path": ".github\\workflows\\nova_core_v1.yml",
+      "sha256": "39a7eac94ab26e1ef0dbeb70beef9bd5f4c458f1d21e8e0d4a2fd639f0a489cf",
+      "status": "PARSED_YAML_1_2",
+      "jobs": [
+        {
+          "id": "core-contracts",
+          "platforms": [
+            "windows-latest",
+            "ubuntu-latest",
+            "macos-latest"
+          ],
+          "timeout": 45,
+          "condition": "ordinary push/pr/manual",
+          "commands": [
+            {
+              "command": "python -m pip install -e . pytest pytest-subtests",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "python -B ci/contract_inventory.py",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "python -B ci/run_contracts.py --job core --output \"${{ runner.temp }}/nova-core-contracts\"",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            }
+          ],
+          "cache": "NONE (no stale cache keys)",
+          "artifacts": [
+            {
+              "name": "core-contracts-${{ matrix.os }}",
+              "path": "${{ runner.temp }}/nova-core-contracts/run.json\n${{ runner.temp }}/nova-core-contracts/selection.json\n${{ runner.temp }}/nova-core-contracts/collected_nodeids.json\n${{ runner.temp }}/nova-core-contracts/tests.xml\n${{ runner.temp }}/nova-core-contracts/pytest.log\n",
+              "if-no-files-found": "error"
+            }
+          ]
+        },
+        {
+          "id": "security-contracts",
+          "platforms": [
+            "windows-latest",
+            "ubuntu-latest",
+            "macos-latest"
+          ],
+          "timeout": 45,
+          "condition": "ordinary push/pr/manual",
+          "commands": [
+            {
+              "command": "python -m pip install -e . pytest pytest-subtests",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "python -B ci/run_contracts.py --job security --output \"${{ runner.temp }}/nova-security-contracts\"",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            }
+          ],
+          "cache": "NONE (no stale cache keys)",
+          "artifacts": [
+            {
+              "name": "security-contracts-${{ matrix.os }}",
+              "path": "${{ runner.temp }}/nova-security-contracts/run.json\n${{ runner.temp }}/nova-security-contracts/selection.json\n${{ runner.temp }}/nova-security-contracts/collected_nodeids.json\n${{ runner.temp }}/nova-security-contracts/tests.xml\n${{ runner.temp }}/nova-security-contracts/pytest.log\n",
+              "if-no-files-found": "error"
+            }
+          ]
+        },
+        {
+          "id": "security-native-manual",
+          "platforms": [
+            "windows-latest"
+          ],
+          "timeout": 45,
+          "condition": "github.event_name == 'workflow_dispatch' && inputs.native_security",
+          "commands": [
+            {
+              "command": "python -m pip install -e . pytest pytest-subtests",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "python -B ci/run_contracts.py --job security-native --special --output \"${{ runner.temp }}/nova-security-native\"",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            }
+          ],
+          "cache": "NONE (no stale cache keys)",
+          "artifacts": [
+            {
+              "name": "security-native-windows",
+              "path": "${{ runner.temp }}/nova-security-native/run.json\n${{ runner.temp }}/nova-security-native/selection.json\n${{ runner.temp }}/nova-security-native/collected_nodeids.json\n${{ runner.temp }}/nova-security-native/tests.xml\n${{ runner.temp }}/nova-security-native/pytest.log\n",
+              "if-no-files-found": "error"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": ".github\\workflows\\nova_knowledge_v1.yml",
+      "sha256": "89c228b51692abe34cade4ec5b95ce9fbe6a2074ec8c406897f30629f0c48b83",
+      "status": "PARSED_YAML_1_2",
+      "jobs": [
+        {
+          "id": "knowledge-contracts",
+          "platforms": [
+            "windows-latest"
+          ],
+          "timeout": 45,
+          "condition": "ordinary push/pr/manual",
+          "commands": [
+            {
+              "command": "python -m pip install -e . pytest pytest-subtests",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "python -B ci/contract_inventory.py",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "python -B ci/run_contracts.py --job knowledge --collect-only --output \"${{ runner.temp }}/nova-knowledge-collection\"",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "python -B ci/run_contracts.py --job knowledge --output \"${{ runner.temp }}/nova-knowledge-contracts\"",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            }
+          ],
+          "cache": "NONE (no stale cache keys)",
+          "artifacts": [
+            {
+              "name": "knowledge-current-contracts-windows",
+              "path": "${{ runner.temp }}/nova-knowledge-collection/run.json\n${{ runner.temp }}/nova-knowledge-collection/selection.json\n${{ runner.temp }}/nova-knowledge-collection/collected_nodeids.json\n${{ runner.temp }}/nova-knowledge-collection/pytest.log\n${{ runner.temp }}/nova-knowledge-contracts/run.json\n${{ runner.temp }}/nova-knowledge-contracts/selection.json\n${{ runner.temp }}/nova-knowledge-contracts/collected_nodeids.json\n${{ runner.temp }}/nova-knowledge-contracts/tests.xml\n${{ runner.temp }}/nova-knowledge-contracts/pytest.log\n",
+              "if-no-files-found": "error"
+            }
+          ]
+        },
+        {
+          "id": "desktop-contracts",
+          "platforms": [
+            "windows-latest"
+          ],
+          "timeout": 20,
+          "condition": "ordinary push/pr/manual",
+          "commands": [
+            {
+              "command": "npm ci",
+              "cwd": "desktop",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs",
+              "cwd": "desktop",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "npx --no-install tsc --noEmit",
+              "cwd": "desktop",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            }
+          ],
+          "cache": "NONE (no stale cache keys)",
+          "artifacts": []
+        }
+      ]
+    },
+    {
+      "path": ".github\\workflows\\nova_memory_v1.yml",
+      "sha256": "0930ab7afbbb53bf80242dd2b20b2aefdd90789c120c5e4ae2d0cf1d9cb17759",
+      "status": "PARSED_YAML_1_2",
+      "jobs": [
+        {
+          "id": "memory-contracts",
+          "platforms": [
+            "windows-latest",
+            "ubuntu-latest",
+            "macos-latest"
+          ],
+          "timeout": 45,
+          "condition": "ordinary push/pr/manual",
+          "commands": [
+            {
+              "command": "python -m pip install -e \".[memory-semantic]\" pytest pytest-subtests",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            },
+            {
+              "command": "python -B ci/run_contracts.py --job memory --output \"${{ runner.temp }}/nova-memory-contracts\"",
+              "cwd": ".",
+              "shell": "host default (pwsh Windows, bash POSIX)"
+            }
+          ],
+          "cache": "NONE (no stale cache keys)",
+          "artifacts": [
+            {
+              "name": "memory-contracts-${{ matrix.os }}",
+              "path": "${{ runner.temp }}/nova-memory-contracts/run.json\n${{ runner.temp }}/nova-memory-contracts/selection.json\n${{ runner.temp }}/nova-memory-contracts/collected_nodeids.json\n${{ runner.temp }}/nova-memory-contracts/tests.xml\n${{ runner.temp }}/nova-memory-contracts/pytest.log\n",
+              "if-no-files-found": "error"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "bash": [
+    {
+      "workflow": ".github\\workflows\\nova_core_v1.yml",
+      "job": "core-contracts",
+      "command": "python -m pip install -e . pytest pytest-subtests",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_core_v1.yml",
+      "job": "core-contracts",
+      "command": "python -B ci/contract_inventory.py",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_core_v1.yml",
+      "job": "core-contracts",
+      "command": "python -B ci/run_contracts.py --job core --output \"${{ runner.temp }}/nova-core-contracts\"",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_core_v1.yml",
+      "job": "security-contracts",
+      "command": "python -m pip install -e . pytest pytest-subtests",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_core_v1.yml",
+      "job": "security-contracts",
+      "command": "python -B ci/run_contracts.py --job security --output \"${{ runner.temp }}/nova-security-contracts\"",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_core_v1.yml",
+      "job": "security-native-manual",
+      "command": "python -m pip install -e . pytest pytest-subtests",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_core_v1.yml",
+      "job": "security-native-manual",
+      "command": "python -B ci/run_contracts.py --job security-native --special --output \"${{ runner.temp }}/nova-security-native\"",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_knowledge_v1.yml",
+      "job": "knowledge-contracts",
+      "command": "python -m pip install -e . pytest pytest-subtests",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_knowledge_v1.yml",
+      "job": "knowledge-contracts",
+      "command": "python -B ci/contract_inventory.py",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_knowledge_v1.yml",
+      "job": "knowledge-contracts",
+      "command": "python -B ci/run_contracts.py --job knowledge --collect-only --output \"${{ runner.temp }}/nova-knowledge-collection\"",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_knowledge_v1.yml",
+      "job": "knowledge-contracts",
+      "command": "python -B ci/run_contracts.py --job knowledge --output \"${{ runner.temp }}/nova-knowledge-contracts\"",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_knowledge_v1.yml",
+      "job": "desktop-contracts",
+      "command": "npm ci",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_knowledge_v1.yml",
+      "job": "desktop-contracts",
+      "command": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_knowledge_v1.yml",
+      "job": "desktop-contracts",
+      "command": "npx --no-install tsc --noEmit",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_memory_v1.yml",
+      "job": "memory-contracts",
+      "command": "python -m pip install -e \".[memory-semantic]\" pytest pytest-subtests",
+      "status": "PASS",
+      "executed": false
+    },
+    {
+      "workflow": ".github\\workflows\\nova_memory_v1.yml",
+      "job": "memory-contracts",
+      "command": "python -B ci/run_contracts.py --job memory --output \"${{ runner.temp }}/nova-memory-contracts\"",
+      "status": "PASS",
+      "executed": false
+    }
+  ],
+  "findings": [],
+  "product_tests_executed": 0,
+  "inference": 0,
+  "remote_workflows": 0,
+  "actionlint": "NOT_AVAILABLE; no claim of remote Actions execution",
+  "official_references": [
+    "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax",
+    "https://github.com/actions/setup-node/blob/v4/action.yml",
+    "https://github.com/actions/upload-artifact/blob/v4/action.yml"
+  ]
+}

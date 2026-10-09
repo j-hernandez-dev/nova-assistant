@@ -83,7 +83,7 @@ grants narrow those domains. Neither domain restricts a shell's OS authority.
             scope = ResourceScope(ScopeKind.PROCESS_DOMAIN, str(workspace), style,
                                   executable=shell_executable(tool, workspace))
             caps.append(_cap('process.execute', scope, ControlClass.HOST_UNISOLATED))
-    if 'web_fetch' in registry.names:
+    if any(n in registry.names for n in ('web_fetch', 'web_search')):
         caps.extend(_cap('network.fetch', ResourceScope(ScopeKind.URL_SCHEME, scheme), ControlClass.BROKER_ENFORCED)
                     for scheme in ('http', 'https'))
     if 'bash' in registry.names:
@@ -168,10 +168,18 @@ class PolicyEngineV2:
             caps.append(_cap('process.execute', scope, ControlClass.HOST_UNISOLATED))
             action, effect = command, 'process.execute.HOST_UNISOLATED'
             network = {'controlClass': 'HOST_UNISOLATED', 'destinations': 'unmediated'}
-        elif name == 'web_fetch':
-            scope = ResourceScope(ScopeKind.URL, args['url'])
+        elif name in ('web_fetch', 'web_search'):
+            if name == 'web_search':
+                from local_cli.core.passive_web import WebSearchError
+                try:
+                    url = registry.tool(name).network_url(args)
+                except WebSearchError as exc:
+                    raise PolicyInputError(exc.code) from None
+            else:
+                url = args['url']
+            scope = ResourceScope(ScopeKind.URL, url)
             caps.append(_cap('network.fetch', scope, ControlClass.BROKER_ENFORCED))
-            action, effect = args['url'], 'network.fetch'
+            action, effect = url, 'network.fetch'
             network = {'requestedUrl': scope.resource, 'redirectMediation': 'checked_each_hop',
                        'destinationPolicy': 'PUBLIC_ONLY', 'controlClass': 'BROKER_ENFORCED'}
         elif name == 'todo_write':

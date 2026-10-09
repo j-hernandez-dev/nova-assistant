@@ -94,6 +94,10 @@ class Turn:
     generations: dict[str, dict[str, Any]] = field(default_factory=dict)
     context_reports: list[dict[str, Any]] = field(default_factory=list)
     memory_snapshot: TurnMemorySnapshot | None = field(default=None, repr=False)
+    knowledge_admission: Any = field(default=None, repr=False)
+    attachment_refs: tuple = field(default=(), repr=False)
+    citation_reports: list[dict[str, Any]] = field(default_factory=list)
+    effect_constraints: Any = field(default=None, repr=False)
     # Ephemeral owner-facing execution projection; never a second transcript,
     # prompt source, durable journal or renderer-owned lifecycle.
     display_messages: list[dict[str, Any]] = field(default_factory=list)
@@ -199,6 +203,7 @@ class AgentSessionCoordinator:
         environment_selector: Any = None, environment_source: Any = None,
         security_audit_port: Any = None,
         memory_factory: Any = None,
+        knowledge_factory: Any = None,
         allow_remote_memory_injection: bool = False,
         memory_capture_mode: str = 'off',
         memory_extractor_factory: Any = None,
@@ -254,6 +259,8 @@ class AgentSessionCoordinator:
         self._events: SessionEventStream | None = None
         self._receipts: dict[CommandId, tuple[str, CommandReceipt]] = {}
         self._memory_factory, self._memory = memory_factory, None
+        from local_cli.application.knowledge_host import KnowledgeHostControls
+        self._knowledge = KnowledgeHostControls(self, knowledge_factory)
         if type(allow_remote_memory_injection) is not bool:
             raise ValueError('remote memory injection requires an explicit boolean')
         self._allow_remote_memory_injection = allow_remote_memory_injection
@@ -503,8 +510,18 @@ class AgentSessionCoordinator:
         if any(not turn.done.is_set() for turn in session.turns):
             return self._reject(command, "CONFLICT_ACTIVE_TURN",
                                 "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+            return CommandReceipt(command.command_id, False, session.session_id, session.state_revision,
+                error=ApplicationError(exc.code, ErrorCategory.CAPABILITY, 'Attachment reference is unavailable or stale.'))
         self._preempt_memory(resume_after_turn=True)
         turn = Turn(new_turn_id(), new_operation_id(), command.command_id)
+        from local_cli.application.turn_effects import resolve_turn_effects
+        turn.effect_constraints = resolve_turn_effects(command.payload['content'])
+        session.tool_runtime.bind_turn_effects(session.session_id,turn.turn_id,turn.effect_constraints)
+        turn.attachment_refs = refs
         if self._memory_capture_mode!='off':
             turn.memory_capture=(session.workspace,self.redactor.text(command.payload['content']),datetime.now(timezone.utc))
         if self.provider_manager.snapshot().name in ProviderManager.SUPPORTED:
@@ -518,7 +535,8 @@ class AgentSessionCoordinator:
             session.transcript.extend(deepcopy(self._turn_messages_factory(command.payload["content"])))
         turn.transcript_start = len(session.transcript)
         session.transcript[:] = self.redactor.messages(session.transcript)
-        session.transcript.append({"role": "user", "content": self.redactor.text(command.payload["content"])})
+        session.transcript.append({"role": "user", "content": self.redactor.text(command.payload["content"]),
+            **({'attachmentRefs': [r.to_dict() for r in refs]} if refs else {})})
         if self._persistence is not None:
             self._persistence.save(session.transcript)
         session.state_revision += 1
@@ -548,6 +566,7 @@ class AgentSessionCoordinator:
             self.provider_manager.end_turn(turn.turn_id)
             if turn.model_runtime._context is not None:
                 turn.model_runtime._context.memory_source=None
+                turn.model_runtime._context.knowledge_source=None
                 turn.model_runtime._context.manager.invalidate_cache()
             turn.done.set()
 
@@ -755,6 +774,11 @@ class AgentSessionCoordinator:
                 raise ValueError("workspace cannot change during active execution")
             if not workspace.is_absolute() or not workspace.is_dir():
                 raise ValueError("workspace must be an absolute directory")
+            old_knowledge = self._knowledge
+            old_knowledge.close()
+            from local_cli.application.knowledge_host import KnowledgeHostControls
+            self._knowledge = KnowledgeHostControls(self, old_knowledge.factory)
+            self._knowledge.actors = old_knowledge.actors
             session.workspace = workspace.resolve()
             session.base_transcript = self.redactor.messages(base_messages)
             self._persistence = persistence
@@ -1017,6 +1041,11 @@ class AgentSessionCoordinator:
         mode = command.payload["mode"]
         if mode not in ("default", "worktree"):
             return self._reject(command, "INVALID_SUB_AGENT_MODE", "Unsupported sub-agent mode")
+        selection=command.payload.get('knowledgeCitationIds')
+        available={e.citation_id for e in parent.knowledge_admission.capsule.evidence} if parent.knowledge_admission else set()
+        if selection is not None and (not isinstance(selection,(list,tuple)) or
+                any(not isinstance(i,str) or i not in available for i in selection) or len(selection)!=len(set(selection))):
+            return self._reject(command,'SOURCE_NOT_AUTHORIZED','Only parent-admitted evidence can be delegated')
         try:
             tools = self._sub_agent_tool_factory(session.workspace)
             bound = bind_context(self.provider_manager.snapshot(), workspace=session.workspace,
@@ -1045,6 +1074,7 @@ class AgentSessionCoordinator:
                 process_service=session.tool_runtime._process_service,
                 network_service=session.tool_runtime._network_service,
                 redactor=self.redactor, security_audit=self.security_audit)
+            child._knowledge_selection=selection
         except SecurityAuditError:
             return self._reject(command, 'SECURITY_AUDIT_PRE_EFFECT_FAILED', 'Audit unavailable; sub-agent not started')
         except Exception:
@@ -1098,7 +1128,7 @@ class AgentSessionCoordinator:
             )
 
         runtime_tools = [LegacyToolAdapter(tool, session.tool_runtime,
-                                           context_factory)
+                                           context_factory, guard_effects=lambda:turn.effect_constraints)
                          for tool in session.tools]
 
         def emit_legacy(event: AgentEvent) -> None:
@@ -1154,6 +1184,7 @@ class AgentSessionCoordinator:
                             {"legacyKind": event.kind, "data": deepcopy(event.data)},
                             visibility=Visibility.INTERNAL, **common)
                 elif event.kind == "assistant_message" and active_generation is not None:
+                    self._record_citations(turn, event.data.get('message', {}).get('content', ''), active_generation)
                     cancelled = (turn.stop_generation_requested or
                                  turn.cancellation.is_cancel_requested())
                     publish(EventKind.GENERATION_CANCELLED if cancelled
@@ -1177,7 +1208,7 @@ class AgentSessionCoordinator:
                     # credentials. Publish only the intervention name.
                     publish(EventKind.HARNESS_INTERVENTION,
                                    {"rule": event.kind}, **common)
-                elif event.kind in ("context_budget", "context_usage", "memory_recall"):
+                elif event.kind in ("context_budget", "context_usage", "memory_recall", "knowledge_recall"):
                     session.state_revision += 1
                     turn.context_reports.append(deepcopy(event.data))
                     publish(EventKind.HARNESS_INTERVENTION, event.data,
@@ -1185,12 +1216,30 @@ class AgentSessionCoordinator:
                             generation_id=active_generation, causation_id=cause)
 
         try:
+            citation_receipts = {}
+            def captured_message(message):
+                return deepcopy(citation_receipts.get(id(message),self._citation_message(turn,message)))
             def checkpoint(additions):
+                for message in additions:
+                    if isinstance(message,dict) and id(message) not in citation_receipts:
+                        citation_receipts[id(message)] = self._citation_message(turn,message)
                 if self._persistence is not None:
                     with self._lock:
-                        self._persistence.save(self.redactor.messages(session.transcript + [deepcopy(m) for m in additions
+                        self._persistence.save(self.redactor.messages(session.transcript + [captured_message(m) for m in additions
                             if isinstance(m, dict) and m.get("role") in ("assistant", "tool")]))
-            working = _WorkingMessages(session.transcript, on_append=checkpoint)
+            # Persisted provenance is not a user assertion/provider field. Old
+            # Turn citation IDs must never authorize references in a new Turn.
+            working = _WorkingMessages([{k:v for k,v in m.items() if k not in ('attachmentRefs','knowledgeCitations')}
+                                        for m in session.transcript], on_append=checkpoint)
+            private_remote = (getattr(self._knowledge.factory,'context_available',False) and
+                not local_memory_destination(turn.model_runtime.snapshot))
+            if private_remote:
+                from local_cli.core.context import message_kind
+                for message in list(working):
+                    # Legacy notes/RAG have no per-source forwarding consent or
+                    # V1 citation provenance. Preserve history, deny forwarding.
+                    if message_kind(message) in ('retrieval','knowledge'):
+                        working.remove(message)
             if self._auxiliary_services is not None:
                 plan_factory=getattr(self._auxiliary_services,'plan_context',None)
                 plan=plan_factory() if callable(plan_factory) else None
@@ -1202,7 +1251,12 @@ class AgentSessionCoordinator:
                     token=turn.cancellation.child(), turn_id=turn.turn_id)
                 with self._lock:
                     self._service_operations[rag_op.operation_id] = rag_op
-                if self._memory_worker and not self._memory_worker.done.is_set():
+                if private_remote:
+                    from local_cli.application.rag import RAGResponse,RAGState
+                    from local_cli.core.rag import RAGError
+                    response=RAGResponse(rag_op.operation_id,True,RAGState.UNAVAILABLE,
+                        error=RAGError('REMOTE_FORWARDING_DENIED','Legacy document forwarding requires source consent.'))
+                elif self._memory_worker and not self._memory_worker.done.is_set():
                     from local_cli.application.rag import RAGResponse,RAGState
                     from local_cli.core.rag import RAGError
                     response=RAGResponse(rag_op.operation_id,True,RAGState.UNAVAILABLE,
@@ -1226,6 +1280,7 @@ class AgentSessionCoordinator:
                 report=lambda payload: emit_legacy(AgentEvent(payload["rule"], payload)),
                 capability_factory=self._capability_factory)
             turn.capabilities = turn.model_runtime._context.capabilities
+            self._stage_knowledge(session, turn, working)
             if self._memory_factory is not None and not turn.cancellation.is_cancel_requested():
                 remote = not local_memory_destination(turn.model_runtime.snapshot)
                 if remote and not self._allow_remote_memory_injection:
@@ -1257,9 +1312,16 @@ class AgentSessionCoordinator:
                     turn.model_runtime.format_tools(session.tools), recalled)
                 emit_legacy(AgentEvent('memory_recall', {'rule':'memory_recall',
                     **turn.memory_snapshot.metadata()}))
+            if turn.knowledge_admission is not None:
+                turn.knowledge_admission.freeze(working,turn.model_runtime._context.manager,
+                    turn.model_runtime.format_tools(session.tools))
+                emit_legacy(AgentEvent('knowledge_recall',turn.knowledge_admission.metadata()))
             with self._lock:
                 session.capabilities = turn.capabilities
             turn.model_runtime._context.memory_source=lambda:self._revalidate_memory(session,turn,working)
+            turn.model_runtime._context.knowledge_source=lambda:self._revalidate_knowledge(session,turn,working)
+            turn.model_runtime._context.knowledge_output=turn.knowledge_admission is not None
+            turn.model_runtime._context.turn_effect_constraints=turn.effect_constraints
             outcome = self._runtime.run_turn(
                 provider=turn.model_runtime, model=turn.model_runtime.snapshot.model_id,
                 tools=runtime_tools, messages=working, emit=emit_legacy,
@@ -1301,7 +1363,7 @@ class AgentSessionCoordinator:
             try:
                 # The canonical transcript never loses prior turns when the
                 # harness compacts its private working context.
-                additions = [deepcopy(message) for message in
+                additions = [captured_message(message) for message in
                              (working.appended if working is not None else ())
                              if isinstance(message, dict)
                              and message.get("role") in ("assistant", "tool")]
@@ -1336,6 +1398,7 @@ class AgentSessionCoordinator:
             self.provider_manager.end_turn(turn.turn_id)
             if turn.model_runtime._context is not None:
                 turn.model_runtime._context.memory_source=None
+                turn.model_runtime._context.knowledge_source=None
                 turn.model_runtime._context.manager.invalidate_cache()
             turn.done.set()
 
@@ -1343,6 +1406,80 @@ class AgentSessionCoordinator:
         # appends to transcript, reopens Turn or changes its observed result.
         if self._memory_capture_mode!='off':
             self._queue_memory(session,turn)
+
+    def _stage_knowledge(self, session, turn, working):
+        """One scoped documentary query per Turn, never per Generation/child."""
+        if not getattr(self._knowledge.factory,'context_available',False): return
+        from local_cli.application.knowledge_context import KnowledgeAdmission
+        from local_cli.core.knowledge import KnowledgeError
+        operation = ServiceOperation(new_operation_id(),turn.command_id,
+            token=turn.cancellation.child(),turn_id=turn.turn_id,service='knowledge-retrieval')
+        with self._lock: self._service_operations[operation.operation_id] = operation
+        context = ExecutionContext(workspace=session.workspace,cwd=session.workspace,
+            environment=session.environment,session_id=session.session_id,turn_id=turn.turn_id,
+            operation_id=operation.operation_id,cancellation_token=operation.token,
+            deadline=self._interaction_deadline_factory(),capabilities=turn.capabilities)
+        status = OperationStatus.COMPLETED
+        response = {}
+        try:
+            if self._knowledge.service is None:
+                # Existing managed corpus only: no path acquisition, legacy
+                # rebuild, MemoryStore write, auto-index or embedding discovery.
+                self._knowledge.service = self._knowledge.factory(session.workspace,str(session.session_id),lambda k,p:None)
+            admission = KnowledgeAdmission(str(turn.turn_id),self._knowledge.service,self.redactor)
+            turn.knowledge_admission = admission
+            admission.retrieve(session.transcript[-1]['content'],context=context,refs=turn.attachment_refs,
+                local_destination=local_memory_destination(turn.model_runtime.snapshot))
+            if operation.token.is_cancel_requested():
+                status = OperationStatus.CANCELLED
+            else:
+                admission.stage(working,turn.model_runtime._context.manager,turn.model_runtime.format_tools(session.tools))
+            response = admission.metadata()
+        except Exception as exc:
+            status = OperationStatus.CANCELLED if operation.token.is_cancel_requested() else OperationStatus.FAILED
+            response = {'error':{'code':exc.code if isinstance(exc,KnowledgeError) else 'KNOWLEDGE_RETRIEVAL_FAILED'}}
+            if turn.knowledge_admission is not None:
+                turn.knowledge_admission._remove(working)
+                turn.knowledge_admission.pending=()
+                turn.knowledge_admission.error_code=response['error']['code']
+        self._finish_service_operation(session,operation,status,response)
+
+    def _revalidate_knowledge(self,session,turn,working):
+        admission = turn.knowledge_admission
+        if admission is None: return
+        manager = turn.model_runtime._context.manager
+        try:
+            admission.revalidate(working,manager)
+            # Tool continuity/current input retain precedence in later rounds,
+            # too. An optional static guard must not make them impossible.
+            manager.prepare(working,turn.model_runtime.format_tools(session.tools))
+        except Exception:
+            from local_cli.core.knowledge_context import KnowledgeCapsule
+            admission._remove(working)
+            admission.capsule = KnowledgeCapsule.empty(str(turn.turn_id))
+            admission.error_code = 'STALE_SOURCE'
+            manager.invalidate_cache()
+
+    @staticmethod
+    def _citation_message(turn, message):
+        result = deepcopy(message)
+        result.pop('knowledgeCitations',None)  # Never trust a provider-supplied receipt.
+        if result.get('role') == 'assistant':
+            from local_cli.core.knowledge_context import CitationRegistry
+            registry = (turn.knowledge_admission.capsule.citation_registry if turn.knowledge_admission
+                        else CitationRegistry(str(turn.turn_id)))
+            report = registry.validate(result.get('content') or '',turn_id=str(turn.turn_id))
+            if report['valid'] or report['invalid']: result['knowledgeCitations'] = report
+        return result
+
+    def _record_citations(self, turn, text, generation_id):
+        report = self._citation_message(turn,{'role':'assistant','content':text}).get('knowledgeCitations')
+        if not report: return
+        turn.citation_reports.append(dict(generationId=generation_id,**report))
+        if report['invalid'] and self._events is not None:
+            self._events.publish(EventKind.HARNESS_INTERVENTION,{'rule':'knowledge.citation.invalid',
+                'errorCode':'CITATION_INVALID','invalidCount':len(report['invalid'])},
+                state_revision=self._session.state_revision,turn_id=turn.turn_id,generation_id=generation_id)
 
     def _revalidate_memory(self,session,turn,working):
         """Bounded ID/revision reads; no new retrieval/embedding each generation."""
@@ -1545,8 +1682,17 @@ class AgentSessionCoordinator:
         with self._lock:
             turn = next(item for item in session.turns
                         if item.turn_id == context.turn_id)
+            # Both model-requested and trusted-host child creation pass here.
+            # A child prompt cannot lift its current parent Turn's reduction.
+            if turn.effect_constraints is not None:
+                sub_agent._turn_effect_constraints = turn.effect_constraints
             if sub_agent.agent_id in session.agent_operations:
                 raise ValueError("duplicate agentId")
+            if turn.knowledge_admission is not None and turn.knowledge_admission.capsule.evidence:
+                from local_cli.application.knowledge_children import child_knowledge_source
+                sub_agent.bind_knowledge_delegate(child_knowledge_source(turn.knowledge_admission,
+                    local_destination=bool(sub_agent.model_snapshot and local_memory_destination(sub_agent.model_snapshot)),
+                    selected_ids=getattr(sub_agent,'_knowledge_selection',None)))
             if self._memory is not None and turn.memory_snapshot is not None:
                 from local_cli.application.memory_children import child_memory_source
                 remote=not local_memory_destination(sub_agent.model_snapshot) if sub_agent.model_snapshot else True
@@ -1687,6 +1833,15 @@ class AgentSessionCoordinator:
         with self._lock:
             self._memory_actors[actor]=(kind,verify)
         return actor
+
+    def register_knowledge_actor(self, kind, verify):
+        return self._knowledge.register(kind, verify)
+
+    def execute_knowledge(self, command, *, actor=None):
+        return self._knowledge.execute(command, actor)
+
+    def close_knowledge(self):
+        self._knowledge.close()
 
     def execute_memory(self, command, *, actor=None):
         """Explicit synchronous Application controls, with Core operation terminal.
@@ -1845,6 +2000,7 @@ class AgentSessionCoordinator:
             model_runtime=self.provider_manager.snapshot().snapshot.to_dict(),
             capabilities=session.capabilities.to_dict() if session.capabilities else {},
             services={"rag": self._rag.status(),
+                      "knowledge": self._knowledge.snapshot(),
                       "memory": {"lexicalRecall": self._memory_factory is not None,
                           "semantic": bool(self._memory and self._memory.semantic and self._memory.semantic.available),
                           "autoCapture": self._memory_capture_mode!='off', "captureMode":self._memory_capture_mode,
@@ -1887,6 +2043,7 @@ class AgentSessionCoordinator:
                 "modelRuntime": turn.model_runtime.snapshot.to_dict() if turn.model_runtime else None,
                 "generations": deepcopy(turn.generations),
                 "contextReports": deepcopy(turn.context_reports),
+                "knowledgeCitations": self.redactor.value(turn.citation_reports),
                 "displayMessages": self.redactor.value(turn.display_messages),
                 "transcriptStart": turn.transcript_start,
                 "transcriptEnd": turn.transcript_end,

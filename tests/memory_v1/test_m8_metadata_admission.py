@@ -1,6 +1,6 @@
 """Metadata/admission contract fixtures, NOT semantic quality measurements."""
 from collections import Counter
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor, TimeoutError
 from threading import Event
 from time import perf_counter
 
@@ -169,22 +169,42 @@ def test_unsafe_revalidation_falls_back_lexical_and_after_restart_can_recover(tm
     finally: svc.store.close()
 
 
-def test_timeout_snapshot_immutable_busy_then_worker_recovers_no_late_search(tmp_path):
+def test_timeout_snapshot_immutable_busy_then_worker_recovers_no_late_search(tmp_path, monkeypatch):
+    from local_cli.application import memory_recall, memory_semantic
     svc,work=service(tmp_path);add(svc,'lex','Synthetic teal notebook.')
     adapter,calls,_,base=backend();attach(svc,adapter)
     release,entered=Event(),Event()
+    # Contract clock is independent of CI scheduling. The transport worker,
+    # events, BUSY path, timeout abandonment and recovery remain real threads.
+    # This is not a wall-clock host performance benchmark.
+    clock,wait_budgets=[100.],[]
+    class DeadlineFuture(Future):
+        def result(self, timeout=None):
+            if not self.done() and not release.is_set():
+                assert entered.wait(2), 'Worker must actually enter embedding before timeout'
+                wait_budgets.append(timeout)
+                assert timeout is not None and 0 < timeout <= .55 + 1e-12
+                clock[0] += timeout
+                raise TimeoutError()
+            return super().result(timeout=timeout)
+    monkeypatch.setattr(memory_semantic,'Future',DeadlineFuture)
+    monkeypatch.setattr(memory_semantic,'perf_counter',lambda:clock[0])
+    monkeypatch.setattr(memory_recall,'perf_counter',lambda:clock[0])
     def hung(path,data,timeout):
         response=base(path,data,timeout)
         if path=='/api/embed': entered.set(); assert release.wait(3)
         return response
     adapter._transport=hung
     try:
-        start=perf_counter();snap=MemoryRetriever(svc).retrieve('teal',workspace=work,at=AT)
+        start=clock[0];snap=MemoryRetriever(svc).retrieve('teal',workspace=work,at=AT)
         assert entered.is_set() and snap.embedding_status=='DEGRADED_TIMEOUT'
         assert snap.retrieval_mode=='lexical' and svc.semantic.index.searches==0
         saved=snap.metadata();records=snap.records
         assert svc.semantic.fallback_reserve_ms==50
-        assert .50<perf_counter()-start<.6
+        assert svc.semantic.soft_ms==350 and svc.semantic.hard_ms==600
+        assert wait_budgets==pytest.approx([.55])
+        assert clock[0]-start==pytest.approx(.55)
+        assert snap.semantic_latency_ms==pytest.approx(550)
         busy=MemoryRetriever(svc).retrieve('teal',workspace=work,at=AT)
         assert busy.embedding_status=='DEGRADED_BUSY'
         release.set()

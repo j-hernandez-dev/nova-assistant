@@ -8,6 +8,7 @@ import os from 'node:os'
 import path from 'path'
 import { DesktopApplicationClient } from './application_client'
 import { memoryControl } from './memory_control.cjs'
+import { pickKnowledge, knowledgeControl,hostSelection,remoteKnowledge } from './knowledge_control.cjs'
 import { signApproval, confirmApproval, validFrame } from './approval_host.cjs'
 
 // Keep the user profile independent of the legacy package name. Set both paths
@@ -449,7 +450,7 @@ function validApplicationSender(event: Electron.IpcMainEvent | Electron.IpcMainI
 }
 
 ipcMain.on('send-to-python', (event, data) => {
-  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'memory_command' || data.type === 'confirm_response' ||
+  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'memory_command' || data.type === 'knowledge_command' || data.type === 'confirm_response' ||
       (data.type === 'application_command' && data.command?.kind === 'ResolveApproval')) return
   sendToPython(data)
 })
@@ -464,6 +465,29 @@ ipcMain.handle('memory-command', async (event, name: string, args: Record<string
       detail: request.name + '\nWorkspace: ' + request.workspace + '\nLocal storage is not process isolation or encryption. '
         + 'Forget does not erase audit, logs, source conversations or backups.',
       buttons: ['Cancel', 'Allow'], defaultId: 0, cancelId: 0, noLink: true }))
+})
+
+ipcMain.handle('knowledge-pick', async event => {
+  if (!validApplicationSender(event) || !mainWindow) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},
+    error:{code:'SOURCE_NOT_AUTHORIZED',message:'Main-frame host picker required.'}}
+  return pickKnowledge(applicationClient, () => dialog.showOpenDialog(mainWindow!,{properties:['openFile']}))
+})
+ipcMain.handle('knowledge-command', async (event,name:string,args:Record<string,unknown>,commandId?:string) => {
+  if (!validApplicationSender(event) || !validFrame(args)) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},
+    error:{code:'SOURCE_NOT_AUTHORIZED',message:'Invalid source control.'}}
+  if(name==='source_remote')return remoteKnowledge(applicationClient,args,()=>dialog.showMessageBox(mainWindow!,{
+    type:'warning',title:'Nova — document forwarding',message:'Allow this source in remote chat context?',
+    detail:'Document data may leave this device. This does not enable remote MEMORY or grant tool/security authority. Future forwarding can be revoked; already transmitted data cannot be recalled.',
+    buttons:['Cancel','Allow'],defaultId:0,cancelId:0,noLink:true}),commandId)
+  return knowledgeControl(applicationClient,name,args,commandId)
+})
+ipcMain.handle('knowledge-refresh',async(event,sourceId:string)=>{
+  if(!validApplicationSender(event)||!mainWindow||typeof sourceId!=='string')return {accepted:false,error:{code:'SOURCE_NOT_AUTHORIZED'}}
+  return hostSelection(applicationClient,'source_refresh',sourceId,()=>dialog.showOpenDialog(mainWindow!,{properties:['openFile']}))
+})
+ipcMain.handle('knowledge-export',async(event,sourceId:string)=>{
+  if(!validApplicationSender(event)||!mainWindow||typeof sourceId!=='string')return {accepted:false,error:{code:'SOURCE_NOT_AUTHORIZED'}}
+  return hostSelection(applicationClient,'source_export',sourceId,()=>dialog.showSaveDialog(mainWindow!,{defaultPath:'nova-source-export.bin'}))
 })
 
 ipcMain.handle('get-python-status', () => {

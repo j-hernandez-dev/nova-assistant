@@ -45,6 +45,8 @@ class JsonlApplicationAdapter:
                                 if host_approval_key else None)
         self._memory_actor = (application.register_memory_actor('desktop_host', lambda: not self._closed)
                               if host_approval_key else None)
+        register = getattr(application, 'register_knowledge_actor', None)
+        self._knowledge_actor = register('desktop_host', lambda: not self._closed) if host_approval_key and register else None
         snapshot = self.application.get_snapshot(session_id)
         self._legacy_cursor = self.application.subscribe_events(
             session_id, after_sequence=snapshot.last_sequence,
@@ -66,6 +68,8 @@ class JsonlApplicationAdapter:
             self._subscriptions.clear()
         for cursor in cursors:
             cursor._stream.close(cursor)
+        close = getattr(self.application, 'close_knowledge', None)
+        if close: close()
 
     def _command(self, kind: CommandKind, payload: dict[str, Any],
                  *, expected_revision: int | None = None) -> CommandReceipt:
@@ -80,6 +84,20 @@ class JsonlApplicationAdapter:
 
     def handle(self, request: dict[str, Any]) -> bool:
         kind, req_id = request.get("type"), request.get("id", 0)
+        if kind == 'knowledge_command':
+            from local_cli.application.knowledge_host import KnowledgeCommand
+            from local_cli.core.knowledge import KnowledgeError, KnowledgeErrorCode
+            try:
+                command = KnowledgeCommand.from_dict(request.get('command'))
+                if command.session_id != self.session_id or not verify_approval_proof(
+                        self._host_approval_key,command.to_dict(),request.get('hostKnowledgeProof')):
+                    raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+                result = self.application.execute_knowledge(command,actor=self._knowledge_actor)
+                self._send(dict(id=req_id,type='knowledge_result',schemaVersion=1,data=result))
+            except (KnowledgeError,TypeError,ValueError):
+                self._send(dict(id=req_id,type='error',category='KNOWLEDGE',code='SOURCE_NOT_AUTHORIZED',
+                                message='Authenticated host source control is required.'))
+            return True
         if kind == 'memory_command':
             from local_cli.application.memory import MemoryCommand
             from local_cli.core.memory import MemoryError, MemoryErrorCode
@@ -126,8 +144,14 @@ class JsonlApplicationAdapter:
                 self._send({"id": req_id, "type": "error", "message": "Empty message"})
                 return True
             with self._lock:
-                receipt = self._command(CommandKind.SUBMIT_USER_INPUT,
-                                        {"content": content})
+                try:
+                    receipt = self._command(CommandKind.SUBMIT_USER_INPUT,
+                                            {"content": content, **({'attachmentRefs':request['attachmentRefs']}
+                                                if 'attachmentRefs' in request else {})})
+                except (TypeError, ValueError):
+                    self._send(dict(id=req_id,type='error',category='TRANSPORT',
+                                    code='INVALID_APPLICATION_COMMAND',message='Invalid attachment input.'))
+                    return True
                 if receipt.accepted:
                     turn_id = receipt.created_ids["turnId"]
                     self._legacy_turns[turn_id] = req_id

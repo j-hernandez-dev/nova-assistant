@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "k8-repair4-test-portability-reconciliation-v1",
+  "classification": "HARNESS_BUG",
+  "phase": "After quality, before delivery",
+  "productChanged": false,
+  "qualityRerun": false,
+  "qualityScoresChanged": false,
+  "datasetGoldScorerThresholdsChanged": false,
+  "windowsExecutedBranchesChanged": false,
+  "source": "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+  "beforeSha256": "7b5c99f2dd7f044dda790454c15cb5ebac19a2c1f0260bde1f7f04ded40a8208",
+  "afterSha256": "cd4679c4cd33610e9cfbb7a326f758fb11db37940475886589c8a9f9744e7187",
+  "allowedDelta": {
+    "from": "result.metadata['filesystemErrorCode']",
+    "to": "result.metadata['securityErrorCode']",
+    "occurrences": 1
+  },
+  "contractEvidence": "local_cli/application/tool_runtime.py FilesystemError handler emits metadata.securityErrorCode (existing contract)",
+  "originalFreezePreserved": "docs/knowledge_inputs_v1/k8_repair4_evidence/product_freeze_v1.json",
+  "sourceReversalContract": "Reverse exactly this one field-name change and recover the original frozen test SHA. No other change accepted.",
+  "next": "Final tests use supplement freeze; no new inference."
+}
