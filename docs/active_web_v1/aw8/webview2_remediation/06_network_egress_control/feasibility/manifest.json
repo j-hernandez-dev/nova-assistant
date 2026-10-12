@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "kind": "TEST_ONLY_ARCHITECTURE_FEASIBILITY",
+  "phase": "BLOCK06_ARCHITECTURE_FEASIBILITY",
+  "BLOCK06_ARCHITECTURE": "BLOCKED_ARCHITECTURAL_ENFORCEMENT_LIMIT",
+  "normativeArchitecture": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+    "sha256": "46ec3201460ba37a6fe47f6cf94e80f0024ec442c9323115a0cf19d64de95e1d",
+    "clauses": [
+      "§18.2",
+      "§18.3",
+      "§18.5",
+      "§18.6",
+      "§18.8",
+      "§35.2/block06",
+      "§36.4",
+      "AW-INV-052",
+      "AW-INV-053"
+    ]
+  },
+  "humanDecisions": {
+    "B06_REVIEW_001": "CONDITIONALLY_APPROVED_CERTIFIED_ENGINE_PROFILE",
+    "B06_REVIEW_002": "NATIVE_FEASIBILITY_PROOF_REQUIRED",
+    "B06_REVIEW_003": "APPROVED_DUAL_LOGICAL_AND_PHYSICAL_ENFORCEMENT"
+  },
+  "repo": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "preexistingDirtyWorktreePreserved": true
+  },
+  "sdk": "1.0.4258.31",
+  "runtime": "154.0.4258.62",
+  "architecture": "X64",
+  "runtimeBinarySha256": "7e941ccb324fd87c849dca6356079e65a31ff264b8b5b37cc43d055b2764b9b3",
+  "sdkAssemblySha256": "d60e6e94245078cb56e44ebd5f360dc04bf18e460136be93bfc4cfca43b98505",
+  "findings": {
+    "ENGINE_PROFILE_IDENTITY": "PASS_SCOPED_IDENTITY_ONLY",
+    "PROXY_EXCLUSIVITY": "FAIL",
+    "DESTINATION_DNS_ONLY_AT_BROKER": "INCONCLUSIVE",
+    "SERVICE_WORKER_SUPPRESSION": "FAIL",
+    "WEBRTC_SUPPRESSION": "FAIL",
+    "QUIC_DIRECT_UDP_SUPPRESSION": "FAIL",
+    "QUIC_SPECIFIC_SUPPRESSION": "INCONCLUSIVE",
+    "LOGICAL_ORIGIN_ADMISSION": "INCONCLUSIVE",
+    "HTTPS_FEASIBILITY": "NOT_DEMONSTRATED",
+    "PROXY_AUTH_BOOTSTRAP": "INCONCLUSIVE",
+    "FIXED_VERSION_APP_LOCAL": "TECHNICALLY_COMPATIBLE_CONDITIONAL_FUTURE_DECISION"
+  },
+  "decisiveBlocker": "B06-FEAS-NATIVE-RTC-UDP-001",
+  "states": {
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "PASS",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": true,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "claims": {
+    "certifiedEngineProfile": false,
+    "publicOnlyClaimedKnownTrue": false,
+    "availableClaimedKnownTrue": false,
+    "universalEngineImpossibility": false,
+    "osIsolationSandbox": false,
+    "stableSwitchGuarantee": false
+  },
+  "execution": {
+    "standaloneHarnessProcessLaunches": 5,
+    "completeReports": 4,
+    "incompleteReports": 1,
+    "productBuilds": 0,
+    "productTests": 0,
+    "productImplementation": false,
+    "block05Reopened": false,
+    "block07": false,
+    "aw8E2E": false
+  },
+  "changes": {
+    "product": false,
+    "historicalTests": false,
+    "architectureV1V11": false,
+    "preimplementationAudit": false,
+    "historicalManifests": false,
+    "registryMutation": false,
+    "globalNetworking": false,
+    "firewall": false,
+    "caStore": false,
+    "adminDependency": false,
+    "fixedRuntimeInstalled": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "newHarnessNotes": [
+    "Incomplete first execution and all rejected profiles preserved, not counted as PASS",
+    "Preparatory async disposal / proxy resolver corrections only on new test harness",
+    "Final native secure-context counterexample independent of unproven HTTP/TLS path",
+    "No more probes after counterexample"
+  ],
+  "observability": {
+    "tcpUdpSnapshotsSupplemental": true,
+    "positiveStunDatagramsAndPidCorrelation": true,
+    "dnsCanarySystemResolver": false,
+    "rawNativeLogDeleted": true,
+    "rawPacketBodiesRetained": false,
+    "ephemeralCredentialsRetained": false
+  },
+  "history": {
+    "acceptedBlock05": {
+      "result": "PASS",
+      "pass": 561,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "reexecuted": false
+    },
+    "previousPartialBlockedImmutable": true,
+    "historicalUdf36": {
+      "state": "CLEANUP_UNCONFIRMED",
+      "maintenance": "NONE"
+    }
+  },
+  "artifacts": [
+    "resultados.md",
+    "engine_profile.md",
+    "fixed_runtime_assessment.md",
+    "feasibility_results.json",
+    "native_evidence.json",
+    "test_results.json",
+    "manifest.json",
+    "integrity.json",
+    "harness/probe.csproj",
+    "harness/Program.cs",
+    "harness/Fixtures.cs",
+    "harness/Scripts.cs",
+    "harness/run_probe.py"
+  ],
+  "sources": [
+    {
+      "kind": "local_primary_sdk",
+      "version": "1.0.4258.31",
+      "artifact": "Microsoft.Web.WebView2.Core.xml / WebView2.idl from existing pinned Microsoft SDK",
+      "purpose": "actual API inventory, Uri proxy challenge semantics, certificate and source-kind APIs"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution",
+      "purpose": "Fixed Version app-local future assessment; Windows10 caveat/UNC prohibition"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/evergreen-vs-fixed-version",
+      "purpose": "Version selection/update responsibilities"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/webview-features-flags",
+      "purpose": "flags not a stable security guarantee"
+    },
+    {
+      "url": "https://chromium.googlesource.com/chromium/src/+/HEAD/net/docs/proxy.md",
+      "purpose": "manual proxy/implicit bypass candidate; not Microsoft binary proof"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/main/third_party/blink/renderer/modules/peerconnection/rtc_peer_connection.idl",
+      "purpose": "upstream exposed PeerConnection, no global runtime feature in this IDL; not proof of all configurations"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getextendedudptable",
+      "purpose": "PID/source-port correlation, snapshot limitations"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getextendedtcptable",
+      "purpose": "owned TCP metadata; no absence-of-packets theorem"
+    }
+  ],
+  "stop": "HUMAN_REVIEW_REQUIRED; no product fix or further profile hardening in this continuation.",
+  "integrity": "integrity.json"
+}

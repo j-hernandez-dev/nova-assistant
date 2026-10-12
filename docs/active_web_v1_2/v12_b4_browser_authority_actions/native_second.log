@@ -1,0 +1,88 @@
+FEFEFEFEFE                                                               [100%]
+=================================== ERRORS ====================================
+___ ERROR at teardown of test_native_exact_navigation_observes_destination ____
+native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE
+_ ERROR at teardown of test_native_exact_approved_mutation_conservative_outcome[View-CLICK--clicks=1] _
+native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE
+_ ERROR at teardown of test_native_exact_approved_mutation_conservative_outcome[Ordinary entry-INPUT_TEXT-Synthetic B4 entry-input=1] _
+native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE
+_ ERROR at teardown of test_native_exact_approved_mutation_conservative_outcome[Choice-SELECT_OPTION-b-select=1] _
+native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE
+_ ERROR at teardown of test_native_exact_approved_mutation_conservative_outcome[View-PRESS_KEY-Enter-key=] _
+native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE
+================================== FAILURES ===================================
+______________ test_native_exact_navigation_observes_destination ______________
+native\nova-browser-host\tests\v12_b4\test_native_authority.py:24: in test_native_exact_navigation_observes_destination
+    assert result.status is ToolStatus.COMPLETED and result.metadata['browserReceipt']['outcome']=='SUCCEEDED_OBSERVED'
+E   AssertionError: assert (<ToolStatus.DENIED: 'denied'> is <ToolStatus.COMPLETED: 'completed'>)
+E    +  where <ToolStatus.DENIED: 'denied'> = ToolResult(status=<ToolStatus.DENIED: 'denied'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...T_PRE_EFFECT_FAILED\nWarning: SECURITY_AUDIT_DELIVERY_FAILED; audit gap. Observed result retained; no retry/rollback.').status
+E    +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED
+_ test_native_exact_approved_mutation_conservative_outcome[View-CLICK--clicks=1] _
+native\nova-browser-host\tests\v12_b4\test_native_authority.py:39: in test_native_exact_approved_mutation_conservative_outcome
+    result=d.results[0];assert result.metadata['browserReceipt']['outcome']=='UNKNOWN' and result.effect_state is EffectState.UNKNOWN
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'
+E     
+E     - UNKNOWN
+E     + NOT_STARTED)
+_ test_native_exact_approved_mutation_conservative_outcome[Ordinary entry-INPUT_TEXT-Synthetic B4 entry-input=1] _
+native\nova-browser-host\tests\v12_b4\test_native_authority.py:39: in test_native_exact_approved_mutation_conservative_outcome
+    result=d.results[0];assert result.metadata['browserReceipt']['outcome']=='UNKNOWN' and result.effect_state is EffectState.UNKNOWN
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'
+E     
+E     - UNKNOWN
+E     + NOT_STARTED)
+_ test_native_exact_approved_mutation_conservative_outcome[Choice-SELECT_OPTION-b-select=1] _
+native\nova-browser-host\tests\v12_b4\test_native_authority.py:39: in test_native_exact_approved_mutation_conservative_outcome
+    result=d.results[0];assert result.metadata['browserReceipt']['outcome']=='UNKNOWN' and result.effect_state is EffectState.UNKNOWN
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'
+E     
+E     - UNKNOWN
+E     + NOT_STARTED)
+_ test_native_exact_approved_mutation_conservative_outcome[View-PRESS_KEY-Enter-key=] _
+native\nova-browser-host\tests\v12_b4\test_native_authority.py:39: in test_native_exact_approved_mutation_conservative_outcome
+    result=d.results[0];assert result.metadata['browserReceipt']['outcome']=='UNKNOWN' and result.effect_state is EffectState.UNKNOWN
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'
+E     
+E     - UNKNOWN
+E     + NOT_STARTED)
+=========================== short test summary info ===========================
+FAILED native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_navigation_observes_destination
+FAILED native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_approved_mutation_conservative_outcome[View-CLICK--clicks=1]
+FAILED native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_approved_mutation_conservative_outcome[Ordinary entry-INPUT_TEXT-Synthetic B4 entry-input=1]
+FAILED native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_approved_mutation_conservative_outcome[Choice-SELECT_OPTION-b-select=1]
+FAILED native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_approved_mutation_conservative_outcome[View-PRESS_KEY-Enter-key=]
+ERROR native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_navigation_observes_destination
+ERROR native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_approved_mutation_conservative_outcome[View-CLICK--clicks=1]
+ERROR native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_approved_mutation_conservative_outcome[Ordinary entry-INPUT_TEXT-Synthetic B4 entry-input=1]
+ERROR native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_approved_mutation_conservative_outcome[Choice-SELECT_OPTION-b-select=1]
+ERROR native/nova-browser-host/tests/v12_b4/test_native_authority.py::test_native_exact_approved_mutation_conservative_outcome[View-PRESS_KEY-Enter-key=]
+5 failed, 5 errors in 11.00s

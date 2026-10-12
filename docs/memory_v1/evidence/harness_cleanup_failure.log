@@ -1,0 +1,87 @@
+..........................................F..                            [100%]
+================================== FAILURES ===================================
+______ test_application_identity_provider_workspace_and_restart_baseline ______
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/memory_m0_468d213/pytest-m0-legacy-complete/test_application_identity_prov0')
+
+    def test_application_identity_provider_workspace_and_restart_baseline(tmp_path):
+>       report = characterize_sessions(tmp_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m0_legacy.py:31: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+root = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/memory_m0_468d213/pytest-m0-legacy-complete/test_application_identity_prov0')
+
+    def characterize_sessions(root):
+        from local_cli.application.commands import ApplicationCommand, CommandKind
+        from local_cli.application.providers import ProviderManager
+        from local_cli.application.session import AgentSessionCoordinator
+        from local_cli.core.contracts import RuntimeCapabilitySnapshot, new_command_id
+    
+        a, b = root / 'Alpha', root / 'Beta'
+        a.mkdir(parents=True)
+        b.mkdir()
+        state = root / 'state'
+        provider = SyntheticProvider()
+        providers = [provider]
+        def factory(name):
+            p = SyntheticProvider(name)
+            providers.append(p)
+            return p
+        def base(workspace):
+            return [{'role': 'system', 'content': f'Synthetic base {workspace.name}'}]
+        def assemble():
+            # Avoid reading the host environment through default redactor construction.
+            with patch('local_cli.application.providers.SecretRedactor',
+                       side_effect=lambda: SecretRedactor(source={})):
+                pm = ProviderManager(provider, 'synthetic-old', provider_factory=factory,
+                    clone_factory=lambda p: lambda: SyntheticProvider(p.name))
+            return AgentSessionCoordinator(provider=provider, model='synthetic-old',
+                provider_manager=pm, tool_factory=lambda ws: [],
+                prompt_factory=lambda tools, ws: base(ws)[0]['content'], environment_source={},
+                capability_factory=lambda **kw: RuntimeCapabilitySnapshot(
+                    datetime.now(timezone.utc), 'M0_SYNTHETIC_NO_HOST_PROBE'),
+                persistence_factory=lambda ws: persistence(ws, state),
+                workspace_rebinder=lambda ws: {'base_messages': base(ws),
+                    'persistence': persistence(ws, state), 'rag': RAGService(None), 'data': {'workspace': ws.name}})
+        def command(c, kind, session=None, payload=None):
+            return c.handle(ApplicationCommand(command_id=new_command_id(), kind=kind,
+                session_id=session, payload=payload or {}))
+        with patch('local_cli.application.session.get_sanitized_env', return_value={}):
+            c = assemble()
+            start = command(c, CommandKind.START_SESSION, payload={'workspace': str(a)})
+            assert start.accepted
+            session_id = start.session_id
+            assert not command(c, CommandKind.START_SESSION, payload={'workspace': str(b)}).accepted
+            receipt = command(c, CommandKind.SUBMIT_USER_INPUT, session_id,
+                {'content': 'SYNTHETIC_REMEMBER_TOKEN_ALPHA'})
+            assert receipt.accepted and c.wait_for_turn(receipt.created_ids['turnId'], 10)
+            first = c.get_snapshot(session_id)
+            assert first.turns[-1]['terminalCount'] == 1
+            changed = command(c, CommandKind.CHANGE_MODEL, session_id, {'modelId': 'synthetic-new'})
+            assert changed.accepted
+            assert c.get_snapshot(session_id).transcript == first.transcript
+            changed_provider = command(c, CommandKind.CHANGE_PROVIDER, session_id,
+                {'providerId': 'llama-server', 'modelId': 'synthetic-new'})
+            assert changed_provider.accepted
+            c.change_workspace(session_id, str(b))
+            assert any(m.get('content') == 'SYNTHETIC_REMEMBER_TOKEN_ALPHA' for m in c.get_snapshot(session_id).transcript)
+            receipt = command(c, CommandKind.SUBMIT_USER_INPUT, session_id, {'content': 'Synthetic follow-up'})
+            assert receipt.accepted and c.wait_for_turn(receipt.created_ids['turnId'], 10)
+            assert any(m.get('content') == 'SYNTHETIC_REMEMBER_TOKEN_ALPHA' for m in providers[-1].requests[-1])
+            new_c = assemble()
+            new_start = command(new_c, CommandKind.START_SESSION, payload={'workspace': str(a)})
+            fresh = new_c.get_snapshot(new_start.session_id)
+            assert new_start.session_id != session_id and len(fresh.transcript) == 1
+            resumed = command(new_c, CommandKind.EXECUTE_COMMAND, new_start.session_id, {'name': 'resume'})
+            assert resumed.accepted and len(new_c.get_snapshot(new_start.session_id).transcript) > 1
+            assert not new_c.get_snapshot(new_start.session_id).turns
+>           assert command(c, CommandKind.CLOSE_SESSION, session_id, {'policy': 'cancel'}).accepted
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError
+
+tests\memory_v1\legacy_baseline.py:237: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/memory_v1/test_m0_legacy.py::test_application_identity_provider_workspace_and_restart_baseline
+1 failed, 44 passed in 0.73s

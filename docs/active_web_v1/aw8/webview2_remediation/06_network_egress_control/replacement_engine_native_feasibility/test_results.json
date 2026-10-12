@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "successfulEngineRuns": 1,
+  "criticalWebRtcProbes": 1,
+  "preparationsPreserved": "preparation_evidence.json",
+  "gates": [
+    {
+      "name": "CEF_WEBRTC_SUPPRESSION",
+      "result": "FAIL",
+      "nativeProbe": "secure-context RTC, ICE offer/data channel + owned NetworkService STUN",
+      "evidence": "native_probe_evidence.json",
+      "cause": "Standard CEF distribution has no installed native RTC-off gate; API denial of camera or IP handling is not RTC off."
+    },
+    {
+      "name": "CEF_SERVICE_WORKER_SUPPRESSION",
+      "result": "INCONCLUSIVE",
+      "nativeProbe": "NOT_RUN_STOP_AFTER_WEBRTC_FAIL"
+    },
+    {
+      "name": "CEF_DIRECT_UDP_SUPPRESSION",
+      "result": "FAIL",
+      "nativeProbe": "One relevant direct STUN/UDP datagram observed; not a QUIC finding",
+      "quicSpecific": "INCONCLUSIVE_NOT_RUN"
+    },
+    {
+      "name": "CEF_PROXY_EXCLUSIVITY",
+      "result": "FAIL",
+      "nativeProbe": "Owned RTC UDP reaches canary outside numeric HTTP proxy",
+      "httpFallbackAbsentOrKilledBroker": "INCONCLUSIVE_NOT_RUN",
+      "localHttpRoute": "Observed through proxy, zero direct HTTP target hits; not universal exclusivity"
+    },
+    {
+      "name": "CEF_BROKER_OWNED_DESTINATION_RESOLUTION",
+      "result": "INCONCLUSIVE",
+      "nativeProbe": "NOT_RUN_STOP_AFTER_WEBRTC_FAIL"
+    },
+    {
+      "name": "CEF_HTTPS_STANDARD_VALIDATION",
+      "result": "INCONCLUSIVE",
+      "validHttps": "NOT_RUN",
+      "invalidHostname": "NOT_RUN",
+      "invalidChain": "NOT_RUN",
+      "privateHttpsDeny": "NOT_RUN",
+      "fixtureSecureContext": "Loopback HTTP potentially trustworthy; isSecureContext true. No HTTPS success inferred."
+    },
+    {
+      "name": "CEF_LOGICAL_ORIGIN_ADMISSION",
+      "result": "INCONCLUSIVE",
+      "nativeProbe": "NOT_RUN_REDIRECT_IFRAME_FETCH_SECOND_ORIGIN_COALESCING_DOWNLOADS"
+    },
+    {
+      "name": "CEF_EXTERNAL_PROTOCOL_GUARD",
+      "result": "INCONCLUSIVE",
+      "nativeProbe": "NOT_RUN_REGISTERED_PROTOCOL_CANARY_POPUP_TAKEOVER"
+    }
+  ],
+  "compatibilityAssessment": [
+    {
+      "feature": "multiple_pages_bounded",
+      "classification": "PLAUSIBLE",
+      "basis": "CreateBrowser/CreateBrowserSync API; 1 session/3 pages must be enforced host-side. Only one control created in this probe.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "observations",
+      "classification": "PLAUSIBLE",
+      "basis": "CEF frame/DevTools primitives allow fixed host-owned bounded capture; native observation contract not implemented.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "opaque_element_references",
+      "classification": "PLAUSIBLE",
+      "basis": "Host map + exact node identity; never expose selector/native handles. No freshness proof in this probe.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "fixed_host_owned_actions",
+      "classification": "SUPPORTED",
+      "basis": "Native frame/script/DevTools primitives exist; public arbitrary eval is forbidden. No BrowserAction integration claim.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "ref_invalidation",
+      "classification": "PLAUSIBLE",
+      "basis": "Navigation/frame callbacks can drive generation; epoch/fingerprint/exact stale validation needs native tests.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "downloads",
+      "classification": "SUPPORTED",
+      "basis": "CefDownloadHandler/CanDownload/OnBeforeDownload exists; defaults require explicit exact authority. No download probe after stop.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "uploads",
+      "classification": "PLAUSIBLE",
+      "basis": "File-dialog/DevTools private input assignment exists conceptually; HostFileSelectionRef exact path bridge not implemented.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "human_takeover",
+      "classification": "SUPPORTED",
+      "basis": "Windowed owned CEF view possible; this probe is windowless. Quotas, epoch, secret continuity need recertification.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "profile_session_lifecycle",
+      "classification": "SUPPORTED",
+      "basis": "CEF initialization/browser close/shutdown observed; one owned Job emptied. Failure/cleanup contract not Block05 recertified.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "private_per_session_storage",
+      "classification": "SUPPORTED",
+      "basis": "Explicit short root_cache_path/cache_path under current-user protected ACL; unique run folder. File deletion unconfirmed due tool policy, not CLOSED.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "secret_capture_projection_boundary",
+      "classification": "PLAUSIBLE",
+      "basis": "Reuse approved algorithms only; new engine-world/submit/checkpoint capture and leaf boundary must be certified. No DLP claim.",
+      "nativeBlock05PassInherited": false
+    },
+    {
+      "feature": "BrowserPort_semantics",
+      "classification": "PLAUSIBLE",
+      "basis": "Engine-neutral contract remains intact; no new product adapter or tools registered.",
+      "nativeBlock05PassInherited": false
+    }
+  ],
+  "nativeWindow": {
+    "startUtc": "2026-10-11T16:35:00Z",
+    "endUtc": "2026-10-11T16:35:03Z",
+    "hostPid": 36572,
+    "networkServicePid": 32612,
+    "ownedUdpSourcePort": 58929,
+    "nativeStunPackets": 1,
+    "packetBytes": 20
+  },
+  "stopReason": "MANDATORY_WEBRTC_FAIL",
+  "postFailureProbes": 0,
+  "block05Runs": 0,
+  "aw8Runs": 0,
+  "remainingNativeObligations": "NOT_RUN_BY_FAIL_STOP_RULE_NOT_WAIVED"
+}

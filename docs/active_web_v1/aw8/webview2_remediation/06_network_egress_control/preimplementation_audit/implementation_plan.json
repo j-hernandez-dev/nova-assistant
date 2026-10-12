@@ -1,0 +1,241 @@
+{
+  "schemaVersion": 1,
+  "audit": "BLOCK06_PREIMPLEMENTATION_AUDIT",
+  "status": "CONDITIONAL_NOT_AUTHORIZED_FOR_IMPLEMENTATION",
+  "architectureDecision": "REQUIRES_ARCHITECTURE_REVIEW",
+  "firstStep": "Human review of B06-REVIEW-001/002/003; no product work before decision.",
+  "proposedEnforcementPoint": "Infrastructure engine configuration before CreateAsync/controller/content + engine-owned admission; broker validates every outbound connection. Application remains authority.",
+  "requiredApis": [
+    {
+      "api": "CoreWebView2EnvironmentOptions / CreateAsync",
+      "purpose": "Frozen effective engine profile before content",
+      "qualification": "AdditionalBrowserArguments supports argument delivery, not stable guarantee for every switch."
+    },
+    {
+      "api": "CoreWebView2 BasicAuthenticationRequested",
+      "purpose": "Exact owned proxy challenge only",
+      "qualification": "Needs private ephemeral auth contract; never host default UI/site credential leakage."
+    },
+    {
+      "api": "WebResourceRequested + source-aware AddWebResourceRequestedFilter",
+      "purpose": "Complementary URL/origin admission, workers/frames where supported",
+      "qualification": "Not arbitrary socket control; current fixture unchanged in this audit."
+    },
+    {
+      "api": "Engine-owned SW/WebRTC/UDP/DNS suppression primitives",
+      "purpose": "Meet literal §18.2",
+      "qualification": "UNRESOLVED. No fabricated stable DisableWebRTC/DisableServiceWorker API."
+    },
+    {
+      "api": "Private typed host bootstrap/IPC",
+      "purpose": "Bind broker identity/config/lease to session/host before engine",
+      "qualification": "UNIMPLEMENTED; Infrastructure-only versioned contract, no generic commands/JS/shell/provider or authority bearer."
+    }
+  ],
+  "configurationCandidate": {
+    "proxy": "Single authenticated HTTP proxy at numeric loopback owned endpoint; no DIRECT/PAC/WPAD/system alternate",
+    "bypass": "No destination bypass, including upstream implicit local ranges",
+    "https": "Opaque CONNECT + standard WebView2 TLS verification",
+    "dns": "Destination resolution only broker-owned; numeric endpoint pins; engine direct useful DNS disabled",
+    "protocols": "No QUIC/HTTP3/direct relevant UDP; WebRTC disabled; service workers disabled",
+    "effectiveProof": "Requested string insufficient; exact runtime/hash/effective profile/overrides + positive and negative probes required",
+    "notAnApprovedFlagList": true
+  },
+  "reuseWithoutRedesign": [
+    "BrowserEgressBroker",
+    "BrowserNetworkPolicy / S5 destination classification and pinned connectors",
+    "ToolRuntime / Policy / Approval / Grant",
+    "BrowserPort and closed host-owned session/page contracts",
+    "Block05 UDF construction and ownership",
+    "ExternalProtocolGuard",
+    "transfer authority/staging/outcome contracts"
+  ],
+  "failureSemantics": [
+    {
+      "condition": "broker no-start / lease or proxy configuration mismatch",
+      "result": "No untrusted content / network authority; setup typed fail closed."
+    },
+    {
+      "condition": "broker killed / unavailable",
+      "result": "No direct engine fallback by configuration, independently of notification; disable session/proof and abort owned tunnels."
+    },
+    {
+      "condition": "DNS ambiguous/private/mixed/timeout",
+      "result": "Deny before upstream socket; no hostname-only allow."
+    },
+    {
+      "condition": "new origin or redirect not validated",
+      "result": "Deny before dispatch/connect; no allow based on previous page/CONNECT alone."
+    },
+    {
+      "condition": "runtime/config/override changes or suppressed channel uncertain",
+      "result": "Invalidate compatible proof; availability/publicOnly/network control remain UNKNOWN."
+    },
+    {
+      "condition": "effect STARTED then disconnect/cancel/timeout",
+      "result": "Preserve UNKNOWN/PARTIAL as contract warrants, no automatic retry, cancel not rollback."
+    }
+  ],
+  "harnessDesign": {
+    "internetDependency": false,
+    "topology": "Controlled synthetic-public hostname/address resolver + harness-only upstream transport maps validated test endpoint to local HTTP/TLS fixture. Explicit simulation, not a production exemption for loopback.",
+    "separation": "Production PUBLIC_ONLY classifier still rejects private inputs. Synthetic topology validates wiring; native Chromium tests validate real broker-only process path. Do not claim real public Internet reachability from mapped loopback.",
+    "https": "Complete TLS using normally trusted controlled-domain cert/key provisioned offline, or separately approved process/profile-scoped test trust. No ignore-certificate-errors/AlwaysAllow/global CA/permanent trust.",
+    "tlsUnresolved": "If no compliant trust mechanism is available, HTTPS positive native proof stays BLOCKED; no virtual-host HTTPS mapping as substitute.",
+    "processObservation": "Owned PID tree/time/config/broker + calibrated TCP/UDP/DNS canaries and host observation; snapshot-only tables insufficient. No silent admin/global networking dependency.",
+    "fixtures": "Static controlled servers; same and second origin; HTTP/TLS redirects/subresources/WS/WSS. Secret content/logs not required.",
+    "cleanup": "Only resources created by future harness, ownership checked. No maintenance of 36 historical UDFs."
+  },
+  "testPlan": [
+    {
+      "id": "NET-01",
+      "category": "CONTRACT",
+      "scenario": "Canonicalization/ports/all DNS answers/IP pin",
+      "expected": "Public-only decision; reject loopback/RFC1918/ULA/link-local/metadata/reserved/mapped/transitional as existing classifier requires."
+    },
+    {
+      "id": "NET-02",
+      "category": "CONTRACT_AND_NATIVE",
+      "scenario": "DNS rebind public→private/mixed/ambiguity/timeout",
+      "expected": "New admission denied; no re-resolution in numeric connector; no useful direct browser DNS."
+    },
+    {
+      "id": "NET-03",
+      "category": "NATIVE",
+      "scenario": "Public HTTP admitted",
+      "expected": "Chromium→broker→controlled endpoint→renderer, broker and PID/canary correlation."
+    },
+    {
+      "id": "NET-04",
+      "category": "NATIVE",
+      "scenario": "Public HTTPS admitted + invalid hostname/chain negatives",
+      "expected": "Real trusted TLS via CONNECT, renderer success; invalid TLS denied without bypass."
+    },
+    {
+      "id": "NET-05",
+      "category": "NATIVE",
+      "scenario": "Private IPv4/IPv6, loopback, link-local, metadata HTTP/HTTPS targets",
+      "expected": "Explicit policy denial before connection. https-metadata tested separately; no PASS by absence/timeout."
+    },
+    {
+      "id": "NET-06",
+      "category": "NATIVE",
+      "scenario": "Redirect public→private and second origin, HTTP + HTTPS + frames",
+      "expected": "Destination/origin revalidation and denial; no coalescing path skipping required admission."
+    },
+    {
+      "id": "NET-07",
+      "category": "NATIVE",
+      "scenario": "Subresources/fetch/XHR/beacon/EventSource/media and exposed workers",
+      "expected": "Same broker boundary; new origins revalidated; forbidden endpoint canaries untouched."
+    },
+    {
+      "id": "NET-08",
+      "category": "NATIVE",
+      "scenario": "WS/WSS per explicit §18.5 profile",
+      "expected": "Allowed destinations mediated or denied pre-effect; WSS not inferred from HTTP Upgrade rejection."
+    },
+    {
+      "id": "NET-09",
+      "category": "NATIVE",
+      "scenario": "Service worker in secure context, registration/import/cache/reload/background",
+      "expected": "SW disabled before execution; no alternate route or cache-hidden success."
+    },
+    {
+      "id": "NET-10",
+      "category": "NATIVE",
+      "scenario": "QUIC/HTTP3 Alt-Svc; direct UDP and WebTransport only if exposed",
+      "expected": "No relevant UDP; disabled transport demonstrated, including broker-failure phase."
+    },
+    {
+      "id": "NET-11",
+      "category": "NATIVE",
+      "scenario": "WebRTC ICE/STUN/TURN/datachannel in proper secure context",
+      "expected": "WebRTC disabled; no unproxied TCP/UDP. No about:blank/permission-only evidence."
+    },
+    {
+      "id": "NET-12",
+      "category": "NATIVE",
+      "scenario": "Page DNS-prefetch/preconnect/speculation/background startup and idle",
+      "expected": "Connections mediated or disabled; no useful direct DNS/background path in owned tree."
+    },
+    {
+      "id": "NET-13",
+      "category": "NATIVE",
+      "scenario": "Broker absent before startup, killed during HTTP/HTTPS/WS, bad proxy/auth",
+      "expected": "No fallback DIRECT/QUIC/DNS; proof removed, session unusable; no auto action retry."
+    },
+    {
+      "id": "NET-14",
+      "category": "NATIVE",
+      "scenario": "Host/browser restart, runtime drift, conflicting overrides",
+      "expected": "Enforcement re-established before content or setup denied; no inherited PASS/manual fallback."
+    },
+    {
+      "id": "NET-15",
+      "category": "NATIVE_REGRESSION",
+      "scenario": "Authorized and drive-by download network requests",
+      "expected": "Same broker boundary and existing FILE_DOWNLOAD/Cancel/staging semantics; no transfer redesign."
+    },
+    {
+      "id": "NET-16",
+      "category": "NATIVE_REGRESSION",
+      "scenario": "Secondary pages/takeover and ExternalProtocolGuard",
+      "expected": "New controls carry same network profile + existing immediate Cancel=true host-launch denial."
+    },
+    {
+      "id": "NET-17",
+      "category": "OBSERVABILITY_CALIBRATION",
+      "scenario": "Known controlled positive socket/packet canaries and PID/time correlation",
+      "expected": "Detector sees what it claims to cover; observation loss/unattributed channel prevents certification."
+    },
+    {
+      "id": "NET-18",
+      "category": "CONTRACT_AND_NATIVE",
+      "scenario": "Shutdown/resources created by new harness",
+      "expected": "Owned host/children/UDF/broker resources confirmed; incomplete cleanup honestly reported; old UDFs untouched."
+    }
+  ],
+  "implementationOrder": [
+    {
+      "step": 0,
+      "name": "Architecture review",
+      "stopUntilApproved": true
+    },
+    {
+      "step": 1,
+      "name": "Infrastructure bootstrap/auth/lease closed schema; broker started before engine; typed fail paths"
+    },
+    {
+      "step": 2,
+      "name": "Effective runtime/profile attestation + engine-owned channel suppression; no content before verified gate"
+    },
+    {
+      "step": 3,
+      "name": "Origin/source-aware admission + global engine proxy, standard TLS"
+    },
+    {
+      "step": 4,
+      "name": "Deterministic controlled harness with independent native and synthetic proofs; no third-party public sites"
+    },
+    {
+      "step": 5,
+      "name": "Failure/restart/canary/negative channel campaign and existing guard/transfer regressions"
+    },
+    {
+      "step": 6,
+      "name": "Block06 evidence and human review; any undisclosed relevant path keeps network proof UNKNOWN"
+    }
+  ],
+  "excluded": [
+    "Block07 snapshot v2 / composition tool activation",
+    "AW8 E2E",
+    "new approval authority",
+    "permanent CA/MITM/global firewall/admin install",
+    "changes to Block05 certificates"
+  ],
+  "testsExecutedNow": 0,
+  "available": "UNKNOWN",
+  "publicOnly": "UNKNOWN",
+  "networkEgressControl": "UNKNOWN"
+}

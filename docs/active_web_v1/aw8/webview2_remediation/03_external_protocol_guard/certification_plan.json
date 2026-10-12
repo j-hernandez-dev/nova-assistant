@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Prospective block03 native guard matrix; not AW8 E2E, network certification or quality tuning",
+  "sdk": "Microsoft.Web.WebView2 1.0.4258.31",
+  "cases": ["script", "click", "mailto", "frame", "popup", "secondary", "takeover", "audit-failure", "registration-failure", "secondary-failure", "lost-guard", "private-v3", "host-crash", "ipc-disconnect"],
+  "canary": "Unique registered HKCU Software/Classes/nova-aw8-guard-<uuid>; benign helper; positive Windows association control outside guard measurement; exact leaf cleanup verified",
+  "required": {"nativeEventsObserved": true, "cancelFirst": true, "registeredHandlerExecutionsDuringGuard": 0, "sentinelAbsent": true, "registryCleanup": true, "durableAuditSchemaValid": true, "noUnownedPopup": true, "faultsInvalidate": true},
+  "distinctions": ["EXTERNAL_PROTOCOL_GUARD_DENIAL", "POPUP_DENIED_PRE_EFFECT", "ENGINE_INTERNAL_DENIAL is not guard evidence", "test visibility/native gesture is not full Application takeover certification"],
+  "contractFaults": "Internal test-only injection; no fault/disable/allow flags or content commands in product IPC",
+  "networkEgressControl": "UNKNOWN",
+  "publicOnly": "UNKNOWN",
+  "available": "UNKNOWN",
+  "noTestRetry": true,
+  "noPublicInternet": true
+}

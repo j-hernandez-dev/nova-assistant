@@ -1,0 +1,256 @@
+{
+  "schemaVersion": 1,
+  "retrievedOn": "2026-10-11",
+  "evidenceType": "PRIMARY_DOCUMENTATION_AND_UPSTREAM_SOURCE_REVIEW",
+  "warning": "Las ramas main/master y documentos latest no son el source pin ni la certificación de un binario candidato. NativeExecutions=0. El knob Qt se verificó además por lectura HTTP directa, sin persistir código ni ejecutar engine.",
+  "sources": [
+    {
+      "id": "MS_APP",
+      "title": "Microsoft — Launch an AppContainer",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/secauthz/implementing-an-appcontainer",
+      "support": "Proceso lanzado con identidad/capabilities; no selector documentado de broker IP:port para todos los children WebView2."
+    },
+    {
+      "id": "MS_ISOLATION",
+      "title": "Microsoft — AppContainer isolation",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/secauthz/appcontainer-isolation",
+      "support": "Permisos de red por familias Internet/Intranet/server, no prueba de la composición Nova."
+    },
+    {
+      "id": "MS_IPC",
+      "title": "Microsoft — Interprocess communication",
+      "url": "https://learn.microsoft.com/en-us/windows/apps/develop/communication/interprocess-communication",
+      "support": "Loopback entre paquetes exige reglas recíprocas/capability; exemptions hacia unpackaged son debug/admin."
+    },
+    {
+      "id": "MS_LOOP",
+      "title": "Microsoft — LoopbackAccessRules / Rule",
+      "url": "https://learn.microsoft.com/en-us/uwp/schemas/appxpackage/uapmanifestschema/element-uap4-loopbackaccessrules",
+      "support": "TCP; UDP no soportado por estas reglas."
+    },
+    {
+      "id": "MS_RULE",
+      "title": "Microsoft — Rule",
+      "url": "https://learn.microsoft.com/en-us/uwp/schemas/appxpackage/uapmanifestschema/element-uap4-rule",
+      "support": "Identificación por PackageFamilyName y Direction, no endpoint IP:port."
+    },
+    {
+      "id": "MS_CAP",
+      "title": "Microsoft — App capability declarations",
+      "url": "https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/app-capability-declarations",
+      "support": "privateNetworkClientServer concede red LAN inbound/outbound; empaquetar no implica token restringido."
+    },
+    {
+      "id": "MS_EXEMPT",
+      "title": "Microsoft — NetworkIsolationSetAppContainerConfig",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/netfw/nf-netfw-networkisolationsetappcontainerconfig",
+      "support": "Lista de SID exentos de loopback para debugging; cambio ajeno al contrato de endpoint exclusivo."
+    },
+    {
+      "id": "MS_WFP",
+      "title": "Microsoft — WFP Access control",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/fwp/access-control",
+      "support": "OPEN/CLASSIFY para Everyone no otorga ADD/ADD_LINK; delegación privilegiada no cumple instalación ordinaria."
+    },
+    {
+      "id": "MS_ALE",
+      "title": "Microsoft — ALE layers",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/fwp/ale-layers",
+      "support": "Familia real de enforcement IP, sujeta a permisos y cobertura de identidades."
+    },
+    {
+      "id": "MS_TOKEN",
+      "title": "Microsoft — Restricted tokens",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/secauthz/restricted-tokens",
+      "support": "Restricción de privilegios/SIDs, no firewall IP:port."
+    },
+    {
+      "id": "MS_JOB",
+      "title": "Microsoft — Job Objects",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects",
+      "support": "Lifecycle/children/quotas; no frontera de sockets."
+    },
+    {
+      "id": "MS_WV_SECURITY",
+      "title": "Microsoft — WebView2 security tools",
+      "url": "https://learn.microsoft.com/en-us/deployedge/webview2-security-tools",
+      "support": "Integridad/identidades de procesos y compatibilidad UDF; no prueba de containment uniforme."
+    },
+    {
+      "id": "MS_FIXED",
+      "title": "Microsoft — Distribute your app and WebView2 Runtime",
+      "url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution",
+      "support": "Fixed Version app-local fija artefacto, aumenta distribución y responsabilidad de actualización; no elimina canales."
+    },
+    {
+      "id": "MS_LOCAL",
+      "title": "Microsoft — Local content in WebView2",
+      "url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/working-with-local-content",
+      "support": "Virtual origin/local response no equivale a TLS remoto estándar."
+    },
+    {
+      "id": "MS_WRR",
+      "title": "Microsoft — WebResourceRequested",
+      "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.webresourcerequested",
+      "support": "Evento HTTP/recurso no presentado como mediador exhaustivo de sockets."
+    },
+    {
+      "id": "EL_SESSION",
+      "title": "Electron — session",
+      "url": "https://www.electronjs.org/docs/latest/api/session",
+      "support": "Proxy/permission/will-download; manager SW no se interpreta como disable global."
+    },
+    {
+      "id": "EL_PROXY",
+      "title": "Electron — ProxyConfig",
+      "url": "https://www.electronjs.org/docs/latest/api/structures/proxy-config",
+      "support": "Fixed proxy y bypass; system/PAC/direct no son el contrato deseado."
+    },
+    {
+      "id": "EL_WEBREQUEST",
+      "title": "Electron — webRequest",
+      "url": "https://www.electronjs.org/docs/latest/api/web-request",
+      "support": "Admission request-level no demuestra control de UDP."
+    },
+    {
+      "id": "EL_WEB",
+      "title": "Electron — webContents",
+      "url": "https://www.electronjs.org/docs/latest/api/web-contents",
+      "support": "disable_non_proxied_udp conserva posibilidad RTC TCP: no es WebRTC disabled."
+    },
+    {
+      "id": "EL_PROTOCOL",
+      "title": "Electron — native browser client",
+      "url": "https://raw.githubusercontent.com/electron/electron/main/shell/browser/electron_browser_client.cc",
+      "support": "RequestOpenExternalPermission precede OnOpenExternal; debe probarse en revision/binario elegido."
+    },
+    {
+      "id": "EL_SECURITY",
+      "title": "Electron — security",
+      "url": "https://www.electronjs.org/docs/latest/tutorial/security",
+      "support": "Standalone host sin privilegios Node de página ni shell.openExternal no confiable."
+    },
+    {
+      "id": "CEF_MAIN",
+      "title": "CEF — project",
+      "url": "https://github.com/chromiumembedded/cef",
+      "support": "Embedder Chromium multiproceso con fuentes; no certificado Nova."
+    },
+    {
+      "id": "CEF_USAGE",
+      "title": "CEF — General Usage",
+      "url": "https://chromiumembedded.github.io/cef/general_usage.html",
+      "support": "Infraestructura de embedding/lifecycle, no broker exclusivo incorporado."
+    },
+    {
+      "id": "CEF_REQ",
+      "title": "CEF — resource request handler",
+      "url": "https://raw.githubusercontent.com/chromiumembedded/cef/master/include/cef_resource_request_handler.h",
+      "support": "OnProtocolExecution controla allow_os_execution para unknown protocol; no se presume cobertura universal."
+    },
+    {
+      "id": "CEF_CTX",
+      "title": "CEF — request context handler",
+      "url": "https://raw.githubusercontent.com/chromiumembedded/cef/master/include/cef_request_context_handler.h",
+      "support": "Callback de request context, con browser/frame potencialmente null."
+    },
+    {
+      "id": "CEF_CHROME",
+      "title": "CEF — Chrome browser client",
+      "url": "https://raw.githubusercontent.com/chromiumembedded/cef/master/libcef/browser/chrome/chrome_content_browser_client_cef.cc",
+      "support": "HandleExternalProtocol contiene delegación default; requiere DENY_ALL íntegro, no sólo callback opcional."
+    },
+    {
+      "id": "CEF_DL",
+      "title": "CEF — download handler",
+      "url": "https://raw.githubusercontent.com/chromiumembedded/cef/master/include/cef_download_handler.h",
+      "support": "Defaults de descarga varían por estilo/caller; denegación pre-effect debe ser explícita."
+    },
+    {
+      "id": "CR_CLIENT",
+      "title": "Chromium — ContentBrowserClient",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/main/content/public/browser/content_browser_client.h",
+      "support": "Hooks nativos AllowServiceWorker, network contexts y external protocol; no accesibles equivalentes en SDK WebView2."
+    },
+    {
+      "id": "CR_NETCTX",
+      "title": "Chromium — NetworkContext",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/main/services/network/public/mojom/network_context.mojom",
+      "support": "Proxy config y sockets nativos; broker sandbox Chromium no es BrowserEgressBroker de Nova."
+    },
+    {
+      "id": "CR_NETSVC",
+      "title": "Chromium — NetworkService",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/main/services/network/public/mojom/network_service.mojom",
+      "support": "DisableQuic concreto; debe reinstalarse después de recreación del servicio."
+    },
+    {
+      "id": "CR_TCP",
+      "title": "Chromium — Windows TCP socket",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/main/net/socket/tcp_socket_win.cc",
+      "support": "Punto real de conexión nativa; no demuestra exhaustividad de todas las rutas por sí solo."
+    },
+    {
+      "id": "CR_UDP",
+      "title": "Chromium — Windows UDP socket",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/main/net/socket/udp_socket_win.cc",
+      "support": "Socket UDP real; auditar también SendTo/Bind/P2P y otras implementaciones."
+    },
+    {
+      "id": "CR_DNS",
+      "title": "Chromium — HostResolver",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/main/net/dns/host_resolver.h",
+      "support": "Puntos nativos de resolución; resolver flags no son proof de ausencia de fallback."
+    },
+    {
+      "id": "QT_BUILD",
+      "title": "Qt WebEngine 6.10 — build configuration",
+      "url": "https://raw.githubusercontent.com/qt/qtwebengine/6.10/src/core/CMakeLists.txt",
+      "support": "QT_FEATURE_webengine_webrtc controla enable_webrtc en el build inspeccionado; no se afirma el mismo knob en CEF upstream.",
+      "retrieval": "Read-only Invoke-WebRequest; web text parser did not expose this match",
+      "utf8BodySha256": "36bb5508421127dac63181a67c47f48f80c8bbe1045df2bd85136dc547933b2a"
+    },
+    {
+      "id": "QT_CLIENT",
+      "title": "Qt WebEngine 6.10 — browser client",
+      "url": "https://raw.githubusercontent.com/qt/qtwebengine/6.10/src/core/content_browser_client_qt.cpp",
+      "support": "AllowServiceWorker asociado a permiso de cookies; bloquear cookies indiscriminadamente no preserva login."
+    },
+    {
+      "id": "QT_SETTINGS",
+      "title": "Qt — WebEngine settings",
+      "url": "https://doc.qt.io/qt-6.10/qwebenginesettings.html",
+      "support": "Políticas de unknown schemes/WebRTC IP no sustituyen DENY_ALL/SW disable."
+    },
+    {
+      "id": "GECKO_PREF",
+      "title": "Mozilla — native preference declarations",
+      "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/main/modules/libpref/init/StaticPrefList.yaml",
+      "support": "dom.serviceWorkers.enabled/media.peerconnection.enabled; no garantía conjunta de proxy/launch."
+    },
+    {
+      "id": "GECKO_RTC",
+      "title": "Mozilla — RTCPeerConnection WebIDL",
+      "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/main/dom/webidl/RTCPeerConnection.webidl",
+      "support": "Binding nativo condicionado por media.peerconnection.enabled."
+    },
+    {
+      "id": "GECKO_SW",
+      "title": "Mozilla — ServiceWorkerContainer WebIDL",
+      "url": "https://raw.githubusercontent.com/mozilla-firefox/firefox/main/dom/webidl/ServiceWorkerContainer.webidl",
+      "support": "Binding nativo condicionado por función de SW."
+    },
+    {
+      "id": "FETCH",
+      "title": "WHATWG — Fetch Standard",
+      "url": "https://fetch.spec.whatwg.org/",
+      "support": "Origin/credentials/redirect/CORS deben preservarse; no son sólo response bytes."
+    },
+    {
+      "id": "CSP",
+      "title": "W3C — Content Security Policy Level 3",
+      "url": "https://www.w3.org/TR/CSP3/",
+      "support": "Rewriting/origin virtual cambia la interpretación de políticas."
+    }
+  ]
+}

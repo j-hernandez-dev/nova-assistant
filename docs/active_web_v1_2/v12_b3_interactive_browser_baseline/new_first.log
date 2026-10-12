@@ -1,0 +1,18 @@
+.F..........F................................                            [100%]
+================================== FAILURES ===================================
+________________________ test_v12_real_guard[redirect] ________________________
+native\nova-browser-host\tests\v12_b3\test_baseline.py:100: in test_v12_real_guard
+    run_guard(runner, canary, tmp_path, mode)
+native\nova-browser-host\tests\v12_b3\test_baseline.py:131: in run_guard
+    assert len(m['receipts']) == (2 if mode=='secondary' else 1)
+E   assert 0 == 1
+E    +  where 0 = len([])
+________ test_v12_real_ipc5_observation_identity_and_truthful_metadata ________
+native\nova-browser-host\tests\v12_b3\test_baseline.py:176: in test_v12_real_ipc5_observation_identity_and_truthful_metadata
+    assert port._sessions[s].wire.envelope(s,dict(command='ping'))['ipcVersion']==5
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'ipcVersion'
+=========================== short test summary info ===========================
+FAILED native/nova-browser-host/tests/v12_b3/test_baseline.py::test_v12_real_guard[redirect]
+FAILED native/nova-browser-host/tests/v12_b3/test_baseline.py::test_v12_real_ipc5_observation_identity_and_truthful_metadata
+2 failed, 43 passed in 57.05s

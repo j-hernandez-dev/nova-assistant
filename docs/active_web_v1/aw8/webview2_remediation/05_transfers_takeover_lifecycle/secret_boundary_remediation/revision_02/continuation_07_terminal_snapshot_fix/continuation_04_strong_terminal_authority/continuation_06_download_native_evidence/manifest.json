@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Complete native evidence missing from previous four-case diagnosis; no product repair",
+  "timestampUtc": "2026-10-11T09:19:13.338Z",
+  "verdict": "PARTIAL",
+  "DOWNLOAD_NATIVE_EVIDENCE_COMPLETION": "PASS",
+  "DOWNLOAD_ROOT_CAUSE_STATUS": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+  "states": {
+    "FASE_1_LEGACY_EXPECTATION_RECONCILIATION": "PASS",
+    "FASE_2_DOWNLOAD_ROOT_CAUSE_DIAGNOSIS": "INCONCLUSIVE",
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "sourceIdentity": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "priorProductPins": 46,
+    "priorSourcePins": 99,
+    "productDrift": 0,
+    "priorSourceDrift": 0,
+    "additiveTestOnlySources": [
+      {
+        "path": "native/nova-browser-host/tests/download_native_completion/DownloadTrace.cs",
+        "sha256": "68111722b4abcf0c51a9c65d23b745f12e0de1378560e0f472b8697bef0d6ec1"
+      },
+      {
+        "path": "native/nova-browser-host/tests/download_native_completion/native_download_plugin.py",
+        "sha256": "fc934e08c11521f62b28e899a686bb18cf1426a5260cdc6908f238b0dd03f08a"
+      }
+    ],
+    "currentSourcePins": 101
+  },
+  "staticAuditBeforeMeasurements": true,
+  "staticAuditRef": "download_static_audit.json",
+  "executions": {
+    "exactCaseIds": [
+      "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_drive_by_download_cancelled_no_staging",
+      "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+      "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]"
+    ],
+    "bodyRunsPerCase": [
+      1,
+      1,
+      1
+    ],
+    "pass": 0,
+    "fail": 3,
+    "error": 0,
+    "skip": 0,
+    "xfail": 0,
+    "seconds": 59.103,
+    "newSmokeRuns": 0,
+    "eachObserverVerifiedPreBody": true,
+    "nativeSubscriptionBeforeFixtureNavigation": true,
+    "noRetryStatistics": true,
+    "prebuildErrorPreserved": true,
+    "prebuildCaseBodiesExecuted": 0
+  },
+  "rootCauseMatrix": [
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_upload_and_download_smoke",
+      "classification": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+      "boundary": "NATIVE_DOWNLOAD_INITIATION_NOT_OBSERVED"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_drive_by_download_cancelled_no_staging",
+      "classification": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+      "boundary": "E_REQUEST_SERVED_BUT_NO_NATIVE_DOWNLOAD_INITIATION"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+      "classification": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+      "boundary": "NO_DOWNLOAD_STARTING_BEFORE_NATIVE_DONE_WAIT_TIMEOUT"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]",
+      "classification": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+      "boundary": "NO_NATIVE_DOWNLOAD_OPERATION_AT_JOIN8"
+    }
+  ],
+  "toolJoin8": {
+    "nativeOperationState": "NO_DOWNLOAD_OPERATION",
+    "workerAlive": true,
+    "lastNativeCallback": "OFFLINE_RESOURCE_RETURNED / 200 / 35",
+    "finalIpcDeliveredBeforeJoin": false,
+    "snapshotStartDelayMicroseconds": 8.2,
+    "snapshotReadMicroseconds": 1428,
+    "clockSource": "Windows QueryPerformanceCounter",
+    "notClaimedCompletedPendingIpc": true
+  },
+  "diagnostics": {
+    "newFilesOnly": true,
+    "oldDiagnosticFilesUnchanged": true,
+    "noPublicIpcFieldsOrAuthority": true,
+    "noRawContentSecretsUrlsPersisted": true,
+    "notProductCapability": true,
+    "notNetworkProof": true,
+    "bounds": {
+      "records": 256,
+      "recordBytes": 4096,
+      "requestRefs": 32
+    }
+  },
+  "historicalPreservation": {
+    "priorContinuationRef": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_07_terminal_snapshot_fix/continuation_04_strong_terminal_authority/continuation_05_legacy_expectations_download_diagnosis/manifest.json",
+    "priorManifestSha256": "101dfa89ffad6b03eb93d314aadd9f735f8b63eb07cc3656b99b60fb6e8e0bf3",
+    "priorMkdirErrorPreserved": true,
+    "priorFourEffectiveFailuresPreserved": true,
+    "priorBoundariesAndXmlStdoutPreserved": true,
+    "historical527Pass10FailUnchanged": true,
+    "secretsPhase1Accepted6And24NotReexecuted": true,
+    "normativeV1AndV1_1Unchanged": true,
+    "allPriorBlockStatesPreserved": true,
+    "historical36UdfTouched": false,
+    "historical36UdfStatus": "CLEANUP_UNCONFIRMED"
+  },
+  "cleanup": {
+    "hostsOrChildrenRemaining": 0,
+    "newOwnedUdfTransferRootsRemaining": 0,
+    "allThreeParentCleanupConfirmed": true,
+    "toolCleanupAfterLossNotClaimedNativeGracefulClose": true,
+    "evidenceSidecarsIntentionallyRetained": true
+  },
+  "externalEvidenceRoot": "C:/Users/joseh/AppData/Local/Temp/nova-download-native-20261011T090457Z",
+  "externalPinnedFiles": 40,
+  "artifactPins": [
+    {
+      "path": "baseline.json",
+      "sha256": "342b7ed3fdaa3a329bb1279da4ace45d92317b07a9c756a0040b01791df0899c",
+      "size": 7716
+    },
+    {
+      "path": "diagnostic_freeze.json",
+      "sha256": "843f4e6103ea28d4bba3329128cd72ecf2ad155591d1d5226dc3e8a0f277d4d6",
+      "size": 2105
+    },
+    {
+      "path": "download_root_cause_matrix.json",
+      "sha256": "e28cce3703a63fdf6431964a23e9c04d8da405a03cec3d7c8673169b4ea5c3f3",
+      "size": 10885
+    },
+    {
+      "path": "download_static_audit.json",
+      "sha256": "33c3edcfc6254522d04ae73ef90aa0b223c35b6a733a1b72289088052bb11572",
+      "size": 8778
+    },
+    {
+      "path": "integrity.json",
+      "sha256": "7d29a7b762f434b12a0a09b9844f164e6e4d41aa1f94d81e27bd1dea6f16733d",
+      "size": 41707
+    },
+    {
+      "path": "native_download_trace.json",
+      "sha256": "456ababfc729846b21939b571319e125d5ba34d62ffaeddddeef53fcf03c0b61",
+      "size": 91579
+    },
+    {
+      "path": "resultados.md",
+      "sha256": "53990a06481dafb86bfbc2fb6dcf876202d1affb54fb8faac1dbccd97f360131",
+      "size": 11389
+    },
+    {
+      "path": "test_results.json",
+      "sha256": "3dc9d39d2cf070d1c396289493fb22a93c515330bd64b76ed187cf5a19bec356",
+      "size": 6404
+    }
+  ],
+  "integrityRef": "integrity.json",
+  "matrixRef": "download_root_cause_matrix.json",
+  "missingCauseEvidence": "Native download selection/response consumption between served same-origin anchor resource and DownloadOperation creation; not inferred from header absence or wait expiry",
+  "proposedConfirmedFix": null,
+  "stoppedForHumanReview": true,
+  "limits": {
+    "productModified": false,
+    "existingTestsModified": false,
+    "fixtureOrHeadersChanged": false,
+    "timeoutsChanged": false,
+    "policyReinvestigated": false,
+    "secretsReopened": false,
+    "fullBlock05Executed": false,
+    "CoreTestsExecuted": false,
+    "block06": false,
+    "aw8": false,
+    "ready": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  }
+}

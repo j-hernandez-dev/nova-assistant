@@ -4,6 +4,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   PYTHONDONTWRITEBYTECODE: '1'
 
@@ -15,9 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         env:
-          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_COUNT: '2'
           GIT_CONFIG_KEY_0: core.autocrlf
           GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -38,15 +43,15 @@ jobs:
         with:
           name: knowledge-current-contracts-windows
           path: |
-            ${{ runner.temp }}/nova-knowledge-collection/run.json
-            ${{ runner.temp }}/nova-knowledge-collection/selection.json
-            ${{ runner.temp }}/nova-knowledge-collection/collected_nodeids.json
-            ${{ runner.temp }}/nova-knowledge-collection/pytest.log
-            ${{ runner.temp }}/nova-knowledge-contracts/run.json
-            ${{ runner.temp }}/nova-knowledge-contracts/selection.json
-            ${{ runner.temp }}/nova-knowledge-contracts/collected_nodeids.json
-            ${{ runner.temp }}/nova-knowledge-contracts/tests.xml
-            ${{ runner.temp }}/nova-knowledge-contracts/pytest.log
+            ${{ runner.temp }}/nova-knowledge-collection/public/run.json
+            ${{ runner.temp }}/nova-knowledge-collection/public/selection.json
+            ${{ runner.temp }}/nova-knowledge-collection/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-knowledge-collection/public/pytest.log
+            ${{ runner.temp }}/nova-knowledge-contracts/public/run.json
+            ${{ runner.temp }}/nova-knowledge-contracts/public/selection.json
+            ${{ runner.temp }}/nova-knowledge-contracts/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-knowledge-contracts/public/tests.xml
+            ${{ runner.temp }}/nova-knowledge-contracts/public/pytest.log
           if-no-files-found: error
 
   desktop-contracts:
@@ -59,14 +64,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         env:
-          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_COUNT: '2'
           GIT_CONFIG_KEY_0: core.autocrlf
           GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
       - uses: actions/setup-node@v4
         with:
           node-version: '24.19.0'
       - run: npm ci
-      - name: Seven ordinary Desktop contract suites
+      - name: Nine ordinary Desktop contract suites including Web V1.2
         run: >-
           node --experimental-transform-types --test
           tests/application_client.test.cjs
@@ -76,5 +83,9 @@ jobs:
           tests/memory_maintenance.test.cjs
           tests/knowledge_control.test.cjs
           tests/knowledge_k7.test.cjs
+          tests/active_web.test.cjs
+          tests/web_v12.test.cjs
       - name: Desktop static TypeScript contract
         run: npx --no-install tsc --noEmit
+      - name: Desktop source build check without installer or release
+        run: node ../ci/desktop_build_check.cjs "${{ runner.temp }}/nova-desktop-build"

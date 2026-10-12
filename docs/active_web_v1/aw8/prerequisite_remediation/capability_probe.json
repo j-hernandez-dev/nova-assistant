@@ -1,0 +1,415 @@
+{
+  "schemaVersion": 1,
+  "purpose": "AW8 prerequisite remediation",
+  "productiveAdapter": "PlaywrightBrowserAdapter",
+  "productiveAdmission": "BrowserNetworkPolicy",
+  "productiveBroker": "BrowserEgressBroker",
+  "endpointSubstitution": false,
+  "finalAw8Campaign": false,
+  "modelInference": 0,
+  "negativeTargets": [
+    {
+      "id": "http-loopback-v4",
+      "transportError": null,
+      "brokerDestinationDenied": true,
+      "upstreamConnected": false,
+      "result": "PASS"
+    },
+    {
+      "id": "http-loopback-v6",
+      "transportError": null,
+      "brokerDestinationDenied": true,
+      "upstreamConnected": false,
+      "result": "PASS"
+    },
+    {
+      "id": "http-private",
+      "transportError": null,
+      "brokerDestinationDenied": true,
+      "upstreamConnected": false,
+      "result": "PASS"
+    },
+    {
+      "id": "http-link-local",
+      "transportError": null,
+      "brokerDestinationDenied": true,
+      "upstreamConnected": false,
+      "result": "PASS"
+    },
+    {
+      "id": "http-metadata",
+      "transportError": null,
+      "brokerDestinationDenied": true,
+      "upstreamConnected": false,
+      "result": "PASS"
+    },
+    {
+      "id": "https-loopback",
+      "transportError": "BROWSER_PORT_FAILURE",
+      "brokerDestinationDenied": true,
+      "upstreamConnected": false,
+      "result": "PASS"
+    },
+    {
+      "id": "https-private",
+      "transportError": "BROWSER_PORT_FAILURE",
+      "brokerDestinationDenied": true,
+      "upstreamConnected": false,
+      "result": "PASS"
+    },
+    {
+      "id": "https-metadata",
+      "transportError": "BROWSER_PORT_FAILURE",
+      "brokerDestinationDenied": true,
+      "upstreamConnected": false,
+      "result": "PASS"
+    }
+  ],
+  "exclusiveEgress": "NOT_DEMONSTRATED",
+  "availabilityOverride": false,
+  "composition": {
+    "engine": "153.0.8010.12",
+    "sdk": "1.63.0",
+    "fixedArguments": [
+      "--proxy-bypass-list=<-loopback>",
+      "--disable-quic",
+      "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1",
+      "--force-webrtc-ip-handling-policy=disable_non_proxied_udp",
+      "--disable-background-networking",
+      "--disable-component-update",
+      "--disable-sync",
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--disable-extensions"
+    ],
+    "pageEnvironment": {
+      "rtc": "undefined",
+      "prefixedRtc": "undefined",
+      "secureContext": false,
+      "webTransport": "undefined",
+      "serviceWorkerApi": "undefined"
+    },
+    "brokerLive": true,
+    "browserConnected": true
+  },
+  "unprovenObligations": [
+    "positive admitted HTTP/HTTPS composition and redirects/subresources",
+    "fresh browser command-line/engine-wide DNS mediation evidence",
+    "WS/WSS and service-worker negative engine probes in secure context",
+    "QUIC/direct UDP/WebRTC engine-wide negative evidence",
+    "proxy failure with direct UDP canary and non-loopback direct TCP coverage",
+    "internal/file/javascript/data/custom scheme negative engine evidence",
+    "same certified composition bound to productive CLI/JSONL tool registration"
+  ],
+  "brokerFaultCleanupConfirmed": true,
+  "directFallback": {
+    "hostPositiveControl": true,
+    "brokerStopped": true,
+    "attempts": [
+      {
+        "scheme": "http",
+        "transportFailed": true
+      },
+      {
+        "scheme": "https",
+        "transportFailed": true
+      }
+    ],
+    "scope": "owned loopback TCP HTTP/HTTPS canary only",
+    "browserConnections": 0,
+    "canaryCleanupConfirmed": true,
+    "result": "PASS"
+  },
+  "cleanupConfirmed": true,
+  "brokerRecords": [
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+      "retryAllowed": false
+    },
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    }
+  ],
+  "brokerRecordsDropped": 0,
+  "probeHostScope": "numeric negative canaries only; tighter than general PUBLIC_ONLY",
+  "noUpstreamConnections": true,
+  "capabilities": {
+    "available": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "exclusive productive egress obligations incomplete"
+    },
+    "engine": {
+      "status": "KNOWN",
+      "value": "PLAYWRIGHT_CHROMIUM",
+      "reason": null
+    },
+    "engineVersion": {
+      "status": "KNOWN",
+      "value": "1.63.0",
+      "reason": null
+    },
+    "browserVersion": {
+      "status": "KNOWN",
+      "value": "153.0.8010.12",
+      "reason": null
+    },
+    "controlClass": {
+      "status": "KNOWN",
+      "value": "HOST_UNISOLATED",
+      "reason": null
+    },
+    "networkBroker": {
+      "status": "KNOWN",
+      "value": true,
+      "reason": null
+    },
+    "publicOnly": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "exclusive productive egress obligations incomplete"
+    },
+    "headful": {
+      "status": "KNOWN",
+      "value": true,
+      "reason": null
+    },
+    "screenshot": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "manualTakeover": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "upload": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "download": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "persistentSession": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "maxPages": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "platform": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    }
+  },
+  "start": "2026-10-09T22:15:29.640907+00:00",
+  "end": "2026-10-09T22:15:31.901436+00:00",
+  "python": "3.14.6",
+  "executable": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw5-20261009T194457Z\\runtime\\Scripts\\python.exe",
+  "headfulProfile": true,
+  "noThirdPartySites": true,
+  "pins": {
+    "local_cli/infrastructure/active_web/productive_probe.py": "c9726f2396691ed8b8df75087f2ed45ba8fa5bbd641f90293920b03bd4d085b5",
+    "local_cli/infrastructure/active_web/playwright_adapter.py": "1adf13e2dffb30c50064771ed554739ca8c6778b9253c0cba6ee4bfafbab9ef9",
+    "local_cli/application/browser_network.py": "77e497eeae76bf40768041a1d1f95d9db577b59b5a9f11fdb71de3eba5e58d07",
+    "local_cli/infrastructure/active_web/egress_broker.py": "7ead4431fe1174442c0e0073e09035e42293c52ac3bbc02c286e0dbfae9d6da2"
+  },
+  "notProductiveToolPathProof": true
+}

@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "purpose": "C07 terminal snapshot fix — continuation_03 retirement terminal seal",
+  "timestampUtc": "2026-10-10T22:54:44.829Z",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "result": "PARTIAL",
+  "states": {
+    "C07_TERMINAL_SNAPSHOT_FIX": "PARTIAL",
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "gates": {
+    "RETIREMENT_TERMINAL_SEAL": "PARTIAL",
+    "C07_CROSS_TERMINAL_CONTINUITY": "PASS",
+    "C07_C_SECRET_LEAF": "PASS",
+    "DIRECT_TERMINAL_CONTRACT_RECONCILIATION": "PASS",
+    "TERMINAL_SNAPSHOT_PROVENANCE": "PARTIAL",
+    "CONTROL_DOCUMENT_ORDERING": "PARTIAL",
+    "LATE_EVENT_REJECTION": "PASS",
+    "TRUE_SHORT_COMMITTED_DENIAL": "PASS",
+    "BOUNDED_TRANSIENT_SENSITIVE_VALUE_POLICY": "PASS",
+    "MONOTONIC_SENSITIVE_KNOWLEDGE": "PASS",
+    "SCHEMA_AWARE_REDACTION": "PASS",
+    "CROSS_DOCUMENT_SECRET_REDACTION": "PARTIAL",
+    "MODEL_PROJECTION_SECRET_BOUNDARY": "PARTIAL",
+    "SECRET_REGISTRY_LIFECYCLE": "PARTIAL",
+    "SECRET_NON_EXPOSURE": "PARTIAL",
+    "BLOCK05_FINAL_REGRESSION": "BLOCKED"
+  },
+  "historicalEvidence": {
+    "originalBlock05": "BLOCKED preserved",
+    "firstSecretRemediation": "BLOCKED preserved",
+    "revision02Preflight": "BLOCKED preserved",
+    "continuation02": "23/24 PASS + cross FAIL preserved byte-for-byte",
+    "blocks01_04": "Preserved; no recertification",
+    "historical36Udf": "CLEANUP_UNCONFIRMED, untouched",
+    "HOME_USERPROFILE": "PREEXISTING_CORE_HARNESS_DEBT, no new execution or maintenance",
+    "block03_JSONL": "Historical FAIL preserved; no reclassification"
+  },
+  "scope": {
+    "only": "Infrastructure retirement terminal witness, idempotent exact Commit, late-sensitive-event sticky denial; 23 additive contract tests",
+    "changedProductFiles": [
+      "native/nova-browser-host/SensitiveValueRegistry.cs",
+      "native/nova-browser-host/SensitiveTracking.cs",
+      "native/nova-browser-host/SensitiveBoundaryFailure.cs",
+      "native/nova-browser-host/SensitiveTerminalState.cs",
+      "native/nova-browser-host/SensitiveTerminalDiagnostics.cs"
+    ],
+    "newTestFiles": [
+      "native/nova-browser-host/tests/test_retirement_seal.py",
+      "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "native/nova-browser-host/tests/retirement_seal_runner/runner.csproj"
+    ],
+    "unchanged": "Existing assertions, fixtures, driver, leaf fix, TRANSIENT/COMMITTED policy, public IPC schema, Core/Security/Memory/Knowledge/Desktop, network/capability, architectures"
+  },
+  "pins": {
+    "candidateFreeze": "candidate_runtime_freeze.json",
+    "candidateFreezeSha256": "cf73b64725d5863b86ff3c6c0125164e964c29d7ae7625bf938445343ef4905d",
+    "sourcePins": 90,
+    "historicalEvidence": 275,
+    "continuation02Evidence": 13,
+    "historicalExternal": 57,
+    "continuation02External": 9,
+    "trackedBaseline": 18,
+    "sourceDrift": 0,
+    "historicalDrift": 0
+  },
+  "tests": {
+    "A": "1/1 PASS",
+    "B": "24/24 PASS",
+    "C": "22/22 PASS",
+    "D": "55/55 PASS",
+    "E": "2/15 executed: 1 PASS / 1 FAIL; stop SHORT_COMMITTED_VALUE len1",
+    "F": "NOT RUN",
+    "G": "NOT RUN (planned inventory 496)",
+    "runtimeCandidate": "103 PASS / 1 FAIL / 0 ERROR / 0 SKIP; executed instances, not a full-quality closure denominator",
+    "buildErrors": "2 prior setup/build errors preserved, CS8604/CS8602; no runtime",
+    "xfails": 0,
+    "qualityRetries": 0
+  },
+  "blocker": {
+    "id": "WV2-B05-C07-C03-HISTORICAL-SHORT-001",
+    "classification": "PRODUCT_BUG / TERMINAL_LIFECYCLE_CONTINUITY",
+    "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+    "stage": "E_round_1_scenario_2",
+    "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+    "firstFailureReason": "SHORT_COMMITTED_VALUE",
+    "firstFailureSite": "CURRENT_COMMIT_SHORT",
+    "selectedTerminalLength": 1,
+    "terminalReasonAtFailure": "NOT_CAPTURED",
+    "documentRevisionAtFailure": "NOT_CAPTURED",
+    "mechanismDeep": "UNKNOWN: scalar C06 proves exact branch/length, not whether selecting caller was CHANGE/BLUR/PAGEHIDE/CHECKPOINT/ENGINE_WORLD_RETIRE.",
+    "modelExposure": "No successful post-takeover BrowserObservation was returned on failed path. No raw sensitive value captured in evidence.",
+    "stop": "Spurious short denial in unchanged historical scenario; stop before remaining E attempts, F/G. No further repair or diagnostic campaign.",
+    "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c07-retirement-20261010T224419Z\\E_round_1_scenario_2\\junit.xml",
+    "xmlSha256": "f4d29bec4a0dcec360e9ecef2eae69908846020b8b7ed63d855d4834f4182c67",
+    "reasonArtifact": {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c07-retirement-20261010T224419Z\\E_round_1_scenario_2\\temp\\test_native_capture_exception_0\\nova_wv2_bws_0ecec1d6422f4921aaa494dda8bfbcc5_bhi_d6e323f649ca48afa2a05a7961a90d5c.failure-reason.bin",
+      "hostPid": 45936,
+      "ownerPid": 4736,
+      "reasonCode": 2,
+      "siteCode": 8,
+      "currentLength": 1,
+      "complete": 1,
+      "timestampUnixMs": 1791672688570,
+      "sha256": "45e0514c0300e59c3245426052c6173fffd4b794e4315dea647ff55377df9810"
+    }
+  },
+  "externalEvidenceRoot": "C:/Users/joseh/AppData/Local/Temp/nova-c07-retirement-20261010T224419Z",
+  "cleanup": {
+    "timestampUtc": "2026-10-10T22:53:12.6134431Z",
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "sourcePinsChecked": 90,
+    "sourceDrift": [],
+    "historyChecks": [
+      {
+        "group": "historicalPins",
+        "count": 275,
+        "drift": []
+      },
+      {
+        "group": "trackedPins",
+        "count": 18,
+        "drift": []
+      },
+      {
+        "group": "historicalOutputPins",
+        "count": 57,
+        "drift": []
+      },
+      {
+        "group": "diagnosticHarnessPins",
+        "count": 2,
+        "drift": []
+      },
+      {
+        "group": "continuation02EvidencePins",
+        "count": 13,
+        "drift": []
+      },
+      {
+        "group": "continuation02ExternalPins",
+        "count": 9,
+        "drift": []
+      }
+    ],
+    "ownedDirectoriesRemaining": [],
+    "scopedProcessesRemaining": [],
+    "outputPrivacyCount": 17,
+    "literalFullSyntheticCredentialHits": [],
+    "candidateFreezeSha256": "cf73b64725d5863b86ff3c6c0125164e964c29d7ae7625bf938445343ef4905d",
+    "historical36UdfInspectedOrMaintained": false
+  },
+  "diagnostics": "TEST_ONLY_RETAINED: observers null in productive executable, no debug IPC or capability; build excludes tests.",
+  "next": "Human review required. No further repair or campaign authorized in this turn.",
+  "noBlock06": true,
+  "noAW8": true,
+  "noReady": true,
+  "noCommitPushTagRelease": true
+}

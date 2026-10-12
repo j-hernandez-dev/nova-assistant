@@ -1,0 +1,42 @@
+........................................................................ [ 92%]
+.....F                                                                   [100%]
+================================== FAILURES ===================================
+____ test_start_subagent_audit_failure_is_typed_denial_no_child_submission ____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s7_private_8t4gb8bl/selected/test_start_subagent_audit_fail0')
+
+    def test_start_subagent_audit_failure_is_typed_denial_no_child_submission(tmp_path):
+        from unittest.mock import Mock
+        from local_cli.application.session import AgentSessionCoordinator
+        from local_cli.application.commands import ApplicationCommand,CommandKind
+        from local_cli.core.contracts import new_command_id
+        from local_cli.application.events import EventBufferConfig
+        from tests.test_nova_core_phase4_session import ScriptedProvider,start,submit
+        from tests.security_v12.test_s7_contracts import FixtureAuditPort
+        class Port(FixtureAuditPort):
+            def flush(self):
+                raise OSError()
+        entered,release = Event(),Event()
+        def run(*args,**kwargs):
+            entered.set(); assert release.wait(5); return 'done'
+        runner = Mock()
+        app = AgentSessionCoordinator(provider=ScriptedProvider([]),model='fixture',tool_factory=lambda _:[],
+            run_agent_fn=run,security_audit_port=Port(),event_config=EventBufferConfig(),
+            sub_agent_runner=runner,sub_agent_tool_factory=lambda _:[])
+        sid = start(app,tmp_path).session_id
+        parent = submit(app,sid,'wait')
+        try:
+            assert entered.wait(2)
+            child = app.handle(ApplicationCommand(new_command_id(),CommandKind.START_SUB_AGENT,
+                {'parentTurnId':parent.created_ids['turnId'],'task':'child','mode':'default'},session_id=sid))
+>           assert not child.accepted and child.error.code == 'SECURITY_AUDIT_PRE_EFFECT_FAILED'
+E           AssertionError: assert (not False and 'SUB_AGENT_SETUP_FAILED' == 'SECURITY_AUD...EFFECT_FAILED'
+E            +  where False = CommandReceipt(command_id='command_86dd646c41d74f44ac607292ff1038a1', accepted=False, session_id='ses_37d5a12645264c91...egory=<ErrorCategory.CONTEXT: 'CONTEXT'>, safe_message='Could not start sub-agent', retryable=False), schema_version=1).accepted
+E             
+E             - SECURITY_AUDIT_PRE_EFFECT_FAILED
+E             + SUB_AGENT_SETUP_FAILED)
+
+tests\security_v12\test_s7_durable_runtime.py:305: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s7_durable_runtime.py::test_start_subagent_audit_failure_is_typed_denial_no_child_submission
+1 failed, 77 passed in 4.96s

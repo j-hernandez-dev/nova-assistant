@@ -10,6 +10,7 @@ import { DesktopApplicationClient } from './application_client'
 import { memoryControl } from './memory_control.cjs'
 import { pickKnowledge, knowledgeControl,hostSelection,remoteKnowledge } from './knowledge_control.cjs'
 import { signApproval, confirmApproval, validFrame } from './approval_host.cjs'
+import { configureWebV12, selectWebV12Upload, finishWebV12Takeover } from './web_v12_control.cjs'
 
 // Keep the user profile independent of the legacy package name. Set both paths
 // before ready so Chromium caches/cookies also use the Nova profile.
@@ -450,9 +451,33 @@ function validApplicationSender(event: Electron.IpcMainEvent | Electron.IpcMainI
 }
 
 ipcMain.on('send-to-python', (event, data) => {
-  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'memory_command' || data.type === 'knowledge_command' || data.type === 'confirm_response' ||
+  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'memory_command' || data.type === 'knowledge_command' || data.type === 'browser_control' || data.type === 'confirm_response' ||
       (data.type === 'application_command' && data.command?.kind === 'ResolveApproval')) return
   sendToPython(data)
+})
+ipcMain.handle('configure-web-v12', async (event, configuration: {controlledFetchEnabled:boolean;interactiveBrowserEnabled:boolean}) => {
+  if (!validApplicationSender(event) || !mainWindow || !validFrame(configuration)) return {schemaVersion:1,
+    error:{code:'BROWSER_HUMAN_CONTROL_DENIED',message:'Main-frame host confirmation required.',retryable:false}}
+  return configureWebV12(applicationClient,configuration,request=>dialog.showMessageBox(mainWindow!,{
+    type:'warning',title:'Nova — Interactive Browser',message:request.message,detail:request.detail,
+    buttons:['Cancel','Enable Interactive Browser'],defaultId:0,cancelId:0,noLink:true}))
+})
+ipcMain.handle('web-v12-select-upload', async (event, operationId:string) => {
+  if (!validApplicationSender(event) || !mainWindow || typeof operationId!=='string') return {schemaVersion:1,
+    error:{code:'BROWSER_HUMAN_CONTROL_DENIED',message:'Main-frame host file picker required.',retryable:false}}
+  return selectWebV12Upload(applicationClient,operationId,request=>dialog.showOpenDialog(mainWindow!,{
+    title:'Nova — select this upload file',message:request.origin+' — '+request.label,
+    properties:['openFile']}))
+})
+ipcMain.handle('web-v12-finish-takeover', async (event, takeoverRef:string) => {
+  if (!validApplicationSender(event) || !mainWindow || typeof takeoverRef!=='string') return {schemaVersion:1,
+    error:{code:'BROWSER_HUMAN_CONTROL_DENIED',message:'Main-frame human control confirmation required.',retryable:false}}
+  return finishWebV12Takeover(applicationClient,takeoverRef,request=>dialog.showMessageBox(mainWindow!,{
+    type:'warning',title:'Nova — finalizar control humano',message:'¿Finalizar este control humano del navegador?',
+    detail:'Motivo: '+request.reason+'\nPrimero completa la interacción en la ventana del navegador y pulsa su control de finalización. '
+      +'Nova comprobará la continuidad sensible, invalidará las referencias anteriores y observará de nuevo antes de continuar. '
+      +'Si no puede confirmarlo, quedará bloqueado. Esto no declara un login ni aprueba efectos remotos.',
+    buttons:['Cancelar','Finalizar control humano'],defaultId:0,cancelId:0,noLink:true}))
 })
 ipcMain.handle('memory-command', async (event, name: string, args: Record<string, unknown>, commandId?: string) => {
   if (!validApplicationSender(event) || typeof name !== 'string' || !validFrame(args)) {
@@ -500,13 +525,18 @@ ipcMain.handle('application-command', async (event, kind: string, payload: Recor
       error: { code: 'INVALID_APPLICATION_COMMAND', message: 'Invalid application command.' } }
   }
   if (kind === 'ResolveApproval') {
-    return confirmApproval(applicationClient, payload, commandId, request => dialog.showMessageBox(mainWindow!, {
-      type: 'warning', title: 'Nova — confirmar ejecución local',
-      message: 'Este comando se ejecutará con los permisos normales de tu cuenta.',
-      detail: 'Carpeta: ' + request.cwd + '\n\n' + String(request.arguments.command || JSON.stringify(request.arguments))
+    return confirmApproval(applicationClient, payload, commandId, request => {
+      const browserAction=['browser_navigate','browser_act','browser_upload','browser_download','browser_takeover'].includes(request.name)
+      return dialog.showMessageBox(mainWindow!, {
+      type: 'warning', title: browserAction ? 'Nova — confirmar acción web' : 'Nova — confirmar ejecución local',
+      message: browserAction ? '¿Permitir esta acción web exacta?' : 'Este comando se ejecutará con los permisos normales de tu cuenta.',
+      detail: (browserAction ? 'Acción: ' + request.name + '\nLa página puede recibir datos o realizar un efecto remoto. '
+        + 'La aceptación del riesgo del navegador no aprueba esta acción.\n\n' : 'Carpeta: ' + request.cwd + '\n\n')
+        + String(request.arguments.command || JSON.stringify(request.arguments))
         + (request.arguments.environment ? '\n\nEnvironment: ' + JSON.stringify(request.arguments.environment) : ''),
       buttons: ['Cancelar', 'Ejecutar'], defaultId: 0, cancelId: 0, noLink: true,
-    }))
+      })
+    })
   }
   return applicationClient.command(kind, payload, commandId)
 })

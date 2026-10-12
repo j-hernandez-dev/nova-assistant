@@ -1,0 +1,51 @@
+.....F........................................................           [100%]
+================================== FAILURES ===================================
+_______ test_live_other_writer_active_segment_is_never_sealed_or_purged _______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s7_evidence/od05_storage_repaired/s7_private_bbmwe_gl/selected/test_live_other_writer_active_0')
+
+    def test_live_other_writer_active_segment_is_never_sealed_or_purged(tmp_path):
+        now = datetime(2026, 10, 4, tzinfo=timezone.utc)
+        first = JsonlSecurityAudit(tmp_path/'state', segment_bytes=2048, retention_bytes=2048, clock=lambda: now)
+        first.append(entry()); first.flush(); active = first._active
+        second = JsonlSecurityAudit(first.directory, segment_bytes=2048, retention_bytes=2048,
+                                    clock=lambda: now+timedelta(days=31))
+        try:
+            for number in range(2, 20):
+>               second.append(entry(record_id=str(number), audit_stream_id='other', audit_sequence=number))
+
+tests\security_v12\test_s7_persistence.py:100: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.infrastructure.security_audit_jsonl.JsonlSecurityAudit object at 0x000001E6B8E27C50>
+record = SecurityAuditRecord(record_id='6', audit_stream_id='other', audit_sequence=6, timestamp='2026-10-04T19:17:08.793418+00...gent_runtime', data=mappingproxy({'cwd': 'fixture'}), turn_id=None, tool_call_id=None, agent_id=None, schema_version=1)
+
+    def append(self, record):
+        with self._mutex:
+            if self._failed or self._closed:
+                raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+            try:
+                row = json.dumps(SecurityAuditRecord.from_dict(record.to_dict()).to_dict(),
+                    ensure_ascii=False, separators=(',', ':')).encode('utf-8')+b'\n'
+                if len(row)+256 > self.segment_bytes:
+                    raise SecurityAuditError('AUDIT_RECORD_TOO_LARGE')
+                with self._transaction():
+                    self._recover()
+                    if self._stream is not None and self._size+len(row) > self.segment_bytes:
+                        self._seal()
+                    self._retain(reserve=len(row)+(256 if self._stream is None else 0))
+                    if self._stream is None:
+                        self._new_segment()
+                    self._stream.write(row)
+                    self._stream.flush()  # Visibility, no fsync for each internal event.
+                    self._size += len(row)
+                    self._retain()
+            except Exception:
+                self._failed = True
+>               raise SecurityAuditError('SECURITY_AUDIT_WRITE_FAILED') from None
+E               local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_WRITE_FAILED
+
+local_cli\infrastructure\security_audit_jsonl.py:247: SecurityAuditError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s7_persistence.py::test_live_other_writer_active_segment_is_never_sealed_or_purged
+1 failed, 61 passed in 2.79s

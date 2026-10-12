@@ -18,6 +18,7 @@ from local_cli.providers.claude_provider import ClaudeProvider
 from local_cli.providers.llama_server_provider import LlamaServerProvider
 from local_cli.providers.message_converter import messages_to_claude
 from local_cli.providers.ollama_provider import OllamaProvider
+from local_cli.prompts import build_system_prompt
 from local_cli.shell_executor import ShellDescriptor
 from local_cli.tools import create_tools
 from local_cli.tools.bash_tool import BashTool
@@ -210,9 +211,21 @@ class TestPhase0Characterization(unittest.TestCase):
         actual["jsonl_events"] = [event for event in actual["jsonl_events"]
             if not (event.get("type") == "harness"
                     and event.get("event") in ("context_budget", "memory_recall", "knowledge_recall"))]
-        self.assertEqual(
-            actual, self.expected["server_and_provider"]
-        )
+        expected = self.expected["server_and_provider"]
+        # B6's versioned host catalog now owns the initial system prompt. Check
+        # that exact current value independently; the phase-0 golden remains
+        # byte-intact and still governs every conversation/provider wire field.
+        current_system = build_system_prompt([_EchoTool()], cwd=Path.cwd().resolve())
+        self.assertEqual(actual["transcript"][0], {"role": "system", "content": current_system})
+        self.assertEqual(actual["claude_conversion"]["system"], current_system)
+        self.assertEqual(expected["transcript"][0], {"role": "system", "content": "sys"})
+        self.assertEqual(expected["claude_conversion"]["system"], "sys")
+        self.assertEqual(set(actual), set(expected))
+        self.assertEqual(set(actual["claude_conversion"]), set(expected["claude_conversion"]))
+        self.assertEqual(actual["transcript"][1:], expected["transcript"][1:])
+        self.assertEqual(actual["claude_conversion"]["messages"], expected["claude_conversion"]["messages"])
+        self.assertEqual(actual["jsonl_events"], expected["jsonl_events"])
+        self.assertEqual(actual["provider_tool_formats"], expected["provider_tool_formats"])
 
     def test_approval_denial_acceptance_and_missing_git(self):
         self.assertEqual(

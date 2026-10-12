@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 1,
+  "audit": "BLOCK06_PREIMPLEMENTATION_AUDIT",
+  "decision": "REQUIRES_ARCHITECTURE_REVIEW",
+  "normativeArchitecture": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+  "scope": "Sólo el perfil V1.1 certificado futuro; no teorema universal de sockets de Windows/Chromium.",
+  "claim": {
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "controlClass": "HOST_UNISOLATED"
+  },
+  "enforcementChainProposed": [
+    "browser-originated relevant traffic",
+    "engine-owned BrowserNetworkEgressControl",
+    "BrowserEgressBroker",
+    "destination resolution and validation",
+    "PUBLIC_ONLY decision",
+    "numeric IP connection"
+  ],
+  "chainImplementedForWebView2": false,
+  "denialCases": {
+    "literal": [
+      "loopback",
+      "RFC1918",
+      "ULA/private IPv6",
+      "IPv4/IPv6 link-local",
+      "metadata endpoints normativos",
+      "unspecified",
+      "multicast",
+      "reserved/non-global",
+      "IPv4-mapped private",
+      "scoped/transition IPv6 rechazado por S5"
+    ],
+    "resolved": [
+      "private only",
+      "mixed public/private",
+      "empty",
+      "ambiguous",
+      "timeout",
+      "DNS rebinding to private"
+    ],
+    "requirements": [
+      "classifier real S5, no localhost-as-public en producto",
+      "cada answer validada, pin físico numérico",
+      "denial explícito por destino; no PASS por silencio"
+    ]
+  },
+  "channels": [
+    {
+      "channel": "HTTP",
+      "normative": "§18.2; §18.3; §36.4",
+      "current": "BrowserEgressBroker forward HTTP autenticado; host WebView2 no configura proxy.",
+      "candidate": "Proxy HTTP único numérico y owned; autorización por request antes de conexión; ninguna salida DIRECT.",
+      "gap": "Integración y configuración efectiva no demostradas.",
+      "proof": [
+        "HTTP público controlado recibido vía broker",
+        "GET/POST y subresources a canarios privados denegados antes de conexión",
+        "broker indisponible sin conexión directa"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "HTTPS",
+      "normative": "§18.2; §18.8; §36.4",
+      "current": "Broker admite CONNECT opaco; no hay enlace WebView2↔broker.",
+      "candidate": "CONNECT a endpoint público pinned; validación TLS estándar en WebView2, sin MITM.",
+      "gap": "Handshake/renderer positivo real, auth de proxy y revalidación de origins dentro del canal cifrado pendientes.",
+      "proof": [
+        "HTTPS admitido completo con TLS confiable y renderer",
+        "hostname/cadena inválidos siguen denegados",
+        "https-metadata obtiene denial explícito de destino, no inferido por timeout"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "DNS_IPV4_IPV6",
+      "normative": "§18.2; PUBLIC_ONLY; §36.4",
+      "current": "BrowserNetworkPolicy valida todas las respuestas frescas; _PinnedConnection usa IP numérica. Engine no configurado.",
+      "candidate": "Sólo el broker resuelve destinations; proxy numérico; ningún DNS directo útil de Chromium ni fallback.",
+      "gap": "DNS-prefetch/DoH/mDNS y comportamiento efectivo deben evaluarse sólo donde estén habilitados/expuestos por este runtime.",
+      "proof": [
+        "DNS mixto/privado/ambiguo denegado",
+        "IPv4/IPv6 y mapped/transitional IPv6 conforme clasificador S5",
+        "canario de DNS directo y conexiones correlacionadas al árbol Chromium"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "DNS_REBINDING",
+      "normative": "PUBLIC_ONLY; §18.2",
+      "current": "Re-resolución por admission y pin del endpoint; rechaza cualquier answer no pública.",
+      "candidate": "Reutilizar política y pinning; toda nueva conexión/origin admitida bajo el mismo contrato.",
+      "gap": "Asegurar que engine/coalescing no evita la admission exigida; no basta hostname textual.",
+      "proof": [
+        "public→private en resolución posterior denegado",
+        "mixed answers denegados",
+        "socket existente sólo conserva IP autorizada"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "REDIRECTS_AND_NEW_ORIGINS",
+      "normative": "§18.2; §36.4",
+      "current": "HTTP proxy no sigue redirects. Redirect policy del fetch pasivo no opera en CONNECT. Frame handler actual sólo invalida refs.",
+      "candidate": "Admission engine-specific por nuevo origin/redirect antes de efecto y proxy final para conexión IP; no segundo Policy.",
+      "gap": "B06-REVIEW-003: definir cobertura de HTTPS/coalescing/iframe y equivalencia del origin exacto sin MITM.",
+      "proof": [
+        "HTTP y HTTPS public→private denegados",
+        "redirect relativo y nuevo origin público mediados",
+        "iframe/reuso de conexión no evitan validación"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "SUBRESOURCES_HTTP_FAMILY",
+      "normative": "§18.2; §36.4",
+      "current": "Provider offline de dos hosts no es control de red. Filtros actuales no cubren todas las fuentes.",
+      "candidate": "Proxy global del engine + admission complementaria source-aware; no confiar sólo en NavigationStarting.",
+      "gap": "Enumeración por source kinds y prueba del motor efectivo.",
+      "proof": [
+        "fetch/XHR, image/font/media, iframe, beacon/ping/EventSource pertinentes por broker",
+        "subresource de origin privado denegado",
+        "sólo incluir APIs realmente expuestas"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "WS_WSS",
+      "normative": "§18.5; §36.4",
+      "current": "HTTP Upgrade se rechaza; CONNECT no inspecciona WSS.",
+      "candidate": "Perfil explícito: broker para destinos permitidos o deshabilitación efectiva según §18.5; ws desde HTTPS no permitido.",
+      "gap": "Decisión de perfil y primitive de disable, si se elige deny; probar selección de proxy WSS real.",
+      "proof": [
+        "ws/wss públicos conforme perfil congelado",
+        "ws/wss privados y broker failure sin bypass",
+        "no claim a partir de ResourceContext.Websocket"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "SERVICE_WORKERS",
+      "normative": "§18.2: deshabilitados; §36.4",
+      "current": "No hay disable productivo. Manager post-registration/stop/unregister/bypass fetch no implican disable.",
+      "candidate": "Primitive engine-owned pre-execution exhaustiva por decidir; nueva UDF no es defensa suficiente por sí sola.",
+      "gap": "B06-REVIEW-002; ninguna primitive suficiente validada en inventario auditado.",
+      "proof": [
+        "secure context real: registro, scripts/imports, frames y reload no ejecutan SW",
+        "cache/background no producen salida no mediada",
+        "falla del control retira autoridad"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "DEDICATED_SHARED_WORKERS",
+      "normative": "§18.2: todo egress relevante",
+      "current": "SDK posee filtros source-aware; producto offline usa overload de dos argumentos.",
+      "candidate": "Toda request HTTP(S) por proxy; admission complementaria con sources soportadas cuando necesaria.",
+      "gap": "Shared worker por environment y concurrencia; no inferir cobertura sólo por API.",
+      "proof": [
+        "fetch de worker a segundo origin mediado",
+        "destino privado denegado",
+        "no fuente sin observer/admission"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "QUIC_HTTP3_DIRECT_UDP",
+      "normative": "§18.2: deshabilitados; §36.4",
+      "current": "No disable-quic en arguments; broker es TCP.",
+      "candidate": "Configuración engine-owned efectiva que deshabilite QUIC/UDP pertinente antes de crear engine.",
+      "gap": "B06-REVIEW-001/002: flag candidate no certificado.",
+      "proof": [
+        "Alt-Svc HTTP3 no produce UDP",
+        "UDP canarios sin datagramas owned",
+        "broker caído no induce fallback QUIC"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "WEBRTC",
+      "normative": "§18.2: deshabilitado; §36.4",
+      "current": "No disable WebRTC. Denial cámara/mic no bloquea ICE/datachannels.",
+      "candidate": "Primitive de deshabilitación engine-owned por decidir; IP-handling no equivale a WebRTC off.",
+      "gap": "B06-REVIEW-002; wrapper JS/ausencia en about:blank insuficientes.",
+      "proof": [
+        "secure context con ICE/STUN/TURN/datachannel controlados",
+        "cero UDP/TCP no proxied pertinente",
+        "guard/permissions no se confunden con control de red"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "PREFETCH_PRECONNECT_SPECULATION",
+      "normative": "§18.2; §36.4",
+      "current": "Cuatro flags generales no demuestran control; NavigationStarting no intercepta todos los hints.",
+      "candidate": "Cada conexión anticipada broker-only o deshabilitada efectivamente; DNS directo útil eliminado.",
+      "gap": "Determinar features habilitadas en versión efectiva; prediction toggle no prueba todos los hints.",
+      "proof": [
+        "DNS-prefetch/preconnect/speculation existentes ejercitados con canarios",
+        "no direct connection ni DNS útil",
+        "admission por origin incluso sin navegación top-level"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "BACKGROUND_AND_CHILD_PROCESSES",
+      "normative": "§18.2; §18.3; §36.4",
+      "current": "Argumentos solicitados reducen tareas; no existe observación de red por PID ni prueba de configuración.",
+      "candidate": "Mismo perfil antes de startup; broker-only o disable de servicios del árbol owned.",
+      "gap": "Proof del runtime/child tree/ventana exactos; un flags string no prueba sockets.",
+      "proof": [
+        "startup/idle/restart/shutdown y broker failure observados",
+        "browser/network-service/renderer/children correlacionados",
+        "observabilidad calibrada y pérdida de cobertura invalida proof"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "DOWNLOAD_REQUESTS",
+      "normative": "§18.2; §36.4; FILE_DOWNLOAD separado",
+      "current": "DownloadStarting preserva autoridad de transferencia; la request puede precederlo.",
+      "candidate": "Ruta HTTP/HTTPS del engine por mismo broker antes del evento; no alterar handler/staging/Approval.",
+      "gap": "Prueba de red independiente del Block05 cerrado.",
+      "proof": [
+        "download explícito público pasa por broker",
+        "download request privado denegado antes de conexión",
+        "drive-by continúa Cancel; sin relajar FILE_DOWNLOAD"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "WEBSOCKET_ADJACENT_WEBTRANSPORT_IF_EXPOSED",
+      "normative": "§18.2: egress realmente aplicable",
+      "current": "Exposición del runtime no se midió en esta auditoría.",
+      "candidate": "Si hay transporte HTTP3/UDP, deshabilitar como parte de QUIC; no añadir control inventado si API ausente.",
+      "gap": "Inventario de exposición y transporte real requerido en futura campaña autorizada.",
+      "proof": [
+        "si está expuesto, adversarialmente sin UDP/direct egress",
+        "si está ausente, evidencia scoped de no exposición, no claim universal"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    },
+    {
+      "channel": "LOCAL_SCHEMES_AND_HOST_LAUNCH",
+      "normative": "§18.6; AW-INV-030/052",
+      "current": "Guard pre-effect cerrado en Block03/05; API agentic restringida; sin nueva autoridad.",
+      "candidate": "Conservar ExternalProtocolGuard; file/data/blob/javascript no son IP por sí mismos, sus requests heredan control.",
+      "gap": "No sustituir guard por broker ni reabrir certificación previa.",
+      "proof": [
+        "regresión acotada guard permanece activo con perfil nuevo",
+        "sin external relaunch ni direct route por popup/control secundario"
+      ],
+      "status": "NOT_NETWORK_CERTIFIED",
+      "evidenceType": "STATIC_CODE_AND_PRIMARY_DOCUMENTATION",
+      "nativeTestExecuted": false
+    }
+  ],
+  "reviewRequired": [
+    "B06-REVIEW-001",
+    "B06-REVIEW-002",
+    "B06-REVIEW-003"
+  ],
+  "nativeCoverageExecuted": 0,
+  "syntheticTestsExecuted": 0,
+  "notInScope": [
+    "global machine firewall",
+    "network namespace/sandbox claim",
+    "other unrelated applications/EdgeUpdater",
+    "raw socket APIs not shown exposed in this configuration",
+    "new Block07 capabilities or tool activation"
+  ]
+}

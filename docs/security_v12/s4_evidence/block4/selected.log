@@ -1,0 +1,52 @@
+..................................F..............................        [100%]
+================================== FAILURES ===================================
+__________ test_common_application_session_uses_injected_s4_service ___________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/block4/s4_private_13_jdltv/selected/test_common_application_sessio0')
+
+    def test_common_application_session_uses_injected_s4_service(tmp_path):
+        from local_cli.application.session import AgentSessionCoordinator
+        from local_cli.tools.shell_tool import ShellTool
+        from local_cli.shell_executor import ShellDescriptor
+        from tests.test_nova_core_phase4_session import ScriptedProvider, start, submit
+        descriptor = ShellDescriptor('Windows', 'powershell', str(tmp_path/'fixture_pwsh.exe'), 'fixture')
+        shell = ShellTool(descriptor=descriptor, cwd=tmp_path, environment={})
+        launcher = Mock()
+        launcher.launch.return_value = ProcessReport(123, 0, 'fixture-ok', '', 'completed', None,
+            ('running', 'root_exited', 'cleanup_confirmed'), cleanup_scope='assigned_job_members', cleanup_confirmed=True)
+        service = ProcessExecutionService(launcher, limits())
+        call = {'role': 'assistant', 'content': '', 'tool_calls': [{
+            'function': {'name': 'bash', 'arguments': {'command': 'echo fixture-ok'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([call, 'done']), model='local',
+            tool_factory=lambda cwd: [shell], process_service=service)
+        session_id = start(app, tmp_path).session_id
+        receipt = submit(app, session_id, 'benign fixture')
+        assert app.wait_for_turn(receipt.created_ids['turnId'], timeout=5)
+>       events = app.poll_events(app.subscribe_events(session_id, after_sequence=0))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s4_contracts.py:267: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001C5FF59C050>
+session_id = 'ses_b59d49cd396b43b89678019633066b69', after_sequence = 0
+include_internal = False
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1418: ValueError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s4_contracts.py::test_common_application_session_uses_injected_s4_service
+1 failed, 64 passed in 4.77s

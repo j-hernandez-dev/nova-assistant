@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "sourcePin": {
+    "cef": "14c5a089e8452874cb1a556dc3fde26ed2d87723",
+    "chromium": "b859317bf11f6be47f9b7799ec690a0a42a1fb33"
+  },
+  "whatWasBuilt": "A small C++ C-API executable linked with the selected libcef import library; NOT CEF/Chromium itself.",
+  "consumesStandardBinaries": true,
+  "cefChromiumSourceBuildPerformed": false,
+  "cefChromiumPatchesApplied": false,
+  "currentProfileRejected": true,
+  "futureControlledBuild": {
+    "required": true,
+    "reason": "Native RTC-off/SW-off and network/source gates are absent/unverified in consumed standard artifact.",
+    "strategy": "Own CEF/Chromium build and explicit native gates. A conceptual point is not an implemented/certified patch.",
+    "notImplemented": [
+      "WebRTC constructor/backend disable",
+      "AllowServiceWorker register/access/start deny",
+      "NetworkContext/resolver/socket exact broker enforcement",
+      "external protocol delegate fallback elimination"
+    ]
+  },
+  "reproducibility": {
+    "harness": "Pinned distribution checksum/ABI/source hashes + MSVC/SDK. Link rebuild deterministic claim not made.",
+    "engineBuild": "Needs pinned depot_tools/GN/Ninja/Clang/source deps/toolchain and reproducibility measurements. No promise from consuming a tar archive."
+  },
+  "hostCapacityObserved": {
+    "totalRamGB": 15.5,
+    "freeRamGBAtPreparation": 1.4,
+    "freeDiskGBAtPreparation": 118.8
+  },
+  "updateBurden": "High: carry native patches across each Chromium/CEF security release and invalidate certification on changed code/config; never freeze an insecure build indefinitely.",
+  "patchCarry": "Maintain exact native surface, all partitions/worker/NetworkService restarts and regression evidence. No estimate of number of LOC/engineering weeks asserted.",
+  "binarySize": {
+    "archiveBytes": 172752666,
+    "libcefBytes": 289818624,
+    "retainedDistributionBytes": 452967884
+  },
+  "windowsDistribution": "App-local private fixed runtime/resources, publisher update pipeline, third-party notices preserved in distribution. No admin install is inherent to this shape.",
+  "privilegeDependenciesRequested": [],
+  "nextArchitectureDraftAuthorized": false
+}

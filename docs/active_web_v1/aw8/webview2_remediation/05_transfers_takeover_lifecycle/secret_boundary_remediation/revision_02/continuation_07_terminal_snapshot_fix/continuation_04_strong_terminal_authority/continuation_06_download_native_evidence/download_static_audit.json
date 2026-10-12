@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "createdBeforeNewExecutions": true,
+  "timestampUtc": "2026-10-11T09:04:57.5971603Z",
+  "cases": [
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_upload_and_download_smoke",
+      "EVENT_SUBSCRIPTION_POINT": "ObservationRuntime.cs:24 constructor subscribes view.DownloadStarting += DownloadStarting; WebView2Runtime.cs:167 constructs with controller.CoreWebView2, before ConfigureLocal:169, page_create completion:171 and fixture navigate_local",
+      "handlerLifetime": "Owned ObservationRuntime is held in WebView2Runtime.dom per Page; no explicit -= DownloadStarting; persists until controller.Close followed by dom.Remove/dom.Clear (WebView2Runtime.cs:238-254). No subscription change during actions",
+      "FIXTURE_RESPONSE_CONTRACT": {
+        "status": 200,
+        "contentType": "text/plain",
+        "contentLength": 35,
+        "cacheControl": "no-store",
+        "contentDisposition": null,
+        "redirect": false,
+        "responseProvider": "Same ObservationRuntime.view.WebResourceRequested; MemoryStream fixture; no external server",
+        "expectedTrigger": "same-origin anchor download attribute, via fixed CDP function .click(); no explicit userGesture"
+      },
+      "sourceIsSameView": true,
+      "productAndFixtureChanged": false,
+      "DOWNLOAD_INITIATION_CONTRACT": "BrowserActionKind.DOWNLOAD -> observed target/revalidation -> STARTED -> exact-URI DownloadSlot -> ObservationScripts.Perform CLICK on anchor",
+      "EXPECTED_WEBVIEW2_TRIGGER": "Direct same-origin <a download> activation; API emits DownloadStarting once a download begins",
+      "extraPath": "Upload first; fresh observation before download"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_drive_by_download_cancelled_no_staging",
+      "EVENT_SUBSCRIPTION_POINT": "ObservationRuntime.cs:24 constructor subscribes view.DownloadStarting += DownloadStarting; WebView2Runtime.cs:167 constructs with controller.CoreWebView2, before ConfigureLocal:169, page_create completion:171 and fixture navigate_local",
+      "handlerLifetime": "Owned ObservationRuntime is held in WebView2Runtime.dom per Page; no explicit -= DownloadStarting; persists until controller.Close followed by dom.Remove/dom.Clear (WebView2Runtime.cs:238-254). No subscription change during actions",
+      "FIXTURE_RESPONSE_CONTRACT": {
+        "status": 200,
+        "contentType": "text/plain",
+        "contentLength": 35,
+        "cacheControl": "no-store",
+        "contentDisposition": null,
+        "redirect": false,
+        "responseProvider": "Same ObservationRuntime.view.WebResourceRequested; MemoryStream fixture; no external server",
+        "expectedTrigger": "same-origin anchor download attribute, via fixed CDP function .click(); no explicit userGesture"
+      },
+      "sourceIsSameView": true,
+      "productAndFixtureChanged": false,
+      "DOWNLOAD_INITIATION_CONTRACT": "BrowserActionKind.CLICK on button; page onclick invokes download anchor.click(); no DownloadSlot/permit; any native DownloadStarting must be denied",
+      "EXPECTED_WEBVIEW2_TRIGGER": "Programmatic nested click on same anchor, no browser-side user activation added; if engine begins download the normal handler must cancel",
+      "extraPath": "No slot; same requested payload but different initiation/authority path"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+      "EVENT_SUBSCRIPTION_POINT": "ObservationRuntime.cs:24 constructor subscribes view.DownloadStarting += DownloadStarting; WebView2Runtime.cs:167 constructs with controller.CoreWebView2, before ConfigureLocal:169, page_create completion:171 and fixture navigate_local",
+      "handlerLifetime": "Owned ObservationRuntime is held in WebView2Runtime.dom per Page; no explicit -= DownloadStarting; persists until controller.Close followed by dom.Remove/dom.Clear (WebView2Runtime.cs:238-254). No subscription change during actions",
+      "FIXTURE_RESPONSE_CONTRACT": {
+        "status": 200,
+        "contentType": "text/plain",
+        "contentLength": 35,
+        "cacheControl": "no-store",
+        "contentDisposition": null,
+        "redirect": false,
+        "responseProvider": "Same ObservationRuntime.view.WebResourceRequested; MemoryStream fixture; no external server",
+        "expectedTrigger": "same-origin anchor download attribute, via fixed CDP function .click(); no explicit userGesture"
+      },
+      "sourceIsSameView": true,
+      "productAndFixtureChanged": false,
+      "DOWNLOAD_INITIATION_CONTRACT": "BrowserActionKind.DOWNLOAD -> observed target/revalidation -> STARTED -> exact-URI DownloadSlot -> ObservationScripts.Perform CLICK on anchor",
+      "EXPECTED_WEBVIEW2_TRIGGER": "Direct same-origin <a download> activation; API emits DownloadStarting once a download begins",
+      "extraPath": "Same download path without preceding upload"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]",
+      "EVENT_SUBSCRIPTION_POINT": "ObservationRuntime.cs:24 constructor subscribes view.DownloadStarting += DownloadStarting; WebView2Runtime.cs:167 constructs with controller.CoreWebView2, before ConfigureLocal:169, page_create completion:171 and fixture navigate_local",
+      "handlerLifetime": "Owned ObservationRuntime is held in WebView2Runtime.dom per Page; no explicit -= DownloadStarting; persists until controller.Close followed by dom.Remove/dom.Clear (WebView2Runtime.cs:238-254). No subscription change during actions",
+      "FIXTURE_RESPONSE_CONTRACT": {
+        "status": 200,
+        "contentType": "text/plain",
+        "contentLength": 35,
+        "cacheControl": "no-store",
+        "contentDisposition": null,
+        "redirect": false,
+        "responseProvider": "Same ObservationRuntime.view.WebResourceRequested; MemoryStream fixture; no external server",
+        "expectedTrigger": "same-origin anchor download attribute, via fixed CDP function .click(); no explicit userGesture"
+      },
+      "sourceIsSameView": true,
+      "productAndFixtureChanged": false,
+      "DOWNLOAD_INITIATION_CONTRACT": "BrowserActionKind.DOWNLOAD -> observed target/revalidation -> STARTED -> exact-URI DownloadSlot -> ObservationScripts.Perform CLICK on anchor",
+      "EXPECTED_WEBVIEW2_TRIGGER": "Direct same-origin <a download> activation; API emits DownloadStarting once a download begins",
+      "extraPath": "Existing exact Policy/Approval/Grant -> same engine transfer path"
+    }
+  ],
+  "smokeStaticDecision": {
+    "SMOKE_ROOT_CAUSE": "NATIVE_DOWNLOAD_INITIATION_NOT_OBSERVED",
+    "finalClassification": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+    "responseForcesAttachmentByHeaders": false,
+    "downloadAttributePresent": true,
+    "sameOrigin": true,
+    "missingContentDispositionDoesNotByItselfProveMismatch": true,
+    "plainTextMimeDoesNotByItselfInvalidateSameOriginDownloadAttribute": true,
+    "handlerSubscribedBeforeRequest": true,
+    "sameViewEstablishedByPinnedSource": true,
+    "priorTraceObservedResourceReturn20035": true,
+    "priorTransferNavigationObserved": false,
+    "priorResponseCompletion": "UNKNOWN_NOT_CAPTURED",
+    "unknownRendererTreatment": true,
+    "noSmokeRerun": true,
+    "reason": "Static path is a legitimate same-origin download initiation attempt. Existing native trace localizes lack of download initiation, not a missing-subscription bug. No basis to certify fixture mismatch or a deeper engine cause; do not repeat merely to improve signal.",
+    "priorValidNativeTraceRef": "C:/Users/joseh/AppData/Local/Temp/nova-legacy-download-diagnosis-20261011T083647Z/P2_smoke_only_first_body/temp/test_native_upload_and_downloa0",
+    "historicalFileFailedPreserved": true
+  },
+  "references": {
+    "htmlDownload": "https://html.spec.whatwg.org/multipage/links.html#downloading-resources",
+    "webview2Event": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.downloadstarting",
+    "pinnedSdk": "1.0.4258.31 / lib/net462/Microsoft.Web.WebView2.Core.xml"
+  },
+  "exactNewCases": [
+    "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_drive_by_download_cancelled_no_staging",
+    "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+    "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]"
+  ],
+  "bodyRunsAuthorizedPerCase": 1,
+  "noSecretsReopening": true,
+  "noFixtureHeadersChanges": true,
+  "noProductChanges": true
+}

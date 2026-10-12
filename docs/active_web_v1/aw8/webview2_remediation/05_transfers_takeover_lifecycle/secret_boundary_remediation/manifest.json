@@ -1,0 +1,331 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Block05 SECRET_NON_EXPOSURE focal remediation; additive terminal failure, stopped for human review",
+  "timestampUtc": "2026-10-10T17:08:04.289Z",
+  "BLOCK05_ORIGINAL_EXECUTION": "BLOCKED",
+  "BLOCK05_SECRET_BOUNDARY_REMEDIATION": "BLOCKED",
+  "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+  "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+  "baseline": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "dirtyWorkingTreePreserved": true,
+    "staged": [],
+    "initialFreeze": "baseline_freeze.json",
+    "intermediateCandidate": "product_freeze.json",
+    "terminalCandidate": "product_final_freeze.json",
+    "originalManifest": "../manifest.json",
+    "originalManifestSha256": "096a43818213d6b2f12e0c17fc91b64873f561b98496243df05f4dba1fafdee3",
+    "originalResultados": "../resultados.md",
+    "originalResultadosSha256": "064e6ce8183f897b0d3f96cf8697761c64ae7048388d2697d2ab92b5491b1cee",
+    "originalBlocker": "WV2-B05-SECRET-NAVIGATION-001",
+    "architectureV1Sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "architectureV11Sha256": "46ec3201460ba37a6fe47f6cf94e80f0024ec442c9323115a0cf19d64de95e1d",
+    "historicalDrift": 0,
+    "inheritedCoreSecurityMemoryKnowledgeDesktopCiDrift": 0,
+    "inheritedUnmodifiedPins": 706,
+    "tagsUnchanged": true
+  },
+  "gates": {
+    "SENSITIVE_CAPTURE_CONTINUITY": {
+      "status": "FAIL",
+      "evidence": "nvs18: prior exact sensitive buffer forgotten during trusted editing; ordinary new-document cases and typed channel-fault tests alone are insufficient."
+    },
+    "CROSS_DOCUMENT_SECRET_REDACTION": {
+      "status": "PARTIAL",
+      "evidence": "Historical unchanged navigation contract passes, same/cross-origin/frame/history cases partly pass; native capture disconnects unresolved, and capture continuity invariant fails."
+    },
+    "MODEL_PROJECTION_SECRET_BOUNDARY": {
+      "status": "FAIL",
+      "evidence": "nvs18: literal earlier observed buffer enters fresh model-facing BrowserObservation. No LLM invoked."
+    },
+    "SECRET_REGISTRY_LIFECYCLE": {
+      "status": "PARTIAL",
+      "evidence": "Real session close disposes ownership; fresh session independent; finite bounds/faults pass. Pending-buffer growth still forgets knowledge before session close."
+    },
+    "BLOCK05_REGRESSION": {
+      "status": "FAIL",
+      "evidence": "Full native candidate run: 359 PASS / 4 FAIL; later focused 53 PASS / 2 FAIL; terminal adversarial 1 PASS / 1 FAIL. No current all-green regression."
+    }
+  },
+  "originalEightGateHistory": {
+    "HUMAN_TAKEOVER_BOUNDARY": "PASS",
+    "BROWSER_CONTEXT_EPOCH_INVALIDATION": "PASS",
+    "SECRET_NON_EXPOSURE": "FAIL",
+    "HOST_FILE_SELECTION_AUTHORITY": "PASS",
+    "WEBVIEW2_UPLOAD_PATH": "PASS",
+    "DOWNLOAD_AUTHORIZATION_AND_STAGING": "PASS",
+    "TRANSFER_OUTCOME_INTEGRITY": "PASS",
+    "HOST_UDF_CHILD_LIFECYCLE": "PASS",
+    "scope": "Historical original only, not an all-green current candidate recertification"
+  },
+  "eightGatesSatisfiedOnTerminalCandidate": false,
+  "blockers": [
+    {
+      "id": "WV2-B05-SECRET-EDIT-CONTINUITY-002",
+      "classification": "PRODUCT_BUG",
+      "status": "CONFIRMED_NATIVE_FAIL",
+      "test": "test_native_an_already_observed_sensitive_buffer_is_not_forgotten",
+      "firstCausalPoint": "SensitiveValueRegistry.Input replaces pending earlier buffer on trusted prefix-extension without adding that already observed buffer to completed values.",
+      "consequence": "Page retains exact earlier input buffer; after takeover a fresh BrowserObservation/model-facing projection contains that buffer.",
+      "notUniversalDlp": "No encoding/transformation inference: exact buffer existed in the explicitly sensitive password input and was captured by the native input listener.",
+      "xml": "%TEMP%/nvs18.xml",
+      "rawValueIncluded": false
+    },
+    {
+      "id": "WV2-B05-SECRET-IPC-SCHEMA-003",
+      "classification": "PRODUCT_BUG",
+      "status": "CONFIRMED_NATIVE_WITH_SYNTHETIC_REGISTRY_STATE",
+      "test": "test_native_sensitive_redaction_preserves_closed_ipc_discriminator",
+      "firstCausalPoint": "Recursive ObservationRuntime.PublicStrings scrubs fixed IPC discriminators as well as page data; a known short string can mutate kind=capture.",
+      "consequence": "Closed serializer rejects the reply before IPC; production receives DISCONNECTED rather than a deliberate typed sensitive-tracking denial.",
+      "xml": "%TEMP%/nvs17.xml",
+      "scope": "Real engine with native registry-state injection; not evidence of human input capture.",
+      "rawValueIncluded": false
+    },
+    {
+      "id": "WV2-B05-SECRET-CAPTURE-DISCONNECT-004",
+      "classification": "UNKNOWN",
+      "status": "REPRODUCED",
+      "tests": [
+        "same-origin",
+        "history",
+        "cross-origin"
+      ],
+      "firstObservedPoint": "Native capture after successful takeover completion.",
+      "evidence": "nvs16 diagnostic wrapper: IpcFailure in LifecycleProtocol.Result -> Parse -> GuardProtocol.Parse -> ActionProtocol.Parse -> TransferProtocol.Parse -> Protocol.Write; no exception message or payload persisted.",
+      "relationTo003": "Compatible with discriminator-scrubbing mechanism, but the exact offending native value was deliberately not captured. Do not claim full causal proof or label HARNESS_RACE/PREEXISTING.",
+      "xml": "%TEMP%/nvs16.xml"
+    }
+  ],
+  "changedSourceFiles": [
+    "native/nova-browser-host/ExternalProtocolGuard.cs",
+    "native/nova-browser-host/ObservationRuntime.cs",
+    "native/nova-browser-host/ObservationScripts.cs",
+    "native/nova-browser-host/TransferRuntime.cs",
+    "native/nova-browser-host/WebView2Runtime.cs"
+  ],
+  "newSourceFiles": [
+    "native/nova-browser-host/SensitiveTracking.cs",
+    "native/nova-browser-host/SensitiveValueRegistry.cs",
+    "native/nova-browser-host/tests/diagnostic_host/diagnostic.csproj",
+    "native/nova-browser-host/tests/diagnostic_host/Program.cs",
+    "native/nova-browser-host/tests/sensitive_runner/Program.cs",
+    "native/nova-browser-host/tests/sensitive_runner/runner.csproj",
+    "native/nova-browser-host/tests/test_sensitive_continuity.py",
+    "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py",
+    "native/nova-browser-host/tests/test_sensitive_registry.py"
+  ],
+  "tests": {
+    "latestFocal": {
+      "run": "nvs16",
+      "total": 55,
+      "pass": 53,
+      "fail": 2,
+      "error": 0,
+      "skip": 0,
+      "exitCode": 1
+    },
+    "schemaCollision": {
+      "run": "nvs17",
+      "total": 1,
+      "pass": 0,
+      "fail": 1,
+      "error": 0,
+      "skip": 0,
+      "exitCode": 1
+    },
+    "terminal": {
+      "run": "nvs18",
+      "total": 2,
+      "pass": 1,
+      "fail": 1,
+      "error": 0,
+      "skip": 0,
+      "exitCode": 1,
+      "unchangedHistoricalSupplemental": "PASS",
+      "priorObservedBufferNonExposure": "FAIL"
+    },
+    "fullNativeIntermediate": {
+      "run": "nova-wv2-05-secret-final09",
+      "total": 363,
+      "pass": 359,
+      "fail": 4,
+      "error": 0,
+      "skip": 0,
+      "exitCode": 1,
+      "terminalCandidateCompleteRegression": false
+    },
+    "activeWeb": 672,
+    "security": 615,
+    "noNewSkips": true,
+    "noNewXfails": true,
+    "noNewExclusions": true,
+    "denominatorsNotAggregated": true,
+    "rawCompleteGeneratedCredentialsPersisted": false,
+    "stoppedAfterSensitiveProjectionFail": true,
+    "details": "test_results.json",
+    "inheritedRegressions": "Prior block05 only; not claimed as new execution; manifests unchanged"
+  },
+  "implementation": {
+    "layer": "Infrastructure only, C# browser-host",
+    "registry": "Session-owned volatile bounded store, shared by owned Pages; disposed at session/host close; survives epoch/world changes",
+    "capture": "Fixed private-world input/change/blur/submit/pagehide -> native CDP -> host registry; no raw material to Python for tracking",
+    "projection": "Host redaction/sanitization before IPC, opaque public fingerprints",
+    "notFullyImplemented": "Every already observed sensitive buffer must persist until session end/expiry; pending growth currently loses previous buffer. Fixed protocol discriminator scrubbing also fails.",
+    "bounds": {
+      "maxCompletedValues": 1024,
+      "maxPendingControls": 64,
+      "maxValueUtf16CodeUnits": 4096,
+      "maxTotalUtf16CodeUnits": 262144,
+      "maxLifetimeSeconds": 1800,
+      "scriptControlCeiling": 64,
+      "overflow": "SECRET_BOUNDARY_UNCONFIRMED; no silent completed-value eviction",
+      "lifetime": "Finite session-bound registry; active expiry measured by host monotonic clock. No secure-memory/forensic erasure claim."
+    }
+  },
+  "cleanup": {
+    "currentFinalRuns": [
+      {
+        "root": "%TEMP%/nvs10",
+        "udfDirectoriesRemaining": 0,
+        "stagingDirectoriesRemaining": 0
+      },
+      {
+        "root": "%TEMP%/nvs11",
+        "udfDirectoriesRemaining": 0,
+        "stagingDirectoriesRemaining": 0
+      },
+      {
+        "root": "%TEMP%/nvs12",
+        "udfDirectoriesRemaining": 0,
+        "stagingDirectoriesRemaining": 0
+      },
+      {
+        "root": "%TEMP%/nvs13",
+        "udfDirectoriesRemaining": 0,
+        "stagingDirectoriesRemaining": 0
+      },
+      {
+        "root": "%TEMP%/nvs14",
+        "udfDirectoriesRemaining": 0,
+        "stagingDirectoriesRemaining": 0
+      },
+      {
+        "root": "%TEMP%/nvs16",
+        "udfDirectoriesRemaining": 0,
+        "stagingDirectoriesRemaining": 0
+      },
+      {
+        "root": "%TEMP%/nvs17",
+        "udfDirectoriesRemaining": 0,
+        "stagingDirectoriesRemaining": 0
+      },
+      {
+        "root": "%TEMP%/nvs18",
+        "udfDirectoriesRemaining": 0,
+        "stagingDirectoriesRemaining": 0
+      }
+    ],
+    "currentOwnedHosts": 0,
+    "currentStagingRemaining": [
+      {
+        "root": "%TEMP%/nova-wv2-05-secret-final09-private",
+        "remainingStaging": 0
+      },
+      {
+        "root": "%TEMP%/nvs10",
+        "remainingStaging": 0
+      },
+      {
+        "root": "%TEMP%/nvs12",
+        "remainingStaging": 0
+      },
+      {
+        "root": "%TEMP%/nvs13",
+        "remainingStaging": 0
+      },
+      {
+        "root": "%TEMP%/nvs14",
+        "remainingStaging": 0
+      },
+      {
+        "root": "%TEMP%/nvs16",
+        "remainingStaging": 0
+      },
+      {
+        "root": "%TEMP%/nvs17",
+        "remainingStaging": 0
+      },
+      {
+        "root": "%TEMP%/nvs18",
+        "remainingStaging": 0
+      }
+    ],
+    "earlierIntegratedRunForeignFixture": {
+      "root": "%TEMP%/nova-wv2-05-secret-final09-private/test_existing_udf_is_never_reu0",
+      "status": "UNOWNED_FIXTURE_PRESERVED",
+      "owned": false,
+      "explanation": "Unchanged historical test deliberately creates unowned-marker, requires OWNERSHIP_MISMATCH and CLEANUP_UNCONFIRMED, asserts folder preserved. Not an owned successful cleanup."
+    },
+    "historical36Udfs": "CLEANUP_UNCONFIRMED preserved; no inspection/removal/maintenance authorization used."
+  },
+  "claims": {
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "browserTools": "NOT_ADVERTISED"
+  },
+  "prohibitedActionsPerformed": {
+    "block06": false,
+    "AW8Final": false,
+    "inference": false,
+    "architectureChanges": false,
+    "CoreSecurityMemoryKnowledgeDesktopCiChanges": false,
+    "historicalEvidenceChanges": false,
+    "historicalUdfMaintenance": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "openNormativeDecisions": [],
+  "nextStep": "Human review. No automatic continuation; no further testing/repair after terminal failure in this authorization.",
+  "artifactHashes": [
+    {
+      "path": "baseline_freeze.json",
+      "sha256": "96ec35c0a8c4989dbeaeb1f9d299c4cdc438a7ab10a8df65203edf93f89d4bfa"
+    },
+    {
+      "path": "integrity.json",
+      "sha256": "c334288ccbb0f5ff3802c3182c593e1f9927235bc9b613a71dca85860967c332"
+    },
+    {
+      "path": "product_final_freeze.json",
+      "sha256": "b500551bdf7bcd856d116fcbf698bad1e2fcf692695f32e4e84e12c62ca44e0d"
+    },
+    {
+      "path": "product_freeze.json",
+      "sha256": "8b36c8f358cfb5a5ebbeabaceb7e7f392d71b41debcb7bb4cf0d6cfe20af228a"
+    },
+    {
+      "path": "resultados.md",
+      "sha256": "f42a967eff2d66f2808eb4cf2dbe7bc10f4c0ee31aa908496f6fd8c246a89368"
+    },
+    {
+      "path": "secret_boundary_evidence.json",
+      "sha256": "9ec7f52e730975559715432710ec549d05e4d70e53c9a3293a4c7dc1cd0bbd13"
+    },
+    {
+      "path": "test_results.json",
+      "sha256": "40f521fdf18b464547dc33be6f98ca3a32dffd6ad6475934640543260c262a05"
+    },
+    {
+      "path": "verification_plan.json",
+      "sha256": "194244b0debccc181fb0cf4be17604a8199f99b3f6cc6454feb75096c5335362"
+    }
+  ]
+}
+

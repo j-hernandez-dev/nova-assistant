@@ -1,0 +1,570 @@
+{
+  "schemaVersion": 1,
+  "purpose": "AW8 focal EXCLUSIVE_PUBLIC_ONLY_EGRESS closure; additive",
+  "EXCLUSIVE_PUBLIC_ONLY_EGRESS": "BLOCKED",
+  "BLOCKER_TYPE": "ARCHITECTURAL_ENFORCEMENT_LIMIT",
+  "blocker": {
+    "id": "AW8-EGRESS-EXTERNAL-PROTOCOL-001",
+    "type": "ARCHITECTURAL_ENFORCEMENT_LIMIT",
+    "channel": "PAGE_ORIGINATED_EXTERNAL_PROTOCOL_HANDLER",
+    "requirement": "§18.2 custom protocols denied; host escape prohibited; §18.3/AW-INV-027/029/030",
+    "observed": "Renderer button → location.href → Chromium Windows external handler lookup, outside authenticated HTTP broker. Handler absent, NOT a native refusal.",
+    "notObserved": "No registered application launched; no Security grant/authority expansion demonstrated.",
+    "supportedPermissionControl": "CDP Browser.setPermission rejects protocol-handler. Actual HTTP routing/canonicalization does not intercept the external launch path.",
+    "scope": "Frozen Playwright 1.63.0 / Chromium 153.0.8010.12 / Windows configuration. NOT a universal claim about all Chromium builds/configurations.",
+    "reasonForStop": "Current V1 port and opaque broker offer no supported pre-effect mediator for this host channel; a registered-handler launch must not be inferred safe from an unregistered canary. No new engine/OS-policy architecture is introduced.",
+    "noFourthHardeningRound": true
+  },
+  "scopeReconciliation": "scope_reconciliation.md",
+  "scopeCorrection": {
+    "universalAnySocketClaimRequired": false,
+    "allNormalPageJavascriptProhibited": false,
+    "allInternalPageSchemesProhibited": false,
+    "agenticSchemesAndHostEscapeRequired": true,
+    "hostControlClass": "HOST_UNISOLATED"
+  },
+  "nativeProtocolBoundary": {
+    "schemaVersion": 1,
+    "purpose": "AW8 focal egress closure diagnosis",
+    "topology": "SIMULATED_PUBLIC_DNS_TO_OWNED_LOOPBACK_AFTER_PUBLIC_ONLY_ADMISSION",
+    "engine": "SHIPPING_PLAYWRIGHT_CHROMIUM_ADAPTER",
+    "modelInference": 0,
+    "finalAw8Campaign": false,
+    "startedAt": "2026-10-10T09:40:06.994577+00:00",
+    "runtime": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw5-20261009T194457Z\\runtime\\Scripts\\python.exe",
+    "fixedArguments": [
+      "--proxy-bypass-list=<-loopback>",
+      "--disable-quic",
+      "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1",
+      "--force-webrtc-ip-handling-policy=disable_non_proxied_udp",
+      "--disable-background-networking",
+      "--disable-component-update",
+      "--disable-sync",
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--disable-extensions",
+      "--disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport",
+      "--disable-domain-reliability",
+      "--dns-prefetch-disable"
+    ],
+    "registryWrites": 0,
+    "registeredProtocolLaunches": 0,
+    "globalConfigurationChanges": 0,
+    "productAvailabilityOverride": false,
+    "commands": [],
+    "console": [
+      {
+        "type": "error",
+        "text": "Failed to launch 'nova-aw8-unregistered-canary:opaque' because the scheme does not have a registered handler."
+      }
+    ],
+    "networkRequests": [
+      "http://server.test:56802/",
+      "nova-aw8-unregistered-canary:opaque"
+    ],
+    "agentTargets": [
+      {
+        "target": "file:///C:/nova-aw8-synthetic.txt",
+        "rejected": true,
+        "newBrokerRequests": 0
+      },
+      {
+        "target": "javascript:void(0)",
+        "rejected": true,
+        "newBrokerRequests": 0
+      },
+      {
+        "target": "nova-aw8-unregistered-canary:opaque",
+        "rejected": true,
+        "newBrokerRequests": 0
+      },
+      {
+        "target": "data:text/plain,synthetic",
+        "rejected": true,
+        "newBrokerRequests": 0
+      },
+      {
+        "target": "chrome://settings/",
+        "rejected": true,
+        "newBrokerRequests": 0
+      },
+      {
+        "target": "about:version",
+        "rejected": true,
+        "newBrokerRequests": 0
+      }
+    ],
+    "capability": {
+      "available": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "AW5 adapter is not ACTIVE_WEB_CORE READY"
+      },
+      "engine": {
+        "status": "KNOWN",
+        "value": "PLAYWRIGHT_CHROMIUM",
+        "reason": null
+      },
+      "engineVersion": {
+        "status": "KNOWN",
+        "value": "1.63.0",
+        "reason": null
+      },
+      "browserVersion": {
+        "status": "KNOWN",
+        "value": "153.0.8010.12",
+        "reason": null
+      },
+      "controlClass": {
+        "status": "KNOWN",
+        "value": "HOST_UNISOLATED",
+        "reason": null
+      },
+      "networkBroker": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "publicOnly": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "engine exclusive egress not certified"
+      },
+      "headful": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "screenshot": {
+        "status": "KNOWN",
+        "value": false,
+        "reason": null
+      },
+      "manualTakeover": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "upload": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "download": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "persistentSession": {
+        "status": "KNOWN",
+        "value": false,
+        "reason": null
+      },
+      "maxPages": {
+        "status": "KNOWN",
+        "value": 3,
+        "reason": null
+      },
+      "platform": {
+        "status": "KNOWN",
+        "value": "win32",
+        "reason": null
+      }
+    },
+    "commandsDiagnosticError": "CDPSession.send: Protocol error (Browser.getBrowserCommandLine): Command line not returned because --enable-automation not set.",
+    "processTreeCdpBefore": {
+      "processInfo": [
+        {
+          "type": "browser",
+          "id": 15460,
+          "cpuTime": 1.101174
+        },
+        {
+          "type": "renderer",
+          "id": 7400,
+          "cpuTime": 0.087648
+        },
+        {
+          "type": "renderer",
+          "id": 26136,
+          "cpuTime": 0.101518
+        },
+        {
+          "type": "renderer",
+          "id": 2988,
+          "cpuTime": 0.287016
+        },
+        {
+          "type": "GPU",
+          "id": 9620,
+          "cpuTime": 0.308911
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "id": 19356,
+          "cpuTime": 0.258314
+        },
+        {
+          "type": "storage.mojom.StorageService",
+          "id": 14260,
+          "cpuTime": 0.086546
+        }
+      ]
+    },
+    "defaultContextCount": 1,
+    "nativeProcesses": [
+      {
+        "ProcessId": 15460,
+        "ParentProcessId": 10404,
+        "Name": "chrome.exe",
+        "CommandLine": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw5-20261009T194457Z\\engines\\chromium-1243\\chrome-win64\\chrome.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --no-sandbox --proxy-server=http://127.0.0.1:56805 --proxy-bypass-list=<-loopback> --proxy-bypass-list=<-loopback> --disable-quic \"--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1\" --force-webrtc-ip-handling-policy=disable_non_proxied_udp --disable-background-networking --disable-component-update --disable-sync --no-first-run --no-default-browser-check --disable-extensions --disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport --disable-domain-reliability --dns-prefetch-disable --user-data-dir=C:\\Users\\joseh\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-Uv0cHS --remote-debugging-pipe --no-startup-window"
+      },
+      {
+        "ProcessId": 9620,
+        "ParentProcessId": 15460,
+        "Name": "chrome.exe",
+        "CommandLine": "\"C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw5-20261009T194457Z\\engines\\chromium-1243\\chrome-win64\\chrome.exe\" --type=gpu-process --no-sandbox --disable-breakpad --enable-unsafe-swiftshader --user-data-dir=\"C:\\Users\\joseh\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-Uv0cHS\" --no-pre-read-main-dll --start-stack-profiler --gpu-preferences=WAAAAAAAAADgAAAEAAAAAAAAAAAAAGAAQAAAAAAAAAADAAAAAAAAADgAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAgAAAAAAAAAEAAAAAIAAAABAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --metrics-shmem-handle=1808,i,14152341813025648665,9282170502902375228,262144 --field-trial-handle=1912,i,458157009726056809,9422752230682509775,262144 --enable-features=CDPScreenshotNewSurface --disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport --variations-seed-version --pseudonymization-salt-handle=1920,i,7834813822281563331,10647629503282180953,4 --trace-process-track-uuid=3190708988185955192 --mojo-platform-channel-handle=1904 /prefetch:2"
+      },
+      {
+        "ProcessId": 19356,
+        "ParentProcessId": 15460,
+        "Name": "chrome.exe",
+        "CommandLine": "\"C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw5-20261009T194457Z\\engines\\chromium-1243\\chrome-win64\\chrome.exe\" --type=utility --utility-sub-type=network.mojom.NetworkService --lang=es --service-sandbox-type=none --host-resolver-rules=\"MAP * ~NOTFOUND, EXCLUDE 127.0.0.1\" --no-sandbox --disable-quic --user-data-dir=\"C:\\Users\\joseh\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-Uv0cHS\" --no-pre-read-main-dll --start-stack-profiler --metrics-shmem-handle=2096,i,9993177608946178689,548617736429148755,524288 --field-trial-handle=1912,i,458157009726056809,9422752230682509775,262144 --enable-features=CDPScreenshotNewSurface --disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport --variations-seed-version --pseudonymization-salt-handle=1920,i,7834813822281563331,10647629503282180953,4 --trace-process-track-uuid=3190708989122997041 --mojo-platform-channel-handle=2184 /prefetch:11"
+      },
+      {
+        "ProcessId": 14260,
+        "ParentProcessId": 15460,
+        "Name": "chrome.exe",
+        "CommandLine": "\"C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw5-20261009T194457Z\\engines\\chromium-1243\\chrome-win64\\chrome.exe\" --type=utility --utility-sub-type=storage.mojom.StorageService --lang=es --service-sandbox-type=service --host-resolver-rules=\"MAP * ~NOTFOUND, EXCLUDE 127.0.0.1\" --no-sandbox --disable-quic --user-data-dir=\"C:\\Users\\joseh\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-Uv0cHS\" --no-pre-read-main-dll --metrics-shmem-handle=2444,i,3941276337034492788,8045614626992115027,524288 --field-trial-handle=1912,i,458157009726056809,9422752230682509775,262144 --enable-features=CDPScreenshotNewSurface --disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport --variations-seed-version --pseudonymization-salt-handle=1920,i,7834813822281563331,10647629503282180953,4 --trace-process-track-uuid=3190708990060038890 --mojo-platform-channel-handle=2464 /prefetch:13"
+      },
+      {
+        "ProcessId": 2988,
+        "ParentProcessId": 15460,
+        "Name": "chrome.exe",
+        "CommandLine": "\"C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw5-20261009T194457Z\\engines\\chromium-1243\\chrome-win64\\chrome.exe\" --type=renderer --top-chrome-webui --user-data-dir=\"C:\\Users\\joseh\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-Uv0cHS\" --no-pre-read-main-dll --no-sandbox --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --video-capture-use-gpu-memory-buffer --lang=es --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=5 --launch-time-ticks=979492828 --metrics-shmem-handle=3988,i,17150520365109413638,1833017979219828871,1572864 --field-trial-handle=1912,i,458157009726056809,9422752230682509775,262144 --enable-features=CDPScreenshotNewSurface --disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport --variations-seed-version --pseudonymization-salt-handle=1920,i,7834813822281563331,10647629503282180953,4 --trace-process-track-uuid=3190708990997080739 --mojo-platform-channel-handle=4004 /prefetch:1"
+      },
+      {
+        "ProcessId": 7400,
+        "ParentProcessId": 15460,
+        "Name": "chrome.exe",
+        "CommandLine": "\"C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw5-20261009T194457Z\\engines\\chromium-1243\\chrome-win64\\chrome.exe\" --type=renderer --user-data-dir=\"C:\\Users\\joseh\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-Uv0cHS\" --no-pre-read-main-dll --no-sandbox --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --video-capture-use-gpu-memory-buffer --lang=es --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=7 --launch-time-ticks=979537853 --metrics-shmem-handle=4104,i,17378179437475035793,7598470288540025918,1572864 --field-trial-handle=1912,i,458157009726056809,9422752230682509775,262144 --enable-features=CDPScreenshotNewSurface --disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport --variations-seed-version --pseudonymization-salt-handle=1920,i,7834813822281563331,10647629503282180953,4 --trace-process-track-uuid=3190708992871164437 --mojo-platform-channel-handle=4120 /prefetch:1"
+      },
+      {
+        "ProcessId": 26136,
+        "ParentProcessId": 15460,
+        "Name": "chrome.exe",
+        "CommandLine": "\"C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw5-20261009T194457Z\\engines\\chromium-1243\\chrome-win64\\chrome.exe\" --type=renderer --user-data-dir=\"C:\\Users\\joseh\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-Uv0cHS\" --no-pre-read-main-dll --no-sandbox --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --video-capture-use-gpu-memory-buffer --lang=es --device-scale-factor=1.25 --num-raster-threads=4 --enable-main-frame-before-activation --renderer-client-id=6 --launch-time-ticks=979551495 --metrics-shmem-handle=4136,i,16559229138878401488,8218882205628682166,1572864 --field-trial-handle=1912,i,458157009726056809,9422752230682509775,262144 --enable-features=CDPScreenshotNewSurface --disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport --variations-seed-version --pseudonymization-salt-handle=1920,i,7834813822281563331,10647629503282180953,4 --trace-process-track-uuid=3190708991934122588 --mojo-platform-channel-handle=4116 /prefetch:1"
+      }
+    ],
+    "httpRenderer": {
+      "engine": "153.0.8010.12",
+      "sdk": "1.63.0",
+      "fixedArguments": [
+        "--proxy-bypass-list=<-loopback>",
+        "--disable-quic",
+        "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1",
+        "--force-webrtc-ip-handling-policy=disable_non_proxied_udp",
+        "--disable-background-networking",
+        "--disable-component-update",
+        "--disable-sync",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-extensions",
+        "--disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport",
+        "--disable-domain-reliability",
+        "--dns-prefetch-disable"
+      ],
+      "pageEnvironment": {
+        "rtc": "undefined",
+        "prefixedRtc": "undefined",
+        "secureContext": false,
+        "webTransport": "undefined",
+        "serviceWorkerApi": "undefined"
+      },
+      "brokerLive": true,
+      "browserConnected": true
+    },
+    "externalHandlerPermissionOverride": "UNSUPPORTED",
+    "externalHandlerPermissionError": "CDPSession.send: Protocol error (Browser.setPermission): Invalid PermissionDescriptor name: protocol-handler",
+    "frameRequestedNavigation": [
+      {
+        "frameId": "07B025561A458B508AB54560EEA2AA2A",
+        "reason": "scriptInitiated",
+        "url": "nova-aw8-unregistered-canary:opaque",
+        "disposition": "currentTab"
+      }
+    ],
+    "pageAfterAttempt": "http://server.test:56802/",
+    "pageClosedAfterAttempt": false,
+    "processTreeCdpAfter": {
+      "processInfo": [
+        {
+          "type": "browser",
+          "id": 15460,
+          "cpuTime": 2.41574
+        },
+        {
+          "type": "renderer",
+          "id": 8624,
+          "cpuTime": 0.128648
+        },
+        {
+          "type": "renderer",
+          "id": 26136,
+          "cpuTime": 0.162966
+        },
+        {
+          "type": "renderer",
+          "id": 2988,
+          "cpuTime": 0.664049
+        },
+        {
+          "type": "GPU",
+          "id": 9620,
+          "cpuTime": 1.215758
+        },
+        {
+          "type": "network.mojom.NetworkService",
+          "id": 19356,
+          "cpuTime": 0.275482
+        },
+        {
+          "type": "storage.mojom.StorageService",
+          "id": 14260,
+          "cpuTime": 0.087864
+        }
+      ]
+    },
+    "externalAttemptBrokerRecords": [
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      }
+    ],
+    "brokerRecords": [
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": "http://server.test:56802",
+        "method": "GET",
+        "upstreamConnected": true,
+        "errorCode": null,
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      }
+    ],
+    "externalProtocolReachedShellHandlerLookup": true,
+    "externalProtocolEngineRefused": false,
+    "cleanupConfirmed": true,
+    "finishedAt": "2026-10-10T09:40:10.586653+00:00"
+  },
+  "freshHttpsMetadataDenial": {
+    "purpose": "Fresh https-metadata native denial, no prior failed CONNECT cache",
+    "target": "https://169.254.169.254/",
+    "startedAt": "2026-10-10T09:45:18.670992+00:00",
+    "endpointSubstitution": false,
+    "availabilityOverride": false,
+    "modelInference": 0,
+    "transportError": "BROWSER_PORT_FAILURE",
+    "records": [
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+        "retryAllowed": false
+      }
+    ],
+    "destinationDenied": true,
+    "upstreamConnected": false,
+    "cleanupConfirmed": true,
+    "finishedAt": "2026-10-10T09:45:19.982548+00:00",
+    "result": "PASS"
+  },
+  "stoppedAfterConcreteBlocker": true,
+  "channels": [
+    {
+      "channel": "HTTP",
+      "state": "PASS_WITHIN_CONTROLLED_TOPOLOGY",
+      "evidence": "Native page served by shipping adapter/broker; positive DNS-to-owned-endpoint topology substitution disclosed.",
+      "exclusiveClaim": false
+    },
+    {
+      "channel": "agentic file/javascript/custom/data/browser internal",
+      "state": "PASS",
+      "denominator": 6,
+      "passed": 6,
+      "evidence": "Adapter API rejected before broker effect; no targets passed to engine."
+    },
+    {
+      "channel": "page external protocol / host escape",
+      "state": "BLOCKED",
+      "evidence": "Native console and frameRequestedNavigation, not a normal internal JavaScript prohibition.",
+      "actualHostLaunch": false
+    },
+    {
+      "channel": "private/loopback/link-local/metadata",
+      "state": "PASS_FOR_OBSERVED_DENIALS",
+      "evidence": "Productive current probe retains 7/8 PASS and https-metadata UNKNOWN; separate fresh engine https-metadata attempt explicitly DESTINATION_DENIED/upstream false. No historical result relabelled."
+    },
+    {
+      "channel": "trusted admitted HTTPS renderer",
+      "state": "NOT_DEMONSTRATED",
+      "evidence": "Revision02 CONNECT evidence retained; no certificate-validation exception/CA installed. Stopped at external-handler blocker before further TLS harness."
+    },
+    {
+      "channel": "redirects/subresources/new origins/WS/WSS/service workers",
+      "state": "REUSED_COMPONENT_AND_NATIVE_CONTROLLED_EVIDENCE",
+      "evidence": "Revision02 evidence hashes verified; Active Web contracts rerun. Not promoted to full exclusive-egress certification."
+    },
+    {
+      "channel": "TCP/UDP/QUIC/useful DNS/background/children",
+      "state": "FULL_CERTIFICATION_NOT_COMPLETED",
+      "evidence": "Native process tree, exact time window/command lines captured for external boundary; NO claim that a complete socket/DNS trace was produced. This absence is not used as a universal OS isolation blocker."
+    },
+    {
+      "channel": "broker failure no direct network fallback",
+      "state": "REUSED_LIMITED_TCP_CANARY_EVIDENCE",
+      "evidence": "Revision02 preserved; not expanded to a full native exclusivity claim."
+    },
+    {
+      "channel": "cleanup",
+      "state": "PASS",
+      "evidence": "Adapter/context/browser/broker shutdown confirmed; native PID set no longer running; test upstream closed. No CA/registry/firewall state introduced."
+    }
+  ],
+  "finalAw8Campaign": false,
+  "modelInference": 0,
+  "publicOnly": "UNKNOWN",
+  "available": "UNKNOWN",
+  "topologySimulationNotPublicLoopbackAuthority": true,
+  "globalConfigurationChanges": 0,
+  "isolationClaim": false,
+  "silentBestEffortFallback": false
+}

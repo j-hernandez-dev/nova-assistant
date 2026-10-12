@@ -1,0 +1,61 @@
+{
+  "result": "PASS",
+  "pythonAuditVeto": true,
+  "nativeNtfsWriteDeleteDeny": true,
+  "scope": "Temporary test storage protection only, not browser/OS sandbox certification",
+  "executionPolicyChanged": false,
+  "originalAclRestored": true,
+  "roots": [
+    "docs/active_web_v1/**",
+    "docs/active_web_v1_2/** including B0-B4"
+  ],
+  "nativeAndPythonProbeDeniedBeforeFileEffect": true,
+  "runtimeOutputs": "Owned temp only, copied into B5 after freeze/ACL restore",
+  "reusedHelperDestinationsRedirected": [
+    {
+      "module": "v12_b4.conftest",
+      "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb5-regression\\output\\reused\\v12_b4_conftest"
+    },
+    {
+      "module": "test_baseline",
+      "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb5-regression\\output\\reused\\test_baseline"
+    }
+  ],
+  "successfulHistoricalWrites": 0,
+  "restoreByHashUsed": false,
+  "finalRun": {
+    "pythonAuditVeto": true,
+    "nativeNtfsDeny": true,
+    "aclRestored": true,
+    "blockedAttempts": [
+      {
+        "event": "open",
+        "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1_2\\v12_b4_browser_authority_actions\\b5_forbidden_probe.txt",
+        "reason": "HISTORICAL_EVIDENCE_WRITE_DENIED"
+      }
+    ],
+    "helperRedirects": [],
+    "scope": "Only test evidence storage; not browser network/OS sandbox",
+    "noHashRestoration": true,
+    "exitStatus": 0
+  },
+  "regressionRun": {
+    "pythonAuditVeto": true,
+    "nativeNtfsDeny": true,
+    "aclRestored": true,
+    "blockedAttempts": [],
+    "helperRedirects": [
+      {
+        "module": "v12_b4.conftest",
+        "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb5-regression\\output\\reused\\v12_b4_conftest"
+      },
+      {
+        "module": "test_baseline",
+        "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb5-regression\\output\\reused\\test_baseline"
+      }
+    ],
+    "scope": "Only test evidence storage; not browser network/OS sandbox",
+    "noHashRestoration": true,
+    "exitStatus": 0
+  }
+}

@@ -1,0 +1,77 @@
+........................................................................ [  9%]
+........................................................................ [ 19%]
+........................................................................ [ 29%]
+........................................................................ [ 38%]
+........................................................................ [ 48%]
+.............................................................. [ 57%]
+........................................................................ [ 66%]
+...........................................................F............ [ 76%]
+........................................................................ [ 86%]
+........................................................................ [ 95%]
+..........s...............F...                                           [100%]
+================================== FAILURES ===================================
+_____________ test_nvidia_multiple_devices_keep_separate_evidence _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020167196040>
+
+    def test_nvidia_multiple_devices_keep_separate_evidence(monkeypatch):
+        monkeypatch.setattr(probes.shutil, "which", lambda _: "nvidia-smi.exe")
+        run = Mock(return_value=SimpleNamespace(stdout="GPU A, 8192, 2048\nGPU B, 4096, 0\n"))
+        monkeypatch.setattr(probes.subprocess, "run", run)
+        devices, total, available = probes.probe_gpu()
+>       assert len(devices.value) == 2
+               ^^^^^^^^^^^^^^^^^^
+E       TypeError: object of type 'NoneType' has no len()
+
+tests\test_nova_core_phase9_capabilities.py:60: TypeError
+_____ test_versioned_jsonl_exact_response_is_rejected_without_host_proof ______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/full_regression/s6_private_lxp7aer2/prior_regression/test_versioned_jsonl_exact_res0')
+
+    def test_versioned_jsonl_exact_response_is_rejected_without_host_proof(tmp_path):
+        """S2 requires host provenance in addition to correlation."""
+        with _pending_shell(tmp_path) as pending:
+            request = pending.request
+            app = _InteractionApplication(request.session_id, pending.gate)
+            sent = []
+>           adapter = JsonlApplicationAdapter(app, request.session_id, sent.append)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s0_frontends.py:346: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.interfaces.jsonl_application.JsonlApplicationAdapter object at 0x00000201675DC350>
+application = <test_s0_frontends._InteractionApplication object at 0x00000201675BCE90>
+session_id = 'ses_0496e4e013ca4f1b8fa4dec8e41b49b4'
+send = <built-in method append of list object at 0x0000020167210C80>
+on_provider_changed = None, host_approval_key = None
+
+    def __init__(self, application: Any, session_id: str,
+                 send: Callable[[dict[str, Any]], None], *,
+                 on_provider_changed: Callable[[], None] | None = None,
+                 host_approval_key: str | None = None) -> None:
+        self.application, self.session_id, self._send = application, session_id, send
+        self._on_provider_changed = on_provider_changed or (lambda: None)
+        self._lock = RLock()
+        self._wake = Event()
+        self._closed = False
+        self._legacy_turns: dict[str, Any] = {}
+        self._active_turn_id: str | None = None
+        self._stop_ids: list[Any] = []
+        self._error_sent: set[str] = set()
+        self._confirm_seq = 0
+        self._input_seq = 0
+        self._pending_confirms: dict[int, dict[str, Any]] = {}
+        self._pending_inputs: dict[int, str] = {}
+        self._subscriptions: dict[Any, Any] = {}
+        self._agent_requests: dict[str, tuple[Any, bool]] = {}
+        self._host_approval_key = host_approval_key
+>       application.redactor.register(host_approval_key, protected=True)
+        ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: '_InteractionApplication' object has no attribute 'redactor'
+
+local_cli\interfaces\jsonl_application.py:42: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/test_nova_core_phase9_capabilities.py::test_nvidia_multiple_devices_keep_separate_evidence
+FAILED tests/security_v12/test_s0_frontends.py::test_versioned_jsonl_exact_response_is_rejected_without_host_proof
+2 failed, 737 passed, 1 skipped, 1 deselected, 10 subtests passed in 99.11s (0:01:39)

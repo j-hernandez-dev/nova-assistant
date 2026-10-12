@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "purpose": "C07 terminal snapshot repair preflight, blocked pending exact test-preparation authority",
+  "TERMINAL_SNAPSHOT_FIX": "BLOCKED",
+  "implementationStatus": "NOT_STARTED",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "openDecision": {
+    "id": "WV2-B05-C07-TERMINAL-CONTRACT-001",
+    "status": "OPEN_DECISION",
+    "type": "AUTHORIZED_TERMINAL_SEMANTICS_VS_FORBIDDEN_EXISTING_TEST_PREPARATION_CHANGES",
+    "finding": "At least terminal-retire directly demands the implicit promotion now forbidden. Making a hidden legacy branch preserve it would reintroduce the rejected semantic path.",
+    "scope": "Test API/preparation reconciliation only, not architecture/policy/security relaxation.",
+    "affectedCases": [
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-retire]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:44",
+        "proof": "Two Input(...commit=false) calls, then Retire, then State(longValue,true). No terminal snapshot, terminal event, generation/revision or ack is supplied.",
+        "conflict": "New requirement 8 prohibits Retire committing an arbitrary last current solely due to retirement.",
+        "kind": "DIRECT_INCOMPATIBILITY"
+      },
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-checkpoint]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:48",
+        "proof": "Two Input(...commit=false) calls, then parameterless Checkpoint, then State(longValue,true).",
+        "conflict": "Requirements 7/9 demand explicitly observed terminal snapshot + revision/generation/ack, not lookup of whatever pending contains.",
+        "kind": "DIRECT_INCOMPATIBILITY"
+      },
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[history-clear]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:52",
+        "proof": "Intermediate editing values then parameterless Checkpoint; verifies all historical values protected and ordinary page text preserved.",
+        "conflict": "No terminal snapshot supplied to updated live-checkpoint semantics; preparation needs reconciliation, security assertions must remain.",
+        "kind": "PREPARATION_DEPENDENCY"
+      },
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-retire-denied]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:58",
+        "proof": "Only uncommitted short Input, then expects Retire denial.",
+        "conflict": "New requirement 8 permits preserving buffers as TRANSIENT without a terminal. To test true committed-short denial prospectively, a real explicit terminal must be supplied; no claim that this assertion necessarily fails under every allowed conservative implementation.",
+        "kind": "TERMINAL_MEANING_AMBIGUITY"
+      },
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-checkpoint-denied]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:60",
+        "proof": "Only uncommitted short Input then parameterless Checkpoint denial.",
+        "conflict": "The inverse security test must demonstrate an observed true terminal snapshot, not generic missing-checkpoint evidence or arbitrary pending.",
+        "kind": "TERMINAL_MEANING_AMBIGUITY"
+      }
+    ],
+    "requestedHumanAuthorization": "Permit only scoped preparation/caller adaptation of these direct contracts to supply explicitly correlated terminal snapshot/generation/revision/ack as appropriate. Preserve all no-exposure, monotonicity, committed-short-denial and redaction assertions; preserve generated values; do not modify the three historical native scenarios, their driver/HTML/sleeps/assertions.",
+    "notRequested": [
+      "Relax true-short committed denial",
+      "Select longest value",
+      "Change thresholds/skips/xfails/scorer",
+      "Add fixture-only product bypass",
+      "Change V1/V1.1",
+      "Broaden Core/Security/Memory/Knowledge/Desktop/network"
+    ],
+    "productOrTestsModified": false,
+    "testsExecuted": 0,
+    "stopBeforeImplementation": true
+  },
+  "acceptedC06": {
+    "FAILURE_REASON_CAPTURE": "PASS",
+    "ROOT_CAUSE_BRANCH": "SHORT_COMMITTED_VALUE",
+    "ROOT_CAUSE_BRANCH_STATUS": "IDENTIFIED",
+    "FAILS_CAPTURED": 5,
+    "unchanged": true
+  },
+  "preservedStates": {
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "historical36Udf": "CLEANUP_UNCONFIRMED"
+  },
+  "productChanges": [],
+  "testChanges": [],
+  "commitCallersChanged": [],
+  "functionalRepairImplemented": false,
+  "gates": {
+    "TERMINAL_SNAPSHOT_PROVENANCE": "NOT_IMPLEMENTED / NOT_RUN",
+    "CONTROL_DOCUMENT_ORDERING": "NOT_IMPLEMENTED / NOT_RUN",
+    "LATE_EVENT_REJECTION": "NOT_IMPLEMENTED / NOT_RUN",
+    "TRUE_SHORT_COMMITTED_DENIAL": "NOT_IMPLEMENTED / NOT_RUN",
+    "BOUNDED_TRANSIENT_SENSITIVE_VALUE_POLICY": "NOT_IMPLEMENTED / NOT_RUN",
+    "MONOTONIC_SENSITIVE_KNOWLEDGE": "NOT_IMPLEMENTED / NOT_RUN",
+    "SCHEMA_AWARE_REDACTION": "NOT_IMPLEMENTED / NOT_RUN",
+    "CROSS_DOCUMENT_SECRET_REDACTION": "NOT_IMPLEMENTED / NOT_RUN",
+    "MODEL_PROJECTION_SECRET_BOUNDARY": "NOT_IMPLEMENTED / NOT_RUN",
+    "SECRET_REGISTRY_LIFECYCLE": "NOT_IMPLEMENTED / NOT_RUN",
+    "SECRET_NON_EXPOSURE": "NOT_IMPLEMENTED / NOT_RUN",
+    "BLOCK05_FINAL_REGRESSION": "NOT_IMPLEMENTED / NOT_RUN"
+  },
+  "tests": {
+    "A": {
+      "status": "NOT_RUN",
+      "reason": "Stop before implementation pending contract reconciliation."
+    },
+    "B": {
+      "status": "NOT_RUN",
+      "denominatorPlanned": 24,
+      "reason": "Existing direct terminal-retire/terminal-checkpoint setup contradicts the requested terminal provenance."
+    },
+    "C": {
+      "status": "NOT_RUN",
+      "denominatorPlanned": 15,
+      "originalScenariosByteIntact": true
+    },
+    "D": {
+      "status": "NOT_RUN",
+      "denominatorPlanned": 33
+    },
+    "E": {
+      "status": "NOT_RUN",
+      "historicalPlanned": 396,
+      "policyPlanned": 24,
+      "newOrderingTests": "NOT_CREATED; total not measured"
+    }
+  },
+  "noNewRuntimeCandidate": true,
+  "sourceIdentity": "Unchanged C06 diagnostic candidate, all 76 pins",
+  "history": {
+    "nvr24": "30/3 unchanged",
+    "c04": "INCONCLUSIVE unchanged",
+    "c05": "4/26 unchanged",
+    "c06": "5 convergent captures unchanged",
+    "historicalArtifactsRewritten": false
+  },
+  "actionRequired": "Permit only scoped preparation/caller adaptation of these direct contracts to supply explicitly correlated terminal snapshot/generation/revision/ack as appropriate. Preserve all no-exposure, monotonicity, committed-short-denial and redaction assertions; preserve generated values; do not modify the three historical native scenarios, their driver/HTML/sleeps/assertions.",
+  "humanReviewRequired": true,
+  "artifacts": [
+    "resultados.md",
+    "terminal_snapshot_design.md",
+    "ordering_evidence.json",
+    "test_results.json",
+    "integrity.json"
+  ],
+  "limits": {
+    "noBlock06": true,
+    "noPolicy24Run": true,
+    "no15RunCampaign": true,
+    "noFullRegression": true,
+    "noNetworkChanges": true,
+    "noAvailabilityChanges": true,
+    "noHistoricalUdfMaintenance": true,
+    "noCommitPushTagRelease": true
+  }
+}

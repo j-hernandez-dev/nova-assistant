@@ -1,0 +1,24 @@
+.........................................F.............................. [ 60%]
+...............................................                          [100%]
+================================== FAILURES ===================================
+______ test_child_shares_broker_authority_but_cannot_expand_to_worktree _______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block5_recheck/s3_private_mk3bdxl7/selected/test_child_shares_broker_autho0')
+
+    def test_child_shares_broker_authority_but_cannot_expand_to_worktree(tmp_path):
+        rt, broker, _ = runtime(tmp_path)
+        parent = rt.delegation_for(invocation(tmp_path, 'read', {'file_path': 'a'}).context)
+        child = ToolRuntime(rt.registry, issuer=rt._issuer, policy=rt.policy,
+                            parent_grant=parent, filesystem_authority=rt._filesystem)
+        inv = invocation(tmp_path, 'read', {'file_path': 'a'}, session_id='child', agent_id='child')
+        inv = replace(inv, operation_id='child-op', context=replace(inv.context, operation_id='child-op'))
+        assert child.execute(inv).status is ToolStatus.COMPLETED
+        outside = tmp_path.parent/'worktree'
+>       for tool in child.registry.legacy_tools:
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ToolRegistry' object has no attribute 'legacy_tools'
+
+tests\security_v12\test_s3_runtime.py:238: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s3_runtime.py::test_child_shares_broker_authority_but_cannot_expand_to_worktree
+1 failed, 118 passed in 6.65s

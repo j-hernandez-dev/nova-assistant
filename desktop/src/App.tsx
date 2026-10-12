@@ -54,6 +54,39 @@ export default function App() {
   const [selectedSources,setSelectedSources] = useState<string[]>([])
   const [sourceUrl,setSourceUrl]=useState('')
   const [inputText, setInputText] = useState('')
+  const [webConfigurationPending,setWebConfigurationPending]=useState(false)
+  const [webConfigurationError,setWebConfigurationError]=useState<string | null>(null)
+
+  const configureWeb = async (configuration:{controlledFetchEnabled:boolean;interactiveBrowserEnabled:boolean}) => {
+    setWebConfigurationPending(true)
+    setWebConfigurationError(null)
+    try {
+      const result=await window.api.configureWebV12(configuration)
+      if (result.error) setWebConfigurationError(result.error.message)
+    } catch {
+      setWebConfigurationError('Web configuration outcome unknown. Check the backend status before continuing.')
+    } finally { setWebConfigurationPending(false) }
+  }
+  const selectWebUpload = async (operationId:string) => {
+    setWebConfigurationPending(true)
+    setWebConfigurationError(null)
+    try {
+      const result=await window.api.selectWebV12Upload(operationId)
+      if (result.error) setWebConfigurationError(result.error.message)
+    } catch {
+      setWebConfigurationError('File selection outcome unknown. No automatic retry.')
+    } finally { setWebConfigurationPending(false) }
+  }
+  const finishWebTakeover = async (takeoverRef:string) => {
+    setWebConfigurationPending(true)
+    setWebConfigurationError(null)
+    try {
+      const result=await window.api.finishWebV12Takeover(takeoverRef)
+      if (result.error) setWebConfigurationError(result.error.message)
+    } catch {
+      setWebConfigurationError('Human control outcome unknown. No automatic resume or retry.')
+    } finally { setWebConfigurationPending(false) }
+  }
 
   const scrollToBottom = useCallback(() => {
     if (terminalRef.current) {
@@ -564,6 +597,56 @@ export default function App() {
           )}
 
           <div className="input-area">
+            {view?.webCapabilitiesV12 && <section aria-label="Web capabilities V1.2">
+              <div role="status">Controlled Fetch — controlled HTTP(S) retrieval: {
+                view.webCapabilitiesV12.controlledFetch.available.status==='KNOWN'
+                  ? view.webCapabilitiesV12.controlledFetch.available.value===true ? 'AVAILABLE' : 'UNAVAILABLE' : 'UNKNOWN'}
+                {view.webCapabilitiesV12.controlledFetch.unavailableReason && ` — ${view.webCapabilitiesV12.controlledFetch.unavailableReason}`}
+              </div>
+              <div>GET / HEAD; static text, JSON and HTML. PUBLIC_ONLY: {
+                view.webCapabilitiesV12.controlledFetch.publicOnly.value || 'UNKNOWN'}. No browser rendering.</div>
+              <div role="status">Interactive Browser — {
+                view.webCapabilitiesV12.interactiveBrowser.available.status==='KNOWN'
+                  ? view.webCapabilitiesV12.interactiveBrowser.available.value===true ? 'AVAILABLE' : 'UNAVAILABLE' : 'UNKNOWN'}
+                {view.webCapabilitiesV12.interactiveBrowser.unavailableReason && ` — ${view.webCapabilitiesV12.interactiveBrowser.unavailableReason}`}
+                {view.webV12?.browserState && ` — ${view.webV12.browserState}`}
+              </div>
+              <p>Uses a real browser engine. Nova does not provide exhaustive network isolation for this capability.
+                It is not a hostile-site network sandbox. HOST_UNISOLATED; networkIsolation = NOT_PROVIDED.</p>
+              {view.webV12 && <>
+                <label><input type="checkbox" checked={view.webV12.configuration.controlledFetchEnabled}
+                  disabled={!status.ready || streaming || webConfigurationPending}
+                  onChange={e=>void configureWeb({controlledFetchEnabled:e.target.checked,
+                    interactiveBrowserEnabled:view.webV12!.configuration.interactiveBrowserEnabled})}/> Enable Controlled Fetch</label>
+                <label><input type="checkbox" checked={view.webV12.configuration.interactiveBrowserEnabled}
+                  disabled={!status.ready || streaming || webConfigurationPending}
+                  onChange={e=>void configureWeb({controlledFetchEnabled:view.webV12!.configuration.controlledFetchEnabled,
+                    interactiveBrowserEnabled:e.target.checked})}/> Enable Interactive Browser (host risk confirmation required)</label>
+              </>}
+              <div>Feature configuration does not approve remote mutations, uploads, downloads or login side effects.</div>
+              {(view.webV12?.uploadRequests || []).map(request=><div key={request.operationId}>
+                Select a file for {request.origin} — {request.label}. Disclosure still requires exact action approval.
+                <button disabled={!status.ready || webConfigurationPending} onClick={()=>void selectWebUpload(request.operationId)}>Choose file…</button>
+              </div>)}
+              {(view.webV12?.takeoverRequests || []).map(request=><div key={request.takeoverRef}>
+                Human browser control: {request.reason}. Complete the separate browser window first.
+                <button disabled={!status.ready || webConfigurationPending || view.webV12?.browserState==='blocked'}
+                  onClick={()=>void finishWebTakeover(request.takeoverRef)}>Finalizar control humano</button>
+              </div>)}
+              {webConfigurationError && <div role="alert">{webConfigurationError}</div>}
+            </section>}
+            {view?.activeWeb && <section aria-label="Active Web status" role="status">
+              <div>Active Web: {view.activeWeb.browserSession?.state || 'Not active'} — HOST_UNISOLATED</div>
+              <div>Availability: {view.activeWeb.capabilities.available?.value === true ? 'AVAILABLE' :
+                view.activeWeb.capabilities.available?.value === false ? 'UNAVAILABLE' : 'UNKNOWN'}. Not a sandbox.</div>
+              {view.activeWeb.pages.map(page => <div key={page.pageRef}>{page.title || page.origin || page.state}</div>)}
+              {view.activeWeb.takeoverRequests.map(request => <div key={request.takeoverRef}>
+                Separate headful browser awaiting human interaction: {request.reason}; deadline {request.deadline}.
+              </div>)}
+              {view.activeWeb.receipts.slice(-3).map(receipt => <div key={receipt.operationId}>
+                {receipt.outcome} / {receipt.effectState}; no automatic retry or rollback.
+              </div>)}
+            </section>}
             {view?.knowledge?.hostAcquisition && <div aria-label="Knowledge sources">
               <button disabled={!status.ready || streaming} onClick={() => void window.api.knowledgePick()}>Attach file</button>
               <button disabled={!status.ready} onClick={() => void window.api.knowledgeCommand('source_list',{})}>List sources</button>

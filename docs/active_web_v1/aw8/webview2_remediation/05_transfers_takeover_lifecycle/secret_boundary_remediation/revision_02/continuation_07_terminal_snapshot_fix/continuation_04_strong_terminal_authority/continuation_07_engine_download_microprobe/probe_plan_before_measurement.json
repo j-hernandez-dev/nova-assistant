@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "timestampUtc": "2026-10-11T09:58:35.6352176Z",
+  "createdBeforeVariants": true,
+  "purpose": "Isolated WebView2 boundary before DownloadStarting; no Nova services/IPC",
+  "sdk": "1.0.4258.31",
+  "expectedRuntime": "154.0.4258.62",
+  "platform": "win32/x64",
+  "controllerType": "CoreWebView2Controller from CoreWebView2Environment.CreateCoreWebView2ControllerAsync, InPrivate",
+  "logicalOrigin": "https://nova-local.invalid",
+  "anchor": "<a id=\"download\" href=\"/download.txt\" download=\"../../untrusted-name.txt\">Approved specimen download</a>",
+  "anchorNormalization": "Only test-probe endpoint renamed from payload.txt to /download.txt as requested; id/label/download filename retained, identical for A/B/C",
+  "payload": "Same existing synthetic fixture bytes; length35, no content copied to public evidence",
+  "activation": "One fixed host-owned CDP callFunctionOn on an object from an isolated world: this.click(); no page script, no artificial userGesture",
+  "observationWindowSeconds": 25,
+  "variantRuns": 1,
+  "noFourthVariant": true,
+  "variants": [
+    {
+      "id": "A",
+      "mechanism": "WebResourceRequested -> CreateWebResourceResponse",
+      "status": 200,
+      "contentType": "text/plain",
+      "contentLength": 35,
+      "contentDisposition": null
+    },
+    {
+      "id": "B",
+      "mechanism": "WebResourceRequested -> CreateWebResourceResponse",
+      "status": 200,
+      "contentType": "text/plain",
+      "contentLength": 35,
+      "contentDisposition": "attachment; filename=\"download.txt\"",
+      "onlyDifferenceFromA": "Header Content-Disposition for downloadable response"
+    },
+    {
+      "id": "C",
+      "mechanism": "SetVirtualHostNameToFolderMapping; static HTML and file engine-resolved",
+      "sameOriginAnchorAndPayload": true,
+      "webResourceRequestedForDownload": false
+    }
+  ],
+  "nativeBoundaryHandler": "Same CoreWebView2.DownloadStarting subscription primitive and event signature, installed before content. Standalone probe immediately Cancel=true with Handled=true/GetDeferral. It cannot reuse Nova's authority/staging logic because these are explicitly excluded; PASS means event+operation created, not transfer success.",
+  "forbidden": [
+    "Nova BrowserTool/ToolRuntime/Policy/Approval/staging/IPC",
+    "page JS to force download",
+    "setDownloadBehavior",
+    "artificial userGesture",
+    "additional request interception",
+    "product/fixture modification"
+  ],
+  "postBoundary": "No progress/completion/transfer diagnosis; event is cancelled immediately; ordinary disposal of fresh owned probe resources only",
+  "securityClaims": "No availability, PUBLIC_ONLY, network or Active Web certification",
+  "decisionPriority": [
+    {
+      "when": "A FAIL / B PASS / C PASS",
+      "rootCause": "CURRENT_RESPONSE_CONTRACT_DOES_NOT_TRIGGER_NATIVE_DOWNLOAD"
+    },
+    {
+      "when": "A FAIL / B PASS (C not PASS)",
+      "rootCause": "RESPONSE_NOT_CLASSIFIED_AS_DOWNLOAD_WITH_CURRENT_RESPONSE_CONTRACT"
+    },
+    {
+      "when": "A FAIL / B FAIL / C PASS",
+      "rootCause": "WEBRESOURCE_REQUESTED_OFFLINE_RESPONSE_DOWNLOAD_INTEGRATION"
+    },
+    {
+      "when": "A FAIL / B FAIL / C FAIL",
+      "rootCause": "STILL_ENGINE_LEVEL_INCONCLUSIVE"
+    },
+    {
+      "when": "Other pattern",
+      "rootCause": "No unsupported root-cause inference; retain actual matrix for review"
+    }
+  ]
+}

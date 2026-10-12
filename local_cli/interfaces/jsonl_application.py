@@ -39,6 +39,8 @@ class JsonlApplicationAdapter:
         self._subscriptions: dict[Any, Any] = {}
         self._agent_requests: dict[str, tuple[Any, bool]] = {}
         self._host_approval_key = host_approval_key
+        register_browser = getattr(application, 'register_browser_actor', None)
+        self._browser_actor = register_browser('desktop_host', lambda: not self._closed) if host_approval_key and register_browser else None
         if host_approval_key and getattr(application, 'redactor', None) is not None:
             application.redactor.register(host_approval_key, protected=True)
         self._approval_actor = (application.register_approval_actor('desktop_host', lambda: True)
@@ -70,6 +72,8 @@ class JsonlApplicationAdapter:
             cursor._stream.close(cursor)
         close = getattr(self.application, 'close_knowledge', None)
         if close: close()
+        close_browser = getattr(self.application, 'close_browser', None)
+        if close_browser: close_browser()
 
     def _command(self, kind: CommandKind, payload: dict[str, Any],
                  *, expected_revision: int | None = None) -> CommandReceipt:
@@ -84,6 +88,19 @@ class JsonlApplicationAdapter:
 
     def handle(self, request: dict[str, Any]) -> bool:
         kind, req_id = request.get("type"), request.get("id", 0)
+        if kind == 'browser_control':
+            from local_cli.core.active_web_transfers import BrowserTransferError
+            try:
+                command = request.get('command')
+                if (not isinstance(command, dict) or command.get('sessionId') != self.session_id or
+                    not verify_approval_proof(self._host_approval_key, command, request.get('hostBrowserProof'))):
+                    raise BrowserTransferError('BROWSER_HUMAN_ACTOR_INVALID')
+                result = self.application.execute_browser_control(command, actor=self._browser_actor)
+                self._send(dict(id=req_id, type='browser_control_result', schemaVersion=1, data=result))
+            except (BrowserTransferError, TypeError, ValueError):
+                self._send(dict(id=req_id, type='error', category='ACTIVE_WEB', code='BROWSER_HUMAN_CONTROL_DENIED',
+                    message='Authenticated host browser control is required.'))
+            return True
         if kind == 'knowledge_command':
             from local_cli.application.knowledge_host import KnowledgeCommand
             from local_cli.core.knowledge import KnowledgeError, KnowledgeErrorCode

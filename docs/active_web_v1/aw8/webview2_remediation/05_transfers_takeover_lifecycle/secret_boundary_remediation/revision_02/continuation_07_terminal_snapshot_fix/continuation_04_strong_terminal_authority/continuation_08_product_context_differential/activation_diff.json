@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "common": {
+    "method": "Runtime.callFunctionOn",
+    "worldName": "nova-wv2-observation-4-leaves",
+    "returnByValue": true,
+    "awaitPromise": "ABSENT (CDP default false)",
+    "userGesture": "ABSENT (not supplied)",
+    "modelSuppliedJsOrSelector": false
+  },
+  "script": {
+    "micro": "function(){this.click();return true;}",
+    "product": "ObservationScripts.Perform = Matches + MetaBody + guarded fixed action switch, CLICK => e.click(); returns performed:true",
+    "byteIdentical": false,
+    "terminalDomOperationEquivalent": "Both invoke .click() on this exact object; not a proof of all pre-click semantics being equivalent"
+  },
+  "remoteObject": {
+    "micro": "Runtime.evaluate document.getElementById('download') returns objectId",
+    "product": "Nodes array in same-origin isolated world -> Runtime.getProperties -> exact element objectId retained in binding with metadata/fingerprint; Proof/HREF/Perform use same objectId",
+    "derivationIdentical": false,
+    "productObjectGroupPresent": true,
+    "microObjectGroupPresent": false,
+    "opaqueRefCorrelationToCapture": true
+  },
+  "arguments": {
+    "micro": [],
+    "product": [
+      {
+        "value": {
+          "expected": "exact host-private serialized metadata of observed anchor",
+          "action": "CLICK",
+          "payload": "",
+          "destination": null
+        }
+      }
+    ],
+    "identical": false
+  },
+  "executionContext": {
+    "micro": "explicit contextId used when obtaining remote object; later callFunctionOn uses objectId context",
+    "product": "contextId per same-origin world used for Nodes; later objectId fixes context",
+    "actualHistoricalNumericContexts": "Not recorded by old microprobe (do not invent equality)",
+    "worldNameIdentical": true,
+    "contextIncarnationsNaturallyDistinct": true
+  },
+  "fixturePage": {
+    "micro": {
+      "href": "/download.txt",
+      "resolvedHref": "https://nova-local.invalid/download.txt",
+      "download": "../../untrusted-name.txt",
+      "target": "absent / _self",
+      "origin": "https://nova-local.invalid",
+      "documentUrl": "https://nova-local.invalid/index.html",
+      "base": "document URL, no <base>",
+      "frame": "top-level",
+      "sandbox": "absent",
+      "disabled": false,
+      "hidden": false
+    },
+    "product": {
+      "href": "payload.txt",
+      "resolvedHref": "https://nova-local.invalid/payload.txt",
+      "download": "../../untrusted-name.txt",
+      "target": "absent / _self",
+      "origin": "https://nova-local.invalid",
+      "documentUrl": "https://nova-local.invalid/index.html",
+      "base": "document URL, no <base>",
+      "frame": "top-level",
+      "sandbox": "absent",
+      "disabled": false,
+      "hidden": false
+    },
+    "csp": "Same meta: default-src self; script-src self unsafe-inline; style-src self unsafe-inline; connect-src self; object-src none",
+    "anchorHtmlDifferences": "href only; id/download filename/label identical. Full page contains other controlled inputs/buttons/scripts, not a synthetic secret input scenario.",
+    "elementExactResolvedByAction": "Observed binding whose tag=a / name Approved specimen download / href matches the single anchor; capture and dispatch share that binding, no selector rebind"
+  },
+  "measuredP1": {
+    "productFunctionSha256": "aa11e291156acd2363c572d8dbd3259262cdca30c6c4c083fa5bbdcb7fee5e6e",
+    "productFunctionChars": 4754,
+    "microFunctionSha256": "c950e1e1b63000550c659e286b816700949343fde7f954ce33686f37d09c2754",
+    "microFunctionChars": 37,
+    "scriptByteIdentical": false,
+    "argumentCountProduct": 1,
+    "argumentCountMicro": 0,
+    "awaitPromiseSuppliedProduct": false,
+    "userGestureSuppliedProduct": false,
+    "returnByValueProduct": true,
+    "isolatedWorld": {
+      "worldName": "nova-wv2-observation-4-leaves",
+      "contextRef": "opaque_79a0586ad261428ab82a2b0bfdbd8471",
+      "frameRef": "opaque_ac8c240af9bc485da4ee3bdb9a9acf49"
+    },
+    "target": {
+      "objectRef": "opaque_717bbf622b3f4623a9b5ec26ac3a1127",
+      "worldRef": "opaque_79a0586ad261428ab82a2b0bfdbd8471",
+      "tag": "a",
+      "href": "https://nova-local.invalid/download.txt",
+      "visible": true,
+      "disabled": false,
+      "capability": true
+    },
+    "sameObjectAcrossProofHrefAndPerform": true,
+    "sameWorldAcrossTargetAndPerform": true,
+    "executionContextNumericIdsNotExported": true
+  },
+  "artifactPurpose": "prospective measured enrichment; static classification retained in audit_created_before_pair snapshot",
+  "fieldClassifications": [
+    {
+      "field": "CDP method/returnByValue/awaitPromise/userGesture omission/worldName",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "Full function declaration and arguments",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "field": "RemoteObject acquisition and objectGroup/proof",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "field": "Numeric context incarnation / object identities across processes",
+      "classification": "UNKNOWN_RELEVANCE",
+      "why": "Different executions must have different private identities; not a cause by itself"
+    },
+    {
+      "field": "Original fixture href / path and full page content",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "field": "P1 href/origin/HTML vs historical microprobe A",
+      "classification": "IDENTICAL",
+      "why": "Byte-exact P1 micro fixture; same resolved /download.txt and origin"
+    }
+  ],
+  "callArgumentSemanticsVerifiedByPinnedProductSource": "value.expected exact anchor metadata, action CLICK, empty payload, destination null; no arbitrary field or primitive substitution"
+}

@@ -142,6 +142,81 @@ _GIT_STATES = frozenset((
 
 
 @dataclass(frozen=True)
+class BrowserCapabilitySnapshot:
+    """AW0 capability evidence only; never a probe, grant or browser launcher.
+
+    Defaults are deliberately UNKNOWN, including availability. An installed
+    engine/Electron or a passive HTTP capability cannot enable Active Web.
+    """
+
+    available: Observation[bool] = field(default_factory=_not_probed)
+    engine: Observation[str] = field(default_factory=_not_probed)
+    engine_version: Observation[str] = field(default_factory=_not_probed)
+    browser_version: Observation[str] = field(default_factory=_not_probed)
+    control_class: Observation[str] = field(default_factory=_not_probed)
+    network_broker: Observation[bool] = field(default_factory=_not_probed)
+    public_only: Observation[bool] = field(default_factory=_not_probed)
+    headful: Observation[bool] = field(default_factory=_not_probed)
+    screenshot: Observation[bool] = field(default_factory=_not_probed)
+    manual_takeover: Observation[bool] = field(default_factory=_not_probed)
+    upload: Observation[bool] = field(default_factory=_not_probed)
+    download: Observation[bool] = field(default_factory=_not_probed)
+    persistent_session: Observation[bool] = field(default_factory=_not_probed)
+    max_pages: Observation[int] = field(default_factory=_not_probed)
+    platform: Observation[str] = field(default_factory=_not_probed)
+
+    def __post_init__(self) -> None:
+        boolean_fields = {"available", "network_broker", "public_only", "headful",
+                          "screenshot", "manual_takeover", "upload", "download",
+                          "persistent_session"}
+        for item in fields(self):
+            evidence = getattr(self, item.name)
+            if not isinstance(evidence, Observation):
+                raise TypeError("browser capability requires Observation")
+            if evidence.status is CapabilityStatus.UNKNOWN:
+                continue
+            value = evidence.value
+            if item.name in boolean_fields:
+                if type(value) is not bool:
+                    raise ValueError("browser capability requires measured boolean")
+            elif item.name == "max_pages":
+                if type(value) is not int or not 0 <= value <= 3:
+                    raise ValueError("browser maxPages exceeds V1 ceiling")
+            elif not isinstance(value, str) or not value.strip():
+                raise ValueError("browser capability requires non-empty metadata")
+        if (self.control_class.status is CapabilityStatus.KNOWN
+                and self.control_class.value != "HOST_UNISOLATED"):
+            raise ValueError("browser process isolation remains HOST_UNISOLATED")
+        if (self.persistent_session.status is CapabilityStatus.KNOWN
+                and self.persistent_session.value):
+            raise ValueError("persistent browser sessions are not a V1 capability")
+        if self.available.status is CapabilityStatus.KNOWN and self.available.value:
+            for evidence in (self.engine, self.engine_version, self.browser_version,
+                             self.control_class, self.platform, self.max_pages):
+                if evidence.status is not CapabilityStatus.KNOWN or not evidence.value:
+                    raise ValueError("available browser requires verified metadata")
+            for evidence in (self.network_broker, self.public_only):
+                if evidence.status is not CapabilityStatus.KNOWN or evidence.value is not True:
+                    raise ValueError("available browser requires verified PUBLIC_ONLY broker")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {_camel(item.name): getattr(self, item.name).to_dict()
+                for item in fields(self)}
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> BrowserCapabilitySnapshot:
+        allowed = {_camel(item.name): item.name for item in fields(cls)}
+        if not isinstance(data, Mapping) or set(data) - allowed.keys():
+            raise ValueError("unknown browser capability fields")
+        kwargs = {}
+        for key, value in data.items():
+            if not isinstance(value, Mapping) or set(value) != {"status", "value", "reason"}:
+                raise ValueError("invalid browser capability observation")
+            kwargs[allowed[key]] = Observation.from_dict(value)
+        return cls(**kwargs)
+
+
+@dataclass(frozen=True)
 class RuntimeCapabilitySnapshot:
     """Evidence about the host/provider; absence is never inferred as zero."""
 
@@ -170,8 +245,16 @@ class RuntimeCapabilitySnapshot:
     shell: Observation[dict[str, Any]] = field(default_factory=_not_probed)
     git_capability: Observation[str] = field(default_factory=_not_probed)
     concurrency_limits: Observation[dict[str, int]] = field(default_factory=_not_probed)
+    active_web: BrowserCapabilitySnapshot = field(default_factory=BrowserCapabilitySnapshot)
+    web_capabilities_v12: Any = field(default_factory=lambda: __import__(
+        'local_cli.core.web_capabilities_v12', fromlist=['WebCapabilitiesV12']).WebCapabilitiesV12.unavailable())
 
     def __post_init__(self) -> None:
+        from local_cli.core.web_capabilities_v12 import WebCapabilitiesV12
+        if type(self.web_capabilities_v12) is not WebCapabilitiesV12:
+            raise TypeError('webCapabilitiesV12 requires WebCapabilitiesV12')
+        if not isinstance(self.active_web, BrowserCapabilitySnapshot):
+            raise TypeError("activeWeb requires BrowserCapabilitySnapshot")
         if (not isinstance(self.captured_at, datetime) or
                 self.captured_at.tzinfo is None or not self.source):
             raise ValueError("snapshot requires timezone-aware capture and source")
@@ -211,7 +294,13 @@ class RuntimeCapabilitySnapshot:
                 continue
             key = _camel(item.name)
             if key in data:
-                kwargs[item.name] = Observation.from_dict(data[key])
+                if item.name == 'web_capabilities_v12':
+                    from local_cli.core.web_capabilities_v12 import WebCapabilitiesV12
+                    kwargs[item.name] = WebCapabilitiesV12.from_dict(data[key])
+                    continue
+                kwargs[item.name] = (BrowserCapabilitySnapshot.from_dict(data[key])
+                                     if item.name == "active_web" else
+                                     Observation.from_dict(data[key]))
         return cls(**kwargs)
 
 
@@ -350,6 +439,23 @@ def advance_operation_status(current: OperationStatus,
 
 
 class EventKind(str, Enum):
+    BROWSER_SESSION_CREATED = 'BrowserSessionCreated'
+    BROWSER_SESSION_CLOSED = 'BrowserSessionClosed'
+    PAGE_CREATED = 'PageCreated'
+    NAVIGATION_STARTED = 'NavigationStarted'
+    NAVIGATION_COMPLETED = 'NavigationCompleted'
+    BROWSER_OBSERVATION_CREATED = 'BrowserObservationCreated'
+    BROWSER_ACTION_REQUESTED = 'BrowserActionRequested'
+    BROWSER_ACTION_STARTED = 'BrowserActionStarted'
+    BROWSER_ACTION_COMPLETED = 'BrowserActionCompleted'
+    BROWSER_ACTION_FAILED = 'BrowserActionFailed'
+    BROWSER_OUTCOME_UNKNOWN = 'BrowserOutcomeUnknown'
+    BROWSER_TAKEOVER_REQUESTED = 'BrowserTakeoverRequested'
+    BROWSER_TAKEOVER_COMPLETED = 'BrowserTakeoverCompleted'
+    BROWSER_DOWNLOAD_STAGED = 'BrowserDownloadStaged'
+    BROWSER_UPLOAD_STARTED = 'BrowserUploadStarted'
+    BROWSER_FILE_SELECTION_REQUIRED = 'BrowserFileSelectionRequired'
+    BROWSER_CLEANUP_STATUS = 'BrowserCleanupStatus'
     SESSION_STARTED = "SessionStarted"
     TURN_STARTED = "TurnStarted"
     TURN_COMPLETED = "TurnCompleted"

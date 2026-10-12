@@ -1,0 +1,89 @@
+......................................................................s. [  9%]
+........................................................................ [ 19%]
+........................................................................ [ 28%]
+........................................................................ [ 38%]
+............s.s......................................................... [ 48%]
+........................................................................ [ 57%]
+........................................................................ [ 67%]
+........................................................................ [ 76%]
+........................................................................ [ 86%]
+........................................................................ [ 96%]
+.........................FFF..                                           [100%]
+================================== FAILURES ===================================
+_______ test_shared_soft_share_borrow_and_nonadditive_retrieval[16384] ________
+
+n = 16384
+
+    @pytest.mark.parametrize('n',WINDOWS)
+    def test_shared_soft_share_borrow_and_nonadditive_retrieval(n):
+        user=dict(role='user',content='Synthetic request')
+        rag=dict(role='system',content='RAG '*n,_context_kind='retrieval')
+        cm=manager(n)
+        p=cm.prepare([rag,capsule(size=12),user])
+        b=invariants(p,n,user['content'])
+        assert b.memory_tokens>0 and b.retrieval_tokens>b.memory_tokens
+        # RAG gets unused memory share; memory can borrow unused RAG share.
+        assert b.retrieval_tokens > math.floor(b.shared_retrieval_cap*.40)
+        alone=cm.prepare([capsule(size=20),user]).budget
+        tiny_rag=cm.prepare([dict(role='system',content='RAG',_context_kind='retrieval'),capsule(size=20),user]).budget
+>       assert tiny_rag.memory_token_budget >= math.floor(tiny_rag.shared_retrieval_cap*.60)
+E       AssertionError: assert 1024 >= 1141
+E        +  where 1024 = ContextBudget(selected_context_window=16384, system_tokens=9, tool_schema_tokens=0, project_instruction_tokens=0, skil...', removed_messages=0, memory_tokens=493, shared_retrieval_cap=1903, memory_token_budget=1024, memory_selected_count=8).memory_token_budget
+E        +  and   1141 = <built-in function floor>((1903 * 0.6))
+E        +    where <built-in function floor> = math.floor
+E        +    and   1903 = ContextBudget(selected_context_window=16384, system_tokens=9, tool_schema_tokens=0, project_instruction_tokens=0, skil...', removed_messages=0, memory_tokens=493, shared_retrieval_cap=1903, memory_token_budget=1024, memory_selected_count=8).shared_retrieval_cap
+
+tests\memory_v1\test_m4_context.py:115: AssertionError
+_______ test_shared_soft_share_borrow_and_nonadditive_retrieval[32768] ________
+
+n = 32768
+
+    @pytest.mark.parametrize('n',WINDOWS)
+    def test_shared_soft_share_borrow_and_nonadditive_retrieval(n):
+        user=dict(role='user',content='Synthetic request')
+        rag=dict(role='system',content='RAG '*n,_context_kind='retrieval')
+        cm=manager(n)
+        p=cm.prepare([rag,capsule(size=12),user])
+        b=invariants(p,n,user['content'])
+        assert b.memory_tokens>0 and b.retrieval_tokens>b.memory_tokens
+        # RAG gets unused memory share; memory can borrow unused RAG share.
+        assert b.retrieval_tokens > math.floor(b.shared_retrieval_cap*.40)
+        alone=cm.prepare([capsule(size=20),user]).budget
+        tiny_rag=cm.prepare([dict(role='system',content='RAG',_context_kind='retrieval'),capsule(size=20),user]).budget
+>       assert tiny_rag.memory_token_budget >= math.floor(tiny_rag.shared_retrieval_cap*.60)
+E       AssertionError: assert 1024 >= 2284
+E        +  where 1024 = ContextBudget(selected_context_window=32768, system_tokens=9, tool_schema_tokens=0, project_instruction_tokens=0, skil...', removed_messages=0, memory_tokens=493, shared_retrieval_cap=3807, memory_token_budget=1024, memory_selected_count=8).memory_token_budget
+E        +  and   2284 = <built-in function floor>((3807 * 0.6))
+E        +    where <built-in function floor> = math.floor
+E        +    and   3807 = ContextBudget(selected_context_window=32768, system_tokens=9, tool_schema_tokens=0, project_instruction_tokens=0, skil...', removed_messages=0, memory_tokens=493, shared_retrieval_cap=3807, memory_token_budget=1024, memory_selected_count=8).shared_retrieval_cap
+
+tests\memory_v1\test_m4_context.py:115: AssertionError
+_______ test_shared_soft_share_borrow_and_nonadditive_retrieval[65536] ________
+
+n = 65536
+
+    @pytest.mark.parametrize('n',WINDOWS)
+    def test_shared_soft_share_borrow_and_nonadditive_retrieval(n):
+        user=dict(role='user',content='Synthetic request')
+        rag=dict(role='system',content='RAG '*n,_context_kind='retrieval')
+        cm=manager(n)
+        p=cm.prepare([rag,capsule(size=12),user])
+        b=invariants(p,n,user['content'])
+        assert b.memory_tokens>0 and b.retrieval_tokens>b.memory_tokens
+        # RAG gets unused memory share; memory can borrow unused RAG share.
+        assert b.retrieval_tokens > math.floor(b.shared_retrieval_cap*.40)
+        alone=cm.prepare([capsule(size=20),user]).budget
+        tiny_rag=cm.prepare([dict(role='system',content='RAG',_context_kind='retrieval'),capsule(size=20),user]).budget
+>       assert tiny_rag.memory_token_budget >= math.floor(tiny_rag.shared_retrieval_cap*.60)
+E       AssertionError: assert 1024 >= 4938
+E        +  where 1024 = ContextBudget(selected_context_window=65536, system_tokens=9, tool_schema_tokens=0, project_instruction_tokens=0, skil...', removed_messages=0, memory_tokens=493, shared_retrieval_cap=8231, memory_token_budget=1024, memory_selected_count=8).memory_token_budget
+E        +  and   4938 = <built-in function floor>((8231 * 0.6))
+E        +    where <built-in function floor> = math.floor
+E        +    and   8231 = ContextBudget(selected_context_window=65536, system_tokens=9, tool_schema_tokens=0, project_instruction_tokens=0, skil...', removed_messages=0, memory_tokens=493, shared_retrieval_cap=8231, memory_token_budget=1024, memory_selected_count=8).shared_retrieval_cap
+
+tests\memory_v1\test_m4_context.py:115: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/memory_v1/test_m4_context.py::test_shared_soft_share_borrow_and_nonadditive_retrieval[16384]
+FAILED tests/memory_v1/test_m4_context.py::test_shared_soft_share_borrow_and_nonadditive_retrieval[32768]
+FAILED tests/memory_v1/test_m4_context.py::test_shared_soft_share_borrow_and_nonadditive_retrieval[65536]
+3 failed, 744 passed, 3 skipped in 37.56s

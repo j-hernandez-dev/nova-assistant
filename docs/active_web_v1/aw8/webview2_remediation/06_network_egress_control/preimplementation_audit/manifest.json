@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "kind": "PREIMPLEMENTATION_ARCHITECTURE_AUDIT",
+  "phase": "BLOCK06_PREIMPLEMENTATION_AUDIT",
+  "result": "REQUIRES_ARCHITECTURE_REVIEW",
+  "states": {
+    "BLOCK06_ARCHITECTURE": "REQUIRES_ARCHITECTURE_REVIEW",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "PASS",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": true,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "normativeSource": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+    "sha256": "46ec3201460ba37a6fe47f6cf94e80f0024ec442c9323115a0cf19d64de95e1d",
+    "clauses": [
+      "§18.1–18.8",
+      "§25",
+      "§34",
+      "§35.2 / bloque 6",
+      "§36.4",
+      "AW-INV-007",
+      "AW-INV-008",
+      "AW-INV-027",
+      "AW-INV-029",
+      "AW-INV-052",
+      "AW-INV-053"
+    ]
+  },
+  "repo": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "dirtyOnEntry": true,
+    "existingEditsPreserved": true
+  },
+  "auditStartedUtc": "2026-10-11T13:51:26.288Z",
+  "documentationConsultedUtcDate": "2026-10-11",
+  "method": [
+    "Read-only repository/SDK XML/IDL inspection",
+    "Primary official documentation / upstream technical references",
+    "Hash integrity comparison",
+    "JSON/document consistency checks"
+  ],
+  "observedEngineMetadata": {
+    "sdkVersion": "1.0.4258.31",
+    "runtimeVersion": "154.0.4258.62",
+    "architecture": "X64",
+    "source": "Previously observed final Block05 native execution, not a new network/runtime probe",
+    "currentlyReprobed": false
+  },
+  "reusedComponents": [
+    "BrowserEgressBroker",
+    "BrowserNetworkPolicy and S5 classification/pinning",
+    "BrowserPort/private host lifecycle",
+    "ExternalProtocolGuard",
+    "Block05 authority/transfer/UDF/ownership contracts"
+  ],
+  "pendingReview": [
+    "B06-REVIEW-001",
+    "B06-REVIEW-002",
+    "B06-REVIEW-003"
+  ],
+  "enforcementLimitDemonstrated": false,
+  "basis": "Candidate HTTP/HTTPS path is available, but required engine-owned channel suppression/effective configuration and encrypted-origin admission remain unresolved. No claim from requested flags or component existence.",
+  "historicalEvidence": {
+    "block05AcceptedByHuman": true,
+    "finalBlock05": {
+      "path": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_07_terminal_snapshot_fix/continuation_04_strong_terminal_authority/continuation_11_product_udf_construction_fix/regression_results.json",
+      "pass": 561,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xmlSha256": "f8cfd329990b03c3244642b030825fdc6982fc512a3d860b331b3e64d59e1d15",
+      "stdoutSha256": "a03104cc4ded034e1575a76ab3d0b93ba1a4b7ee14cb67f250a0696eaddb574f",
+      "reexecuted": false,
+      "networkCertification": false
+    },
+    "olderPartialBlockedArtifacts": "Preserved literally; not overwritten/reclassified.",
+    "historicalUdfCount": 36,
+    "historicalUdfMaintenancePerformed": false
+  },
+  "execution": {
+    "productBuilds": 0,
+    "productTests": 0,
+    "nativeNetworkProbes": 0,
+    "syntheticNetworkTests": 0,
+    "block05Reopened": false,
+    "implementation": false,
+    "block07": false,
+    "aw8E2E": false
+  },
+  "prohibitedMutationsPerformed": {
+    "product": false,
+    "tests": false,
+    "architecture": false,
+    "historicalManifests": false,
+    "globalNetworkConfiguration": false,
+    "registry": false,
+    "caStore": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "artifacts": [
+    "resultados.md",
+    "architecture_analysis.md",
+    "network_channel_matrix.json",
+    "bypass_analysis.json",
+    "implementation_plan.json",
+    "manifest.json",
+    "integrity.json"
+  ],
+  "sources": [
+    {
+      "id": "MS_FLAGS",
+      "url": "https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/webview-features-flags",
+      "scope": "WebView2 flags; development-only warning; not runtime evidence"
+    },
+    {
+      "id": "MS_OPTIONS",
+      "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environmentoptions.additionalbrowserarguments",
+      "scope": "switch parsing/precedence; supported API is not a stable switch contract"
+    },
+    {
+      "id": "MS_CREATE",
+      "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environment.createasync",
+      "scope": "runtime selection and environment/registry overrides"
+    },
+    {
+      "id": "CH_PROXY",
+      "url": "https://chromium.googlesource.com/chromium/src/+/HEAD/net/docs/proxy.md",
+      "scope": "Chromium upstream proxy model, not certification of Microsoft runtime 154"
+    },
+    {
+      "id": "MS_REQUEST",
+      "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.webresourcerequested",
+      "scope": "URL request interception/deferral; not arbitrary socket interception"
+    },
+    {
+      "id": "MS_FILTER",
+      "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.addwebresourcerequestedfilter",
+      "scope": "two-argument filter deprecated; source-aware overload"
+    },
+    {
+      "id": "MS_AUTH",
+      "url": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.basicauthenticationrequested",
+      "scope": "proxy challenge handling; no permission to disclose broker credentials to destinations"
+    },
+    {
+      "id": "CDP_NETWORK",
+      "url": "https://raw.githubusercontent.com/ChromeDevTools/devtools-protocol/master/pdl/domains/Network.pdl",
+      "scope": "setBypassServiceWorker means bypassing worker for fetch; not preventing registration/execution"
+    },
+    {
+      "id": "CDP_SW",
+      "url": "https://raw.githubusercontent.com/ChromeDevTools/devtools-protocol/master/pdl/domains/ServiceWorker.pdl",
+      "scope": "stop/unregister/disable-domain commands do not specify permanent no-registration"
+    },
+    {
+      "id": "CH_PRIVACY",
+      "url": "https://developer.chrome.com/docs/extensions/reference/api/privacy",
+      "scope": "WebRTC IP handling vs disabling WebRTC; prediction vs page preconnect; not a WebView2 API"
+    },
+    {
+      "id": "CH_RTC",
+      "url": "https://chromium.googlesource.com/chromium/src/+/HEAD/third_party/blink/common/peerconnection/webrtc_ip_handling_policy.cc",
+      "scope": "upstream IP handling enum; not native WebView2 evidence"
+    },
+    {
+      "id": "MS_TCP_OBSERVER",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getextendedtcptable",
+      "scope": "Owner PID tables; snapshot not full event/packet history"
+    },
+    {
+      "id": "MS_UDP_OBSERVER",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getextendedudptable",
+      "scope": "Owner PID UDP endpoints; not proof of all packets"
+    }
+  ],
+  "nextAction": "Human review only; implementation_plan.json is conditional, not execution authority.",
+  "integrityFile": "integrity.json"
+}

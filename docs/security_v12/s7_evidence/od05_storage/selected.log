@@ -1,0 +1,49 @@
+......F.......................................................           [100%]
+================================== FAILURES ===================================
+_____ test_actual_crash_reopen_valid_complete_rows_no_fabricated_terminal _____
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s7_evidence/od05_storage/s7_private_721yrqj1/selected/test_actual_crash_reopen_valid0')
+
+    def test_actual_crash_reopen_valid_complete_rows_no_fabricated_terminal(tmp_path):
+        state = tmp_path/'state'
+        code = """import os,sys
+    from local_cli.infrastructure.security_audit_jsonl import JsonlSecurityAudit
+    from tests.security_v12.test_s7_contracts import entry
+    port=JsonlSecurityAudit(sys.argv[1])
+    port.append(entry()); port.flush()
+    with port._active.open('ab') as f:
+     f.write(b'{"unfinished":"dummy-private-tail"'); f.flush(); os.fsync(f.fileno())
+    os._exit(37)
+    """
+        result = subprocess.run([sys.executable, '-B', '-c', code, str(state)], timeout=15, capture_output=True)
+        assert result.returncode == 37, result.stderr.decode(errors='replace')
+        raw = next(state.glob('*.active.jsonl')).read_bytes()
+        reopened = JsonlSecurityAudit(state)
+>       rows = reopened.read_operation('session', 'operation')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s7_persistence.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\security_audit_jsonl.py:277: in read_operation
+    self._recover()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.infrastructure.security_audit_jsonl.JsonlSecurityAudit object at 0x0000027076597C50>
+
+    def _recover(self):
+        for path, state, _, _ in self._segments():
+            if state != 'active' or path == self._active:
+                continue
+            try:
+                lease = self._open_lock(path.with_suffix('.lease'))
+            except OSError:
+                continue  # Live writer: neither close nor purge its active file.
+            try:
+                with path.open('rb') as stream:
+>                   os.fsync(stream.fileno())
+E                   OSError: [Errno 9] Bad file descriptor
+
+local_cli\infrastructure\security_audit_jsonl.py:158: OSError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s7_persistence.py::test_actual_crash_reopen_valid_complete_rows_no_fabricated_terminal
+1 failed, 61 passed in 3.16s

@@ -231,6 +231,8 @@ def create_cli_application(*, config: Any, provider_manager: Any,
                            on_turn_complete: Any = None) -> CliApplicationClient:
     workspace = Path(workspace).resolve()
     tools = passive_web_tools(tools, config)
+    from local_cli.bootstrap_active_web import active_web_factory
+    from local_cli.bootstrap_web_v12 import web_v12_factory
 
     def inference_options() -> dict[str, Any]:
         state = provider_manager.snapshot()
@@ -250,6 +252,8 @@ def create_cli_application(*, config: Any, provider_manager: Any,
         return result
 
     coordinator = AgentSessionCoordinator(
+        web_v12_factory=web_v12_factory(config.state_dir),
+        active_web_factory=active_web_factory(config.state_dir),
         knowledge_factory=knowledge_factory(config.state_dir),
         memory_factory=memory_factory(config.state_dir,
             embedding_model=getattr(config,'memory_embedding_model',''),

@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "scope": "Alternativa A: mantener el WebView2 certificado históricamente, sin admin/global mutation",
+  "mechanisms": [
+    {
+      "id": "APP_CONTAINER_LPAC",
+      "classification": "NOT_PRACTICAL",
+      "canConstrainChildren": "No demostrado para el árbol WebView2 completo; identidades se fijan al crear cada proceso.",
+      "onlyBroker": "Sin capacidades de red no hay acceso al proxy loopback; capacidades documentadas no seleccionan IP:port.",
+      "udp": "Restricciones de token podrían negar paquetes; no equivalen a WebRTC disabled.",
+      "dns": "Debe probarse resolver y servicios auxiliares; no basta PID del renderer.",
+      "childCreation": "Requiere demostrar tokens/capabilities de network/browser/utility y recreaciones; no herencia asumida.",
+      "adminServiceRegistry": "Crear perfil propio no implica por sí solo admin ni política global. Excepciones loopback adicionales sí cambian el análisis.",
+      "stableSupport": "API Windows documentada; integración con WebView2 completo no certificada.",
+      "webview2Compatibility": "No demostrada; empaquetar o restringir sólo el host no encierra automáticamente los children.",
+      "sources": [
+        "MS_APP",
+        "MS_ISOLATION",
+        "MS_WV_SECURITY"
+      ]
+    },
+    {
+      "id": "PACKAGED_LOOPBACK_PEERS",
+      "classification": "NOT_PRACTICAL",
+      "canConstrainChildren": "No probado que todos los emisores WebView2 usen la identidad de paquete controlada.",
+      "onlyBroker": "Reglas por peer package, no único IP:port. La capability requerida privateNetworkClientServer permite LAN, por lo que la receta documentada no demuestra endpoint exclusivo.",
+      "udp": "Reglas loopback documentadas sólo TCP; no son mecanismo de SW/RTC-off.",
+      "dns": "Acceso LAN/capability y servicios de DNS requieren prueba propia, no cubiertos por peer rule.",
+      "childCreation": "Identidad/token de cada child y NetworkService restart pendientes.",
+      "adminServiceRegistry": "Alternativa empaquetada no necesita por definición la exemption debug; instalación/firma/identidad del broker requerirían revisión. No se instaló nada.",
+      "stableSupport": "Manifest documentado; no endpoint firewall general.",
+      "webview2Compatibility": "No hay composición Nova probada con esa identidad/token; broker Python actual es unpackaged.",
+      "sources": [
+        "MS_IPC",
+        "MS_LOOP",
+        "MS_RULE",
+        "MS_CAP"
+      ]
+    },
+    {
+      "id": "LOOPBACK_DEBUG_EXEMPTION",
+      "classification": "VIOLATES_CURRENT_CONSTRAINTS",
+      "canConstrainChildren": "No transforma el tree en endpoint-only.",
+      "onlyBroker": "Exenta SID, no limita al broker.",
+      "udp": "No es receta de UDP off.",
+      "dns": "No certificado.",
+      "childCreation": "No resuelve identidad global del tree.",
+      "adminServiceRegistry": "CheckNetIsolation unpackaged requiere admin; setter modifica lista de aislamiento del equipo. Prohibido.",
+      "stableSupport": "API de debugging, no bootstrap Nova aceptable.",
+      "webview2Compatibility": "No evaluada ni ejecutada.",
+      "sources": [
+        "MS_EXEMPT",
+        "MS_IPC"
+      ]
+    },
+    {
+      "id": "WFP_ALE_FILTERS",
+      "classification": "VIOLATES_CURRENT_CONSTRAINTS",
+      "canConstrainChildren": "Técnicamente filtra emisores identificados; necesita reglas correctas para cada child/servicio, no sólo PID host.",
+      "onlyBroker": "Allow endpoint + deny remaining es una policy posible si se poseen permisos de instalación.",
+      "udp": "Puede filtrar UDP IPv4/IPv6 con capas/rules pertinentes.",
+      "dns": "DNS en proceso y servicio delegado requieren cobertura diferenciada.",
+      "childCreation": "Filtros por identidad durable pueden cubrir nuevos procesos; no basta enumerar PIDs iniciales.",
+      "adminServiceRegistry": "ACL BFE default no concede ADD/ADD_LINK a usuario ordinario. Delegación, helper privilegiado o preinstalación son dependencia excluida. Dynamic session no elimina ACL.",
+      "stableSupport": "Documentado; no requiere necesariamente callout driver para filtros básicos, pero sí permisos.",
+      "webview2Compatibility": "No se afirma incompatibilidad técnica; se descarta por restricciones de despliegue/autoridad.",
+      "sources": [
+        "MS_WFP",
+        "MS_ALE"
+      ]
+    },
+    {
+      "id": "RESTRICTED_TOKEN",
+      "classification": "NOT_PRACTICAL",
+      "canConstrainChildren": "Debe aplicar token por proceso; no frontera de socket.",
+      "onlyBroker": "No hay selector de destino por quitar privilegios/SIDs.",
+      "udp": "No control IP/UDP suficiente.",
+      "dns": "No control de resolución suficiente.",
+      "childCreation": "Herencia de token no equivale a aislamiento de red.",
+      "adminServiceRegistry": "Token propio puede ser local; no satisface red.",
+      "stableSupport": "API documentada.",
+      "webview2Compatibility": "No aporta la propiedad solicitada.",
+      "sources": [
+        "MS_TOKEN"
+      ]
+    },
+    {
+      "id": "JOB_OBJECT",
+      "classification": "NOT_PRACTICAL",
+      "canConstrainChildren": "Ownership/quotas/termination, conservables; breakaway debe controlarse.",
+      "onlyBroker": "No.",
+      "udp": "No.",
+      "dns": "No.",
+      "childCreation": "Puede agrupar children, no restringir destinos.",
+      "adminServiceRegistry": "Lifecycle local, no regla de red.",
+      "stableSupport": "API documentada.",
+      "webview2Compatibility": "Ya útil para lifecycle; no se recalifica como containment.",
+      "sources": [
+        "MS_JOB"
+      ]
+    }
+  ],
+  "fullAlternativeClassification": "NOT_PRACTICAL",
+  "reason": "No endpoint-only tree coverage verificada compatible y además containment no cumple SW/RTC-disabled."
+}

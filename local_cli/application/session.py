@@ -10,6 +10,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone, timedelta
 import json
+import hashlib
 from pathlib import Path
 from threading import Event, RLock, Thread
 from typing import Any, Callable, Mapping
@@ -207,6 +208,8 @@ class AgentSessionCoordinator:
         allow_remote_memory_injection: bool = False,
         memory_capture_mode: str = 'off',
         memory_extractor_factory: Any = None,
+        active_web_factory: Any = None,
+        web_v12_factory: Any = None,
     ) -> None:
         if runtime is not None and run_agent_fn is not None:
             raise ValueError("pass either runtime or a legacy runner")
@@ -232,6 +235,7 @@ class AgentSessionCoordinator:
         self._network_service = network_service
         self._context_selection, self._context_policy = context_selection, context_policy
         self._capability_factory = capability_factory
+        self._base_capability_factory = capability_factory
         self._persistence_factory, self._rag_factory = persistence_factory, rag_factory
         self._initial_messages_factory = initial_messages_factory
         self._turn_messages_factory = turn_messages_factory
@@ -261,10 +265,14 @@ class AgentSessionCoordinator:
         self._memory_factory, self._memory = memory_factory, None
         from local_cli.application.knowledge_host import KnowledgeHostControls
         self._knowledge = KnowledgeHostControls(self, knowledge_factory)
+        self._active_web_factory, self._active_web = active_web_factory, None
+        self._web_v12_factory, self._web_v12 = web_v12_factory, None
         if type(allow_remote_memory_injection) is not bool:
             raise ValueError('remote memory injection requires an explicit boolean')
         self._allow_remote_memory_injection = allow_remote_memory_injection
         self._memory_actors = {}
+        self._browser_actors, self._browser_host_results = {}, {}
+        self._web_configuration_receipts = {}
         self._memory_receipts = {}  # Digests + mutation summaries only, never recall/content cache.
         if memory_capture_mode not in ('off','propose_only','low_risk'):
             raise ValueError('Invalid memory capture mode')
@@ -404,8 +412,34 @@ class AgentSessionCoordinator:
         if not workspace.is_dir():
             return self._reject(command, "INVALID_WORKSPACE",
                                 "workspace must be an existing directory")
+        session_id = new_session_id()
+        if self._web_v12 is not None:self._web_v12.close()
+        self._web_v12 = None
+        self._active_web = None
+        if self._web_v12_factory is not None:
+            from local_cli.core.active_web_lifecycle import BrowserOwner
+            def publish_web_v12(kind,payload,**correlation):
+                current=self._session
+                if current is not None and current.session_id==session_id and self._events is not None:
+                    self._events.publish(EventKind(kind),payload,state_revision=current.state_revision,**correlation)
+            self._web_v12=self._web_v12_factory(BrowserOwner(session_id,str(workspace)),self.redactor,
+                publish_web_v12)
+            self._web_v12.publish=publish_web_v12
+        if self._web_v12_factory is None and self._active_web_factory is not None and getattr(self._active_web_factory, 'productive', False) is True:
+            from local_cli.core.active_web_lifecycle import BrowserOwner
+            def publish_productive_browser(kind, payload, **correlation):
+                current = self._session
+                if current is not None and current.session_id == session_id and self._events is not None:
+                    self._events.publish(kind, payload, state_revision=current.state_revision, **correlation)
+            self._active_web = self._active_web_factory(BrowserOwner(session_id, str(workspace)),
+                self.redactor, publish_productive_browser)
         try:
             tools = self._tool_factory(workspace)
+            if self._web_v12 is not None:
+                tools=[*(t for t in tools if not t.name.startswith('browser_') and t.name not in ('web_fetch','web_search','web_access')),
+                    *self._web_v12.tools]
+            if self._active_web is not None:
+                tools = [*(t for t in tools if not t.name.startswith('browser_')), *self._active_web.tools]
             prompt = self._prompt_factory(tools, workspace)
             registry = ToolRegistry(tools)
             environment = dict(next(
@@ -420,7 +454,6 @@ class AgentSessionCoordinator:
         except Exception:
             return self._reject(command, "SESSION_SETUP_FAILED",
                                 "Could not initialize the AgentSession")
-        session_id = new_session_id()
         initial_messages = (deepcopy(self._initial_messages_factory(workspace, tools))
                             if self._initial_messages_factory is not None else
                             [{"role": "system", "content": prompt}])
@@ -461,6 +494,12 @@ class AgentSessionCoordinator:
             security_audit=self.security_audit,
         )
         session.tool_runtime.install_authority(workspace, session_id)
+        if self._web_v12 is not None:
+            self._web_v12.attach(session.tool_runtime)
+            session._web_base_tools=[t for t in tools if t.name!='web_access' and not t.name.startswith('browser_')]
+            self._refresh_web_tools(session)
+            tools=session.tools
+            self._capability_factory=self._capture_web_capabilities
         self._session = session
         if self._persistence_factory is not None:
             try:
@@ -495,6 +534,36 @@ class AgentSessionCoordinator:
                 EventKind.SESSION_STARTED, {"status": "active"},
                 state_revision=1, causation_id=CausationId(command.command_id),
             )
+        if self._web_v12_factory is None and self._active_web_factory is not None:
+            from local_cli.application.browser_projection import BrowserFrontendBinding
+            from local_cli.application.browser_actions import BrowserPolicyEngine
+            from local_cli.core.active_web_lifecycle import BrowserOwner
+            def publish_browser(kind, payload, **correlation):
+                # No Session lock acquisition from lifecycle/SDK callbacks.
+                # The existing stream serializes projection sequences.
+                if self._session is session and self._events is not None:
+                    self._events.publish(kind, payload, state_revision=session.state_revision, **correlation)
+            if self._active_web is None:
+                self._active_web = self._active_web_factory(
+                    BrowserOwner(session_id, str(workspace)), self.redactor, publish_browser)
+            if not isinstance(self._active_web, BrowserFrontendBinding):
+                raise TypeError('INVALID_ACTIVE_WEB_HOST_BINDING')
+            self._active_web.projection.owner_session_id = session_id
+            # Neither a ceiling extension nor new tool registration. Existing
+            # Security authority and capability snapshots gate all dispatches.
+            session.tool_runtime._browser_actions = self._active_web.actions
+            session.tool_runtime._browser_projection = self._active_web.projection
+            session.tool_runtime.policy = BrowserPolicyEngine(self._active_web.actions,
+                revision=session.tool_runtime.policy.revision)
+            session.capabilities = replace(session.capabilities, active_web=self._active_web.projection.capabilities)
+            if hasattr(self._active_web.actions, 'context_provider'):
+                def browser_context(invocation):
+                    current = next(t for t in session.turns if t.turn_id == invocation.context.turn_id)
+                    bound = current.model_runtime
+                    if bound._context is None:
+                        raise ValueError('BROWSER_OBSERVATION_BUDGET_UNAVAILABLE')
+                    return bound._context.manager, session.transcript, tuple(t.to_ollama_tool() for t in session.tools)
+                self._active_web.actions.context_provider = browser_context
         return CommandReceipt(command_id=command.command_id, accepted=True,
                               session_id=session_id, state_revision=1,
                               created_ids={"sessionId": session_id})
@@ -510,6 +579,7 @@ class AgentSessionCoordinator:
         if any(not turn.done.is_set() for turn in session.turns):
             return self._reject(command, "CONFLICT_ACTIVE_TURN",
                                 "The main AgentSession already has an active Turn")
+        if self._web_v12 is not None:self._refresh_web_tools(session)
         from local_cli.core.knowledge import KnowledgeError
         try:
             refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
@@ -521,6 +591,9 @@ class AgentSessionCoordinator:
         from local_cli.application.turn_effects import resolve_turn_effects
         turn.effect_constraints = resolve_turn_effects(command.payload['content'])
         session.tool_runtime.bind_turn_effects(session.session_id,turn.turn_id,turn.effect_constraints)
+        if self._web_v12 is not None:self._web_v12.bind_turn(turn.turn_id,command.payload['content'])
+        if self._active_web is not None and hasattr(self._active_web.actions, 'bind_turn'):
+            self._active_web.actions.bind_turn(turn.turn_id, command.payload['content'])
         turn.attachment_refs = refs
         if self._memory_capture_mode!='off':
             turn.memory_capture=(session.workspace,self.redactor.text(command.payload['content']),datetime.now(timezone.utc))
@@ -1837,6 +1910,117 @@ class AgentSessionCoordinator:
     def register_knowledge_actor(self, kind, verify):
         return self._knowledge.register(kind, verify)
 
+    def register_browser_actor(self, kind, verify):
+        """Host-only selection/takeover controls; never a browser grant."""
+        if kind not in ('cli_tty', 'desktop_host') or not callable(verify):
+            raise ValueError('BROWSER_HUMAN_ACTOR_INVALID')
+        actor = object()
+        with self._lock: self._browser_actors[actor] = (kind, verify)
+        return actor
+
+    def execute_browser_control(self, command, *, actor=None):
+        from local_cli.core.active_web_transfers import BrowserTransferError
+        from local_cli.application.active_web_service import usable
+        from datetime import timedelta
+        with self._lock:
+            try: registered = self._browser_actors.get(actor)
+            except TypeError: registered = None
+            if registered is None or registered[1]() is not True:
+                raise BrowserTransferError('BROWSER_HUMAN_ACTOR_INVALID')
+            if (not isinstance(command, dict) or set(command) != {'commandId', 'sessionId', 'name', 'arguments'} or
+                not isinstance(command['arguments'], dict) or self._session is None or
+                command['sessionId'] != self._session.session_id or not isinstance(command['commandId'], str)):
+                raise BrowserTransferError('BROWSER_HUMAN_CONTROL_INVALID')
+            if self._web_v12 is not None and command['name']=='configure_web_v12':
+                key=(command['sessionId'],command['commandId'])
+                fingerprint=hashlib.sha256(json.dumps(command,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+                previous=self._web_configuration_receipts.get(key)
+                if previous is not None:
+                    if previous!=fingerprint:raise BrowserTransferError('IDEMPOTENCY_CONFLICT')
+                    return dict(capabilities=self._web_v12.snapshot().to_dict(),**self._web_v12.state())
+                if len(self._web_configuration_receipts)>=128:raise BrowserTransferError('BROWSER_HUMAN_CONTROL_QUOTA')
+                try:
+                    result=self._web_v12.configure(command['arguments'])
+                    self._web_configuration_receipts[key]=fingerprint
+                    self._session.state_revision+=1
+                    if all(t.done.is_set() for t in self._session.turns):self._refresh_web_tools(self._session)
+                    return result
+                except ValueError:raise BrowserTransferError('BROWSER_HUMAN_CONTROL_INVALID') from None
+            if self._web_v12 is not None:
+                b=self._web_v12.browser
+                if b is None:raise BrowserTransferError('BROWSER_CAPABILITY_UNAVAILABLE')
+                args=command['arguments']
+                if command['name']=='finish_takeover' and set(args)=={'takeoverRef','authenticated'}:
+                    human=b.takeovers.register_actor(*registered)
+                    request=b.takeovers._pending.get(args['takeoverRef'])
+                    if request is None or request[0]!=self._web_v12.owner or datetime.now(timezone.utc)>=request[1].deadline:
+                        raise BrowserTransferError('BROWSER_TAKEOVER_STALE')
+                    try:
+                        result=b.takeovers.finish(self._web_v12.owner,args['takeoverRef'],actor=human,authenticated=args['authenticated'])
+                        turn=next(t for t in self._web_v12._tasks if t==b.actions._plans[request[1].operation_id].request.turn_id)
+                        obs=b.observe(turn_id=turn,deadline=datetime.now(timezone.utc)+timedelta(seconds=10))
+                        return dict(state=result.to_dict(),observation=obs.to_dict(),browserState='agentActive')
+                    except Exception:
+                        if b.session is not None:self._web_v12._blocked_takeovers.add(b.session.browser_session_ref)
+                        raise BrowserTransferError('SECRET_BOUNDARY_UNCONFIRMED') from None
+                if command['name']=='select_upload' and set(args)=={'operationId','path'}:
+                    try:return self._web_v12.select_upload(args['operationId'],args['path'],registered)
+                    except ValueError:raise BrowserTransferError('BROWSER_HUMAN_CONTROL_INVALID') from None
+                if command['name']=='discard_download' and set(args)=={'downloadRef'}:
+                    b.staging.discard(self._web_v12.owner,args['downloadRef'])
+                    return dict(discarded=True)
+                raise BrowserTransferError('BROWSER_HUMAN_CONTROL_INVALID')
+            service = self._active_web.actions if self._active_web is not None else None
+            if service is None or not hasattr(service, 'capabilities') or not usable(service.capabilities):
+                raise BrowserTransferError('BROWSER_CAPABILITY_UNAVAILABLE')
+            key = (command['sessionId'], command['commandId'])
+            fingerprint = json.dumps(command, sort_keys=True, ensure_ascii=False)
+            if key in self._browser_host_results:
+                old, result = self._browser_host_results[key]
+                if old != fingerprint: raise BrowserTransferError('IDEMPOTENCY_CONFLICT')
+                return deepcopy(result)
+            if len(self._browser_host_results) >= 64: raise BrowserTransferError('BROWSER_HUMAN_CONTROL_QUOTA')
+            args = command['arguments']
+            if command['name'] == 'select_upload' and set(args) == {'browserSessionRef', 'path', 'mime'}:
+                human = service.transfers.register_actor(*registered)
+                result = service.transfers.select(service.owner, args['browserSessionRef'], args['path'],
+                    mime=args['mime'], actor=human, deadline=datetime.now(timezone.utc)+timedelta(seconds=15)).to_dict()
+            elif command['name'] == 'finish_takeover' and set(args) == {'takeoverRef', 'authenticated'}:
+                human = service.takeovers.register_actor(*registered)
+                result = service.takeovers.finish(service.owner, args['takeoverRef'], actor=human,
+                    authenticated=args['authenticated']).to_dict()
+            else: raise BrowserTransferError('BROWSER_HUMAN_CONTROL_INVALID')
+            self._browser_host_results[key] = (fingerprint, result)
+            return deepcopy(result)
+
+    def close_browser(self):
+        """Resource cleanup, not an action/authority bypass."""
+        if self._web_v12 is not None:self._web_v12.close()
+        binding = self._active_web
+        if binding is None: return
+        binding.manager.close_owner(binding.actions.owner) if hasattr(binding.actions, 'owner') else binding.manager.shutdown()
+        engine = getattr(binding.actions, 'engine', None)
+        if engine is not None and callable(getattr(type(engine), 'shutdown', None)):
+            engine.shutdown(deadline=datetime.now(timezone.utc)+timedelta(seconds=10))
+
+    def _capture_web_capabilities(self,**kwargs):
+        snapshot=self._base_capability_factory(**kwargs)
+        return replace(snapshot,web_capabilities_v12=self._web_v12.snapshot()) if self._web_v12 is not None else snapshot
+
+    def _refresh_web_tools(self,session):
+        """Host discovery changes descriptors, never permissions or remote approval."""
+        from local_cli.core.security import Capability,Permission,ResourceScope,ScopeKind,ControlClass
+        tools=[*session._web_base_tools,*self._web_v12.tools]
+        session.tools=tools;session.tool_runtime.registry=ToolRegistry(tools)
+        issuer=session.tool_runtime._issuer;old=issuer.ceiling
+        additions=tuple(Capability(Permission('application.tool.invoke'),ResourceScope(ScopeKind.SESSION,session.session_id),
+            ControlClass.APPLICATION_ENFORCED,{'tool':t.name})for t in tools)
+        additions=tuple(c for c in additions if c not in old.capabilities)
+        if additions:issuer.replace_ceiling(replace(old,revision=old.revision+1,capabilities=old.capabilities+additions))
+        if session.transcript and session.transcript[0].get('role')=='system':
+            session.transcript[0]['content']=self._prompt_factory(tools,session.workspace)
+            session.base_transcript[0]['content']=session.transcript[0]['content']
+
     def execute_knowledge(self, command, *, actor=None):
         return self._knowledge.execute(command, actor)
 
@@ -1992,6 +2176,8 @@ class AgentSessionCoordinator:
         session = self._session
         if session is None or session.session_id != session_id:
             raise ValueError("No matching active AgentSession")
+        web_snapshot=self._web_v12.snapshot() if self._web_v12 is not None else None
+        if web_snapshot is not None:session.capabilities=replace(session.capabilities,web_capabilities_v12=web_snapshot)
         snapshot = SessionSnapshot(
             session_id=session.session_id,
             workspace=str(session.workspace), model=session.model,
@@ -2000,6 +2186,13 @@ class AgentSessionCoordinator:
             model_runtime=self.provider_manager.snapshot().snapshot.to_dict(),
             capabilities=session.capabilities.to_dict() if session.capabilities else {},
             services={"rag": self._rag.status(),
+                      **({'webCapabilitiesV12':web_snapshot.to_dict(),'webV12':self._web_v12.state()} if web_snapshot is not None else {}),
+                      "activeWeb": self._active_web.snapshot() if self._active_web is not None else {
+                          'schemaVersion': 1, 'domain': 'ACTIVE_WEB',
+                          'capabilities': session.capabilities.active_web.to_dict(),
+                          'browserSession': None, 'pages': [], 'takeoverRequests': [],
+                          'receipts': [], 'cleanup': None, 'passiveWebIndependent': True,
+                          'processModel': 'HOST_UNISOLATED'},
                       "knowledge": self._knowledge.snapshot(),
                       "memory": {"lexicalRecall": self._memory_factory is not None,
                           "semantic": bool(self._memory and self._memory.semantic and self._memory.semantic.available),

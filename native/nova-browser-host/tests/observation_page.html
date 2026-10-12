@@ -1,0 +1,30 @@
+<!doctype html><html><head><title>Local specimen Kestrel</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; form-action 'self'; object-src 'none'">
+</head><body><h1>Kestrel inventory</h1><p>UNTRUSTED_PAGE_DATA. Visible cobalt entry.</p>
+<p hidden>HIDDEN_PRIVATE_93</p><input type="password" value="PASSWORD_PRIVATE_94" aria-label="Credential">
+<button id="primary" onclick="document.getElementById('counter').textContent=Number(document.getElementById('counter').textContent)+1">Increment counter</button>
+<span id="counter">0</span><button id="dup1" onclick="document.getElementById('chosen').textContent='one'">Same label</button><button id="dup2" onclick="document.getElementById('chosen').textContent='two'">Same label</button><span id="chosen">none</span>
+<button disabled>Disabled target</button><button hidden>Invisible target</button>
+<label>Project nickname<input id="nickname" aria-label="Project nickname" value="INPUT_PRIVATE_95"></label>
+<select id="color" aria-label="Pick color"><option value="blue">Blue</option><option value="gold">Gold</option></select>
+<input id="flag" type="checkbox" aria-label="Feature flag"><input name="mode" type="radio" aria-label="Choice A"><input name="mode" type="radio" aria-label="Choice B">
+<a id="link" href="other.html">Second local page</a>
+<a href="https://nova-second.invalid/other.html">Second controlled origin</a>
+<a id="external" href="mailto:guard-control@example.invalid">Controlled external launch</a>
+<button onclick="window.open('other.html','_blank')">Attempt popup</button>
+<form id="form" aria-label="Local specimen form" action="other.html" method="get"><label>Reference text<input id="reftext" aria-label="Reference text" name="reference"></label><button type="submit">Send specimen</button></form>
+<iframe title="Child specimen" src="frame.html"></iframe>
+<div style="height:2000px">Tail text</div>
+<script>
+let applied='';setInterval(async()=>{try{const mode=(await(await fetch('signal.txt',{cache:'no-store'})).text()).trim();if(mode===applied||!mode||mode==='none')return;applied=mode;
+const e=document.getElementById('primary');
+if(mode==='replace')e.replaceWith(e.cloneNode(true));
+if(mode==='remove-recreate'){const c=e.cloneNode(true);e.remove();document.body.append(c);}
+if(mode==='disable')e.disabled=true;
+if(mode==='label')e.textContent='Changed label';
+if(mode==='href')document.getElementById('link').href='frame.html';
+if(mode==='form-action')document.getElementById('form').action='frame.html';
+if(mode==='history')history.pushState({},'', 'other.html#same-document');
+if(mode==='iframe')document.querySelector('iframe').src='other.html';
+}catch{}},100);
+</script></body></html>

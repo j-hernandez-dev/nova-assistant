@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Active Web V1.1 §35.2 block05 only; additive implementation/evidence; stopped on mandatory secret-boundary failure",
+  "phase": "WEBVIEW2_REMEDIATION_BLOCK_05",
+  "verdict": "BLOCKED",
+  "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+  "baseline": {
+    "branch": "main",
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "dirtyWorkingTreePreserved": true,
+    "freeze": "baseline_freeze.json",
+    "sha256": "fd803172b03a150c21532fba7bcc81da3cccb93b5dee728c5229158ed8d313c3",
+    "priorBlocks": {
+      "block01": "PASS accepted; unchanged",
+      "block02": "PASS accepted; unchanged",
+      "block03": "PASS accepted; unchanged",
+      "block04": "PASS accepted; unchanged"
+    },
+    "architectures": {
+      "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md": "46ec3201460ba37a6fe47f6cf94e80f0024ec442c9323115a0cf19d64de95e1d",
+      "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e"
+    },
+    "tagsUnchanged": true
+  },
+  "scope": {
+    "implemented": [
+      "native host-owned takeover UI and existing Application pause/resume",
+      "real epoch/refs/selection/approval invalidation",
+      "host file selection, digest/MIME/read lock and exact native upload",
+      "native authorized completed download into private owner-bounded staging",
+      "honest outcomes/no retry and host/UDF/job/staging lifecycle"
+    ],
+    "notImplemented": [
+      "BrowserNetworkEgressControl",
+      "proxy/broker recertification",
+      "snapshot v2 productivo",
+      "composition-root/tool activation WebView2",
+      "credential manager",
+      "AW8 E2E",
+      "block06+"
+    ],
+    "productAuthority": "Existing Python Application/ToolRuntime/Policy/Approval/Grant unchanged; C# remains Infrastructure"
+  },
+  "gates": {
+    "HUMAN_TAKEOVER_BOUNDARY": {
+      "status": "PASS",
+      "evidence": "Real host-owned UI, Application pause, host button completion, resume. Native simulated human gesture, not real user login certification."
+    },
+    "BROWSER_CONTEXT_EPOCH_INVALIDATION": {
+      "status": "PASS",
+      "evidence": "Epoch 0→1 after actual UI completion, native/runtime metadata match; refs/selections and exact approvals stale; fresh observation required."
+    },
+    "SECRET_NON_EXPOSURE": {
+      "status": "FAIL",
+      "blocker": "WV2-B05-SECRET-NAVIGATION-001",
+      "evidence": "Same-document password redaction passes; password material reflected after real same-origin document replacement is emitted in fresh BrowserObservation. No actual LLM invoked; no raw credential persisted in diagnostic evidence."
+    },
+    "HOST_FILE_SELECTION_AUTHORITY": {
+      "status": "PASS",
+      "evidence": "Host actor selection + identity/revision/size/digest/MIME/owner; real OS read lock through effect. Mutation/replacement/deletion/foreign owner/epoch rejected."
+    },
+    "WEBVIEW2_UPLOAD_PATH": {
+      "status": "PASS",
+      "evidence": "Exact native CDP file input assignment from owned immutable copy; opaque selection/binding, no model path; real ToolRuntime/Policy/Approval/Grant. Synthetic capability ceiling only for test wiring."
+    },
+    "DOWNLOAD_AUTHORIZATION_AND_STAGING": {
+      "status": "PASS",
+      "evidence": "DownloadStarting default denial, exact one-shot permit, native Completed required, sanitized filename under host-random directory, protected owner staging, digest/size/MIME/status, no auto-ingestion/export/open/execute."
+    },
+    "TRANSFER_OUTCOME_INTEGRITY": {
+      "status": "PASS",
+      "evidence": "Pre-effect no-effect versus post-STARTED cancel/disconnect/host crash/engine loss UNKNOWN, no retry. Typed receipts/audit from existing Application/Security path."
+    },
+    "HOST_UDF_CHILD_LIFECYCLE": {
+      "status": "PASS",
+      "scope": "Final candidate only, not every failed historical fixture",
+      "evidence": "Final owned hosts=0, owned UDFs=0, owned Job drained/closed, controllers closed; retained staging separate and finite with owner/explicit discard. Locked staging/UDF reports CLEANUP_UNCONFIRMED. Historical setup's 36 UDFs remain CLEANUP_UNCONFIRMED, not counted as CLOSED."
+    }
+  },
+  "blockers": [
+    {
+      "id": "WV2-B05-SECRET-NAVIGATION-001",
+      "type": "PRODUCT_BUG",
+      "criterion": "SECRET_NON_EXPOSURE",
+      "scenario": "Declared password entered via native human UI; same-origin navigation destroys prior document; new document reflects material; completion accepted; fresh model-facing observation exposes material.",
+      "firstCausalPoint": "Sensitive knowledge remains in destroyed CDP world rather than host memory before takeover completion",
+      "test": "test_declared_human_secret_not_projected_after_same_origin_navigation",
+      "evidence": "takeover_evidence.json",
+      "xml": {
+        "xml": "%TEMP%/nova-wv2-05-secret-navigation02.xml",
+        "tests": 1,
+        "name": "secret-navigation02",
+        "timestamp": "2026-10-10T09:50:26.686392-06:00",
+        "errors": 0,
+        "failures": 1,
+        "sha256": "83e2facf2929142f2612f465dbac799c9afbc7fe9005aed34b343dfa63ef94ae",
+        "skips": 0,
+        "duration": 9.629
+      },
+      "realCredentials": false,
+      "actualModelInvoked": false,
+      "rawSecretPersisted": false,
+      "autoRepairAfterObservation": false
+    }
+  ],
+  "tests": {
+    "positiveFinal": {
+      "passed": 286,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "newNative": 40,
+      "newContract": 48,
+      "inheritedNativeContract": 198,
+      "xml": {
+        "errors": 0,
+        "passed": 286,
+        "timestamp": "2026-10-10T09:34:09.916916-06:00",
+        "tests": 286,
+        "duration": 435.415,
+        "failed": [],
+        "name": "final01",
+        "skips": 0,
+        "sha256": "6fd91c45f035c11c6773703745260744350f97af02f6c12db1143b3bf2d83f6c",
+        "location": "%TEMP%/nova-wv2-05-final01.xml",
+        "failures": 0
+      }
+    },
+    "mandatorySupplement": {
+      "passed": 0,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "exitCode": 1,
+      "classification": "PRODUCT_BUG"
+    },
+    "regressions": {
+      "activeWeb": 672,
+      "security": 615,
+      "memory": 791,
+      "knowledge": 1015,
+      "desktop": 71,
+      "typescript": "PASS",
+      "core": {
+        "passed": 3411,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 7,
+        "subtestsPassed": 53,
+        "exitCode": 1,
+        "classification": "PREEXISTING_CORE_HARNESS_DEBT HOME/USERPROFILE",
+        "newCoreFailures": 0,
+        "jsonlHistoricalFailPreserved": true
+      }
+    },
+    "newSkips": 0,
+    "newXfails": 0,
+    "newFilters": 0,
+    "modelCampaigns": 0,
+    "qualityRetries": 0,
+    "details": "test_results.json",
+    "allMandatoryTestsPass": false,
+    "headMethod": "Unchanged current positive CI suites; overlapping gates not summed into unique HEAD count"
+  },
+  "runtime": {
+    "python": "3.14.6",
+    "dotnetSdk": "10.0.203",
+    "webview2Sdk": "1.0.4258.31",
+    "webview2Runtime": "154.0.4258.62",
+    "platform": "Windows 11 AMD64/local NTFS",
+    "controlClass": "HOST_UNISOLATED",
+    "hostAssemblySha256": "d91dbd9eadfa793180067ebf179306e857ed347b28f9e4b019c314f1b3e506cd",
+    "coreAssemblySha256": "d60e6e94245078cb56e44ebd5f360dc04bf18e460136be93bfc4cfca43b98505",
+    "noRuntimeInstall": true,
+    "noGlobalRegistryCaPolicyChange": true
+  },
+  "integrity": {
+    "historicalPins": 166,
+    "historicalDrift": 0,
+    "productPins": 57,
+    "productDrift": 0,
+    "unexpectedBaselineChanges": 0,
+    "staged": 0,
+    "productFreeze": "product_freeze_candidate.json",
+    "sha256": "67d8ce45a99f69eadb73dcb5880be1d0803f9e9e4d36235fa092718f387efd34",
+    "newSupplementalTestPins": {
+      "native/nova-browser-host/tests/test_takeover_secret_navigation.py": "e491489a7dbee997057d70fd723db9c3a8393a8ab714c2cc494bf346ed234829",
+      "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_navigation_contract_plan.json": "198978c94dbc17b9fb16a834ca1cc36d41907c09b2c7fd8ccecd3d91ee09d2cf"
+    },
+    "ownedFinalHosts": 0,
+    "ownedFinalUdfs": 0,
+    "historyNotRewritten": true,
+    "noProductChangeAfterCriticalDiscovery": true,
+    "details": "integrity.json"
+  },
+  "modifiedFiles": [
+    "native/nova-browser-host/LifecycleServer.cs",
+    "local_cli/infrastructure/active_web/observation_adapter.py",
+    "native/nova-browser-host/ExternalProtocolGuard.cs",
+    "native/nova-browser-host/ObservationRuntime.cs",
+    "native/nova-browser-host/ObservationScripts.cs",
+    "native/nova-browser-host/Program.cs",
+    "native/nova-browser-host/WebView2Runtime.cs"
+  ],
+  "newImplementationAndTestFiles": [
+    "local_cli/infrastructure/active_web/private_directory.py",
+    "local_cli/infrastructure/active_web/transfer_adapter.py",
+    "local_cli/infrastructure/active_web/transfer_ipc.py",
+    "local_cli/infrastructure/active_web/webview2_file_selection.py",
+    "local_cli/infrastructure/active_web/webview2_staging.py",
+    "native/nova-browser-host/TakeoverRuntime.cs",
+    "native/nova-browser-host/TransferProtocol.cs",
+    "native/nova-browser-host/TransferRuntime.cs",
+    "native/nova-browser-host/tests/human_driver/Program.cs",
+    "native/nova-browser-host/tests/human_driver/human_driver.csproj",
+    "native/nova-browser-host/tests/test_transfer_contract.py",
+    "native/nova-browser-host/tests/test_webview2_transfers.py",
+    "native/nova-browser-host/tests/transfer_page.html",
+    "native/nova-browser-host/tests/test_takeover_secret_navigation.py"
+  ],
+  "evidence": {
+    "directory": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle",
+    "files": {
+      "download_evidence.json": "0a2d0fb4d319892480fb68e24a2a82e8ef21f50b2e1a546ffdf4202c8b1a5830",
+      "upload_evidence.json": "5939a545323773b4b7bdca1fe5cf1f61e43532c644216baad4aa66533ca96557",
+      "takeover_evidence.json": "324f4ad17f45c5d55062373ebd7a3893191e2340fd149cf65d7ea9964c35cb71",
+      "resultados.md": "064e6ce8183f897b0d3f96cf8697761c64ae7048388d2697d2ab92b5491b1cee",
+      "product_freeze_candidate.json": "67d8ce45a99f69eadb73dcb5880be1d0803f9e9e4d36235fa092718f387efd34",
+      "secret_navigation_contract_plan.json": "198978c94dbc17b9fb16a834ca1cc36d41907c09b2c7fd8ccecd3d91ee09d2cf",
+      "lifecycle_evidence.json": "80599c112cbc74c773c292dc61c0969ce78e416265ce41098aa807fd6bb5017d",
+      "test_results.json": "6acc81915a28f8a6efe2dfd816cb8d3c994bd7c489263ce7e073ab61810c9540",
+      "certification_plan.json": "99a6b2ada704a2ded5acbb2dda4a029c3b1b7c19073ee40531fcb0866050c775",
+      "integrity.json": "d8a2a8f83c76401c903bf1cef3ad02391d3bd60ce89fe733de756367883558d5",
+      "baseline_freeze.json": "fd803172b03a150c21532fba7bcc81da3cccb93b5dee728c5229158ed8d313c3"
+    },
+    "externalArtifacts": "test_results.json rawArtifacts and XML references; all runtime/output outside Git",
+    "noRawSecretsInPublishedEvidence": true
+  },
+  "historicalMaintenance": {
+    "purpose": "Explicit post-failure maintenance; not successful historical fixture verdict",
+    "status": "POLICY_DENIED_BEFORE_EXECUTION",
+    "ownedHistoricalUdfs": 36,
+    "removed": 0,
+    "cleanup": "CLEANUP_UNCONFIRMED",
+    "historicalXmlPreserved": true,
+    "noBypassAttempt": true
+  },
+  "retainedState": {
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "browserTools": "NOT_ADVERTISED",
+    "snapshotV2Productive": "NOT_IMPLEMENTED_BLOCK07"
+  },
+  "limitations": [
+    "Critical known-password redaction loss across document navigation during takeover; BLOCKING",
+    "36 historical setup UDFs remain CLEANUP_UNCONFIRMED, no live hosts, no claimed cleanup and no bypass of maintenance refusal",
+    "Native UI driver simulates human input, not real authenticated login quality",
+    "Offline controlled HTTPS origin and local resource responses do not certify TLS/public network/PUBLIC_ONLY",
+    "Synthetic legacy capability ceiling permits test wiring only; no productive availability or snapshot v2 claim",
+    "No universal DLP, malware/file-format safety, OS/process isolation or credential automation claim",
+    "Core HOME/USERPROFILE failure retained; block03 JSONL FAIL not rewritten by current PASS"
+  ],
+  "openDecisions": [],
+  "reviewRequired": true,
+  "implementationStopped": true,
+  "git": {
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  }
+}

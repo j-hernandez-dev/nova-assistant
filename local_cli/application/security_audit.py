@@ -41,7 +41,18 @@ class SecurityAuditService:
         self.delivery_failures += 1
         self._lost_operations.add((invocation.context.session_id, invocation.operation_id))
 
-    def before_effect(self, invocation, *, parents=None, origin=None):
+    @staticmethod
+    def browser_scope(binding):
+        """§26.2 pinned target evidence in the existing observationScope field.
+
+        No DATA_KEYS/schema/authority change. Trusted grant binding only,
+        never arbitrary page bodies, payload bytes or frontend parameters.
+        """
+        return dict(domain='ACTIVE_WEB', **{key: binding.get(key) for key in (
+            'browserSessionRef', 'pageRef', 'browserContextEpoch', 'navigationEpoch',
+            'observationRef', 'observationVersion', 'elementRef', 'payloadDigest')})
+
+    def before_effect(self, invocation, *, parents=None, origin=None, browser_binding=None):
         with self._lock:
             key = (invocation.context.session_id, invocation.operation_id)
             try:
@@ -53,8 +64,12 @@ class SecurityAuditService:
             except Exception:
                 self._failed(invocation)
                 raise SecurityAuditError('SECURITY_AUDIT_PRE_EFFECT_FAILED') from None
-            delivered = self.record(invocation, AuditKind.DISPATCH, {
-                'observationScope': 'dispatch_requested_not_proof_of_effect'}, parents=parents, origin=origin)
+            data = {'observationScope': 'dispatch_requested_not_proof_of_effect'}
+            if browser_binding is not None:
+                data.update(observationScope=self.browser_scope(browser_binding),
+                    resource=safe_url(browser_binding.get('origin')), action=browser_binding.get('actionKind'),
+                    effectClassification=browser_binding.get('effectClasses'))
+            delivered = self.record(invocation, AuditKind.DISPATCH, data, parents=parents, origin=origin)
             if delivered and key not in self._lost_operations:
                 try:
                     self.port.flush()

@@ -13,6 +13,7 @@ from local_cli.application.session import AgentSessionCoordinator
 from local_cli.config import Config
 from local_cli.core.context import ContextError, ContextPolicy
 from local_cli.core.contracts import RuntimeCapabilitySnapshot, EventKind
+from local_cli.prompts import build_system_prompt
 from tests.test_nova_core_phase8_providers import Provider, manager
 from tests.test_nova_core_phase4_session import EchoTool, start, submit, snapshot
 from tests.test_server import _make_server
@@ -170,7 +171,18 @@ def test_server_uses_common_boundary_and_compaction_never_destroys_history(tmp_p
         working.append({"role": "assistant", "content": "after compaction"})
     monkeypatch.setattr("local_cli.bootstrap_server.run_agent", run)
     server._handle_chat(1, "current")
-    assert server._messages[:len(original)] == original
+    # B6 recomposes the trusted initial system message for the actual host-owned
+    # catalog. That deliberate metadata change must not hide conversation loss.
+    expected_system = {"role": "system", "content": build_system_prompt(
+        server._application._session.tools, cwd=tmp_path.resolve())}
+    assert server._messages[0] == expected_system
+    assert server._application._session.base_transcript[0] == expected_system
+    assert original[0] == {"role": "system", "content": "sys"}
+    assert server._messages[1:] == original[1:] + [
+        {"role": "user", "content": "current"},
+        {"role": "assistant", "content": "before compaction"},
+        {"role": "assistant", "content": "after compaction"},
+    ]
     assert [m["content"] for m in server._messages[-2:]] == ["before compaction", "after compaction"]
     assert provider.requests[0][1]["options"]["num_ctx"] == 8192
 

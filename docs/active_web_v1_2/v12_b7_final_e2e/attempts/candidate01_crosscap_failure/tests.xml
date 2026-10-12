@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="2" skipped="0" tests="3" time="14.871" timestamp="2026-10-12T08:06:01.754417-06:00" hostname="WINDEV-SPACE"><testcase classname="native.nova-browser-host.tests.v12_b7.test_final_browser" name="test_final_genuine_host_grants_cannot_cross_capabilities" time="5.689"><failure message="local_cli.core.controlled_fetch.ControlledFetchError: CONTROLLED_FETCH_OPTIONAL_NOT_AVAILABLE">native\nova-browser-host\tests\v12_b7\test_final_browser.py:293: in test_final_genuine_host_grants_cannot_cross_capabilities
+    secret=plan['service'].refs.secret(plan['cf'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\controlled_fetch.py:125: in secret
+    require(urlsplit(request.canonical_target).scheme == 'https',Error.OPTIONAL)
+local_cli\core\controlled_fetch.py:67: in require
+    raise ControlledFetchError(code)
+E   local_cli.core.controlled_fetch.ControlledFetchError: CONTROLLED_FETCH_OPTIONAL_NOT_AVAILABLE</failure></testcase><testcase classname="native.nova-browser-host.tests.v12_b7.test_final_browser" name="test_final_download_authority_digest_and_retained_lifetime" time="7.628"><failure message="local_cli.core.active_web.BrowserContractError: INVALID_BROWSER_CONTRACT">native\nova-browser-host\tests\v12_b7\test_final_browser.py:269: in test_final_download_authority_digest_and_retained_lifetime
+    no_authority=rt.execute(invalid)
+                 ^^^^^^^^^^^^^^^^^^^
+local_cli\application\tool_runtime.py:509: in execute
+    request, decision = self._request(bound, lifetime, audit_denial=True)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\tool_runtime.py:375: in _request
+    self._browser_actions.prepare_invocation(invocation)
+local_cli\application\browser_actions_v12_b5.py:48: in prepare_invocation
+    if inv.name in B4_SCHEMAS:return super().prepare_invocation(inv)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\browser_actions_v12.py:141: in prepare_invocation
+    req=BrowserActionRequest(invocation.operation_id,invocation.context.turn_id,args['browserSessionRef'],
+&lt;string&gt;:15: in __init__
+    ???
+local_cli\core\active_web.py:326: in __post_init__
+    _ref(self.element_ref, "bwe")
+local_cli\core\active_web.py:142: in _ref
+    _require(isinstance(value, str) and
+local_cli\core\active_web.py:138: in _require
+    raise BrowserContractError()
+E   local_cli.core.active_web.BrowserContractError: INVALID_BROWSER_CONTRACT</failure></testcase><testcase classname="native.nova-browser-host.tests.v12_b7.test_final_browser" name="test_final_download_authority_digest_and_retained_lifetime" time="1.064"><error message="failed on teardown with &quot;AssertionError: assert (True and not False and not True)&#10; +  where True = &lt;local_cli.infrastructure.active_web.productive_v12.ProductiveWebView2Adapter.__init__.&lt;locals&gt;.OwnedClient object at 0x0000021B6ECA0AD0&gt;.cleanup_confirmed&#10; +  and   False = exists()&#10; +    where exists = WindowsPath('C:/Users/joseh/AppData/Local/Nova/Wv/nova_wv2_bws_9cbd26a75853424fa10fa4c5446dab8f_bhi_c087bea95a7d48f7ab3344907d9c4b28').exists&#10; +      where WindowsPath('C:/Users/joseh/AppData/Local/Nova/Wv/nova_wv2_bws_9cbd26a75853424fa10fa4c5446dab8f_bhi_c087bea95a7d48f7ab3344907d9c4b28') = &lt;local_cli.infrastructure.active_web.productive_v12.ProductiveWebView2Adapter.__init__.&lt;locals&gt;.OwnedClient object at 0x0000021B6ECA0AD0&gt;.udf&#10; +  and   True = exists()&#10; +    where exists = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nb7-crosscap-final/tests/test_final_download_authority_0/application-state/web_v12/nova-browser-staging-75s0cee0').exists&#10; +      where WindowsPath('C:/Users/joseh/AppData/Local/Temp/nb7-crosscap-final/tests/test_final_download_authority_0/application-state/web_v12/nova-browser-staging-75s0cee0') = &lt;local_cli.infrastructure.active_web.webview2_staging.WebView2DownloadStaging object at 0x0000021B6ED5C050&gt;._root&#10; +        where &lt;local_cli.infrastructure.active_web.webview2_staging.WebView2DownloadStaging object at 0x0000021B6ED5C050&gt; = ProductiveBrowserComposition(owner=BrowserOwner(agent_session_id='ses_74ec11a9ca8f4b9da649f0f0b6281d26', workspace_id=...apability_snapshot_id='WEB_CAPABILITIES_V12', authenticated_state='NONE'), page='bwp_f1d489033ed841be975740a229d025de').staging&quot;">native\nova-browser-host\tests\v12_b6\test_productive_application.py:124: in product_application
+    assert client.cleanup_confirmed and not client.udf.exists()and not browser.staging._root.exists()
+E   AssertionError: assert (True and not False and not True)
+E    +  where True = &lt;local_cli.infrastructure.active_web.productive_v12.ProductiveWebView2Adapter.__init__.&lt;locals&gt;.OwnedClient object at 0x0000021B6ECA0AD0&gt;.cleanup_confirmed
+E    +  and   False = exists()
+E    +    where exists = WindowsPath('C:/Users/joseh/AppData/Local/Nova/Wv/nova_wv2_bws_9cbd26a75853424fa10fa4c5446dab8f_bhi_c087bea95a7d48f7ab3344907d9c4b28').exists
+E    +      where WindowsPath('C:/Users/joseh/AppData/Local/Nova/Wv/nova_wv2_bws_9cbd26a75853424fa10fa4c5446dab8f_bhi_c087bea95a7d48f7ab3344907d9c4b28') = &lt;local_cli.infrastructure.active_web.productive_v12.ProductiveWebView2Adapter.__init__.&lt;locals&gt;.OwnedClient object at 0x0000021B6ECA0AD0&gt;.udf
+E    +  and   True = exists()
+E    +    where exists = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nb7-crosscap-final/tests/test_final_download_authority_0/application-state/web_v12/nova-browser-staging-75s0cee0').exists
+E    +      where WindowsPath('C:/Users/joseh/AppData/Local/Temp/nb7-crosscap-final/tests/test_final_download_authority_0/application-state/web_v12/nova-browser-staging-75s0cee0') = &lt;local_cli.infrastructure.active_web.webview2_staging.WebView2DownloadStaging object at 0x0000021B6ED5C050&gt;._root
+E    +        where &lt;local_cli.infrastructure.active_web.webview2_staging.WebView2DownloadStaging object at 0x0000021B6ED5C050&gt; = ProductiveBrowserComposition(owner=BrowserOwner(agent_session_id='ses_74ec11a9ca8f4b9da649f0f0b6281d26', workspace_id=...apability_snapshot_id='WEB_CAPABILITIES_V12', authenticated_state='NONE'), page='bwp_f1d489033ed841be975740a229d025de').staging</error></testcase></testsuite></testsuites>

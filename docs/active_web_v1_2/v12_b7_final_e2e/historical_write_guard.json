@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "AW_V12_B7_c538cc9c1a7f2e2d25ba",
+  "result": "PASS",
+  "pytestRuns": [
+    {
+      "pythonAuditVeto": true,
+      "nativeNtfsDeny": true,
+      "aclRestored": true,
+      "blockedAttempts": [],
+      "helperRedirects": [
+        {
+          "module": "v12_b4.conftest",
+          "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb7-candidate02-final\\output\\reused\\v12_b4_conftest"
+        }
+      ],
+      "scope": "Only test evidence storage; not browser network/OS sandbox",
+      "noHashRestoration": true,
+      "exitStatus": 0
+    },
+    {
+      "pythonAuditVeto": true,
+      "nativeNtfsDeny": true,
+      "aclRestored": true,
+      "blockedAttempts": [
+        {
+          "event": "open",
+          "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1_2\\v12_b4_browser_authority_actions\\b5_forbidden_probe.txt",
+          "reason": "HISTORICAL_EVIDENCE_WRITE_DENIED"
+        }
+      ],
+      "helperRedirects": [
+        {
+          "module": "v12_b4.conftest",
+          "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb7-candidate02-regression\\output\\reused\\v12_b4_conftest"
+        },
+        {
+          "module": "test_baseline",
+          "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb7-candidate02-regression\\output\\reused\\test_baseline"
+        }
+      ],
+      "scope": "Only test evidence storage; not browser network/OS sandbox",
+      "noHashRestoration": true,
+      "exitStatus": 0
+    },
+    {
+      "pythonAuditVeto": true,
+      "nativeNtfsDeny": true,
+      "aclRestored": true,
+      "blockedAttempts": [],
+      "helperRedirects": [
+        {
+          "module": "v12_b4.conftest",
+          "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb7-candidate02-affected\\output\\reused\\v12_b4_conftest"
+        }
+      ],
+      "scope": "Only test evidence storage; not browser network/OS sandbox",
+      "noHashRestoration": true,
+      "exitStatus": 0
+    }
+  ],
+  "nodeRun": {
+    "nativeNtfsDeny": true,
+    "pythonAuditVeto": true,
+    "aclRestored": true,
+    "noHashRestoration": true,
+    "blockedAttempts": [],
+    "scope": "TEST_ONLY_HISTORY_STORAGE",
+    "results": [
+      {
+        "name": "node_tests",
+        "exitCode": 0,
+        "log": "node_tests.log",
+        "command": [
+          "node",
+          "--test",
+          "tests/application_client.test.cjs",
+          "tests/active_web.test.cjs",
+          "tests/approval_host.test.cjs",
+          "tests/web_v12.test.cjs"
+        ]
+      },
+      {
+        "name": "typecheck",
+        "exitCode": 0,
+        "log": "typecheck.log",
+        "command": [
+          "node",
+          "node_modules/typescript/bin/tsc",
+          "--noEmit"
+        ]
+      },
+      {
+        "name": "desktop_build",
+        "exitCode": 0,
+        "log": "desktop_build.log",
+        "command": [
+          "node",
+          "-e",
+          "const esbuild=require('esbuild'),fs=require('fs');\n    (async()=>{const r=await esbuild.build({entryPoints:['electron/main.ts','electron/preload.ts','electron/application_client.ts'],\n    bundle:true,platform:'node',format:'cjs',packages:'external',outdir:process.argv[1],outExtension:{'.js':'.cjs'},metafile:true});\n    fs.writeFileSync(process.argv[1]+'/metafile.json',JSON.stringify(r.metafile,null,2));\n    console.log(JSON.stringify({node:process.version,esbuild:esbuild.version,build:'FROZEN_SOURCE_DESKTOP_ROOTS',installer:false,guiTest:false}));})();",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb7-candidate02-desktop\\output\\desktop_build"
+        ]
+      },
+      {
+        "name": "four_state_parity",
+        "exitCode": 0,
+        "log": "four_state_parity.log",
+        "command": [
+          "node",
+          "tests/run_web_v12_application_parity.cjs"
+        ]
+      }
+    ]
+  },
+  "scope": "TEST_ONLY_NTFS/Python audit shield for evidence storage, not a product sandbox",
+  "allACLRestored": true,
+  "noRestoreByHash": true,
+  "historyNamespace": "V1/V1.1 and B0–B6",
+  "acceptedB6Integrity": {
+    "result": "PASS",
+    "baselineFiles": 7273,
+    "artifactPins": 709,
+    "historicalFiles": 1678,
+    "historicalEvidenceByteIntact": true,
+    "acceptedB6SourceDelta": [
+      {
+        "path": "local_cli/application/browser_actions_v12.py",
+        "before": "e442b1c3921b9b788019861b120c3557c8efb604fe46a1e9afb261532eb2f9ad",
+        "after": "65659e7f3f9bac8dc4b9b946b6ed039aa9f43287c5c8f292f291f3174ae7eae9"
+      },
+      {
+        "path": "local_cli/bootstrap_web_v12.py",
+        "before": "11d99d7e1bf9af57f8d36da4796d5117216d46b1232675d0b181157a107f4d95",
+        "after": "f474d606765e555a4c3fd5fc04d31091b5b05a5d4e5da2ff48b64be3bebef917"
+      }
+    ],
+    "restoredByHash": false
+  }
+}

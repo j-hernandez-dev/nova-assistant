@@ -1,0 +1,29 @@
+...........................F                                             [100%]
+================================== FAILURES ===================================
+________ test_host_default_agent_child_shares_service_and_native_route ________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/product_routes_recheck/s4_private_o3d4xg98/s4_host_real/test_host_default_agent_child_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000027D25632650>
+record_property = <function record_property.<locals>.append_property at 0x0000027D259835E0>
+
+    def test_host_default_agent_child_shares_service_and_native_route(tmp_path, monkeypatch, record_property):
+        from local_cli.tools.agent_tool import AgentTool
+        from local_cli.tools.shell_tool import ShellTool
+        from local_cli.sub_agent import SubAgentRunner
+        from local_cli.application.tool_runtime import ToolRuntime, ToolRegistry
+        from local_cli.core.contracts import ToolStatus
+        from tests.security_v12.test_s2_policy import invocation
+        from tests.test_nova_core_phase4_session import ScriptedProvider
+        env = environment(tmp_path)
+        shell = ShellTool(descriptor=detect_shell(), cwd=tmp_path, environment=env)
+        provider = ScriptedProvider([{'role':'assistant', 'content':'', 'tool_calls':[
+            {'function':{'name':'bash', 'arguments':{'command':'echo s4-child'}}}]}, 'done'])
+        runner = SubAgentRunner(max_workers=1)
+>       agent = AgentTool(runner=runner, provider=provider, model='fixture', sub_agent_tools=[shell],
+                          cwd=tmp_path, environment=shell.environment)
+E       TypeError: AgentTool.__init__() got an unexpected keyword argument 'environment'
+
+tests\security_v12\test_s4_host.py:463: TypeError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s4_host.py::test_host_default_agent_child_shares_service_and_native_route
+1 failed, 27 passed in 14.01s

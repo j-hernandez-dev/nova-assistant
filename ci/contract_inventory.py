@@ -13,12 +13,17 @@ MANIFEST = ROOT / "ci/pytest_contracts.json"
 CATEGORIES = {
     "CURRENT_PORTABLE_CI", "CURRENT_LOCAL_EVIDENCE_ONLY",
     "HISTORICAL_CERTIFICATION_ARTIFACT", "SPECIAL_INFRASTRUCTURE_ONLY",
+    "CURRENT_WINDOWS_CI", "CURRENT_WINDOWS_NATIVE_CI", "CURRENT_NATIVE_CERTIFICATION",
 }
+ORDINARY_CATEGORIES = {"CURRENT_PORTABLE_CI", "CURRENT_WINDOWS_CI", "CURRENT_WINDOWS_NATIVE_CI"}
+SPECIAL_CATEGORIES = {"SPECIAL_INFRASTRUCTURE_ONLY", "CURRENT_NATIVE_CERTIFICATION"}
+DISCOVERY_ROOTS = ("tests", "native/nova-browser-host/tests", "ci/tests")
 
 
 def discover(root=ROOT):
     records = []
-    for path in sorted((root / "tests").rglob("*.py")):
+    paths = {path for relative in DISCOVERY_ROOTS for path in (root / relative).rglob("*.py")}
+    for path in sorted(paths):
         if not (path.name.startswith("test_") or path.name.endswith("_test.py")):
             continue
         relative = path.relative_to(root).as_posix()
@@ -73,12 +78,28 @@ def validate(manifest=None, discovered=None):
         if category not in CATEGORIES or row["rule"] not in data["rules"]:
             raise ValueError("INVALID_CLASSIFICATION: " + row["nodeid"])
         rule = data["rules"][row["rule"]]
+        if any(job not in data['jobs'] for job in row.get('additional_jobs', ())):
+            raise ValueError('UNDECLARED_ADDITIONAL_JOB: ' + row['nodeid'])
+        if any(job not in data['jobs']or data['jobs'][job]['ordinary']or data['jobs'][job]['platforms']!=['Windows']
+               for job in row.get('native_jobs',())):
+            raise ValueError('INVALID_EXPLICIT_NATIVE_JOB: '+row['nodeid'])
+        if row.get('additional_jobs') and (category not in ORDINARY_CATEGORIES or
+                any(not data['jobs'][job]['ordinary'] for job in row['additional_jobs'])):
+            raise ValueError('INVALID_ADDITIONAL_ORDINARY_SCOPE: ' + row['nodeid'])
         if rule["classification"] != category or not rule["reason"] or not rule["references"]:
             raise ValueError("UNSUPPORTED_CLASSIFICATION: " + row["nodeid"])
-        if category == "CURRENT_PORTABLE_CI" and (not rule["job"] or not rule["platforms"]):
+        if category in ORDINARY_CATEGORIES | {'CURRENT_NATIVE_CERTIFICATION'} and (not rule["job"] or not rule["platforms"]):
             raise ValueError("UNCOVERED_CURRENT_CONTRACT: " + row["nodeid"])
-        if category != "CURRENT_PORTABLE_CI" and rule.get("ordinary_ci"):
+        if category not in ORDINARY_CATEGORIES and rule.get("ordinary_ci"):
             raise ValueError("NONPORTABLE_ORDINARY_CI: " + row["nodeid"])
+        if rule.get('job') is not None and rule['job'] not in data['jobs']:
+            raise ValueError('UNDECLARED_RULE_JOB: ' + row['nodeid'])
+        if category in ('CURRENT_WINDOWS_CI','CURRENT_WINDOWS_NATIVE_CI','CURRENT_NATIVE_CERTIFICATION') and rule['platforms']!=['Windows']:
+            raise ValueError('INVALID_WINDOWS_SCOPE: ' + row['nodeid'])
+        if category in ORDINARY_CATEGORIES and not data['jobs'][rule['job']]['ordinary']:
+            raise ValueError('ORDINARY_CONTRACT_WITHOUT_ORDINARY_JOB: ' + row['nodeid'])
+        if category in SPECIAL_CATEGORIES and rule.get('job')and data['jobs'][rule['job']]['ordinary']:
+            raise ValueError('NATIVE_CERTIFICATION_IN_ORDINARY_JOB: ' + row['nodeid'])
         for reference in rule["references"]:
             if not (ROOT / reference["path"]).is_file():
                 raise ValueError("CLASSIFICATION_REFERENCE_MISSING: " + reference["path"])
@@ -93,10 +114,12 @@ def select(data, job, platform, *, special=False):
     rows = []
     for row in data["contracts"]:
         rule = data["rules"][row["rule"]]
-        if rule["job"] != job or platform not in rule["platforms"]:
+        if special and job in row.get('native_jobs',())and platform in data['jobs'][job]['platforms']:
+            rows.append(row['nodeid']);continue
+        if (rule["job"] != job and job not in row.get('additional_jobs', ())) or platform not in rule["platforms"]:
             continue
-        permitted = row["classification"] == "CURRENT_PORTABLE_CI"
-        permitted |= special and row["classification"] == "SPECIAL_INFRASTRUCTURE_ONLY"
+        permitted = row["classification"] in ORDINARY_CATEGORIES
+        permitted |= special and row["classification"] in SPECIAL_CATEGORIES
         if permitted:
             rows.append(row["nodeid"])
     if not rows:
@@ -119,7 +142,8 @@ def main():
         print(json.dumps({
             "status": "PASS", "static_contracts": len(data["contracts"]),
             "categories": dict(Counter(row["classification"] for row in data["contracts"])),
-            "unclassified": [], "product_tests_executed": 0, "inference": 0,
+            "discovery_roots": DISCOVERY_ROOTS, "unclassified": [], "stale": [], "duplicates": [],
+            "product_tests_executed": 0, "inference": 0,
         }, separators=(",", ":")))
 
 

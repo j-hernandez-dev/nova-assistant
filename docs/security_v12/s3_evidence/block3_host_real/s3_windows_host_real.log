@@ -1,0 +1,96 @@
+.................FF..                                                    [100%]
+================================== FAILURES ===================================
+_ test_host_link_to_external_fixture_is_denied_for_all_tools[directory_symlink] _
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block3_host_real/s3_private_fvndjxms/s3_windows_host_real/test_host_link_to_external_fix1')
+kind = 'directory_symlink'
+
+    @pytest.mark.parametrize('kind', ['junction', 'directory_symlink', 'file_symlink'])
+    def test_host_link_to_external_fixture_is_denied_for_all_tools(tmp_path, kind):
+        workspace = tmp_path/'workspace'; workspace.mkdir()
+        outside = tmp_path/'outside'; outside.mkdir(); (outside/'secret.txt').write_text('external sentinel')
+        link = workspace/'link'
+        if kind == 'junction':
+            made = subprocess.run(['cmd', '/d', '/c', 'mklink', '/J', str(link), str(outside)],
+                    cwd=tmp_path, capture_output=True, timeout=10)
+            assert made.returncode == 0, 'junction fixture creation unavailable'
+        else:
+            target = outside if kind == 'directory_symlink' else outside/'secret.txt'
+            try:
+>               os.symlink(target, link, target_is_directory=kind == 'directory_symlink')
+E               OSError: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\security_v12\\s3_evidence\\block3_host_real\\s3_private_fvndjxms\\s3_windows_host_real\\test_host_link_to_external_fix1\\outside' -> 'C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\security_v12\\s3_evidence\\block3_host_real\\s3_private_fvndjxms\\s3_windows_host_real\\test_host_link_to_external_fix1\\workspace\\link'
+
+tests\security_v12\test_s3_windows.py:173: OSError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block3_host_real/s3_private_fvndjxms/s3_windows_host_real/test_host_link_to_external_fix1')
+kind = 'directory_symlink'
+
+    @pytest.mark.parametrize('kind', ['junction', 'directory_symlink', 'file_symlink'])
+    def test_host_link_to_external_fixture_is_denied_for_all_tools(tmp_path, kind):
+        workspace = tmp_path/'workspace'; workspace.mkdir()
+        outside = tmp_path/'outside'; outside.mkdir(); (outside/'secret.txt').write_text('external sentinel')
+        link = workspace/'link'
+        if kind == 'junction':
+            made = subprocess.run(['cmd', '/d', '/c', 'mklink', '/J', str(link), str(outside)],
+                    cwd=tmp_path, capture_output=True, timeout=10)
+            assert made.returncode == 0, 'junction fixture creation unavailable'
+        else:
+            target = outside if kind == 'directory_symlink' else outside/'secret.txt'
+            try:
+                os.symlink(target, link, target_is_directory=kind == 'directory_symlink')
+            except OSError as exc:
+>               pytest.fail(f'Required symlink fixture unavailable (Windows error {exc.winerror}); gate not certified')
+E               Failed: Required symlink fixture unavailable (Windows error 1314); gate not certified
+
+tests\security_v12\test_s3_windows.py:175: Failed
+__ test_host_link_to_external_fixture_is_denied_for_all_tools[file_symlink] ___
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block3_host_real/s3_private_fvndjxms/s3_windows_host_real/test_host_link_to_external_fix2')
+kind = 'file_symlink'
+
+    @pytest.mark.parametrize('kind', ['junction', 'directory_symlink', 'file_symlink'])
+    def test_host_link_to_external_fixture_is_denied_for_all_tools(tmp_path, kind):
+        workspace = tmp_path/'workspace'; workspace.mkdir()
+        outside = tmp_path/'outside'; outside.mkdir(); (outside/'secret.txt').write_text('external sentinel')
+        link = workspace/'link'
+        if kind == 'junction':
+            made = subprocess.run(['cmd', '/d', '/c', 'mklink', '/J', str(link), str(outside)],
+                    cwd=tmp_path, capture_output=True, timeout=10)
+            assert made.returncode == 0, 'junction fixture creation unavailable'
+        else:
+            target = outside if kind == 'directory_symlink' else outside/'secret.txt'
+            try:
+>               os.symlink(target, link, target_is_directory=kind == 'directory_symlink')
+E               OSError: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\security_v12\\s3_evidence\\block3_host_real\\s3_private_fvndjxms\\s3_windows_host_real\\test_host_link_to_external_fix2\\outside\\secret.txt' -> 'C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\security_v12\\s3_evidence\\block3_host_real\\s3_private_fvndjxms\\s3_windows_host_real\\test_host_link_to_external_fix2\\workspace\\link'
+
+tests\security_v12\test_s3_windows.py:173: OSError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block3_host_real/s3_private_fvndjxms/s3_windows_host_real/test_host_link_to_external_fix2')
+kind = 'file_symlink'
+
+    @pytest.mark.parametrize('kind', ['junction', 'directory_symlink', 'file_symlink'])
+    def test_host_link_to_external_fixture_is_denied_for_all_tools(tmp_path, kind):
+        workspace = tmp_path/'workspace'; workspace.mkdir()
+        outside = tmp_path/'outside'; outside.mkdir(); (outside/'secret.txt').write_text('external sentinel')
+        link = workspace/'link'
+        if kind == 'junction':
+            made = subprocess.run(['cmd', '/d', '/c', 'mklink', '/J', str(link), str(outside)],
+                    cwd=tmp_path, capture_output=True, timeout=10)
+            assert made.returncode == 0, 'junction fixture creation unavailable'
+        else:
+            target = outside if kind == 'directory_symlink' else outside/'secret.txt'
+            try:
+                os.symlink(target, link, target_is_directory=kind == 'directory_symlink')
+            except OSError as exc:
+>               pytest.fail(f'Required symlink fixture unavailable (Windows error {exc.winerror}); gate not certified')
+E               Failed: Required symlink fixture unavailable (Windows error 1314); gate not certified
+
+tests\security_v12\test_s3_windows.py:175: Failed
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s3_windows.py::test_host_link_to_external_fixture_is_denied_for_all_tools[directory_symlink]
+FAILED tests/security_v12/test_s3_windows.py::test_host_link_to_external_fixture_is_denied_for_all_tools[file_symlink]
+2 failed, 19 passed in 0.67s

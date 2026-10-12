@@ -46,6 +46,10 @@ def agent_event_to_jsonl(event: AgentEvent, request_id: int) -> list[dict[str, A
 
 def envelope_to_jsonl(event: EventEnvelope, request_id: int) -> list[dict[str, Any]]:
     """Project normalized events onto the historical desktop wire format."""
+    from local_cli.application.browser_projection import BROWSER_EVENTS
+    if event.kind in BROWSER_EVENTS:
+        return [{'id': request_id, 'type': 'browser_event', 'schemaVersion': 1,
+                 'event': event.to_dict()}]
     if event.kind is EventKind.LEGACY_AGENT_EVENT:
         return agent_event_to_jsonl(unwrap_legacy_agent_event(event), request_id)
     if event.kind is EventKind.ASSISTANT_DELTA:

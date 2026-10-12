@@ -1,0 +1,567 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Truthful native productive discovery after static V1 metadata completion",
+  "source": "ProductiveBrowserBackend.discover → probe_productive_browser → shipping adapter",
+  "productiveDiscovery": {
+    "startedAt": "2026-10-10T09:44:28.823566+00:00",
+    "finishedAt": "2026-10-10T09:44:31.019901+00:00",
+    "capabilities": {
+      "available": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "native exclusive-egress proof incomplete"
+      },
+      "engine": {
+        "status": "KNOWN",
+        "value": "PLAYWRIGHT_CHROMIUM",
+        "reason": null
+      },
+      "engineVersion": {
+        "status": "KNOWN",
+        "value": "1.63.0",
+        "reason": null
+      },
+      "browserVersion": {
+        "status": "KNOWN",
+        "value": "153.0.8010.12",
+        "reason": null
+      },
+      "controlClass": {
+        "status": "KNOWN",
+        "value": "HOST_UNISOLATED",
+        "reason": null
+      },
+      "networkBroker": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "publicOnly": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "native exclusive-egress proof incomplete"
+      },
+      "headful": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "screenshot": {
+        "status": "KNOWN",
+        "value": false,
+        "reason": null
+      },
+      "manualTakeover": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "upload": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "download": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "persistentSession": {
+        "status": "KNOWN",
+        "value": false,
+        "reason": null
+      },
+      "maxPages": {
+        "status": "KNOWN",
+        "value": 3,
+        "reason": null
+      },
+      "platform": {
+        "status": "KNOWN",
+        "value": "win32",
+        "reason": null
+      }
+    },
+    "evidence": {
+      "schemaVersion": 1,
+      "purpose": "AW8 prerequisite remediation",
+      "productiveAdapter": "PlaywrightBrowserAdapter",
+      "productiveAdmission": "BrowserNetworkPolicy",
+      "productiveBroker": "BrowserEgressBroker",
+      "endpointSubstitution": false,
+      "finalAw8Campaign": false,
+      "modelInference": 0,
+      "negativeTargets": [
+        {
+          "id": "http-loopback-v4",
+          "transportError": null,
+          "brokerDestinationDenied": true,
+          "upstreamConnected": false,
+          "result": "PASS"
+        },
+        {
+          "id": "http-loopback-v6",
+          "transportError": null,
+          "brokerDestinationDenied": true,
+          "upstreamConnected": false,
+          "result": "PASS"
+        },
+        {
+          "id": "http-private",
+          "transportError": null,
+          "brokerDestinationDenied": true,
+          "upstreamConnected": false,
+          "result": "PASS"
+        },
+        {
+          "id": "http-link-local",
+          "transportError": null,
+          "brokerDestinationDenied": true,
+          "upstreamConnected": false,
+          "result": "PASS"
+        },
+        {
+          "id": "http-metadata",
+          "transportError": null,
+          "brokerDestinationDenied": true,
+          "upstreamConnected": false,
+          "result": "PASS"
+        },
+        {
+          "id": "https-loopback",
+          "transportError": "BROWSER_PORT_FAILURE",
+          "brokerDestinationDenied": true,
+          "upstreamConnected": false,
+          "result": "PASS"
+        },
+        {
+          "id": "https-private",
+          "transportError": "BROWSER_PORT_FAILURE",
+          "brokerDestinationDenied": true,
+          "upstreamConnected": false,
+          "result": "PASS"
+        },
+        {
+          "id": "https-metadata",
+          "transportError": "BROWSER_PORT_FAILURE",
+          "brokerDestinationDenied": false,
+          "upstreamConnected": false,
+          "result": "UNKNOWN"
+        }
+      ],
+      "exclusiveEgress": "NOT_DEMONSTRATED",
+      "availabilityOverride": false,
+      "composition": {
+        "engine": "153.0.8010.12",
+        "sdk": "1.63.0",
+        "fixedArguments": [
+          "--proxy-bypass-list=<-loopback>",
+          "--disable-quic",
+          "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1",
+          "--force-webrtc-ip-handling-policy=disable_non_proxied_udp",
+          "--disable-background-networking",
+          "--disable-component-update",
+          "--disable-sync",
+          "--no-first-run",
+          "--no-default-browser-check",
+          "--disable-extensions",
+          "--disable-features=WebRtc,WebRtcHideLocalIpsWithMdns,WebTransport",
+          "--disable-domain-reliability",
+          "--dns-prefetch-disable"
+        ],
+        "pageEnvironment": {
+          "rtc": "undefined",
+          "prefixedRtc": "undefined",
+          "secureContext": false,
+          "webTransport": "undefined",
+          "serviceWorkerApi": "undefined"
+        },
+        "brokerLive": true,
+        "browserConnected": true
+      },
+      "unprovenObligations": [
+        "positive admitted HTTP/HTTPS composition and redirects/subresources",
+        "fresh browser command-line/engine-wide DNS mediation evidence",
+        "WS/WSS and service-worker negative engine probes in secure context",
+        "QUIC/direct UDP/WebRTC engine-wide negative evidence",
+        "proxy failure with direct UDP canary and non-loopback direct TCP coverage",
+        "internal/file/javascript/data/custom scheme negative engine evidence",
+        "complete native exclusive proof for unrestricted productive PUBLIC_ONLY scope"
+      ],
+      "brokerFaultCleanupConfirmed": true,
+      "directFallback": {
+        "hostPositiveControl": true,
+        "brokerStopped": true,
+        "attempts": [
+          {
+            "scheme": "http",
+            "transportFailed": true
+          },
+          {
+            "scheme": "https",
+            "transportFailed": true
+          }
+        ],
+        "scope": "owned loopback TCP HTTP/HTTPS canary only",
+        "browserConnections": 0,
+        "canaryCleanupConfirmed": true,
+        "result": "PASS"
+      },
+      "cleanupConfirmed": true,
+      "brokerRecords": [
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+          "retryAllowed": false
+        },
+        {
+          "origin": null,
+          "method": null,
+          "upstreamConnected": false,
+          "errorCode": "BROWSER_EGRESS_SCOPE_DENIED",
+          "retryAllowed": false
+        }
+      ],
+      "brokerRecordsDropped": 0,
+      "probeHostScope": "numeric negative canaries only; tighter than general PUBLIC_ONLY",
+      "noUpstreamConnections": true,
+      "capabilities": {
+        "available": {
+          "status": "UNKNOWN",
+          "value": null,
+          "reason": "exclusive productive egress obligations incomplete"
+        },
+        "engine": {
+          "status": "KNOWN",
+          "value": "PLAYWRIGHT_CHROMIUM",
+          "reason": null
+        },
+        "engineVersion": {
+          "status": "KNOWN",
+          "value": "1.63.0",
+          "reason": null
+        },
+        "browserVersion": {
+          "status": "KNOWN",
+          "value": "153.0.8010.12",
+          "reason": null
+        },
+        "controlClass": {
+          "status": "KNOWN",
+          "value": "HOST_UNISOLATED",
+          "reason": null
+        },
+        "networkBroker": {
+          "status": "KNOWN",
+          "value": true,
+          "reason": null
+        },
+        "publicOnly": {
+          "status": "UNKNOWN",
+          "value": null,
+          "reason": "exclusive productive egress obligations incomplete"
+        },
+        "headful": {
+          "status": "KNOWN",
+          "value": true,
+          "reason": null
+        },
+        "screenshot": {
+          "status": "KNOWN",
+          "value": false,
+          "reason": null
+        },
+        "manualTakeover": {
+          "status": "KNOWN",
+          "value": true,
+          "reason": null
+        },
+        "upload": {
+          "status": "KNOWN",
+          "value": true,
+          "reason": null
+        },
+        "download": {
+          "status": "KNOWN",
+          "value": true,
+          "reason": null
+        },
+        "persistentSession": {
+          "status": "KNOWN",
+          "value": false,
+          "reason": null
+        },
+        "maxPages": {
+          "status": "KNOWN",
+          "value": 3,
+          "reason": null
+        },
+        "platform": {
+          "status": "KNOWN",
+          "value": "win32",
+          "reason": null
+        }
+      },
+      "component": "ProductiveBrowserBackend",
+      "capturedAt": "2026-10-10T09:44:31.019368+00:00",
+      "checks": {
+        "http": "UNKNOWN",
+        "https": "UNKNOWN",
+        "redirects": "UNKNOWN",
+        "subresources": "UNKNOWN",
+        "newOrigins": "UNKNOWN",
+        "privateDestinationsDenied": "UNKNOWN",
+        "brokerDns": "UNKNOWN",
+        "noDirectDns": "UNKNOWN",
+        "webSocketsDisabled": "UNKNOWN",
+        "serviceWorkersDisabled": "UNKNOWN",
+        "webRtcDisabled": "UNKNOWN",
+        "quicUdpDisabled": "UNKNOWN",
+        "proxyBypassDisabled": "UNKNOWN",
+        "schemes": "UNKNOWN",
+        "pageOriginatedSchemes": "UNKNOWN",
+        "noDirectTcp": "UNKNOWN",
+        "noDirectUdp": "UNKNOWN",
+        "noBackgroundBypass": "UNKNOWN",
+        "brokerFailureNoFallback": "UNKNOWN",
+        "cleanup": "PASS"
+      },
+      "engineLaunches": 1,
+      "closedProofOnlyCache": true,
+      "authorityOverride": false,
+      "unavailablePrerequisites": [
+        "native Chromium/children TCP/UDP/DNS/background exhaustive observation",
+        "full positive HTTP/HTTPS topology and all page-originated scheme pre-effect guards"
+      ]
+    }
+  },
+  "independentMetadataDenial": {
+    "purpose": "Fresh https-metadata native denial, no prior failed CONNECT cache",
+    "target": "https://169.254.169.254/",
+    "startedAt": "2026-10-10T09:45:18.670992+00:00",
+    "endpointSubstitution": false,
+    "availabilityOverride": false,
+    "modelInference": 0,
+    "transportError": "BROWSER_PORT_FAILURE",
+    "records": [
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_CHANNEL_DENIED",
+        "retryAllowed": false
+      },
+      {
+        "origin": null,
+        "method": null,
+        "upstreamConnected": false,
+        "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+        "retryAllowed": false
+      }
+    ],
+    "destinationDenied": true,
+    "upstreamConnected": false,
+    "cleanupConfirmed": true,
+    "finishedAt": "2026-10-10T09:45:19.982548+00:00",
+    "result": "PASS"
+  },
+  "staticV1Metadata": {
+    "manualTakeover": "KNOWN true (headful adapter contract)",
+    "upload": "KNOWN true",
+    "download": "KNOWN true",
+    "persistentSession": "KNOWN false",
+    "platform": "KNOWN win32",
+    "maxPages": "KNOWN 3",
+    "screenshot": "KNOWN false; ACTIVE_WEB_VISION_PROFILE NOT_CERTIFIED"
+  },
+  "sourceIdentityUnchanged": true,
+  "manualAvailabilityOverride": false,
+  "publicOnlyRemainsUnknown": true,
+  "availableRemainsUnknown": true,
+  "expectedNativeBrowserTools": [],
+  "notAFullExclusiveEgressPass": true
+}

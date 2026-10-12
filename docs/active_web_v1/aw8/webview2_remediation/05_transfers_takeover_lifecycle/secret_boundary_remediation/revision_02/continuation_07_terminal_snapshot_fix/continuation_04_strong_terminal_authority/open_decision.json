@@ -1,0 +1,94 @@
+{
+  "id": "WV2-B05-C07-C04-TERMINAL-TEST-CONTRACT-001",
+  "status": "OPEN_DECISION",
+  "scope": "Prospective reconciliation of affected direct test semantics/preparation only",
+  "classification": "STATIC_CONTRACT_CONFLICT / NOT_A_TEST_EXECUTION",
+  "priority": "Human-approved strong terminal authority is not questioned or weakened",
+  "incompatibleRequirements": [
+    "INPUT/CHANGE/BLUR have no terminal authority; only four strong boundaries permitted",
+    "Preserve current direct assertions/callers and require all prior ordering/provenance/policy/leaf contracts green"
+  ],
+  "conflicts": [
+    {
+      "kind": "ASSERTION_CONTRADICTS_NEW_AUTHORITY",
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "line": 72,
+      "caseIds": [
+        "native/nova-browser-host/tests/test_terminal_ordering.py::test_terminal_ordering_contract[reason-change]",
+        "native/nova-browser-host/tests/test_terminal_ordering.py::test_terminal_ordering_contract[reason-blur]"
+      ],
+      "oldSequence": "Observe → ConfirmTerminal(CHANGE or BLUR) → Commit → require COMMITTED",
+      "newRequirement": "CHANGE/BLUR remain TRANSIENT; no TerminalSnapshot/Commit",
+      "requiresHumanAuthorization": "Only these two direct semantic assertions must become transient/no terminal/no promotion checks. All redaction/monotonic/security assertions remain."
+    },
+    {
+      "kind": "PREPARATION_USES_REMOVED_AUTHORITY",
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "line": 17,
+      "caseIds": "native/nova-browser-host/tests/test_retirement_seal.py::test_retirement_seal_contract[all 23 existing modes]",
+      "oldSequence": "Shared Observe(empty rev2) → ConfirmTerminal(CHANGE) → Commit before each seal contract",
+      "newRequirement": "No CHANGE snapshot, including empty value",
+      "requiresHumanAuthorization": "Replace only initial terminal witness with an explicit allowed correlated witness; keep values/revisions and seal assertions unchanged."
+    },
+    {
+      "kind": "PREPARATION_USES_ADDITIONAL_TERMINAL_SOURCE",
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "lines": [
+        29,
+        36,
+        41
+      ],
+      "caseIds": [
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[committed-long]",
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[committed-short-1]",
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[committed-short-2]",
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[committed-short-3]",
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[promotion]"
+      ],
+      "oldSequence": "Input(commit=true) → HOST_CONFIRMED → COMMITTED",
+      "newRequirement": "INPUT has no terminal authority; HOST_CONFIRMED is not one of four allowed sources",
+      "requiresHumanAuthorization": "Supply explicit current/revision ownership and allowed terminal witness; preserve committed-long assertion and genuine short terminal denial."
+    },
+    {
+      "kind": "PREPARATION_USES_ADDITIONAL_TERMINAL_SOURCE",
+      "path": "native/nova-browser-host/tests/leaf_boundary_runner/Program.cs",
+      "line": 55,
+      "caseIds": [
+        "native/nova-browser-host/tests/test_leaf_boundary.py::test_leaf_boundary_contract[long-committed]"
+      ],
+      "oldSequence": "Input(commit=true) establishes committed state for leaf redaction test",
+      "newRequirement": "INPUT cannot commit",
+      "requiresHumanAuthorization": "Change only sensitive registry preparation to allowed strong terminal snapshot; leaf fixture/redaction/assertion remains byte-equivalent."
+    },
+    {
+      "kind": "FULL_REGRESSION_LEGACY_CALLERS_REQUIRE_INVENTORY_RECONCILIATION",
+      "path": "native/nova-browser-host/tests/sensitive_runner/Program.cs",
+      "lines": [
+        16,
+        17,
+        18,
+        19,
+        21,
+        23,
+        26,
+        38,
+        60
+      ],
+      "caseIds": "url, escaped-url, dispose, isolation, count, total, no-eviction; native-session-lifecycle; native-structural-collision (static caller inventory, not new measured failures)",
+      "oldSequence": "Host scalar Input(commit=true) without one of four terminal witnesses",
+      "newRequirement": "No extra HOST_CONFIRMED authority in product to preserve test wiring",
+      "requiresHumanAuthorization": "Review only direct preparations requiring terminal state; no broad fixture/test changes or preservation of a prohibited product shortcut."
+    }
+  ],
+  "notPermittedWorkaround": [
+    "Leave CHANGE/BLUR terminal authority in direct product API",
+    "Remap CHANGE/BLUR or Input(commit=true) silently to CHECKPOINT",
+    "Keep HOST_CONFIRMED as fifth source",
+    "Special product branch for harness",
+    "Modify existing assertions/callers without reconciliation authority"
+  ],
+  "proposedDecision": "Authorize the two CHANGE/BLUR semantic assertions to require TRANSIENT/no snapshot and allow minimal direct caller preparation to provide one of four explicit correlated terminal witnesses. Keep all sensitive values, lengths, redaction/no exposure checks, genuine short denial, fixtures and historical native scenarios unchanged.",
+  "functionalImplementationStarted": false,
+  "testsExecuted": 0,
+  "reasonForStop": "Cannot comply with both requirements without a new explicit test reconciliation decision; stop before product mutation."
+}

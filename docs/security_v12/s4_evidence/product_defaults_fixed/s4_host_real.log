@@ -1,0 +1,68 @@
+....................F....                                                [100%]
+================================== FAILURES ===================================
+______________ test_host_default_product_environment_and_profile ______________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/product_defaults_fixed/s4_private_q4w0axmn/s4_host_real/test_host_default_product_envi0')
+
+    def test_host_default_product_environment_and_profile(tmp_path):
+        from local_cli.core.contracts import ToolStatus
+        script = tmp_path/'product_env.py'
+        script.write_text("import json,os\nprint(json.dumps({'keys':list(os.environ),'profile':os.getenv('USERPROFILE')}))\n", encoding='utf-8')
+        source = environment(tmp_path)
+        source.update(NOVA_PROVIDER_API_KEY='DUMMY', NOVA_APPROVAL_HOST_KEY='DUMMY', NOVA_GRANT_MATERIAL='DUMMY',
+                      OPENAI_API_KEY='DUMMY', NODE_OPTIONS='DUMMY', PYTHONPATH='DUMMY', SSH_AUTH_SOCK='DUMMY', HTTPS_PROXY='DUMMY')
+        command = "python.exe '" + str(script).replace("'","''") + "'; exit $LASTEXITCODE"
+        rt, inv, _ = runtime_fixture(tmp_path, command, product_default=True, env=source)
+        result = rt.execute(inv)
+        assert result.status is ToolStatus.COMPLETED
+        observed = json.loads(result.stdout)
+        denied = {'nova_provider_api_key','nova_approval_host_key','nova_grant_material','openai_api_key',
+                  'node_options','pythonpath','ssh_auth_sock','https_proxy'}
+        assert not denied.intersection(x.casefold() for x in observed['keys'])
+        assert Path(observed['profile']) == tmp_path and source['NOVA_PROVIDER_API_KEY'] == 'DUMMY'
+>       assert 'DUMMY' not in json.dumps(result.metadata)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s4_host.py:346: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\json\__init__.py:235: in dumps
+    return _default_encoder.encode(obj)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\json\encoder.py:202: in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\json\encoder.py:263: in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.encoder.JSONEncoder object at 0x000001CB141178C0>
+o = mappingproxy({'processModel': 'HOST_UNISOLATED', 'pid': 6060, 'processOutcome': 'completed', 'processStates': ['launch...': 'fixture-operation', 'sessionId': 'fixture-session', 'controlClasses': ['APPLICATION_ENFORCED', 'HOST_UNISOLATED']})
+
+    def default(self, o):
+        """Implement this method in a subclass such that it returns
+        a serializable object for ``o``, or calls the base implementation
+        (to raise a ``TypeError``).
+    
+        For example, to support arbitrary iterators, you could
+        implement default like this::
+    
+            def default(self, o):
+                try:
+                    iterable = iter(o)
+                except TypeError:
+                    pass
+                else:
+                    return list(iterable)
+                # Let the base class default method raise the TypeError
+                return super().default(o)
+    
+        """
+>       raise TypeError(f'Object of type {o.__class__.__name__} '
+                        f'is not JSON serializable')
+E       TypeError: Object of type mappingproxy is not JSON serializable
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\json\encoder.py:182: TypeError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s4_host.py::test_host_default_product_environment_and_profile
+1 failed, 24 passed in 11.73s

@@ -1,0 +1,64 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+........................................................................ [ 43%]
+........................................................................ [ 51%]
+........................................................................ [ 58%]
+........................................................................ [ 65%]
+....F..........s........................................................ [ 73%]
+........................................................................ [ 80%]
+........................................................................ [ 87%]
+........................................................................ [ 94%]
+................F........................s.s......                       [100%]
+================================== FAILURES ===================================
+_ TestPhase0Characterization.test_legacy_jsonl_and_provider_message_conversion _
+
+self = <tests.test_nova_core_phase0_characterization.TestPhase0Characterization testMethod=test_legacy_jsonl_and_provider_message_conversion>
+
+    def test_legacy_jsonl_and_provider_message_conversion(self):
+        actual = capture_server_and_provider()
+        # The Application route adds deterministic context-budget telemetry
+        # (phase 9). Freeze all original frames and their order unchanged;
+        # do not regenerate the phase-0 golden or hide unverified new frames.
+        budget_events = [event for event in actual["jsonl_events"]
+                         if event.get("type") == "harness"
+                         and event.get("event") == "context_budget"]
+>       self.assertEqual(len(budget_events), 2)
+E       AssertionError: 0 != 2
+
+tests\test_nova_core_phase0_characterization.py:195: AssertionError
+_____ test_auxiliary_command_rejects_active_turn_without_running_service ______
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m7_regression_intermediate_20261006/pytest-private/test_auxiliary_command_rejects0')
+
+    def test_auxiliary_command_rejects_active_turn_without_running_service(tmp_path):
+        import pytest
+        from tests.test_nova_core_phase7_session import _BlockingProvider
+        from local_cli.application.auxiliary import AuxiliaryConflict
+    
+        class Service:
+            def execute(self, *_args, **_kwargs):
+                raise AssertionError("service ran during Turn")
+    
+        provider = _BlockingProvider()
+        app = AgentSessionCoordinator(provider=provider, model="local",
+            tool_factory=lambda _: [], auxiliary_services=Service(),
+            event_config=EventBufferConfig())
+        started = app.handle(ApplicationCommand(new_command_id(),
+            CommandKind.START_SESSION, {"workspace": str(tmp_path)}))
+        turn = app.handle(ApplicationCommand(new_command_id(),
+            CommandKind.SUBMIT_USER_INPUT, {"content": "work"},
+            session_id=started.session_id))
+>       assert provider.started.wait(2)
+E       assert False
+E        +  where False = wait(2)
+E        +    where wait = <threading.Event at 0x2a6c0e094f0: unset>.wait
+E        +      where <threading.Event at 0x2a6c0e094f0: unset> = <tests.test_nova_core_phase7_session._BlockingProvider object at 0x000002A6C0159310>.started
+
+tests\test_nova_core_phase12_client.py:271: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_nova_core_phase0_characterization.py::TestPhase0Characterization::test_legacy_jsonl_and_provider_message_conversion
+FAILED tests/test_nova_core_phase12_client.py::test_auxiliary_command_rejects_active_turn_without_running_service
+2 failed, 981 passed, 3 skipped in 80.39s (0:01:20)

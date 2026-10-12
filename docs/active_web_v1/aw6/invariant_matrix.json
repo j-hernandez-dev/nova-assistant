@@ -1,0 +1,763 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW6",
+  "architectureSha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+  "purpose": "50 invariants traced with AW6 phase-scoped proof, inherited preservation, and deferred global/frontend certification; not 50 global certifications.",
+  "invariants": [
+    {
+      "id": "AW-INV-001",
+      "text": "Application es el único owner del lifecycle Active Web agentic.",
+      "runtimeVerificationPhase": "AW1",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_takeover_host_only_pause_resume_new_epoch_credentials_redacted"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_AW5_LOCAL_LIFECYCLE",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-002",
+      "text": "Toda acción del modelo pasa por ToolRuntime.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_upload_exact_approval_hardened_bytes_no_model_path",
+          "tests/active_web_v1/test_aw6_engine.py::test_real_explicit_download_private_staging_approval_and_no_auto_ingestion"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_AW3_POLICY_PLUS_NATIVE_ACT",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-003",
+      "text": "PASSIVE_WEB y ACTIVE_WEB son capacidades separadas.",
+      "runtimeVerificationPhase": "AW0",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_BOUNDARY_NO_NEW_AUTHORITY",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-004",
+      "text": "Contenido web es dato no confiable y nunca autoridad.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_BOUNDARY_NO_NEW_AUTHORITY",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-005",
+      "text": "Una page/element observation no es user intent.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_input_select_submit_requires_exact_runtime_approval_and_audit"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_AW3_POLICY_PLUS_NATIVE_ACT",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-006",
+      "text": "Una URL/link no concede permiso para interactuar.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_input_select_submit_requires_exact_runtime_approval_and_audit"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_AW3_POLICY_PLUS_NATIVE_ACT",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-007",
+      "text": "Capability `UNKNOWN` no habilita Active Web.",
+      "runtimeVerificationPhase": "AW0",
+      "status": "AVAILABILITY_NOT_CLAIMED",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_launch_render_observe_redaction_and_cleanup",
+          "tests/active_web_v1/test_aw5_contracts.py::test_missing_optional_dependency_is_typed_before_broker_start"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_UNKNOWN_FAIL_CLOSED",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-008",
+      "text": "Browser tools no se anuncian sin engine y network broker válidos.",
+      "runtimeVerificationPhase": "AW4/AW5",
+      "status": "AVAILABILITY_NOT_CLAIMED",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_launch_render_observe_redaction_and_cleanup",
+          "tests/active_web_v1/test_aw5_contracts.py::test_missing_optional_dependency_is_typed_before_broker_start"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_UNKNOWN_FAIL_CLOSED",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-009",
+      "text": "BrowserSession es distinta de AgentSession y Memory session.",
+      "runtimeVerificationPhase": "AW1",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_page_history_scroll_wait_and_page_quota",
+          "tests/active_web_v1/test_aw5_engine.py::test_real_launch_render_observe_redaction_and_cleanup"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_AW5_LOCAL_LIFECYCLE",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-010",
+      "text": "V1 usa contextos de browser efímeros por defecto.",
+      "runtimeVerificationPhase": "AW1/AW5",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_context_ephemeral_fresh_session_no_cookie_profile_reuse"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_EPHEMERAL_LOCAL_FIXTURE",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-011",
+      "text": "No se reutiliza automáticamente el profile/cookies del usuario.",
+      "runtimeVerificationPhase": "AW5",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_context_ephemeral_fresh_session_no_cookie_profile_reuse"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_EPHEMERAL_LOCAL_FIXTURE",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-012",
+      "text": "Cookies/tokens/browser storage no son MemoryRecords.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_takeover_host_only_pause_resume_new_epoch_credentials_redacted"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_BOUNDARY_NO_NEW_AUTHORITY",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-013",
+      "text": "Provider credentials no son site credentials.",
+      "runtimeVerificationPhase": "AW5/AW6",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_BOUNDARY_NO_NEW_AUTHORITY",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-014",
+      "text": "El agente no recibe passwords/OTP/recovery codes.",
+      "runtimeVerificationPhase": "AW2/AW6",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_takeover_host_only_pause_resume_new_epoch_credentials_redacted"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_REDACTION_LOCAL_FIXTURE",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-015",
+      "text": "Login V1 se realiza por takeover humano, no autofill agentic.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_takeover_host_only_pause_resume_new_epoch_credentials_redacted",
+          "tests/active_web_v1/test_aw6_engine.py::test_real_headless_takeover_failure_stays_paused_without_fake_auth"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "DEFERRED_AW6_TAKEOVER_DENIED_IN_AW5",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-016",
+      "text": "Todo ElementRef es opaco y emitido por Nova.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_navigation_ref_stale_and_identical_replacement_not_rebound",
+          "tests/active_web_v1/test_aw5_engine.py::test_real_detached_handle_unchanged_label_and_href_fails_fresh_proof"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_FRESH_OPAQUE_TARGET_LOCAL_ENGINE",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-017",
+      "text": "El modelo no aporta CSS/XPath/JS selectors.",
+      "runtimeVerificationPhase": "AW2/AW5",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_navigation_ref_stale_and_identical_replacement_not_rebound",
+          "tests/active_web_v1/test_aw5_engine.py::test_real_detached_handle_unchanged_label_and_href_fails_fresh_proof"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_FRESH_OPAQUE_TARGET_LOCAL_ENGINE",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-018",
+      "text": "ElementRef está ligado a session/page/navigation/observation.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_takeover_host_only_pause_resume_new_epoch_credentials_redacted"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_FRESH_OPAQUE_TARGET_LOCAL_ENGINE",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-019",
+      "text": "Refs stale nunca se rebind heurísticamente.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_takeover_host_only_pause_resume_new_epoch_credentials_redacted"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_FRESH_OPAQUE_TARGET_LOCAL_ENGINE",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-020",
+      "text": "Toda acción que cambia página invalida refs anteriores.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_takeover_host_only_pause_resume_new_epoch_credentials_redacted"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_FRESH_OPAQUE_TARGET_LOCAL_ENGINE",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-021",
+      "text": "Approval se liga al target y estado exactos.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_upload_exact_approval_hardened_bytes_no_model_path",
+          "tests/active_web_v1/test_aw6_engine.py::test_real_upload_file_changed_after_approval_before_effect_denied"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_AW3_POLICY_PLUS_NATIVE_ACT",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-022",
+      "text": "Cambio de origin/state invalida approval.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_upload_file_changed_after_approval_before_effect_denied",
+          "tests/active_web_v1/test_aw6_engine.py::test_real_transfer_failure_never_success_or_late_staging"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_AW3_POLICY_PLUS_NATIVE_ACT",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-023",
+      "text": "Click no implica read-only.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_input_select_submit_requires_exact_runtime_approval_and_audit"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_AW3_POLICY_PLUS_NATIVE_ACT",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-024",
+      "text": "Input de texto se considera posible disclosure.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_input_select_submit_requires_exact_runtime_approval_and_audit"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_AW3_POLICY_PLUS_NATIVE_ACT",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-025",
+      "text": "Remote mutation requiere approval exacta.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_upload_exact_approval_hardened_bytes_no_model_path",
+          "tests/active_web_v1/test_aw6_engine.py::test_real_explicit_download_private_staging_approval_and_no_auto_ingestion"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_AW3_POLICY_PLUS_NATIVE_ACT",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-026",
+      "text": "HIGH_IMPACT se deniega en Core V1.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_input_select_submit_requires_exact_runtime_approval_and_audit"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_AW3_POLICY_PLUS_NATIVE_ACT",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-027",
+      "text": "Browser egress READY requiere mediación brokered PUBLIC_ONLY.",
+      "runtimeVerificationPhase": "AW4",
+      "status": "AVAILABILITY_NOT_CLAIMED",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_productive_broker_denies_loopback_without_browser_bypass"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_READY_CONDITION_NOT_CERTIFIED",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-028",
+      "text": "Private/loopback/link-local/metadata no son navegables por Active Web V1.",
+      "runtimeVerificationPhase": "AW4",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_productive_broker_denies_loopback_without_browser_bypass",
+          "tests/active_web_v1/test_aw5_contracts.py::test_proxy_challenge_before_dns_connect_and_authenticated_request"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_PRODUCTIVE_DENIAL_LOCAL_BOUNDARY",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-029",
+      "text": "No existe fallback silencioso a network best-effort.",
+      "runtimeVerificationPhase": "AW4",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_productive_broker_denies_loopback_without_browser_bypass",
+          "tests/active_web_v1/test_aw5_contracts.py::test_proxy_challenge_before_dns_connect_and_authenticated_request"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_PRODUCTIVE_DENIAL_LOCAL_BOUNDARY",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-030",
+      "text": "`file:`, `javascript:` y custom protocols no son targets agentic V1.",
+      "runtimeVerificationPhase": "AW4",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_contracts.py::test_agent_targets_fail_closed_before_worker_or_engine",
+          "tests/active_web_v1/test_aw5_engine.py::test_real_service_worker_registration_refused_on_secure_fixture",
+          "tests/active_web_v1/test_aw5_engine.py::test_real_service_worker_blocked_and_rtc_not_exposed",
+          "tests/active_web_v1/test_aw5_engine.py::test_real_websocket_refused_before_fixture_upgrade_connection"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_RESTRICTED_TARGETS_AND_NATIVE_PROTOCOLS",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-031",
+      "text": "Una acción STARTED no se reintenta automáticamente.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_transfer_failure_never_success_or_late_staging"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_NO_REPLAY_NO_ROLLBACK_UNKNOWN",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-032",
+      "text": "UNKNOWN_OUTCOME permanece UNKNOWN hasta nueva evidencia.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_transfer_failure_never_success_or_late_staging",
+          "tests/active_web_v1/test_aw6_engine.py::test_real_headless_takeover_failure_stays_paused_without_fake_auth"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_NO_REPLAY_NO_ROLLBACK_UNKNOWN",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-033",
+      "text": "Cancelación/cierre no equivale a rollback.",
+      "runtimeVerificationPhase": "AW1/AW3",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_transfer_failure_never_success_or_late_staging"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_NO_REPLAY_NO_ROLLBACK_UNKNOWN",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-034",
+      "text": "Audit pre-effect permanece separado de SessionEventStream.",
+      "runtimeVerificationPhase": "AW7",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_upload_exact_approval_hardened_bytes_no_model_path",
+          "tests/active_web_v1/test_aw6_engine.py::test_real_explicit_download_private_staging_approval_and_no_auto_ingestion"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_SECURITY_AUDIT_WITH_NATIVE_USAGE",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-035",
+      "text": "Audit no persiste cookies/passwords/auth headers.",
+      "runtimeVerificationPhase": "AW6/AW7",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_takeover_host_only_pause_resume_new_epoch_credentials_redacted"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_SECURITY_AUDIT_WITH_NATIVE_USAGE",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-036",
+      "text": "Observations respetan current-user-first y ContextPolicy.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_launch_render_observe_redaction_and_cleanup"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_BOUNDED_OBSERVATION_INHERITED_BUDGET",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-037",
+      "text": "DOM/page source completo no se inyecta por defecto.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_launch_render_observe_redaction_and_cleanup"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_BOUNDED_OBSERVATION_INHERITED_BUDGET",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-038",
+      "text": "Screenshot/vision no es requisito del Core V1.",
+      "runtimeVerificationPhase": "AW0/AW5",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_NO_VISION_REQUIREMENT",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-039",
+      "text": "Upload requiere selección host exacta y approval de transferencia.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_upload_exact_approval_hardened_bytes_no_model_path",
+          "tests/active_web_v1/test_aw6_engine.py::test_real_upload_file_changed_after_approval_before_effect_denied"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "DEFERRED_AW6_TRANSFERS_NO_AUTHORITY",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-040",
+      "text": "Knowledge/AttachmentRef/Citation no otorgan upload authority.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_contracts.py::test_paths_knowledge_refs_or_guessed_refs_never_upload_authority"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "DEFERRED_AW6_TRANSFERS_NO_AUTHORITY",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-041",
+      "text": "Download no solicitado se bloquea.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_driveby_download_never_stages_without_slot"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_DRIVEBY_REFUSAL_NO_IMPORT",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-042",
+      "text": "Download aprobado entra primero a staging controlado.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_explicit_download_private_staging_approval_and_no_auto_ingestion"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "DEFERRED_AW6_TRANSFERS_NO_AUTHORITY",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-043",
+      "text": "Download no se importa automáticamente a Knowledge.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_explicit_download_private_staging_approval_and_no_auto_ingestion"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_DRIVEBY_REFUSAL_NO_IMPORT",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-044",
+      "text": "Subagents no reciben browser authority activa por defecto.",
+      "runtimeVerificationPhase": "AW7",
+      "status": "PRESERVED_NO_FRONTEND_OR_SUBAGENT_AUTHORITY",
+      "evidence": {
+        "tests": [],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_BOUNDARY_NO_NEW_AUTHORITY",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-045",
+      "text": "BrowserWindow/preload de Nova Desktop no aloja páginas Active Web.",
+      "runtimeVerificationPhase": "AW5/AW7",
+      "status": "PRESERVED_NO_FRONTEND_OR_SUBAGENT_AUTHORITY",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_contracts.py::test_launch_contract_fixed_flags_no_personal_or_desktop_profile",
+          "tests/active_web_v1/test_aw5_engine.py::test_real_launch_render_observe_redaction_and_cleanup"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_SEPARATE_ENGINE_DESKTOP_UNCHANGED",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-046",
+      "text": "Browser state no persiste entre reinicios en Core V1.",
+      "runtimeVerificationPhase": "AW1/AW5",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_context_ephemeral_fresh_session_no_cookie_profile_reuse"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_EPHEMERAL_LOCAL_FIXTURE",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-047",
+      "text": "Cleanup no se declara confirmado si no puede observarse.",
+      "runtimeVerificationPhase": "AW1",
+      "status": "PASS_AW6_SCOPED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw6_engine.py::test_real_driveby_download_never_stages_without_slot"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_TRUTHFUL_LOCAL_CLEANUP",
+        "qualification": "AW6 focused/native synthetic fixtures plus final regressions; actor and host UI input simulated. No real site/manual-login/LLM or universal DLP claim.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-048",
+      "text": "No se afirma sandbox ni aislamiento físico por usar Chromium/Playwright.",
+      "runtimeVerificationPhase": "AW0/AW5",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [
+          "tests/active_web_v1/test_aw5_engine.py::test_real_launch_render_observe_redaction_and_cleanup"
+        ],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PASS_HOST_UNISOLATED_LIMITED_CLAIMS",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-049",
+      "text": "Los frontends no implementan una segunda Policy/authority path.",
+      "runtimeVerificationPhase": "AW7",
+      "status": "PRESERVED_NO_FRONTEND_OR_SUBAGENT_AUTHORITY",
+      "evidence": {
+        "tests": [],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_BOUNDARY_NO_NEW_AUTHORITY",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    },
+    {
+      "id": "AW-INV-050",
+      "text": "Knowledge Inputs READY y sus históricos permanecen inmutables.",
+      "runtimeVerificationPhase": "AW0",
+      "status": "PRESERVED_INHERITED_CONTRACT",
+      "evidence": {
+        "tests": [],
+        "inheritedMatrix": "docs/active_web_v1/aw5/invariant_matrix.json",
+        "inheritedStatus": "PRESERVED_BOUNDARY_NO_NEW_AUTHORITY",
+        "qualification": "Prior source/test/evidence preserved except explicit AW6 manager/action/adapter delta; inherited portable and native contracts rerun. Public availability, network exclusivity and AW7 frontend integration not certified here.",
+        "integrity": "docs/active_web_v1/aw6/integrity.json"
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+..........................F..........................................s.s [ 20%]
+........................................................................ [ 41%]
+........................................................................ [ 62%]
+........................................................................ [ 83%]
+.......................................................                  [100%]
+================================== FAILURES ===================================
+_ test_idempotent_write_digest_stale_revision_and_deleted_result_not_cached_content _
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_block2_corrected/pytest-private/test_idempotent_write_digest_s0')
+
+    def test_idempotent_write_digest_stale_revision_and_deleted_result_not_cached_content(tmp_path):
+        app,sid,actor,audit,work=app_fixture(tmp_path)
+        command=MemoryCommand('same-command',sid,'memory_remember',dict(kind='PREFERENCE',text='Synthetic exact action'),0)
+        first=app.execute_memory(command,actor=actor)
+>       assert first['completed']
+E       assert False
+
+tests\memory_v1\test_m3_application.py:71: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/memory_v1/test_m3_application.py::test_idempotent_write_digest_stale_revision_and_deleted_result_not_cached_content
+1 failed, 340 passed, 2 skipped in 28.16s

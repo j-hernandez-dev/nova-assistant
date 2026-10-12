@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "reuseMeans": "Conservar contrato/algoritmo; no transferir prueba nativa ni certificar un nuevo engine por mocks.",
+  "reusableUnmodified": [
+    {
+      "area": "ToolRuntime / Policy / Approval / Grant",
+      "paths": [
+        "local_cli/application/tool_runtime.py",
+        "local_cli/core/active_web_policy.py",
+        "local_cli/application/browser_actions.py"
+      ],
+      "constraint": "Misma ruta y binding exacto; ninguna segunda policy nativa."
+    },
+    {
+      "area": "DTOs y BrowserPort engine-neutral",
+      "paths": [
+        "local_cli/core/active_web.py",
+        "local_cli/core/active_web_lifecycle.py",
+        "local_cli/core/active_web_observation.py",
+        "local_cli/core/active_web_transfers.py"
+      ],
+      "constraint": "Refs opacas, freshness y outcomes no se rediseñan. Un identificador engine nuevo, si el enum cerrado lo requiere, necesita decisión/schema prospectivo separado."
+    },
+    {
+      "area": "Observation projection / context",
+      "paths": [
+        "local_cli/application/browser_observation.py"
+      ],
+      "constraint": "No DOM/selectors/raw secrets hacia modelo. Elementos truncados sin refs."
+    },
+    {
+      "area": "Takeover / transfers Application",
+      "paths": [
+        "local_cli/application/browser_takeover.py",
+        "local_cli/application/browser_transfers.py"
+      ],
+      "constraint": "Epoch/approval-stale, FILE_UPLOAD/FILE_DOWNLOAD, no ingestion automática, STARTED->UNKNOWN y no retry."
+    },
+    {
+      "area": "DNS / IP / PUBLIC_ONLY broker",
+      "paths": [
+        "local_cli/application/browser_network.py",
+        "local_cli/infrastructure/active_web/egress_broker.py"
+      ],
+      "constraint": "Sus reglas lógicas pueden reutilizarse; prueba física completa nueva. Broker no observa por sí solo launch/RTC/native bypass."
+    },
+    {
+      "area": "Frontends y browser tools existentes",
+      "paths": [
+        "local_cli/interfaces/cli_application.py",
+        "local_cli/interfaces/jsonl_application.py",
+        "desktop/"
+      ],
+      "constraint": "Sin engine imports; activar únicamente tras certificación futura y composición autorizada, nunca en esta revisión."
+    }
+  ],
+  "infrastructureReusableWithIntegrationReview": [
+    {
+      "area": "IPC privado / ownership / lifecycle skeleton",
+      "paths": [
+        "native/nova-browser-host/Protocol.cs",
+        "native/nova-browser-host/LifecycleServer.cs",
+        "local_cli/infrastructure/active_web/host_ipc_protocol.py",
+        "local_cli/infrastructure/active_web/host_named_pipe.py",
+        "local_cli/infrastructure/active_web/host_process_job.py"
+      ],
+      "constraint": "Schema/ACL/request correlation/deadlines se preservan. C++ embedder puede requerir binding Infrastructure al host .NET o implementación equivalente, sin exponer engine al Core."
+    },
+    {
+      "area": "Sensitive registry y terminal state machine",
+      "paths": [
+        "native/nova-browser-host/SensitiveValueRegistry.cs",
+        "native/nova-browser-host/SensitiveTerminalState.cs",
+        "native/nova-browser-host/PageDerivedTextLeaves.cs"
+      ],
+      "constraint": "Algoritmos aprobados pueden conservarse si se mantiene host .NET. Nuevos eventos/world identities/instrumentation necesitan pruebas; sólo SUBMIT_CONFIRMED y TAKEOVER_END_CHECKPOINT terminalizan."
+    },
+    {
+      "area": "UDF/staging/file selection ownership",
+      "paths": [
+        "local_cli/infrastructure/active_web/private_directory.py",
+        "local_cli/infrastructure/active_web/webview2_udf_root.py",
+        "local_cli/infrastructure/active_web/webview2_staging.py",
+        "local_cli/infrastructure/active_web/webview2_file_selection.py"
+      ],
+      "constraint": "Ownership/ACL/budget/cleanup/ref private obligatorios. Partes WebView2-specific y paths derivados no se prometen byte-idénticos para engine distinto."
+    }
+  ],
+  "engineSpecificMustAdaptAndRecertify": [
+    "Environment/controller/process identity y configuration attestation",
+    "ExternalProtocolGuard: entrada nativa launch sin default relaunch, incluidos popups/frames/takeover",
+    "ObservationScripts/ObservationRuntime: fixed bindings, exact target/fingerprint, generation/revalidation",
+    "Upload/download native hooks y file dialog/default-download denial, staging result boundary",
+    "Takeover UI, secret tracking worlds/CDP/submit/checkpoint capture y fail-closed",
+    "BrowserNetworkEgressControl: admission lógico y socket/DNS/RTC/SW/QUIC off propios",
+    "Python engine-specific adapters y factory/discovery cuando sea autorizado, sin fallback automático"
+  ],
+  "history": "AW0–AW8, Block01–05 y todas las remediaciones siguen byte-intactas. Contratos pueden ser base de regresión, ningún native PASS WebView2 certifica CEF/Electron/Qt/Gecko."
+}

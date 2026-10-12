@@ -69,6 +69,8 @@ class CliApplicationClient:
         register = getattr(application, 'register_knowledge_actor', None)
         self._knowledge_actor = register('cli_tty', lambda: not self._memory_closed and self._human_tty()) if register else None
         self._attachment_refs = []
+        register_browser = getattr(application, 'register_browser_actor', None)
+        self._browser_actor = register_browser('cli_tty', lambda: not self._memory_closed and self._human_tty()) if register_browser else None
         state = application.get_snapshot(session_id)
         self._cursor = application.subscribe_events(
             session_id, after_sequence=state.last_sequence,
@@ -83,9 +85,40 @@ class CliApplicationClient:
         self._cursor._stream.close(self._cursor)
         close = getattr(self.application, 'close_knowledge', None)
         if close: close()
+        close_browser = getattr(self.application, 'close_browser', None)
+        if close_browser: close_browser()
+
+    def browser_control(self, name, arguments, *, command_id=None):
+        return self.application.execute_browser_control(dict(commandId=command_id or new_command_id(),
+            sessionId=self.session_id, name=name, arguments=arguments), actor=self._browser_actor)
 
     def snapshot(self):
         return self.application.get_snapshot(self.session_id)
+
+    def web_v12(self,argument):
+        """Human CLI controls; discovery and routing remain in Application."""
+        from local_cli.core.web_capabilities_v12 import BROWSER_RISK_ACKNOWLEDGEMENT_VERSION
+        import json
+        state=self.snapshot();config=state.services.get('webV12',{}).get('configuration',{})
+        words=argument.split()
+        if not words or words==['status']:
+            self._write(json.dumps(state.services.get('webCapabilitiesV12',{}),ensure_ascii=False,indent=2)+'\n');return
+        if len(words)==2 and words[0]in ('fetch','browser')and words[1]in ('on','off'):
+            enabled=words[1]=='on';fetch=config.get('controlledFetchEnabled',False);browser=config.get('interactiveBrowserEnabled',False)
+            if words[0]=='fetch':fetch=enabled
+            else:
+                browser=enabled
+                if enabled:
+                    self._write('Interactive Browser usa WebView2 real. Nova no proporciona aislamiento exhaustivo de red; no es un sandbox para sitios hostiles. Esta aceptación no aprueba efectos remotos ni transferencias.\n')
+                    if self._read('Escribe ACEPTO para habilitarlo: ').strip()!='ACEPTO':return
+            result=self.browser_control('configure_web_v12',dict(controlledFetchEnabled=fetch,interactiveBrowserEnabled=browser,
+                acknowledgementVersion=BROWSER_RISK_ACKNOWLEDGEMENT_VERSION))
+            self._write(json.dumps(result,ensure_ascii=False,indent=2)+'\n');return
+        if len(words)==2 and words[0]=='finish':
+            self._write(json.dumps(self.browser_control('finish_takeover',dict(takeoverRef=words[1],authenticated=False)),ensure_ascii=False)+'\n');return
+        if len(words)==2 and words[0]=='discard':
+            self._write(json.dumps(self.browser_control('discard_download',dict(downloadRef=words[1])),ensure_ascii=False)+'\n');return
+        self._write('Uso: /web status | fetch on/off | browser on/off | finish <takeoverRef>\n')
 
     def execute_auxiliary(self, name: str, arguments: dict[str, Any] | None = None):
         return self.application.execute_auxiliary(self.session_id, name, arguments or {})
@@ -179,6 +212,18 @@ class CliApplicationClient:
 
     def _render(self, event) -> None:
         self._on_event(event)
+        if event.kind is EventKind.BROWSER_FILE_SELECTION_REQUIRED:
+            if self._human_tty():
+                path=self._read('Ruta del archivo para el upload revisado (requiere Approval posterior): ').strip()
+                if path:self.browser_control('select_upload',dict(operationId=event.payload['operationId'],path=path))
+            return
+        from local_cli.application.browser_projection import BROWSER_EVENTS
+        if event.kind in BROWSER_EVENTS:
+            state = event.payload.get('outcome', event.payload.get('state', ''))
+            self._write_error(f'Active Web: {event.kind.value} {state}\n')
+            if event.kind is EventKind.BROWSER_TAKEOVER_REQUESTED:
+                self._write_error('Separate headful browser awaits human interaction; no agent credential entry.\n')
+            return
         if event.payload.get('securityAudit', {}).get('gap'):
             self._write_error('Warning: SECURITY_AUDIT_DELIVERY_FAILED; audit gap. Observed result retained; no retry/rollback.\n')
         if event.kind is EventKind.ASSISTANT_DELTA:

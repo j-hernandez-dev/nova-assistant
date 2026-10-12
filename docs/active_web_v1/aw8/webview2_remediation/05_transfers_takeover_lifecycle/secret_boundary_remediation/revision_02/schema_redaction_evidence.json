@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Revision02 schema-redaction audit; repair not applied pending the closure-contract decision",
+  "evidenceClass": "STATIC_CONTRACT_ANALYSIS",
+  "sourcePins": [
+    {
+      "path": "native/nova-browser-host/ObservationRuntime.cs",
+      "sha256": "d5790248d7b79da174841ba08f2ebdde39a30182b0275819b002c7e05acad6a1"
+    },
+    {
+      "path": "native/nova-browser-host/TransferRuntime.cs",
+      "sha256": "b78383aa9013b702fb8bea9c064b7cccaa695c0a15c1fd505fda8d0d677285df"
+    }
+  ],
+  "currentProductDefect": {
+    "id": "WV2-B05-SECRET-IPC-SCHEMA-003",
+    "classification": "PRODUCT_BUG",
+    "status": "UNREPAIRED",
+    "inspection": "ObservationRuntime.PublicStrings recursively redacts every string in an already constructed capture envelope. TransferMetadata invokes the same scrubber on its fixed discriminator and event envelope.",
+    "historicalEvidence": "../manifest.json; ../test_results.json; nvs17 (historical, not repeated)"
+  },
+  "requiredSeparation": {
+    "CONTROL_PLANE": [
+      "fixed kind/messageType",
+      "protocol/schema version",
+      "requestId/operationId",
+      "status/error enums",
+      "host-generated refs",
+      "framing",
+      "fixed action/capability discriminators"
+    ],
+    "PAGE_DERIVED_DATA": [
+      "title",
+      "visibleTextSummary",
+      "accessible names",
+      "state summaries",
+      "labels",
+      "page-derived form metadata",
+      "dialogs",
+      "href/link summaries",
+      "public URLs",
+      "suggested filenames",
+      "download metadata derived from the page"
+    ],
+    "requiredOrder": [
+      "raw page state",
+      "sanitize/redact only page-derived leaves",
+      "validate sanitized public payload",
+      "construct fixed IPC envelope",
+      "closed serialization"
+    ]
+  },
+  "proposedImplementationNotExecuted": "Replace the unrestricted recursive scrubber with explicit public payload construction and field-specific sanitization, while applying immediate monotonic recording and fail-closed short-leaf protection.",
+  "disconnect004": {
+    "id": "WV2-B05-SECRET-CAPTURE-DISCONNECT-004",
+    "classification": "UNKNOWN",
+    "historicalStatus": "REPRODUCED",
+    "revision02Status": "NOT_REEXECUTED",
+    "scenarios": [
+      "same-origin",
+      "history",
+      "cross-origin"
+    ],
+    "resolvedAfter003Fix": false,
+    "directCausalityEstablished": false,
+    "explanation": "No 003 fix was applied; no inference of resolution or retrospective reclassification is made."
+  },
+  "rawSensitiveValueRecorded": false
+}

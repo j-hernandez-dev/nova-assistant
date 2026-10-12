@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "protocol": "nova-browser-host-ipc",
+  "wireVersion": 1,
+  "purpose": "Active Web V1.1 §35.2 block 01 Infrastructure-only skeleton",
+  "normativeReference": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md §6, §8, §30, §35.2 (block 1)",
+  "implementation": {
+    "python": [
+      "local_cli/infrastructure/active_web/host_ipc_protocol.py",
+      "local_cli/infrastructure/active_web/host_named_pipe.py",
+      "local_cli/infrastructure/active_web/browser_host.py"
+    ],
+    "csharp": [
+      "native/nova-browser-host/Protocol.cs",
+      "native/nova-browser-host/NativePipe.cs",
+      "native/nova-browser-host/Program.cs"
+    ]
+  },
+  "transport": {
+    "platform": "Windows x64",
+    "type": "local Windows Named Pipe",
+    "framing": "uint32 little-endian byte length followed by that many UTF-8 JSON bytes; header not counted",
+    "remoteClients": "rejected",
+    "instances": 1,
+    "firstInstanceRequired": true,
+    "handlesInheritable": false,
+    "clientImpersonation": "identification only",
+    "encoding": "UTF-8 strict, duplicate keys/NaN/infinity rejected; closed objects",
+    "noProductiveStdioAuthority": true
+  },
+  "limits": {
+    "maxFrameBytes": 16384,
+    "maxPayloadBytes": 4096,
+    "maxJsonDepth": 8,
+    "maxRequestsPerHost": 4096,
+    "maxDeadlineAheadMs": 30000,
+    "connectTimeoutMs": 5000,
+    "preReadyFrameTimeoutMs": 5000,
+    "readyIdleOrPartialFrameTimeoutMs": 30000,
+    "writeTimeoutMs": 5000,
+    "cleanupTerminateWaitMs": 2000,
+    "cleanupKillWaitMs": 2000
+  },
+  "refs": {
+    "requestId": "bhr_<32 lowercase hexadecimal characters>",
+    "browserSessionRef": "bws_<32 lowercase hexadecimal characters>",
+    "pageRef": "bwp_<32 lowercase hexadecimal characters> or null",
+    "operationId": "op_<32 lowercase hexadecimal characters>",
+    "hostInstanceRef": "bhi_<32 lowercase hexadecimal characters>",
+    "pipeName": "nova_browser_host_<32 lowercase hexadecimal characters>"
+  },
+  "envelope": {
+    "additionalProperties": false,
+    "allRequired": [
+      "schemaVersion",
+      "messageType",
+      "requestId",
+      "browserSessionRef",
+      "pageRef",
+      "operationId",
+      "deadline",
+      "payload",
+      "result",
+      "error"
+    ],
+    "schemaVersion": 1,
+    "messageTypes": [
+      "request",
+      "response",
+      "event",
+      "cancel",
+      "protocol_error"
+    ],
+    "deadline": "integer UTC Unix milliseconds, positive and <=2^53-1; incoming request remaining budget in (0,30000] ms",
+    "payload": "typed closed object; null is invalid",
+    "result": "typed closed result or null",
+    "error": "closed {code: <IpcCode>} or null",
+    "response": "payload={} and exactly one of result/error non-null",
+    "event": "result/error=null; payload={event:HOST_READY|HOST_STOPPED}",
+    "protocolError": "requestId/operationId/pageRef=null, browserSessionRef=owned session, payload={}, result=null, typed error; never invents a correlated operation"
+  },
+  "requests": {
+    "handshake": {
+      "payloadKeys": [
+        "command",
+        "clientPid",
+        "expectedHostPid",
+        "hostInstanceRef",
+        "protocol"
+      ],
+      "command": "handshake",
+      "protocol": "nova-browser-host-ipc",
+      "pids": "positive integers <=2^32-1",
+      "pageRef": null,
+      "resultKeys": [
+        "kind",
+        "hostIdentity",
+        "hostInstanceRef",
+        "hostPid",
+        "ownerPid",
+        "ipcProtocol",
+        "ipcVersion",
+        "features",
+        "activeWebAvailable"
+      ],
+      "result": {
+        "kind": "handshake",
+        "hostIdentity": "nova-browser-host",
+        "ipcProtocol": "nova-browser-host-ipc",
+        "ipcVersion": 1,
+        "features": [
+          "ping",
+          "cancel",
+          "shutdown"
+        ],
+        "activeWebAvailable": false
+      },
+      "eventAfterResponse": "HOST_READY"
+    },
+    "ping": {
+      "payload": {
+        "command": "ping"
+      },
+      "pageRef": null,
+      "result": {
+        "kind": "ping",
+        "state": "READY",
+        "hostPid": "actual child PID"
+      },
+      "modelTool": false
+    },
+    "shutdown": {
+      "payload": {
+        "command": "shutdown"
+      },
+      "pageRef": null,
+      "result": {
+        "kind": "shutdown",
+        "state": "STOPPING"
+      },
+      "eventAfterResponse": "HOST_STOPPED",
+      "successRequires": "ack + correlated event + actual owned process exit code 0"
+    },
+    "reserved_browser": {
+      "payload": {
+        "command": "reserved_browser"
+      },
+      "pageRef": "valid bwp_ opaque ref",
+      "alwaysError": "UNSUPPORTED_COMMAND",
+      "effects": "none; no navigation/DOM/URL/JS/selector/data payload supported"
+    }
+  },
+  "cancellation": {
+    "messageType": "cancel",
+    "payloadKeys": [
+      "targetRequestId",
+      "targetOperationId"
+    ],
+    "pageRef": null,
+    "rule": "must refer to a prior completed request with matching operation in this session; no duplicate own request/operation",
+    "result": {
+      "kind": "cancel",
+      "disposition": "ALREADY_COMPLETED"
+    },
+    "semantics": "health is synchronous; no rollback or future browser STARTED cancellation claim",
+    "localEvent": "cancels startup/IPC IO, invalidates channel, cancels/drains native pending IO and reaps owned process; no operation retry"
+  },
+  "errorCodes": [
+    "MALFORMED_FRAME",
+    "OVERSIZED_FRAME",
+    "INVALID_MESSAGE",
+    "UNKNOWN_MESSAGE",
+    "PROTOCOL_MISMATCH",
+    "CORRELATION_MISMATCH",
+    "DUPLICATE_REQUEST",
+    "UNSUPPORTED_COMMAND",
+    "TIMEOUT",
+    "CANCELLED",
+    "DISCONNECTED",
+    "PROCESS_START_FAILED",
+    "HANDSHAKE_FAILED",
+    "PROCESS_EXIT_UNEXPECTED",
+    "UNAUTHORIZED_CLIENT",
+    "HOST_NOT_STARTED",
+    "INVALID_STATE",
+    "CLEANUP_UNCONFIRMED",
+    "REQUEST_LIMIT"
+  ],
+  "handshakeChecks": [
+    "compatible schema and protocol version",
+    "exact host identity and host-instance ref",
+    "browserSessionRef matches owned session",
+    "Windows OS server PID equals Python-owned child PID before handshake",
+    "Windows OS client PID equals original Python owner PID",
+    "handshake clientPid/expectedHostPid/ownerPid match actual processes",
+    "same requestId/operationId/pageRef/deadline on response and ready event",
+    "exact IPC features; activeWebAvailable strictly false"
+  ],
+  "ownership": {
+    "hostCreator": "trusted Python Infrastructure composition, explicit absolute executable/assembly paths",
+    "acl": "protected DACL: deny NETWORK; allow only actual current TokenUser (FILE_ALL_ACCESS); non-inherited",
+    "ownerLifetime": "holds original process handle; owner exit cancels host, no reconnection",
+    "untrustedClient": "rejected before handshake if PID not original owner; second simultaneous client cannot connect to single instance",
+    "threatModel": "HOST_UNISOLATED; not protection against administrator, debugger, process injection, replacement of trusted runtime or assemblies",
+    "nameExposure": "private implementation identifier, not a tool/model capability"
+  },
+  "lifecycle": {
+    "clientStates": [
+      "NOT_STARTED",
+      "STARTING",
+      "READY",
+      "STOPPING",
+      "STOPPED",
+      "FAILED",
+      "CLEANUP_UNCONFIRMED"
+    ],
+    "normal": [
+      "NOT_STARTED",
+      "STARTING",
+      "READY",
+      "STOPPING",
+      "STOPPED"
+    ],
+    "failure": "typed error -> FAILED, channel invalidated and child reaped; cleanup uncertainty remains explicit",
+    "notStartedShutdown": "STOPPED without process or operation success fabricated",
+    "stoppedShutdown": "idempotent",
+    "failedShutdown": "cleanup only; does not change failed state to successful STOPPED",
+    "hostExitCodes": {
+      "0": "ordered shutdown",
+      "10": "unsupported OS",
+      "11": "invalid bootstrap arguments",
+      "12": "unauthorized OS client",
+      "13": "protocol/handshake/correlation failure",
+      "14": "owner stop or native connection/frame timeout/cancellation",
+      "15": "EOF/disconnect",
+      "16": "other host failure"
+    },
+    "notes": "Python distinguishes local timeout/cancellation, unexpected process exit and transport disconnect. Exit code 14 alone does not identify cancellation versus timeout."
+  },
+  "deadlines": {
+    "client": "one monotonic budget covers lock wait, connection, write and all frame fragments; rejects late replies before committing result",
+    "host": "UTC wire deadline checked before synchronous health; native connection/read/write also independently bounded",
+    "failureCleanup": "separate finite terminate/kill waits; native pending IO drained before buffer release; not an Active Web semantic latency gate"
+  },
+  "forbidden": [
+    "additional fields",
+    "unknown message/command/result/error",
+    "Approval or grant authority/tokens",
+    "passwords/cookies/provider credentials/secrets",
+    "raw arbitrary text or commands",
+    "URL navigation",
+    "JS/code/CSS/XPath",
+    "COM exposure to Python",
+    "page-accessible host objects",
+    "network IPC",
+    "model-facing ping/health",
+    "automatic retry/reconnect of transmitted operations"
+  ],
+  "capabilityClaims": {
+    "ipcHealthOnly": true,
+    "ipcReadyIsBrowserCapability": false,
+    "activeWebAvailableFromHandshake": false,
+    "productiveBrowserSnapshotChanged": false,
+    "available": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "deferredToSection35_2Blocks2Through9": [
+    "WebView2 SDK/adapter/navigation/DOM",
+    "ExternalProtocolGuard",
+    "observations/element refs/actions",
+    "transfers/takeover/browser effects/outcomes",
+    "network recertification",
+    "productive snapshot v2",
+    "composition roots/browser tools registration",
+    "AW8 E2E/certification"
+  ]
+}

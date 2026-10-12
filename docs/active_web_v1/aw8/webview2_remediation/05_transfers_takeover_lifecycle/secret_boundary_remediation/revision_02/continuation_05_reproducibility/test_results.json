@@ -1,0 +1,941 @@
+{
+  "schemaVersion": 1,
+  "category": "REPRODUCIBILITY_FREQUENCY_NOT_BLOCK05_GATE",
+  "defect": "WV2-B05-C03-TAKEOVER-CONTINUITY-004",
+  "runtime": {
+    "python": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe",
+    "pythonVersion": "3.14.6",
+    "pytest": "9.1.1",
+    "dotnet": "C:/Program Files/dotnet/dotnet.exe",
+    "sdk": "10.0.203",
+    "webview2Sdk": "1.0.4258.31",
+    "webview2SdkLocalFeed": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31",
+    "native": "Windows / NTFS / AMD64"
+  },
+  "environment": {
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_PLUGINS": "ABSENT",
+    "PYTEST_ADDOPTS": "ABSENT",
+    "PYTHONPATH": "ABSENT",
+    "noEnvironmentSecretsCaptured": true
+  },
+  "candidate": {
+    "freezePath": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_03/candidate_freeze.json",
+    "freezeSha256": "c376cc59dedfca0b6f6e71966bba0877b60264a71944cfeb10e7f32e8ff6eeeb",
+    "sourcePins": 75,
+    "driftBefore": [],
+    "driftAfter": [],
+    "workingTreePriorChangesPreserved": true,
+    "sourceCodeIdentityNotBinaryReuse": "All code pins match nvr24; original projects rebuilt per round in independent temporary paths. Compiled binary hashes recorded, not asserted equal across path-dependent builds."
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "label": "round_01",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_01",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_01/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_01/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_01'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_01'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_01/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_01/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_01/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:26:27 UTC",
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:27:01 UTC",
+      "suiteStart": "2026-10-10T14:26:29.050808-06:00",
+      "suiteDurationSeconds": 31.811,
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 15.617,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 10.048,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 5.623,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        }
+      ],
+      "xmlSha256": "a663db1329a19d1295f105229a5972025f7b9cf9446e38fc417add0bb33b4630",
+      "stdoutSha256": "476657cafe741010670e159f4218e9d6033a413689f1bedcf8d83b6e0c82ed43",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_01\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "6c3ea297d72571abe273404bcfa457383fbe9eb5d3fa08cb51a126be0e4eb465",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_01\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "4cd927190f672c3bc71682b9df0878d89bb12c458b01b1b29c88be812adf7ea5",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_01\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "a72bbc5085e2c95d147e25bef3da5065d85fc27f2747700d9b1428afc0f436ec",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [],
+      "c04TapFiles": []
+    },
+    {
+      "round": 2,
+      "label": "round_02",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_02",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_02/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_02/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_02'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_02'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_02/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_02/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_02/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:28:47 UTC",
+      "candidatePinsVerifiedBeforeRun": 75,
+      "candidateDriftBeforeRun": [],
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:29:15 UTC",
+      "suiteStart": "2026-10-10T14:28:49.049303-06:00",
+      "suiteDurationSeconds": 25.887,
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 11.566,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 8.649,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 5.229,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        }
+      ],
+      "xmlSha256": "1721a5e8a337410cc3f54f30005bc0f36e68e28f5dfd24ca748f396906932f2b",
+      "stdoutSha256": "eabeb6a6db809ac517e8526b14a82a406d8026e503327082cc890742c06541fc",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_02\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "efc1f8ca1ff6a61307d3d8c4bce946732c9c481660f59723482c348c5bd6a7a9",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_02\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "72e2f43127c77040adc791153777302a30f150eb6d9d2b5703c342c7ecd8a76f",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_02\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "d4e1c92ebfff94621f6688713a346144e4067a968005e91b3a7096c40fc74cf7",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [],
+      "c04TapFiles": []
+    },
+    {
+      "round": 3,
+      "label": "round_03",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_03",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_03/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_03/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_03'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_03'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_03/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_03/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_03/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:29:17 UTC",
+      "candidatePinsVerifiedBeforeRun": 75,
+      "candidateDriftBeforeRun": [],
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:29:45 UTC",
+      "suiteStart": "2026-10-10T14:29:19.491576-06:00",
+      "suiteDurationSeconds": 26.318,
+      "total": 3,
+      "passed": 2,
+      "failed": 1,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 12.45,
+          "status": "PASS",
+          "publicError": null,
+          "firstPoint": null,
+          "failureMessage": null
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 8.91,
+          "status": "PASS",
+          "publicError": null,
+          "firstPoint": null,
+          "failureMessage": null
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 4.572,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        }
+      ],
+      "xmlSha256": "6d5af9541dac4df1faa9f07ca33ee83f4487eae3823b90c514254120fc716ff8",
+      "stdoutSha256": "0f576ef30a77fb9bfdace1fac59cdf7da4d948bab5fdbf2a294b3e3ea0ffcb96",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_03\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "366cf9ec7a1d71c80e5326755c1c259dcb17950b7183ef50cdaa9f1eea55c365",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_03\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "b0c66ac7f31cc39f83b64b1cb8eb3be703e136de32171a54fa213ce27e8a6d12",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_03\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "197e8a5276f084fd1e97e67ae8bc018d13a1a174bf5125cdf56bd97656387eb0",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_03\\temp\\test_native_capture_exception_0\\safe_secret_receipt.json",
+          "sha256": "aa4a3b963dd3fd73a415799642ffe3a64ae8dff1e8e6e17088be573297d2c5ff"
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_03\\temp\\test_native_document_and_world0\\safe_secret_receipt.json",
+          "sha256": "aa4a3b963dd3fd73a415799642ffe3a64ae8dff1e8e6e17088be573297d2c5ff"
+        }
+      ],
+      "c04TapFiles": []
+    },
+    {
+      "round": 4,
+      "label": "round_04",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_04",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_04/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_04/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_04'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_04'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_04/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_04/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_04/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:29:47 UTC",
+      "candidatePinsVerifiedBeforeRun": 75,
+      "candidateDriftBeforeRun": [],
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:30:16 UTC",
+      "suiteStart": "2026-10-10T14:29:49.274093-06:00",
+      "suiteDurationSeconds": 27.159,
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 12.604,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 9.184,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 4.933,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        }
+      ],
+      "xmlSha256": "7135cda7d5e48542112869e72d19f033f14d38afd3d552d989ebff96ddab19c0",
+      "stdoutSha256": "0a0377c64679a740f77c407158ab2c665419cb41499ca10e5fcfe11e68868b90",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_04\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "9e97acccdc34b0da361b16201597a55d71e8516bf7ad05cc0b57d185adc3a835",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_04\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "dcd7b3349ef9f74a58d58887a6adf30a0b6c2740760dfc06833f69932ce7c2d2",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_04\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "c0ed6668f6363393326411a36de50f97cb4f7712ba95156e037a514af5b20ad5",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [],
+      "c04TapFiles": []
+    },
+    {
+      "round": 5,
+      "label": "round_05",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_05",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_05/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_05/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_05'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_05'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_05/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_05/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_05/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:30:18 UTC",
+      "candidatePinsVerifiedBeforeRun": 75,
+      "candidateDriftBeforeRun": [],
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:30:49 UTC",
+      "suiteStart": "2026-10-10T14:30:20.217806-06:00",
+      "suiteDurationSeconds": 28.685,
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 13.382,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 9.761,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 4.985,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        }
+      ],
+      "xmlSha256": "400088ae38df871f7f97388f63ad6d600315606992eb5845d8caed10ccbdb4b1",
+      "stdoutSha256": "ef9a0b5b3fd0e27d3aa810609405937d340cc6d9e5f0ac9ac3c3f727fc409038",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_05\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "fe33bfb169990d60bda76d45b1e94f52716a09504b818538456e43e8ca4e1129",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_05\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "e2e78be31eef34d7225cdd183d5c5f652a4786d4a52f9d3a5e14fc3f3f00025a",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_05\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "5fd36aaa5b59059e8c4b233c988f37515ace71aa0e84c1c9ac18884b58950a3c",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [],
+      "c04TapFiles": []
+    },
+    {
+      "round": 6,
+      "label": "round_06",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_06",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_06/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_06/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_06'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_06'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_06/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_06/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_06/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:30:51 UTC",
+      "candidatePinsVerifiedBeforeRun": 75,
+      "candidateDriftBeforeRun": [],
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:31:21 UTC",
+      "suiteStart": "2026-10-10T14:30:52.994935-06:00",
+      "suiteDurationSeconds": 28.512,
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 13.107,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 9.253,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 5.673,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        }
+      ],
+      "xmlSha256": "5df278b0af35730bd588428b0944308365a66cce9c09615b179f9c31d1b140b5",
+      "stdoutSha256": "f1575aa1c7fbea19c8083dae3eaba43edb6773af1b48bc14f94330edbc32ed8f",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_06\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "d45a797cb6d6aaa49fd819ecdb9ae85a3ad2ef7040d95a833319e356bdda99e4",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_06\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "90005aa79bf4be5b47d3fc5675307340121e2bc90ad0b266ea4c4b77bbf0a9b4",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_06\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "899980fc4c8c97c88676964f5d5164e6a7e370f986b55be8384311e0862fe039",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [],
+      "c04TapFiles": []
+    },
+    {
+      "round": 7,
+      "label": "round_07",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_07",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_07/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_07/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_07'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_07'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_07/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_07/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_07/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:31:24 UTC",
+      "candidatePinsVerifiedBeforeRun": 75,
+      "candidateDriftBeforeRun": [],
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:31:53 UTC",
+      "suiteStart": "2026-10-10T14:31:25.853264-06:00",
+      "suiteDurationSeconds": 27.3,
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 12.39,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 9.276,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 5.16,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        }
+      ],
+      "xmlSha256": "f5acca730b42c3dde25a47106dd26941314574a5d19e1febed6c0ea3051b2bb6",
+      "stdoutSha256": "65a5899f938914a42e209045c35dfab4ad8cbf87549efd4ac46248b7eb9e8459",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_07\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "e2816ed08de4a5e1129ea0f6755ca8f49172f1ec5128145921e4d0bd9a782742",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_07\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "0558e4718526a7d7a1e61a04e00af02fe3c48c28d46c624585fd24d87ba72073",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_07\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "c676240a2d33b3ddee295e338b41c3c32e0e21e4be44a78b562acbd7fd88d21a",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [],
+      "c04TapFiles": []
+    },
+    {
+      "round": 8,
+      "label": "round_08",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_08",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_08/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_08/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_08'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_08'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_08/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_08/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_08/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:31:55 UTC",
+      "candidatePinsVerifiedBeforeRun": 75,
+      "candidateDriftBeforeRun": [],
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:32:23 UTC",
+      "suiteStart": "2026-10-10T14:31:56.784881-06:00",
+      "suiteDurationSeconds": 26.97,
+      "total": 3,
+      "passed": 0,
+      "failed": 3,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 12.233,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 9.207,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 5.078,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        }
+      ],
+      "xmlSha256": "80648c634e6eaaa53951318c011dedac8b86d5e53a67b6ad13109b49086e99da",
+      "stdoutSha256": "a5bf01aaf5c6cb07b2e91b7aba45d88f787c55bfbcbd45f41fe4137d10c1d2b9",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_08\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "155cde0f9c2ad3c6ecb5580064dd3ea0df1231ab67749bfd4739c3faac1e93a8",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_08\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "a86a96a1157de70ba770f86231029ffc6a4a0230c1b96728fa8121788be986b1",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_08\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "58d3fb89b07d4a56626fe10ab76e3ecf6a7a055e77907d310d4117bfcdc41f2c",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [],
+      "c04TapFiles": []
+    },
+    {
+      "round": 9,
+      "label": "round_09",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_09",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_09/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_09/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_09'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_09'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_09/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_09/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_09/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:32:26 UTC",
+      "candidatePinsVerifiedBeforeRun": 75,
+      "candidateDriftBeforeRun": [],
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:32:56 UTC",
+      "suiteStart": "2026-10-10T14:32:27.862806-06:00",
+      "suiteDurationSeconds": 28.523,
+      "total": 3,
+      "passed": 1,
+      "failed": 2,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 12.865,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 10.093,
+          "status": "PASS",
+          "publicError": null,
+          "firstPoint": null,
+          "failureMessage": null
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 5.148,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        }
+      ],
+      "xmlSha256": "b97661f98479bda11dc05ef402ffeca845569a8a695ece083556b68cabd387c2",
+      "stdoutSha256": "e0e2e324e575476165ff32bea934a4f396870175b9750c48dde3f2b71b4cf50d",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_09\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "de05a0280c90db8b46fed53fd7a2e91bedb46ee72379de56ad2271de7ef851ea",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_09\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "e7f3cd5caa9e3b7a62e877179cec860693971f1f0c6515eac98a73f651db3d13",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_09\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "9044b04083e399cac7c718ec4aede6ef6567e5cea8724c65b93c46ea8abc8dc1",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_09\\temp\\test_native_capture_exception_0\\safe_secret_receipt.json",
+          "sha256": "aa4a3b963dd3fd73a415799642ffe3a64ae8dff1e8e6e17088be573297d2c5ff"
+        }
+      ],
+      "c04TapFiles": []
+    },
+    {
+      "round": 10,
+      "label": "round_10",
+      "folder": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_10",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_10/junit.xml",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_10/pytest_output.txt",
+      "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; if($env:PYTEST_PLUGINS -or $env:PYTEST_ADDOPTS -or $env:PYTHONPATH){throw 'Unexpected pytest configuration; original candidate environment required'}; if(Test-Path -LiteralPath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_10'){throw 'Round output already exists'}; $null=New-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_10'; & 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]' 'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]' -q --tb=short -p no:cacheprovider --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_10/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_10/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z/round_10/pytest_output.txt'; $testExitCode=$LASTEXITCODE; exit $testExitCode",
+      "startObservedUtc": "2026-10-10 20:32:58 UTC",
+      "candidatePinsVerifiedBeforeRun": 75,
+      "candidateDriftBeforeRun": [],
+      "exitCode": 1,
+      "completionObservedUtc": "2026-10-10 20:33:28 UTC",
+      "suiteStart": "2026-10-10T14:33:00.264068-06:00",
+      "suiteDurationSeconds": 28.046,
+      "total": 3,
+      "passed": 1,
+      "failed": 2,
+      "error": 0,
+      "skip": 0,
+      "cases": [
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_continuity",
+          "name": "test_native_document_and_world_lifetime[history]",
+          "durationSeconds": 12.92,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[same-origin]",
+          "durationSeconds": 9.412,
+          "status": "FAIL",
+          "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+          "firstPoint": "takeover.finish -> BrowserPort.end_takeover -> takeover_end denial before new observation",
+          "failureMessage": "local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED"
+        },
+        {
+          "classname": "native.nova-browser-host.tests.test_sensitive_disconnect_diagnostic",
+          "name": "test_native_capture_exception_diagnostic[history]",
+          "durationSeconds": 5.286,
+          "status": "PASS",
+          "publicError": null,
+          "firstPoint": null,
+          "failureMessage": null
+        }
+      ],
+      "xmlSha256": "d4cbbaf149e3f4bc7d59b4572749cc44102f1f07a9d29ea3b6e46240a0454df0",
+      "stdoutSha256": "f3d7df667fccedce7c04fd4120b8e79256546a5315303938e19104ae3ca4bddf",
+      "scopedProcessesRemaining": [],
+      "ownedDirectoriesRemaining": [],
+      "hostAssemblies": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_10\\temp\\host-build0\\bin\\nova-browser-host.dll",
+          "sha256": "27342898a50ee99722ba2cd835c256b7fb3d30a740ab140f76cb4c193406825a",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_10\\temp\\test_native_capture_exception_0\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "863b421029fb07c0d4117a7990f670613c079940e01a8263a46573de04075946",
+          "c04MarkersPresent": false
+        },
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_10\\temp\\test_native_capture_exception_1\\diagnostic-build\\bin\\nova-browser-host.dll",
+          "sha256": "0193ca7c0aca15fd779b7955fb2eca25dfde0d410715065b40db0b96a2dcf149",
+          "c04MarkersPresent": false
+        }
+      ],
+      "naturalReceipts": [
+        {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c05-repro-20261010T202608Z\\round_10\\temp\\test_native_capture_exception_1\\safe_secret_receipt.json",
+          "sha256": "aa4a3b963dd3fd73a415799642ffe3a64ae8dff1e8e6e17088be573297d2c5ff"
+        }
+      ],
+      "c04TapFiles": []
+    }
+  ],
+  "summary": {
+    "attempts": 30,
+    "pass": 4,
+    "fail_SECRET_BOUNDARY_UNCONFIRMED": 26,
+    "other_fail": 0,
+    "error": 0,
+    "skip": 0,
+    "xfail": 0
+  },
+  "perScenario": [
+    {
+      "scenarioId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+      "attempts": 10,
+      "pass": 1,
+      "fail_SECRET_BOUNDARY_UNCONFIRMED": 9,
+      "other_fail": 0,
+      "classification": "INTERMITTENT_REPRODUCTION",
+      "failureFrequency": 0.9
+    },
+    {
+      "scenarioId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+      "attempts": 10,
+      "pass": 2,
+      "fail_SECRET_BOUNDARY_UNCONFIRMED": 8,
+      "other_fail": 0,
+      "classification": "INTERMITTENT_REPRODUCTION",
+      "failureFrequency": 0.8
+    },
+    {
+      "scenarioId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]",
+      "attempts": 10,
+      "pass": 1,
+      "fail_SECRET_BOUNDARY_UNCONFIRMED": 9,
+      "other_fail": 0,
+      "classification": "INTERMITTENT_REPRODUCTION",
+      "failureFrequency": 0.9
+    }
+  ],
+  "naturalCaptureLimits": {
+    "additionalHostHooks": false,
+    "additionalEventLogging": false,
+    "additionalCdpCalls": false,
+    "debugger": false,
+    "addedSleeps": false,
+    "modifiedTimeouts": false,
+    "perEventSyncIo": false,
+    "postRoundChecksOutsideCriticalPath": true,
+    "fullPytestXmlAndStdoutPreserved": true,
+    "originalDiagnosticWrapper": "Retained only for the two existing diagnostic cases, exactly as nvr24; outer uncaught exception type/method receipt only. No C04 clone/plugin.",
+    "effectiveWebView2RuntimeVersion": "Not persisted by unmodified original fixtures; no extra runtime probe was introduced.",
+    "hostPidsAndNumericExitCodes": "Not exported/persisted by original fixture. No additional instrumentation to obtain them. Host exit/owned cleanup assertions passed for each scenario."
+  },
+  "repetitions": {
+    "explicitlyAuthorizedRunsPerScenario": 10,
+    "executedRunsPerScenario": 10,
+    "authorizedDiagnosticRepetition": true,
+    "qualityRetries": 0,
+    "selectivePostSampleReruns": 0,
+    "earlyStopOnPassOrFail": false,
+    "allThirtyOutcomesPreserved": true
+  },
+  "history": {
+    "nvr24": {
+      "pass": 30,
+      "fail": 3,
+      "error": 0,
+      "skip": 0,
+      "sha256": "f3e48759f500a32b163dab965d848c997c262581bdd3fe1217c3273c969ca9b2",
+      "preserved": true
+    },
+    "c04": {
+      "diagnosis": "INCONCLUSIVE",
+      "actualInstrumentedScenarios": 3,
+      "passed": 3,
+      "unchanged": true
+    },
+    "original004": "UNKNOWN, unchanged"
+  },
+  "cleanup": {
+    "originalFixtureTeardownErrorCount": 0,
+    "perRoundChecksAllClean": true,
+    "final": {
+      "timestampUtc": "2026-10-10T20:34:09.8961672Z",
+      "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+      "branch": "main",
+      "workingTree": [
+        " M .github/workflows/nova_knowledge_v1.yml",
+        " M ci/README.md",
+        " M ci/contract_inventory.py",
+        " M ci/pytest_contracts.json",
+        " M ci/run_contracts.py",
+        " M desktop/electron/application_client.ts",
+        " M desktop/shared/application.ts",
+        " M desktop/src/App.tsx",
+        " M local_cli/application/legacy_event_bridge.py",
+        " M local_cli/application/security_audit.py",
+        " M local_cli/application/session.py",
+        " M local_cli/application/tool_runtime.py",
+        " M local_cli/bootstrap_cli.py",
+        " M local_cli/bootstrap_server.py",
+        " M local_cli/core/contracts.py",
+        " M local_cli/interfaces/cli_application.py",
+        " M local_cli/interfaces/jsonl_application.py",
+        " M pyproject.toml",
+        "?? .github/workflows/nova_active_web_v1.yml",
+        "?? desktop/tests/active_web.test.cjs",
+        "?? docs/active_web_v1/",
+        "?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md",
+        "?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+        "?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+        "?? local_cli/application/active_web.py",
+        "?? local_cli/application/active_web_service.py",
+        "?? local_cli/application/browser_actions.py",
+        "?? local_cli/application/browser_network.py",
+        "?? local_cli/application/browser_observation.py",
+        "?? local_cli/application/browser_projection.py",
+        "?? local_cli/application/browser_takeover.py",
+        "?? local_cli/application/browser_tools.py",
+        "?? local_cli/application/browser_transfers.py",
+        "?? local_cli/bootstrap_active_web.py",
+        "?? local_cli/core/active_web.py",
+        "?? local_cli/core/active_web_lifecycle.py",
+        "?? local_cli/core/active_web_network.py",
+        "?? local_cli/core/active_web_observation.py",
+        "?? local_cli/core/active_web_policy.py",
+        "?? local_cli/core/active_web_transfers.py",
+        "?? local_cli/infrastructure/active_web/",
+        "?? native/",
+        "?? tests/active_web_v1/"
+      ],
+      "preservation": [
+        {
+          "group": "candidatePins",
+          "count": 75,
+          "drift": []
+        },
+        {
+          "group": "historicalPins",
+          "count": 218,
+          "drift": []
+        },
+        {
+          "group": "trackedPins",
+          "count": 18,
+          "drift": []
+        },
+        {
+          "group": "historicalXml",
+          "count": 6,
+          "drift": []
+        }
+      ],
+      "checkedOutputArtifactCount": 24,
+      "literalCredentialHits": [],
+      "remainingOwnedUdfStaging": [],
+      "remainingScopedNativeProcesses": [],
+      "criticalPathProbesAdded": false,
+      "historical36UdfMaintained": false
+    },
+    "historical36UdfMaintenance": false
+  },
+  "noOtherTests": {
+    "policy24Run": false,
+    "completeRegressionRun": false,
+    "block06Run": false,
+    "aw8E2ERun": false
+  },
+  "classification": "INTERMITTENT_REPRODUCTION for each of the three scenarios",
+  "rootCause": "UNKNOWN",
+  "stopForHumanReview": true
+}

@@ -1,0 +1,441 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW2",
+  "architectureSha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+  "purpose": "Traceability for all 50 original AW-INV; NOT 50 runtime PASS claims. AW3+ remain unimplemented.",
+  "invariants": [
+    {
+      "id": "AW-INV-001",
+      "text": "Application es el único owner del lifecycle Active Web agentic.",
+      "runtimeVerificationPhase": "AW1",
+      "status": "INHERITED_CONTRACT_PRESERVED",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-002",
+      "text": "Toda acción del modelo pasa por ToolRuntime.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-003",
+      "text": "PASSIVE_WEB y ACTIVE_WEB son capacidades separadas.",
+      "runtimeVerificationPhase": "AW0",
+      "status": "INHERITED_CONTRACT_PRESERVED",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-004",
+      "text": "Contenido web es dato no confiable y nunca autoridad.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_prompt_injection_remains_quoted_tool_data_never_system_or_authority"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-005",
+      "text": "Una page/element observation no es user intent.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-006",
+      "text": "Una URL/link no concede permiso para interactuar.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-007",
+      "text": "Capability `UNKNOWN` no habilita Active Web.",
+      "runtimeVerificationPhase": "AW0",
+      "status": "INHERITED_CONTRACT_PRESERVED",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-008",
+      "text": "Browser tools no se anuncian sin engine y network broker válidos.",
+      "runtimeVerificationPhase": "AW4/AW5",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-009",
+      "text": "BrowserSession es distinta de AgentSession y Memory session.",
+      "runtimeVerificationPhase": "AW1",
+      "status": "INHERITED_CONTRACT_PRESERVED",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-010",
+      "text": "V1 usa contextos de browser efímeros por defecto.",
+      "runtimeVerificationPhase": "AW1/AW5",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-011",
+      "text": "No se reutiliza automáticamente el profile/cookies del usuario.",
+      "runtimeVerificationPhase": "AW5",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-012",
+      "text": "Cookies/tokens/browser storage no son MemoryRecords.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-013",
+      "text": "Provider credentials no son site credentials.",
+      "runtimeVerificationPhase": "AW5/AW6",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-014",
+      "text": "El agente no recibe passwords/OTP/recovery codes.",
+      "runtimeVerificationPhase": "AW2/AW6",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_hidden_password_otp_sensitive_elements_omitted_even_when_visible",
+        "tests/active_web_v1/test_aw2_observation.py::test_registered_secret_redaction_applies_before_all_publication_bounds"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-015",
+      "text": "Login V1 se realiza por takeover humano, no autofill agentic.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-016",
+      "text": "Todo ElementRef es opaco y emitido por Nova.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_capture_mints_complete_opaque_refs_and_sanitized_host_observation"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-017",
+      "text": "El modelo no aporta CSS/XPath/JS selectors.",
+      "runtimeVerificationPhase": "AW2/AW5",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_model_request_schema_never_accepts_free_selector_or_engine_identifier",
+        "tests/active_web_v1/test_aw2_observation.py::test_forged_or_incompatible_bindings_stale_before_adapter"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-018",
+      "text": "ElementRef está ligado a session/page/navigation/observation.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_forged_or_incompatible_bindings_stale_before_adapter",
+        "tests/active_web_v1/test_aw2_observation.py::test_same_owner_different_session_and_page_refs_cannot_cross_registry",
+        "tests/active_web_v1/test_aw2_observation.py::test_cross_owner_workspace_child_cannot_capture_resolve_or_project"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-019",
+      "text": "Refs stale nunca se rebind heurísticamente.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_fresh_adapter_proof_must_match_every_target_property",
+        "tests/active_web_v1/test_aw2_observation.py::test_new_observation_rejects_old_element_even_when_page_looks_same",
+        "tests/active_web_v1/test_aw2_observation.py::test_missing_or_untyped_proof_is_stale"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-020",
+      "text": "Toda acción que cambia página invalida refs anteriores.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_every_potential_mutation_invalidates_until_reobservation",
+        "tests/active_web_v1/test_aw2_observation.py::test_potential_effect_lease_invalidates_refs_before_host_work",
+        "tests/active_web_v1/test_aw2_observation.py::test_invalidation_during_adapter_call_prevents_stale_publication_or_yield"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-021",
+      "text": "Approval se liga al target y estado exactos.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-022",
+      "text": "Cambio de origin/state invalida approval.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-023",
+      "text": "Click no implica read-only.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-024",
+      "text": "Input de texto se considera posible disclosure.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-025",
+      "text": "Remote mutation requiere approval exacta.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-026",
+      "text": "HIGH_IMPACT se deniega en Core V1.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-027",
+      "text": "Browser egress READY requiere mediación brokered PUBLIC_ONLY.",
+      "runtimeVerificationPhase": "AW4",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-028",
+      "text": "Private/loopback/link-local/metadata no son navegables por Active Web V1.",
+      "runtimeVerificationPhase": "AW4",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-029",
+      "text": "No existe fallback silencioso a network best-effort.",
+      "runtimeVerificationPhase": "AW4",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-030",
+      "text": "`file:`, `javascript:` y custom protocols no son targets agentic V1.",
+      "runtimeVerificationPhase": "AW4",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-031",
+      "text": "Una acción STARTED no se reintenta automáticamente.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-032",
+      "text": "UNKNOWN_OUTCOME permanece UNKNOWN hasta nueva evidencia.",
+      "runtimeVerificationPhase": "AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-033",
+      "text": "Cancelación/cierre no equivale a rollback.",
+      "runtimeVerificationPhase": "AW1/AW3",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-034",
+      "text": "Audit pre-effect permanece separado de SessionEventStream.",
+      "runtimeVerificationPhase": "AW7",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-035",
+      "text": "Audit no persiste cookies/passwords/auth headers.",
+      "runtimeVerificationPhase": "AW6/AW7",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-036",
+      "text": "Observations respetan current-user-first y ContextPolicy.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_projection_respects_effective_core_window_current_user_and_atomic_refs",
+        "tests/active_web_v1/test_aw2_observation.py::test_required_current_user_never_displaced_to_fit_browser_projection",
+        "tests/active_web_v1/test_aw2_observation.py::test_memory_rag_shared_retrieval_and_combined_caps_not_expanded_by_observation",
+        "tests/active_web_v1/test_aw2_observation.py::test_element_never_emitted_when_its_complete_representation_cannot_fit",
+        "tests/active_web_v1/test_aw2_observation.py::test_projection_does_not_lose_existing_tool_continuity_or_raise_shared_budget"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-037",
+      "text": "DOM/page source completo no se inyecta por defecto.",
+      "runtimeVerificationPhase": "AW2",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_forms_nonsecret_states_and_dialogs_are_structured_not_raw_dom",
+        "tests/active_web_v1/test_aw2_observation.py::test_host_capture_bounds_drop_long_identity_ref_instead_of_clipping_it"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-038",
+      "text": "Screenshot/vision no es requisito del Core V1.",
+      "runtimeVerificationPhase": "AW0/AW5",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-039",
+      "text": "Upload requiere selección host exacta y approval de transferencia.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-040",
+      "text": "Knowledge/AttachmentRef/Citation no otorgan upload authority.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-041",
+      "text": "Download no solicitado se bloquea.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-042",
+      "text": "Download aprobado entra primero a staging controlado.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-043",
+      "text": "Download no se importa automáticamente a Knowledge.",
+      "runtimeVerificationPhase": "AW6",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-044",
+      "text": "Subagents no reciben browser authority activa por defecto.",
+      "runtimeVerificationPhase": "AW7",
+      "status": "PASS_AW2_CONTRACT",
+      "tests": [
+        "tests/active_web_v1/test_aw2_observation.py::test_cross_owner_workspace_child_cannot_capture_resolve_or_project"
+      ],
+      "qualification": "Synthetic read-only adapter/context contracts only; no real-engine/Policy/browser certification"
+    },
+    {
+      "id": "AW-INV-045",
+      "text": "BrowserWindow/preload de Nova Desktop no aloja páginas Active Web.",
+      "runtimeVerificationPhase": "AW5/AW7",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-046",
+      "text": "Browser state no persiste entre reinicios en Core V1.",
+      "runtimeVerificationPhase": "AW1/AW5",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-047",
+      "text": "Cleanup no se declara confirmado si no puede observarse.",
+      "runtimeVerificationPhase": "AW1",
+      "status": "INHERITED_CONTRACT_PRESERVED",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-048",
+      "text": "No se afirma sandbox ni aislamiento físico por usar Chromium/Playwright.",
+      "runtimeVerificationPhase": "AW0/AW5",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-049",
+      "text": "Los frontends no implementan una segunda Policy/authority path.",
+      "runtimeVerificationPhase": "AW7",
+      "status": "NOT_IMPLEMENTED_IN_AW2",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    },
+    {
+      "id": "AW-INV-050",
+      "text": "Knowledge Inputs READY y sus históricos permanecen inmutables.",
+      "runtimeVerificationPhase": "AW0",
+      "status": "INHERITED_CONTRACT_PRESERVED",
+      "tests": [],
+      "qualification": "No new claim; original invariant unchanged. Later phase capability not implemented."
+    }
+  ]
+}

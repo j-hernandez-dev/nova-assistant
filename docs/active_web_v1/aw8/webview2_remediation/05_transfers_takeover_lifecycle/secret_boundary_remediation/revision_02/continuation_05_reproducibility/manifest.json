@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Reproducibility campaign with original nvr24 candidate; non-remediating",
+  "defect": "WV2-B05-C03-TAKEOVER-CONTINUITY-004",
+  "REPRODUCIBILITY_CAMPAIGN": "COMPLETE",
+  "NVR24_FAILURE_REPRODUCTION": "INTERMITTENT_REPRODUCTION",
+  "ROOT_CAUSE": "UNKNOWN",
+  "PRODUCT_FIX_IMPLEMENTED": false,
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "candidate": {
+    "freezePath": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_03/candidate_freeze.json",
+    "freezeSha256": "c376cc59dedfca0b6f6e71966bba0877b60264a71944cfeb10e7f32e8ff6eeeb",
+    "baseline": "baseline_freeze.json",
+    "pins": 75,
+    "candidateDrift": 0,
+    "exactOriginalNvr24Code": true
+  },
+  "plan": "reproduction_plan.json",
+  "externalOutputRoot": "C:/Users/joseh/AppData/Local/Temp/nova-c05-repro-20261010T202608Z",
+  "summary": {
+    "attempts": 30,
+    "pass": 4,
+    "fail_SECRET_BOUNDARY_UNCONFIRMED": 26,
+    "other_fail": 0,
+    "error": 0,
+    "skip": 0,
+    "xfail": 0
+  },
+  "scenarios": [
+    {
+      "scenarioId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+      "attempts": 10,
+      "pass": 1,
+      "fail_SECRET_BOUNDARY_UNCONFIRMED": 9,
+      "other_fail": 0,
+      "classification": "INTERMITTENT_REPRODUCTION",
+      "failureFrequency": 0.9
+    },
+    {
+      "scenarioId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+      "attempts": 10,
+      "pass": 2,
+      "fail_SECRET_BOUNDARY_UNCONFIRMED": 8,
+      "other_fail": 0,
+      "classification": "INTERMITTENT_REPRODUCTION",
+      "failureFrequency": 0.8
+    },
+    {
+      "scenarioId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]",
+      "attempts": 10,
+      "pass": 1,
+      "fail_SECRET_BOUNDARY_UNCONFIRMED": 9,
+      "other_fail": 0,
+      "classification": "INTERMITTENT_REPRODUCTION",
+      "failureFrequency": 0.9
+    }
+  ],
+  "preservedStates": {
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "historical36Udf": "CLEANUP_UNCONFIRMED"
+  },
+  "history": {
+    "nvr24": "../continuation_03/manifest.json",
+    "nvr24OriginalResult": "30 PASS / 3 FAIL / 0 ERROR / 0 SKIP, unchanged",
+    "c04": "../continuation_04_diagnosis/manifest.json",
+    "c04OriginalResult": "DIAGNOSIS=INCONCLUSIVE, unchanged",
+    "previousEvidenceRewritten": false
+  },
+  "firstKnownFailure": "takeover.finish -> BrowserPort.end_takeover -> host takeover_end responds SECRET_BOUNDARY_UNCONFIRMED, before fresh observation",
+  "failureClassification": "Reproduced historical typed denial with mixed PASS/FAIL per scenario. Underlying failure reason remains UNKNOWN, not reclassified as HARNESS_BUG/PREEXISTING.",
+  "analysis": {
+    "committedShortProven": false,
+    "checkpointContinuityProven": false,
+    "channelFailureProven": false,
+    "registryBoundsExpiryProven": false,
+    "lateCaptureProven": false,
+    "timingSensitiveHypothesis": "Compatible with intermittence, not established causally by this frequency-only campaign.",
+    "comparisonWithC04": "C04 temporary instrumented builds did not reproduce; current uninstrumented original candidate does. Different instrumentation/build composition prevents attributing causality solely to logging/CDP timing."
+  },
+  "productChanges": [],
+  "policyChanges": [],
+  "testFixtureDriverChanges": [],
+  "newHarnessOrRuntimeInstrumentationFiles": [],
+  "correlationLimits": "Original test IDs, per-round temp roots, full XML/stdout and existing receipts. Unmodified fixture does not persist host PIDs/numeric exit codes; cleanup/exit asserted and no teardown failures.",
+  "additionalDiagnosticRepetitionsAuthorized": true,
+  "selectiveRetries": 0,
+  "preservation": {
+    "sourcePinsChecked": 75,
+    "historicalPinsChecked": 218,
+    "trackedPriorPinsChecked": 18,
+    "historicalXmlPinsChecked": 6,
+    "drift": 0,
+    "c04PluginNotLoaded": true,
+    "c04CodeNotCompiled": true,
+    "c04DiagnosticTapFiles": 0
+  },
+  "cleanup": {
+    "ownedTemporaryUdfStagingRemaining": 0,
+    "scopedNativeProcessesRemaining": 0,
+    "originalTeardownPassed": 30,
+    "historical36UdfMaintenance": false
+  },
+  "evidence": [
+    "resultados.md",
+    "run_matrix.json",
+    "test_results.json",
+    "integrity.json",
+    "round_results/round_01.json through round_10.json"
+  ],
+  "limits": {
+    "noRawSecretsPersisted": true,
+    "noInformationFlowDlpClaim": true,
+    "noProductRepair": true,
+    "noFullRegression": true,
+    "noPolicy24Tests": true,
+    "noBlock06": true,
+    "noAw8E2E": true,
+    "noReady": true,
+    "noCommitPushTagRelease": true
+  },
+  "nextAction": "Stop for human review. Do not change policy/product or add another diagnostic probe without new authorization."
+}

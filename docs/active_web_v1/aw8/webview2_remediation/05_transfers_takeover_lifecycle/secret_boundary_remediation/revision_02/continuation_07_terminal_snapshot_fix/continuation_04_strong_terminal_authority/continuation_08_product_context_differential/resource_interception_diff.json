@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "rows": [
+    {
+      "field": "Filter",
+      "product": "https://nova-local.invalid/* and nova-second.invalid/*",
+      "micro": "https://nova-local.invalid/* only",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "field": "Resource context",
+      "product": "CoreWebView2WebResourceContext.All / two-arg overload",
+      "micro": "same",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "URI normalization",
+      "product": "Uri.UnescapeDataString(path)[1..], basename safe check",
+      "micro": "exact fixed URI comparison",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "field": "Data acquisition",
+      "product": "File.Exists/no reparse/length bound + File.ReadAllBytes",
+      "micro": "constant Payload bytes for download; UTF8 Html constant for index",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "field": "CreateWebResourceResponse",
+      "product": "Same environment on same view; MemoryStream(data,false), 200 OK",
+      "micro": "same",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "Download response headers",
+      "product": "text/plain, Content-Length35, Cache-Control no-store, no Content-Disposition",
+      "micro": "same A",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "Header serialization",
+      "product": "CRLF separated single string, terminal CRLF",
+      "micro": "same",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "Stream lifetime",
+      "product": "Local MemoryStream, no explicit Dispose/using; actual native retention/consumption not proven",
+      "micro": "Same lexical lifetime/no explicit Dispose, static payload backing array",
+      "classification": "UNKNOWN_RELEVANCE"
+    },
+    {
+      "field": "Response ownership/disposal",
+      "product": "e.Response assigned; no explicit Dispose",
+      "micro": "same",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "Callback return timing",
+      "product": "File IO/validation work + response construction",
+      "micro": "no file IO for target, response construction",
+      "classification": "UNKNOWN_RELEVANCE"
+    }
+  ],
+  "noHeaderFixOrHostingChange": true,
+  "staticCauseProven": false,
+  "measuredP1": {
+    "requestUri": "https://nova-local.invalid/download.txt",
+    "status": 200,
+    "length": 35,
+    "contentDisposition": "ABSENT",
+    "streamType": "MemoryStream(data,false)",
+    "explicitDisposal": false,
+    "callbackObservedTicks": 5281,
+    "microCallbackMeasuredMilliseconds": 0.19100000000003092,
+    "timingIsNotCausality": true,
+    "nativeResourceReturnedButDownloadStartingAbsent": true
+  }
+}

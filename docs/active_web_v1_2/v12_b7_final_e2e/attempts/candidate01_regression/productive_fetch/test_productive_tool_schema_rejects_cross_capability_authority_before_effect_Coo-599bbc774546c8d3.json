@@ -1,0 +1,233 @@
+{
+  "caseName": "test_productive_tool_schema_rejects_cross_capability_authority_before_effect[Cookie]",
+  "source": "PRODUCTIVE_FETCH_COMPOSITION",
+  "cases": [
+    {
+      "source": "PRODUCTIVE_FETCH_COMPOSITION",
+      "operationId": "op_1f9c634c61394519ae6da3c3fb09386e",
+      "productivePath": [
+        "AgentSessionCoordinator",
+        "WebV12Factory",
+        "ToolRuntime",
+        "WebProductV12",
+        "PolicyEngineV2",
+        "GrantIssuer",
+        "ControlledFetchService",
+        "RealControlledFetchTransport"
+      ],
+      "status": "denied",
+      "effectState": "none",
+      "error": "Error: WEB_CAPABILITY_SCHEMA_DENIED",
+      "outcome": null,
+      "resultMode": "TEXT",
+      "method": "GET",
+      "payloadSha256": null,
+      "countedBytes": null,
+      "transport": [],
+      "dns": [],
+      "serverEvents": [],
+      "forbiddenPrivateCanaryHits": 0,
+      "nativeTCPConnectAttempts": [],
+      "browserCreated": false,
+      "capabilitySnapshot": {
+        "schemaVersion": 1,
+        "schema": "WEB_CAPABILITIES_V12_1",
+        "controlledFetch": {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "available": {
+            "status": "KNOWN",
+            "value": true,
+            "reason": null
+          },
+          "unavailableReason": null,
+          "evidenceProfile": {
+            "status": "KNOWN",
+            "value": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+            "reason": null
+          },
+          "networkEgressControl": {
+            "status": "KNOWN",
+            "value": "ENFORCED",
+            "reason": null
+          },
+          "publicOnly": {
+            "status": "KNOWN",
+            "value": "ENFORCED",
+            "reason": null
+          },
+          "controlClass": {
+            "status": "KNOWN",
+            "value": "BROKER_ENFORCED",
+            "reason": null
+          },
+          "methods": [
+            "GET",
+            "HEAD"
+          ],
+          "resultModes": [
+            "TEXT",
+            "HTML_STATIC",
+            "JSON"
+          ],
+          "postAvailable": false,
+          "authAvailable": false,
+          "binaryDownloadAvailable": false,
+          "cookieJar": false,
+          "browserSessionImport": false
+        },
+        "interactiveBrowser": {
+          "capabilityId": "INTERACTIVE_BROWSER_V1_2",
+          "available": {
+            "status": "KNOWN",
+            "value": false,
+            "reason": null
+          },
+          "unavailableReason": "FEATURE_DISABLED",
+          "evidenceProfile": {
+            "status": "UNKNOWN",
+            "value": null,
+            "reason": "COMPATIBLE_EVIDENCE_REQUIRED"
+          },
+          "networkIsolation": {
+            "status": "KNOWN",
+            "value": "NOT_PROVIDED",
+            "reason": null
+          },
+          "controlClass": {
+            "status": "KNOWN",
+            "value": "HOST_UNISOLATED",
+            "reason": null
+          },
+          "adapter": {
+            "status": "KNOWN",
+            "value": "WEBVIEW2",
+            "reason": null
+          },
+          "externalProtocolGuard": {
+            "status": "UNKNOWN",
+            "value": null,
+            "reason": "COMPATIBLE_EVIDENCE_REQUIRED"
+          },
+          "remoteMutationControl": {
+            "status": "UNKNOWN",
+            "value": null,
+            "reason": "COMPATIBLE_EVIDENCE_REQUIRED"
+          },
+          "secretBoundary": {
+            "status": "UNKNOWN",
+            "value": null,
+            "reason": "COMPATIBLE_EVIDENCE_REQUIRED"
+          },
+          "formSubmitAvailable": false,
+          "subagentsBrowserByDefault": false,
+          "persistentSession": false,
+          "screenshot": false
+        }
+      },
+      "limitsProfile": {
+        "methods": [
+          "GET",
+          "HEAD"
+        ],
+        "modes": [
+          "TEXT",
+          "HTML_STATIC",
+          "JSON"
+        ],
+        "limits": {
+          "timeout_seconds": 30,
+          "max_redirects": 5,
+          "max_header_bytes": 32768,
+          "max_response_bytes": 2097152,
+          "max_published_chars": 32768,
+          "per_turn_requests": 8,
+          "concurrency": 2,
+          "per_turn_bytes": 50331648
+        },
+        "httpVersion": "1.1",
+        "automaticRetry": false,
+        "cookieJar": false,
+        "browserSessionImport": false,
+        "ambientProxy": false
+      },
+      "exactFixtureProcessOnlyTrust": true,
+      "authorityValuesPubliclySerialized": false
+    }
+  ],
+  "receipts": [],
+  "browserWasNeverCreated": true,
+  "sourcePins": [
+    [
+      "local_cli/core/controlled_fetch.py",
+      "13b4eda374150c2b2a58a1da026b660dc069e79427525ac08062f7a4e307d0c3"
+    ],
+    [
+      "local_cli/application/controlled_fetch.py",
+      "f04e62c8aa8e4f46d9896866dbf70eeb1a3cb009035a7acafb0f7dd8b4f46d04"
+    ],
+    [
+      "local_cli/infrastructure/controlled_fetch_transport.py",
+      "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668"
+    ],
+    [
+      "local_cli/infrastructure/controlled_fetch_dns.py",
+      "1c27323ea189170642a073ea9a2c076cd2f29d326437b8b418ad8ca7a022eb07"
+    ],
+    [
+      "local_cli/application/browser_network.py",
+      "77e497eeae76bf40768041a1d1f95d9db577b59b5a9f11fdb71de3eba5e58d07"
+    ],
+    [
+      "local_cli/application/network.py",
+      "2bdda05c23e71efdc6c19259e2fa9e7923f32c9c12a745e6ed38bba8def93dfc"
+    ],
+    [
+      "local_cli/infrastructure/http_fetch.py",
+      "bd228be5c1530a3d7983965ca1a495789709e4644696a6a84f6791f352af1986"
+    ],
+    [
+      "local_cli/core/network.py",
+      "d614cb9af7b9cc745d4232b797dec71b9b282c679d08909443e4d1717e3d276e"
+    ],
+    [
+      "local_cli/core/security.py",
+      "f5b2a50277a6eb69bd5b0626bc91a535fc77d6a27e95e729939b1eb912e1fcde"
+    ],
+    [
+      "local_cli/core/contracts.py",
+      "8ab6880cd47baccf433d4550817419a301db3cbda9880592b3e81b518561e1a7"
+    ],
+    [
+      "local_cli/application/policy.py",
+      "a0f6e00a00ec3d9fcc932ad3bdf706594330f180d1193edf62f1d8080362d6fa"
+    ],
+    [
+      "local_cli/application/grants.py",
+      "67245ceb425588b6d2f5bfb83fe157a0d063f6d9d7faca1775be1b0e79467abe"
+    ],
+    [
+      "local_cli/application/tool_runtime.py",
+      "5a8532d84f280376eb669af572331c5644d06bfea48b8cae3d0e9d3856418ca2"
+    ],
+    [
+      "local_cli/application/web_product_v12.py",
+      "320f91829d96a6e108db3cfee24e7607f6c8ba32b52460a5132eeb38d49864ad"
+    ],
+    [
+      "local_cli/bootstrap_web_v12.py",
+      "11d99d7e1bf9af57f8d36da4796d5117216d46b1232675d0b181157a107f4d95"
+    ],
+    [
+      "local_cli/infrastructure/web_discovery_v12.py",
+      "92b72b1da22458b01a5a90ef3ce2f85635a5256deaf691b4f762d3d3a9b0d9ef"
+    ],
+    [
+      "local_cli/core/web_capabilities_v12.py",
+      "7950fdbaf3b06a390356588c52fc4b063d804f3802850e7a04ae0200efa9ca43"
+    ],
+    [
+      "local_cli/application/web_routing_v12.py",
+      "ad380adefbc6fe1a0e5fc4aaf21dea6f3375320ae48c8bc0db8a7f1227b2d6e3"
+    ]
+  ]
+}

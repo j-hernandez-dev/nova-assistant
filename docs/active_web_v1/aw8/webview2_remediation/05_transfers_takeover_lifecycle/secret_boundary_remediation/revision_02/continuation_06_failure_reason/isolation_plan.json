@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "defect": "WV2-B05-C03-TAKEOVER-CONTINUITY-004",
+  "maximumExecutions": 10,
+  "maximumFailures": 5,
+  "stop": "After current individual scenario finishes, stop if five total failures captured or ten executions complete.",
+  "schedule": "Strict fixed round-robin of the same three original IDs; no selection by observed reason or quality.",
+  "scenarioIds": [
+    "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+    "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+    "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]"
+  ],
+  "root": "C:/Users/joseh/AppData/Local/Temp/nova-c06-reason-20261010T212842Z",
+  "initialCandidate": "Exact nvr24 code before authorized internal diagnostics delta",
+  "publicErrorUnchanged": "SECRET_BOUNDARY_UNCONFIRMED",
+  "allowedProductDelta": [
+    "native/nova-browser-host/SensitiveBoundaryFailure.cs",
+    "native/nova-browser-host/SensitiveValueRegistry.cs",
+    "native/nova-browser-host/SensitiveTracking.cs",
+    "native/nova-browser-host/TakeoverRuntime.cs"
+  ],
+  "addedTestInfrastructure": [
+    "native/nova-browser-host/tests/failure_reason/FailureReasonSink.cs",
+    "native/nova-browser-host/tests/failure_reason/failure_reason_plugin.py"
+  ],
+  "noC04Plugin": true,
+  "noNewNativeEventsOrLogging": true,
+  "observeAlreadySelectedFailureOnly": true,
+  "noFunctionalRepair": true,
+  "noExtraCases": true,
+  "noPolicy24Tests": true,
+  "noFullRegression": true,
+  "noBlock06": true,
+  "noAw8E2E": true,
+  "runtime": {
+    "python": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe",
+    "pythonVersion": "3.14.6",
+    "pytest": "9.1.1",
+    "dotnet": "C:/Program Files/dotnet/dotnet.exe",
+    "sdk": "10.0.203",
+    "webview2Sdk": "1.0.4258.31",
+    "webview2SdkLocalFeed": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31",
+    "native": "Windows / NTFS / AMD64"
+  },
+  "preservedStates": {
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "historical36Udf": "CLEANUP_UNCONFIRMED"
+  },
+  "historicalC05": "30 runs = 4 PASS / 26 SECRET_BOUNDARY_UNCONFIRMED; untouched",
+  "rootCauseInitial": "UNKNOWN"
+}

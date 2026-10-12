@@ -1,0 +1,281 @@
+{
+  "schemaVersion": 1,
+  "purpose": "INTERNAL_DIAGNOSTIC_TAXONOMY_NOT_PUBLIC_IPC",
+  "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+  "reasons": [
+    {
+      "code": 1,
+      "name": "OTHER"
+    },
+    {
+      "code": 2,
+      "name": "SHORT_COMMITTED_VALUE"
+    },
+    {
+      "code": 3,
+      "name": "NO_PROTECTED_WORLD"
+    },
+    {
+      "code": 4,
+      "name": "MULTIPLE_TRACKED_WORLDS"
+    },
+    {
+      "code": 5,
+      "name": "PROTECTED_WORLD_ACK_TIMEOUT"
+    },
+    {
+      "code": 6,
+      "name": "PROTECTED_WORLD_ACK_INVALID"
+    },
+    {
+      "code": 7,
+      "name": "CAPTURE_CHANNEL_UNAVAILABLE"
+    },
+    {
+      "code": 8,
+      "name": "CHECKPOINT_EXCEPTION"
+    },
+    {
+      "code": 9,
+      "name": "REGISTRY_LIMIT"
+    },
+    {
+      "code": 10,
+      "name": "REGISTRY_EXPIRED"
+    }
+  ],
+  "sites": [
+    {
+      "code": 1,
+      "name": "REGISTRY_DISPOSED"
+    },
+    {
+      "code": 2,
+      "name": "REGISTRY_ALREADY_UNAVAILABLE"
+    },
+    {
+      "code": 3,
+      "name": "REGISTRY_EXPIRED"
+    },
+    {
+      "code": 4,
+      "name": "VALUE_SIZE"
+    },
+    {
+      "code": 5,
+      "name": "PENDING_COUNT"
+    },
+    {
+      "code": 6,
+      "name": "VALUE_COUNT"
+    },
+    {
+      "code": 7,
+      "name": "TOTAL_UTF16"
+    },
+    {
+      "code": 8,
+      "name": "CURRENT_COMMIT_SHORT"
+    },
+    {
+      "code": 9,
+      "name": "TRACKING_INSTALL_EXCEPTION"
+    },
+    {
+      "code": 10,
+      "name": "CONTEXT_CREATED_EXCEPTION"
+    },
+    {
+      "code": 11,
+      "name": "BINDING_CONTEXT_NOT_TRACKED"
+    },
+    {
+      "code": 12,
+      "name": "VALUE_WORLD_NOT_PROTECTED"
+    },
+    {
+      "code": 13,
+      "name": "ACK_WORLD_NOT_PROTECTED"
+    },
+    {
+      "code": 14,
+      "name": "ACK_NONCE_NOT_PENDING"
+    },
+    {
+      "code": 15,
+      "name": "CAPTURE_REPORTED_UNAVAILABLE"
+    },
+    {
+      "code": 16,
+      "name": "CAPTURE_UNKNOWN_KIND"
+    },
+    {
+      "code": 17,
+      "name": "BINDING_MESSAGE_EXCEPTION"
+    },
+    {
+      "code": 18,
+      "name": "CONTEXT_DESTROYED_EXCEPTION"
+    },
+    {
+      "code": 19,
+      "name": "CONTEXTS_CLEARED_EXCEPTION"
+    },
+    {
+      "code": 20,
+      "name": "TRACKING_NOT_INSTALLED"
+    },
+    {
+      "code": 21,
+      "name": "FRAME_WORLD_SELECTION"
+    },
+    {
+      "code": 22,
+      "name": "FRAME_WORLD_NOT_PROTECTED"
+    },
+    {
+      "code": 23,
+      "name": "ACK_WAIT_TIMEOUT"
+    },
+    {
+      "code": 24,
+      "name": "CHECKPOINT_EXCEPTION"
+    },
+    {
+      "code": 25,
+      "name": "CAPTURE_CHANNEL_LOST"
+    },
+    {
+      "code": 26,
+      "name": "TAKEOVER_BEGIN_WRAPPER"
+    },
+    {
+      "code": 27,
+      "name": "TAKEOVER_END_WRAPPER"
+    },
+    {
+      "code": 28,
+      "name": "UNSPECIFIED"
+    }
+  ],
+  "firstFailureWins": true,
+  "branches": [
+    {
+      "reason": "SHORT_COMMITTED_VALUE",
+      "sites": [
+        "CURRENT_COMMIT_SHORT"
+      ],
+      "predicate": "Existing Commit current pending v.Length <=3; no threshold/promotion change.",
+      "metadata": "Host-private opaque control key and length only; no value."
+    },
+    {
+      "reason": "NO_PROTECTED_WORLD",
+      "sites": [
+        "FRAME_WORLD_SELECTION",
+        "VALUE_WORLD_NOT_PROTECTED",
+        "ACK_WORLD_NOT_PROTECTED",
+        "FRAME_WORLD_NOT_PROTECTED"
+      ],
+      "predicate": "Existing Single fails with zero matches, or existing protectedContexts guard false."
+    },
+    {
+      "reason": "MULTIPLE_TRACKED_WORLDS",
+      "sites": [
+        "FRAME_WORLD_SELECTION"
+      ],
+      "predicate": "Original sensitiveContexts.Single(frame) throws; diagnosis counts matches AFTER throw only, >1.",
+      "qualification": "Dictionary holds tracked worlds; does not imply all are protected. Adapted name instead of inventing proof."
+    },
+    {
+      "reason": "PROTECTED_WORLD_ACK_TIMEOUT",
+      "sites": [
+        "ACK_WAIT_TIMEOUT"
+      ],
+      "predicate": "Existing done.Task.WaitAsync(TimeSpan.FromSeconds(2)) throws TimeoutException. Runtime.evaluate exceptions are not mislabeled timeout."
+    },
+    {
+      "reason": "PROTECTED_WORLD_ACK_INVALID",
+      "sites": [
+        "ACK_NONCE_NOT_PENDING"
+      ],
+      "predicate": "Existing checkpoint nonce not in pending checkpoints."
+    },
+    {
+      "reason": "CAPTURE_CHANNEL_UNAVAILABLE",
+      "sites": [
+        "TRACKING_INSTALL_EXCEPTION",
+        "CONTEXT_CREATED_EXCEPTION",
+        "BINDING_CONTEXT_NOT_TRACKED",
+        "BINDING_MESSAGE_EXCEPTION",
+        "CONTEXT_DESTROYED_EXCEPTION",
+        "CONTEXTS_CLEARED_EXCEPTION",
+        "TRACKING_NOT_INSTALLED",
+        "CAPTURE_CHANNEL_LOST"
+      ],
+      "predicate": "Existing installation/context/binding/loss branches select fail-closed. Earlier registry/site diagnosis is retained."
+    },
+    {
+      "reason": "CHECKPOINT_EXCEPTION",
+      "sites": [
+        "CHECKPOINT_EXCEPTION",
+        "TAKEOVER_BEGIN_WRAPPER",
+        "TAKEOVER_END_WRAPPER"
+      ],
+      "predicate": "Existing catch wrappers; fallback only if no deeper failure already classified."
+    },
+    {
+      "reason": "REGISTRY_LIMIT",
+      "sites": [
+        "VALUE_SIZE",
+        "PENDING_COUNT",
+        "VALUE_COUNT",
+        "TOTAL_UTF16",
+        "CAPTURE_REPORTED_UNAVAILABLE"
+      ],
+      "predicate": "Existing host bounds or fixed JS 'unavailable' emitted on bounds; no ceilings changed."
+    },
+    {
+      "reason": "REGISTRY_EXPIRED",
+      "sites": [
+        "REGISTRY_EXPIRED"
+      ],
+      "predicate": "Existing active elapsed > MaxLifetime in Require, not already-unavailable/disposed."
+    },
+    {
+      "reason": "OTHER",
+      "sites": [
+        "REGISTRY_DISPOSED",
+        "REGISTRY_ALREADY_UNAVAILABLE",
+        "CAPTURE_UNKNOWN_KIND",
+        "UNSPECIFIED"
+      ],
+      "predicate": "Existing other/unclassified fail branch; cannot overwrite a deeper first reason."
+    }
+  ],
+  "omitted": {
+    "DOCUMENT_GENERATION_CHANGED": "Current checkpoint has no explicit document-generation comparison predicate. No new semantic validation/check introduced merely to populate taxonomy."
+  },
+  "capture": {
+    "productiveMemoryOnly": true,
+    "observerDefaultNull": true,
+    "testSink": "Fixed 256-byte host-private memory-mapped sidecar, initialized by a test-only ModuleInitializer included via MSBuild import. At first failure only: scalar memory stores and complete marker. No Flush, native event taps, per-input logs or new CDP.",
+    "publicSchemaChanged": false,
+    "secretsRecorded": false,
+    "shortMetadataOnlyIfRelevant": true,
+    "noNumericReasonInPublicFrames": true
+  },
+  "mutationScope": {
+    "productFiles": [
+      "native/nova-browser-host/SensitiveBoundaryFailure.cs",
+      "native/nova-browser-host/SensitiveValueRegistry.cs",
+      "native/nova-browser-host/SensitiveTracking.cs",
+      "native/nova-browser-host/TakeoverRuntime.cs"
+    ],
+    "functionalityRepaired": false,
+    "trackingSourceUnchanged": true,
+    "checkpointSelectionUnchanged": true,
+    "twoSecondAckDeadlineUnchanged": true,
+    "unknownAckBehaviorUnchanged": true,
+    "originalMainsFixturesTestsDriverUnchanged": true
+  }
+}

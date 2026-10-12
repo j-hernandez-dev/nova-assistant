@@ -1,0 +1,486 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW4",
+  "verdict": "AW4 = PASS",
+  "createdAt": "2026-10-09 19:32:34 UTC",
+  "verdictScope": "§35 broker component enforcement at admitted sockets; not real-browser exclusivity, engine availability or ACTIVE_WEB_CORE READY",
+  "normative": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+    "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "sections": [
+      "§18.1–5",
+      "§25",
+      "§31",
+      "§33 AW-INV-003/007/008/027–030/048/050",
+      "§35 AW4",
+      "§36.4"
+    ],
+    "literalGate": "Cierre: broker enforcement demostrado.",
+    "architectureModified": false,
+    "materialContradictionFound": false,
+    "precedence": "Architecture normative; audit/findings baseline context only. §18.2–3 actual engine availability remains conditional/unproved."
+  },
+  "baseline": {
+    "branch": "main",
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "workingTree": "DIRTY_INHERITED_PRESERVED",
+    "statusReference": "docs/active_web_v1/aw4/baseline_freeze.json",
+    "indexEmpty": true,
+    "trackedFileCount": 2181,
+    "inheritedUntrackedPins": 48,
+    "tags": [
+      "97f41c6dab89ee59332875bb8d89c29620b52156 refs/tags/nova-core-v1-stable",
+      "a26a94ebfb2db44551097f1641eec6706b52c101 refs/tags/nova-knowledge-inputs-v1-ready",
+      "fa6b2f7898692ddc6cec77a4d971dbc395b764a6 refs/tags/nova-memory-v1-ready",
+      "6a48c5252e40986ecf4180138d9d56bc519b3e49 refs/tags/nova-memory-v1.1-ready",
+      "e5bea6a4c2c559a1f5a2f8824316a83b548b2533 refs/tags/nova-security-v1.2-ready"
+    ],
+    "priorPhase": "AW3 = PASS",
+    "priorCertificationsReopened": false
+  },
+  "host": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "filesystem": "C: Fixed local NTFS",
+    "processIsolation": "HOST_UNISOLATED",
+    "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+    "explicitBaseExecutable": "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "fixtureRuntime": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+    "pytest": "9.1.1",
+    "node": "24.16.0",
+    "runtimeDownloaded": false,
+    "pluginAutoload": false,
+    "configuration": "private_environment; all temporary/runtime outputs outside Git"
+  },
+  "implementation": {
+    "productPins": {
+      "local_cli/core/active_web_network.py": "5eddc9df8cadb950e9a6a27f737e389aeda4c304ac8c62a6b078167f8e3d2ec0",
+      "local_cli/application/browser_network.py": "b3777d4511542ff64a249295421638070779725f0bf716c2a9e92eb5bf4c2c04",
+      "local_cli/infrastructure/active_web/__init__.py": "4d9c0f6309e5424c401b09798a232a67d7d555710dc45df24ba487c15ccc313e",
+      "local_cli/infrastructure/active_web/egress_broker.py": "9138eba7d121381e764a87f50809dd6b3423b64797efa8827e9d0e4726bc8570",
+      "local_cli/infrastructure/active_web/capability_probe.py": "9530f60a2b37c336fe1f6c2dc08be92267f71e1cdc5bc7e168e248e6e963a86a",
+      "tests/active_web_v1/test_aw4_network.py": "62da1a4d00ab9a9158fefc519ce290225193e26e5ee86726d0f07a4a4d171f77",
+      "tests/active_web_v1/test_aw4_proxy.py": "a69b1c0fa620679466f893c38286adee7eae57ae1cdf8dd0abb5c595a0dc41f3",
+      "ci/pytest_contracts.json": "18a5930defb4bca8cd1ff9202a83dcd9f9caa8db9fc29bde681e150f72088c5e"
+    },
+    "productFreeze": "docs/active_web_v1/aw4/product_freeze.json",
+    "reused": [
+      "S5 canonical_url/public_address (unchanged)",
+      "S5 HttpFetchBroker bounded DNS resolver and pinned socket transport (unchanged)",
+      "AW0 BrowserCapabilitySnapshot UNKNOWN fail-closed",
+      "AW1 session ownership/lifetime callbacks (no manager modification)",
+      "AW3 Policy/approval/ToolRuntime preserved; broker is NOT an action authority"
+    ],
+    "contracts": [
+      "Core internal BrowserConnectionPlan/BrowserBrokerLimits/BrowserNetworkAdmissionPort/BrowserProxyConfiguration/BrowserBrokerCleanup, typed BrowserEgressError",
+      "Application BrowserNetworkPolicy: explicit True host-owned session proof, finite ports, fresh all-answer DNS, numeric pin, no retry",
+      "Infrastructure opt-in authenticated finite HTTP1.1 proxy/CONNECT and local-only capability probe"
+    ],
+    "persistedSchemas": [],
+    "migrations": [],
+    "newDependencies": [],
+    "changesToExistingProductFiles": [],
+    "ciChange": "Addition only: ACTIVE_WEB_AW4 and 29 base contract rows. Existing workflows/runners/selectors unchanged.",
+    "passiveWebChanged": false,
+    "newRegisteredBrowserTools": 0
+  },
+  "criteria": [
+    {
+      "requirement": "BrowserEgressBroker",
+      "normative": "§18.1; §35 AW4",
+      "result": "PASS",
+      "components": [
+        "local_cli/core/active_web_network.py",
+        "local_cli/infrastructure/active_web/egress_broker.py"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw4_proxy.py::test_channel_secret_required_before_dns_and_not_in_private_configuration_repr",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_no_cross_session_channel_and_no_silent_direct_fallback",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_timeout_busy_recovery_no_late_response_or_automatic_retry"
+      ],
+      "proof": "Opt-in authenticated loopback forward proxy; finite connection/byte/deadline bounds, isolated private credentials, no retry/ambient transport, bounded truthful socket/worker cleanup."
+    },
+    {
+      "requirement": "PUBLIC_ONLY",
+      "normative": "§18.2; AW-INV-028; §35 AW4",
+      "result": "PASS",
+      "components": [
+        "local_cli/application/browser_network.py"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw4_network.py::test_private_special_literals_denied_before_dns_for_http_and_connect",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_real_localhost_dns_is_denied_without_private_fixture_hit",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_mixed_dns_rebinding_new_host_and_invalid_plan_never_connect"
+      ],
+      "proof": "S5 URL/public-address rules reused unchanged; private/loopback/link-local/metadata/mixed/special answers denied before any productive upstream connection."
+    },
+    {
+      "requirement": "DNS/CONNECT",
+      "normative": "§18.2; §35 AW4; §36.4",
+      "result": "PASS",
+      "components": [
+        "BrowserNetworkPolicy.authorize",
+        "S5 bounded resolver and pinned TCP transport (unchanged)",
+        "BrowserEgressBroker"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw4_network.py::test_fresh_dns_for_every_host_subresource_and_rebinding_not_cached",
+        "tests/active_web_v1/test_aw4_network.py::test_all_dns_answers_admitted_or_entire_connection_denied",
+        "tests/active_web_v1/test_aw4_network.py::test_dns_timeout_busy_and_recovery_uses_existing_bounded_resolver",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_connect_tls_pinned_no_second_dns_hostname_verified_by_client",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_connect_client_rejects_wrong_tls_hostname_no_http_request"
+      ],
+      "proof": "Every new admitted HTTP request/CONNECT resolves freshly, checks all <=64 answers, rejects endpoint/Host/port ambiguity, pins exactly one numeric endpoint with no connect DNS or alternate-address retry. HTTPS tunnel opaque; client verifies fixture TLS hostname, not broker MITM."
+    },
+    {
+      "requirement": "protocol restrictions",
+      "normative": "§18.2/5; AW-INV-030; §35 AW4",
+      "result": "PASS",
+      "components": [
+        "BrowserNetworkPolicy.authorize",
+        "BrowserEgressBroker._request/_forward_http"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw4_network.py::test_protocol_authority_ports_and_ambiguous_targets_fail_closed",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_smuggling_upgrade_and_ambiguous_framing_denied_before_connect",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_redirect_is_returned_not_followed_private_followup_denied",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_header_request_and_relay_limits_enforced"
+      ],
+      "proof": "Finite host ports (default HTTP80/CONNECT443), no file/javascript/data/internal/custom top-level target, no plaintext WS upgrade/TRACE/SOCKS fallback. Duplicate/ambiguous framing rejected; no implicit redirects or chunked streaming. WSS can only use an admitted opaque CONNECT destination; application-layer semantics uninspected/not separately certified."
+    },
+    {
+      "requirement": "capability probes",
+      "normative": "§25; §35 AW4",
+      "result": "PASS",
+      "components": [
+        "local_cli/infrastructure/active_web/capability_probe.py",
+        "BrowserCapabilitySnapshot (unchanged AW0)"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_probe_component_truthful_unknown_browser_and_closed_failure",
+        "tests/active_web_v1/test_aw4_proxy.py::test_proxy_is_not_os_firewall_and_does_not_claim_global_direct_bypass_prevention"
+      ],
+      "proof": "Explicit local-only probe measures running broker denial, closed/failed probe produces known false networkBroker. Engine, exclusive browser publicOnly, availability remain UNKNOWN; no model/browser launch/download/config change or tool advertisement."
+    },
+    {
+      "requirement": "no bypass claim unless verified",
+      "normative": "§18.3; §31; §35 AW4; AW-INV-027/048",
+      "result": "PASS",
+      "components": [
+        "capability_probe.py",
+        "no active-browser bootstrap changes"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw4_proxy.py::test_proxy_is_not_os_firewall_and_does_not_claim_global_direct_bypass_prevention",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_probe_component_truthful_unknown_browser_and_closed_failure"
+      ],
+      "proof": "Native direct harness socket remains possible in HOST_UNISOLATED. No global/process/browser exclusivity claim. Actual engine proxy bypass, SW/WebRTC/QUIC and TLS virtual-origin reuse validation awaits AW5/real-engine tests; ACTIVE_WEB_CORE unavailable/not advertised."
+    },
+    {
+      "requirement": "Cierre: broker enforcement demostrado.",
+      "normative": "§35 AW4 literal",
+      "result": "PASS",
+      "components": [
+        "Application admission → authenticated proxy → admitted numeric upstream socket"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_productive_broker_blocks_private_http_connect_ipv6_metadata",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_mixed_dns_rebinding_new_host_and_invalid_plan_never_connect",
+        "tests/active_web_v1/test_aw4_proxy.py::test_native_session_revoke_or_broker_close_interrupts_pending_no_success"
+      ],
+      "proof": "113 final AW4 cases, including real local productive denials and native HTTP/TLS transport with disclosed private-fixture substitutions. Broker-owned egress enforcement demonstrated, not real-browser/READY certification. No new regression introduced; inherited Core harness FAIL remains FAIL."
+    }
+  ],
+  "invariants": {
+    "reference": "docs/active_web_v1/aw4/invariant_matrix.json",
+    "count": 50,
+    "interpretation": "Traceability of all architecture invariants: inherited preservation, broker boundary verified, or future deferred. Not 50 real-browser invariant certifications."
+  },
+  "tests": {
+    "reference": "docs/active_web_v1/aw4/test_results.json",
+    "aw4": {
+      "passed": 113,
+      "failed": 0,
+      "errors": 0,
+      "networkParameterCases": 82,
+      "proxyModuleParameterCases": 31,
+      "baseContracts": 29,
+      "countedWithinCore": true
+    },
+    "final": [
+      {
+        "name": "final-core",
+        "passed": 3224,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 7,
+        "parameterInstances": 3232,
+        "subtestsPassed": 53,
+        "exitCode": 1,
+        "completed": true,
+        "junit": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-core\\tests.xml",
+          "sha256": "525c01c24fb7701e3d8cbb53967175793bf45019e4554b5f45047536fd7a1f24",
+          "sizeBytes": 427506
+        },
+        "command": {
+          "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+          "arguments": [
+            "-B",
+            "ci/run_contracts.py",
+            "--job",
+            "core",
+            "--output",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/final-core"
+          ]
+        }
+      },
+      {
+        "name": "final-knowledge",
+        "passed": 1015,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "parameterInstances": 1015,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "completed": true,
+        "junit": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-knowledge\\tests.xml",
+          "sha256": "6a820404f61cea0df5cf4d35bb00fcff4a18d0e0ee939e7780941382d8b4e8ba",
+          "sizeBytes": 167132
+        },
+        "command": {
+          "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+          "arguments": [
+            "-B",
+            "ci/run_contracts.py",
+            "--job",
+            "knowledge",
+            "--output",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/final-knowledge"
+          ]
+        }
+      },
+      {
+        "name": "final-memory",
+        "passed": 791,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "parameterInstances": 791,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "completed": true,
+        "junit": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-memory\\tests.xml",
+          "sha256": "ceed30e3170816d56ba198faac9dd20a91c22558263fcbb636d8e5923374cfbe",
+          "sizeBytes": 121585
+        },
+        "command": {
+          "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+          "arguments": [
+            "-B",
+            "ci/run_contracts.py",
+            "--job",
+            "memory",
+            "--output",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/final-memory"
+          ]
+        }
+      },
+      {
+        "name": "final-security",
+        "passed": 615,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "parameterInstances": 615,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "completed": true,
+        "junit": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-security\\tests.xml",
+          "sha256": "05bd903fb4a88a8194ef8046a0f216a8af39ea9fa65d03be95fdc8d28206f263",
+          "sizeBytes": 88927
+        },
+        "command": {
+          "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+          "arguments": [
+            "-B",
+            "ci/run_contracts.py",
+            "--job",
+            "security",
+            "--output",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/final-security"
+          ]
+        }
+      }
+    ],
+    "totals": {
+      "passed": 5645,
+      "failed": 1,
+      "errors": 0,
+      "skips": 7,
+      "subtestsPassed": 53,
+      "parameterInstances": 5653,
+      "aw4Passed": 113,
+      "focusedNotDoubleCounted": true
+    },
+    "desktop": {
+      "schemaVersion": 1,
+      "phase": "AW4",
+      "profile": "Native Windows current frontend regression; not Active Web engine certification",
+      "node": "24.16.0 (same installed runtime as AW3; version separately checked)",
+      "cwd": "C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/desktop",
+      "tests": {
+        "command": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs",
+        "exitCode": 0,
+        "passed": 68,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "todo": 0,
+        "durationMs": 1261.5106,
+        "evidenceKind": "Native Node execution; counts preserved in task tool transcript",
+        "warnings": [
+          "ExperimentalWarning Transform Types",
+          "MODULE_TYPELESS_PACKAGE_JSON"
+        ]
+      },
+      "typecheck": {
+        "command": "node node_modules/typescript/bin/tsc --noEmit",
+        "exitCode": 0,
+        "stdout": ""
+      },
+      "sourceUnchanged": true
+    },
+    "allPriorDevelopmentRunsPreserved": true,
+    "newFailures": 0,
+    "newSkips": 0,
+    "newXfails": 0,
+    "newExclusions": 0,
+    "collectionNote": "Security/Knowledge same collected multiset; Memory has exactly one historical import-time UUID parameter changing, no selector/source/count drift; raw artifacts retained.",
+    "subtestCounting": "Pytest9 suite.tests and log include 53 passing subtests, absent as separate testcase nodes; 5653 normal parameter instances counted separately."
+  },
+  "inheritedDebt": {
+    "nodeid": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "status": "FAIL",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "phaseImpact": "NON_BLOCKING_FOR_AW4",
+    "proof": "Same HOME/USERPROFILE assertion fails before AW4 (481 PASS/1 FAIL) and after AW4. Associated product/test/assertion/runner unchanged.",
+    "coreJobExitCode": 1,
+    "waiverOfGlobalReady": false,
+    "repairPerformed": false
+  },
+  "integrity": {
+    "schemaVersion": 1,
+    "phase": "AW4",
+    "checkedAt": "2026-10-09T19:23:19.186741+00:00",
+    "trackedPreserved": true,
+    "trackedUnchangedDigest": "c85df4be0a7cfe4240fd29f055802e21bd8090c80c54b493e74a48fbacd57aa9",
+    "inheritedUntrackedDrift": [],
+    "productDrift": [],
+    "architectureHistoryPreserved": true,
+    "ciAdditionOnly": true,
+    "newBaseContracts": 29,
+    "priorCiReconstructedSha256": "07e9c00c4ab19d75599d29120f2acabff7c710033e599636ee86305dcc445b01",
+    "noNewSkipXfailMarkers": true,
+    "staticContractCount": 3958,
+    "indexEmpty": true,
+    "headUnchanged": true,
+    "branchUnchanged": true,
+    "tagsUnchanged": true
+  },
+  "capabilities": {
+    "brokerOwnedSocketControl": "BROKER_ENFORCED",
+    "networkBrokerProbe": "KNOWN true only if live denial probe passes; known false on closed/failure",
+    "browserAvailable": "UNKNOWN",
+    "browserPublicOnly": "UNKNOWN",
+    "engine": "NOT_IMPLEMENTED",
+    "activeWebCoreAdvertised": false,
+    "passiveWebDomain": "UNCHANGED_SEPARATE",
+    "pageContentAuthority": "UNTRUSTED_DATA_ONLY",
+    "semanticProfiles": {
+      "memory": "NOT_CERTIFIED (unchanged)",
+      "document": "NOT_CERTIFIED (unchanged)"
+    },
+    "noSandboxOrGlobalBypassClaim": true
+  },
+  "realVsDoubles": {
+    "native": [
+      "Loopback proxy listener and native TCP HTTP/TLS test fixtures",
+      "Productive policy denies private literal and localhost/mixed/rebinding without contacting forbidden fixture",
+      "Native TLS CONNECT with synthetic fixture CA; client validates hostname",
+      "Timeout/BUSY/recovery/revocation/close and truthful own socket cleanup"
+    ],
+    "doubles": [
+      "Synthetic resolver answers for all-answer/port/endpoint policy and pinning",
+      "FixtureAdmission test-only endpoint substitution for positive local upstream transport; never used in product",
+      "OSError injection for deterministic transport-error/no-retry contract",
+      "Fake browser session port tests callback ownership/lifetime/epoch, not real engine integration"
+    ],
+    "notClaimed": [
+      "Public Internet certification",
+      "Actual browser launch/engine proxy exclusivity",
+      "Global firewall/process isolation",
+      "TLS virtual-origin/coalescing and WebRTC/QUIC/service-worker bypass proof",
+      "LLM E2E or Linux/macOS host certification"
+    ]
+  },
+  "limitsAndRemainingEvidence": [
+    "Opaque CONNECT enforces only admitted host numeric endpoint/port; no TLS MITM or virtual-origin inspection.",
+    "Plaintext WS upgrade, TE/Expect/chunked streaming, SOCKS and unsupported proxy framing fail closed; no silent direct fallback.",
+    "Host session callback must be bounded/nonblocking. Real ToolRuntime/adapter composition is future AW5, not implemented.",
+    "Cleanup confirms only own listener/connections/workers, not browser processes or uninterruptible OS DNS daemon termination.",
+    "Broker credentials/configuration private host-side; bounded diagnostics are not SecurityAudit or action receipts.",
+    "Actual browser availability needs engine/exclusivity/protocol tests, not flags or doubles.",
+    "Core HOME/USERPROFILE harness debt remains visible FAIL and separate maintenance debt."
+  ],
+  "artifacts": {
+    "pins": {
+      "docs/active_web_v1/aw4/baseline_freeze.json": "178a38201f06d12042b2e426641e8326b965431884d58dacc372fbb56c8f4cec",
+      "docs/active_web_v1/aw4/preflight.json": "c9e3303c5bf2cb552004e8fa9ae9beebde8eeed10d5c0fc7be77e1663a6c95df",
+      "docs/active_web_v1/aw4/product_freeze.json": "bad2ade4829e7551c640f15952f59c49b3b6904337da9bb5dfecd1aa9c81a086",
+      "docs/active_web_v1/aw4/test_results.json": "8643e49dabf4ef3cc1f3ddb78c96058fba58e34d06f490245a1826f362b6e7f4",
+      "docs/active_web_v1/aw4/desktop_result.json": "21145c35c51d91c9f57f542d2eae1ecced6ab142d5d247882b6e00281fdf0434",
+      "docs/active_web_v1/aw4/integrity.json": "eac292a94db0a8b1b76a42452369290a5cd8c0dd726d665ff4441abd20bf5902",
+      "docs/active_web_v1/aw4/invariant_matrix.json": "2c127b0db9d700d6bc1f445abea4ccd8833e0cea508f76108c39ae82c0b92de5",
+      "docs/active_web_v1/aw4/resultados.md": "4a1a43be2e1503697894851c9e88072d7f040dd29272eb52f897ffb0417b7595",
+      "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+      "docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md": "ee2a03ad2b887c2add4a5eac9402112edf3362d1e11118388cba9b268a405285",
+      "docs/active_web_v1/audit/findings.json": "c81d8a9279cd7a7aec74a78fb5e805d0a0c93b8b034db32c5f4c66d0100d2a1d",
+      "docs/active_web_v1/aw3/manifest.json": "cc3df0fa2c8c5505ccae3a62e74117e91184d52b81da713354aab4090ebe2e47"
+    },
+    "selfHashPolicy": "manifest.json is not self-pinned; external XML/log/selection hashes are in test_results.json; source pins in product_freeze.json",
+    "newEvidenceFiles": [
+      "docs/active_web_v1/aw4/baseline_freeze.json",
+      "docs/active_web_v1/aw4/preflight.json",
+      "docs/active_web_v1/aw4/product_freeze.json",
+      "docs/active_web_v1/aw4/test_results.json",
+      "docs/active_web_v1/aw4/desktop_result.json",
+      "docs/active_web_v1/aw4/integrity.json",
+      "docs/active_web_v1/aw4/invariant_matrix.json",
+      "docs/active_web_v1/aw4/resultados.md",
+      "docs/active_web_v1/aw4/manifest.json"
+    ],
+    "externalOutputRoot": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z"
+  },
+  "scopeControl": {
+    "browserEngineInstalled": false,
+    "browserEngineLaunched": false,
+    "autoDownload": false,
+    "newGlobalConfiguration": false,
+    "awbeyond4Implemented": false,
+    "readyDeclared": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false,
+    "nextPhase": "AW5 — reference only; not implemented",
+    "stopForHumanReview": true
+  },
+  "openDecisions": {
+    "materialForAw4": [],
+    "future": "Actual-engine capability/exclusivity proof and composition deferred per phase plan, no speculative resolution."
+  }
+}

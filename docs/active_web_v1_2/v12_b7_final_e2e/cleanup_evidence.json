@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "AW_V12_B7_c538cc9c1a7f2e2d25ba",
+  "result": "CLEANUP_UNCONFIRMED",
+  "nativeRuntime": "CONFIRMED",
+  "ownedAudit": "audits/cleanup_sealed/b7_owned_cleanup_readonly.json",
+  "contractualCleanupGate": "PASS",
+  "normativeBasis": "User B7 section 24 explicitly permits a real CLEANUP_UNCONFIRMED cause with stated impact; no forensic erasure is required",
+  "B6_TEMP_CLEANUP": "UNCONFIRMED_POLICY_BLOCK",
+  "B6InertAudit": "audits/b6_retained_resources/b6_retained_resources_readonly.json",
+  "retainedNewJournal": {
+    "bytes": 1079,
+    "sha256": "7b7d1f9298719e8c7b5f7282c44d82a347553352ec23eeb8c5d9e87a04c1b968",
+    "autoReview": "REJECTED_BLOCKED_BY_POLICY_BEFORE_EXECUTION",
+    "retry": false,
+    "alternativeDeletion": false,
+    "reviewCopy": "audits/cleanup_disposition/retained_guard_journal.jsonl"
+  },
+  "failedStagingRemoved": {
+    "bytes": 36,
+    "sha256": "564b88f74cbae2a4d8e64888f28bef679987bc58c014e983cd2ce7f7de39abf9",
+    "ownedEmptyRootRemoved": true
+  },
+  "impact": "Required live resources are confirmed closed. One 1079-byte owned benign audit receipt remains outside its deleted UDF, with no reusable authority or credentials and no candidate/discovery dependency. Its retention is disclosed under the explicit section 24 exception.",
+  "currentCandidateGuardJournal": "CONFIRMED_REMOVED; read-only evidence archive retained",
+  "forensicErasureClaim": false,
+  "historicalResourcesTouched": false
+}

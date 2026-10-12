@@ -1,0 +1,45 @@
+......F............                                                      [100%]
+================================== FAILURES ===================================
+__________ test_host_child_cleanup_with_owned_process_identity[True] __________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/independent_regression/s4_private_xm_7a6fw/s4_host_real/test_host_child_cleanup_with_o1')
+root_exits = True
+record_property = <function record_property.<locals>.append_property at 0x000001E6A2BDB690>
+
+    @pytest.mark.parametrize('root_exits', [False, True])
+    def test_host_child_cleanup_with_owned_process_identity(tmp_path, root_exits, record_property):
+        if os.name != 'nt':
+            pytest.skip('Windows native identity verification')
+        api = ctypes.WinDLL('kernel32', use_last_error=True)
+        api.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        api.OpenProcess.restype = wintypes.HANDLE
+        api.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+        api.WaitForSingleObject.restype = wintypes.DWORD
+        api.CloseHandle.argtypes = [wintypes.HANDLE]
+        api.CloseHandle.restype = wintypes.BOOL
+        observed = {}
+        class ChildReadyToken:
+            def is_cancel_requested(self):
+                path = tmp_path/'child.json'
+                if path.exists() and not observed:
+                    pid = json.loads(path.read_text())['pid']
+                    handle = api.OpenProcess(0x100000, False, pid)  # SYNCHRONIZE
+                    assert handle, 'live child identity was not acquired'
+                    assert api.WaitForSingleObject(handle, 0) == 258
+                    observed.update(pid=pid, handle=handle)
+                return bool(observed) and not root_exits
+        token = ChildReadyToken()
+        source = ("import subprocess,sys,json,time\nfrom pathlib import Path\n"
+                  "p=subprocess.Popen([sys.executable,'-B','-c','import time;time.sleep(20)'])\n"
+                  "Path('child.json').write_text(json.dumps({'pid':p.pid}))\n"
+                  "print('child-started',flush=True)\n" +
+                  ("time.sleep(.3)\n" if root_exits else "time.sleep(20)\n"))
+        try:
+            report, _ = python(tmp_path, source, token=token, timeout=25)
+>           assert observed and report.cleanup_confirmed
+E           assert ({})
+
+tests\security_v12\test_s4_host.py:122: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s4_host.py::test_host_child_cleanup_with_owned_process_identity[True]
+1 failed, 18 passed in 7.81s

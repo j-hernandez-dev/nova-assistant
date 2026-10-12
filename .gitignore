@@ -65,6 +65,18 @@ node_modules/
 *.tsbuildinfo
 *.log
 
+# Accepted Active Web receipts and build diagnostics are immutable evidence.
+# Keep the exception scoped to the evidence roots; local runtime logs stay out.
+!/docs/active_web_v1/**/*.log
+!/docs/active_web_v1_2/**/*.log
+!/docs/context64/**/*.log
+!/docs/memory_v1/**/*.log
+!/docs/security_v12/**/*.log
+
+# Reproducible native project output, separate from pinned evidence binaries.
+/native/**/bin/
+/native/**/obj/
+
 # Archived Knowledge evidence referenced by frozen manifests, not runtime logs.
 !/docs/knowledge_inputs_v1/knowledge_context_capability_resolution_v1_head_evidence/run.log
 !/docs/knowledge_inputs_v2/revision_03/evidence/checks-attempt-01.log

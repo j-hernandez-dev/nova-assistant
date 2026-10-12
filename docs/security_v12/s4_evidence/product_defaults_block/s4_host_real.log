@@ -1,0 +1,47 @@
+...................FF....                                                [100%]
+================================== FAILURES ===================================
+____________ test_host_default_product_output_and_no_legacy_route _____________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/product_defaults_block/s4_private_3zckvu1x/s4_host_real/test_host_default_product_outp0')
+
+    def test_host_default_product_output_and_no_legacy_route(tmp_path):
+        from local_cli.core.contracts import ToolStatus
+        from local_cli.process_config import DEFAULT_PROCESS_LIMITS
+        script = tmp_path/'product_output.py'
+        script.write_text("import os\nfor _ in range(64):\n os.write(1,b'A'*4096)\n os.write(2,b'B'*4096)\n", encoding='utf-8')
+        command = "& '" + sys.executable.replace("'","''") + "' '" + str(script).replace("'","''") + "'; exit $LASTEXITCODE"
+        rt, inv, _ = runtime_fixture(tmp_path, command, product_default=True)
+        shell = rt.registry.tool('bash')
+        shell._executor.run = lambda *a, **k: pytest.fail('legacy executor route reached')
+        result = rt.execute(inv)
+        assert rt._process_service.limits == DEFAULT_PROCESS_LIMITS
+>       assert result.status is ToolStatus.COMPLETED and result.exit_code == 0
+E       AssertionError: assert (<ToolStatus.DENIED: 'denied'> is <ToolStatus.COMPLETED: 'completed'>)
+E        +  where <ToolStatus.DENIED: 'denied'> = ToolResult(status=<ToolStatus.DENIED: 'denied'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...NIED', artifacts=(), metadata=mappingproxy({'securityErrorCode': 'POLICY_DENIED'}), legacy_text='Error: POLICY_DENIED').status
+E        +  and   <ToolStatus.COMPLETED: 'completed'> = <enum 'ToolStatus'>.COMPLETED
+
+tests\security_v12\test_s4_host.py:323: AssertionError
+______________ test_host_default_product_environment_and_profile ______________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/product_defaults_block/s4_private_3zckvu1x/s4_host_real/test_host_default_product_envi0')
+
+    def test_host_default_product_environment_and_profile(tmp_path):
+        from local_cli.core.contracts import ToolStatus
+        script = tmp_path/'product_env.py'
+        script.write_text("import json,os\nprint(json.dumps({'keys':list(os.environ),'profile':os.getenv('USERPROFILE')}))\n", encoding='utf-8')
+        source = environment(tmp_path)
+        source.update(NOVA_PROVIDER_API_KEY='DUMMY', NOVA_APPROVAL_HOST_KEY='DUMMY', NOVA_GRANT_MATERIAL='DUMMY',
+                      OPENAI_API_KEY='DUMMY', NODE_OPTIONS='DUMMY', PYTHONPATH='DUMMY', SSH_AUTH_SOCK='DUMMY', HTTPS_PROXY='DUMMY')
+        command = "& '" + sys.executable.replace("'","''") + "' '" + str(script).replace("'","''") + "'; exit $LASTEXITCODE"
+        rt, inv, _ = runtime_fixture(tmp_path, command, product_default=True, env=source)
+        result = rt.execute(inv)
+>       assert result.status is ToolStatus.COMPLETED
+E       AssertionError: assert <ToolStatus.DENIED: 'denied'> is <ToolStatus.COMPLETED: 'completed'>
+E        +  where <ToolStatus.DENIED: 'denied'> = ToolResult(status=<ToolStatus.DENIED: 'denied'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...NIED', artifacts=(), metadata=mappingproxy({'securityErrorCode': 'POLICY_DENIED'}), legacy_text='Error: POLICY_DENIED').status
+E        +  and   <ToolStatus.COMPLETED: 'completed'> = <enum 'ToolStatus'>.COMPLETED
+
+tests\security_v12\test_s4_host.py:339: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s4_host.py::test_host_default_product_output_and_no_legacy_route
+FAILED tests/security_v12/test_s4_host.py::test_host_default_product_environment_and_profile
+2 failed, 23 passed in 9.95s

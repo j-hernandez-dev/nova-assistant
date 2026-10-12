@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "inspectionBeforeAnyHarnessChange": true,
+  "SESSION_FORMAT_CONSTRAINT": {
+    "pattern": "^bws_[0-9a-f]{32}$",
+    "totalChars": 36,
+    "shorterIdsValid": false,
+    "references": [
+      "local_cli/infrastructure/active_web/host_ipc_protocol.py:60",
+      "local_cli/infrastructure/active_web/browser_host.py:44",
+      "native/nova-browser-host/Protocol.cs:31",
+      "native/nova-browser-host/LifecycleServer.cs:20"
+    ]
+  },
+  "INSTANCE_FORMAT_CONSTRAINT": {
+    "pattern": "^bhi_[0-9a-f]{32}$",
+    "totalChars": 36,
+    "shorterIdsValid": false,
+    "generatedBy": "opaque('bhi') / uuid4().hex",
+    "references": [
+      "local_cli/infrastructure/active_web/browser_host.py:47",
+      "native/nova-browser-host/Protocol.cs:31",
+      "native/nova-browser-host/LifecycleServer.cs:20",
+      "native/nova-browser-host/Protocol.cs:77"
+    ]
+  },
+  "UDF_BASENAME_CONSTRAINT": {
+    "formula": "nova_wv2_<session>_<instance>",
+    "totalChars": 82,
+    "exactEqualityRequired": true,
+    "references": [
+      "native/nova-browser-host/LifecycleServer.cs:23",
+      "local_cli/infrastructure/active_web/webview2_adapter.py:36",
+      "local_cli/infrastructure/active_web/webview2_adapter.py:53"
+    ]
+  },
+  "UDF_PARENT_CONSTRAINT": {
+    "absolute": true,
+    "exists": true,
+    "mustBeDirectory": true,
+    "symlinksOrReparseAllowed": false,
+    "writableRequired": true,
+    "managedOwnerRequired": true,
+    "explicitMandatoryPathLength": null,
+    "udfMustNotAlreadyExist": true,
+    "privateUdfAcl": "Current-user-only protected ACL created by product factory",
+    "ownerMarker": "Exact host instance in .nova-owner; normal cleanup checks marker/ref basename unchanged",
+    "references": [
+      "local_cli/infrastructure/active_web/webview2_adapter.py:33",
+      "local_cli/infrastructure/active_web/webview2_adapter.py:53",
+      "native/nova-browser-host/WebView2Runtime.cs:108",
+      "native/nova-browser-host/WebView2Runtime.cs:110",
+      "native/nova-browser-host/WebView2Runtime.cs:115",
+      "native/nova-browser-host/WebView2Runtime.cs:120"
+    ]
+  },
+  "additionalUsesReviewed": [
+    "Protocol request/response/schema versions 2/4/5 delegate to the same exact refs",
+    "NativePipe client PID/current-user ACL; independent of path naming",
+    "Bootstrap owner PID and handshake session/instance/host PID correlation",
+    "Runtime environment UserDataFolder equality with requested canonical path",
+    "GuardJournal owner refs/audit sidecars",
+    "ContextObserver sidecars and signal use exact UDF/host instance",
+    "Cleanup validates basename/reparse/instance marker after owned process termination"
+  ],
+  "decision": {
+    "sessionAndInstance": "KEEP_NORMAL_PRODUCT_FORMAT_AND_UUID_SEMANTICS",
+    "onlyPathChange": "Short private parent/root + original exact product basename",
+    "intendedParent": "C:/Users/joseh/AppData/Local/Temp/nv32c5ee126",
+    "parentLength": 45,
+    "expectedUdfLength": 128,
+    "validationModified": false,
+    "retiredU3NotReused": true
+  },
+  "executionGateBeforeDownload": [
+    "Original ownership validation accepts path",
+    "Original private pipe handshake succeeds",
+    "WebView2Runtime constructed by original lifecycle server",
+    "session_create creates environment",
+    "page_create creates real controller/control",
+    "navigate_local completes content load"
+  ],
+  "effectiveB3Allowed": 1,
+  "retries": 0,
+  "noB4": true,
+  "oldB3PreparationFailurePreserved": true
+}

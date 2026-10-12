@@ -1,0 +1,983 @@
+{
+  "schemaVersion": 1,
+  "name": "NOVA_ACTIVE_WEB_CHROMIUM_PROFILE",
+  "phase": "SOURCE_CONTROLLED_CHROMIUM_ARCHITECTURE_REVIEW",
+  "sourcePins": {
+    "chromium": "b859317bf11f6be47f9b7799ec690a0a42a1fb33",
+    "cef": "14c5a089e8452874cb1a556dc3fde26ed2d87723",
+    "cefVersion": "154.0.34+g14c5a08+chromium-154.0.8037.98",
+    "chromiumVersion": "154.0.8037.98"
+  },
+  "conceptualGateCount": 22,
+  "maintainability": "LARGE_PATCH_SET",
+  "countRule": "One ID per independently testable enforcement gate, including native and security-critical GN/profile overlays. No claim these are ready/applicable patch files. Non-security GN/reproducibility settings and BrowserPort adapter work excluded.",
+  "scopeClosedForReview": true,
+  "gates": [
+    {
+      "PATCH_ID": "NCP-01",
+      "INVARIANT": "Default-deny immutable Nova profile in every owned process/context before any content or background networking; reject mismatched build/broker generation",
+      "CHROMIUM_SUBSYSTEM": "base/content process bootstrap + NetworkService",
+      "CEF_SUBSYSTEM_IF_ANY": "CEF app/context bootstrap",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "F01",
+          "path": "libcef/browser/chrome/chrome_content_browser_client_cef.cc"
+        },
+        {
+          "sourceId": "C06",
+          "path": "services/network/network_context.cc"
+        },
+        {
+          "sourceId": "C11",
+          "path": "content/browser/storage_partition_impl.cc"
+        },
+        {
+          "sourceId": "C57",
+          "path": "chrome/browser/net/system_network_context_manager.cc"
+        },
+        {
+          "sourceId": "F08",
+          "path": "include/internal/cef_types.h"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "PROCESS_PROFILE",
+      "EXPECTED_CHANGE_SIZE": "MEDIUM_CROSS_CUTTING",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-07",
+        "NCP-08",
+        "NCP-10"
+      ],
+      "NATIVE_TEST": "Missing/corrupt bootstrap; NetworkService/renderer restart before attestation; unknown context cannot connect",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-02",
+      "INVARIANT": "Native PeerConnection constructor rejects before factory/ICE/data-channel initialization, including webkit alias",
+      "CHROMIUM_SUBSYSTEM": "Blink peerconnection",
+      "CEF_SUBSYSTEM_IF_ANY": "none",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C01",
+          "path": "third_party/blink/renderer/modules/peerconnection/rtc_peer_connection.cc"
+        },
+        {
+          "sourceId": "C02",
+          "path": "third_party/blink/renderer/modules/peerconnection/rtc_peer_connection.idl"
+        },
+        {
+          "sourceId": "C03",
+          "path": "third_party/blink/renderer/modules/peerconnection/peer_connection_dependency_factory.cc"
+        },
+        {
+          "sourceId": "C33",
+          "path": "third_party/blink/renderer/modules/peerconnection/rtc_peer_connection_handler.cc"
+        },
+        {
+          "sourceId": "C34",
+          "path": "third_party/blink/renderer/modules/peerconnection/rtc_ice_transport.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "RENDERER_API",
+      "EXPECTED_CHANGE_SIZE": "SMALL_SUBSYSTEM_LOCAL",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-03",
+        "NCP-08"
+      ],
+      "NATIVE_TEST": "Secure context, alias, iframe, no camera, STUN/TURN UDP/TCP/data channel; creation denied",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-03",
+      "INVARIANT": "Remove NetworkService P2P exposure and deny residual P2P IPC/socket/resolution path independently of Blink",
+      "CHROMIUM_SUBSYSTEM": "content P2P + services/network P2P",
+      "CEF_SUBSYSTEM_IF_ANY": "GN overlay",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C54",
+          "path": "services/network/public/cpp/features.gni"
+        },
+        {
+          "sourceId": "C50",
+          "path": "services/network/BUILD.gn"
+        },
+        {
+          "sourceId": "C59",
+          "path": "content/browser/renderer_host/render_process_host_impl.cc"
+        },
+        {
+          "sourceId": "C04",
+          "path": "content/browser/renderer_host/p2p/socket_dispatcher_host.cc"
+        },
+        {
+          "sourceId": "C05",
+          "path": "services/network/p2p/socket_manager.cc"
+        },
+        {
+          "sourceId": "C06",
+          "path": "services/network/network_context.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "BACKEND_BUILD_AND_NATIVE",
+      "EXPECTED_CHANGE_SIZE": "SMALL_TO_MEDIUM_LOCAL_BUILD_INTEGRATION",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-02",
+        "NCP-07",
+        "NCP-08",
+        "NCP-09"
+      ],
+      "NATIVE_TEST": "Backend-only fault test with Layer A omitted in separate test binary; UDP/TCP/STUN/TURN cannot instantiate P2P transport",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-04",
+      "INVARIANT": "Deny SW registration/access from renderer and native registration entrypoints before script job or storage admission",
+      "CHROMIUM_SUBSYSTEM": "content/service_worker",
+      "CEF_SUBSYSTEM_IF_ANY": "ChromeContentBrowserClientCef AllowServiceWorker override",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C07",
+          "path": "content/browser/service_worker/service_worker_container_host.cc"
+        },
+        {
+          "sourceId": "C08",
+          "path": "content/browser/service_worker/service_worker_context_core.cc"
+        },
+        {
+          "sourceId": "C10",
+          "path": "content/public/browser/content_browser_client.h"
+        },
+        {
+          "sourceId": "C29",
+          "path": "content/browser/service_worker/service_worker_context_wrapper.cc"
+        },
+        {
+          "sourceId": "F01",
+          "path": "libcef/browser/chrome/chrome_content_browser_client_cef.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "BROWSER_REGISTRATION",
+      "EXPECTED_CHANGE_SIZE": "SMALL_MULTIPLE_ENTRYPOINTS",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-05",
+        "NCP-06"
+      ],
+      "NATIVE_TEST": "register classic/module, iframe/worker callers, import requests absent; native registration deny",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-05",
+      "INVARIANT": "Never attach/activate an existing SW controller or restore a registration into usable active state",
+      "CHROMIUM_SUBSYSTEM": "content SW registration/registry/control",
+      "CEF_SUBSYSTEM_IF_ANY": "none",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C07",
+          "path": "content/browser/service_worker/service_worker_container_host.cc"
+        },
+        {
+          "sourceId": "C31",
+          "path": "content/browser/service_worker/service_worker_registration.cc"
+        },
+        {
+          "sourceId": "C66",
+          "path": "content/browser/service_worker/service_worker_registry.cc"
+        },
+        {
+          "sourceId": "C11",
+          "path": "content/browser/storage_partition_impl.cc"
+        },
+        {
+          "sourceId": "C67",
+          "path": "content/browser/service_worker/service_worker_controllee_request_handler.cc"
+        },
+        {
+          "sourceId": "C68",
+          "path": "content/browser/service_worker/service_worker_main_resource_loader_interceptor.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "BROWSER_ACTIVATION_AND_RESTORE",
+      "EXPECTED_CHANGE_SIZE": "MEDIUM_LOCAL",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-04",
+        "NCP-06"
+      ],
+      "NATIVE_TEST": "Seeded old registration/cache, reload/history/background; no active controller or cache-controlled resurrection",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-06",
+      "INVARIANT": "Deny worker start before renderer allocation/script execution regardless of registration origin or startup purpose",
+      "CHROMIUM_SUBSYSTEM": "content SW version/embedded worker",
+      "CEF_SUBSYSTEM_IF_ANY": "AllowServiceWorker defense",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C09",
+          "path": "content/browser/service_worker/service_worker_version.cc"
+        },
+        {
+          "sourceId": "C30",
+          "path": "content/browser/service_worker/embedded_worker_instance.cc"
+        },
+        {
+          "sourceId": "C10",
+          "path": "content/public/browser/content_browser_client.h"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "BROWSER_WORKER_START",
+      "EXPECTED_CHANGE_SIZE": "SMALL_LOCAL",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-04",
+        "NCP-05"
+      ],
+      "NATIVE_TEST": "Attempt embedded start/fetch/sync/push/import via old registration; no worker execution",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-07",
+      "INVARIANT": "Windows TCP may connect/write only to exact immutable numeric broker endpoint; no TCP listener/adopted socket bypass",
+      "CHROMIUM_SUBSYSTEM": "net Windows TCP + client/socket factory",
+      "CEF_SUBSYSTEM_IF_ANY": "none",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C12",
+          "path": "net/socket/tcp_socket_win.cc"
+        },
+        {
+          "sourceId": "C40",
+          "path": "net/socket/tcp_client_socket.cc"
+        },
+        {
+          "sourceId": "C06",
+          "path": "services/network/network_context.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "LOW_LEVEL_TCP",
+      "EXPECTED_CHANGE_SIZE": "MEDIUM_CROSS_CUTTING",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-01",
+        "NCP-10"
+      ],
+      "NATIVE_TEST": "Proxy bypass/direct fault; IPv4/IPv6/loopback/private/public wrong endpoint denied; adopted/accepted handles; broker death no fallback",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-08",
+      "INVARIANT": "Deny UDP creation/connection/send/write incl connected/unconnected, overlapped and nonblocking paths",
+      "CHROMIUM_SUBSYSTEM": "net Windows UDP + NetworkContext socket factory",
+      "CEF_SUBSYSTEM_IF_ANY": "none",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C13",
+          "path": "net/socket/udp_socket_win.cc"
+        },
+        {
+          "sourceId": "C06",
+          "path": "services/network/network_context.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "LOW_LEVEL_UDP",
+      "EXPECTED_CHANGE_SIZE": "SMALL_TO_MEDIUM_CROSS_CUTTING",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-03",
+        "NCP-11",
+        "NCP-12"
+      ],
+      "NATIVE_TEST": "STUN, QUIC, multicast, connected Write and SendTo, alternate UDP API; calibrated canaries zero owned traffic",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-09",
+      "INVARIANT": "No external/system/mDNS/DoH destination resolution task; numeric broker handling cannot start resolver side effects",
+      "CHROMIUM_SUBSYSTEM": "net HostResolverManager/Job/SystemTask",
+      "CEF_SUBSYSTEM_IF_ANY": "none",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C14",
+          "path": "net/dns/host_resolver_manager.cc"
+        },
+        {
+          "sourceId": "C35",
+          "path": "net/dns/host_resolver_manager_job.cc"
+        },
+        {
+          "sourceId": "C23",
+          "path": "net/dns/host_resolver_system_task.cc"
+        },
+        {
+          "sourceId": "C48",
+          "path": "net/dns/host_resolver_proc.cc"
+        },
+        {
+          "sourceId": "C06",
+          "path": "services/network/network_context.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "RESOLVER",
+      "EXPECTED_CHANGE_SIZE": "MEDIUM_CROSS_CUTTING",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-07",
+        "NCP-08",
+        "NCP-10"
+      ],
+      "NATIVE_TEST": "DNS canary, OS resolver invocation, prefetch/preconnect, cache/service endpoints, mixed/rebind; broker alone resolves destinations",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-10",
+      "INVARIANT": "Every context resolves proxy to one authenticated numeric HTTP broker; no DIRECT/PAC/WPAD/system/bypass alternate",
+      "CHROMIUM_SUBSYSTEM": "net proxy resolution + NetworkContext construction",
+      "CEF_SUBSYSTEM_IF_ANY": "ConfigureNetworkContextParams + GetAuthCredentials",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C19",
+          "path": "net/proxy_resolution/configured_proxy_resolution_service.cc"
+        },
+        {
+          "sourceId": "C20",
+          "path": "net/proxy_resolution/proxy_config.cc"
+        },
+        {
+          "sourceId": "C06",
+          "path": "services/network/network_context.cc"
+        },
+        {
+          "sourceId": "C57",
+          "path": "chrome/browser/net/system_network_context_manager.cc"
+        },
+        {
+          "sourceId": "F01",
+          "path": "libcef/browser/chrome/chrome_content_browser_client_cef.cc"
+        },
+        {
+          "sourceId": "F19",
+          "path": "include/cef_request_handler.h"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "PROXY_AND_CONTEXT",
+      "EXPECTED_CHANGE_SIZE": "MEDIUM_CROSS_CUTTING",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-01",
+        "NCP-07",
+        "NCP-09"
+      ],
+      "NATIVE_TEST": "Absent/killed broker, implicit localhost bypass, config update/override, destination 401 versus exact proxy 407",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-11",
+      "INVARIANT": "QUIC/HTTP3 disabled at session creation and restart; no flag/pref/Finch can reenable",
+      "CHROMIUM_SUBSYSTEM": "net HttpNetworkSession + NetworkService",
+      "CEF_SUBSYSTEM_IF_ANY": "network context profile",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C21",
+          "path": "net/http/http_network_session.cc"
+        },
+        {
+          "sourceId": "C06",
+          "path": "services/network/network_context.cc"
+        },
+        {
+          "sourceId": "C57",
+          "path": "chrome/browser/net/system_network_context_manager.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "HTTP_TRANSPORT",
+      "EXPECTED_CHANGE_SIZE": "SMALL_LOCAL",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-08",
+        "NCP-12"
+      ],
+      "NATIVE_TEST": "Alt-Svc and HTTP3 canary with broker active/dead; native session state false",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-12",
+      "INVARIANT": "Deny WebTransport creation before transport constructor/Connect; cover future TCP as well as QUIC transport",
+      "CHROMIUM_SUBSYSTEM": "NetworkContext WebTransport",
+      "CEF_SUBSYSTEM_IF_ANY": "none",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C06",
+          "path": "services/network/network_context.cc"
+        },
+        {
+          "sourceId": "C22",
+          "path": "services/network/web_transport.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "TRANSPORT_API",
+      "EXPECTED_CHANGE_SIZE": "SMALL_LOCAL",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-07",
+        "NCP-08",
+        "NCP-11"
+      ],
+      "NATIVE_TEST": "Secure-context WebTransport attempts with UDP/TCP canaries; rejected before connect",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-13",
+      "INVARIANT": "Host-owned logical URL/origin admission for each URLRequest and redirect before network effect, with session/page/generation binding; unowned service requests denied",
+      "CHROMIUM_SUBSYSTEM": "NetworkServiceNetworkDelegate + URLLoader redirect",
+      "CEF_SUBSYSTEM_IF_ANY": "CEF resource callback/private admission bridge",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C55",
+          "path": "services/network/network_service_network_delegate.cc"
+        },
+        {
+          "sourceId": "C18",
+          "path": "services/network/url_loader.cc"
+        },
+        {
+          "sourceId": "C17",
+          "path": "content/browser/loader/navigation_url_loader_impl.cc"
+        },
+        {
+          "sourceId": "F01",
+          "path": "libcef/browser/chrome/chrome_content_browser_client_cef.cc"
+        },
+        {
+          "sourceId": "F02",
+          "path": "include/cef_resource_request_handler.h"
+        },
+        {
+          "sourceId": "F04",
+          "path": "libcef/browser/net_service/resource_request_handler_wrapper.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "LOGICAL_REQUEST",
+      "EXPECTED_CHANGE_SIZE": "MEDIUM_CROSS_CUTTING",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-07",
+        "NCP-10",
+        "NCP-22"
+      ],
+      "NATIVE_TEST": "Main/frame/fetch/XHR/image/module/worker/download, redirect/new origin, cancellation/deadline, cached/reused transport cannot skip admission",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-14",
+      "INVARIANT": "Consume external protocol transitions as denied before CEF default delegate, Chrome handler, dialog or native launch",
+      "CHROMIUM_SUBSYSTEM": "content navigation + Chrome external protocols",
+      "CEF_SUBSYSTEM_IF_ANY": "Both HandleExternalProtocol variants + OnProtocolExecution",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "F01",
+          "path": "libcef/browser/chrome/chrome_content_browser_client_cef.cc"
+        },
+        {
+          "sourceId": "F04",
+          "path": "libcef/browser/net_service/resource_request_handler_wrapper.cc"
+        },
+        {
+          "sourceId": "C15",
+          "path": "chrome/browser/external_protocol/external_protocol_handler.cc"
+        },
+        {
+          "sourceId": "C17",
+          "path": "content/browser/loader/navigation_url_loader_impl.cc"
+        },
+        {
+          "sourceId": "F02",
+          "path": "include/cef_resource_request_handler.h"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "EXTERNAL_DISPATCH",
+      "EXPECTED_CHANGE_SIZE": "SMALL_MULTIPLE_ENTRYPOINTS",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-15"
+      ],
+      "NATIVE_TEST": "Registered benign mailto/custom canary, script/click/iframe/popup/takeover: denied receipt, zero helper executions",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-15",
+      "INVARIANT": "Source-owned external URL/file-opening sink cannot call OS launch from page/browser; download open/show-in-folder menus also excluded",
+      "CHROMIUM_SUBSYSTEM": "chrome Windows platform_util + launch callsite audit",
+      "CEF_SUBSYSTEM_IF_ANY": "CEF default UI/menu delegates",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C16",
+          "path": "chrome/browser/platform_util_win.cc"
+        },
+        {
+          "sourceId": "C15",
+          "path": "chrome/browser/external_protocol/external_protocol_handler.cc"
+        },
+        {
+          "sourceId": "F01",
+          "path": "libcef/browser/chrome/chrome_content_browser_client_cef.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "PLATFORM_LAUNCH_SINK",
+      "EXPECTED_CHANGE_SIZE": "MEDIUM_CROSS_CUTTING",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-14"
+      ],
+      "NATIVE_TEST": "Force upper dispatch regression in test build; registered canary still zero launch; reachable ShellExecute/COM/Process.Start sinks enumerated",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-16",
+      "INVARIANT": "No external DevTools HTTP/pipe/approval-mode server or standalone browser UI; retain only host-private fixed instrumentation",
+      "CHROMIUM_SUBSYSTEM": "Chrome DevTools remote server",
+      "CEF_SUBSYSTEM_IF_ANY": "remote_debugging settings + browser API",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C64",
+          "path": "chrome/browser/devtools/remote_debugging_server.cc"
+        },
+        {
+          "sourceId": "C39",
+          "path": "chrome/browser/devtools/chrome_devtools_manager_delegate.cc"
+        },
+        {
+          "sourceId": "F08",
+          "path": "include/internal/cef_types.h"
+        },
+        {
+          "sourceId": "F16",
+          "path": "include/cef_browser.h"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "DEBUG_AUTHORITY",
+      "EXPECTED_CHANGE_SIZE": "SMALL_MULTIPLE_ENTRYPOINTS",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-01",
+        "NCP-13"
+      ],
+      "NATIVE_TEST": "CLI/Finch/prefs cannot open debug port/pipe/UI; host fixed DOM commands remain usable and inaccessible to page/model",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-17",
+      "INVARIANT": "Do not compile full/core extensions/platform-app surface into certified artifact",
+      "CHROMIUM_SUBSYSTEM": "extensions build flags",
+      "CEF_SUBSYSTEM_IF_ANY": "CEF GN integration",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C38",
+          "path": "extensions/buildflags/buildflags.gni"
+        },
+        {
+          "sourceId": "F07",
+          "path": "BUILD.gn"
+        },
+        {
+          "sourceId": "F14",
+          "path": "tools/gn_args.py"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "BUILD_EXTENSION_SURFACE",
+      "EXPECTED_CHANGE_SIZE": "SMALL_GN_OVERLAY_COMPATIBILITY_UNPROVEN",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-01",
+        "NCP-04"
+      ],
+      "NATIVE_TEST": "GN graph/distribution check, chrome-extension loading/native messaging/IWA unavailable; fail build if dependencies demand reenabling",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-18",
+      "INVARIANT": "No speculative preconnect stream establishment without a request; return before preconnect JobController",
+      "CHROMIUM_SUBSYSTEM": "net HttpStreamFactory",
+      "CEF_SUBSYSTEM_IF_ANY": "none",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C45",
+          "path": "net/http/http_stream_factory.cc"
+        },
+        {
+          "sourceId": "C62",
+          "path": "net/http/http_stream_factory_job_controller.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "SPECULATIVE_TRANSPORT",
+      "EXPECTED_CHANGE_SIZE": "SMALL_LOCAL",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-09",
+        "NCP-13"
+      ],
+      "NATIVE_TEST": "link rel preconnect/DNS prefetch and idle predictors, no speculative CONNECT; normal HTTP still allowed",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-19",
+      "INVARIANT": "Reject prefetch before isolated contexts/script/resource jobs can originate traffic",
+      "CHROMIUM_SUBSYSTEM": "content PrefetchService",
+      "CEF_SUBSYSTEM_IF_ANY": "CEF profile preloading delegate",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C46",
+          "path": "content/browser/preloading/prefetch/prefetch_service.cc"
+        },
+        {
+          "sourceId": "C11",
+          "path": "content/browser/storage_partition_impl.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "PREFETCH_LIFECYCLE",
+      "EXPECTED_CHANGE_SIZE": "SMALL_LOCAL",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-13",
+        "NCP-18"
+      ],
+      "NATIVE_TEST": "Speculation rules, link prefetch, redirects, isolated partitions; no unadmitted request",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-20",
+      "INVARIANT": "Do not start prerender documents/hidden renderer pages; preserve max3 owned Pages",
+      "CHROMIUM_SUBSYSTEM": "content PrerenderHostRegistry",
+      "CEF_SUBSYSTEM_IF_ANY": "CEF owned Page creation",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C60",
+          "path": "content/browser/preloading/prerender/prerender_host_registry.cc"
+        },
+        {
+          "sourceId": "F20",
+          "path": "include/cef_life_span_handler.h"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "PRERENDER_LIFECYCLE",
+      "EXPECTED_CHANGE_SIZE": "SMALL_LOCAL",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-13",
+        "NCP-19"
+      ],
+      "NATIVE_TEST": "Prerender/new-tab speculation cannot spawn unowned Page/network; ordinary owned popup quota still enforced",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-21",
+      "INVARIANT": "WS/WSS disabled for first proposed certified profile; no separate WebSocket handshake transport",
+      "CHROMIUM_SUBSYSTEM": "net/services WebSocket build/runtime entry",
+      "CEF_SUBSYSTEM_IF_ANY": "GN overlay",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C51",
+          "path": "net/features.gni"
+        },
+        {
+          "sourceId": "C36",
+          "path": "services/network/websocket_factory.cc"
+        },
+        {
+          "sourceId": "C37",
+          "path": "services/network/websocket.cc"
+        },
+        {
+          "sourceId": "C06",
+          "path": "services/network/network_context.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "BUILD_AND_TRANSPORT_API",
+      "EXPECTED_CHANGE_SIZE": "SMALL_GN_AND_API",
+      "UPSTREAM_CHURN_RISK": "MEDIUM",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-07",
+        "NCP-13"
+      ],
+      "NATIVE_TEST": "ws/wss constructors fail before handshake/socket even when HTTP works; disabling both is permitted by V1.1 §18.5",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    },
+    {
+      "PATCH_ID": "NCP-22",
+      "INVARIANT": "No cross-origin TLS/HTTP2 coalescing or alias reuse inside an existing CONNECT tunnel; each new destination requires its own broker admission",
+      "CHROMIUM_SUBSYSTEM": "net SPDY pool/HTTP stream session keys",
+      "CEF_SUBSYSTEM_IF_ANY": "none",
+      "SOURCE_AREA": [
+        {
+          "sourceId": "C63",
+          "path": "net/spdy/spdy_session_pool.cc"
+        },
+        {
+          "sourceId": "C62",
+          "path": "net/http/http_stream_factory_job_controller.cc"
+        },
+        {
+          "sourceId": "C21",
+          "path": "net/http/http_network_session.cc"
+        }
+      ],
+      "ENFORCEMENT_LAYER": "TUNNEL_ORIGIN_REUSE",
+      "EXPECTED_CHANGE_SIZE": "MEDIUM_CROSS_CUTTING",
+      "UPSTREAM_CHURN_RISK": "HIGH",
+      "DEFENSE_IN_DEPTH_PARTNER": [
+        "NCP-10",
+        "NCP-13"
+      ],
+      "NATIVE_TEST": "Two SAN origins sharing IP: second admitted URL + fresh CONNECT/physical validation; private/mixed/rebind second host denied before use",
+      "STATUS": "PROPOSED_NOT_IMPLEMENTED_NOT_COMPILED",
+      "changeSizeBasis": "Qualitative scope estimate from source entrypoints, not measured LOC or engineer-hours."
+    }
+  ],
+  "crossCutting": [
+    "NCP-01",
+    "NCP-07",
+    "NCP-08",
+    "NCP-09",
+    "NCP-10",
+    "NCP-13",
+    "NCP-15",
+    "NCP-22"
+  ],
+  "fragile": [
+    "NCP-01",
+    "NCP-05",
+    "NCP-07",
+    "NCP-09",
+    "NCP-10",
+    "NCP-13",
+    "NCP-15",
+    "NCP-19",
+    "NCP-20",
+    "NCP-22"
+  ],
+  "subsystemLocal": [
+    "NCP-02",
+    "NCP-03",
+    "NCP-04",
+    "NCP-05",
+    "NCP-06",
+    "NCP-11",
+    "NCP-12",
+    "NCP-14",
+    "NCP-16",
+    "NCP-17",
+    "NCP-18",
+    "NCP-19",
+    "NCP-20",
+    "NCP-21"
+  ],
+  "notSmallFork": true,
+  "expansionRule": "If build/source prototype discovers an uncovered page-reachable networking/launch path, do not bury it in an existing gate; update inventory with human review. >22 or Windows system API escapes can change maintainability conclusion.",
+  "publicOnlyImplementationInsideChromium": false,
+  "compileTimeProfile": {
+    "name": "NOVA_ACTIVE_WEB_CHROMIUM_PROFILE",
+    "status": "PROPOSED_NOT_GENERATED",
+    "features": [
+      {
+        "feature": "WebRTC / RTCPeerConnection",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-02",
+          "NCP-03"
+        ],
+        "detail": "Native constructor rejection plus independent backend removal; general JS retained. No claim the entire WebRTC library compiles out."
+      },
+      {
+        "feature": "P2P backend",
+        "classification": "REMOVED_AT_BUILD",
+        "gates": [
+          "NCP-03"
+        ],
+        "detail": "Proposed is_p2p_enabled=false plus residual native IPC deny; CEF/Blink graph not compiled."
+      },
+      {
+        "feature": "Service Workers",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-04",
+          "NCP-05",
+          "NCP-06"
+        ],
+        "detail": "Native immutable deny registration, controller restoration/activation and execution before effects; no unregister-after-start."
+      },
+      {
+        "feature": "QUIC / HTTP3",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-11",
+          "NCP-08"
+        ],
+        "detail": "Immutable session construction/restart deny; no asserted universal GN switch."
+      },
+      {
+        "feature": "WebTransport",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-12",
+          "NCP-07",
+          "NCP-08"
+        ],
+        "detail": "Reject before construction/connect; no future TCP alternative."
+      },
+      {
+        "feature": "extensions / platform apps",
+        "classification": "DISABLED_AT_BUILD",
+        "gates": [
+          "NCP-17"
+        ],
+        "detail": "Existing GN overlay, all derived flags false. Compatibility uncompiled; no reenabling for build convenience."
+      },
+      {
+        "feature": "remote DevTools / debug UI",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-16"
+        ],
+        "detail": "Remote port, remote pipe and approval-mode server forbidden; private fixed host instrumentation retained."
+      },
+      {
+        "feature": "general JavaScript",
+        "classification": "ALLOWED",
+        "gates": [],
+        "detail": "Needed for interactive pages. No eval/selector/JS authority exposed to model."
+      },
+      {
+        "feature": "sync / background services",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-01",
+          "NCP-13",
+          "NCP-07"
+        ],
+        "detail": "Unowned service requests denied, no signed-in browser services. This does not claim every service is removed from build."
+      },
+      {
+        "feature": "preconnect",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-18",
+          "NCP-09"
+        ],
+        "detail": "Deny speculative stream jobs before connection."
+      },
+      {
+        "feature": "prefetch",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-19",
+          "NCP-13"
+        ],
+        "detail": "Reject isolated prefetch/request contexts."
+      },
+      {
+        "feature": "prerender",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-20",
+          "NCP-13"
+        ],
+        "detail": "No hidden/unowned Page."
+      },
+      {
+        "feature": "DNS-prefetch / direct useful DNS",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-09",
+          "NCP-08"
+        ],
+        "detail": "No destination external/system/mDNS/DoH task; exact numeric broker requires no remote lookup."
+      },
+      {
+        "feature": "external protocols / host launch",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-14",
+          "NCP-15"
+        ],
+        "detail": "DENY_ALL at dispatcher and Windows launch sink; no gesture/Approval/dialog exception."
+      },
+      {
+        "feature": "WebSocket / WSS",
+        "classification": "DISABLED_AT_BUILD",
+        "gates": [
+          "NCP-21"
+        ],
+        "detail": "Both disabled in first proposed profile, permitted by V1.1 §18.5. No claim current broker supports upgrade."
+      },
+      {
+        "feature": "HTTP / HTTPS / downloads network",
+        "classification": "BROKER_MEDIATED",
+        "gates": [
+          "NCP-07",
+          "NCP-10",
+          "NCP-13",
+          "NCP-22"
+        ],
+        "detail": "Every request logical gate, only exact broker TCP; CONNECT opaque, TLS standard."
+      },
+      {
+        "feature": "downloads filesystem effect",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-15"
+        ],
+        "detail": "Future adapter exact FILE_DOWNLOAD before file creation; callback ordering requires native proof. No open/auto-import."
+      },
+      {
+        "feature": "file access / uploads",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-01",
+          "NCP-13"
+        ],
+        "detail": "No arbitrary file navigation/model path/renderer local privilege; exact HostFileSelectionRef only after Python authority. Private engine profiles/staging remain owned."
+      },
+      {
+        "feature": "raw/direct sockets",
+        "classification": "HOST_GATED",
+        "gates": [
+          "NCP-07",
+          "NCP-08",
+          "NCP-09"
+        ],
+        "detail": "Deny renderer raw TCP/UDP purposes; no IWA/extension capability enabling Direct Sockets."
+      }
+    ],
+    "classes": [
+      "REMOVED_AT_BUILD",
+      "DISABLED_AT_BUILD",
+      "HOST_GATED",
+      "BROKER_MEDIATED",
+      "ALLOWED"
+    ],
+    "hostGatedMeaning": "Source-owned immutable native rule, not a mutable preference or model authority."
+  }
+}

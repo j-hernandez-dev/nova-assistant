@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "timestampUtc": "2026-10-11T09:09:23.717Z",
+  "productChanged": false,
+  "priorSourcePinCount": 99,
+  "productPinCount": 46,
+  "priorManifestSha256": "101dfa89ffad6b03eb93d314aadd9f735f8b63eb07cc3656b99b60fb6e8e0bf3",
+  "newTestOnlySources": [
+    {
+      "path": "native/nova-browser-host/tests/download_native_completion/DownloadTrace.cs",
+      "sha256": "68111722b4abcf0c51a9c65d23b745f12e0de1378560e0f472b8697bef0d6ec1"
+    },
+    {
+      "path": "native/nova-browser-host/tests/download_native_completion/native_download_plugin.py",
+      "sha256": "fc934e08c11521f62b28e899a686bb18cf1426a5260cdc6908f238b0dd03f08a"
+    }
+  ],
+  "preBodyGate": "Owner-correlated native-ready.json + live sidecar must verify subscription and observed domains before body; otherwise fixture fails, no plain host accepted",
+  "exactCaseIds": [
+    "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_drive_by_download_cancelled_no_staging",
+    "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+    "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]"
+  ],
+  "bodyRunsPerCase": 1,
+  "smokeRuns": 0,
+  "noFixturesTimeoutsPolicyOrSecretsChanges": true,
+  "qpcCorrelation": "Native Stopwatch.GetTimestamp/Frequency plus Python monotonic_ns clock implementation; join8 snapshot read after existing join, before unchanged test finally cancellation",
+  "nativeBounds": {
+    "records": 256,
+    "bytesPerRecord": 4096,
+    "requestIds": 32
+  },
+  "sensitiveMaterialPersisted": false,
+  "prebuildHistory": [
+    {
+      "exitCode": 1,
+      "error": "FileNotFoundError: new external root parent not yet created",
+      "caseBodiesExecuted": 0,
+      "productChanged": false
+    },
+    {
+      "exitCode": 0,
+      "result": "PASS",
+      "caseBodiesExecuted": 0,
+      "correction": "Create new external output parent directory before builder, no code change"
+    }
+  ],
+  "staticAuditRef": "download_static_audit.json"
+}

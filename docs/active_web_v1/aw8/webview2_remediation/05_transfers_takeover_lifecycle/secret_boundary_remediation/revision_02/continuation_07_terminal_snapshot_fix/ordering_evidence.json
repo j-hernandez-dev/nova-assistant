@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "purpose": "STATIC_PREFLIGHT_ONLY_NOT_ORDERING_VALIDATION",
+  "implementationStatus": "NOT_STARTED",
+  "openDecision": {
+    "id": "WV2-B05-C07-TERMINAL-CONTRACT-001",
+    "status": "OPEN_DECISION",
+    "type": "AUTHORIZED_TERMINAL_SEMANTICS_VS_FORBIDDEN_EXISTING_TEST_PREPARATION_CHANGES",
+    "finding": "At least terminal-retire directly demands the implicit promotion now forbidden. Making a hidden legacy branch preserve it would reintroduce the rejected semantic path.",
+    "scope": "Test API/preparation reconciliation only, not architecture/policy/security relaxation.",
+    "affectedCases": [
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-retire]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:44",
+        "proof": "Two Input(...commit=false) calls, then Retire, then State(longValue,true). No terminal snapshot, terminal event, generation/revision or ack is supplied.",
+        "conflict": "New requirement 8 prohibits Retire committing an arbitrary last current solely due to retirement.",
+        "kind": "DIRECT_INCOMPATIBILITY"
+      },
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-checkpoint]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:48",
+        "proof": "Two Input(...commit=false) calls, then parameterless Checkpoint, then State(longValue,true).",
+        "conflict": "Requirements 7/9 demand explicitly observed terminal snapshot + revision/generation/ack, not lookup of whatever pending contains.",
+        "kind": "DIRECT_INCOMPATIBILITY"
+      },
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[history-clear]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:52",
+        "proof": "Intermediate editing values then parameterless Checkpoint; verifies all historical values protected and ordinary page text preserved.",
+        "conflict": "No terminal snapshot supplied to updated live-checkpoint semantics; preparation needs reconciliation, security assertions must remain.",
+        "kind": "PREPARATION_DEPENDENCY"
+      },
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-retire-denied]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:58",
+        "proof": "Only uncommitted short Input, then expects Retire denial.",
+        "conflict": "New requirement 8 permits preserving buffers as TRANSIENT without a terminal. To test true committed-short denial prospectively, a real explicit terminal must be supplied; no claim that this assertion necessarily fails under every allowed conservative implementation.",
+        "kind": "TERMINAL_MEANING_AMBIGUITY"
+      },
+      {
+        "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-checkpoint-denied]",
+        "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:60",
+        "proof": "Only uncommitted short Input then parameterless Checkpoint denial.",
+        "conflict": "The inverse security test must demonstrate an observed true terminal snapshot, not generic missing-checkpoint evidence or arbitrary pending.",
+        "kind": "TERMINAL_MEANING_AMBIGUITY"
+      }
+    ],
+    "requestedHumanAuthorization": "Permit only scoped preparation/caller adaptation of these direct contracts to supply explicitly correlated terminal snapshot/generation/revision/ack as appropriate. Preserve all no-exposure, monotonicity, committed-short-denial and redaction assertions; preserve generated values; do not modify the three historical native scenarios, their driver/HTML/sleeps/assertions.",
+    "notRequested": [
+      "Relax true-short committed denial",
+      "Select longest value",
+      "Change thresholds/skips/xfails/scorer",
+      "Add fixture-only product bypass",
+      "Change V1/V1.1",
+      "Broaden Core/Security/Memory/Knowledge/Desktop/network"
+    ],
+    "productOrTestsModified": false,
+    "testsExecuted": 0,
+    "stopBeforeImplementation": true
+  },
+  "plannedState": {
+    "identity": [
+      "BrowserSession owner",
+      "Page",
+      "host/instrumentation-owned document incarnation",
+      "control opaque id"
+    ],
+    "current": [
+      "monotonic observation revision",
+      "current value host-private"
+    ],
+    "terminal": [
+      "explicit immutable observed snapshot",
+      "terminal revision",
+      "terminal value host-private",
+      "real terminal reason",
+      "checkpoint correlation when applicable"
+    ]
+  },
+  "plannedSemantics": {
+    "knownValues": "Remember all truly observed buffers; no eviction; stale/duplicate events cannot regress current or terminal ownership.",
+    "revision": "Producer-generated monotonic per-control revision, bound to exact document incarnation, not transport receipt timestamp.",
+    "generation": "Opaque incarnation distinct from numeric executionContextId; retained exact old lifecycle correlation for late data; no heuristic rebind.",
+    "commit": "Validate explicit snapshot ownership, observation witness, generation/control/revision and terminal reason; retain length 1..3 denial.",
+    "retire": "Never mint terminal solely from current. Consume confirmed snapshot if present, otherwise preserve TRANSIENT or typed fail-closed if continuity required.",
+    "checkpoint": "Exact native snapshot+revision/generation from current protected world with correlated ack; no parameterless pending fallback in productive path."
+  },
+  "implementedOrMeasured": false,
+  "beforeAfterHashes": "No source changes; before==after. See baseline and integrity.",
+  "commitCallersChanged": [],
+  "gates": {
+    "TERMINAL_SNAPSHOT_PROVENANCE": "NOT_IMPLEMENTED / NOT_RUN",
+    "CONTROL_DOCUMENT_ORDERING": "NOT_IMPLEMENTED / NOT_RUN",
+    "LATE_EVENT_REJECTION": "NOT_IMPLEMENTED / NOT_RUN",
+    "TRUE_SHORT_COMMITTED_DENIAL": "NOT_IMPLEMENTED / NOT_RUN",
+    "BOUNDED_TRANSIENT_SENSITIVE_VALUE_POLICY": "NOT_IMPLEMENTED / NOT_RUN",
+    "MONOTONIC_SENSITIVE_KNOWLEDGE": "NOT_IMPLEMENTED / NOT_RUN",
+    "SCHEMA_AWARE_REDACTION": "NOT_IMPLEMENTED / NOT_RUN",
+    "CROSS_DOCUMENT_SECRET_REDACTION": "NOT_IMPLEMENTED / NOT_RUN",
+    "MODEL_PROJECTION_SECRET_BOUNDARY": "NOT_IMPLEMENTED / NOT_RUN",
+    "SECRET_REGISTRY_LIFECYCLE": "NOT_IMPLEMENTED / NOT_RUN",
+    "SECRET_NON_EXPOSURE": "NOT_IMPLEMENTED / NOT_RUN",
+    "BLOCK05_FINAL_REGRESSION": "NOT_IMPLEMENTED / NOT_RUN"
+  }
+}

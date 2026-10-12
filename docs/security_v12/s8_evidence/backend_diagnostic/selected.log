@@ -1,0 +1,54 @@
+F
+================================== FAILURES ===================================
+_________ test_real_ollama_normal_backend_multitool_and_durable_audit _________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_4xd4ljas/selected/test_real_ollama_normal_backen0')
+
+    def test_real_ollama_normal_backend_multitool_and_durable_audit(tmp_path):
+        model=require_model(os.environ['NOVA_S8_MODEL'])
+        marker='NOVA_S8_'+uuid.uuid4().hex
+        (tmp_path/'seed.txt').write_text(marker+'\n',encoding='utf-8')
+        peer=Peer(tmp_path)
+        try:
+            command_id,_=peer.command('SubmitUserInput',{'content':
+                'Use read to read seed.txt. Use write to copy its literal content into result.txt. '
+                'Then use read on result.txt to verify. Call read, write, read in that order, '
+                'wait for each result, never batch dependent calls. Do not use bash. '
+                'Paths are relative to this workspace. Finish after verification.'})
+            receipt=peer.wait(lambda f:f.get('type') in ('application_result','error') and f.get('id')==command_id,10)
+            assert receipt.get('data',{}).get('accepted'),receipt
+>           terminal=peer.terminal();state=peer.snapshot()
+                     ^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s8_e2e.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\security_v12\test_s8_e2e.py:90: in terminal
+    return self.wait(lambda f:f.get('type')=='event' and f['event']['kind'] in
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <test_s8_e2e.Peer object at 0x0000027235B60440>
+predicate = <function Peer.terminal.<locals>.<lambda> at 0x0000027235B33D70>
+timeout = 360
+
+    def wait(self,predicate,timeout=240):
+        deadline=time.monotonic()+timeout
+        while time.monotonic()<deadline:
+            try:f=self.frames.get(timeout=.2)
+            except Empty:
+                assert self.process.poll() is None,self.errors
+                continue
+            if f.get('type')=='event':self.events.append(f['event'])
+            if f.get('type') in ('application_result','error'):self.receipts.append(f)
+            if hasattr(self,'sid') and time.monotonic()-getattr(self,'_last_trace',0)>1:
+                observations('backend_trace_'+self.sid,{'events':[e for e in self.events if e['kind'] not in
+                    ('AssistantDelta','ThinkingDelta','LegacyAgentEvent')],'receipts':self.receipts,'stderr':self.errors})
+                self._last_trace=time.monotonic()
+            if predicate(f):return f
+        observations('backend_failure',{'events':self.events,'receipts':self.receipts,'stderr':self.errors})
+>       raise AssertionError('S8 backend deadline reached; '+json.dumps(self.receipts)[-2000:]+''.join(self.errors)[-1000:])
+E       AssertionError: S8 backend deadline reached; [{"id": "0111418b68e54bc2a6c0fac50a4067bc", "type": "application_result", "schemaVersion": 1, "data": {"schemaVersion": 1, "commandId": "0111418b68e54bc2a6c0fac50a4067bc", "accepted": true, "sessionId": "ses_7c9ca8a2768648a2aa770b9392af6a58", "stateRevision": 2, "createdIds": {"turnId": "turn_9e25140ed11f40928db4d9869eb0c661", "operationId": "op_cf7025eb55b54925a31b4e3485bd10e4"}, "error": null}}]
+
+tests\security_v12\test_s8_e2e.py:83: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s8_e2e.py::test_real_ollama_normal_backend_multitool_and_durable_audit
+1 failed in 362.20s (0:06:02)

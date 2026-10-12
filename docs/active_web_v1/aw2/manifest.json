@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW2",
+  "verdict": "AW2 = PASS",
+  "date": "2026-10-09",
+  "readyDeclared": false,
+  "normativeSource": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+    "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "sections": [
+      "§7.3–7.4",
+      "§10 epoch seam only",
+      "§11–14",
+      "§19",
+      "§33",
+      "§35 AW2",
+      "§37 applicable regression"
+    ],
+    "literalGate": "Cierre: modelo nunca usa selectors libres."
+  },
+  "baseline": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "trackedCount": 2181,
+    "workingTree": [
+      "M ci/pytest_contracts.json",
+      " M local_cli/core/contracts.py",
+      "?? docs/active_web_v1/audit/findings.json",
+      "?? docs/active_web_v1/aw0/baseline_freeze.json",
+      "?? docs/active_web_v1/aw0/ci_contract_inventory.json",
+      "?? docs/active_web_v1/aw0/closure/RESOLUCION_FINAL_AW0.md",
+      "?? docs/active_web_v1/aw0/closure/manifest_final.json",
+      "?? docs/active_web_v1/aw0/integrity.json",
+      "?? docs/active_web_v1/aw0/invariant_corpus.json",
+      "?? docs/active_web_v1/aw0/manifest.json",
+      "?? docs/active_web_v1/aw0/resultados.md",
+      "?? docs/active_web_v1/aw0/test_results.json",
+      "?? docs/active_web_v1/aw1/baseline_freeze.json",
+      "?? docs/active_web_v1/aw1/integrity.json",
+      "?? docs/active_web_v1/aw1/manifest.json",
+      "?? docs/active_web_v1/aw1/resultados.md",
+      "?? docs/active_web_v1/aw1/test_results.json",
+      "?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md",
+      "?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+      "?? local_cli/application/active_web.py",
+      "?? local_cli/core/active_web.py",
+      "?? local_cli/core/active_web_lifecycle.py",
+      "?? tests/active_web_v1/__init__.py",
+      "?? tests/active_web_v1/fake_browser.py",
+      "?? tests/active_web_v1/test_aw0_contracts.py",
+      "?? tests/active_web_v1/test_aw1_lifecycle.py"
+    ],
+    "freeze": "baseline_freeze.json",
+    "indexEmpty": true
+  },
+  "prerequisites": {
+    "aw1": {
+      "verdict": "AW1 = PASS",
+      "manifest": "docs/active_web_v1/aw1/manifest.json",
+      "sha256": "01c776a523b62f5ccc64f7840b86159cf289fb6b9a39f03fe91ade3e400239fa",
+      "artifactPinsAtPreflightMatch": true,
+      "historyPreserved": true
+    },
+    "aw0": {
+      "originalExecution": "AW0 = PARTIAL",
+      "normativeClosure": "AW0 = PASS",
+      "originalManifest": "docs/active_web_v1/aw0/manifest.json",
+      "closureManifest": "docs/active_web_v1/aw0/closure/manifest_final.json",
+      "historyPreserved": true
+    }
+  },
+  "preflight": {
+    "focusedPassed": 229,
+    "focusedFailed": 1,
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "reuse": [
+      "AW0 immutable DTOs/refs",
+      "AW1 lifecycle/ownership/leases",
+      "CancellationController",
+      "SecretRedactor",
+      "Core ContextManager/ContextPolicy/TokenCounter",
+      "positive CI inventory/private runner"
+    ],
+    "missingInitially": [
+      "capture service",
+      "element registry/proof",
+      "freshness/invalidation state",
+      "atomic context projector"
+    ],
+    "legacyNotTreatedAsBrowser": [
+      "web_fetch/search",
+      "Knowledge/RAG",
+      "Electron/Desktop preview",
+      "passive HTTP broker"
+    ]
+  },
+  "modifiedExisting": [
+    "local_cli/application/active_web.py",
+    "ci/pytest_contracts.json"
+  ],
+  "createdFiles": [
+    "local_cli/core/active_web_observation.py",
+    "local_cli/application/browser_observation.py",
+    "tests/active_web_v1/test_aw2_observation.py",
+    "docs/active_web_v1/aw2/baseline_freeze.json",
+    "docs/active_web_v1/aw2/product_freeze.json",
+    "docs/active_web_v1/aw2/integrity.json",
+    "docs/active_web_v1/aw2/invariant_matrix.json",
+    "docs/active_web_v1/aw2/test_results.json",
+    "docs/active_web_v1/aw2/resultados.md",
+    "docs/active_web_v1/aw2/manifest.json"
+  ],
+  "artifactPins": {
+    "local_cli/core/active_web_observation.py": "20393c42f16276ad16cd61409a992b108e5f15bf96cc597dfea2a70ed35b7ea9",
+    "local_cli/application/browser_observation.py": "151d7cf0bf6fb865910dd04bdd3439df4d7642d8fb63cdb537dcbe616e785430",
+    "local_cli/application/active_web.py": "6e435e9cdde39c0800ece3578f094789b2f281b49ac884b0b30a92d8da3ea763",
+    "tests/active_web_v1/test_aw2_observation.py": "d860d6648c644297475345d526a59e9ea6b54982343cc5ce94725d2eaeb20318",
+    "ci/pytest_contracts.json": "1a2c0f1cac221ddc8bbc72bb172de2a139f3efbbeb82f87c068b54b579592835",
+    "docs/active_web_v1/aw2/baseline_freeze.json": "41dbc8da762806fa63d08d02ae0d6088bed9d11c213a4090232fa94fd89dff95",
+    "docs/active_web_v1/aw2/product_freeze.json": "847e377091fecde07399e2f59ee75e6a10809985127c302296fbb6575c5b8242",
+    "docs/active_web_v1/aw2/integrity.json": "e9b8bec8274cdce4744ec8f2a95670013f23e66f72b5568a1bf88e28fac96fe5",
+    "docs/active_web_v1/aw2/invariant_matrix.json": "fdc301231e99066159f3e96839f3a76bc77da602fa5d4954f1b2abc3d77b5ebc",
+    "docs/active_web_v1/aw2/test_results.json": "f698cc084899b1a88fd21038d54f3d1d945f3b3385d68c8efc2a70d8d7a782f2",
+    "docs/active_web_v1/aw2/resultados.md": "309d123d08cb95a31ad8fc7731639818692ca664b2260e35d9416522e294259c"
+  },
+  "contracts": {
+    "publicDTO": "AW0 BrowserObservation/BrowserElement/BrowserActionRequest schemaVersion=1 unchanged",
+    "privateCore": [
+      "CapturedElement",
+      "CapturedPage",
+      "TargetState",
+      "ObservationLimits",
+      "BrowserObservationPort",
+      "ObservationError",
+      "ObservationErrorCode"
+    ],
+    "application": [
+      "BrowserObservationService",
+      "BrowserContextProjection",
+      "AW1 minimal atomic freshness seams"
+    ],
+    "portMethods": [
+      "capture (read-only)",
+      "resolve (read-only proof)"
+    ],
+    "registryBinding": [
+      "browserSessionRef",
+      "pageRef",
+      "browserContextEpoch",
+      "navigationEpoch",
+      "observationRef",
+      "observationVersion",
+      "origin",
+      "engineBinding (private)",
+      "fingerprint (private)",
+      "interactionCapabilities"
+    ],
+    "errorCodes": [
+      "INVALID_BROWSER_OBSERVATION",
+      "STALE_TARGET",
+      "BROWSER_OBSERVATION_PORT_FAILURE",
+      "BROWSER_OBSERVATION_BUDGET_EXCEEDED"
+    ],
+    "noSelectorEntry": true,
+    "noHeuristicRebind": true,
+    "noActionExecutor": true,
+    "noNewModelTools": true,
+    "noNewAgentLoop": true,
+    "noPersistenceOrMigration": true,
+    "capability": "UNKNOWN; fake is not availability evidence",
+    "freshnessScope": "Internal Application lease/lock: proof then conservative invalidation before potential element use; not Policy/grant/dispatch. Real validation+dispatch remains AW3+/AW5."
+  },
+  "context": {
+    "toolResultOnly": true,
+    "literalFramingUnchanged": true,
+    "finalCorePreparedContext": true,
+    "currentUserProtected": true,
+    "wholeElementRowsOnly": true,
+    "omitRefIfElementDoesNotFit": true,
+    "sharedRetrievalCapUnchanged": true,
+    "coreBudgetingUnchanged": true,
+    "effectiveWindows": [
+      4096,
+      8192,
+      16384,
+      32768,
+      65536
+    ],
+    "priority": [
+      "page state/binding",
+      "whole targets with accessibleName/stateSummary associated text",
+      "optional URL/title",
+      "bounded visible text/dialogs"
+    ],
+    "tokenCounter": "Core tokenizer/fallback on serialized messages/schemas including tool overhead",
+    "reprojection": "Returned PreparedContext is final; changed budget requires rerunning projection, not later clipping."
+  },
+  "privacy": {
+    "adapterSchemaNoDOMStorageCookiesHeadersOrInputValues": true,
+    "sensitiveElementsOmitted": true,
+    "urlUserinfoFragmentSensitiveQueriesRedacted": true,
+    "knownSecretRedactorReused": true,
+    "noUniversalDLPClaim": true,
+    "internalURLsNotExposed": true,
+    "urlSanitizationNotNetworkAuthorization": true,
+    "noMemoryWrites": true,
+    "noKnowledgeImports": true
+  },
+  "closureCriteria": [
+    {
+      "requirement": "BrowserObservation",
+      "section": "§7.3–7.4, §11–12, §35 AW2",
+      "status": "PASS",
+      "component": "Core AW0 DTO unchanged; Core private capture port + Application BrowserObservationService",
+      "evidence": [
+        "test_capture_mints_complete_opaque_refs_and_sanitized_host_observation",
+        "test_content_digest_stable_over_sanitized_data_not_random_refs",
+        "test_forms_nonsecret_states_and_dialogs_are_structured_not_raw_dom",
+        "test_registered_secret_redaction_applies_before_all_publication_bounds"
+      ]
+    },
+    {
+      "requirement": "element registry",
+      "section": "§14.1–14.2; AW-INV-016/017/018",
+      "status": "PASS",
+      "component": "Application latest-page private registry; random AW0 bwe refs; _Binding never serialized",
+      "evidence": [
+        "test_validated_target_is_private_single_use_freshness_not_dispatch_or_grant",
+        "test_forged_or_incompatible_bindings_stale_before_adapter",
+        "test_model_request_schema_never_accepts_free_selector_or_engine_identifier"
+      ]
+    },
+    {
+      "requirement": "freshness",
+      "section": "§10 epoch seam, §14.3–14.4; AW-INV-020",
+      "status": "PASS",
+      "component": "AW1 guarded page/context observation serials and activeObservationRef; fresh read-only port proof",
+      "evidence": [
+        "test_every_potential_mutation_invalidates_until_reobservation",
+        "test_potential_effect_lease_invalidates_refs_before_host_work",
+        "test_new_observation_rejects_old_element_even_when_page_looks_same",
+        "test_invalidation_during_adapter_call_prevents_stale_publication_or_yield"
+      ]
+    },
+    {
+      "requirement": "stale rejection",
+      "section": "§14.4 STALE_TARGET; AW-INV-019",
+      "status": "PASS",
+      "component": "Exact session/page/contextEpoch/navigationEpoch/observationRef/version/origin/binding/fingerprint/capability match; no rebind",
+      "evidence": [
+        "test_fresh_adapter_proof_must_match_every_target_property",
+        "test_missing_or_untyped_proof_is_stale",
+        "test_cross_owner_workspace_child_cannot_capture_resolve_or_project",
+        "test_terminal_resource_rejects_target_without_adapter",
+        "test_deadline_exceeded_never_publishes_or_yields_late_proof",
+        "test_cancel_during_adapter_io_rejects_late_data_and_releases_lease"
+      ]
+    },
+    {
+      "requirement": "context projection/budget",
+      "section": "§13; AW-INV-036/037",
+      "status": "PASS",
+      "component": "Final PreparedContext via unchanged Core ContextManager/TokenCounter/ContextPolicy; complete JSON rows and fixed tool framing",
+      "evidence": [
+        "test_projection_respects_effective_core_window_current_user_and_atomic_refs",
+        "test_relevant_target_has_priority_over_unrelated_elements_and_page_text",
+        "test_element_never_emitted_when_its_complete_representation_cannot_fit",
+        "test_required_current_user_never_displaced_to_fit_browser_projection",
+        "test_memory_rag_shared_retrieval_and_combined_caps_not_expanded_by_observation",
+        "test_projection_does_not_lose_existing_tool_continuity_or_raise_shared_budget"
+      ]
+    },
+    {
+      "requirement": "Cierre: modelo nunca usa selectors libres.",
+      "section": "§35 AW2 literal gate; §14.1",
+      "status": "PASS",
+      "component": "Strict AW0 request schema, Nova-generated opaque refs, Application-only registry lookup, private adapter binding",
+      "evidence": [
+        "test_model_request_schema_never_accepts_free_selector_or_engine_identifier",
+        "test_forged_or_incompatible_bindings_stale_before_adapter",
+        "test_aw2_scope_keeps_engine_broker_policy_tools_and_frontends_unimplemented"
+      ],
+      "qualification": "Contract-level closure on read-only fake. No real model browser tools are exposed; real browser action/Policy/broker integration remains AW3+."
+    }
+  ],
+  "invariantMatrix": "invariant_matrix.json",
+  "integrity": {
+    "trackedExceptInventoryAggregate": "00ef22f546334fd6e3bfce9f1a1bfc228bc7bd36c58ebf9bc287e3feb7aabe78",
+    "trackedPreserved": true,
+    "priorDelta": [
+      "local_cli/application/active_web.py",
+      "ci/pytest_contracts.json"
+    ],
+    "productDrift": [],
+    "aw1AtPreflightMatches": [],
+    "ciInitialRawReconstructed": "f31fec5878d51d4f6433ae15af85c345d4ff8d9621055bfcf83df6c5306fe408",
+    "ciBytePreserved": true,
+    "priorCiEntries": 3858,
+    "newCiBaseContracts": 40,
+    "newCiNodeids": [
+      "tests/active_web_v1/test_aw2_observation.py::test_potential_effect_lease_invalidates_refs_before_host_work",
+      "tests/active_web_v1/test_aw2_observation.py::test_capture_and_validation_respect_page_busy_and_turn_cancel_contracts",
+      "tests/active_web_v1/test_aw2_observation.py::test_expired_session_never_accepts_stale_target_or_new_capture",
+      "tests/active_web_v1/test_aw2_observation.py::test_projection_does_not_lose_existing_tool_continuity_or_raise_shared_budget",
+      "tests/active_web_v1/test_aw2_observation.py::test_capture_mints_complete_opaque_refs_and_sanitized_host_observation",
+      "tests/active_web_v1/test_aw2_observation.py::test_content_digest_stable_over_sanitized_data_not_random_refs",
+      "tests/active_web_v1/test_aw2_observation.py::test_validated_target_is_private_single_use_freshness_not_dispatch_or_grant",
+      "tests/active_web_v1/test_aw2_observation.py::test_forged_or_incompatible_bindings_stale_before_adapter",
+      "tests/active_web_v1/test_aw2_observation.py::test_fresh_adapter_proof_must_match_every_target_property",
+      "tests/active_web_v1/test_aw2_observation.py::test_missing_or_untyped_proof_is_stale",
+      "tests/active_web_v1/test_aw2_observation.py::test_every_potential_mutation_invalidates_until_reobservation",
+      "tests/active_web_v1/test_aw2_observation.py::test_new_observation_rejects_old_element_even_when_page_looks_same",
+      "tests/active_web_v1/test_aw2_observation.py::test_cross_owner_workspace_child_cannot_capture_resolve_or_project",
+      "tests/active_web_v1/test_aw2_observation.py::test_same_owner_different_session_and_page_refs_cannot_cross_registry",
+      "tests/active_web_v1/test_aw2_observation.py::test_terminal_resource_rejects_target_without_adapter",
+      "tests/active_web_v1/test_aw2_observation.py::test_deadline_exceeded_never_publishes_or_yields_late_proof",
+      "tests/active_web_v1/test_aw2_observation.py::test_cancel_during_adapter_io_rejects_late_data_and_releases_lease",
+      "tests/active_web_v1/test_aw2_observation.py::test_invalidation_during_adapter_call_prevents_stale_publication_or_yield",
+      "tests/active_web_v1/test_aw2_observation.py::test_pending_capture_closed_from_other_thread_never_resurrects_observation",
+      "tests/active_web_v1/test_aw2_observation.py::test_port_exception_safe_typed_no_binding_secret_echo",
+      "tests/active_web_v1/test_aw2_observation.py::test_private_capture_contract_rejects_invalid_element",
+      "tests/active_web_v1/test_aw2_observation.py::test_capture_rejects_untyped_backend_data_not_empty_success",
+      "tests/active_web_v1/test_aw2_observation.py::test_capture_limits_are_explicit_finite_positive_host_configuration",
+      "tests/active_web_v1/test_aw2_observation.py::test_hidden_password_otp_sensitive_elements_omitted_even_when_visible",
+      "tests/active_web_v1/test_aw2_observation.py::test_forms_nonsecret_states_and_dialogs_are_structured_not_raw_dom",
+      "tests/active_web_v1/test_aw2_observation.py::test_registered_secret_redaction_applies_before_all_publication_bounds",
+      "tests/active_web_v1/test_aw2_observation.py::test_internal_or_invalid_url_not_published_or_actionable",
+      "tests/active_web_v1/test_aw2_observation.py::test_url_sanitization_bounds_identity_and_does_not_authorize_network",
+      "tests/active_web_v1/test_aw2_observation.py::test_host_capture_bounds_drop_long_identity_ref_instead_of_clipping_it",
+      "tests/active_web_v1/test_aw2_observation.py::test_projection_respects_effective_core_window_current_user_and_atomic_refs",
+      "tests/active_web_v1/test_aw2_observation.py::test_relevant_target_has_priority_over_unrelated_elements_and_page_text",
+      "tests/active_web_v1/test_aw2_observation.py::test_element_never_emitted_when_its_complete_representation_cannot_fit",
+      "tests/active_web_v1/test_aw2_observation.py::test_tiny_budget_fails_typed_instead_of_returning_partial_framing_or_ref",
+      "tests/active_web_v1/test_aw2_observation.py::test_required_current_user_never_displaced_to_fit_browser_projection",
+      "tests/active_web_v1/test_aw2_observation.py::test_memory_rag_shared_retrieval_and_combined_caps_not_expanded_by_observation",
+      "tests/active_web_v1/test_aw2_observation.py::test_projection_rejects_stale_snapshot_or_forged_relevant_target",
+      "tests/active_web_v1/test_aw2_observation.py::test_context_tokenizer_failure_degrades_to_core_estimator_without_mixed_counts",
+      "tests/active_web_v1/test_aw2_observation.py::test_model_request_schema_never_accepts_free_selector_or_engine_identifier",
+      "tests/active_web_v1/test_aw2_observation.py::test_prompt_injection_remains_quoted_tool_data_never_system_or_authority",
+      "tests/active_web_v1/test_aw2_observation.py::test_aw2_scope_keeps_engine_broker_policy_tools_and_frontends_unimplemented"
+    ],
+    "indexEmpty": true,
+    "tagsUnchanged": true,
+    "branch": "main",
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "unexpectedPriorDrift": 0,
+    "architectureAuditHistoryPreserved": true,
+    "ciAdditionOnly": true,
+    "noPostRegressionProductDrift": true,
+    "aw1EvidenceNotRepinnedOrRewritten": true,
+    "trackedExceptCiPreserved": true
+  },
+  "tests": {
+    "record": "test_results.json",
+    "focused": {
+      "passed": 320,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "aw2Passed": 91
+    },
+    "finalPython": {
+      "passed": 5438,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 7,
+      "subtestsPassed": 53,
+      "parameterInstances": 5446,
+      "focusedNotDoubleCounted": true
+    },
+    "desktop": {
+      "passed": 68,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "node": "24.16.0",
+      "command": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs",
+      "cwd": "desktop",
+      "durationMs": 1047.69,
+      "outputEvidence": "Tool output chunk 4231ce in this task; summary recorded here, no fabricated external log",
+      "typecheck": {
+        "command": "node node_modules/typescript/bin/tsc --noEmit",
+        "exitCode": 0,
+        "outputEvidence": "tool chunk ceba4e"
+      },
+      "preexistingWarnings": [
+        "ExperimentalWarning Transform Types",
+        "MODULE_TYPELESS_PACKAGE_JSON"
+      ],
+      "productChanged": false
+    },
+    "comparison": {
+      "newFailures": 0,
+      "resolvedFailures": 0,
+      "skipIdsIdentical": true,
+      "skipReasonsIdenticalExceptPrivateRunRoot": true,
+      "newSkips": 0,
+      "newXfails": 0
+    },
+    "newCiBaseContracts": 40,
+    "inventoryBaseContracts": 3898,
+    "realBrowser": 0,
+    "realModelCampaigns": 0,
+    "qualityAttempts": 0,
+    "outputsOutsideGit": true
+  },
+  "inheritedFailure": {
+    "nodeid": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "scope": "NON_BLOCKING_FOR_AW2",
+    "baselineReproduced": true,
+    "finalReproduced": true,
+    "coreJobExitCode": 1,
+    "coreJobGreen": false,
+    "sourceRunnerAssertionUnchanged": true,
+    "description": "Runner private HOME and USERPROFILE differ; PowerShell $HOME corresponds to USERPROFILE. Same failure before AW2 and in AW0/AW1; not repaired, skipped, xfailed or hidden."
+  },
+  "developmentFailures": "Initial runs and classifications preserved in test_results.json, no legacy assertion/threshold/skip/xfail changes.",
+  "openDecisions": {
+    "blocking": [],
+    "futureOnly": [
+      "AW3 Policy/exact approval/effects",
+      "AW4 broker",
+      "AW5 real adapter",
+      "AW6 auth/transfers"
+    ]
+  },
+  "limitations": [
+    "Contract-level fake only, no real browser capability/engine/render visibility/proof/network/model-quality certification.",
+    "Port must respect finite deadlines/token; real-engine preemption and atomic validation+dispatch not demonstrated in AW2.",
+    "All potential page changes must honor invalidation seam; future tools still require Application/ToolRuntime/Policy.",
+    "Known-value redaction, not DLP for arbitrary/unknown/transformed secrets.",
+    "Current Windows/NTFS HOST_UNISOLATED execution; Linux/macOS registrations are not executed evidence or browser certification.",
+    "Core job remains exit 1 for preexisting HOME/USERPROFILE harness debt; repository is not declared green.",
+    "No Memory/Document semantic recertification; ACTIVE_WEB_VISION_PROFILE=NOT_CERTIFIED."
+  ],
+  "performance": {
+    "requiredRealEngineGateInAW2": false,
+    "focusedFinalSeconds": 1.92,
+    "scope": "Synthetic clock/deadline/context contracts; not actual Chromium latency.",
+    "globalLimitsChanged": false
+  },
+  "operations": {
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false,
+    "newThread": false,
+    "aw3Implemented": false,
+    "modelDownload": false,
+    "globalConfigurationChange": false
+  },
+  "nextPhaseReferenceOnly": "AW3 (not implemented)",
+  "stopForHumanReview": true
+}

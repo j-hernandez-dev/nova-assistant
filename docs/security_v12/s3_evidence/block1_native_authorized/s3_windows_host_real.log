@@ -1,0 +1,70 @@
+F.F                                                                      [100%]
+================================== FAILURES ===================================
+________________ test_native_relative_read_and_atomic_replace _________________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native_authorized/s3_private_s2il8hhb/s3_windows_host_real/test_native_relative_read_and_0')
+
+    def test_native_relative_read_and_atomic_replace(tmp_path):
+        broker = WindowsFilesystemBroker()
+        try:
+            root = broker.bind_root(tmp_path)
+            assert root.identity
+            with ExitStack() as stack:
+                parent = broker.api.chain(str(tmp_path), stack)
+>               identity = broker.api.atomic_write(parent, 'fixture.txt', 'native fixture\n')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s3_windows.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:271: in atomic_write
+    self.fail()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+error = None
+
+    @staticmethod
+    def fail(error=None):
+        number = c.get_last_error() if error is None else error
+        if number in (2, 3):
+            raise FileNotFoundError(number, 'filesystem object unavailable')
+        if number in (5, 32, 33):
+            raise FilesystemError('FILESYSTEM_ACCESS_CONFLICT')
+>       raise FilesystemError('FILESYSTEM_OPERATION_FAILED')
+E       local_cli.core.filesystem.FilesystemError: FILESYSTEM_OPERATION_FAILED
+
+local_cli\infrastructure\windows_filesystem.py:130: FilesystemError
+____________ test_native_create_parent_directory_and_hardlink_deny ____________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native_authorized/s3_private_s2il8hhb/s3_windows_host_real/test_native_create_parent_dire0')
+
+    def test_native_create_parent_directory_and_hardlink_deny(tmp_path):
+        broker = WindowsFilesystemBroker()
+        try:
+            with ExitStack() as stack:
+                parent = broker.api.chain(str(tmp_path), stack)
+                child = stack.enter_context(broker.api.open(parent, 'created', directory=True, create=True))
+>               broker.api.atomic_write(child, 'one.txt', 'private')
+
+tests\security_v12\test_s3_windows.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:271: in atomic_write
+    self.fail()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+error = None
+
+    @staticmethod
+    def fail(error=None):
+        number = c.get_last_error() if error is None else error
+        if number in (2, 3):
+            raise FileNotFoundError(number, 'filesystem object unavailable')
+        if number in (5, 32, 33):
+            raise FilesystemError('FILESYSTEM_ACCESS_CONFLICT')
+>       raise FilesystemError('FILESYSTEM_OPERATION_FAILED')
+E       local_cli.core.filesystem.FilesystemError: FILESYSTEM_OPERATION_FAILED
+
+local_cli\infrastructure\windows_filesystem.py:130: FilesystemError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s3_windows.py::test_native_relative_read_and_atomic_replace
+FAILED tests/security_v12/test_s3_windows.py::test_native_create_parent_directory_and_hardlink_deny
+2 failed, 1 passed in 0.24s

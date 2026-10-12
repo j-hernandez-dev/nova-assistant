@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="5" skipped="0" tests="10" time="11.005" timestamp="2026-10-11T17:19:30.586204-06:00" hostname="WINDEV-SPACE"><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_navigation_observes_destination" time="7.122"><failure message="AssertionError: assert (&lt;ToolStatus.DENIED: 'denied'&gt; is &lt;ToolStatus.COMPLETED: 'completed'&gt;)&#10; +  where &lt;ToolStatus.DENIED: 'denied'&gt; = ToolResult(status=&lt;ToolStatus.DENIED: 'denied'&gt;, effect_state=&lt;EffectState.NONE: 'none'&gt;, stdout='', stderr='', exit_c...T_PRE_EFFECT_FAILED\nWarning: SECURITY_AUDIT_DELIVERY_FAILED; audit gap. Observed result retained; no retry/rollback.').status&#10; +  and   &lt;ToolStatus.COMPLETED: 'completed'&gt; = ToolStatus.COMPLETED">native\nova-browser-host\tests\v12_b4\test_native_authority.py:24: in test_native_exact_navigation_observes_destination
+    assert result.status is ToolStatus.COMPLETED and result.metadata['browserReceipt']['outcome']=='SUCCEEDED_OBSERVED'
+E   AssertionError: assert (&lt;ToolStatus.DENIED: 'denied'&gt; is &lt;ToolStatus.COMPLETED: 'completed'&gt;)
+E    +  where &lt;ToolStatus.DENIED: 'denied'&gt; = ToolResult(status=&lt;ToolStatus.DENIED: 'denied'&gt;, effect_state=&lt;EffectState.NONE: 'none'&gt;, stdout='', stderr='', exit_c...T_PRE_EFFECT_FAILED\nWarning: SECURITY_AUDIT_DELIVERY_FAILED; audit gap. Observed result retained; no retry/rollback.').status
+E    +  and   &lt;ToolStatus.COMPLETED: 'completed'&gt; = ToolStatus.COMPLETED</failure></testcase><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_navigation_observes_destination" time="0.000"><error message="failed on teardown with &quot;local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE&quot;">native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE</error></testcase><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_approved_mutation_conservative_outcome[View-CLICK--clicks=1]" time="0.834"><failure message="AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'&#10;  &#10;  - UNKNOWN&#10;  + NOT_STARTED)">native\nova-browser-host\tests\v12_b4\test_native_authority.py:39: in test_native_exact_approved_mutation_conservative_outcome
+    result=d.results[0];assert result.metadata['browserReceipt']['outcome']=='UNKNOWN' and result.effect_state is EffectState.UNKNOWN
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'
+E     
+E     - UNKNOWN
+E     + NOT_STARTED)</failure></testcase><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_approved_mutation_conservative_outcome[View-CLICK--clicks=1]" time="0.000"><error message="failed on teardown with &quot;local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE&quot;">native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE</error></testcase><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_approved_mutation_conservative_outcome[Ordinary entry-INPUT_TEXT-Synthetic B4 entry-input=1]" time="0.937"><failure message="AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'&#10;  &#10;  - UNKNOWN&#10;  + NOT_STARTED)">native\nova-browser-host\tests\v12_b4\test_native_authority.py:39: in test_native_exact_approved_mutation_conservative_outcome
+    result=d.results[0];assert result.metadata['browserReceipt']['outcome']=='UNKNOWN' and result.effect_state is EffectState.UNKNOWN
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'
+E     
+E     - UNKNOWN
+E     + NOT_STARTED)</failure></testcase><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_approved_mutation_conservative_outcome[Ordinary entry-INPUT_TEXT-Synthetic B4 entry-input=1]" time="0.000"><error message="failed on teardown with &quot;local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE&quot;">native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE</error></testcase><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_approved_mutation_conservative_outcome[Choice-SELECT_OPTION-b-select=1]" time="0.949"><failure message="AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'&#10;  &#10;  - UNKNOWN&#10;  + NOT_STARTED)">native\nova-browser-host\tests\v12_b4\test_native_authority.py:39: in test_native_exact_approved_mutation_conservative_outcome
+    result=d.results[0];assert result.metadata['browserReceipt']['outcome']=='UNKNOWN' and result.effect_state is EffectState.UNKNOWN
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'
+E     
+E     - UNKNOWN
+E     + NOT_STARTED)</failure></testcase><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_approved_mutation_conservative_outcome[Choice-SELECT_OPTION-b-select=1]" time="0.000"><error message="failed on teardown with &quot;local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE&quot;">native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE</error></testcase><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_approved_mutation_conservative_outcome[View-PRESS_KEY-Enter-key=]" time="0.956"><failure message="AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'&#10;  &#10;  - UNKNOWN&#10;  + NOT_STARTED)">native\nova-browser-host\tests\v12_b4\test_native_authority.py:39: in test_native_exact_approved_mutation_conservative_outcome
+    result=d.results[0];assert result.metadata['browserReceipt']['outcome']=='UNKNOWN' and result.effect_state is EffectState.UNKNOWN
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert ('NOT_STARTED' == 'UNKNOWN'
+E     
+E     - UNKNOWN
+E     + NOT_STARTED)</failure></testcase><testcase classname="native.nova-browser-host.tests.v12_b4.test_native_authority" name="test_native_exact_approved_mutation_conservative_outcome[View-PRESS_KEY-Enter-key=]" time="0.000"><error message="failed on teardown with &quot;local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE&quot;">native\nova-browser-host\tests\v12_b4\conftest.py:96: in native
+    d.store.flush();rows=[r for op in d.rt._outcomes for r in d.store.read_operation(owner.agent_session_id,op)]
+    ^^^^^^^^^^^^^^^
+local_cli\infrastructure\security_audit_jsonl.py:260: in flush
+    raise SecurityAuditError('SECURITY_AUDIT_UNAVAILABLE')
+E   local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_UNAVAILABLE</error></testcase></testsuite></testsuites>

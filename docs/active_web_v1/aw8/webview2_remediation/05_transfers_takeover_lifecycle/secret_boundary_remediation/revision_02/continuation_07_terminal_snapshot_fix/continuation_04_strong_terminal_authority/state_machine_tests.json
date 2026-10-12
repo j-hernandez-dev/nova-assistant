@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "status": "NOT_IMPLEMENTED_NOT_EXECUTED_PREFLIGHT_BLOCKED",
+  "testCategory": "PROPOSED_DIRECT_STATE_MACHINE_CONTRACTS",
+  "measurementDenominator": 0,
+  "syntheticEvidenceProduced": false,
+  "cases": [
+    {
+      "case": "input-short-blur-long-end",
+      "sequence": "INPUT len1 → BLUR → INPUT len42 → TAKEOVER_END_CHECKPOINT",
+      "expectation": "terminal len42 COMMITTED; short historical remains known"
+    },
+    {
+      "case": "input-short-change-long-end",
+      "sequence": "INPUT len1 → CHANGE → INPUT len42 → TAKEOVER_END_CHECKPOINT",
+      "expectation": "terminal len42 COMMITTED"
+    },
+    {
+      "case": "long-blur-transient",
+      "sequence": "INPUT len42 → BLUR",
+      "expectation": "known/current TRANSIENT; no TerminalSnapshot/Commit"
+    },
+    {
+      "case": "long-change-transient",
+      "sequence": "INPUT len42 → CHANGE",
+      "expectation": "known/current TRANSIENT; no TerminalSnapshot/Commit"
+    },
+    {
+      "case": "long-submit",
+      "sequence": "INPUT len42 → SUBMIT_CONFIRMED same control/form/document",
+      "expectation": "COMMITTED len42"
+    },
+    {
+      "case": "short-submit",
+      "sequence": "INPUT len2 → SUBMIT_CONFIRMED",
+      "expectation": "SHORT_COMMITTED_VALUE → SECRET_BOUNDARY_UNCONFIRMED"
+    },
+    {
+      "case": "long-pagehide",
+      "sequence": "INPUT len42 → observed PAGEHIDE_CONFIRMED",
+      "expectation": "COMMITTED len42"
+    },
+    {
+      "case": "long-retire",
+      "sequence": "INPUT len42 → owned ENGINE_WORLD_RETIRE seal",
+      "expectation": "COMMITTED len42"
+    },
+    {
+      "case": "short-retire",
+      "sequence": "INPUT len2 → owned ENGINE_WORLD_RETIRE seal",
+      "expectation": "SHORT_COMMITTED_VALUE → SECRET_BOUNDARY_UNCONFIRMED"
+    },
+    {
+      "case": "long-end-checkpoint",
+      "sequence": "INPUT len42 → exact correlated TAKEOVER_END_CHECKPOINT ack",
+      "expectation": "COMMITTED len42"
+    }
+  ],
+  "existingContractsConflicting": [
+    {
+      "kind": "ASSERTION_CONTRADICTS_NEW_AUTHORITY",
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "line": 72,
+      "caseIds": [
+        "native/nova-browser-host/tests/test_terminal_ordering.py::test_terminal_ordering_contract[reason-change]",
+        "native/nova-browser-host/tests/test_terminal_ordering.py::test_terminal_ordering_contract[reason-blur]"
+      ],
+      "oldSequence": "Observe → ConfirmTerminal(CHANGE or BLUR) → Commit → require COMMITTED",
+      "newRequirement": "CHANGE/BLUR remain TRANSIENT; no TerminalSnapshot/Commit",
+      "requiresHumanAuthorization": "Only these two direct semantic assertions must become transient/no terminal/no promotion checks. All redaction/monotonic/security assertions remain."
+    },
+    {
+      "kind": "PREPARATION_USES_REMOVED_AUTHORITY",
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "line": 17,
+      "caseIds": "native/nova-browser-host/tests/test_retirement_seal.py::test_retirement_seal_contract[all 23 existing modes]",
+      "oldSequence": "Shared Observe(empty rev2) → ConfirmTerminal(CHANGE) → Commit before each seal contract",
+      "newRequirement": "No CHANGE snapshot, including empty value",
+      "requiresHumanAuthorization": "Replace only initial terminal witness with an explicit allowed correlated witness; keep values/revisions and seal assertions unchanged."
+    },
+    {
+      "kind": "PREPARATION_USES_ADDITIONAL_TERMINAL_SOURCE",
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "lines": [
+        29,
+        36,
+        41
+      ],
+      "caseIds": [
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[committed-long]",
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[committed-short-1]",
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[committed-short-2]",
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[committed-short-3]",
+        "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[promotion]"
+      ],
+      "oldSequence": "Input(commit=true) → HOST_CONFIRMED → COMMITTED",
+      "newRequirement": "INPUT has no terminal authority; HOST_CONFIRMED is not one of four allowed sources",
+      "requiresHumanAuthorization": "Supply explicit current/revision ownership and allowed terminal witness; preserve committed-long assertion and genuine short terminal denial."
+    },
+    {
+      "kind": "PREPARATION_USES_ADDITIONAL_TERMINAL_SOURCE",
+      "path": "native/nova-browser-host/tests/leaf_boundary_runner/Program.cs",
+      "line": 55,
+      "caseIds": [
+        "native/nova-browser-host/tests/test_leaf_boundary.py::test_leaf_boundary_contract[long-committed]"
+      ],
+      "oldSequence": "Input(commit=true) establishes committed state for leaf redaction test",
+      "newRequirement": "INPUT cannot commit",
+      "requiresHumanAuthorization": "Change only sensitive registry preparation to allowed strong terminal snapshot; leaf fixture/redaction/assertion remains byte-equivalent."
+    },
+    {
+      "kind": "FULL_REGRESSION_LEGACY_CALLERS_REQUIRE_INVENTORY_RECONCILIATION",
+      "path": "native/nova-browser-host/tests/sensitive_runner/Program.cs",
+      "lines": [
+        16,
+        17,
+        18,
+        19,
+        21,
+        23,
+        26,
+        38,
+        60
+      ],
+      "caseIds": "url, escaped-url, dispose, isolation, count, total, no-eviction; native-session-lifecycle; native-structural-collision (static caller inventory, not new measured failures)",
+      "oldSequence": "Host scalar Input(commit=true) without one of four terminal witnesses",
+      "newRequirement": "No extra HOST_CONFIRMED authority in product to preserve test wiring",
+      "requiresHumanAuthorization": "Review only direct preparations requiring terminal state; no broad fixture/test changes or preservation of a prohibited product shortcut."
+    }
+  ],
+  "noHistoricalTestChanges": true,
+  "noPolicyThresholdChanges": true
+}

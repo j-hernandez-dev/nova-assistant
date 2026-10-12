@@ -1,0 +1,230 @@
+"""Test-only C04 tap. Never edits product, tests, fixtures, IPC or policy.
+Temporary cloned host sources get side-effect-free metadata writes only.
+The fixed private-world extra binding conveys metadata, never values/authority.
+"""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import pytest
+
+HERE=Path(__file__).resolve().parent
+PRODUCT=HERE.parents[1]
+TARGETS=(
+'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]',
+'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]',
+'native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]',
+)
+CONTROLS=(
+'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[same-origin]',
+'native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[cross-origin]',
+)
+
+def replace(text,old,new):
+    assert text.count(old)==1,'Diagnostic source anchor is not exact/unique'
+    return text.replace(old,new,1)
+
+
+def registry_tap(text):
+    text=replace(text,
+        '{unavailable=true;throw new IpcFailure("SECRET_BOUNDARY_UNCONFIRMED");}',
+        '{ContinuityMetadata.Fault(disposed?"OTHER":unavailable?"OTHER":"REGISTRY_BOUND_EXPIRY",detail:disposed?"REGISTRY_DISPOSED":unavailable?"REGISTRY_ALREADY_UNAVAILABLE":"REGISTRY_EXPIRED");unavailable=true;throw new IpcFailure("SECRET_BOUNDARY_UNCONFIRMED");}')
+    text=replace(text,'internal void Fail(){unavailable=true;}',
+        'internal void Fail(){ContinuityMetadata.Emit("registry_mark_unavailable");unavailable=true;}')
+    text=replace(text,'        Require();\n        if(value.Length>MaxValueChars)',
+        '''        {bool known=values.TryGetValue(value,out var classification);bool prior=pending.TryGetValue(key,out var current);ContinuityMetadata.Value(key,value.Length,known,prior&&current==value,prior?current!.Length:null,known?classification.ToString():null);}
+        using var diagInput=ContinuityMetadata.Reason(ContinuityMetadata.EventKind(key));
+        Require();
+        if(value.Length>MaxValueChars)''')
+    text=replace(text,'{Fail();Require();}\n        // Classification',
+        '{ContinuityMetadata.Fault("REGISTRY_BOUND_EXPIRY",key,value.Length,"VALUE_LENGTH");Fail();Require();}\n        // Classification')
+    text=replace(text,
+        'if(value.Length>0&&!pending.ContainsKey(key)&&pending.Count>=MaxPending){Fail();Require();}',
+        'if(value.Length>0&&!pending.ContainsKey(key)&&pending.Count>=MaxPending){ContinuityMetadata.Fault("REGISTRY_BOUND_EXPIRY",key,value.Length,"PENDING_COUNT");Fail();Require();}')
+    text=replace(text,
+        'if(values.Count>=MaxValues||value.Length>MaxTotalChars-totalChars){Fail();Require();}',
+        'if(values.Count>=MaxValues||value.Length>MaxTotalChars-totalChars){ContinuityMetadata.Fault("REGISTRY_BOUND_EXPIRY",length:value.Length,detail:values.Count>=MaxValues?"VALUE_COUNT":"TOTAL_UTF16");Fail();Require();}')
+    text=replace(text,'values.Add(value,ValueClass.TRANSIENT);totalChars+=value.Length;',
+        'values.Add(value,ValueClass.TRANSIENT);totalChars+=value.Length;ContinuityMetadata.Emit("knowledge_added",length:value.Length,classification:"TRANSIENT",knownCount:values.Count,totalChars:totalChars);')
+    text=replace(text,'        Add(v);values[v]=ValueClass.COMMITTED;',
+        '''        ContinuityMetadata.Emit("commit_target",key,v.Length,classification:values[v].ToString(),known:values.ContainsKey(v),current:true);
+        Add(v);values[v]=ValueClass.COMMITTED;
+        ContinuityMetadata.Emit("promoted",key,v.Length,classification:"COMMITTED",known:true,current:true);''')
+    text=replace(text,'if(v.Length<=3){Fail();Require();}',
+        'if(v.Length<=3){ContinuityMetadata.Fault("COMMITTED_SHORT_VALUE",key,v.Length);Fail();Require();}')
+    text=replace(text,
+        '{Require();foreach(var k in pending.Keys.Where(k=>k.StartsWith(prefix,StringComparison.Ordinal)).ToArray()){Commit(k);pending.Remove(k);}}',
+        '{using var diagRetire=ContinuityMetadata.Reason("world-retire");ContinuityMetadata.Emit("registry_world_retire");Require();foreach(var k in pending.Keys.Where(k=>k.StartsWith(prefix,StringComparison.Ordinal)).ToArray()){Commit(k);pending.Remove(k);}}')
+    text=replace(text,
+        'internal void Checkpoint(){Require();foreach(var k in pending.Keys.ToArray())Commit(k);Require();}',
+        'internal void Checkpoint(){using var diagCheckpoint=ContinuityMetadata.Reason("registry-checkpoint");ContinuityMetadata.Emit("registry_checkpoint");Require();foreach(var k in pending.Keys.ToArray())Commit(k);Require();}')
+    text=replace(text,
+        'public void Dispose(){disposed=true;unavailable=true;values.Clear();pending.Clear();totalChars=0;}',
+        'public void Dispose(){ContinuityMetadata.RegistryDisposed(values.Count,totalChars);disposed=true;unavailable=true;values.Clear();pending.Clear();totalChars=0;}')
+    return text
+
+
+def tracking_tap(text):
+    # Extra PRIVATE isolated-world binding: metadata only. Product binding and
+    # payload remain byte-equivalent; no new field is added to any IPC schema.
+    text=replace(text,'const emit=globalThis.__nova_sensitive_capture_v2;let id=0;',
+        'const diag=globalThis.__nova_sensitive_order_diag_v1;const emit=globalThis.__nova_sensitive_capture_v2;let id=0;')
+    text=replace(text,'const capture=(e,commit,humanEditing=false)=>',
+        'const capture=(e,commit,humanEditing=false,eventKind="scan")=>')
+    text=replace(text,
+        "emit(JSON.stringify({kind:'value',key,value:e.value,commit,humanEditing}));",
+        "diag(JSON.stringify({eventKind,key,length:e.value.length}));emit(JSON.stringify({kind:'value',key,value:e.value,commit,humanEditing}));")
+    text=replace(text,
+        'const scan=commit=>{for(const e of document.querySelectorAll(\'input,textarea,select\'))capture(e,commit);for(const e of controls)if(!e.isConnected){capture(e,true);controls.delete(e);}};',
+        'const scan=(commit,eventKind="scan")=>{for(const e of document.querySelectorAll(\'input,textarea,select\'))capture(e,commit,false,eventKind);for(const e of controls)if(!e.isConnected){capture(e,true,false,"disconnected-node-scan");controls.delete(e);}};')
+    for old,new in [
+        ("capture(e.target,false,e.isTrusted)","capture(e.target,false,e.isTrusted,'input')"),
+        ("capture(e.target,true,e.isTrusted)","capture(e.target,true,e.isTrusted,type)"),
+        ("('submit',()=>scan(true)","('submit',()=>scan(true,'submit')"),
+        ("('pagehide',()=>scan(true)","('pagehide',()=>scan(true,'pagehide')"),
+        ("new MutationObserver(()=>scan(false))","new MutationObserver(()=>scan(false,'mutation-scan'))"),
+        ("value:nonce=>{scan(true);","value:nonce=>{scan(true,'final-checkpoint-scan');"),
+    ]:
+        text=replace(text,old,new)
+    text=replace(text,
+        'bindingReceiver.DevToolsProtocolEventReceived+=SensitiveMessage;',
+        'bindingReceiver.DevToolsProtocolEventReceived+=SensitiveMessage;bindingReceiver.DevToolsProtocolEventReceived+=DiagnosticMessage;')
+    text=replace(text,
+        'await Cdp("Runtime.addBinding",new{name=SensitiveBinding,executionContextName=SensitiveWorld});',
+        'await Cdp("Runtime.addBinding",new{name="__nova_sensitive_order_diag_v1",executionContextName=SensitiveWorld});await Cdp("Runtime.addBinding",new{name=SensitiveBinding,executionContextName=SensitiveWorld});')
+    text=replace(text,
+        'catch{secrets.Fail();throw new IpcFailure("SECRET_BOUNDARY_UNCONFIRMED");}\n    }\n    private void SensitiveContextCreated',
+        'catch{ContinuityMetadata.Fault("CAPTURE_CHANNEL_FAILURE",detail:"INSTALLATION_CATCH");secrets.Fail();throw new IpcFailure("SECRET_BOUNDARY_UNCONFIRMED");}\n    }\n    private void SensitiveContextCreated')
+    text=replace(text,
+        'sensitiveContexts[c.GetProperty("id").GetInt32()]=c.GetProperty("auxData").GetProperty("frameId").GetString()!;',
+        '{sensitiveContexts[c.GetProperty("id").GetInt32()]=c.GetProperty("auxData").GetProperty("frameId").GetString()!;ContinuityMetadata.Created(guard.PageIdentity,c.GetProperty("id").GetInt32(),c.GetProperty("auxData").GetProperty("frameId").GetString()!);}')
+    text=replace(text,
+        'catch{secrets.Fail();}\n    }\n    private void SensitiveMessage',
+        'catch{ContinuityMetadata.Fault("CAPTURE_CHANNEL_FAILURE",detail:"CONTEXT_CREATED_CATCH");secrets.Fail();}\n    }\n    private void SensitiveMessage')
+    text=replace(text,
+        'int context=r.GetProperty("executionContextId").GetInt32();Protocol.Need(sensitiveContexts.ContainsKey(context),"SECRET_BOUNDARY_UNCONFIRMED");',
+        'int context=r.GetProperty("executionContextId").GetInt32();ContinuityMetadata.Emit("product_binding_received",page:guard.PageIdentity,context:context,protectedWorld:protectedContexts.Contains(context));if(!sensitiveContexts.ContainsKey(context))ContinuityMetadata.Fault("CAPTURE_CHANNEL_FAILURE",detail:"BINDING_FOR_REMOVED_WORLD");Protocol.Need(sensitiveContexts.ContainsKey(context),"SECRET_BOUNDARY_UNCONFIRMED");')
+    text=replace(text,
+        'if(kind=="ready"){Protocol.Closed(m,"kind");protectedContexts.Add(context);}',
+        'if(kind=="ready"){Protocol.Closed(m,"kind");protectedContexts.Add(context);ContinuityMetadata.Emit("world_ready",page:guard.PageIdentity,context:context,protectedWorld:true);}')
+    text=replace(text,
+        'if(checkpoints.TryGetValue(m.GetProperty("nonce").GetString()!,out var done))done.TrySetResult(true);else secrets.Fail();',
+        'if(checkpoints.TryGetValue(m.GetProperty("nonce").GetString()!,out var done)){ContinuityMetadata.Emit("checkpoint_ack",page:guard.PageIdentity,context:context,phase:"ACK");done.TrySetResult(true);}else {ContinuityMetadata.Fault("CAPTURE_CHANNEL_FAILURE",detail:"LATE_OR_UNKNOWN_CHECKPOINT_NONCE");secrets.Fail();}')
+    text=replace(text,
+        'catch{secrets.Fail();foreach(var p in checkpoints.Values)',
+        'catch{ContinuityMetadata.Fault("CAPTURE_CHANNEL_FAILURE",detail:"SENSITIVE_MESSAGE_CATCH");secrets.Fail();foreach(var p in checkpoints.Values)')
+    text=replace(text,
+        'int id=j.RootElement.GetProperty("executionContextId").GetInt32();if(sensitiveContexts.Remove(id))',
+        'int id=j.RootElement.GetProperty("executionContextId").GetInt32();ContinuityMetadata.Destroyed(guard.PageIdentity,id);if(sensitiveContexts.Remove(id))')
+    text=replace(text,
+        '}catch{secrets.Fail();}}\n    private void SensitiveContextsCleared',
+        '}catch{ContinuityMetadata.Fault("CAPTURE_CHANNEL_FAILURE",detail:"CONTEXT_DESTROY_CATCH");secrets.Fail();}}\n    private void SensitiveContextsCleared')
+    text=replace(text,
+        '{try{foreach(var id in sensitiveContexts.Keys)secrets.Retire(ContextKey(id));sensitiveContexts.Clear();protectedContexts.Clear();}catch{secrets.Fail();}}',
+        '{try{ContinuityMetadata.Emit("worlds_clear_observed",page:guard.PageIdentity);foreach(var id in sensitiveContexts.Keys){ContinuityMetadata.Destroyed(guard.PageIdentity,id);secrets.Retire(ContextKey(id));}sensitiveContexts.Clear();protectedContexts.Clear();}catch{ContinuityMetadata.Fault("CAPTURE_CHANNEL_FAILURE",detail:"CONTEXT_CLEAR_CATCH");secrets.Fail();}}')
+    text=replace(text,
+        '        secrets.Require();Protocol.Need(trackingInstalled&&trackingScript is not null,"SECRET_BOUNDARY_UNCONFIRMED");',
+        '        ContinuityMetadata.Emit("checkpoint_begin",page:guard.PageIdentity,phase:"BEGIN");secrets.Require();if(!trackingInstalled||trackingScript is null)ContinuityMetadata.Fault("CAPTURE_CHANNEL_FAILURE",detail:"TRACKING_NOT_INSTALLED");Protocol.Need(trackingInstalled&&trackingScript is not null,"SECRET_BOUNDARY_UNCONFIRMED");')
+    text=replace(text,
+        'int id=sensitiveContexts.Single(p=>p.Value==frame).Key;',
+        'ContinuityMetadata.Selected(guard.PageIdentity,frame,sensitiveContexts,protectedContexts);int id=sensitiveContexts.Single(p=>p.Value==frame).Key;')
+    text=replace(text,
+        'try{await Value("globalThis.__novaSensitiveCheckpoint("+JsonSerializer.Serialize(nonce)+")",id);await done.Task.WaitAsync(TimeSpan.FromSeconds(2));}',
+        'try{ContinuityMetadata.Emit("checkpoint_invoke",page:guard.PageIdentity,context:id,phase:"INVOKE");await Value("globalThis.__novaSensitiveCheckpoint("+JsonSerializer.Serialize(nonce)+")",id);ContinuityMetadata.Emit("checkpoint_wait",page:guard.PageIdentity,context:id,phase:"WAIT_ACK");await done.Task.WaitAsync(TimeSpan.FromSeconds(2));}')
+    text=replace(text,
+        '        catch{secrets.Fail();throw new IpcFailure("SECRET_BOUNDARY_UNCONFIRMED");}\n    }\n    public async Task ProtectHumanInput()',
+        '        catch{ContinuityMetadata.Fault("CHECKPOINT_CONTINUITY_FAILURE",detail:"CHECKPOINT_CATCH");secrets.Fail();throw new IpcFailure("SECRET_BOUNDARY_UNCONFIRMED");}\n    }\n    public async Task ProtectHumanInput()')
+    # Metadata handler is NOT an authority channel, receives no values/URLs.
+    text=replace(text,'    private string ContextKey(int context)=>',
+        '''    private void DiagnosticMessage(object? sender,CoreWebView2DevToolsProtocolEventReceivedEventArgs e)
+    {
+        try{using var j=JsonDocument.Parse(e.ParameterObjectAsJson);var r=j.RootElement;
+            if(r.GetProperty("name").GetString()!="__nova_sensitive_order_diag_v1")return;
+            using var p=JsonDocument.Parse(r.GetProperty("payload").GetString()!);
+            Protocol.Closed(p.RootElement,"eventKind","key","length");
+            ContinuityMetadata.Annotate(guard.PageIdentity,r.GetProperty("executionContextId").GetInt32(),p.RootElement);
+        }catch{ContinuityMetadata.Emit("diagnostic_annotation_failed",failure:"OTHER");}
+    }
+    private string ContextKey(int context)=>''')
+    return text
+
+
+def takeover_tap(text):
+    text=replace(text,'public Task<object> EndTakeover()=>OnUi<object>(async()=>\n    {',
+        'public Task<object> EndTakeover()=>OnUi<object>(async()=>\n    {\n        using var diagEnd=ContinuityMetadata.Reason("takeover-end");ContinuityMetadata.Emit("takeover_end_begin",phase:"TAKEOVER_END");')
+    text=replace(text,'        browserEpoch++;journal.ContextEpoch=browserEpoch;',
+        '        ContinuityMetadata.Emit("takeover_end_completed",phase:"TAKEOVER_COMPLETED");browserEpoch++;journal.ContextEpoch=browserEpoch;')
+    return text
+
+
+def instrument(dotnet,original_bin,work,diagnostic):
+    source=work/'source';source.mkdir()
+    pins=[]
+    for file in sorted(PRODUCT.glob('*.cs')):
+        original=file.read_text(encoding='utf-8-sig')
+        text=original
+        if file.name=='SensitiveValueRegistry.cs':text=registry_tap(text)
+        elif file.name=='SensitiveTracking.cs':text=tracking_tap(text)
+        elif file.name=='TakeoverRuntime.cs':text=takeover_tap(text)
+        elif file.name=='Program.cs':
+            if diagnostic:
+                original=(PRODUCT/'tests/diagnostic_host/Program.cs').read_text(encoding='utf-8-sig')
+                text=replace(original,'try{return await LifecycleServer.Run(options);}',
+                    'ContinuityMetadata.Init(args);\ntry{return await LifecycleServer.Run(options);}')
+            else:
+                text=replace(original,'if (!OperatingSystem.IsWindows()) return 10;',
+                    'ContinuityMetadata.Init(args);\nif (!OperatingSystem.IsWindows()) return 10;')
+        target=source/file.name
+        target.write_text(text,encoding='utf-8')
+        pins.append(dict(name=file.name,originalSha256=hashlib.sha256(file.read_bytes()).hexdigest(),
+                         cloneSha256=hashlib.sha256(target.read_bytes()).hexdigest(),transformed=text!=original))
+    metadata=source/'ContinuityMetadata.cs';metadata.write_bytes((HERE/'ContinuityMetadata.cs').read_bytes())
+    project=source/'diagnosis.csproj'
+    core=(original_bin.parent/'Microsoft.Web.WebView2.Core.dll').as_posix()
+    loader=(original_bin.parent/'runtimes/win-x64/native/WebView2Loader.dll').as_posix()
+    if not Path(loader).is_file():loader=(original_bin.parent/'WebView2Loader.dll').as_posix()
+    assert Path(loader).is_file(),'Diagnostic native loader must be present before build'
+    project.write_text(f"""<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><PlatformTarget>x64</PlatformTarget><AssemblyName>nova-browser-host</AssemblyName><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors><UseSharedCompilation>false</UseSharedCompilation></PropertyGroup>
+<ItemGroup><Reference Include="Microsoft.Web.WebView2.Core"><HintPath>{core}</HintPath></Reference><Content Include="{loader}"><Link>WebView2Loader.dll</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content></ItemGroup></Project>""",encoding='utf-8')
+    feed=work/'empty-feed';feed.mkdir()
+    command=[str(dotnet),'build',str(project),'-c','Release','--source',str(feed),'-p:NuGetAudit=false','-p:UseAppHost=false','-p:BaseIntermediateOutputPath='+str(work/'obj')+'/', '-p:OutputPath='+str(work/'bin')+'/', '--nologo']
+    result=subprocess.run(command,capture_output=True,text=True,timeout=60)
+    (work/'build.txt').write_text(result.stdout+result.stderr,encoding='utf-8')
+    assert result.returncode==0,result.stdout+result.stderr
+    assert (work/'bin/WebView2Loader.dll').is_file(),'Diagnostic deployment must match the working upstream host'
+    (work/'clone_integrity.json').write_text(json.dumps(dict(category='DIAGNOSTIC_TEST_HOST_NOT_PRODUCT',sourcePins=pins,metadataSha256=hashlib.sha256(metadata.read_bytes()).hexdigest(),command=command,upstreamAssemblySha256=hashlib.sha256(original_bin.read_bytes()).hexdigest(),instrumentedAssemblySha256=hashlib.sha256((work/'bin/nova-browser-host.dll').read_bytes()).hexdigest()),indent=2),encoding='utf-8')
+    return dotnet,work/'bin/nova-browser-host.dll'
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_fixture_setup(fixturedef,request):
+    result=yield
+    if fixturedef.argname not in ('host_build','diagnostic_build'):return result
+    factory=request.getfixturevalue('tmp_path_factory')
+    work=factory.mktemp('continuity-tap-diagnostic'if fixturedef.argname=='diagnostic_build'else'continuity-tap-host')
+    result=instrument(*result,work,fixturedef.argname=='diagnostic_build')
+    assert fixturedef.cached_result is not None
+    fixturedef.cached_result=(result,fixturedef.cached_result[1],fixturedef.cached_result[2])
+    return result
+
+
+def pytest_collection_modifyitems(items):
+    actual=tuple(item.nodeid for item in items)
+    assert actual in (TARGETS,CONTROLS),'This diagnostic tap authorizes only the exact target/control campaign, once each'
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(item,call):
+    report=yield
+    if call.when=='teardown':
+        d=item.funcargs.get('specimen5')or item.funcargs.get('diagnostic_specimen')
+        if d is not None:
+            client=d['port']._sessions[d['session']]
+            evidence=Path(str(client.udf)+'.continuity-metadata.jsonl')
+            receipt=dict(nodeId=item.nodeid,hostPid=client.process.pid,eventEvidence=str(evidence),
+                udfRemoved=not client.udf.exists(),hostExited=client.process.poll()is not None,
+                fixtureTeardownOutcome=report.outcome,rawValueRecorded=False)
+            (d['tmp']/'diagnosis_receipt.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
+    return report
+

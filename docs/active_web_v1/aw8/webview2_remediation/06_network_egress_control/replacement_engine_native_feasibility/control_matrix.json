@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "controls": [
+    {
+      "requirement": "WebRTC disabled",
+      "runtimeConfiguration": "UNAVAILABLE_AS_VERIFIED_INTEGRAL_CONTROL_IN_SELECTED_PROFILE",
+      "supportedCefApi": "No integral disable identified in inspected public headers; permissions are not sufficient.",
+      "sourceBuild": "SOURCE_PATCH_GATE_REQUIRED_UNIMPLEMENTED",
+      "conceptualPatch": "PeerConnection construction/usage and P2P socket/backend entrypoints for all page/worker contexts. Must choose and verify exact pin locations and compile inputs; no JS wrapper.",
+      "proof": "FAIL"
+    },
+    {
+      "requirement": "Service Workers disabled",
+      "runtimeConfiguration": "UNVERIFIED",
+      "supportedCefApi": "Request-context/resource callbacks exist, including worker requests; rejecting some scripts is not registration/access/start disable.",
+      "sourceBuild": "SOURCE_PATCH_GATE_REQUIRED_UNIMPLEMENTED",
+      "conceptualPatch": "Chromium ContentBrowserClient AllowServiceWorker denial for register/access/start and all partitions; CEF Chrome embedder override, independent of denying cookies.",
+      "proof": "INCONCLUSIVE_NOT_RUN"
+    },
+    {
+      "requirement": "QUIC / HTTP3 / relevant UDP off",
+      "runtimeConfiguration": "Chromium runtime option disable-quic requested; not certified.",
+      "supportedCefApi": "No complete UDP deny API demonstrated.",
+      "sourceBuild": "SOURCE_PATCH_GATE_REQUIRED_UNIMPLEMENTED",
+      "conceptualPatch": "NetworkService DisableQuic at creation/recreation plus all applicable UDP/P2P socket/send paths denied.",
+      "proof": "FAIL_RELEVANT_STUN_UDP_ONLY_QUIC_UNTESTED"
+    },
+    {
+      "requirement": "Exclusive proxy",
+      "runtimeConfiguration": "proxy-server numeric single endpoint; proxy-bypass-list <-loopback>; no PAC/DIRECT chain supplied.",
+      "supportedCefApi": "Per-context proxy preference possible; configuring a proxy is not socket enforcement.",
+      "sourceBuild": "SOURCE_PATCH_GATE_REQUIRED_UNIMPLEMENTED",
+      "conceptualPatch": "Every NetworkContext fixed proxy + native connect gate only exact owned broker endpoint, no ambient updates, recreated before content.",
+      "proof": "FAIL_RTC_BYPASS_HTTP_FAILOVER_UNTESTED"
+    },
+    {
+      "requirement": "Broker-owned useful destination DNS",
+      "runtimeConfiguration": "Not proved by a requested resolver rule; no DNS certificate produced.",
+      "supportedCefApi": "ResolveHost/resource request APIs are not proof of exclusive resolver authority.",
+      "sourceBuild": "SOURCE_PATCH_GATE_REQUIRED_UNIMPLEMENTED",
+      "conceptualPatch": "Native resolver rejects page destinations and all OS/DoH/direct alternatives; broker fresh all-answer classification and numeric pinning.",
+      "proof": "INCONCLUSIVE_NOT_RUN"
+    },
+    {
+      "requirement": "HTTP/HTTPS PUBLIC_ONLY",
+      "runtimeConfiguration": "Harness offline topology, no productive PUBLIC_ONLY exception.",
+      "supportedCefApi": "URL request hooks and standard Chromium TLS exist; opaque CONNECT integration needs proof.",
+      "sourceBuild": "SUPPORTED_CEF_API_PLUS_SOURCE_NETWORK_GATES",
+      "conceptualPatch": "Keep existing Nova policy/broker authority; no new policy in embedder. Pre-request logical origin admission independent of physical DNS/IP broker.",
+      "proof": "INCONCLUSIVE_NOT_RUN"
+    },
+    {
+      "requirement": "Logical origin admission",
+      "runtimeConfiguration": "No callback presumed to cover all sockets.",
+      "supportedCefApi": "GetResourceRequestHandler / OnBeforeResourceLoad / OnBeforeBrowse / redirects require coverage audit; native downloads distinct.",
+      "sourceBuild": "SUPPORTED_CEF_API_WITH_SOURCE_GAPS_TO_VERIFY",
+      "conceptualPatch": "URLLoader/navigation admission for each new origin/redirect before dispatch, including reuse/coalescing.",
+      "proof": "INCONCLUSIVE_NOT_RUN"
+    },
+    {
+      "requirement": "External protocols DENY_ALL",
+      "runtimeConfiguration": "No dialog/unknown registered protocol counted as control.",
+      "supportedCefApi": "OnProtocolExecution boolean is a real hook but not sufficient proof for Chrome-style fallback/known protocols.",
+      "sourceBuild": "SOURCE_PATCH_GATE_MAY_BE_REQUIRED_UNIMPLEMENTED",
+      "conceptualPatch": "CEF Chrome ContentBrowserClient HandleExternalProtocol unconditional handled-deny before OS execution; all delegates/default branches closed.",
+      "proof": "INCONCLUSIVE_NOT_RUN"
+    },
+    {
+      "requirement": "Pinned binary/configuration identity",
+      "runtimeConfiguration": "One distribution, no evergreen. Headers/API version 15400 validated before initialize.",
+      "supportedCefApi": "cef_api_hash runtime result + package/DLL version/hashes",
+      "sourceBuild": "COMPILE_TIME_API_CONFIGURATION_USED_NOT_SECURITY_SUPPRESSION",
+      "proof": "IDENTITY_OBSERVED_NOT_ENGINE_SECURITY_CERTIFICATE"
+    },
+    {
+      "requirement": "No admin/global dependencies",
+      "runtimeConfiguration": "Harness invokes ordinary user executable, own job/events/listeners/profile; no privileged service/firewall/registry/CA changes requested.",
+      "supportedCefApi": "HOST_UNISOLATED; no sandbox claim.",
+      "sourceBuild": "No CEF sandbox integration linked; no_sandbox true explicitly recorded, not a workaround certification.",
+      "proof": "HARNESS_SCOPE_ONLY"
+    }
+  ],
+  "separation": "Runtime option/configuration vs compile/source gate explicitly distinguished; requested strings are not proofs."
+}

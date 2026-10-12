@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "candidateId": "AW_V12_B7_c538cc9c1a7f2e2d25ba",
+  "rows": [
+    {
+      "gate": "ARCHITECTURE",
+      "result": "PASS",
+      "evidence": [
+        "candidate_identity.json",
+        "causal_repair.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "CONTROLLED_FETCH",
+      "result": "PASS",
+      "evidence": [
+        "e2e_fetch_evidence.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "INTERACTIVE_BROWSER_BASELINE",
+      "result": "PASS",
+      "evidence": [
+        "e2e_browser_evidence.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "BROWSER_AUTHORITY",
+      "result": "PASS",
+      "evidence": [
+        "runs/final/b7_browser/policy_pre_effect_denial.json",
+        "runs/final/b7_browser/genuine_grant_separation.json",
+        "runs/final/b7_browser/target_changed_pre_effect.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "TRANSFERS",
+      "result": "PASS",
+      "evidence": [
+        "runs/final/b7_browser/upload.json",
+        "runs/final/b7_browser/download.json",
+        "runs/final/b7_browser/drive_by.json",
+        "runs/final/b7_browser/download_oversize.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "TAKEOVER",
+      "result": "PASS",
+      "evidence": [
+        "runs/final/b7_browser/takeover_secret_confirmed.json",
+        "runs/final/b7_browser/takeover_secret_unconfirmed.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "SECRETS",
+      "result": "PASS",
+      "evidence": [
+        "runs/final/b7_browser/takeover_secret_confirmed.json",
+        "runs/final/b7_browser/takeover_secret_unconfirmed.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "SNAPSHOT",
+      "result": "PASS",
+      "evidence": [
+        "runs/regression/native_application_snapshots.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "ROUTING",
+      "result": "PASS",
+      "evidence": [
+        "routing_evidence.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "NO_BYPASS",
+      "result": "PASS",
+      "evidence": [
+        "routing_evidence.json",
+        "cross_capability_evidence.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "PRODUCT_ROOT_PARITY",
+      "result": "PASS",
+      "evidence": [
+        "product_root_parity.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "FAILURE_TRUTHFULNESS",
+      "result": "PASS",
+      "evidence": [
+        "failure_evidence.json"
+      ],
+      "qualification": null
+    },
+    {
+      "gate": "CLEANUP",
+      "result": "PASS",
+      "evidence": [
+        "cleanup_evidence.json"
+      ],
+      "qualification": "Required runtime cleanup CONFIRMED; inert audit receipt CLEANUP_UNCONFIRMED under explicit section 24 allowance"
+    },
+    {
+      "gate": "HISTORICAL_PRESERVATION",
+      "result": "PASS",
+      "evidence": [
+        "historical_write_guard.json",
+        "integrity.json"
+      ],
+      "qualification": null
+    }
+  ],
+  "allMandatoryGatesPass": true,
+  "blocker": null,
+  "retainedAuditReceipt": "CLEANUP_UNCONFIRMED / UNCONFIRMED_POLICY_BLOCK"
+}

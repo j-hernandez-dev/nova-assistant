@@ -1,0 +1,217 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Prospective expected-outcome reconciliation only; final product unchanged",
+  "timestampUtc": "2026-10-11T01:58:35.391Z",
+  "verdict": "PARTIAL",
+  "terminalAuthorities": [
+    "SUBMIT_CONFIRMED",
+    "TAKEOVER_END_CHECKPOINT"
+  ],
+  "acceptedDecision": {
+    "HISTORICAL_EXPECTATION_REQUIRES_UNCONFIRMED_TERMINAL_INFERENCE": true,
+    "productSemanticsAlreadyTarget": true
+  },
+  "states": {
+    "CONFIRMED_TERMINAL_CAN_RESUME": "PASS",
+    "UNCONFIRMED_TERMINAL_FAILS_CLOSED": "PASS",
+    "STRONG_TERMINAL_AUTHORITY": "PASS",
+    "TERMINAL_SNAPSHOT_PROVENANCE": "PASS",
+    "SECRET_NON_EXPOSURE": "PARTIAL",
+    "BLOCK05_FINAL_REGRESSION": "FAIL",
+    "C07_TERMINAL_SNAPSHOT_FIX": "PARTIAL",
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "gateScopeNotes": {
+    "CONFIRMED_TERMINAL_CAN_RESUME": "Real WebView2 submit and live-world checkpoint native tests passed in B02 and E",
+    "UNCONFIRMED_TERMINAL_FAILS_CLOSED": "Policy3, historical15, focal9, supplemental and dedicated native lineage test prove reason13 plus no observation/resume",
+    "SECRET_NON_EXPOSURE": "Scoped reconciled branches pass; global Block05 closure remains incomplete because E has ten FAIL",
+    "BLOCK05_FINAL_REGRESSION": "FAIL, not overridden by green focal gates"
+  },
+  "sourceIdentity": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "productPinCount": 46,
+    "candidatePinCount": 97,
+    "productChanged": false,
+    "candidateFreeze": "candidate_freeze_02.json",
+    "candidateFreezeSha256": "8408e40d8f77bc2af8a157520752c8bbbce6703f978ea18af6fb018afec22fd5",
+    "classificationSha256": "0aed53ca32acffe31109c9e3a7b6e1fdfdcbe82be4e0288675e68557ba6760a3",
+    "sourceChangedAfterFinalA02": false
+  },
+  "evidenceKinds": [
+    "CONTRACT/SYNTHETIC",
+    "NATIVE_WEBVIEW2",
+    "TEST_ONLY_SCALAR_OWNERSHIP_PROOF"
+  ],
+  "notCertifications": [
+    "NETWORK_EGRESS",
+    "PUBLIC_ONLY",
+    "ACTIVE_WEB_AVAILABILITY",
+    "AW8_E2E"
+  ],
+  "finalCounts": {
+    "A": {
+      "pass": 24,
+      "fail": 0,
+      "error": 0,
+      "skip": 0
+    },
+    "B": {
+      "pass": 148,
+      "fail": 0,
+      "error": 0,
+      "skip": 0
+    },
+    "C": {
+      "expectedOutcome": 15,
+      "tests": 15,
+      "resume": 0,
+      "denial": 15
+    },
+    "D": {
+      "expectedOutcome": 33,
+      "tests": 33,
+      "resume": 24,
+      "denial": 9
+    },
+    "E": {
+      "tests": 537,
+      "pass": 527,
+      "fail": 10,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0
+    }
+  },
+  "initialPreparation": {
+    "firstA24Pass": true,
+    "firstB132Pass16ErrorPreserved": true,
+    "mechanicalTestCallerNameCorrectionOnly": true,
+    "initialFreezePreserved": true,
+    "noQualityRetries": true,
+    "ref": "harness_build_correction.md"
+  },
+  "newPositiveTests": [
+    "native/nova-browser-host/tests/test_terminal_ordering.py::test_real_confirmed_terminal_can_resume[confirmed-submit]",
+    "native/nova-browser-host/tests/test_terminal_ordering.py::test_real_confirmed_terminal_can_resume[live-checkpoint]"
+  ],
+  "remainingFailures": {
+    "total": 10,
+    "unreconciledRevision02Expectations": 6,
+    "independentDownloadFailures": 4,
+    "internalDownloadRootCause": "UNKNOWN",
+    "ref": "failure_analysis.json",
+    "noPostResultChangesOrReruns": true
+  },
+  "historicalPreservation": {
+    "BLOCK05_ORIGINAL_EXECUTION": "BLOCKED",
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION": "BLOCKED",
+    "REVISION02_ORIGINAL_PREFLIGHT": "BLOCKED",
+    "allEarlierPartialBlockedFailXmlPreserved": true,
+    "aw0ToAw8Preserved": true,
+    "architectureV1AndV1_1Unchanged": true,
+    "earlierManifestPinsRef": "integrity_pin_inventory.json",
+    "earlierHistoryPinCount": 354,
+    "historicalEvidenceDrift": 0,
+    "historical36UdfsTouched": false,
+    "historical36UdfStatus": "CLEANUP_UNCONFIRMED",
+    "coreHomeDebtPreserved": true,
+    "coreJsonlHistoricalFailPreserved": true
+  },
+  "cleanup": {
+    "noScopedHostProcessesObservedAfterRun": true,
+    "ownedRuntimeUdfCleanupCheckedByNativeTests": true,
+    "oneUnownedUdfFixtureIntentionallyPreserved": true,
+    "unownedFixtureNotDeclaredClosed": true,
+    "noGeneralSuccessfulDownloadStagingClaim": true,
+    "guardCanaries": 12,
+    "guardedCanaryExecutions": 0,
+    "allGuardCanaryRollbackConfirmed": true
+  },
+  "artifacts": [
+    {
+      "path": "resultados.md",
+      "sha256": "76a96df31b3c0eb7979f0c99e9f3a70639ced50c8a9292e440e86271ee487cbb"
+    },
+    {
+      "path": "test_results.json",
+      "sha256": "f7830924726ce2597ad3e42c7093a13bcc3ef55a035424ba45bad23488bc0260"
+    },
+    {
+      "path": "expected_outcome_evidence.json",
+      "sha256": "916f9f73e4391af83e2f41a18ca0966d5ac1dce53ba84a5ce7c9be9820e0aa77"
+    },
+    {
+      "path": "failure_analysis.json",
+      "sha256": "cec14f4ac879cec352be406efcbecdb28f40a362e266869bd8e21fe24a9aa1cf"
+    },
+    {
+      "path": "integrity.json",
+      "sha256": "2b45445ab1cd52ba6fd4e0ea43bad1842fe1a173c74c9b1b576df9761f266770"
+    },
+    {
+      "path": "candidate_freeze.json",
+      "sha256": "e15d559c8fa0da95a3f1d644c9f5d77c803491785489fe8d9440141644611f25"
+    },
+    {
+      "path": "candidate_freeze_02.json",
+      "sha256": "8408e40d8f77bc2af8a157520752c8bbbce6703f978ea18af6fb018afec22fd5"
+    },
+    {
+      "path": "classification_before_measurement.json",
+      "sha256": "0aed53ca32acffe31109c9e3a7b6e1fdfdcbe82be4e0288675e68557ba6760a3"
+    },
+    {
+      "path": "baseline.json",
+      "sha256": "f1dc3c14fc9703b8e751c3a6c880d623c5792e681da3c39b0de13e12d3374f46"
+    },
+    {
+      "path": "reconciliation_before.json",
+      "sha256": "5759342182789dd2ec352fc7f9b286b0d0d1e755045215c10d31e6989e4e8189"
+    },
+    {
+      "path": "assertion_reconciliation.md",
+      "sha256": "fb68e6fd79dc5351bc83c9a97e4ba8a8bf6078ef2d1ddcc8495b7801b42cbbcb"
+    },
+    {
+      "path": "harness_build_correction.md",
+      "sha256": "12eb59441b4a4d6325a6de4d231441cfacc01a3371e281cd18e85cac1bf174c2"
+    },
+    {
+      "path": "verification_inputs.json",
+      "sha256": "1289189a93dc85fcc2a455a3a90d726f0749c39d9f85457219d77a48da6a2f07"
+    },
+    {
+      "path": "integrity_pin_inventory.json",
+      "sha256": "4227a5c8bc49a7feee2b543fbd14134682a7ccfc836517da681bdd7aad2be72b"
+    }
+  ],
+  "externalEvidenceRoot": "C:/Users/joseh/AppData/Local/Temp/nova-terminal-outcomes-20261011T010550Z",
+  "externalPinnedArtifactCount": 269,
+  "externalPinsRef": "integrity.json",
+  "requestedHumanReview": [
+    "Remaining six direct native revision02 expectations require separate scoped decision; do not alter committed-short protection",
+    "Four independent native download failures need investigation authorization; no baseline/flakiness attribution"
+  ],
+  "stoppedForHumanReview": true,
+  "limits": {
+    "block06Executed": false,
+    "aw8Executed": false,
+    "readyDeclared": false,
+    "productRepairPerformed": false,
+    "inferenceExecuted": false,
+    "architectureModified": false,
+    "securityAuthorityModified": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  }
+}

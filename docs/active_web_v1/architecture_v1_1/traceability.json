@@ -1,0 +1,1022 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Normative prospective architecture amendment traceability, not runtime/certification evidence",
+  "verdict": "ACTIVE_WEB_ARCHITECTURE_V1_1 = APPROVED_AND_DOCUMENTED",
+  "cause": "AW8-EGRESS-EXTERNAL-PROTOCOL-001",
+  "approval": {
+    "humanApproved": true,
+    "recommendedPath": "WINDOWS_WEBVIEW2_ADAPTER",
+    "proposals": [
+      "P-01",
+      "P-02",
+      "P-03",
+      "P-04",
+      "P-05"
+    ],
+    "scope": "documentation-only"
+  },
+  "identity": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "historicalArchitecture": {
+      "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+      "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e"
+    },
+    "approvedReview": {
+      "path": "docs/active_web_v1/architecture_review/EXTERNAL_PROTOCOL_ENFORCEMENT_REVIEW.md",
+      "sha256": "6b4b2ada5297492746f0551c5032987af012d3b295fa6836da2e1eacbe751e04"
+    },
+    "prospectiveArchitecture": {
+      "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+      "sha256": "46ec3201460ba37a6fe47f6cf94e80f0024ec442c9323115a0cf19d64de95e1d"
+    }
+  },
+  "proposals": [
+    {
+      "id": "P-01",
+      "status": "INCORPORATED",
+      "sections": [
+        "§4.3",
+        "§10.1",
+        "§18",
+        "§26.3",
+        "§31"
+      ],
+      "requirements": [
+        "Dos fronteras independientes",
+        "External protocols DENY_ALL pre-effect incluso takeover",
+        "Targets agentic validados sin prohibir JavaScript interno normal",
+        "Broker no controla host launch; audit host-owned sin IDs ficticios"
+      ]
+    },
+    {
+      "id": "P-02",
+      "status": "INCORPORATED",
+      "sections": [
+        "§5",
+        "§6",
+        "§9.1",
+        "§27",
+        "§34",
+        "§35.2"
+      ],
+      "requirements": [
+        "WINDOWS_WEBVIEW2 candidato Windows",
+        "BrowserPort → private IPC → Windows browser-host → WebView2",
+        "Core/Application engine-agnostic",
+        "Playwright histórico/no certificado sin fallback",
+        "Sin auto-install ni cambios globales/admin oculto"
+      ]
+    },
+    {
+      "id": "P-03",
+      "status": "INCORPORATED",
+      "sections": [
+        "§25",
+        "§31",
+        "§37.3",
+        "§37.34",
+        "§37.35"
+      ],
+      "requirements": [
+        "Snapshot conceptual schemaVersion 2 aditivo, no DTO implementado",
+        "networkEgressControl y externalProtocolGuard separados",
+        "Pruebas compatibles misma composición/lifecycle",
+        "UNKNOWN/fallo/drift mantiene tools ausentes",
+        "HOST_PRE_EFFECT_DENY no es Security ControlClass"
+      ]
+    },
+    {
+      "id": "P-04",
+      "status": "INCORPORATED",
+      "sections": [
+        "§33",
+        "§42",
+        "§37.2"
+      ],
+      "requirements": [
+        "AW-INV-051–053 sólo prospectivos",
+        "50 enunciados históricos conservados",
+        "invariant_corpus.json y freeze AW0 byte-intactos"
+      ]
+    },
+    {
+      "id": "P-05",
+      "status": "INCORPORATED",
+      "sections": [
+        "§35",
+        "§36",
+        "§37",
+        "§38",
+        "§40"
+      ],
+      "requirements": [
+        "Continuación engine-specific dentro de AW8, no reapertura AW0–AW7",
+        "Pruebas nativas guard/red independientes",
+        "32 criterios READY preservados/refinados +33–35",
+        "Claims sólo tras host-real; estado actual NOT_READY/UNKNOWN",
+        "Sin PASS nativo transferido ni AW8 retrospectivo PASS"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "section": "§1",
+      "title": "Propósito",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§2",
+      "title": "Fundamento de la arquitectura",
+      "status": "REFINED",
+      "change": "P-01–P-05; causa y precedencia prospectiva",
+      "reason": "Separar revisión de historia/certificación",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§3",
+      "title": "Principios rectores",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§4",
+      "title": "Alcance funcional de Active Web V1",
+      "status": "REFINED",
+      "change": "P-01/P-02; candidato Windows y exclusión DENY_ALL",
+      "reason": "No admitir browser→host authority",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§5",
+      "title": "Elección de motor",
+      "status": "REFINED",
+      "change": "P-02; WebView2/host candidato; Playwright histórico",
+      "reason": "Frontera pre-effect nativa requerida",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§6",
+      "title": "Capas y componentes",
+      "status": "REFINED",
+      "change": "P-02; host/IPC y dos controles Infrastructure",
+      "reason": "Conservar Application/ToolRuntime/Policy únicos",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§7",
+      "title": "Modelo de dominio",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§8",
+      "title": "Ownership y lifecycle",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§9",
+      "title": "Sesión web y persistencia",
+      "status": "REFINED",
+      "change": "P-02/P-05; UDF/lifecycle/cleanup explícitos",
+      "reason": "Recertificación engine-specific sin profile reuse",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§10",
+      "title": "Autenticación",
+      "status": "REFINED",
+      "change": "P-01/P-05; guard siempre activo en takeover",
+      "reason": "No excepción humana al launch DENY_ALL",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§11",
+      "title": "Content trust y prompt injection",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§12",
+      "title": "Observation model",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§13",
+      "title": "Presupuesto de contexto",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§14",
+      "title": "Referencias opacas y freshness",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§15",
+      "title": "Tool surface V1",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§16",
+      "title": "Taxonomía de efectos web",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§17",
+      "title": "Policy y approvals",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§18",
+      "title": "Network architecture",
+      "status": "REFINED",
+      "change": "P-01; red/launch separados, scopes y TLS",
+      "reason": "Broker no observa ni controla external protocol launch",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§19",
+      "title": "Secrets y privacidad",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§20",
+      "title": "Uploads",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§21",
+      "title": "Downloads",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§22",
+      "title": "Remote outcomes e idempotencia",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§23",
+      "title": "Multi-step loop",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§24",
+      "title": "Subagents",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§25",
+      "title": "Capability discovery",
+      "status": "REFINED",
+      "change": "P-03; snapshot conceptual v2, dos proofs compatibles",
+      "reason": "UNKNOWN != true; cambio incompatible fail-closed",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§26",
+      "title": "Eventos y auditoría",
+      "status": "REFINED",
+      "change": "P-01/P-05; denial audit host-owned",
+      "reason": "No fabricar ToolCallId/GrantId ni ampliar schema",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§27",
+      "title": "Frontends",
+      "status": "REFINED",
+      "change": "P-02; ventana browser-host separada",
+      "reason": "No privilegiar renderer/preload Desktop",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§28",
+      "title": "Interaction con Knowledge",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§29",
+      "title": "Interaction con Memory",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§30",
+      "title": "Fallos y recuperación",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§31",
+      "title": "Control classes",
+      "status": "REFINED",
+      "change": "P-01/P-03; metadata guard separada",
+      "reason": "HOST_PRE_EFFECT_DENY no es Security ControlClass",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§32",
+      "title": "Tool/request schema constraints",
+      "status": "UNCHANGED",
+      "change": "Contrato conservado sin cambios",
+      "reason": "No afectado por el blocker ni P-01–P-05",
+      "historicalEvidence": "V1 histórica / evidencia AW0–AW8 aplicable"
+    },
+    {
+      "section": "§33",
+      "title": "Invariantes Active Web V1",
+      "status": "REFINED",
+      "change": "P-04; precisiones y 051–053 prospectivos",
+      "reason": "Dos pruebas y prohibición launch pre-effect",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§34",
+      "title": "Arquitectura de código propuesta",
+      "status": "REFINED",
+      "change": "P-02; distribución conceptual adapter/host/IPC",
+      "reason": "No reimplementar dominios compartidos",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§35",
+      "title": "Fases de implementación",
+      "status": "REFINED",
+      "change": "P-05; continuación dentro de AW8",
+      "reason": "No reabrir AW0–AW7 ni crear etapa nueva",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§36",
+      "title": "Estrategia de pruebas",
+      "status": "REFINED",
+      "change": "P-05; recertificación nativa red y guard separadas",
+      "reason": "No transferir PASS Playwright ni usar doubles como host-real",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§37",
+      "title": "Criterios READY propuestos",
+      "status": "REFINED",
+      "change": "P-05; 32 criterios preservados/refinados +33–35",
+      "reason": "READY exige ambas fronteras y composición común",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§38",
+      "title": "Perfiles y claims",
+      "status": "REFINED",
+      "change": "P-05; claims futuros WebView2 y NOT_READY actual",
+      "reason": "Aprobación no equivale disponibilidad/READY",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§39",
+      "title": "Mapeo de hallazgos de auditoría a decisiones",
+      "status": "REFINED",
+      "change": "P-02; mapping prospectivo AW-AUD-032",
+      "reason": "Auditoría/hallazgos originales intactos",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    },
+    {
+      "section": "§40",
+      "title": "Conclusión",
+      "status": "REFINED",
+      "change": "P-01–P-05; conclusión normativa aprobada",
+      "reason": "No reinterpretar AW8 BLOCKED",
+      "historicalEvidence": "AW8-EGRESS-EXTERNAL-PROTOCOL-001; review §§9–10; manifests históricos"
+    }
+  ],
+  "addedSections": [
+    {
+      "section": "§0",
+      "status": "NEW_PROSPECTIVE",
+      "purpose": "Precedence and immutable historical identity"
+    },
+    {
+      "section": "§41",
+      "status": "NEW_PROSPECTIVE",
+      "purpose": "Section traceability"
+    },
+    {
+      "section": "§42",
+      "status": "NEW_PROSPECTIVE",
+      "purpose": "Invariant status traceability"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "AW-INV-001",
+      "status": "UNCHANGED",
+      "historicalStatement": "Application es el único owner del lifecycle Active Web agentic.",
+      "v11Statement": "Application es el único owner del lifecycle Active Web agentic.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-002",
+      "status": "UNCHANGED",
+      "historicalStatement": "Toda acción del modelo pasa por ToolRuntime.",
+      "v11Statement": "Toda acción del modelo pasa por ToolRuntime.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-003",
+      "status": "UNCHANGED",
+      "historicalStatement": "PASSIVE_WEB y ACTIVE_WEB son capacidades separadas.",
+      "v11Statement": "PASSIVE_WEB y ACTIVE_WEB son capacidades separadas.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-004",
+      "status": "UNCHANGED",
+      "historicalStatement": "Contenido web es dato no confiable y nunca autoridad.",
+      "v11Statement": "Contenido web es dato no confiable y nunca autoridad.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-005",
+      "status": "UNCHANGED",
+      "historicalStatement": "Una page/element observation no es user intent.",
+      "v11Statement": "Una page/element observation no es user intent.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-006",
+      "status": "UNCHANGED",
+      "historicalStatement": "Una URL/link no concede permiso para interactuar.",
+      "v11Statement": "Una URL/link no concede permiso para interactuar.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-007",
+      "status": "REFINED",
+      "historicalStatement": "Capability `UNKNOWN` no habilita Active Web.",
+      "v11Statement": "Capability `UNKNOWN` no habilita Active Web.",
+      "change": "En V1.1, UNKNOWN de cualquiera de las dos fronteras requeridas impide available KNOWN true (§25).",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-008",
+      "status": "REFINED",
+      "historicalStatement": "Browser tools no se anuncian sin engine y network broker válidos.",
+      "v11Statement": "Browser tools no se anuncian sin engine y network broker válidos.",
+      "change": "V1.1 exige además ExternalProtocolGuard válido y ambas pruebas compatibles en la misma composición; la presencia del engine/broker por sí sola no basta.",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-009",
+      "status": "UNCHANGED",
+      "historicalStatement": "BrowserSession es distinta de AgentSession y Memory session.",
+      "v11Statement": "BrowserSession es distinta de AgentSession y Memory session.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-010",
+      "status": "UNCHANGED",
+      "historicalStatement": "V1 usa contextos de browser efímeros por defecto.",
+      "v11Statement": "V1 usa contextos de browser efímeros por defecto.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-011",
+      "status": "UNCHANGED",
+      "historicalStatement": "No se reutiliza automáticamente el profile/cookies del usuario.",
+      "v11Statement": "No se reutiliza automáticamente el profile/cookies del usuario.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-012",
+      "status": "UNCHANGED",
+      "historicalStatement": "Cookies/tokens/browser storage no son MemoryRecords.",
+      "v11Statement": "Cookies/tokens/browser storage no son MemoryRecords.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-013",
+      "status": "UNCHANGED",
+      "historicalStatement": "Provider credentials no son site credentials.",
+      "v11Statement": "Provider credentials no son site credentials.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-014",
+      "status": "UNCHANGED",
+      "historicalStatement": "El agente no recibe passwords/OTP/recovery codes.",
+      "v11Statement": "El agente no recibe passwords/OTP/recovery codes.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-015",
+      "status": "UNCHANGED",
+      "historicalStatement": "Login V1 se realiza por takeover humano, no autofill agentic.",
+      "v11Statement": "Login V1 se realiza por takeover humano, no autofill agentic.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-016",
+      "status": "UNCHANGED",
+      "historicalStatement": "Todo ElementRef es opaco y emitido por Nova.",
+      "v11Statement": "Todo ElementRef es opaco y emitido por Nova.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-017",
+      "status": "UNCHANGED",
+      "historicalStatement": "El modelo no aporta CSS/XPath/JS selectors.",
+      "v11Statement": "El modelo no aporta CSS/XPath/JS selectors.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-018",
+      "status": "UNCHANGED",
+      "historicalStatement": "ElementRef está ligado a session/page/navigation/observation.",
+      "v11Statement": "ElementRef está ligado a session/page/navigation/observation.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-019",
+      "status": "UNCHANGED",
+      "historicalStatement": "Refs stale nunca se rebind heurísticamente.",
+      "v11Statement": "Refs stale nunca se rebind heurísticamente.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-020",
+      "status": "UNCHANGED",
+      "historicalStatement": "Toda acción que cambia página invalida refs anteriores.",
+      "v11Statement": "Toda acción que cambia página invalida refs anteriores.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-021",
+      "status": "UNCHANGED",
+      "historicalStatement": "Approval se liga al target y estado exactos.",
+      "v11Statement": "Approval se liga al target y estado exactos.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-022",
+      "status": "UNCHANGED",
+      "historicalStatement": "Cambio de origin/state invalida approval.",
+      "v11Statement": "Cambio de origin/state invalida approval.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-023",
+      "status": "UNCHANGED",
+      "historicalStatement": "Click no implica read-only.",
+      "v11Statement": "Click no implica read-only.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-024",
+      "status": "UNCHANGED",
+      "historicalStatement": "Input de texto se considera posible disclosure.",
+      "v11Statement": "Input de texto se considera posible disclosure.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-025",
+      "status": "UNCHANGED",
+      "historicalStatement": "Remote mutation requiere approval exacta.",
+      "v11Statement": "Remote mutation requiere approval exacta.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-026",
+      "status": "UNCHANGED",
+      "historicalStatement": "HIGH_IMPACT se deniega en Core V1.",
+      "v11Statement": "HIGH_IMPACT se deniega en Core V1.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-027",
+      "status": "REFINED",
+      "historicalStatement": "Browser egress READY requiere mediación brokered PUBLIC_ONLY.",
+      "v11Statement": "Browser egress READY requiere mediación brokered PUBLIC_ONLY.",
+      "change": "BROKER_ENFORCED se limita a BrowserNetworkEgressControl; requiere recertificación de red WebView2 independiente del guard de launches (§18).",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-028",
+      "status": "UNCHANGED",
+      "historicalStatement": "Private/loopback/link-local/metadata no son navegables por Active Web V1.",
+      "v11Statement": "Private/loopback/link-local/metadata no son navegables por Active Web V1.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-029",
+      "status": "REFINED",
+      "historicalStatement": "No existe fallback silencioso a network best-effort.",
+      "v11Statement": "No existe fallback silencioso a network best-effort.",
+      "change": "Tampoco existe fallback automático WebView2 → Playwright. Falta de prueba compatible mantiene fail-closed.",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-030",
+      "status": "REFINED",
+      "historicalStatement": "`file:`, `javascript:` y custom protocols no son targets agentic V1.",
+      "v11Statement": "`file:`, `javascript:` y custom protocols no son targets agentic V1.",
+      "change": "La API también rechaza browser-internal URLs y data: top-level agentic según §18.7. Esta validación no sustituye la denegación pre-effect de launches page-originated ni prohíbe JavaScript interno normal.",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-031",
+      "status": "UNCHANGED",
+      "historicalStatement": "Una acción STARTED no se reintenta automáticamente.",
+      "v11Statement": "Una acción STARTED no se reintenta automáticamente.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-032",
+      "status": "UNCHANGED",
+      "historicalStatement": "UNKNOWN_OUTCOME permanece UNKNOWN hasta nueva evidencia.",
+      "v11Statement": "UNKNOWN_OUTCOME permanece UNKNOWN hasta nueva evidencia.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-033",
+      "status": "UNCHANGED",
+      "historicalStatement": "Cancelación/cierre no equivale a rollback.",
+      "v11Statement": "Cancelación/cierre no equivale a rollback.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-034",
+      "status": "UNCHANGED",
+      "historicalStatement": "Audit pre-effect permanece separado de SessionEventStream.",
+      "v11Statement": "Audit pre-effect permanece separado de SessionEventStream.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-035",
+      "status": "UNCHANGED",
+      "historicalStatement": "Audit no persiste cookies/passwords/auth headers.",
+      "v11Statement": "Audit no persiste cookies/passwords/auth headers.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-036",
+      "status": "UNCHANGED",
+      "historicalStatement": "Observations respetan current-user-first y ContextPolicy.",
+      "v11Statement": "Observations respetan current-user-first y ContextPolicy.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-037",
+      "status": "UNCHANGED",
+      "historicalStatement": "DOM/page source completo no se inyecta por defecto.",
+      "v11Statement": "DOM/page source completo no se inyecta por defecto.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-038",
+      "status": "UNCHANGED",
+      "historicalStatement": "Screenshot/vision no es requisito del Core V1.",
+      "v11Statement": "Screenshot/vision no es requisito del Core V1.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-039",
+      "status": "UNCHANGED",
+      "historicalStatement": "Upload requiere selección host exacta y approval de transferencia.",
+      "v11Statement": "Upload requiere selección host exacta y approval de transferencia.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-040",
+      "status": "UNCHANGED",
+      "historicalStatement": "Knowledge/AttachmentRef/Citation no otorgan upload authority.",
+      "v11Statement": "Knowledge/AttachmentRef/Citation no otorgan upload authority.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-041",
+      "status": "UNCHANGED",
+      "historicalStatement": "Download no solicitado se bloquea.",
+      "v11Statement": "Download no solicitado se bloquea.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-042",
+      "status": "UNCHANGED",
+      "historicalStatement": "Download aprobado entra primero a staging controlado.",
+      "v11Statement": "Download aprobado entra primero a staging controlado.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-043",
+      "status": "UNCHANGED",
+      "historicalStatement": "Download no se importa automáticamente a Knowledge.",
+      "v11Statement": "Download no se importa automáticamente a Knowledge.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-044",
+      "status": "UNCHANGED",
+      "historicalStatement": "Subagents no reciben browser authority activa por defecto.",
+      "v11Statement": "Subagents no reciben browser authority activa por defecto.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-045",
+      "status": "UNCHANGED",
+      "historicalStatement": "BrowserWindow/preload de Nova Desktop no aloja páginas Active Web.",
+      "v11Statement": "BrowserWindow/preload de Nova Desktop no aloja páginas Active Web.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-046",
+      "status": "UNCHANGED",
+      "historicalStatement": "Browser state no persiste entre reinicios en Core V1.",
+      "v11Statement": "Browser state no persiste entre reinicios en Core V1.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-047",
+      "status": "UNCHANGED",
+      "historicalStatement": "Cleanup no se declara confirmado si no puede observarse.",
+      "v11Statement": "Cleanup no se declara confirmado si no puede observarse.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-048",
+      "status": "REFINED",
+      "historicalStatement": "No se afirma sandbox ni aislamiento físico por usar Chromium/Playwright.",
+      "v11Statement": "No se afirma sandbox ni aislamiento físico por usar Chromium/Playwright.",
+      "change": "La misma prohibición se aplica al browser-host/WebView2. HOST_PRE_EFFECT_DENY y BROKER_ENFORCED no son claims de sandbox/aislamiento.",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-049",
+      "status": "UNCHANGED",
+      "historicalStatement": "Los frontends no implementan una segunda Policy/authority path.",
+      "v11Statement": "Los frontends no implementan una segunda Policy/authority path.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-050",
+      "status": "UNCHANGED",
+      "historicalStatement": "Knowledge Inputs READY y sus históricos permanecen inmutables.",
+      "v11Statement": "Knowledge Inputs READY y sus históricos permanecen inmutables.",
+      "change": "Enunciado y contrato conservados",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-051",
+      "status": "NEW_PROSPECTIVE",
+      "historicalStatement": null,
+      "v11Statement": "Contenido web no puede lanzar aplicaciones/protocolos externos del host; ExternalProtocolGuard debe denegarlos antes del efecto incluso durante takeover y en páginas/popups secundarios.",
+      "change": "Nuevo requisito sólo prospectivo",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-052",
+      "status": "NEW_PROSPECTIVE",
+      "historicalStatement": null,
+      "v11Statement": "BrowserNetworkEgressControl y ExternalProtocolGuard poseen evidencias independientes; éxito de una frontera no prueba la otra.",
+      "change": "Nuevo requisito sólo prospectivo",
+      "historicalCorpusModified": false
+    },
+    {
+      "id": "AW-INV-053",
+      "status": "NEW_PROSPECTIVE",
+      "historicalStatement": null,
+      "v11Statement": "Active Web availability requiere evidencia compatible de ambas fronteras en la misma composición productiva; fallo/UNKNOWN de cualquiera mantiene fail-closed.",
+      "change": "Nuevo requisito sólo prospectivo",
+      "historicalCorpusModified": false
+    }
+  ],
+  "invariantSummary": {
+    "UNCHANGED": 44,
+    "REFINED": 6,
+    "NEW_PROSPECTIVE": 3,
+    "originalStatementsPreserved": 50,
+    "historicalCorpusModified": false,
+    "historicalCorpus": {
+      "path": "docs/active_web_v1/aw0/invariant_corpus.json",
+      "sha256": "67a6b89f4aaca54bfdb8f2b1642f4e6ff18b829e0cf1735e8d598072a0d243b4"
+    }
+  },
+  "readyCriteria": {
+    "historical": 32,
+    "prospective": 35,
+    "removed": 0,
+    "changedCriteria": [
+      {
+        "id": 1,
+        "status": "REFINED",
+        "text": "AW0–AW7 conservan sus cierres históricos y AW8 se cierra prospectivamente bajo V1.1, con evidencia nueva sin recalificar su BLOCKED original."
+      },
+      {
+        "id": 2,
+        "status": "REFINED",
+        "text": "Los 53 AW-INV tienen evidencia aplicable: 001–050 mantienen historia; precisiones V1.1 y 051–053 se demuestran prospectivamente. Reutilización contractual no sustituye evidencia engine-specific."
+      },
+      {
+        "id": 3,
+        "status": "REFINED",
+        "text": "BrowserCapabilitySnapshot conceptual v2 es truthful; no infiere campos habilitantes de snapshots legacy."
+      },
+      {
+        "id": 4,
+        "status": "REFINED",
+        "text": "BrowserPort real Windows WebView2 funciona con browser-host/IPC productivos y runtime/configuración efectivos verificados."
+      },
+      {
+        "id": 5,
+        "status": "REFINED",
+        "text": "BrowserNetworkEgressControl/Broker PUBLIC_ONLY están verificados en WebView2 por separado, con HTTPS admitido y sin bypass/fallback relevante."
+      },
+      {
+        "id": 16,
+        "status": "REFINED",
+        "text": "Browser lifecycle/cleanup tiene receipts honestos del host, UDF y process tree/children; cierre de ventana no basta."
+      },
+      {
+        "id": 17,
+        "status": "REFINED",
+        "text": "Ephemeral sessions/UDF no reutilizan profiles y no persisten cookies tras close/restart confirmado; incertidumbre mantiene cleanup unconfirmed."
+      },
+      {
+        "id": 18,
+        "status": "REFINED",
+        "text": "Manual takeover no expone credentials al modelo ni suspende ninguna de las dos fronteras."
+      }
+    ],
+    "addedCriteria": [
+      {
+        "id": 33,
+        "status": "NEW_PROSPECTIVE",
+        "requirement": "Native pre-effect external protocol guard with deny-all, takeover/secondary control coverage and audit"
+      },
+      {
+        "id": 34,
+        "status": "NEW_PROSPECTIVE",
+        "requirement": "Independent compatible guard/network proofs on same productive probe/runtime composition"
+      },
+      {
+        "id": 35,
+        "status": "NEW_PROSPECTIVE",
+        "requirement": "Fail-closed drift/UNKNOWN/failure and no auto-install/fallback"
+      }
+    ]
+  },
+  "preservedHistoricalStates": {
+    "aw0OriginalExecution": "PARTIAL",
+    "aw0NormativeClosure": "PASS",
+    "aw1ThroughAw7": "Historical closed states preserved",
+    "aw8": "BLOCKED",
+    "prerequisiteRemediationRevision01": "PARTIAL",
+    "prerequisiteRemediationRevision02": "PARTIAL",
+    "productiveBrowserToolPath": "PASS in composition evaluated",
+    "truthfulActiveWebCapability": "PASS in composition evaluated",
+    "exclusivePublicOnlyEgress": "BLOCKED",
+    "blockerType": "ARCHITECTURAL_ENFORCEMENT_LIMIT"
+  },
+  "currentClaims": {
+    "activeWebCore": "NOT_READY",
+    "available": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "candidateEngine": "WINDOWS_WEBVIEW2",
+    "candidateImplemented": false,
+    "candidateCertified": false
+  },
+  "scope": {
+    "productChanges": 0,
+    "testChanges": 0,
+    "ciChanges": 0,
+    "dependencyChanges": 0,
+    "runtimeChanges": 0,
+    "historicalEvidenceChanges": 0,
+    "historicalArchitectureChanges": 0,
+    "testsExecuted": 0,
+    "probesExecuted": 0,
+    "inferencesExecuted": 0,
+    "aw8Executed": false,
+    "gitMutations": false
+  },
+  "immutableEvidencePins": {
+    "docs/active_web_v1/architecture_review/EXTERNAL_PROTOCOL_ENFORCEMENT_REVIEW.md": "6b4b2ada5297492746f0551c5032987af012d3b295fa6836da2e1eacbe751e04",
+    "docs/active_web_v1/architecture_review/manifest.json": "c68a7e93257bd0919965419dbf72d4f8f64f8c0000416b16c59dc1175df3b878",
+    "docs/active_web_v1/aw0/closure/manifest_final.json": "6ac8bc06f82dabfa6f6bdf68fa452e1e0688255b72b8ca51bbb49bb614bc9ab8",
+    "docs/active_web_v1/aw0/invariant_corpus.json": "67a6b89f4aaca54bfdb8f2b1642f4e6ff18b829e0cf1735e8d598072a0d243b4",
+    "docs/active_web_v1/aw0/manifest.json": "21a4a5b1a0af13e983873812dc78ac777f51b4c65c22427e7d3b1b1e7f0681f0",
+    "docs/active_web_v1/aw1/manifest.json": "01c776a523b62f5ccc64f7840b86159cf289fb6b9a39f03fe91ade3e400239fa",
+    "docs/active_web_v1/aw2/manifest.json": "19109b0ed69a5e4625ee4162de2171b79dac16541954ab0b075e0004b8d7008e",
+    "docs/active_web_v1/aw3/manifest.json": "cc3df0fa2c8c5505ccae3a62e74117e91184d52b81da713354aab4090ebe2e47",
+    "docs/active_web_v1/aw4/manifest.json": "d5b9a15e18a1803d76e7094b6343b64fa3164e913b691670f0f1eeaff57b5cfb",
+    "docs/active_web_v1/aw5/manifest.json": "d7101952c96e557ea2ebdd5d2d7d89e28cad7a5ae2cd5103cf20a1ff4e03de71",
+    "docs/active_web_v1/aw6/manifest.json": "142f14a6d03231b8e6a46cd1310e94f7fb3fe964702300271cffc87cbf965652",
+    "docs/active_web_v1/aw7/manifest.json": "68460552d16b664a850146b477d02d7c996fd927735e98b30b72b41be499fa37",
+    "docs/active_web_v1/aw8/manifest.json": "93d3ae2b2566e7af347212a5cac7aa2fa326d92d7f1f8ee738f42424a8d4ce19",
+    "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/capability_probe.json": "0e44a65deef7c5e7c3392616467d19a676adfaab5f860338cb223d2050579cad",
+    "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/egress_evidence.json": "470ac2f472c207ab810562706042d05e0ea13e544d28d44c0a30c1a4763cce9a",
+    "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/integrity.json": "de59eae13a9a7f02ba993d47809d6b5e984195c487ff13ae0413f61805ff7ba7",
+    "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/manifest.json": "228105f11d0d7f9eec3a3d847e54af7765e4c4f7d764f7e0366fda7bd3670306",
+    "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/resultados.md": "c156e1ca30548b6cafa9dc47116f92ff8726d4abf67d7aef6e2cfa3ff1bf95b4",
+    "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/scope_reconciliation.md": "e4ece995bbb589f574b495943b790bd3cc61da76394e5eeb67c7683d9403f229",
+    "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/test_results.json": "a0a36042c7e079216eb9941451a4f0c88fb26c2e7c2d0015a5ad295a3e590f12",
+    "docs/active_web_v1/aw8/prerequisite_remediation/manifest.json": "f4b9cf9b21f06ccc85817bed01230d228e754bcc9bb5293452076500c35b04d9",
+    "docs/active_web_v1/aw8/prerequisite_remediation/revision_02/manifest.json": "e9c83555ac7ff0d6bcd7b0ade600e9a8d34bf97f5ce5489f61f52bf01df07136",
+    "docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md": "ee2a03ad2b887c2add4a5eac9402112edf3362d1e11118388cba9b268a405285",
+    "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e"
+  }
+}

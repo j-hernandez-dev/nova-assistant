@@ -1,0 +1,141 @@
+........................................................................ [ 12%]
+........................................................................ [ 25%]
+.......................................................FF............... [ 38%]
+.........F.................................................... [ 49%]
+...F.................................F.................................. [ 61%]
+........................................................................ [ 74%]
+........................................................................ [ 87%]
+....................................................s................... [100%]
+================================== FAILURES ===================================
+______ test_effect_resource_intent_is_exact[read-args0-filesystem.read] _______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block4_regression/s3_private_2ur8dz_r/prior_regression/test_effect_resource_intent_is0')
+name = 'read', args = {'file_path': 'a.txt'}, permission = 'filesystem.read'
+
+    @pytest.mark.parametrize('name,args,permission', [
+        ('read', {'file_path': 'a.txt'}, 'filesystem.read'),
+        ('write', {'file_path': 'a.txt', 'content': 'ok'}, 'filesystem.write'),
+        ('web_fetch', {'url': 'https://example.test/a'}, 'network.fetch'),
+    ])
+    def test_effect_resource_intent_is_exact(tmp_path, name, args, permission):
+        reg, policy = registry(tmp_path), PolicyEngineV2()
+        inv = invocation(tmp_path, name, args)
+        ceiling = host_ceiling(reg, tmp_path, 'session')
+        intent = policy.intent(inv, reg, ceiling)
+        assert intent.capabilities[-1].permission.name == permission
+>       assert intent.capabilities[-1].control_class is ControlClass.APPLICATION_ENFORCED
+E       AssertionError: assert <ControlClass.BROKER_ENFORCED: 'BROKER_ENFORCED'> is <ControlClass.APPLICATION_ENFORCED: 'APPLICATION_ENFORCED'>
+E        +  where <ControlClass.BROKER_ENFORCED: 'BROKER_ENFORCED'> = Capability(permission=Permission(name='filesystem.read'), scope=ResourceScope(kind=<ScopeKind.FILE: 'FILE'>, resource=...None, executable=None), control_class=<ControlClass.BROKER_ENFORCED: 'BROKER_ENFORCED'>, restrictions=mappingproxy({})).control_class
+E        +  and   <ControlClass.APPLICATION_ENFORCED: 'APPLICATION_ENFORCED'> = ControlClass.APPLICATION_ENFORCED
+
+tests\security_v12\test_s2_policy.py:67: AssertionError
+_____ test_effect_resource_intent_is_exact[write-args1-filesystem.write] ______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block4_regression/s3_private_2ur8dz_r/prior_regression/test_effect_resource_intent_is1')
+name = 'write', args = {'file_path': 'a.txt', 'content': 'ok'}
+permission = 'filesystem.write'
+
+    @pytest.mark.parametrize('name,args,permission', [
+        ('read', {'file_path': 'a.txt'}, 'filesystem.read'),
+        ('write', {'file_path': 'a.txt', 'content': 'ok'}, 'filesystem.write'),
+        ('web_fetch', {'url': 'https://example.test/a'}, 'network.fetch'),
+    ])
+    def test_effect_resource_intent_is_exact(tmp_path, name, args, permission):
+        reg, policy = registry(tmp_path), PolicyEngineV2()
+        inv = invocation(tmp_path, name, args)
+        ceiling = host_ceiling(reg, tmp_path, 'session')
+        intent = policy.intent(inv, reg, ceiling)
+        assert intent.capabilities[-1].permission.name == permission
+>       assert intent.capabilities[-1].control_class is ControlClass.APPLICATION_ENFORCED
+E       AssertionError: assert <ControlClass.BROKER_ENFORCED: 'BROKER_ENFORCED'> is <ControlClass.APPLICATION_ENFORCED: 'APPLICATION_ENFORCED'>
+E        +  where <ControlClass.BROKER_ENFORCED: 'BROKER_ENFORCED'> = Capability(permission=Permission(name='filesystem.write'), scope=ResourceScope(kind=<ScopeKind.FILE: 'FILE'>, resource...None, executable=None), control_class=<ControlClass.BROKER_ENFORCED: 'BROKER_ENFORCED'>, restrictions=mappingproxy({})).control_class
+E        +  and   <ControlClass.APPLICATION_ENFORCED: 'APPLICATION_ENFORCED'> = ControlClass.APPLICATION_ENFORCED
+
+tests\security_v12\test_s2_policy.py:67: AssertionError
+______ test_all_fs_and_fetch_tools_pass_policy_and_claim_before_adapter _______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block4_regression/s3_private_2ur8dz_r/prior_regression/test_all_fs_and_fetch_tools_pa0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012A63802190>
+
+    def test_all_fs_and_fetch_tools_pass_policy_and_claim_before_adapter(tmp_path, monkeypatch):
+        monkeypatch.setattr('local_cli.tools.shell_tool.detect_shell', lambda _: ShellDescriptor(
+            'Windows', 'powershell', str(tmp_path/'fake_pwsh.exe'), '7'))
+        tools = create_tools('server', confirm=lambda _: False, cwd=tmp_path, environment={})
+        rt = ToolRuntime(ToolRegistry(tools))
+        rt.install_authority(tmp_path, 'session')
+        cases = [('read', {'file_path': 'a'}), ('write', {'file_path': 'a', 'content': 'ok'}),
+                 ('edit', {'file_path': 'a', 'old_string': 'old', 'new_string': 'new'}),
+                 ('glob', {'pattern': '*'}), ('grep', {'pattern': 'x'}),
+                 ('web_fetch', {'url': 'https://example.test/'})]
+        observed = []
+        original_claim = rt._issuer.claim
+        def claim(g, r):
+            observed.append(r.tool_name)
+            return original_claim(g, r)
+        monkeypatch.setattr(rt._issuer, 'claim', claim)
+        for index, (name, args) in enumerate(cases):
+            tool = rt.registry.tool(name)
+            monkeypatch.setattr(tool, 'execute', lambda **_: 'fixture')
+            inv = invocation(tmp_path, name, args)
+            inv = replace(inv, operation_id=str(index), context=replace(inv.context, operation_id=str(index)))
+            result = rt.execute(inv)
+>           assert result.status is ToolStatus.COMPLETED, result
+E           AssertionError: ToolResult(status=<ToolStatus.FAILED: 'failed'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...ts=(), metadata=mappingproxy({'securityErrorCode': 'FILESYSTEM_NOT_FOUND'}), legacy_text='Error: FILESYSTEM_NOT_FOUND')
+E           assert <ToolStatus.FAILED: 'failed'> is <ToolStatus.COMPLETED: 'completed'>
+E            +  where <ToolStatus.FAILED: 'failed'> = ToolResult(status=<ToolStatus.FAILED: 'failed'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...ts=(), metadata=mappingproxy({'securityErrorCode': 'FILESYSTEM_NOT_FOUND'}), legacy_text='Error: FILESYSTEM_NOT_FOUND').status
+E            +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED
+
+tests\security_v12\test_s2_runtime.py:160: AssertionError
+______ test_runtime_normalizes_call_caches_read_and_invalidates_on_write ______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block4_regression/s3_private_2ur8dz_r/prior_regression/test_runtime_normalizes_call_c0')
+
+    def test_runtime_normalizes_call_caches_read_and_invalidates_on_write(tmp_path):
+        target = tmp_path / "note.txt"
+        target.write_text("old", encoding="utf-8")
+        runtime = ToolRuntime(ToolRegistry(get_default_tools(cwd=tmp_path)))
+        first = runtime.execute(_invoke("read_file", {"path": "note.txt"},
+                                        _context(tmp_path)))
+        second = runtime.execute(_invoke("read", {"file_path": "note.txt"},
+                                         _context(tmp_path)))
+        assert first.status is ToolStatus.COMPLETED
+>       assert second.metadata["cached"] is True
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'cached'
+
+tests\test_nova_core_phase6_runtime.py:78: KeyError
+___________ test_cached_read_keeps_one_terminal_per_tool_operation ____________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block4_regression/s3_private_2ur8dz_r/prior_regression/test_cached_read_keeps_one_ter0')
+
+    def test_cached_read_keeps_one_terminal_per_tool_operation(tmp_path):
+        path = tmp_path / "note.txt"
+        path.write_text("hello", encoding="utf-8")
+        read_call = {"role": "assistant", "content": "", "tool_calls": [{
+            "function": {"name": "read", "arguments": {"file_path": str(path)}},
+        }]}
+        coordinator = AgentSessionCoordinator(
+            provider=ScriptedProvider([read_call, read_call, "done"]), model="local",
+            tool_factory=lambda cwd: [ReadTool(cwd=cwd)],
+            event_config=EventBufferConfig(64, 64, 8),
+        )
+        session_id = _start(coordinator, tmp_path)
+        turn = coordinator.handle(_command(CommandKind.SUBMIT_USER_INPUT,
+                                           session_id, {"content": "read twice"}))
+        assert coordinator.wait_for_turn(turn.created_ids["turnId"], 5)
+        assert coordinator.get_snapshot(session_id).turns[0]["status"] == "completed"
+        terminal = [e for e in _events(coordinator, session_id)
+                    if e.kind is EventKind.TOOL_COMPLETED]
+        assert len(terminal) == 2
+>       assert sum(bool(event.payload["cached"]) for event in terminal) == 1
+E       assert 0 == 1
+E        +  where 0 = sum(<generator object test_cached_read_keeps_one_terminal_per_tool_operation.<locals>.<genexpr> at 0x0000012A639317E0>)
+
+tests\test_nova_core_phase7_session.py:253: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s2_policy.py::test_effect_resource_intent_is_exact[read-args0-filesystem.read]
+FAILED tests/security_v12/test_s2_policy.py::test_effect_resource_intent_is_exact[write-args1-filesystem.write]
+FAILED tests/security_v12/test_s2_runtime.py::test_all_fs_and_fetch_tools_pass_policy_and_claim_before_adapter
+FAILED tests/test_nova_core_phase6_runtime.py::test_runtime_normalizes_call_caches_read_and_invalidates_on_write
+FAILED tests/test_nova_core_phase7_session.py::test_cached_read_keeps_one_terminal_per_tool_operation
+5 failed, 560 passed, 1 skipped, 2 deselected, 10 subtests passed in 48.94s

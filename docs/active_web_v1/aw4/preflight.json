@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW4",
+  "branch": "main",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "normativeSections": [
+    "§18.1–5",
+    "§25",
+    "§31",
+    "§33 AW-INV-003/007/008/027–030/048/050",
+    "§35 AW4",
+    "§36.4"
+  ],
+  "literalGate": "Cierre: broker enforcement demostrado.",
+  "prerequisite": "AW3 = PASS; manifest/pins verified; no prior certification reopened",
+  "baseline": {
+    "passed": 481,
+    "failed": 1,
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT — HOME/USERPROFILE",
+    "output": "C:/Users/joseh/AppData/Local/Temp/nova-aw4-20261009T184936Z/baseline/tests.xml"
+  },
+  "reused": [
+    "S5 canonical_url/public_address (unchanged)",
+    "S5 HttpFetchBroker bounded DNS resolver and pinned socket transport (unchanged)",
+    "AW0 BrowserCapabilitySnapshot UNKNOWN fail-closed",
+    "AW1 session ownership/lifetime callbacks (no manager modification)",
+    "AW3 Policy/approval/ToolRuntime preserved; broker is NOT an action authority"
+  ],
+  "missing": [
+    "Active Web forward proxy/CONNECT and finite egress restrictions",
+    "Broker-scoped capability probes",
+    "Tests native proxy denial, DNS mixed/rebinding, pinning, protocols, transport limits and fail-closed cleanup"
+  ],
+  "intendedFiles": [
+    "local_cli/core/active_web_network.py",
+    "local_cli/application/browser_network.py",
+    "local_cli/infrastructure/active_web/__init__.py",
+    "local_cli/infrastructure/active_web/egress_broker.py",
+    "local_cli/infrastructure/active_web/capability_probe.py",
+    "tests/active_web_v1/test_aw4_network.py",
+    "tests/active_web_v1/test_aw4_proxy.py",
+    "ci/pytest_contracts.json (addition only)",
+    "docs/active_web_v1/aw4/*"
+  ],
+  "scopeBoundary": "Broker enforcement proved at its socket boundary. Actual Chromium proxy/bypass/service-worker/WebRTC/QUIC validation awaits AW5/real-engine tests; no browser availability or bypass-prevention claim from configuration/doubles.",
+  "excluded": [
+    "Playwright/Chromium install/launch/adapter",
+    "new tools or frontend bootstrap",
+    "credential takeover/transfers",
+    "global proxy/firewall/GPU configuration",
+    "passive-web behavior change",
+    "READY",
+    "AW5"
+  ],
+  "contradictionFound": false
+}

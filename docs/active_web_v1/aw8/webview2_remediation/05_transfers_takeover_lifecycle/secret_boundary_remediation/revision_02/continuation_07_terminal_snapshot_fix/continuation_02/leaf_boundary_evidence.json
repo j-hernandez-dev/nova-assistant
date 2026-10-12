@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "defect": "C07-C-SECRET-LEAF-001",
+  "LEAF_BOUNDARY_REPAIR": "PASS",
+  "publicSchemaChanged": false,
+  "flow": "Bounded original page-derived leaves -> host redaction leaf-by-leaf -> bounded safe aggregation -> existing BrowserObservation",
+  "noReconstructedLeaves": true,
+  "privateRepresentation": {
+    "kind": [
+      "TEXT",
+      "LABEL"
+    ],
+    "text": "Original leaf content, host-private only",
+    "bounds": {
+      "visibleLeaves": 1024,
+      "visibleCharsPerWorld": 32768,
+      "maxLeafChars": 32768,
+      "aggregateRawChars": 65536,
+      "privatePayloadUtf8": 262144,
+      "titleChars": 16384,
+      "labelTotalChars": 16384,
+      "treeWalkNodes": 20000,
+      "metaTreeWalkNodes": 4096,
+      "truncation": "Explicit truncated=false required; oversize raw data rejected rather than slicing raw sensitive leaves; public truncation only after sanitization."
+    }
+  },
+  "hostSeparatorsAfterRedaction": true,
+  "shortPolicyUnchanged": true,
+  "noDomDumpSelectorsBackendIdsCoordinatesOrCdpObjectsExposed": true,
+  "surfaces": [
+    {
+      "field": "title",
+      "boundary": "One original scalar page leaf; bounded 16384, Redact before public truncation.",
+      "status": "AUDITED / NATIVE_TEST_PASS"
+    },
+    {
+      "field": "visibleTextSummary",
+      "boundary": "Original TEXT leaves from private Summary; per-leaf Redact before host separators/aggregation/public truncation.",
+      "status": "FIXED / 6 native and direct coverage"
+    },
+    {
+      "field": "accessibleName / labels",
+      "boundary": "Private LABEL leaves for aria-label/aria-labelledby/associated labels/visible name fragments; redact each before join; canonical whole field also fenced after normalization.",
+      "status": "FIXED / NATIVE_TEST_PASS"
+    },
+    {
+      "field": "stateSummary / role / kind",
+      "boundary": "Individual metadata string fields; each Redact individually. Public fixed discriminators/IDs/caps do not pass through redactor.",
+      "status": "AUDITED / DIRECT_TEST_PASS"
+    },
+    {
+      "field": "form-derived strings",
+      "boundary": "Form name uses same private nameLeaves. Raw formAction/method remain private fingerprint metadata, not public payload; no field/source dump added.",
+      "status": "AUDITED"
+    },
+    {
+      "field": "dialog",
+      "boundary": "Product withholds page dialog message; exposes only suppressed dialog kind/status. Individual dialog scalar Redact before array projection.",
+      "status": "AUDITED / DIRECT_SCALAR_TEST_PASS"
+    },
+    {
+      "field": "href / url",
+      "boundary": "PublicUrl strips userinfo/query/fragment; known values in publishable path/origin protected host-side. No URL leaf aggregated into text before fencing.",
+      "status": "AUDITED / UNCHANGED"
+    },
+    {
+      "field": "download metadata",
+      "boundary": "Suggested filename and MIME individual host-fenced scalar fields; private temporary path never projected. Name sanitization + redaction precede publication.",
+      "status": "AUDITED / UNCHANGED; transfer tests not rerun here"
+    }
+  ],
+  "tests": {
+    "newTotal": 21,
+    "direct": 15,
+    "native": 6,
+    "originalShortExact": "PASS unchanged",
+    "policyGate": "23 PASS / 1 FAIL cross only"
+  },
+  "limitations": [
+    "No full regression or D/E/F authorized/executed.",
+    "Dialog page message is withheld, not claimed as fully captured DOM data.",
+    "Transfer scalar audit is static; no new transfer certification."
+  ],
+  "changedFiles": [
+    {
+      "path": "native/nova-browser-host/ObservationScripts.cs",
+      "before": "df1a16245d75f24b395cf5e9450cd517d9f229d75344cc62ec9afae74ac689d0",
+      "after": "48bf95047b62bc690a821a33141a5534e0b3efcc757e26d3c226c9955f1c29bf"
+    },
+    {
+      "path": "native/nova-browser-host/ObservationRuntime.cs",
+      "before": "a0b1cf146bde22aa5a353a535791a4cd8d1c72fb74eac51812cbc9e0b22c04af",
+      "after": "41c554d74bd2ebd9024060df586ac274d0d0ec83ef0c727f6df33b2cc6cbe1ba"
+    },
+    {
+      "path": "native/nova-browser-host/PageDerivedTextLeaves.cs",
+      "before": null,
+      "after": "5faf4cda8a499c86b0ef0afb8df137816cb70fe2b70eedb3fa4ce2c873a70c1a"
+    }
+  ]
+}

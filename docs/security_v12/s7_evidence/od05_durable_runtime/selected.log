@@ -1,0 +1,53 @@
+....F.....                                                               [100%]
+================================== FAILURES ===================================
+_________________ test_durable_deny_and_exact_human_approval __________________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s7_private_ozyn86gz/selected/test_durable_deny_and_exact_hu0')
+
+    def test_durable_deny_and_exact_human_approval(tmp_path):
+        work, disk, audit = disk_audit(tmp_path)
+        pending, ready = [], Event()
+        gate = ApprovalGate(on_required=lambda r: (pending.append(r),ready.set()))
+        actor = gate.register_actor('desktop_host',lambda:True)
+        rt, exe, _ = runtime(work, gate=gate, security_audit=audit)
+        denied = invocation(work,arguments={'command':'Format-Volume D:'})
+        assert rt.execute(denied).status is ToolStatus.DENIED
+        assert reconstruct_operation(disk.read_operation('session','operation'))['outcome'] == 'denied'
+        inv = replace(invocation(work,arguments={'command':'Remove-Item build -Recurse'}),
+                      operation_id='approved-operation')
+        output = []
+        worker = Thread(target=lambda:output.append(rt.execute(inv)),daemon=True)
+        worker.start()
+        try:
+>           assert ready.wait(2)
+E           assert False
+E            +  where False = wait(2)
+E            +    where wait = <threading.Event at 0x172ac5be690: unset>.wait
+
+tests\security_v12\test_s7_durable_runtime.py:84: AssertionError
+============================== warnings summary ===============================
+tests/security_v12/test_s7_durable_runtime.py::test_durable_deny_and_exact_human_approval
+  C:\Users\joseh\AppData\Roaming\Python\Python314\site-packages\_pytest\threadexception.py:58: PytestUnhandledThreadExceptionWarning: Exception in thread Thread-1 (<lambda>)
+  
+  Traceback (most recent call last):
+    File "C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1082, in _bootstrap_inner
+      self._context.run(self.run)
+      ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+    File "C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\Lib\threading.py", line 1024, in run
+      self._target(*self._args, **self._kwargs)
+      ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    File "C:\Users\joseh\Downloads\nova-local-cli\nova-assistant\tests\security_v12\test_s7_durable_runtime.py", line 81, in <lambda>
+      worker = Thread(target=lambda:output.append(rt.execute(inv)),daemon=True)
+                                                  ~~~~~~~~~~^^^^^
+    File "C:\Users\joseh\Downloads\nova-local-cli\nova-assistant\local_cli\application\tool_runtime.py", line 383, in execute
+      raise ValueError("operationId differs from execution context")
+  ValueError: operationId differs from execution context
+  
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+    warnings.warn(pytest.PytestUnhandledThreadExceptionWarning(msg))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s7_durable_runtime.py::test_durable_deny_and_exact_human_approval
+1 failed, 9 passed, 1 warning in 3.63s

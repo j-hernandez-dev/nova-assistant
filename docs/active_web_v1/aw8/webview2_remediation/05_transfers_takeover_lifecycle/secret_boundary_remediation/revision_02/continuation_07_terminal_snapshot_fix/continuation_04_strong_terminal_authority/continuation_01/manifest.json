@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Prospective authorized strong terminal contract reconciliation and implementation; additive continuation only",
+  "decision": "WV2-B05-C07-C04-TERMINAL-TEST-CONTRACT-001 / AUTHORIZED",
+  "timestampUtc": "2026-10-11T00:23:10.365Z",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "candidateFreezeSha256": "ca3a8087aef20bb96e00f09feb789515c6d494efa31835914ca31d3bf9f12288",
+  "scope": "INPUT/CHANGE/BLUR non-terminal; four strong sources only; narrow direct caller/expectation reconciliation",
+  "architecture": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+  "changedFiles": [
+    {
+      "sha256": "e79177c4b9da5ae61c6e3647b5872efea156ac1b341f4cd9c483d3643803dcc3",
+      "path": "native/nova-browser-host/SensitiveValueRegistry.cs",
+      "beforeSha256": "ea7d2d1ed9395beb990f6d63bba67e1c8e90af7f2a96941387735d94987e5066"
+    },
+    {
+      "sha256": "c951e1578ef8b7a3457abd0a9ae2584727d10e0f399c9bb8dd03d506a486b8ff",
+      "path": "native/nova-browser-host/SensitiveTracking.cs",
+      "beforeSha256": "c1434e4e8195d698b9e079dabd5c0e3b9eb07997d6ff38654b0945563ec4fb81"
+    },
+    {
+      "sha256": "7a47a59c744a4189bf7d098fac8fb1fda4d7b0af199cf32c882411fd781d651a",
+      "path": "native/nova-browser-host/ObservationRuntime.cs",
+      "beforeSha256": "41c554d74bd2ebd9024060df586ac274d0d0ec83ef0c727f6df33b2cc6cbe1ba"
+    },
+    {
+      "sha256": "a4df8fb58ebf8e2ac7a1b89789fa14cfc28a5f5db311147d88d5df04ddeff41d",
+      "path": "native/nova-browser-host/tests/sensitive_runner/Program.cs",
+      "beforeSha256": "cd49e2dd7d1fe3a49af9ed3a04c3f6b2acca2cd52056370250752f2bd8f49976"
+    },
+    {
+      "sha256": "97cdc45bd8881366f64daf100c56019577ffdca06315247d26609fa37ebebd2f",
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "beforeSha256": "ce455bc332d6a9624ba441157a5b79e950a5a471fe778ae80c327178129c9b84"
+    },
+    {
+      "sha256": "84571e8d8371a14769d8633b9c4c28c8925432cfe21f23da6cc7f041c12e1dbc",
+      "path": "native/nova-browser-host/SensitiveBoundaryFailure.cs",
+      "beforeSha256": "1a63a61f17f5202a865f24dd3be0c554254a6b3009021339fed89e7f2a8904ad"
+    },
+    {
+      "sha256": "12447296d3cafecf4a8391f8a30cab9397d88581cb6d01a5bc8c23f0c989f398",
+      "path": "native/nova-browser-host/SensitiveTerminalState.cs",
+      "beforeSha256": "a10a1fe743b8715c87535f3afae6ef68dd9d29df808b5ad18ef5dda5af0b6483"
+    },
+    {
+      "sha256": "225d7ebcc1cabf57371be6b0f565b6a09478916ea12acf9150e8f689c6a28f87",
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "beforeSha256": "3f0a31fd604e42e7bbaa8d28c1c70c926927be7dbe56755c347ea319f8f12eb5"
+    },
+    {
+      "sha256": "01e42b174bb0b02c1f8668310ab9191c12afc490d30290486ac374b641c9e23b",
+      "path": "native/nova-browser-host/tests/leaf_boundary_runner/Program.cs",
+      "beforeSha256": "30ba3f919d30b33dbec028cccce30b845a65e9e5179df47989364c6caffd5c8b"
+    },
+    {
+      "sha256": "8912a1dd14913ae6f68a46c0d1c206bb112110c567b7b3a06e65ba9748fd7367",
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "beforeSha256": "e2d737e454b5d165f871bbeb211a76e732c37a8e9ceef0e80123bb96ad2e38fe"
+    }
+  ],
+  "addedTestInfrastructure": [
+    "native/nova-browser-host/tests/strong_terminal_runner/runner.csproj",
+    "native/nova-browser-host/tests/strong_terminal_runner/Program.cs",
+    "native/nova-browser-host/tests/test_strong_terminal_authority.py",
+    "native/nova-browser-host/tests/strong_terminal_diagnostics/FailureSink.cs",
+    "native/nova-browser-host/tests/strong_terminal_diagnostics/failure_plugin.py"
+  ],
+  "reconciliation": [
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "ids": [
+        "reason-change",
+        "reason-blur"
+      ],
+      "old": "CHANGE/BLUR -> ConfirmTerminal -> Commit -> assert COMMITTED",
+      "new": "Observe weak signal -> updated current/revision, TRANSIENT, no TerminalSnapshot/Commit; retain known-value/no-exposure",
+      "boundary": null,
+      "beforeSha256": "3f0a31fd604e42e7bbaa8d28c1c70c926927be7dbe56755c347ea319f8f12eb5",
+      "afterSha256": "225d7ebcc1cabf57371be6b0f565b6a09478916ea12acf9150e8f689c6a28f87"
+    },
+    {
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "ids": [
+        "shared preparation: all 23 retirement-seal contracts"
+      ],
+      "old": "empty rev2 CHANGE terminal before current rev5",
+      "new": "explicit correlated rev2 CHECKPOINT witness for stale-snapshot preparation, weak CHANGE has no authority; seal commits exact rev5",
+      "boundary": "TAKEOVER_END_CHECKPOINT (direct correlated producer) then ENGINE_WORLD_RETIRE",
+      "beforeSha256": "e2d737e454b5d165f871bbeb211a76e732c37a8e9ceef0e80123bb96ad2e38fe",
+      "afterSha256": "8912a1dd14913ae6f68a46c0d1c206bb112110c567b7b3a06e65ba9748fd7367"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "committed-long",
+        "committed-short-1",
+        "committed-short-2",
+        "committed-short-3",
+        "promotion"
+      ],
+      "old": "Input(commit=true) generic HOST_CONFIRMED",
+      "new": "Input transient + exact observed owner/page/generation/control/revision/value CHECKPOINT snapshot -> Commit(snapshot)",
+      "boundary": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "ce455bc332d6a9624ba441157a5b79e950a5a471fe778ae80c327178129c9b84",
+      "afterSha256": "97cdc45bd8881366f64daf100c56019577ffdca06315247d26609fa37ebebd2f"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "native-committed-long"
+      ],
+      "old": "CHANGE(initial) then replacement -> assert initial COMMITTED",
+      "new": "same native fixture/events/values: assert initial TRANSIENT; current replacement committed by end checkpoint; no-exposure unchanged",
+      "boundary": "TAKEOVER_END_CHECKPOINT for current only",
+      "beforeSha256": "ce455bc332d6a9624ba441157a5b79e950a5a471fe778ae80c327178129c9b84",
+      "afterSha256": "97cdc45bd8881366f64daf100c56019577ffdca06315247d26609fa37ebebd2f"
+    },
+    {
+      "path": "native/nova-browser-host/tests/leaf_boundary_runner/Program.cs",
+      "ids": [
+        "long-committed"
+      ],
+      "old": "Input(commit=true)",
+      "new": "same generated known value, Input transient + correlated explicit CHECKPOINT snapshot",
+      "boundary": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "30ba3f919d30b33dbec028cccce30b845a65e9e5179df47989364c6caffd5c8b",
+      "afterSha256": "01e42b174bb0b02c1f8668310ab9191c12afc490d30290486ac374b641c9e23b"
+    },
+    {
+      "path": "native/nova-browser-host/tests/sensitive_runner/Program.cs",
+      "ids": [
+        "url",
+        "escaped-url",
+        "dispose",
+        "isolation",
+        "count",
+        "total",
+        "no-eviction",
+        "native-session-lifecycle",
+        "native-structural-collision"
+      ],
+      "old": "Input(commit=true) without a real terminal witness",
+      "new": "Input transient: these cases test known-value redaction/bounds/ownership, not terminality; security assertions byte-unchanged",
+      "boundary": null,
+      "beforeSha256": "cd49e2dd7d1fe3a49af9ed3a04c3f6b2acca2cd52056370250752f2bd8f49976",
+      "afterSha256": "a4df8fb58ebf8e2ac7a1b89789fa14cfc28a5f5db311147d88d5df04ddeff41d"
+    },
+    {
+      "path": "native/nova-browser-host/ObservationRuntime.cs",
+      "scope": "two internal checkpoint callers only",
+      "old": "Capture checkpoints created terminal snapshots",
+      "new": "capture fences verify current coverage without terminal authority",
+      "strongBoundary": null,
+      "beforeSha256": "41c554d74bd2ebd9024060df586ac274d0d0ec83ef0c727f6df33b2cc6cbe1ba",
+      "afterSha256": "7a47a59c744a4189bf7d098fac8fb1fda4d7b0af199cf32c882411fd781d651a"
+    }
+  ],
+  "gates": {
+    "STRONG_TERMINAL_TEST_CONTRACT_RECONCILIATION": "PARTIAL",
+    "STRONG_TERMINAL_AUTHORITY": "PARTIAL",
+    "TERMINAL_SNAPSHOT_PROVENANCE": "PARTIAL",
+    "RETIREMENT_TERMINAL_SEAL": "PASS",
+    "C07_CROSS_TERMINAL_CONTINUITY": "PASS",
+    "C07_C_SECRET_LEAF": "PASS",
+    "TRUE_SHORT_COMMITTED_DENIAL": "PASS",
+    "BOUNDED_TRANSIENT_SENSITIVE_VALUE_POLICY": "PASS",
+    "MONOTONIC_SENSITIVE_KNOWLEDGE": "PASS",
+    "SCHEMA_AWARE_REDACTION": "PASS",
+    "CROSS_DOCUMENT_SECRET_REDACTION": "PARTIAL",
+    "MODEL_PROJECTION_SECRET_BOUNDARY": "PARTIAL",
+    "SECRET_REGISTRY_LIFECYCLE": "PARTIAL",
+    "SECRET_NON_EXPOSURE": "PARTIAL",
+    "BLOCK05_FINAL_REGRESSION": "BLOCKED"
+  },
+  "states": {
+    "C07_TERMINAL_SNAPSHOT_FIX": "PARTIAL",
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "historical36Udf": "CLEANUP_UNCONFIRMED"
+  },
+  "failure": {
+    "testId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+    "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+    "internalFailure": "SHORT_COMMITTED_VALUE",
+    "classification": "PRODUCT_BUG / TERMINAL_LIFECYCLE_CONTINUITY",
+    "TerminalReason": "PAGEHIDE",
+    "CommitCaller": "SensitiveMessage",
+    "snapshotRevision": 48,
+    "currentRevision": 48,
+    "generation": "606344187ab94728a9406a4e6f616168",
+    "reasonEvidence": {
+      "complete": 1,
+      "sha256": "37b08ef14c1adfc883341540d64720b8a18e672f651705205029c688d1159ce1",
+      "generation": "606344187ab94728a9406a4e6f616168",
+      "version": 1,
+      "ownerPid": 39236,
+      "CommitCaller": "SensitiveMessage",
+      "snapshotRevision": 48,
+      "timestampUnixMs": 1791678056589,
+      "magic": 1314275636,
+      "reason": 2,
+      "site": 8,
+      "currentRevision": 48,
+      "hostPid": 15948,
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-strong-terminal-20261011T001648Z\\C_round_1_scenario_1\\temp\\test_native_document_and_world0\\nova_wv2_bws_ac1677df7114415ea0af583fa67160d7_bhi_ee2f4f69307746729f1e68b6dcd4541a.strong-terminal-failure.bin",
+      "TerminalReason": 4
+    },
+    "deepMechanism": "UNKNOWN; no new diagnostic campaign or fix authorized after this failure"
+  },
+  "history": {
+    "previousCandidate": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_07_terminal_snapshot_fix/continuation_03",
+    "previousCandidateFreezeSha256": "cf73b64725d5863b86ff3c6c0125164e964c29d7ae7625bf938445343ef4905d",
+    "previousResults": "A–D 102 PASS; E 1 PASS / 1 FAIL; remain historical",
+    "originalPreflight": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_07_terminal_snapshot_fix/continuation_04_strong_terminal_authority",
+    "originalPreflightState": "WV2-B05-C07-C04-TERMINAL-TEST-CONTRACT-001 = OPEN_DECISION; unchanged",
+    "originalPreflightPins": [
+      {
+        "sha256": "0c1d56e115ec95aa7be0c5d9ddf9c69636e0a091af79bfcc7cbd3dd38000bdd8",
+        "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1\\aw8\\webview2_remediation\\05_transfers_takeover_lifecycle\\secret_boundary_remediation\\revision_02\\continuation_07_terminal_snapshot_fix\\continuation_04_strong_terminal_authority\\baseline.json"
+      },
+      {
+        "sha256": "7f10c33dbfafc8ecc453d231396840b37dc6e661003c29b6d32e0941559af367",
+        "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1\\aw8\\webview2_remediation\\05_transfers_takeover_lifecycle\\secret_boundary_remediation\\revision_02\\continuation_07_terminal_snapshot_fix\\continuation_04_strong_terminal_authority\\integrity.json"
+      },
+      {
+        "sha256": "fb100ef4754724263af83acd6809b9da9f60e7927c28c1f1ae5586b80c4a6830",
+        "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1\\aw8\\webview2_remediation\\05_transfers_takeover_lifecycle\\secret_boundary_remediation\\revision_02\\continuation_07_terminal_snapshot_fix\\continuation_04_strong_terminal_authority\\manifest.json"
+      },
+      {
+        "sha256": "bd059851cc7b5992540271844d3afff272bcb96a4446bb6bbff2e0338f971c10",
+        "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1\\aw8\\webview2_remediation\\05_transfers_takeover_lifecycle\\secret_boundary_remediation\\revision_02\\continuation_07_terminal_snapshot_fix\\continuation_04_strong_terminal_authority\\open_decision.json"
+      },
+      {
+        "sha256": "1d7dd2357af34ea75b768d3d20310357f4cbe75c082fed243c3394a3e7692758",
+        "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1\\aw8\\webview2_remediation\\05_transfers_takeover_lifecycle\\secret_boundary_remediation\\revision_02\\continuation_07_terminal_snapshot_fix\\continuation_04_strong_terminal_authority\\resultados.md"
+      },
+      {
+        "sha256": "d37db65a33026b10c86232740c5195d570a82ba4bb7e66a529a839cef404718d",
+        "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1\\aw8\\webview2_remediation\\05_transfers_takeover_lifecycle\\secret_boundary_remediation\\revision_02\\continuation_07_terminal_snapshot_fix\\continuation_04_strong_terminal_authority\\state_machine_tests.json"
+      },
+      {
+        "sha256": "4abb8715d0e0ee50d12be7d91fbeff70c0efc1b6ffdd9157d0479e2358707439",
+        "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1\\aw8\\webview2_remediation\\05_transfers_takeover_lifecycle\\secret_boundary_remediation\\revision_02\\continuation_07_terminal_snapshot_fix\\continuation_04_strong_terminal_authority\\terminal_authority.md"
+      },
+      {
+        "sha256": "a0d1eadf902451307db334aa93b1e62b8d77d06f85d9810cb416bb392842fa04",
+        "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\active_web_v1\\aw8\\webview2_remediation\\05_transfers_takeover_lifecycle\\secret_boundary_remediation\\revision_02\\continuation_07_terminal_snapshot_fix\\continuation_04_strong_terminal_authority\\test_results.json"
+      }
+    ],
+    "allPriorResultsPreserved": true
+  },
+  "testResults": "test_results.json",
+  "freeze": "candidate_freeze.json",
+  "reconciliationDocument": "assertion_reconciliation.md",
+  "design": "terminal_authority.md",
+  "integrity": "integrity.json",
+  "externalEvidenceRoot": "C:/Users/joseh/AppData/Local/Temp/nova-strong-terminal-20261011T001648Z",
+  "diagnosticDecision": "Retained as test-only infrastructure. Production observer null, sink excluded from build; no debugging/public IPC capability. No extra diagnosis after stop.",
+  "notExecuted": [
+    "remaining 14 historical C runs",
+    "D original 33",
+    "E full Block05",
+    "Block06",
+    "AW8 E2E"
+  ],
+  "noSecurityCoreMemoryKnowledgeDesktopNetworkCapabilityChanges": true,
+  "noCommitPushTagRelease": true,
+  "noFurtherFunctionalRepair": true
+}

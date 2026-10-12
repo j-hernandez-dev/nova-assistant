@@ -1,0 +1,201 @@
+...................................F......F.....F.F..F.F......F......... [ 70%]
+..............................          [100%]
+================================== FAILURES ===================================
+___ test_required_approval_and_grant_share_the_full_digest_and_execute_once ___
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/activation_initial/s4_private_g8y0h2j5/selected/test_required_approval_and_gra0')
+
+    def test_required_approval_and_grant_share_the_full_digest_and_execute_once(tmp_path):
+        rt, gate, actor, inv, req, exe, events, results, worker = pending_runtime(tmp_path)
+        exe.run.assert_not_called()
+        gate.resolve(**response(req, actor))
+        worker.join(2)
+>       assert results[0].status is ToolStatus.COMPLETED
+E       AssertionError: assert <ToolStatus.FAILED: 'failed'> is <ToolStatus.COMPLETED: 'completed'>
+E        +  where <ToolStatus.FAILED: 'failed'> = ToolResult(status=<ToolStatus.FAILED: 'failed'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c... 'session', 'controlClasses': ['APPLICATION_ENFORCED', 'HOST_UNISOLATED']}), legacy_text='Error: EXECUTABLE_NOT_FOUND').status
+E        +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED
+
+tests\security_v12\test_s2_runtime.py:57: AssertionError
+_________ test_renderer_marker_and_json_cannot_create_human_authority _________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/activation_initial/s4_private_g8y0h2j5/selected/test_renderer_marker_and_json_0')
+
+    def test_renderer_marker_and_json_cannot_create_human_authority(tmp_path):
+        rt, gate, actor, inv, req, exe, events, results, worker = pending_runtime(tmp_path)
+        for fake in (None, 'desktop_host', object()):
+            with pytest.raises(InteractionError, match='APPROVAL_ACTOR_INVALID'):
+                gate.resolve(**response(req, fake))
+        gate.resolve(**response(req, actor))
+        worker.join(2)
+>       assert results[0].status is ToolStatus.COMPLETED
+E       AssertionError: assert <ToolStatus.FAILED: 'failed'> is <ToolStatus.COMPLETED: 'completed'>
+E        +  where <ToolStatus.FAILED: 'failed'> = ToolResult(status=<ToolStatus.FAILED: 'failed'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c... 'session', 'controlClasses': ['APPLICATION_ENFORCED', 'HOST_UNISOLATED']}), legacy_text='Error: EXECUTABLE_NOT_FOUND').status
+E        +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED
+
+tests\security_v12\test_s2_runtime.py:108: AssertionError
+______ test_child_attenuates_delegation_and_cannot_reuse_parent_approval ______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/activation_initial/s4_private_g8y0h2j5/selected/test_child_attenuates_delegati0')
+
+    def test_child_attenuates_delegation_and_cannot_reuse_parent_approval(tmp_path):
+        root, _, _ = runtime(tmp_path)
+        ctx = invocation(tmp_path).context
+        parent = root.delegation_for(ctx)
+        child_exe = Mock()
+        child_exe.run.return_value = subprocess.CompletedProcess([], 0, 'child', '')
+        shell = BashTool(descriptor=root.registry.tool('bash').descriptor,
+                         executor=child_exe, cwd=tmp_path, environment={})
+        child = ToolRuntime(ToolRegistry([shell], scope='sub_agent'), issuer=root._issuer,
+                            policy=root.policy, parent_grant=parent)
+        inv = invocation(tmp_path, session_id='child_session', agent_id='child')
+        inv = replace(inv, operation_id='child_op', context=replace(inv.context, operation_id='child_op'))
+        allowed = child.execute(inv)
+>       assert allowed.status is ToolStatus.COMPLETED
+E       AssertionError: assert <ToolStatus.FAILED: 'failed'> is <ToolStatus.COMPLETED: 'completed'>
+E        +  where <ToolStatus.FAILED: 'failed'> = ToolResult(status=<ToolStatus.FAILED: 'failed'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...d_session', 'controlClasses': ['APPLICATION_ENFORCED', 'HOST_UNISOLATED']}), legacy_text='Error: EXECUTABLE_NOT_FOUND').status
+E        +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED
+
+tests\security_v12\test_s2_runtime.py:183: AssertionError
+____ test_agent_tool_composes_actual_child_with_parent_grant[echo child-1] ____
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/activation_initial/s4_private_g8y0h2j5/selected/test_agent_tool_composes_actua0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021337C169F0>
+command = 'echo child', launches = 1
+
+    @pytest.mark.parametrize('command,launches', [('echo child', 1), ('npm install', 0)])
+    def test_agent_tool_composes_actual_child_with_parent_grant(tmp_path, monkeypatch, command, launches):
+        from local_cli.tools.agent_tool import AgentTool
+        from local_cli.sub_agent import SubAgentRunner
+        from tests.test_nova_core_phase4_session import ScriptedProvider
+        exe = Mock()
+        exe.run.return_value = subprocess.CompletedProcess([], 0, 'child fixture', '')
+        shell = BashTool(descriptor=ShellDescriptor('Windows', 'powershell', str(tmp_path/'pwsh.exe'), '7'),
+                         executor=exe, cwd=tmp_path, environment={})
+        provider = ScriptedProvider([{'role': 'assistant', 'content': '', 'tool_calls': [
+            {'function': {'name': 'bash', 'arguments': {'command': command}}} ]}, 'done'])
+        runner = SubAgentRunner(max_workers=1)
+        agent = AgentTool(runner=runner, provider=provider, model='fixture',
+                          sub_agent_tools=[shell], cwd=tmp_path)
+        monkeypatch.setattr(agent, '_create_fresh_provider', lambda: provider)
+        rt = ToolRuntime(ToolRegistry([shell, agent]))
+        try:
+            result = rt.execute(invocation(tmp_path, 'agent', {'description': 'fixture', 'prompt': 'child task'}))
+            assert result.status is ToolStatus.COMPLETED
+>           assert exe.run.call_count == launches
+E           AssertionError: assert 0 == 1
+E            +  where 0 = <Mock name='mock.run' id='2281563160656'>.call_count
+E            +    where <Mock name='mock.run' id='2281563160656'> = <Mock id='2281543417344'>.run
+
+tests\security_v12\test_s2_runtime.py:228: AssertionError
+_______ test_private_desktop_proof_required_and_exact_positive_response _______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/activation_initial/s4_private_g8y0h2j5/selected/test_private_desktop_proof_req0')
+
+    def test_private_desktop_proof_required_and_exact_positive_response(tmp_path):
+        app, sid, exe = setup(tmp_path)
+        sent, key = [], 'ab' * 32
+        adapter = JsonlApplicationAdapter(app, sid, sent.append, host_approval_key=key)
+        turn = start(app, sid)
+        try:
+            req = _pending(app._session.approval_gate)
+            cmd = command(req, sid)
+            frame = {'id': 'response', 'type': 'application_command', 'command': cmd.to_dict()}
+            adapter.handle(frame)
+            assert sent[-1]['code'] == 'APPROVAL_ACTOR_INVALID'
+            exe.run.assert_not_called()
+            wrong = {**frame, 'hostApprovalProof': approval_proof(key, replace(cmd,
+                     payload={**cmd.payload, 'approved': False}).to_dict())}
+            adapter.handle(wrong)
+            assert sent[-1]['code'] == 'APPROVAL_ACTOR_INVALID'
+            adapter.handle({**frame, 'hostApprovalProof': approval_proof(key, cmd.to_dict())})
+            assert sent[-1]['data']['accepted']
+            assert app.wait_for_turn(turn.created_ids['turnId'], 3)
+>           exe.run.assert_called_once()
+
+tests\security_v12\test_s2_approvals.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Mock name='mock.run' id='2281563160992'>
+
+    def assert_called_once(self):
+        """assert that the mock was called only once.
+        """
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to have been called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+>           raise AssertionError(msg)
+E           AssertionError: Expected 'run' to have been called once. Called 0 times.
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:965: AssertionError
+_________ test_cli_verified_tty_positive_is_bound_to_current_request __________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/activation_initial/s4_private_g8y0h2j5/selected/test_cli_verified_tty_positive0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021337BDB150>
+
+    def test_cli_verified_tty_positive_is_bound_to_current_request(tmp_path, monkeypatch):
+        app, sid, exe = setup(tmp_path)
+        monkeypatch.setattr(CliApplicationClient, '_human_tty', staticmethod(lambda: True))
+        cli = CliApplicationClient(app, sid, read=lambda _: 'yes',
+                                    write=lambda _: None, write_error=lambda _: None)
+        try:
+            cli.submit_user_input('fixture')
+>           exe.run.assert_called_once()
+
+tests\security_v12\test_s2_approvals.py:120: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <Mock name='mock.run' id='2281563163008'>
+
+    def assert_called_once(self):
+        """assert that the mock was called only once.
+        """
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to have been called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+>           raise AssertionError(msg)
+E           AssertionError: Expected 'run' to have been called once. Called 0 times.
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:965: AssertionError
+_______ test_shell_policy_blocks_and_preserves_approval_then_exit_code ________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/activation_initial/s4_private_g8y0h2j5/selected/test_shell_policy_blocks_and_p0')
+
+    def test_shell_policy_blocks_and_preserves_approval_then_exit_code(tmp_path):
+        executor = Mock()
+        descriptor = ShellDescriptor("Linux", "bash", "bash", "5")
+        shell = BashTool(confirm=lambda _command: False, descriptor=descriptor,
+                         executor=executor, cwd=tmp_path)
+        runtime = ToolRuntime(ToolRegistry([shell]))
+        blocked = runtime.execute(_invoke("bash", {"command": "rm -rf /"},
+                                          _context(tmp_path)))
+        declined = runtime.execute(_invoke("bash", {"command": "git reset --hard"},
+                                           _context(tmp_path)))
+        assert blocked.status is ToolStatus.DENIED
+        assert declined.status is ToolStatus.DENIED
+        assert runtime.policy_for("bash", {"command": "git reset --hard"}).action is (
+            ToolPolicyAction.REQUIRE_APPROVAL)
+        assert executor.run.call_count == 0
+        executor.run.return_value = subprocess.CompletedProcess([], 7, "out\n", "err\n")
+        failed = runtime.execute(_invoke("bash", {"command": "echo hi"},
+                                         _context(tmp_path)))
+>       assert (failed.status, failed.exit_code, failed.stdout, failed.stderr) == (
+            ToolStatus.FAILED, 7, "out\n", "err\n")
+E       AssertionError: assert (<ToolStatus.... None, '', '') == (<ToolStatus....t\n', 'err\n')
+E         
+E         At index 1 diff: None != 7
+E         Use -v to get more diff
+
+tests\test_nova_core_phase6_runtime.py:112: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s2_runtime.py::test_required_approval_and_grant_share_the_full_digest_and_execute_once
+FAILED tests/security_v12/test_s2_runtime.py::test_renderer_marker_and_json_cannot_create_human_authority
+FAILED tests/security_v12/test_s2_runtime.py::test_child_attenuates_delegation_and_cannot_reuse_parent_approval
+FAILED tests/security_v12/test_s2_runtime.py::test_agent_tool_composes_actual_child_with_parent_grant[echo child-1]
+FAILED tests/security_v12/test_s2_approvals.py::test_private_desktop_proof_required_and_exact_positive_response
+FAILED tests/security_v12/test_s2_approvals.py::test_cli_verified_tty_positive_is_bound_to_current_request
+FAILED tests/test_nova_core_phase6_runtime.py::test_shell_policy_blocks_and_preserves_approval_then_exit_code
+7 failed, 95 passed, 33 subtests passed in 11.17s

@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "classificationBasis": "Active subscription and source ownership plus actual request/fixture callback and absence of native operation/state/completion; not timeout alone",
+  "cases": [
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_upload_and_download_smoke",
+      "classification": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+      "boundary": "NATIVE_DOWNLOAD_INITIATION_NOT_OBSERVED",
+      "evidenceKind": "IMPORTED_HISTORICAL_VALID_NATIVE_TRACE; no new smoke run",
+      "SMOKE_ROOT_CAUSE": "NATIVE_DOWNLOAD_INITIATION_NOT_OBSERVED",
+      "fixtureMismatchDemonstrated": false,
+      "productSubscriptionMissing": false,
+      "fixtureResponseHeadersForceAttachment": false,
+      "sameOriginDownloadAttributePresent": true,
+      "requestServed20035": true,
+      "nativeDownloadStartingObserved": false,
+      "nativeOperationCreated": false,
+      "rendererResponseCompletion": "NOT_PROVEN",
+      "newExecutions": 0,
+      "missingEvidence": "Why the engine does not create a native download after the legitimate same-origin anchor activation; no attachment header is not by itself proof of fixture mismatch",
+      "historicalFileFailedUnchanged": true,
+      "noDeeperEngineCauseAsserted": true
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_drive_by_download_cancelled_no_staging",
+      "classification": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+      "branch": "E_REQUEST_SERVED_BUT_NO_NATIVE_DOWNLOAD_INITIATION",
+      "branchAlternatives": {
+        "A_requestNeverInitiated": false,
+        "A_nativeDownloadNotStartedInObservedWindow": true,
+        "B_receivedAndDenied": false,
+        "C_denialNotPropagated": false,
+        "D_lateEventObserved": false
+      },
+      "observed": {
+        "case": "test_native_drive_by_download_0",
+        "hostPid": 23980,
+        "preBodyGatePassed": true,
+        "readyBeforeFixtureNavigation": true,
+        "fixtureRequestedAndServed": true,
+        "fixtureStatus": 200,
+        "fixtureBytes": 35,
+        "downloadStartingCount": 0,
+        "nativeOperationCreated": false,
+        "nativeCompletionCallbackCount": 0,
+        "nativeStateChanges": [],
+        "fixtureResponseReceivedByRendererCount": 0,
+        "payloadLoadingFinishedCount": 0,
+        "slot": null,
+        "stagingInvoked": false,
+        "ipcResponse": null,
+        "cleanup": {
+          "processExited": true,
+          "udfExists": false,
+          "cleanupConfirmed": true,
+          "stagingState": "REMOVED",
+          "stagingEntries": 0
+        },
+        "nativeCleanupBegin": 3474.4321,
+        "nativeCleanupConfirmed": 5836.5055,
+        "nativeNavigationAfterPayload": [],
+        "publicResult": {
+          "action": "CLICK",
+          "operationId": "op_77eadc6bc4394c879a2c58f686a325b6",
+          "outcome": "SUCCEEDED_OBSERVED",
+          "effectState": "applied"
+        }
+      },
+      "firstCausalBranch": "WebResourceRequested provider served payload; native DownloadStarting never appeared in the retained control lifetime, so host pre-effect cancellation/denial branch was not reached",
+      "eventWindow": "Fixed original 3s poll then existing page/controller cleanup; no claim about what could occur if the control remained alive indefinitely",
+      "missingEvidence": "Engine consumption/download-selection or suppression reason for the served response; no native Log/Audit reason demonstrated",
+      "noInventedDownloadDenied": true,
+      "noTimeoutIncrease": true
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+      "classification": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+      "boundary": "NO_DOWNLOAD_STARTING_BEFORE_NATIVE_DONE_WAIT_TIMEOUT",
+      "observed": {
+        "case": "test_native_completed_staging_0",
+        "hostPid": 14552,
+        "preBodyGatePassed": true,
+        "readyBeforeFixtureNavigation": true,
+        "fixtureRequestedAndServed": true,
+        "fixtureStatus": 200,
+        "fixtureBytes": 35,
+        "downloadStartingCount": 0,
+        "nativeOperationCreated": false,
+        "nativeCompletionCallbackCount": 0,
+        "nativeStateChanges": [],
+        "fixtureResponseReceivedByRendererCount": 0,
+        "payloadLoadingFinishedCount": 0,
+        "slot": {
+          "Token": "wvd_914ba2b9b55d4005b295567560de3d03",
+          "remainingMilliseconds": 24973
+        },
+        "stagingInvoked": false,
+        "ipcResponse": {
+          "command": "download",
+          "operationId": "op_bd61a9c5a1054d7596e7989223cb576f",
+          "nativeOutcome": "UNKNOWN",
+          "nativeStarted": true
+        },
+        "cleanup": {
+          "processExited": true,
+          "udfExists": false,
+          "cleanupConfirmed": true,
+          "stagingState": "REMOVED",
+          "stagingEntries": 0
+        },
+        "nativeCleanupBegin": 25037.5734,
+        "nativeCleanupConfirmed": 25353.4632,
+        "nativeNavigationAfterPayload": [],
+        "publicResult": {
+          "action": "DOWNLOAD",
+          "operationId": "op_bd61a9c5a1054d7596e7989223cb576f",
+          "outcome": "UNKNOWN",
+          "effectState": "unknown"
+        }
+      },
+      "lastPositiveNativeState": "DownloadSlot created; controlled resource served200/35; no DownloadOperation",
+      "nativeInterrupted": false,
+      "nativeCompleted": false,
+      "nativeCompletionCallbackReceived": false,
+      "ipcNativeUnknownDelivered": true,
+      "pythonStageInvoked": false,
+      "firstCausalBranch": "TransferRuntime.Download waits for Done without DownloadStarting/operation; TimeoutException returns UNKNOWN, which was actually delivered by IPC. Staging finalization is not reached.",
+      "layerLocalized": "Native WebView2 download initiation / offline resource integration, before IPC result or staging",
+      "missingEvidence": "Why native engine download initiation is absent; content/response commit is not proven by merely constructing/returning the response"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]",
+      "classification": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+      "boundary": "NO_NATIVE_DOWNLOAD_OPERATION_AT_JOIN8",
+      "observed": {
+        "case": "test_native_toolruntime_exact_0",
+        "hostPid": 40008,
+        "preBodyGatePassed": true,
+        "readyBeforeFixtureNavigation": true,
+        "fixtureRequestedAndServed": true,
+        "fixtureStatus": 200,
+        "fixtureBytes": 35,
+        "downloadStartingCount": 0,
+        "nativeOperationCreated": false,
+        "nativeCompletionCallbackCount": 0,
+        "nativeStateChanges": [],
+        "fixtureResponseReceivedByRendererCount": 0,
+        "payloadLoadingFinishedCount": 0,
+        "slot": {
+          "Token": "wvd_024cf3c6df514992bacbefc3db88a31b",
+          "remainingMilliseconds": 24868
+        },
+        "stagingInvoked": false,
+        "ipcResponse": null,
+        "cleanup": {
+          "processExited": true,
+          "udfExists": false,
+          "cleanupConfirmed": true,
+          "stagingState": "REMOVED",
+          "stagingEntries": 0
+        },
+        "nativeCleanupBegin": null,
+        "nativeCleanupConfirmed": null,
+        "nativeNavigationAfterPayload": [],
+        "publicResult": {
+          "action": "DOWNLOAD",
+          "operationId": "op_477eb53c0dec424f9696aa6b3edfe3d3",
+          "outcome": "UNKNOWN",
+          "effectState": "unknown"
+        },
+        "join8": {
+          "workerAlive": true,
+          "nativeOperationState": "NO_DOWNLOAD_OPERATION",
+          "nativeCompletionBeforeJoin": false,
+          "ipcResponseDeliveredBeforeJoin": false,
+          "lastNativeCallbackBeforeJoin": {
+            "sequence": 15,
+            "milliseconds": 749.4201,
+            "counterTicks": 855849423988,
+            "kind": "OFFLINE_RESOURCE_RETURNED",
+            "metadata": {
+              "resource": "PAYLOAD_FIXTURE",
+              "status": 200,
+              "bytes": 35
+            }
+          },
+          "counterFrequency": 10000000,
+          "pythonCounterImplementation": "QueryPerformanceCounter()",
+          "joinReturnNanoseconds": 85592889225400,
+          "snapshotReadStartNanoseconds": 85592889233600,
+          "snapshotReadEndNanoseconds": 85592890661600,
+          "snapshotAfterJoinDelayMicroseconds": 8.2,
+          "snapshotReadMicroseconds": 1428
+        },
+        "hostLossAfterUnchangedTestFinallyCancellation": true
+      },
+      "lastPositiveNativeStateAtJoin": "DownloadSlot and payload resource return; no DownloadStarting/operation/completion",
+      "firstCausalBranch": "Existing join8 returns while host is waiting for an uncreated native download; no final download IPC response was delivered before join.",
+      "policyReinvestigated": false,
+      "approvalAlreadyProven": true,
+      "callbackPending": "No native initiation callback evidenced, not a proven callback queue backlog",
+      "noCompletedIpcPendingClaim": true,
+      "missingEvidence": "Native engine download-selection/response-consumption cause; join expiry is a consequence, not sufficient root cause"
+    }
+  ],
+  "commonLocalization": {
+    "allFour": "Between fixed programmatic download initiation + offline WebResourceRequested response and creation of CoreWebView2DownloadOperation",
+    "noDeeperCauseClaim": true,
+    "notClassifiedAsFlakyHarnessPolicyOrPreexisting": true,
+    "FileFailedHistoricalCauseNotRewritten": true,
+    "noProofPayloadCompletedRendering": true,
+    "noProofLateEventImpossible": true,
+    "doesNotCertifyNetwork": true
+  },
+  "proposedRepair": {
+    "confirmedFix": null,
+    "affectedLayerCandidate": "Engine-specific native offline resource/download-initiation boundary",
+    "whyNoFixYet": "Neither loss of subscription, native interrupted operation, completed IPC loss nor staging failure explains the measured missing operation. The engine's deeper decision is not identified.",
+    "wouldRequire": "Evidence of native response/download selection before proposing changes to fixture headers, activation semantics or runtime download integration",
+    "securityImplications": "Any future correction must preserve DENY_ALL for unsolicited downloads, exact FILE_DOWNLOAD authority, bounded host-private staging, STARTED->UNKNOWN and no automatic retry.",
+    "requiredFutureTests": [
+      "Explicit download completed natively then staged",
+      "Unsolicited native attempt received and cancelled pre-effect",
+      "Completion/staging ownership after browser cleanup",
+      "Exact Approval/Grant path and honest unknown/cancel outcomes"
+    ],
+    "implemented": false
+  },
+  "stoppingDecision": "Stop for human review; no new case executions or repair."
+}

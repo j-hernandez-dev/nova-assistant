@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW8",
+  "timestamp": "2026-10-09 21:42:15 UTC",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "initialWorkingTree": " M .github/workflows/nova_knowledge_v1.yml\n M ci/README.md\n M ci/contract_inventory.py\n M ci/pytest_contracts.json\n M ci/run_contracts.py\n M desktop/electron/application_client.ts\n M desktop/shared/application.ts\n M desktop/src/App.tsx\n M local_cli/application/legacy_event_bridge.py\n M local_cli/application/security_audit.py\n M local_cli/application/session.py\n M local_cli/application/tool_runtime.py\n M local_cli/core/contracts.py\n M local_cli/interfaces/cli_application.py\n M pyproject.toml\n?? .github/workflows/nova_active_web_v1.yml\n?? desktop/tests/active_web.test.cjs\n?? docs/active_web_v1/\n?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md\n?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md\n?? local_cli/application/active_web.py\n?? local_cli/application/browser_actions.py\n?? local_cli/application/browser_network.py\n?? local_cli/application/browser_observation.py\n?? local_cli/application/browser_projection.py\n?? local_cli/application/browser_takeover.py\n?? local_cli/application/browser_transfers.py\n?? local_cli/core/active_web.py\n?? local_cli/core/active_web_lifecycle.py\n?? local_cli/core/active_web_network.py\n?? local_cli/core/active_web_observation.py\n?? local_cli/core/active_web_policy.py\n?? local_cli/core/active_web_transfers.py\n?? local_cli/infrastructure/active_web/\n?? tests/active_web_v1/\n",
+  "sourceOfTruth": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+  "prerequisite": "AW7 = PASS preserved, manifest SHA68460552d16b664a850146b477d02d7c996fd927735e98b30b72b41be499fa37",
+  "scope": {
+    "phaseSection": "§35 AW8 — E2E y certificación",
+    "requirements": [
+      "real browser deterministic tasks",
+      "multi-step",
+      "stale refs",
+      "approval",
+      "unknown outcome",
+      "network denial",
+      "download/upload",
+      "manual takeover boundary",
+      "cleanup"
+    ],
+    "noK8SCF": true,
+    "normativeClosureText": "AW8 has no standalone Cierre line. Evaluate its nine items with inherited §§3.2,18,23,25 and §37.30; do not invent a numeric/model-quality gate.",
+    "notRequested": [
+      "global READY declaration",
+      "new phase",
+      "commit/push/tag/release"
+    ]
+  },
+  "reusableComponents": [
+    "BrowserSessionManager / BrowserPort",
+    "BrowserObservationService opaque refs/projection",
+    "BrowserActions / BrowserPolicyEngine",
+    "ToolRuntime / Policy / ApprovalGate / GrantIssuer",
+    "BrowserEgressBroker / BrowserNetworkPolicy",
+    "PlaywrightBrowserAdapter installed native Chromium",
+    "BrowserTransferService / BrowserDownloadStaging / LocalHostFileAcquisition",
+    "BrowserTakeoverService opaque host actor",
+    "BrowserFrontendBinding / SessionCoordinator / EventStream / SecurityAudit"
+  ],
+  "existingEvidenceBoundary": {
+    "fake": "Deterministic Application/ToolRuntime contracts; not engine evidence",
+    "real": "Native AW5–7 synthetic component suites including ToolRuntime dispatch, not public product AgentLoop certification",
+    "historicalCertifications": "Preserved byte-for-byte; no prior PASS reinterpreted",
+    "currentBaseline": "172 PASS + 1 unchanged inherited Core harness FAIL, exit1"
+  },
+  "blockers": [
+    {
+      "id": "AW8-PREFLIGHT-001",
+      "classification": "PRODUCT_INTEGRATION_GAP",
+      "required": "§§3.2/15/23 current AgentLoop → productive browser tools → ToolRuntime/Policy",
+      "observed": "get_default_tools and normal Application composition register no browser_* tools; active_web_factory is optional host seam with no productive caller. Native fixtures use ContractOnlyBrowserTool and private host plans, not a shipping model/tool bridge.",
+      "evidence": [
+        "local_cli/tools/__init__.py:get_default_tools",
+        "local_cli/application/session.py:_start_session",
+        "tests/active_web_v1/test_aw3_policy.py:ContractOnlyBrowserTool",
+        "preflight_runtime.json:productiveBrowserTools=[]"
+      ],
+      "impact": "Cannot certify product multi-step browser E2E by relabeling synthetic host composition as productive AgentLoop."
+    },
+    {
+      "id": "AW8-PREFLIGHT-002",
+      "classification": "CERTIFICATION_PREREQUISITE_UNKNOWN",
+      "required": "§18.2–3/§25/AW-INV-007–008,027: availability only after engine + exclusive PUBLIC_ONLY broker proof",
+      "observed": "Native engine KNOWN; networkBroker KNOWN(true), but publicOnly and available UNKNOWN by current capability implementation. Basic denied-loopback broker probe is not complete engine-exclusive egress proof.",
+      "evidence": [
+        "local_cli/infrastructure/active_web/playwright_adapter.py:capabilities",
+        "local_cli/infrastructure/active_web/capability_probe.py:probe_browser_broker",
+        "preflight_runtime.json:realInstalledEngineCapabilities"
+      ],
+      "impact": "Must not force availability, silently downgrade mediation, or advertise browser tools based on installed Chromium. No actual network bypass has been demonstrated."
+    }
+  ],
+  "noArchitectureContradictionOrNewNormativeDecision": true,
+  "interpretation": "Material implementation/certification prerequisite gap, not a new violation of earlier phase-scoped PASS. Stop rather than expand into unfinished browser activation/network discovery and present component tests as final E2E.",
+  "allowedChangesTaken": "AW8 evidence only",
+  "noNewTestsToManufactureGreen": true,
+  "noProductChanges": true,
+  "noArchitectureChanges": true,
+  "noCiOrHarnessChanges": true,
+  "originalAW8CampaignExecuted": false,
+  "modelInference": 0,
+  "requiredBeforeResumption": [
+    "Bounded productive browser composition/capability-gated tool surface through the existing AgentLoop and ToolRuntime",
+    "Real host-scoped proof of exclusive PUBLIC_ONLY engine mediation and truthful capability discovery",
+    "Then independent AW8 tasks/corpus/freeze, never K8/SCF"
+  ]
+}

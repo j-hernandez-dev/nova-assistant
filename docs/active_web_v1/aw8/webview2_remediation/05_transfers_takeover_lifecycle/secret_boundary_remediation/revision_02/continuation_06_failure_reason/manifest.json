@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Focal first-failure branch isolation, no functional repair",
+  "FAILURE_REASON_CAPTURE": "PASS",
+  "ROOT_CAUSE_BRANCH": "SHORT_COMMITTED_VALUE",
+  "ROOT_CAUSE_BRANCH_STATUS": "IDENTIFIED",
+  "FAILS_CAPTURED": 5,
+  "MULTIPLE_FAILURE_BRANCHES": false,
+  "DEEP_MECHANISM": "NOT_FULLY_DEMONSTRATED",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "candidate": {
+    "freeze": "candidate_freeze.json",
+    "sha256": "1965023fb50990feb32851cb73880b4a11e873049e3a3a3388107383bc099d25",
+    "initialCode": "Exact nvr24/C05 source pins before explicitly authorized internal diagnostics",
+    "authorizedDiagnosticChanges": [
+      {
+        "path": "native/nova-browser-host/TakeoverRuntime.cs",
+        "sha256": "8141ca66409cc3180b7142d2678c61f1d5ee474ba9527a9350a13b1593e91cc0",
+        "before": "073489b12a21ea6969c16aba798b3d499b915bbab89167fc2a412e23deda7571"
+      },
+      {
+        "path": "native/nova-browser-host/SensitiveValueRegistry.cs",
+        "sha256": "80a20c6fb21fb417149c6c00472cb8ea0bac847d33b863ae8d4366412413e4ac",
+        "before": "27099fe37faf145a6b871e4ba0db8e91e8e8d34ce08fdfc9b061068ab072d5c0"
+      },
+      {
+        "path": "native/nova-browser-host/SensitiveTracking.cs",
+        "sha256": "10d02c758b06c2d8d2cd10c829779cc056993399e0c60fa8ff2b6719e46455e2",
+        "before": "6808d71327e601189ae91e89826b78875e8082a73069527fbcdf2c37c853fc8c"
+      },
+      {
+        "path": "native/nova-browser-host/SensitiveBoundaryFailure.cs",
+        "sha256": "3b5cb2601cee6920b91b878959b68f06262ea9cd41bc488784b1ec953327e65e",
+        "before": null
+      }
+    ],
+    "semanticRepair": false
+  },
+  "preservedStates": {
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "historical36Udf": "CLEANUP_UNCONFIRMED"
+  },
+  "summary": {
+    "executions": 7,
+    "pass": 2,
+    "fail": 5,
+    "error": 0,
+    "skip": 0,
+    "xfail": 0
+  },
+  "firstCausalBranch": {
+    "file": "native/nova-browser-host/SensitiveValueRegistry.cs",
+    "line": 71,
+    "method": "Commit",
+    "predicate": "pending.TryGetValue(key,out v); v.Length <=3 after assigning values[v]=COMMITTED",
+    "site": "CURRENT_COMMIT_SHORT",
+    "lengths": [
+      2,
+      2,
+      1,
+      1,
+      1
+    ],
+    "selectedValue": "The exact current pending buffer for the opaque control key, not all historical prefixes.",
+    "fullMechanismProven": false
+  },
+  "causalAnalysis": {
+    "identifiedBranch": "SHORT_COMMITTED_VALUE / CURRENT_COMMIT_SHORT at SensitiveValueRegistry.Commit",
+    "observed": "Five independent first-failure snapshots, selected current buffer lengths 2,2,1,1,1. Exact opaque Page/context/control identities retained privately; context number 6 and per-world control number 1 in each independent session. This is context ID, not proof of document incarnation count.",
+    "staticChain": [
+      "Input always Add(value), then overwrites pending[key] with each current nonempty received value or removes pending for empty. KnownSensitive remains monotonic.",
+      "Commit retrieves only pending[key], assigns that value COMMITTED, and denies when length <=3. It does not promote every historical value.",
+      "Input(commit=true), Retire(prefix), and Checkpoint() all call the same Commit with no terminal-provenance discriminator.",
+      "Change/blur, submit/pagehide, disconnected-control scan, fixed checkpoint scan, and world retirement can cause Commit.",
+      "Retire promotes the last received pending state for the retiring world, without a separate proof that this buffer is terminal; it cannot read a world already destroyed.",
+      "The passed humanEditing argument is not consulted by registry selection/promotion.",
+      "Exceptions in capture/context callbacks can mark the registry unavailable; subsequent RememberSensitive/Require surfaces the same generic error in EndTakeover. First-failure state now prevents these wrappers from hiding the initial short-commit reason."
+    ],
+    "whatNotProven": [
+      "Which of the Commit callers selected the short value in these five failures.",
+      "Whether a late/duplicate/intermediate editing event, genuine terminal short current value or another ordering/lifecycle transition is the deep cause.",
+      "No assertion that the historical C04 42->1 sequence is the causal event sequence of the five current failures.",
+      "No proof of ack timeout or multiple-world selection as cause; these branches did not win the first-failure capture."
+    ],
+    "minimalRepairProposedNotImplemented": {
+      "focus": "Terminal-state promotion/current ownership, not the short-credential protection threshold or redaction policy.",
+      "proposal": "Make promotion depend on a host-owned terminal snapshot tied to exact control/document generation and event ordering. Do not treat an arbitrary last-received editing pending buffer as terminal merely because a world retires/checkpoint runs. If terminal continuity cannot be established, preserve fail-closed. Keep every observed buffer known and committed short values denied.",
+      "guardrails": [
+        "Do not select the longest historical buffer as a heuristic terminal value.",
+        "Do not ignore short committed credentials.",
+        "Do not discard prefixes/old buffers or relax bounds/expiry.",
+        "Do not add sleep/retry to mask lifecycle ordering.",
+        "Do not reconstruct/rebind to a different control/world."
+      ],
+      "authorizationRequired": true
+    },
+    "regressionRisks": [
+      "True committed short credential could accidentally resume if terminal classification is relaxed.",
+      "Intermediate/historical sensitive material could be forgotten or leaked across navigation if ownership reconciliation is incorrect.",
+      "Legitimate backspace/replacement could be mishandled by a longest/latest heuristic.",
+      "Wrong page/world/control binding could make terminal confirmation falsely succeed.",
+      "Changing checkpoint await/lifecycle could mask STARTED/UNKNOWN or create availability regressions."
+    ],
+    "testsNeededUnderFutureAuthorization": [
+      "Deterministic current-buffer/terminal-promotion tests for editing progression, backspace/replacement/clear and short true terminal credentials.",
+      "Retire/pagehide/checkpoint ordering and exact document/control-generation ownership, including late or duplicate receipts.",
+      "All three historical focal scenarios with unchanged fixtures/driver/assertions.",
+      "Monotonic knowledge and cross-document/same-origin/cross-origin/history secret protection.",
+      "Short transient exact-leaf versus committed-short denial and schema-aware control-plane preservation.",
+      "Existing 24 policy tests and complete Block05 regression only after separate human authorization."
+    ]
+  },
+  "diagnostics": {
+    "internalTaxonomy": "failure_reason_map.json",
+    "noPublicSchemaChange": true,
+    "noToolRuntimePolicyChange": true,
+    "productiveObserverDefaultNull": true,
+    "testSink": "Internal ModuleInitializer included only by new test build import; fixed 256-byte MMF evidence, only first already-selected failure written.",
+    "newHarnessFiles": [
+      "native/nova-browser-host/tests/failure_reason/FailureReasonSink.cs",
+      "native/nova-browser-host/tests/failure_reason/failure_reason_plugin.py"
+    ],
+    "noEventTaps": true,
+    "noPerInputLogging": true,
+    "noSynchronousFlushOnFailure": true,
+    "unknownCategoriesNotInvented": true
+  },
+  "history": {
+    "nvr24": "../continuation_03/manifest.json",
+    "c04": "../continuation_04_diagnosis/manifest.json",
+    "c05": "../continuation_05_reproducibility/manifest.json",
+    "historicalRootCauseAndVerdictsUnchanged": true,
+    "original004": "UNKNOWN, unchanged"
+  },
+  "integrity": {
+    "sourceCandidatePins": 76,
+    "harnessPins": 2,
+    "historicalPins": 237,
+    "trackedPriorPins": 18,
+    "historicalOutputPins": 26,
+    "unexpectedDrift": 0
+  },
+  "cleanup": {
+    "sevenIndependentHostUdfFixturesClosed": true,
+    "ownedUdfStagingRemaining": 0,
+    "scopedProcessesRemaining": 0,
+    "historical36UdfMaintained": false
+  },
+  "notRun": [
+    "24 policy tests",
+    "420 complete regression",
+    "Block06",
+    "AW8 E2E"
+  ],
+  "noFunctionalFix": true,
+  "noCommitPushTagRelease": true,
+  "humanReviewRequired": true,
+  "artifacts": [
+    "resultados.md",
+    "failure_reason_map.json",
+    "test_results.json",
+    "integrity.json",
+    "attempt_results/attempt_01.json through attempt_07.json"
+  ]
+}

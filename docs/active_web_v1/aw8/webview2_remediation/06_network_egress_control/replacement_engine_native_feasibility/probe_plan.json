@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "task": "BLOCK06_REPLACEMENT_ENGINE_NATIVE_FEASIBILITY",
+  "candidate": "DEDICATED_CEF_CHROMIUM_BROWSER_HOST",
+  "selectedDistribution": {
+    "cef": "154.0.34+g14c5a08+chromium-154.0.8037.98",
+    "chromium": "154.0.8037.98",
+    "cefCommit": "14c5a08",
+    "architecture": "X64",
+    "type": "minimal",
+    "filename": "cef_binary_154.0.34+g14c5a08+chromium-154.0.8037.98_windows64_minimal.tar.bz2",
+    "expectedSha1": "be54bbaf3222191dec59ffd9c9ec7e8a7f44a26d",
+    "bytes": 172752666,
+    "url": "https://cef-builds.spotifycdn.com/cef_binary_154.0.34%2Bg14c5a08%2Bchromium-154.0.8037.98_windows64_minimal.tar.bz2"
+  },
+  "cefCommit": "14c5a089e8452874cb1a556dc3fde26ed2d87723",
+  "immutableProfile": {
+    "proxy": "One numeric loopback harness-owned HTTP listener",
+    "proxyBypassList": "<-loopback>",
+    "disableQuicRequested": true,
+    "disableBackgroundNetworkingRequested": true,
+    "disableComponentUpdateRequested": true,
+    "noSandbox": true,
+    "claim": "HOST_UNISOLATED",
+    "resourceInterception": "NONE",
+    "runtimePatchApplied": false,
+    "sourcePatchApplied": false
+  },
+  "prerequisite": {
+    "cefWebRtcNativeDisableInStandardArtifact": "NOT_ESTABLISHED",
+    "nativeStrategyForFutureBuild": "Source gate in peerconnection construction and P2P/backend, not JS/camera/IP handling. No fork build authorized/created."
+  },
+  "criticalExecution": {
+    "count": 1,
+    "firstGate": "CEF_WEBRTC_SUPPRESSION",
+    "fixture": "Controlled loopback trustworthy secure context reached through HTTP proxy. Must observe isSecureContext from the actual engine; no remote HTTPS claim.",
+    "calibration": "STUN canary + GetExtendedUdpTable OWNER_PID, then owned CEF Job Object correlation",
+    "failCondition": "Actual owned CEF child STUN outside the HTTP proxy",
+    "onFail": "REJECT_CURRENT_ARTIFACT_AND_STOP_NO_FLAG_SERIES"
+  },
+  "afterFirstGate": "Other native gates run only if WebRTC suppression passes. Source/API assessment may be reported independently, never converted to native PASS.",
+  "preserved": {
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "PASS",
+    "WEBVIEW2_BLOCK06_ARCHITECTURE": "BLOCKED_ARCHITECTURAL_ENFORCEMENT_LIMIT",
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "noProductEdits": true,
+  "noArchitectureEdits": true,
+  "historicalUdfsUntouched": 36
+}

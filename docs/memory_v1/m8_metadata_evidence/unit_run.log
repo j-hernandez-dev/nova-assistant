@@ -1,0 +1,135 @@
+........................................................................ [ 10%]
+........................................................................ [ 20%]
+........................................................................ [ 31%]
+........................................................................ [ 41%]
+........................................................................ [ 51%]
+........................................................................ [ 62%]
+........................................................................ [ 72%]
+........................................................................ [ 82%]
+........................................................................ [ 93%]
+........................FF.....FF.............                           [100%]
+================================== FAILURES ===================================
+_______ test_identity_change_rediscovery_and_old_space_rejected[digest] _______
+
+change = 'digest'
+
+    @pytest.mark.parametrize('change',['digest','model','provider'])
+    def test_identity_change_rediscovery_and_old_space_rejected(change):
+        adapter,calls,state,_=backend(); original=adapter.status(); calls.clear()
+        if change=='digest': state['digest']='synthetic-v2'
+        elif change=='model': adapter.model='other'; state['name']='other:latest'
+        else: adapter.endpoint='http://127.0.0.1:11435'
+        current=adapter.status()
+        assert counts(calls)['/api/show']==1
+        assert adapter._metadata.selection==(adapter.endpoint,adapter.model)
+        assert adapter.metadata_cache_stats()['invalidations']['selection_or_revision_changed']==1
+        if change!='provider':
+            assert current.embedding_space_id!=original.embedding_space_id
+            calls.clear()
+>           with pytest.raises(MemoryError,match='MEMORY_EMBEDDING_SPACE_MISMATCH'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'MEMORY_EMBEDDING_SPACE_MISMATCH'
+E             Actual message: 'Memory contract validation failed.'
+
+tests\memory_v1\test_m8_metadata_admission.py:65: AssertionError
+_______ test_identity_change_rediscovery_and_old_space_rejected[model] ________
+
+change = 'model'
+
+    @pytest.mark.parametrize('change',['digest','model','provider'])
+    def test_identity_change_rediscovery_and_old_space_rejected(change):
+        adapter,calls,state,_=backend(); original=adapter.status(); calls.clear()
+        if change=='digest': state['digest']='synthetic-v2'
+        elif change=='model': adapter.model='other'; state['name']='other:latest'
+        else: adapter.endpoint='http://127.0.0.1:11435'
+        current=adapter.status()
+        assert counts(calls)['/api/show']==1
+        assert adapter._metadata.selection==(adapter.endpoint,adapter.model)
+        assert adapter.metadata_cache_stats()['invalidations']['selection_or_revision_changed']==1
+        if change!='provider':
+            assert current.embedding_space_id!=original.embedding_space_id
+            calls.clear()
+>           with pytest.raises(MemoryError,match='MEMORY_EMBEDDING_SPACE_MISMATCH'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'MEMORY_EMBEDDING_SPACE_MISMATCH'
+E             Actual message: 'Memory contract validation failed.'
+
+tests\memory_v1\test_m8_metadata_admission.py:65: AssertionError
+_ test_detectable_backend_invalidity_clears_cache_and_never_embeds[transport] _
+
+fault = 'transport'
+
+    @pytest.mark.parametrize('fault',['missing','restart','capability','dimension','transport'])
+    def test_detectable_backend_invalidity_clears_cache_and_never_embeds(fault):
+        adapter,calls,state,base=backend(); original=adapter.status(); calls.clear()
+        if fault=='missing': state['present']=False
+        elif fault=='restart': state['warm']=False
+        elif fault in ('capability','dimension'):
+            state['digest']='synthetic-v2'
+            state[fault]=False if fault=='capability' else 0
+        else:
+            def fail(*args): raise MemoryError('MEMORY_EMBEDDING_UNAVAILABLE')
+            adapter._transport=fail
+        with pytest.raises(MemoryError):
+>           with adapter.query_admission(original.embedding_space_id): pytest.fail('Invalid admission')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m8_metadata_admission.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\contextlib.py:137: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+local_cli\infrastructure\memory_embeddings.py:226: in query_admission
+    space=self._status(deadline)
+          ^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\memory_embeddings.py:161: in _status
+    space=self._discover(deadline,selection)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\memory_embeddings.py:173: in _discover
+    tag=self._installed(deadline)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\memory_embeddings.py:136: in _installed
+    rows=self._request('/api/tags',deadline).get('models',[])
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\memory_embeddings.py:91: in _request
+    result = self._transport(path, data, remaining)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\memory_v1\test_m8_metadata_admission.py:83: in fail
+    def fail(*args): raise MemoryError('MEMORY_EMBEDDING_UNAVAILABLE')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = MemoryError('MEMORY_EMBEDDING_UNAVAILABLE')
+code = 'MEMORY_EMBEDDING_UNAVAILABLE'
+
+    def __init__(self, code: MemoryErrorCode):
+        if not isinstance(code, MemoryErrorCode):
+>           raise TypeError('MemoryError requires a MemoryErrorCode')
+E           TypeError: MemoryError requires a MemoryErrorCode
+
+local_cli\core\memory.py:50: TypeError
+_ test_revision_changes_during_embedding_discard_vector_instead_of_mixing_spaces _
+
+    def test_revision_changes_during_embedding_discard_vector_instead_of_mixing_spaces():
+        adapter,calls,state,base=backend(); original=adapter.status();calls.clear()
+        def changed(path,data,timeout):
+            response=base(path,data,timeout)
+            if path=='/api/embed': state['digest']='synthetic-v2'
+            return response
+        adapter._transport=changed
+        with adapter.query_admission(original.embedding_space_id) as admitted:
+>           with pytest.raises(MemoryError,match='MEMORY_EMBEDDING_SPACE_MISMATCH'):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AssertionError: Regex pattern did not match.
+E             Expected regex: 'MEMORY_EMBEDDING_SPACE_MISMATCH'
+E             Actual message: 'Memory contract validation failed.'
+
+tests\memory_v1\test_m8_metadata_admission.py:101: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/memory_v1/test_m8_metadata_admission.py::test_identity_change_rediscovery_and_old_space_rejected[digest]
+FAILED tests/memory_v1/test_m8_metadata_admission.py::test_identity_change_rediscovery_and_old_space_rejected[model]
+FAILED tests/memory_v1/test_m8_metadata_admission.py::test_detectable_backend_invalidity_clears_cache_and_never_embeds[transport]
+FAILED tests/memory_v1/test_m8_metadata_admission.py::test_revision_changes_during_embedding_discard_vector_instead_of_mixing_spaces
+4 failed, 690 passed in 56.80s

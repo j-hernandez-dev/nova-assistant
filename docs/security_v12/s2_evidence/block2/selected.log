@@ -1,0 +1,57 @@
+Failed to find real location of C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\python.exe
+.F..........F........                                                    [100%]
+================================== FAILURES ===================================
+____ test_changes_while_approval_pending_cannot_start_executor[arguments] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block2/s2_private_xe6a7l9s/selected/test_changes_while_approval_pe0')
+mutation = 'arguments'
+
+    @pytest.mark.parametrize('mutation', ['arguments', 'cwd', 'environment', 'policy', 'ceiling', 'cancel'])
+    def test_changes_while_approval_pending_cannot_start_executor(tmp_path, mutation):
+        rt, gate, actor, inv, req, exe, events, results, worker = pending_runtime(tmp_path)
+        if mutation == 'arguments':
+>           inv.arguments['command'] = 'echo changed'
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: 'mappingproxy' object does not support item assignment
+
+tests\security_v12\test_s2_runtime.py:74: TypeError
+______ test_all_fs_and_fetch_tools_pass_policy_and_claim_before_adapter _______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block2/s2_private_xe6a7l9s/selected/test_all_fs_and_fetch_tools_pa0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020D9DF2EC40>
+
+    def test_all_fs_and_fetch_tools_pass_policy_and_claim_before_adapter(tmp_path, monkeypatch):
+>       tools = create_tools('server', cwd=tmp_path, environment={})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s2_runtime.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frontend = 'server', auto_approve = False, confirm = None, ask_user = None
+preference = 'native'
+cwd = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block2/s2_private_xe6a7l9s/selected/test_all_fs_and_fetch_tools_pa0')
+environment = {}
+
+    def create_tools(frontend: str, *, auto_approve: bool = False,
+                     confirm: Callable[[str], bool] | None = None,
+                     ask_user: Callable[[str], str] | None = None,
+                     preference: str = "native", cwd: str | Path | None = None,
+                     environment: Mapping[str, str] | None = None) -> list[Tool]:
+        """Single approval policy for every command-tool entry point."""
+        if frontend == "sub_agent":
+            return get_sub_agent_tools(preference=preference, cwd=cwd,
+                                       environment=environment)
+        if frontend not in ("cli", "server"):
+            raise ValueError(f"Unknown tool frontend: {frontend}")
+        if auto_approve:
+            gate = None
+        else:
+            if confirm is None:
+>               raise ValueError(f"{frontend} requires a command approval callback")
+E               ValueError: server requires a command approval callback
+
+local_cli\tools\__init__.py:34: ValueError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s2_runtime.py::test_changes_while_approval_pending_cannot_start_executor[arguments]
+FAILED tests/security_v12/test_s2_runtime.py::test_all_fs_and_fetch_tools_pass_policy_and_claim_before_adapter
+2 failed, 19 passed in 4.72s

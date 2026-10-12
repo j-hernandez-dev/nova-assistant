@@ -1,0 +1,1110 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Engine-specific native ExternalProtocolGuard certification, §35.2 block03 only",
+  "sdk": "1.0.4258.31",
+  "runtime": "154.0.4258.62",
+  "platform": "Windows 11 / x64 / NTFS / HOST_UNISOLATED",
+  "host": "nova-browser-host",
+  "nativePrimitive": "CoreWebView2.LaunchingExternalUriScheme",
+  "installationOrder": "Controller created at about:blank → native guard/popup handler installed → page registered/ready → controlled harness content allowed",
+  "denial": "e.Cancel = true is first callback statement; unconditional; no deferral/IPC/Approval/Grant/exception/relaunch",
+  "popupDenial": "NewWindowRequested: e.Handled=true first; no popup control created; no default browser",
+  "retention": "Unexpected disposal/revocation invalidates/closes controls before unsubscribe; normal unsubscribe follows controller.Close",
+  "ownership": "session/page/host/context incarnation=1; host observation operation IDs only; no invented ToolCallId/GrantId/ApprovalId",
+  "audit": {
+    "schema": "SecurityAuditRecord v1 (unchanged)",
+    "kind": "policy",
+    "origin": "application (existing trusted Nova audit category, not fabricated user intent)",
+    "durability": "FileMode.CreateNew, FileOptions.WriteThrough, Flush(true) before durable receipt",
+    "storage": "private Infrastructure managed per-host file outside UDF; not transcript/session event; no new Security authority",
+    "redaction": "scheme only; no URI path/query/userinfo; HTTP(S) initiating origin represented by scheme+hostname/port digest, otherwise null",
+    "fault": "Cancel remains true; audit gap + durable=false/recordId=null + session closed/UNKNOWN"
+  },
+  "nativeCases": [
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:10.65012-06:00",
+      "hostPid": 16592,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_df788a22846948b4b93b3cc6dec4e02a",
+        "hostInstanceRef": "bhi_8090d563ea834ba0ac532514ef4ab523",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "HOST_PRE_EFFECT_DENY",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_a127e678c40744c888f277e581ff434f",
+            "sequence": 1
+          }
+        ],
+        "receipts": [
+          {
+            "sequence": 2,
+            "recordId": "38d21d18-cbf0-4649-acaa-aaca321f90d8",
+            "pageRef": "bwp_a127e678c40744c888f277e581ff434f",
+            "cancel": true,
+            "outcome": "DENIED_PRE_EFFECT",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "durable": true
+          }
+        ]
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "GUARD_VERIFIED_BEFORE_CONTENT",
+        "CONTROLLED_CONTENT_LOADED"
+      ],
+      "positiveControl": [
+        22796
+      ],
+      "scheme": "nova-aw8-guard-8e5f3dc6014b4fb3a1516724e295b415",
+      "raw": {
+        "guard": {
+          "sha256": "80cbe3750b5baf029bd046de065fdf539b9b6c6773a8f3d9ede1d6cf98a179ce",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m0\\guard.json"
+        },
+        "canary": {
+          "sha256": "4a89e773be0e4d9b9f2dab44a986763af6438f9043a6ae1752c8e313037efff5",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m0\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "script",
+      "start": "2026-10-10T07:02:08.649131-06:00",
+      "nativePids": [
+        11956,
+        8520,
+        26204,
+        27236,
+        27480
+      ],
+      "records": [
+        {
+          "schemaVersion": 1,
+          "recordId": "38d21d18-cbf0-4649-acaa-aaca321f90d8",
+          "auditStreamId": "2bd41568-d263-4657-8c0f-82a2a34f740b",
+          "auditSequence": 2,
+          "timestamp": "2026-10-10T07:02:10.2454714-06:00",
+          "kind": "policy",
+          "sessionId": "bws_df788a22846948b4b93b3cc6dec4e02a",
+          "turnId": null,
+          "operationId": "host-observation-8e6bab85fd494dfe8de92f87807f979a",
+          "toolCallId": null,
+          "agentId": null,
+          "tool": "ExternalProtocolGuard",
+          "origin": "application",
+          "data": {
+            "decision": "DENY",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "action": "external_protocol_launch",
+            "resource": "nova-aw8-guard-8e5f3dc6014b4fb3a1516724e295b415:",
+            "outcome": "DENIED_PRE_EFFECT",
+            "effectState": "none",
+            "retryAllowed": false,
+            "observationScope": {
+              "domain": "ACTIVE_WEB",
+              "browserSessionRef": "bws_df788a22846948b4b93b3cc6dec4e02a",
+              "pageRef": "bwp_a127e678c40744c888f277e581ff434f",
+              "browserContextEpoch": 1,
+              "hostInstanceRef": "bhi_8090d563ea834ba0ac532514ef4ab523",
+              "installationSequence": 1,
+              "eventSequence": 2,
+              "scheme": "nova-aw8-guard-8e5f3dc6014b4fb3a1516724e295b415",
+              "initiatingOrigin": null,
+              "userGesture": false,
+              "cancel": true,
+              "authority": "NONE"
+            }
+          }
+        }
+      ],
+      "runtime": "154.0.4258.62"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:12.618645-06:00",
+      "hostPid": 3908,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_fb0b9c3aff42456c9048eb5bf3a60110",
+        "hostInstanceRef": "bhi_a27b6d1deb334e9abb0cea680155f877",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "HOST_PRE_EFFECT_DENY",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_d9a5aa44cca84f8fb9a62ca0a667796e",
+            "sequence": 1
+          }
+        ],
+        "receipts": [
+          {
+            "sequence": 2,
+            "recordId": "0a1e8c02-628e-4368-be0e-2f5a620efe54",
+            "pageRef": "bwp_d9a5aa44cca84f8fb9a62ca0a667796e",
+            "cancel": true,
+            "outcome": "DENIED_PRE_EFFECT",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "durable": true
+          }
+        ]
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "GUARD_VERIFIED_BEFORE_CONTENT",
+        "CONTROLLED_CONTENT_LOADED",
+        "NATIVE_MOUSE_CLICK"
+      ],
+      "positiveControl": [
+        27312
+      ],
+      "scheme": "nova-aw8-guard-712054030e984ca8ac4fd8edc0a74e30",
+      "raw": {
+        "guard": {
+          "sha256": "89225968f3e870a1936579305eaf984551a9eda8d09cb8f234be16bded290f8d",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m1\\guard.json"
+        },
+        "canary": {
+          "sha256": "65ffeeb87a947d7d1e5101279f9c7ba9552f463bb1a72169f2f6d9ed3028e2f1",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m1\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "click",
+      "start": "2026-10-10T07:02:11.151662-06:00",
+      "nativePids": [
+        12960,
+        13760,
+        15652,
+        19856,
+        21552
+      ],
+      "records": [
+        {
+          "schemaVersion": 1,
+          "recordId": "0a1e8c02-628e-4368-be0e-2f5a620efe54",
+          "auditStreamId": "9403c49b-7978-43e3-beec-14791bdc5a03",
+          "auditSequence": 2,
+          "timestamp": "2026-10-10T07:02:12.1296762-06:00",
+          "kind": "policy",
+          "sessionId": "bws_fb0b9c3aff42456c9048eb5bf3a60110",
+          "turnId": null,
+          "operationId": "host-observation-a85f6c0435044f62aa5c74905f31c502",
+          "toolCallId": null,
+          "agentId": null,
+          "tool": "ExternalProtocolGuard",
+          "origin": "application",
+          "data": {
+            "decision": "DENY",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "action": "external_protocol_launch",
+            "resource": "nova-aw8-guard-712054030e984ca8ac4fd8edc0a74e30:",
+            "outcome": "DENIED_PRE_EFFECT",
+            "effectState": "none",
+            "retryAllowed": false,
+            "observationScope": {
+              "domain": "ACTIVE_WEB",
+              "browserSessionRef": "bws_fb0b9c3aff42456c9048eb5bf3a60110",
+              "pageRef": "bwp_d9a5aa44cca84f8fb9a62ca0a667796e",
+              "browserContextEpoch": 1,
+              "hostInstanceRef": "bhi_a27b6d1deb334e9abb0cea680155f877",
+              "installationSequence": 1,
+              "eventSequence": 2,
+              "scheme": "nova-aw8-guard-712054030e984ca8ac4fd8edc0a74e30",
+              "initiatingOrigin": null,
+              "userGesture": true,
+              "cancel": true,
+              "authority": "NONE"
+            }
+          }
+        }
+      ],
+      "runtime": "154.0.4258.62"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:28.73688-06:00",
+      "hostPid": 26300,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_e9de03f0f5694bf29d05a376d445b44f",
+        "hostInstanceRef": "bhi_c97c985da067463fb3a575b372715906",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "UNKNOWN",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_b71001df04744bd8a32a1dcd980401ed",
+            "sequence": 1
+          }
+        ],
+        "receipts": []
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "LOST_GUARD_INVALIDATED"
+      ],
+      "positiveControl": [
+        7124
+      ],
+      "scheme": "nova-aw8-guard-b425728105ba45ee81a0dd4c4bd86a57",
+      "raw": {
+        "guard": {
+          "sha256": "a777e0ecb122a3ec17639cd9b389a4e7136541330afd551f3763e155e72ef744",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m10\\guard.json"
+        },
+        "canary": {
+          "sha256": "ba58d87c607cf953c9193db3313584c5c2cba69786cb52bc516a96d4ad35e9c6",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m10\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "lost-guard",
+      "start": "2026-10-10T07:02:27.8921-06:00",
+      "nativePids": [
+        16560
+      ],
+      "records": [],
+      "runtime": "failed-after-real-control"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:30.113231-06:00",
+      "hostPid": 7972,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_2c8a7f9f779d420ea2c6713893343311",
+        "hostInstanceRef": "bhi_39aa8b02b3034c0b838540e15298cf0f",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "UNKNOWN",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_19530e32edc8400b9c04f48cfb992024",
+            "sequence": 1
+          }
+        ],
+        "receipts": []
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "LOST_GUARD_INVALIDATED"
+      ],
+      "positiveControl": [
+        2260
+      ],
+      "scheme": "nova-aw8-guard-6dea994a00a74f8b863b2376b6247669",
+      "raw": {
+        "guard": {
+          "sha256": "22ced34b41ad26b903ee5d349fedb73eca5a617eed61144ed616bc27c4840ab8",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m11\\guard.json"
+        },
+        "canary": {
+          "sha256": "f15e9e66da5bc7820350fb600091ca43e55e6e2eeadb5764c3daf0c775044537",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m11\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "unexpected-dispose",
+      "start": "2026-10-10T07:02:29.237988-06:00",
+      "nativePids": [
+        6784
+      ],
+      "records": [],
+      "runtime": "failed-after-real-control"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:14.639086-06:00",
+      "hostPid": 24696,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_3e0072ca82e5480fa0d76aecb37266f1",
+        "hostInstanceRef": "bhi_11ffdab221b14c9d9f8cf515a23f9c70",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "HOST_PRE_EFFECT_DENY",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_83a7a4132f1142c18190bc21af92fa6c",
+            "sequence": 1
+          }
+        ],
+        "receipts": [
+          {
+            "sequence": 2,
+            "recordId": "1d9c804c-28c7-4931-9e72-bb4e99a8867c",
+            "pageRef": "bwp_83a7a4132f1142c18190bc21af92fa6c",
+            "cancel": true,
+            "outcome": "DENIED_PRE_EFFECT",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "durable": true
+          }
+        ]
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "GUARD_VERIFIED_BEFORE_CONTENT",
+        "CONTROLLED_CONTENT_LOADED"
+      ],
+      "positiveControl": [
+        7480
+      ],
+      "scheme": "nova-aw8-guard-f98f027ae77c4718a8377ec2725213a2",
+      "raw": {
+        "guard": {
+          "sha256": "231e71fe95ea500799010dd5c36fcfb795c648d10dca019239920ab51705a45c",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m2\\guard.json"
+        },
+        "canary": {
+          "sha256": "1748f597b403947228848eb32d3058e4ae8cdc12f6a5b87da8be80e618b7999d",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m2\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "mailto",
+      "start": "2026-10-10T07:02:13.14942-06:00",
+      "nativePids": [
+        16856,
+        2416,
+        8788,
+        19104,
+        23776
+      ],
+      "records": [
+        {
+          "schemaVersion": 1,
+          "recordId": "1d9c804c-28c7-4931-9e72-bb4e99a8867c",
+          "auditStreamId": "6fb22955-3b7b-44c3-ae17-a5b199cd5b81",
+          "auditSequence": 2,
+          "timestamp": "2026-10-10T07:02:14.2437877-06:00",
+          "kind": "policy",
+          "sessionId": "bws_3e0072ca82e5480fa0d76aecb37266f1",
+          "turnId": null,
+          "operationId": "host-observation-821a5f72bf2846779e82eb940a8ebbe9",
+          "toolCallId": null,
+          "agentId": null,
+          "tool": "ExternalProtocolGuard",
+          "origin": "application",
+          "data": {
+            "decision": "DENY",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "action": "external_protocol_launch",
+            "resource": "mailto:",
+            "outcome": "DENIED_PRE_EFFECT",
+            "effectState": "none",
+            "retryAllowed": false,
+            "observationScope": {
+              "domain": "ACTIVE_WEB",
+              "browserSessionRef": "bws_3e0072ca82e5480fa0d76aecb37266f1",
+              "pageRef": "bwp_83a7a4132f1142c18190bc21af92fa6c",
+              "browserContextEpoch": 1,
+              "hostInstanceRef": "bhi_11ffdab221b14c9d9f8cf515a23f9c70",
+              "installationSequence": 1,
+              "eventSequence": 2,
+              "scheme": "mailto",
+              "initiatingOrigin": null,
+              "userGesture": false,
+              "cancel": true,
+              "authority": "NONE"
+            }
+          }
+        }
+      ],
+      "runtime": "154.0.4258.62"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:16.5703-06:00",
+      "hostPid": 17964,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_006af2a8bc3c47a28b6099a32fe26e4b",
+        "hostInstanceRef": "bhi_6a31b32b7b734d35979d181608aeab45",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "HOST_PRE_EFFECT_DENY",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_9a04d99a36a94faf9a28ebcfa2d42098",
+            "sequence": 1
+          }
+        ],
+        "receipts": [
+          {
+            "sequence": 2,
+            "recordId": "2f81b2b2-c27a-4178-9459-1bb2f9af8837",
+            "pageRef": "bwp_9a04d99a36a94faf9a28ebcfa2d42098",
+            "cancel": true,
+            "outcome": "DENIED_PRE_EFFECT",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "durable": true
+          }
+        ]
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "GUARD_VERIFIED_BEFORE_CONTENT",
+        "CONTROLLED_CONTENT_LOADED",
+        "NATIVE_MOUSE_CLICK"
+      ],
+      "positiveControl": [
+        16052
+      ],
+      "scheme": "nova-aw8-guard-e1469b467a9d42e98e9e79ef9777c9d6",
+      "raw": {
+        "guard": {
+          "sha256": "c39284bc905911d6b5651cce46675a793264f92f9eab02a18005675330a58642",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m3\\guard.json"
+        },
+        "canary": {
+          "sha256": "07f2afa94a6aa98cdcbd14e6a93be2b72d9cf57f2cb0d8465d421a001274622d",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m3\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "frame",
+      "start": "2026-10-10T07:02:15.115795-06:00",
+      "nativePids": [
+        27592,
+        3656,
+        12664,
+        16436,
+        27140
+      ],
+      "records": [
+        {
+          "schemaVersion": 1,
+          "recordId": "2f81b2b2-c27a-4178-9459-1bb2f9af8837",
+          "auditStreamId": "24f98db8-5e20-473d-b010-02115cf7ba9d",
+          "auditSequence": 2,
+          "timestamp": "2026-10-10T07:02:16.0842883-06:00",
+          "kind": "policy",
+          "sessionId": "bws_006af2a8bc3c47a28b6099a32fe26e4b",
+          "turnId": null,
+          "operationId": "host-observation-72afdf15be5447d79add97bf265efe38",
+          "toolCallId": null,
+          "agentId": null,
+          "tool": "ExternalProtocolGuard",
+          "origin": "application",
+          "data": {
+            "decision": "DENY",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "action": "external_protocol_launch",
+            "resource": "nova-aw8-guard-e1469b467a9d42e98e9e79ef9777c9d6:",
+            "outcome": "DENIED_PRE_EFFECT",
+            "effectState": "none",
+            "retryAllowed": false,
+            "observationScope": {
+              "domain": "ACTIVE_WEB",
+              "browserSessionRef": "bws_006af2a8bc3c47a28b6099a32fe26e4b",
+              "pageRef": "bwp_9a04d99a36a94faf9a28ebcfa2d42098",
+              "browserContextEpoch": 1,
+              "hostInstanceRef": "bhi_6a31b32b7b734d35979d181608aeab45",
+              "installationSequence": 1,
+              "eventSequence": 2,
+              "scheme": "nova-aw8-guard-e1469b467a9d42e98e9e79ef9777c9d6",
+              "initiatingOrigin": null,
+              "userGesture": true,
+              "cancel": true,
+              "authority": "NONE"
+            }
+          }
+        }
+      ],
+      "runtime": "154.0.4258.62"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:18.6509-06:00",
+      "hostPid": 7428,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_1bdf25632201498aac80f0c163c833cd",
+        "hostInstanceRef": "bhi_61c2e8fa3d604410aad092e49e8eaa3b",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "HOST_PRE_EFFECT_DENY",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_9fb9ce3fdb024210833a097d96153749",
+            "sequence": 1
+          }
+        ],
+        "receipts": [
+          {
+            "sequence": 2,
+            "recordId": "e47a823e-d840-43c4-a547-585cd68644f4",
+            "pageRef": "bwp_9fb9ce3fdb024210833a097d96153749",
+            "cancel": true,
+            "outcome": "DENIED_PRE_EFFECT",
+            "reason": "POPUP_DENIED_PRE_EFFECT",
+            "durable": true
+          }
+        ]
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "GUARD_VERIFIED_BEFORE_CONTENT",
+        "CONTROLLED_CONTENT_LOADED"
+      ],
+      "positiveControl": [
+        5248
+      ],
+      "scheme": "nova-aw8-guard-56e288d1126244fa8953ce12dd8a0164",
+      "raw": {
+        "guard": {
+          "sha256": "f304532776f71d21e1e638f2ad064745b7c7d3a04996bfac6707b6f6543388ee",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m4\\guard.json"
+        },
+        "canary": {
+          "sha256": "5546c297d06fb1b4214972deb8d961969aa6d770ec7d8744a4d552c88d6e4191",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m4\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "popup",
+      "start": "2026-10-10T07:02:17.098623-06:00",
+      "nativePids": [
+        21748,
+        3680,
+        7740,
+        10920,
+        18588
+      ],
+      "records": [
+        {
+          "schemaVersion": 1,
+          "recordId": "e47a823e-d840-43c4-a547-585cd68644f4",
+          "auditStreamId": "289118f9-e94b-4b28-b089-8536a358b557",
+          "auditSequence": 2,
+          "timestamp": "2026-10-10T07:02:18.2341304-06:00",
+          "kind": "policy",
+          "sessionId": "bws_1bdf25632201498aac80f0c163c833cd",
+          "turnId": null,
+          "operationId": "host-observation-d6e4574fdfe14d849e08272a3c553ac7",
+          "toolCallId": null,
+          "agentId": null,
+          "tool": "ExternalProtocolGuard",
+          "origin": "application",
+          "data": {
+            "decision": "DENY",
+            "reason": "POPUP_DENIED_PRE_EFFECT",
+            "action": "external_protocol_launch",
+            "resource": "nova-aw8-guard-56e288d1126244fa8953ce12dd8a0164:",
+            "outcome": "DENIED_PRE_EFFECT",
+            "effectState": "none",
+            "retryAllowed": false,
+            "observationScope": {
+              "domain": "ACTIVE_WEB",
+              "browserSessionRef": "bws_1bdf25632201498aac80f0c163c833cd",
+              "pageRef": "bwp_9fb9ce3fdb024210833a097d96153749",
+              "browserContextEpoch": 1,
+              "hostInstanceRef": "bhi_61c2e8fa3d604410aad092e49e8eaa3b",
+              "installationSequence": 1,
+              "eventSequence": 2,
+              "scheme": "nova-aw8-guard-56e288d1126244fa8953ce12dd8a0164",
+              "initiatingOrigin": null,
+              "userGesture": false,
+              "cancel": true,
+              "authority": "NONE"
+            }
+          }
+        }
+      ],
+      "runtime": "154.0.4258.62"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:20.702856-06:00",
+      "hostPid": 12784,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_b5a621499a7248b697bcce232666e413",
+        "hostInstanceRef": "bhi_38c72d16fd144bc6baad9c496276e3f1",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "HOST_PRE_EFFECT_DENY",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_01b968693c6d4e56bdc737831328befa",
+            "sequence": 1
+          },
+          {
+            "pageRef": "bwp_8abdfec1908c4651a30337d0ecfcc4ef",
+            "sequence": 2
+          }
+        ],
+        "receipts": [
+          {
+            "sequence": 3,
+            "recordId": "ac51f95c-e506-4d89-a1c7-b1585247a0f7",
+            "pageRef": "bwp_8abdfec1908c4651a30337d0ecfcc4ef",
+            "cancel": true,
+            "outcome": "DENIED_PRE_EFFECT",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "durable": true
+          },
+          {
+            "sequence": 4,
+            "recordId": "f3a39e39-f813-4b9b-97ae-afd457c1167b",
+            "pageRef": "bwp_01b968693c6d4e56bdc737831328befa",
+            "cancel": true,
+            "outcome": "DENIED_PRE_EFFECT",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "durable": true
+          }
+        ]
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "SECONDARY_GUARD_INSTALLED",
+        "GUARD_VERIFIED_BEFORE_CONTENT",
+        "CONTROLLED_CONTENT_LOADED"
+      ],
+      "positiveControl": [
+        2144
+      ],
+      "scheme": "nova-aw8-guard-9d5e4c85d64945ac94e0022721a38cc2",
+      "raw": {
+        "guard": {
+          "sha256": "87e616e4ba0a496d5325a84ad3948cc590a3bfe9951b59da9a50c46914300eb8",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m5\\guard.json"
+        },
+        "canary": {
+          "sha256": "c305f66db3b9756f4554cb3ac2e1a877912ec0957369ae99ea9237b891b6a756",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m5\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "secondary",
+      "start": "2026-10-10T07:02:19.154635-06:00",
+      "nativePids": [
+        12420,
+        10276,
+        10328,
+        11956,
+        13564,
+        27532
+      ],
+      "records": [
+        {
+          "schemaVersion": 1,
+          "recordId": "ac51f95c-e506-4d89-a1c7-b1585247a0f7",
+          "auditStreamId": "fcee4313-e074-44ce-b527-7446428cfb7c",
+          "auditSequence": 3,
+          "timestamp": "2026-10-10T07:02:20.2571586-06:00",
+          "kind": "policy",
+          "sessionId": "bws_b5a621499a7248b697bcce232666e413",
+          "turnId": null,
+          "operationId": "host-observation-6f49e6fa9e5a4ea186aa6611c8223d69",
+          "toolCallId": null,
+          "agentId": null,
+          "tool": "ExternalProtocolGuard",
+          "origin": "application",
+          "data": {
+            "decision": "DENY",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "action": "external_protocol_launch",
+            "resource": "nova-aw8-guard-9d5e4c85d64945ac94e0022721a38cc2:",
+            "outcome": "DENIED_PRE_EFFECT",
+            "effectState": "none",
+            "retryAllowed": false,
+            "observationScope": {
+              "domain": "ACTIVE_WEB",
+              "browserSessionRef": "bws_b5a621499a7248b697bcce232666e413",
+              "pageRef": "bwp_8abdfec1908c4651a30337d0ecfcc4ef",
+              "browserContextEpoch": 1,
+              "hostInstanceRef": "bhi_38c72d16fd144bc6baad9c496276e3f1",
+              "installationSequence": 2,
+              "eventSequence": 3,
+              "scheme": "nova-aw8-guard-9d5e4c85d64945ac94e0022721a38cc2",
+              "initiatingOrigin": null,
+              "userGesture": false,
+              "cancel": true,
+              "authority": "NONE"
+            }
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "recordId": "f3a39e39-f813-4b9b-97ae-afd457c1167b",
+          "auditStreamId": "fcee4313-e074-44ce-b527-7446428cfb7c",
+          "auditSequence": 4,
+          "timestamp": "2026-10-10T07:02:20.2674789-06:00",
+          "kind": "policy",
+          "sessionId": "bws_b5a621499a7248b697bcce232666e413",
+          "turnId": null,
+          "operationId": "host-observation-81bcafe3d5b34da6b49fd490ae691a3b",
+          "toolCallId": null,
+          "agentId": null,
+          "tool": "ExternalProtocolGuard",
+          "origin": "application",
+          "data": {
+            "decision": "DENY",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "action": "external_protocol_launch",
+            "resource": "nova-aw8-guard-9d5e4c85d64945ac94e0022721a38cc2:",
+            "outcome": "DENIED_PRE_EFFECT",
+            "effectState": "none",
+            "retryAllowed": false,
+            "observationScope": {
+              "domain": "ACTIVE_WEB",
+              "browserSessionRef": "bws_b5a621499a7248b697bcce232666e413",
+              "pageRef": "bwp_01b968693c6d4e56bdc737831328befa",
+              "browserContextEpoch": 1,
+              "hostInstanceRef": "bhi_38c72d16fd144bc6baad9c496276e3f1",
+              "installationSequence": 1,
+              "eventSequence": 4,
+              "scheme": "nova-aw8-guard-9d5e4c85d64945ac94e0022721a38cc2",
+              "initiatingOrigin": null,
+              "userGesture": false,
+              "cancel": true,
+              "authority": "NONE"
+            }
+          }
+        }
+      ],
+      "runtime": "154.0.4258.62"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:22.701037-06:00",
+      "hostPid": 8272,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_a51bf33a9a3a4717b287d3914a9c039d",
+        "hostInstanceRef": "bhi_14e38a5a01354e59985e17d5d030b6e1",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "HOST_PRE_EFFECT_DENY",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_68a14111ac5c48bdb9716563a6a63a93",
+            "sequence": 1
+          }
+        ],
+        "receipts": [
+          {
+            "sequence": 2,
+            "recordId": "46e8d383-6d04-40a0-91e5-21da15636c70",
+            "pageRef": "bwp_68a14111ac5c48bdb9716563a6a63a93",
+            "cancel": true,
+            "outcome": "DENIED_PRE_EFFECT",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "durable": true
+          }
+        ]
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "GUARD_VERIFIED_BEFORE_CONTENT",
+        "CONTROLLED_CONTENT_LOADED",
+        "HUMAN_INTERACTION_EQUIVALENT_WHILE_GUARD_INSTALLED"
+      ],
+      "positiveControl": [
+        24116
+      ],
+      "scheme": "nova-aw8-guard-788cadd8808d44fbb46d3bbf808c133b",
+      "raw": {
+        "guard": {
+          "sha256": "51fdb6063c96988cf10ea8520854a0f671e1847a2fc66d3cc41fcd9247a43610",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m6\\guard.json"
+        },
+        "canary": {
+          "sha256": "293d87796713297a77010f454579d45f28bdf76d70919357b87d7fed4acf1f6c",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m6\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "takeover",
+      "start": "2026-10-10T07:02:21.229776-06:00",
+      "nativePids": [
+        24664,
+        10100,
+        16176,
+        17956,
+        23620
+      ],
+      "records": [
+        {
+          "schemaVersion": 1,
+          "recordId": "46e8d383-6d04-40a0-91e5-21da15636c70",
+          "auditStreamId": "d0cc0a28-8bb6-4ecc-bb07-a35fa63dd184",
+          "auditSequence": 2,
+          "timestamp": "2026-10-10T07:02:22.20146-06:00",
+          "kind": "policy",
+          "sessionId": "bws_a51bf33a9a3a4717b287d3914a9c039d",
+          "turnId": null,
+          "operationId": "host-observation-74bba585fb0c4eb29319696f67ff090c",
+          "toolCallId": null,
+          "agentId": null,
+          "tool": "ExternalProtocolGuard",
+          "origin": "application",
+          "data": {
+            "decision": "DENY",
+            "reason": "EXTERNAL_PROTOCOL_GUARD_DENIAL",
+            "action": "external_protocol_launch",
+            "resource": "nova-aw8-guard-788cadd8808d44fbb46d3bbf808c133b:",
+            "outcome": "DENIED_PRE_EFFECT",
+            "effectState": "none",
+            "retryAllowed": false,
+            "observationScope": {
+              "domain": "ACTIVE_WEB",
+              "browserSessionRef": "bws_a51bf33a9a3a4717b287d3914a9c039d",
+              "pageRef": "bwp_68a14111ac5c48bdb9716563a6a63a93",
+              "browserContextEpoch": 1,
+              "hostInstanceRef": "bhi_14e38a5a01354e59985e17d5d030b6e1",
+              "installationSequence": 1,
+              "eventSequence": 2,
+              "scheme": "nova-aw8-guard-788cadd8808d44fbb46d3bbf808c133b",
+              "initiatingOrigin": null,
+              "userGesture": true,
+              "cancel": true,
+              "authority": "NONE"
+            }
+          }
+        }
+      ],
+      "runtime": "154.0.4258.62"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:24.596742-06:00",
+      "hostPid": 17544,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_232a70bfb5ac4192b1ce6ef7f1447376",
+        "hostInstanceRef": "bhi_6081be9bdf0647bab7a010bbb7ebff81",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "UNKNOWN",
+        "auditGap": true,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_9acb2644d8c547f8b301c8ff4dba771e",
+            "sequence": 1
+          }
+        ],
+        "receipts": [
+          {
+            "sequence": 2,
+            "recordId": null,
+            "pageRef": "bwp_9acb2644d8c547f8b301c8ff4dba771e",
+            "cancel": true,
+            "outcome": "DENIED_PRE_EFFECT",
+            "reason": "GUARD_AUDIT_DELIVERY_FAILED",
+            "durable": false
+          }
+        ]
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED",
+        "GUARD_VERIFIED_BEFORE_CONTENT",
+        "CONTROLLED_CONTENT_LOADED"
+      ],
+      "positiveControl": [
+        18404
+      ],
+      "scheme": "nova-aw8-guard-7305a52355bb4ee7be578dbf9e67f367",
+      "raw": {
+        "guard": {
+          "sha256": "299491624606ba3a4251ceabc28378dfc79b599618796273941a11fc7d5f223a",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m7\\guard.json"
+        },
+        "canary": {
+          "sha256": "c5d204e3438f3ecf31d82552ad506cfdae5126b11f40e23a15f087f3a74ffd1f",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m7\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "audit-failure",
+      "start": "2026-10-10T07:02:23.232838-06:00",
+      "nativePids": [
+        24280
+      ],
+      "records": [],
+      "runtime": "failed-after-real-control"
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:25.934638-06:00",
+      "hostPid": null,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_e2f7e954e01b47dd8cd49efa6b4252c7",
+        "hostInstanceRef": "bhi_b99d4d9eb8bb478881897c5c1f6b9a09",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "UNKNOWN",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [],
+        "receipts": []
+      },
+      "stages": [
+        "SESSION_CREATED"
+      ],
+      "positiveControl": [
+        3036
+      ],
+      "scheme": "nova-aw8-guard-ca670256b832447b98da5bff4fe0e4a5",
+      "raw": {
+        "guard": {
+          "sha256": "37cd865be165f0c8d127f8af0ddee8cc69cc7c130faa3efc2eb42078343b8135",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m8\\guard.json"
+        },
+        "canary": {
+          "sha256": "38a8321c0c933fb5d57b29e43e93cb8479a50ff53407f9aa27a72506b931e4f1",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m8\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "registration-failure",
+      "start": "2026-10-10T07:02:25.096795-06:00",
+      "nativePids": null,
+      "records": [],
+      "runtime": null
+    },
+    {
+      "launches": [],
+      "end": "2026-10-10T07:02:27.390277-06:00",
+      "hostPid": null,
+      "metadata": {
+        "kind": "guard_metadata",
+        "browserSessionRef": "bws_cec2fdeb83004ab4984b7fd47a2ff149",
+        "hostInstanceRef": "bhi_e32e977b9834469997a8cc6757e99eec",
+        "contextEpoch": 1,
+        "externalProtocolGuard": "UNKNOWN",
+        "auditGap": false,
+        "policy": "DENY_ALL",
+        "popupPolicy": "DENY_ALL",
+        "installations": [
+          {
+            "pageRef": "bwp_a5020986466a443faf71a74a307c8c07",
+            "sequence": 1
+          }
+        ],
+        "receipts": []
+      },
+      "stages": [
+        "SESSION_CREATED",
+        "CONTROL_CREATED_GUARD_INSTALLED"
+      ],
+      "positiveControl": [
+        27260
+      ],
+      "scheme": "nova-aw8-guard-8f1c49f747154b8899bfbff1eadd532b",
+      "raw": {
+        "guard": {
+          "sha256": "9dbef2a978025042351df56e4733cb0bbef18189c592d2e3787edae597d06f54",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m9\\guard.json"
+        },
+        "canary": {
+          "sha256": "71a65a9aba98f828775fc502b258647b332bfd36c35402199e213d6e0b09fe5b",
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-wv2-03-final-private\\test_registered_guard_native_m9\\canary.json"
+        }
+      },
+      "cleanup": true,
+      "sentinelAbsent": true,
+      "mode": "secondary-failure",
+      "start": "2026-10-10T07:02:26.460261-06:00",
+      "nativePids": null,
+      "records": [],
+      "runtime": null
+    }
+  ],
+  "classification": {
+    "registeredProtocolPositiveControls": 12,
+    "registeredHandlerExecutionsInGuardWindows": 0,
+    "sentinelAbsent": 12,
+    "registryCleanupConfirmed": 12,
+    "realReceipts": 9,
+    "durableDeniedReceipts": 8,
+    "auditGapReceipts": 1,
+    "selectedEngineInternalDenials": 0,
+    "popupStrategy": "DENY_ALL; no creation-failure route exists; secondary control guard failure tested",
+    "takeoverEvidence": "Visible owned real controller + native WM mouse gesture; event userGesture=true. Proves guard retention during human-equivalent interaction, not full future Application takeover capability."
+  },
+  "faultEvidence": "Native launch+injected failing IGuardAudit; real environment with injected installation failure; real revoke and unexpected disposal. Injection is test-only/internal, never IPC/bootstrap options.",
+  "negativeIPC": "v3 only adds read-only guard_metadata; v1/v2 codecs unchanged; no JS/URI/allow/remove/takeover commands; owned host crash/disconnect tested",
+  "registeredCanary": {
+    "authorization": "Current user request §4 expressly permits reversible harness-only registered benign protocol",
+    "hive": "HKCU",
+    "pattern": "Software/Classes/nova-aw8-guard-<uuid>",
+    "values": [
+      "(default)=URL: Nova benign certification canary",
+      "URL Protocol=''",
+      "shell/open/command=(owned certification EXE) --canary (sentinel) %1"
+    ],
+    "positiveControl": "Deliberate Windows association launch before each measurement, PID preserved separately; never counted as guard launch",
+    "cleanup": "Exact new leaf checked and deleted bottom-up; no user handlers/global policies changed; raw command only in external private harness evidence"
+  },
+  "leftoverRegistry": [],
+  "remainingOwnedEngines": [],
+  "processAndBuildHashes": {
+    "C:/Users/joseh/AppData/Local/Temp/nova-wv2-03-final-private/host-build0/build.txt": "378d9f5643ddbd81a1120062fe23596ddd645d7e8be8c87dad54e2c5df6532c7",
+    "C:/Users/joseh/AppData/Local/Temp/nova-wv2-03-jsonl-diagnostic/tests.xml": "a8b9420479edb891abf5c7c0604af54f300d57e82bf3d878c438bb4f1cfd7a8b",
+    "C:/Users/joseh/AppData/Local/Temp/nova-wv2-03-final-private/guard-runner-build0/bin/nova-browser-host-contract-tests.dll": "10cd7755d46189553cca3fabb23450ee2aeebeb29b1574c13fd8ef54e565afd0",
+    "C:/Users/joseh/AppData/Local/Temp/nova-wv2-03-final-private/guard-runner-build0/bin/nova-browser-host-contract-tests.exe": "13d89eba167a56efc4fc9f33b6e026d6d70727621e8d2215bd8162262a798d74",
+    "C:/Program Files (x86)/Microsoft/EdgeWebView/Application/154.0.4258.62/msedgewebview2.exe": "7e941ccb324fd87c849dca6356079e65a31ff264b8b5b37cc43d055b2764b9b3",
+    "C:/Users/joseh/AppData/Local/Temp/nova-wv2-03-final-private/host-build0/bin/nova-browser-host.dll": "892a246a98a0c1c4668f98d078cf08f9aec95edb1dca3baff27e2ebe32f28b45",
+    "C:/Users/joseh/AppData/Local/Temp/nova-wv2-03-final-private/host-build0/bin/Microsoft.Web.WebView2.Core.dll": "d60e6e94245078cb56e44ebd5f360dc04bf18e460136be93bfc4cfca43b98505",
+    "C:/Users/joseh/AppData/Local/Temp/nova-wv2-03-desktop.tap": "9f3c92c5497d354e4b12477ce4598f263353f682c81d2e3b45462a5fc3aabd55"
+  },
+  "capability": {
+    "scope": "block engine evidence only, NOT productive snapshot v2",
+    "externalProtocolGuard": "KNOWN / HOST_PRE_EFFECT_DENY",
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN"
+  },
+  "limits": [
+    "No public navigation",
+    "No network certification",
+    "No full observations/actions/refs/transfers/takeover implementation",
+    "No arbitrary WebMessage/host-object bridge",
+    "Not an OS sandbox"
+  ]
+}

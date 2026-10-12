@@ -1,0 +1,217 @@
+name: Nova Web V1.2 current regression
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      exact_native_regression:
+        description: Run configured exact-profile Windows regression (not certification or release)
+        type: boolean
+        required: false
+        default: false
+      public_ipv6:
+        description: Already assigned owned global IPv6 for the controlled DNS/TLS fixture
+        type: string
+        required: false
+      openssl_executable:
+        description: Absolute installed OpenSSL path for the process-scoped fixture
+        type: string
+        required: false
+
+permissions:
+  contents: read
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD: '1'
+
+jobs:
+  required-web-v12:
+    name: Web V1.2 required ordinary regression
+    if: always()
+    needs: [portable-contracts, windows-product-contracts, windows-adapter-smoke]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Require every ordinary V1.2 gate; manual profile is independent
+        env:
+          PORTABLE_RESULT: ${{ needs.portable-contracts.result }}
+          WINDOWS_RESULT: ${{ needs.windows-product-contracts.result }}
+          ADAPTER_RESULT: ${{ needs.windows-adapter-smoke.result }}
+        run: |
+          test "$PORTABLE_RESULT" = success
+          test "$WINDOWS_RESULT" = success
+          test "$ADAPTER_RESULT" = success
+
+  portable-contracts:
+    name: Web V1.2 portable contracts (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '2'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.6'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - name: Complete classification and positive portable execution
+        run: python -B ci/run_contracts.py --job web-v12 --output "${{ runner.temp }}/nova-web-v12-portable"
+      - name: Preserve contract diagnostics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-v12-portable-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/nova-web-v12-portable/public/run.json
+            ${{ runner.temp }}/nova-web-v12-portable/public/selection.json
+            ${{ runner.temp }}/nova-web-v12-portable/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-web-v12-portable/public/tests.xml
+            ${{ runner.temp }}/nova-web-v12-portable/public/pytest.log
+          if-no-files-found: error
+
+  windows-product-contracts:
+    name: Web V1.2 Windows product contracts
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '2'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.6'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - run: npm ci --prefix desktop
+      - name: Actual product-root contracts without a browser engine
+        run: python -B ci/run_contracts.py --job web-v12-windows --output "${{ runner.temp }}/nova-web-v12-windows"
+      - name: Preserve product contract diagnostics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-v12-windows-product
+          path: |
+            ${{ runner.temp }}/nova-web-v12-windows/public/run.json
+            ${{ runner.temp }}/nova-web-v12-windows/public/selection.json
+            ${{ runner.temp }}/nova-web-v12-windows/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-web-v12-windows/public/tests.xml
+            ${{ runner.temp }}/nova-web-v12-windows/public/pytest.log
+          if-no-files-found: error
+
+  windows-adapter-smoke:
+    name: Web V1.2 Windows host contracts and adapter smoke (not certification)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '2'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.6'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.203'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - name: Acquire only the exact pinned official WebView2 SDK
+        shell: pwsh
+        env:
+          NOVA_WEBVIEW2_SDK_FEED: ${{ runner.temp }}/nova-webview2-sdk-feed
+        run: |
+          New-Item -ItemType Directory -Path $env:NOVA_WEBVIEW2_SDK_FEED -Force | Out-Null
+          $packagePath = Join-Path $env:NOVA_WEBVIEW2_SDK_FEED 'microsoft.web.webview2.1.0.4258.31.nupkg'
+          Invoke-WebRequest -Uri 'https://api.nuget.org/v3-flatcontainer/microsoft.web.webview2/1.0.4258.31/microsoft.web.webview2.1.0.4258.31.nupkg' -OutFile $packagePath
+          if ((Get-FileHash -LiteralPath $packagePath -Algorithm SHA256).Hash -ne '56F7F4B8BF9AEE4B8EFEFBBDD4F67D5F74EBD1B100ED0806DA71BF76AF481AA9') { throw 'WEBVIEW2_SDK_IDENTITY_MISMATCH' }
+      - name: Host fault mapping and real WebView2 smoke; missing prerequisites fail
+        env:
+          NOVA_WEBVIEW2_SDK_FEED: ${{ runner.temp }}/nova-webview2-sdk-feed
+        run: python -B ci/run_contracts.py --job web-v12-windows-native --output "${{ runner.temp }}/nova-web-v12-windows-native"
+      - name: Preserve regression diagnostics without UDF or TLS contents
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-v12-windows-adapter-regression
+          path: |
+            ${{ runner.temp }}/nova-web-v12-windows-native/public/run.json
+            ${{ runner.temp }}/nova-web-v12-windows-native/public/selection.json
+            ${{ runner.temp }}/nova-web-v12-windows-native/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-web-v12-windows-native/public/tests.xml
+            ${{ runner.temp }}/nova-web-v12-windows-native/public/pytest.log
+          if-no-files-found: error
+
+  exact-native-manual:
+    name: Exact-profile Windows regression (explicit; never certification)
+    if: github.event_name == 'workflow_dispatch' && inputs.exact_native_regression
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      NOVA_CF_B2_PUBLIC_IPV6: ${{ inputs.public_ipv6 }}
+      NOVA_CF_B2_OPENSSL: ${{ inputs.openssl_executable }}
+      NOVA_CF_B6_PUBLIC_IPV6: ${{ inputs.public_ipv6 }}
+      NOVA_CF_B6_OPENSSL: ${{ inputs.openssl_executable }}
+      NOVA_CF_B2_NATIVE: '1'
+      NOVA_B6_FROZEN_CANDIDATE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '2'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.6'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.203'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - run: npm ci --prefix desktop
+      - name: Acquire exact SDK package without installing a browser engine
+        shell: pwsh
+        env:
+          NOVA_WEBVIEW2_SDK_FEED: ${{ runner.temp }}/nova-exact-webview2-sdk-feed
+        run: |
+          New-Item -ItemType Directory -Path $env:NOVA_WEBVIEW2_SDK_FEED -Force | Out-Null
+          $packagePath = Join-Path $env:NOVA_WEBVIEW2_SDK_FEED 'microsoft.web.webview2.1.0.4258.31.nupkg'
+          Invoke-WebRequest -Uri 'https://api.nuget.org/v3-flatcontainer/microsoft.web.webview2/1.0.4258.31/microsoft.web.webview2.1.0.4258.31.nupkg' -OutFile $packagePath
+          if ((Get-FileHash -LiteralPath $packagePath -Algorithm SHA256).Hash -ne '56F7F4B8BF9AEE4B8EFEFBBDD4F67D5F74EBD1B100ED0806DA71BF76AF481AA9') { throw 'WEBVIEW2_SDK_IDENTITY_MISMATCH' }
+      - name: Validate exact installed prerequisites before positive selection
+        env:
+          NOVA_WEBVIEW2_SDK_FEED: ${{ runner.temp }}/nova-exact-webview2-sdk-feed
+        # Unlike the ordinary adapter smoke this job requires the already
+        # certified profile/topology. A nominal hosted Runtime is insufficient.
+        run: python -B ci/run_contracts.py --job web-v12-native --special --output "${{ runner.temp }}/nova-web-v12-native"
+      - name: Preserve bounded exact-profile regression diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-v12-exact-native-regression
+          path: |
+            ${{ runner.temp }}/nova-web-v12-native/public/run.json
+            ${{ runner.temp }}/nova-web-v12-native/public/selection.json
+            ${{ runner.temp }}/nova-web-v12-native/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-web-v12-native/public/tests.xml
+            ${{ runner.temp }}/nova-web-v12-native/public/pytest.log
+          if-no-files-found: error

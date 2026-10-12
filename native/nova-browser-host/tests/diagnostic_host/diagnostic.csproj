@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType><TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms><PlatformTarget>x64</PlatformTarget>
+    <AssemblyName>nova-browser-host</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../*.cs" Exclude="../../Program.cs" Link="Product/%(Filename)%(Extension)" />
+    <Reference Include="Microsoft.Web.WebView2.Core"><HintPath>$(HostBin)/Microsoft.Web.WebView2.Core.dll</HintPath></Reference>
+    <Content Include="$(HostBin)/runtimes/win-x64/native/WebView2Loader.dll"><Link>WebView2Loader.dll</Link><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+  </ItemGroup>
+</Project>

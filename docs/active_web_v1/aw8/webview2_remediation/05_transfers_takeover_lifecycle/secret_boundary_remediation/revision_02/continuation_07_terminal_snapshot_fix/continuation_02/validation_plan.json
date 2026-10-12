@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "leafFix": "Functional bounded page-derived leaf extraction/redaction, public schema unchanged.",
+  "cross": "Diagnostic only, no terminal protocol/ownership/order/promotion/rejection behavior changes.",
+  "maximumInstrumentedCrossRuns": 5,
+  "stopCross": "Stop on first unequivocal causal failure; otherwise stop after five actual attempts.",
+  "testOrder": [
+    "new leaf-boundary contracts/native",
+    "original short-exact",
+    "policy gate original24 (including cross as independent non-instrumented gate evidence)",
+    "instrumented cross max5"
+  ],
+  "noDEorF": true,
+  "noHistoricalScenariosRuns": true,
+  "noBlock06": true,
+  "noXfailSkipFilters": true,
+  "classificationRule": "Cross failure diagnostic records must locate exact branch; don't treat passing diagnostics as resolution.",
+  "diagnosticMetadata": [
+    "opaque generation/control aliases",
+    "revision",
+    "terminal reason",
+    "lengths",
+    "accepted/rejected",
+    "fixed rejection enum",
+    "sequence"
+  ],
+  "noValuesCredentialHashesDomUrls": true,
+  "diagnosticBounds": {
+    "recordsPerNativeProcess": 1024,
+    "sinkDelivery": "In memory during test, write only on ProcessExit; missing/overflow evidence INCONCLUSIVE."
+  },
+  "leafBounds": {
+    "visibleLeaves": 1024,
+    "visibleCharsPerWorld": 32768,
+    "maxLeafChars": 32768,
+    "aggregateRawChars": 65536,
+    "privatePayloadUtf8": 262144,
+    "titleChars": 16384,
+    "labelTotalChars": 16384,
+    "treeWalkNodes": 20000,
+    "metaTreeWalkNodes": 4096,
+    "truncation": "Explicit truncated=false required; oversize raw data rejected rather than slicing raw sensitive leaves; public truncation only after sanitization."
+  },
+  "snapshotSource": "candidate_freeze.json",
+  "historicalCasesFixturesAssertionsUnchanged": true
+}

@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "candidate": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+  "implementation": "RealControlledFetchTransport",
+  "dependencyPins": [
+    {
+      "path": "local_cli/core/controlled_fetch.py",
+      "bytes": 24645,
+      "sha256": "13b4eda374150c2b2a58a1da026b660dc069e79427525ac08062f7a4e307d0c3"
+    },
+    {
+      "path": "local_cli/application/controlled_fetch.py",
+      "bytes": 28728,
+      "sha256": "74217279dccf96965f7620a6544268caf6994241bd13df54cb477a757a4e245e"
+    },
+    {
+      "path": "local_cli/infrastructure/controlled_fetch_transport.py",
+      "bytes": 13232,
+      "sha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668"
+    },
+    {
+      "path": "local_cli/infrastructure/controlled_fetch_dns.py",
+      "bytes": 4910,
+      "sha256": "1c27323ea189170642a073ea9a2c076cd2f29d326437b8b418ad8ca7a022eb07"
+    },
+    {
+      "path": "local_cli/application/browser_network.py",
+      "bytes": 5755,
+      "sha256": "77e497eeae76bf40768041a1d1f95d9db577b59b5a9f11fdb71de3eba5e58d07"
+    },
+    {
+      "path": "local_cli/application/network.py",
+      "bytes": 9608,
+      "sha256": "2bdda05c23e71efdc6c19259e2fa9e7923f32c9c12a745e6ed38bba8def93dfc"
+    },
+    {
+      "path": "local_cli/application/grants.py",
+      "bytes": 10203,
+      "sha256": "67245ceb425588b6d2f5bfb83fe157a0d063f6d9d7faca1775be1b0e79467abe"
+    },
+    {
+      "path": "local_cli/application/policy.py",
+      "bytes": 11423,
+      "sha256": "a0f6e00a00ec3d9fcc932ad3bdf706594330f180d1193edf62f1d8080362d6fa"
+    },
+    {
+      "path": "local_cli/infrastructure/http_fetch.py",
+      "bytes": 12152,
+      "sha256": "bd228be5c1530a3d7983965ca1a495789709e4644696a6a84f6791f352af1986"
+    },
+    {
+      "path": "local_cli/core/network.py",
+      "bytes": 3309,
+      "sha256": "d614cb9af7b9cc745d4232b797dec71b9b282c679d08909443e4d1717e3d276e"
+    },
+    {
+      "path": "local_cli/core/security.py",
+      "bytes": 23038,
+      "sha256": "f5b2a50277a6eb69bd5b0626bc91a535fc77d6a27e95e729939b1eb912e1fcde"
+    },
+    {
+      "path": "local_cli/core/contracts.py",
+      "bytes": 30342,
+      "sha256": "f327939669ad85a50cad8c44681d81313ab68daf3c7c6cbfcbdd9d68cede5e9a"
+    }
+  ],
+  "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362",
+  "runtime": {
+    "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+    "os": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "ssl": "OpenSSL 3.5.7 9 Jun 2026"
+  },
+  "transportProfile": {
+    "methods": [
+      "GET",
+      "HEAD"
+    ],
+    "httpVersion": "1.1",
+    "connection": "close",
+    "acceptEncoding": "identity",
+    "headers": [
+      "Host",
+      "User-Agent",
+      "Accept",
+      "Accept-Encoding",
+      "Connection"
+    ],
+    "TLS": "CERT_REQUIRED + check_hostname + original SNI",
+    "framing": [
+      "strict Content-Length",
+      "bounded body-until-EOF",
+      "HEAD/204/304 no body"
+    ],
+    "unsupported": [
+      "Transfer-Encoding including chunked",
+      "HTTP/1.0",
+      "1xx informational responses",
+      "Upgrade/WebSocket",
+      "HTTP2/HTTP3/QUIC",
+      "CONNECT API",
+      "pooling",
+      "ambient proxy",
+      "auth",
+      "POST",
+      "binary download"
+    ],
+    "automaticRetry": false,
+    "maxStatusLineBytes": 2048,
+    "maxHeaderCount": 100,
+    "maxHeaderBytes": 32768
+  },
+  "scope": "Every HTTP(S) DATA connection initiated by CONTROLLED_FETCH_V1_2 through this exact candidate profile. Not DNS sockets/OS/process sockets/browser network isolation.",
+  "certificationTopology": "Real existing assigned global IPv6 listener + actual UDP process-scoped DNS fixture. S5 public_address unchanged; no loopback data exception or socket substitution. Supplemental S5 system getaddrinfo to owned endpoint.",
+  "TLSFixtureTrust": "Process/test SSLContext loads exact newly generated fixture root; default transport trusts standard default CAs, no global CA changes. Fixture key/cert ephemeral and removed by owned harness cleanup.",
+  "productiveAvailability": "NOT_ENABLED",
+  "productiveToolsRegistered": false,
+  "networkProofRefPromotion": "NOT_ENABLED; B1 opaque admission provenance remains non-authoritative. Certification rows are bound to candidateDigest/profile for a future compatible host projection."
+}

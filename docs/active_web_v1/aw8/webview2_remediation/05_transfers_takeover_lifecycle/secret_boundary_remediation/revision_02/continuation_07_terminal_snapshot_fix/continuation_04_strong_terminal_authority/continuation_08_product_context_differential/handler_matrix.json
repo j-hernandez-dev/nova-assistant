@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "scope": "Production source registrations, not diagnostic observers",
+  "handlers": [
+    {
+      "event": "LaunchingExternalUriScheme",
+      "handler": "ExternalProtocolGuard.Launch",
+      "cancelMutationPossible": true,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "DENY_ALL external launch; first statement Cancel=true",
+      "installedInMicroprobe": false,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "event": "NewWindowRequested",
+      "handler": "ExternalProtocolGuard.Popup",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": true,
+      "deferral": false,
+      "productPurpose": "DENY_ALL popup; first statement Handled=true",
+      "installedInMicroprobe": false,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "event": "NewWindowRequested",
+      "handler": "ObservationRuntime anonymous invalidator",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Invalidate refs/version only",
+      "installedInMicroprobe": false,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "event": "NavigationStarting",
+      "handler": "ObservationRuntime local-destination validator",
+      "cancelMutationPossible": true,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Cancel unsupported HTTP origin or invalidate on admitted local navigation",
+      "installedInMicroprobe": true,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "event": "SourceChanged",
+      "handler": "ObservationRuntime anonymous invalidator",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Invalidate(true)",
+      "installedInMicroprobe": true,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "event": "FrameCreated / Frame.NavigationStarting",
+      "handler": "ObservationRuntime nested registration",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Invalidate navigation refs on frame navigation",
+      "installedInMicroprobe": false,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "event": "ScriptDialogOpening",
+      "handler": "ObservationRuntime anonymous collector",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Records fixed dialog kind + invalidates, dialogs suppressed by setting",
+      "installedInMicroprobe": false,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "event": "DownloadStarting",
+      "handler": "ObservationRuntime.DownloadStarting",
+      "cancelMutationPossible": true,
+      "handledMutationPossible": true,
+      "deferral": true,
+      "productPurpose": "Installed before content; exact slot decision AFTER engine event",
+      "installedInMicroprobe": true,
+      "classification": "DIFFERENT_BUT_POST_DOWNLOADSTARTING"
+    },
+    {
+      "event": "WebResourceRequested",
+      "handler": "ConfigureOfflineTransferResources anonymous",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Sets Response; local fixture metadata",
+      "installedInMicroprobe": true,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "event": "SaveFileSecurityCheckStarting",
+      "handler": "ConfigureOfflineTransferResources anonymous",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Records CancelSave/SuppressDefaultPolicy; does not alter",
+      "installedInMicroprobe": false,
+      "classification": "DIFFERENT_BUT_POST_DOWNLOADSTARTING"
+    },
+    {
+      "event": "ProcessFailed",
+      "handler": "WebView2Runtime anonymous",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Marks failed; subsequent use fails closed",
+      "installedInMicroprobe": false,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "event": "BrowserProcessExited",
+      "handler": "WebView2Runtime environment callback",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Owned lifetime signal",
+      "installedInMicroprobe": true,
+      "classification": "DIFFERENT_BUT_POST_DOWNLOADSTARTING"
+    },
+    {
+      "event": "NavigationCompleted",
+      "handler": "WebView2Runtime.NavigateLocal temporary finished callback",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Removed after index navigation; not active at click",
+      "installedInMicroprobe": true,
+      "classification": "IDENTICAL"
+    },
+    {
+      "event": "NavigationCompleted",
+      "handler": "ObservationRuntime.Navigation temporary callbacks",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Back/forward/navigate paths only; not registered for DOWNLOAD path",
+      "installedInMicroprobe": false,
+      "classification": "IDENTICAL"
+    },
+    {
+      "event": "Runtime.bindingCalled / executionContextCreated / destroyed / cleared",
+      "handler": "SensitiveTracking fixed CDP receivers",
+      "cancelMutationPossible": false,
+      "handledMutationPossible": false,
+      "deferral": false,
+      "productPurpose": "Private world tracking/lifecycle only, no native Cancel/Handled",
+      "installedInMicroprobe": false,
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    }
+  ],
+  "explicitlyAbsentProductEvents": [
+    "WebResourceResponseReceived",
+    "DOMContentLoaded (native Core event)",
+    "PermissionRequested",
+    "FrameDOMContentLoaded",
+    "FrameNavigationCompleted"
+  ],
+  "pageScriptListenersSeparateNotCoreHandlers": [
+    "input/change/blur/submit/pagehide/MutationObserver in private instrumentation; do not represent Core DOMContentLoaded handlers"
+  ],
+  "microOnly": [
+    "Permanent NativeNavigationCompleted trace callback",
+    "WebResourceResponseReceived read-only trace"
+  ],
+  "notInventedHandlers": true
+}

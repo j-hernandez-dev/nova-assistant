@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Block05 takeover continuity diagnostic campaign, non-remediating",
+  "defect": "WV2-B05-C03-TAKEOVER-CONTINUITY-004",
+  "diagnosis": "INCONCLUSIVE",
+  "defectResult": "NOT_DIAGNOSED",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "baseline": "baseline_freeze.json",
+  "productIdentity": "Unchanged continuation_03 candidate, all 75 source pins checked",
+  "gates": {
+    "FAIL_REASON_IDENTIFIED": {
+      "status": "PARTIAL",
+      "reason": "The historical denial did not reproduce in any of the three once-only instrumented scenario executions. No failure category was observed; historical cause remains UNKNOWN."
+    },
+    "EVENT_ORDER_RECONSTRUCTED": {
+      "status": "PASS",
+      "scope": "Observed host-receipt order of the three diagnostic executions, not the unavailable historical failing event stream.",
+      "evidence": "event_order_evidence.json"
+    },
+    "COMMIT_TARGET_IDENTIFIED": {
+      "status": "PASS",
+      "scope": "Static current pending semantics and native commits observed in these executions; historical failing commit target is not known.",
+      "evidence": "commit_semantics_evidence.json"
+    },
+    "DOCUMENT_CONTROL_OWNERSHIP_VALIDATED": {
+      "status": "PASS",
+      "scope": "Pinned static ownership and the three observed host/page/world/control chains. Not a universal lifecycle/context-ID-reuse proof.",
+      "evidence": "event_order_evidence.json"
+    }
+  },
+  "preservedStates": {
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "historical36Udf": "CLEANUP_UNCONFIRMED"
+  },
+  "history": {
+    "continuation03": "../continuation_03/manifest.json",
+    "nvr24": {
+      "pass": 30,
+      "fail": 3,
+      "error": 0,
+      "skip": 0,
+      "xmlSha256": "f3e48759f500a32b163dab965d848c997c262581bdd3fe1217c3273c969ca9b2",
+      "preserved": true
+    },
+    "original004Historical": "UNKNOWN, unchanged",
+    "previousBlockedPartialArtifactsRewritten": false,
+    "HOME_USERPROFILE": "PREEXISTING_CORE_HARNESS_DEBT; untouched; not executed",
+    "block03JsonlFail": "Historical evidence preserved without reclassification"
+  },
+  "changes": {
+    "productFiles": [],
+    "existingTestFixtureDriverFiles": [],
+    "publicIpcSchemas": [],
+    "newDiagnosticHarnessFiles": [
+      "native/nova-browser-host/tests/continuity_diagnosis/ContinuityMetadata.cs",
+      "native/nova-browser-host/tests/continuity_diagnosis/continuity_diagnosis_plugin.py"
+    ],
+    "generatedTemporaryCopiesOutsideGit": true,
+    "diagnosticOnlyClones": [
+      "SensitiveTracking.cs",
+      "SensitiveValueRegistry.cs",
+      "TakeoverRuntime.cs",
+      "Program.cs"
+    ],
+    "newEvidenceDirectory": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_04_diagnosis"
+  },
+  "diagnosticHarness": {
+    "metadataSink": "Private filesystem sink outside repo/IPC, alias-only identities and scalar metadata; no values, prefixes, secret hashes, DOM text or URLs",
+    "privateMetadataBinding": true,
+    "pageAuthority": false,
+    "maxRecordsPerHost": 8192,
+    "controlInputObservedValuesReturnedToPython": false,
+    "productionSecretError": "SECRET_BOUNDARY_UNCONFIRMED, unchanged",
+    "freeze": "diagnostic_freeze.json",
+    "deploymentCorrectionFreeze02": "diagnostic_freeze_revision_02.json",
+    "deploymentCorrectionFreeze03": "diagnostic_freeze_revision_03.json",
+    "observerEffect": "Fixed private CDP annotation binding and synchronous local file writes can perturb timing.",
+    "pinReceiptQualification": "In diagnostic clone_integrity files, Program.originalSha256 identifies the productive Program source. The diagnostic executable intentionally retains the pre-existing tests/diagnostic_host/Program.cs main plus metadata initialization; that alternate source is separately pinned in baseline_freeze.json. No claim that the outer diagnostic main equals the productive main."
+  },
+  "execution": {
+    "actualScenarioExecutions": 3,
+    "oncePerTarget": true,
+    "actualScenarioPass": 3,
+    "actualScenarioFail": 0,
+    "qualityRetries": 0,
+    "setupErrors": 5,
+    "setupErrorsPreserved": true,
+    "allSelectedPytestInstances": 8,
+    "notACertificationPass": true,
+    "controlCasesRun": 0,
+    "fullRegressionRun": false,
+    "policyTestsRun": 0,
+    "block06Run": false,
+    "aw8E2ERun": false
+  },
+  "findings": {
+    "terminalCommit": "length 42 at pagehide and again on world retirement in all three executions",
+    "historicalPrefixesCommittedAutomatically": false,
+    "currentSequence": "Two received progressions 1..42; an intermediate current reset 42→1 precedes pagehide/world retirement, then current returns to 42.",
+    "lateInputsAfterWorldRetire": 0,
+    "nonemptyInputEventsAfterTakeoverEndCheckpointStarts": 0,
+    "failedCheckpointFrameSelections": 0,
+    "registryBoundExpiryFailures": 0,
+    "historicalFailureClassification": "UNKNOWN",
+    "whyOnlyThoseHistoricalScenarios": "Not established; failure is not stable under diagnostic instrumentation."
+  },
+  "proposedProductRepair": "NONE; insufficient causal evidence. No product/policy/handler changes authorized or performed.",
+  "humanReviewRequired": true,
+  "artifacts": [
+    "resultados.md",
+    "event_order_evidence.json",
+    "commit_semantics_evidence.json",
+    "test_results.json",
+    "integrity.json"
+  ],
+  "integrity": {
+    "candidateDrift": 0,
+    "historicalPinnedArtifactDrift": 0,
+    "trackedPriorChangeDrift": 0,
+    "historicalXmlDrift": 0,
+    "sourcePinsChecked": 75,
+    "historicalPinsChecked": 205,
+    "trackedDirtyPinsChecked": 18,
+    "historicalXmlPinsChecked": 3
+  },
+  "cleanup": {
+    "newExecutedSessionsConfirmed": 3,
+    "remainingScopedOwnedProcesses": 0,
+    "remainingOwnedUdfStagingDirectories": 0,
+    "historicalUdfMaintenance": false
+  },
+  "claims": {
+    "noDlpUniversal": true,
+    "noSecureMemory": true,
+    "noReady": true,
+    "noNewCapability": true,
+    "noCommitPushTagRelease": true
+  },
+  "stop": "Human review; no further tests/diagnosis rounds or remediation automatically."
+}

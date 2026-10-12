@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "timestampUtc": "2026-10-10T13:17:32.139Z",
+  "purpose": "Active Web V1.1 §35.2 block03 ExternalProtocolGuard, additive remediation only",
+  "baseline": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "dirtyBefore": true,
+    "baselineFreeze": "baseline_freeze.json",
+    "baselineSha256": "4e4a98f64b6a21de04f2e996a3b95b39ae63f89ef75edf77e5c897f49092923c",
+    "priorFiles": 2380,
+    "historicalFiles": 144,
+    "priorBlock02PinsMatchedBefore": true,
+    "productFreeze": "product_freeze_final.json",
+    "priorTagsUnchanged": true
+  },
+  "normative": {
+    "architecture": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+    "sha256": "46ec3201460ba37a6fe47f6cf94e80f0024ec442c9323115a0cf19d64de95e1d",
+    "historicalV1Sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "sections": [
+      "§18.6",
+      "§26.3",
+      "§35.2 block3",
+      "§36.6–7"
+    ],
+    "invariants": [
+      "AW-INV-051",
+      "AW-INV-052",
+      "AW-INV-053"
+    ],
+    "changesToArchitecture": false
+  },
+  "lineage": {
+    "block01": "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/manifest.json",
+    "block02": "docs/active_web_v1/aw8/webview2_remediation/02_webview2_adapter/manifest.json",
+    "originalAw8": "BLOCKED (unchanged)",
+    "noHistoricalReinterpretation": true
+  },
+  "implementation": {
+    "route": "Python BrowserPort → GuardWebView2Adapter → inherited private Named Pipe v3 → same nova-browser-host → real guarded WebView2",
+    "sdk": "Microsoft.Web.WebView2 1.0.4258.31",
+    "runtimeObserved": "154.0.4258.62",
+    "platform": "Windows 11, x64, local NTFS",
+    "framework": "net10.0-windows",
+    "dotnetSdk": "10.0.203",
+    "controlClass": "HOST_UNISOLATED",
+    "newCommands": [
+      "guard_metadata (read-only)"
+    ],
+    "wire": "Closed additive v3, v1/v2 validation preserved; no content/JS/selectors/relaunch/authority requests",
+    "popupPolicy": "DENY_ALL before optional metadata; no popup materialization",
+    "nativeHandler": "LaunchingExternalUriScheme; Cancel=true first; no deferral/IPC/decision/relaunch",
+    "audit": "host-owned SecurityAuditRecord v1, valid unchanged schema, scoped durable private sink and explicit gap; no authority invented",
+    "faults": "registration/revocation/unexpected Dispose/audit failure/secondary failure/control loss/host loss fail-closed",
+    "productiveCapabilitiesEnabled": false,
+    "browserToolsAdvertised": false,
+    "autoRuntimeInstall": false
+  },
+  "changedExistingFiles": [
+    "native/nova-browser-host/WebView2Runtime.cs",
+    "native/nova-browser-host/LifecycleServer.cs",
+    "local_cli/infrastructure/active_web/webview2_adapter.py"
+  ],
+  "newImplementationAndTests": [
+    "local_cli/infrastructure/active_web/guard_adapter.py",
+    "local_cli/infrastructure/active_web/guard_ipc.py",
+    "native/nova-browser-host/ExternalProtocolGuard.cs",
+    "native/nova-browser-host/GuardProtocol.cs",
+    "native/nova-browser-host/tests/guard_runner/Program.cs",
+    "native/nova-browser-host/tests/guard_runner/guard_runner.csproj",
+    "native/nova-browser-host/tests/test_external_protocol_guard.py"
+  ],
+  "contracts": [
+    "per-controller guard before content/usable page",
+    "unconditional pre-effect external protocol denial",
+    "native NewWindowRequested handled/denied before popup",
+    "owned session/page/host/incarnation correlation",
+    "private read-only observability v3",
+    "untrusted URI/origin sanitized, no document content or credentials",
+    "flush(true) receipt validity independent of cancellation",
+    "unexpected handler withdrawal invalidates before unsubscribe",
+    "no retries/Playwright/relaunch/Approval exception"
+  ],
+  "gates": {
+    "GUARD_INSTALLATION_ORDER": {
+      "result": "PASS",
+      "evidence": "native stage/installationSequence/eventSequence; factory failure no Page ready; handler installed at about:blank"
+    },
+    "REGISTERED_PROTOCOL_PRE_EFFECT_DENIAL": {
+      "result": "PASS",
+      "evidence": "registered functional controlled OS schemes; script/click/mailto/frame native events; cancel=true and zero canary handler executions during measurement; 12/12 registry cleanup"
+    },
+    "SECONDARY_CONTROL_AND_POPUP_GUARD": {
+      "result": "PASS",
+      "evidence": "two owned PageRefs with native guard receipts; NewWindowRequested Handled=true; no unowned popup; secondary installation failure invalidates"
+    },
+    "TAKEOVER_GUARD": {
+      "result": "PASS",
+      "evidence": "visible native controller/userGesture=true mouse interaction never removes/overrides DENY_ALL",
+      "scope": "guard-only interaction retention, not block05 complete Application takeover"
+    },
+    "GUARD_AUDIT_AND_FAULT_PATHS": {
+      "result": "PASS",
+      "evidence": "8 durable observed receipts validated by Python SecurityAuditRecord, 1 explicit post-Cancel gap; failure/revocation/dispose/host crash/disconnect/cleanup contracts"
+    }
+  },
+  "EXTERNAL_PROTOCOL_GUARD": "PASS",
+  "HOST_PRE_EFFECT_DENY": "PASS",
+  "WEBVIEW2_REMEDIATION_BLOCK_03": "PASS",
+  "SAFE_TO_ADVANCE_TO_BLOCK_04": true,
+  "tests": {
+    "focused": {
+      "passed": 185,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "exitCode": 0,
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-03-final.xml",
+      "sha256": "f14a0eea2d956bd98ee6513bd64c60c3f58a45b427269061423ce0528c34d050"
+    },
+    "newGuardContractTests": 18,
+    "newGuardNativeTests": 11,
+    "preservedFocusedRuns": [
+      {
+        "passed": 27,
+        "failures": 1,
+        "exitCode": 1,
+        "classification": "PRODUCT_BUG - guard-installation-failure cleanup; repaired"
+      },
+      {
+        "passed": 184,
+        "failures": 0,
+        "exitCode": 0,
+        "scope": "before additional unexpected-dispose regression"
+      }
+    ],
+    "inherited": {
+      "activeWeb": 672,
+      "security": 615,
+      "memory": 791,
+      "knowledge": 1015,
+      "desktop": 71,
+      "typescript": "PASS",
+      "core": {
+        "passed": 3410,
+        "failures": 2,
+        "errors": 0,
+        "skips": 7,
+        "subtestsPassed": 53,
+        "exitCode": 1,
+        "result": "NOT_GREEN",
+        "failuresClassified": [
+          "PREEXISTING_CORE_HARNESS_DEBT - HOME/USERPROFILE",
+          "HARNESS_BUG / PREEXISTING_ASYNC_ASSERTION_RACE - JSONL replay test"
+        ],
+        "causalRegressionIntroducedByBlock03": 0
+      }
+    },
+    "noNewSkipsXfailsFilters": true,
+    "notUniqueAllRepositoryHeadCount": true,
+    "details": "test_results.json",
+    "originalAw8E2EExecuted": false
+  },
+  "nativeCanary": {
+    "registeredPositiveControls": 12,
+    "helperExecutionsInGuardWindows": 0,
+    "sentinelsAbsent": 12,
+    "registryCleanupConfirmed": 12,
+    "remainingRegistryLeaves": 0,
+    "finalOwnedEngineProcessesRemaining": 0,
+    "rawHashes": "guard_evidence.json"
+  },
+  "integrity": {
+    "productDrift": 0,
+    "historicalDrift": 0,
+    "unexpectedFileChanges": 0,
+    "stagedFiles": 0,
+    "checkedProductPins": 37,
+    "details": "integrity.json"
+  },
+  "artifacts": {
+    "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/test_results.json": "1a920e8a1c95e41333630329375dd1b56eae210c6769cd50f4e9d942a21fa661",
+    "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/guard_evidence.json": "d636410fc88d2030f388140d3570976bb6684341756b5211bda3545582711423",
+    "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/supplemental_contract_plan.json": "f3763ce4fe75a91406696ea05d9ba929fa6b52ddbd4d0b0ad420079ae63706d0",
+    "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/product_freeze.json": "b7d5a79f9a9cf926c6086c81db816715cddce13d9d9cdf31475042a70f8325d6",
+    "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/integrity.json": "871c01386f5011baf3ad8ffc9b42478609f93c2ea87b0f58cd9186f6b8383c74",
+    "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/certification_plan.json": "fb72905a3ac7e5516b6e3f7271cc5f21d93016f32e1e32fec177745b08001061",
+    "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/resultados.md": "3b2d9082157203843827a0d06814bb6599846c31de72e5a19b23d9c2a24c49df",
+    "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/product_freeze_final.json": "0559fba1d1c38f0720d9301511e61a54c148279f926969bb3712b2b9a75b7fcb",
+    "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/baseline_freeze.json": "4e4a98f64b6a21de04f2e996a3b95b39ae63f89ef75edf77e5c897f49092923c"
+  },
+  "retainedState": {
+    "externalProtocolGuard": "KNOWN / HOST_PRE_EFFECT_DENY (engine-specific block evidence only)",
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "snapshotV2Productive": "NOT_IMPLEMENTED_BLOCK07",
+    "browserTools": "NOT_ADVERTISED"
+  },
+  "limitations": [
+    "Guard evidence tied to SDK/runtime/configuration tested; not universal Windows/WebView2/process isolation.",
+    "Controller visibility + native gesture proves guard retained during human-equivalent interaction; full Application takeover remains block05.",
+    "Popups denied, not materialized; no popup creation recovery path in block03.",
+    "Fault factories/sinks explicitly synthetic internal contract evidence; real native launch/cancellation tested separately.",
+    "Only controlled local NavigateToString content in certification executable; no public network/navigation/DOM actions.",
+    "Core full inherited gate retains two failures; diagnostic JSONL PASS is not substitute; no test/assertion/runner modification.",
+    "Historical failed focused UDF remains isolated outside checkout; cleanup failure preserved; final selected configuration cleanups confirmed.",
+    "Durable host guard file remains managed evidence outside ephemeral UDF, not model/session transcript.",
+    "No network certification/PUBLIC_ONLY, no snapshot v2/tool activation/AW8 final."
+  ],
+  "openDecisions": [],
+  "futureWork": [
+    "§35.2 block04 observations/refs/actions (requires separate authorization)",
+    "block05 transfers/takeover",
+    "block06 independent network proof",
+    "block07 snapshot v2",
+    "block08 productive capability gated wiring",
+    "block09 prerequisites recertification; AW8 separate"
+  ],
+  "git": {
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "verdict": "WEBVIEW2_REMEDIATION_BLOCK_03 = PASS"
+}

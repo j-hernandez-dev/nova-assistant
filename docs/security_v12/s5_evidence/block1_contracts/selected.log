@@ -1,0 +1,212 @@
+....FFFF...FFF..................................F                        [100%]
+================================== FAILURES ===================================
+_______ test_url_denied_without_ambient_scheme_handlers[http://127.1/] ________
+
+url = 'http://127.1/'
+
+    @pytest.mark.parametrize('url', ['file:///x', 'data:text/plain,x', 'ftp://example.com/x',
+        'http://user:pass@example.com/', 'http://127.1/', 'http://2130706433/',
+        'http://0177.0.0.1/', 'http://0x7f000001/', 'http://example.com\\@localhost/',
+        'http://example.com/#x', 'http://example.com/\r\nHeader:x'])
+    def test_url_denied_without_ambient_scheme_handlers(url):
+        with pytest.raises(NetworkError, match='NETWORK_URL_DENIED'):
+>           canonical_url(url)
+
+tests\security_v12\test_s5_contracts.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://127.1/'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+>           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError
+_____ test_url_denied_without_ambient_scheme_handlers[http://2130706433/] _____
+
+url = 'http://2130706433/'
+
+    @pytest.mark.parametrize('url', ['file:///x', 'data:text/plain,x', 'ftp://example.com/x',
+        'http://user:pass@example.com/', 'http://127.1/', 'http://2130706433/',
+        'http://0177.0.0.1/', 'http://0x7f000001/', 'http://example.com\\@localhost/',
+        'http://example.com/#x', 'http://example.com/\r\nHeader:x'])
+    def test_url_denied_without_ambient_scheme_handlers(url):
+        with pytest.raises(NetworkError, match='NETWORK_URL_DENIED'):
+>           canonical_url(url)
+
+tests\security_v12\test_s5_contracts.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://2130706433/'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+>           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError
+_____ test_url_denied_without_ambient_scheme_handlers[http://0177.0.0.1/] _____
+
+url = 'http://0177.0.0.1/'
+
+    @pytest.mark.parametrize('url', ['file:///x', 'data:text/plain,x', 'ftp://example.com/x',
+        'http://user:pass@example.com/', 'http://127.1/', 'http://2130706433/',
+        'http://0177.0.0.1/', 'http://0x7f000001/', 'http://example.com\\@localhost/',
+        'http://example.com/#x', 'http://example.com/\r\nHeader:x'])
+    def test_url_denied_without_ambient_scheme_handlers(url):
+        with pytest.raises(NetworkError, match='NETWORK_URL_DENIED'):
+>           canonical_url(url)
+
+tests\security_v12\test_s5_contracts.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://0177.0.0.1/'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+>           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError
+_____ test_url_denied_without_ambient_scheme_handlers[http://0x7f000001/] _____
+
+url = 'http://0x7f000001/'
+
+    @pytest.mark.parametrize('url', ['file:///x', 'data:text/plain,x', 'ftp://example.com/x',
+        'http://user:pass@example.com/', 'http://127.1/', 'http://2130706433/',
+        'http://0177.0.0.1/', 'http://0x7f000001/', 'http://example.com\\@localhost/',
+        'http://example.com/#x', 'http://example.com/\r\nHeader:x'])
+    def test_url_denied_without_ambient_scheme_handlers(url):
+        with pytest.raises(NetworkError, match='NETWORK_URL_DENIED'):
+>           canonical_url(url)
+
+tests\security_v12\test_s5_contracts.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://0x7f000001/'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+>           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError
+___ test_canonical_http_https[https://EXAMPLE.com:443-https://example.com/] ___
+
+url = 'https://EXAMPLE.com:443', expected = 'https://example.com/'
+
+    @pytest.mark.parametrize('url,expected', [('https://EXAMPLE.com:443', 'https://example.com/'),
+        ('http://example.com:80/a?q=x', 'http://example.com/a?q=x'),
+        ('http://[2606:4700:4700::1111]/a', 'http://[2606:4700:4700::1111]/a')])
+    def test_canonical_http_https(url, expected):
+>       assert canonical_url(url) == expected
+               ^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s5_contracts.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'https://EXAMPLE.com:443'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+>           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError
+_ test_canonical_http_https[http://example.com:80/a?q=x-http://example.com/a?q=x] _
+
+url = 'http://example.com:80/a?q=x', expected = 'http://example.com/a?q=x'
+
+    @pytest.mark.parametrize('url,expected', [('https://EXAMPLE.com:443', 'https://example.com/'),
+        ('http://example.com:80/a?q=x', 'http://example.com/a?q=x'),
+        ('http://[2606:4700:4700::1111]/a', 'http://[2606:4700:4700::1111]/a')])
+    def test_canonical_http_https(url, expected):
+>       assert canonical_url(url) == expected
+               ^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s5_contracts.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://example.com:80/a?q=x'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+>           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError
+_ test_canonical_http_https[http://[2606:4700:4700::1111]/a-http://[2606:4700:4700::1111]/a] _
+
+url = 'http://[2606:4700:4700::1111]/a'
+expected = 'http://[2606:4700:4700::1111]/a'
+
+    @pytest.mark.parametrize('url,expected', [('https://EXAMPLE.com:443', 'https://example.com/'),
+        ('http://example.com:80/a?q=x', 'http://example.com/a?q=x'),
+        ('http://[2606:4700:4700::1111]/a', 'http://[2606:4700:4700::1111]/a')])
+    def test_canonical_http_https(url, expected):
+>       assert canonical_url(url) == expected
+               ^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s5_contracts.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://[2606:4700:4700::1111]/a'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+>           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError
+____________ test_total_budget_and_core_deadline_and_cancellation _____________
+
+    def test_total_budget_and_core_deadline_and_cancellation():
+>       token = CancellationToken()
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s5_contracts.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.core.contracts.CancellationToken object at 0x000001ECFB300830>
+args = (), kwargs = {}
+
+    def _no_init_or_replace_init(self, *args, **kwargs):
+        cls = type(self)
+    
+        if cls._is_protocol:
+>           raise TypeError('Protocols cannot be instantiated')
+E           TypeError: Protocols cannot be instantiated
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\typing.py:1869: TypeError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s5_contracts.py::test_url_denied_without_ambient_scheme_handlers[http://127.1/]
+FAILED tests/security_v12/test_s5_contracts.py::test_url_denied_without_ambient_scheme_handlers[http://2130706433/]
+FAILED tests/security_v12/test_s5_contracts.py::test_url_denied_without_ambient_scheme_handlers[http://0177.0.0.1/]
+FAILED tests/security_v12/test_s5_contracts.py::test_url_denied_without_ambient_scheme_handlers[http://0x7f000001/]
+FAILED tests/security_v12/test_s5_contracts.py::test_canonical_http_https[https://EXAMPLE.com:443-https://example.com/]
+FAILED tests/security_v12/test_s5_contracts.py::test_canonical_http_https[http://example.com:80/a?q=x-http://example.com/a?q=x]
+FAILED tests/security_v12/test_s5_contracts.py::test_canonical_http_https[http://[2606:4700:4700::1111]/a-http://[2606:4700:4700::1111]/a]
+FAILED tests/security_v12/test_s5_contracts.py::test_total_budget_and_core_deadline_and_cancellation
+8 failed, 41 passed in 0.31s

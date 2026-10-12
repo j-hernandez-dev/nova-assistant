@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW8",
+  "purpose": "read-only certification prerequisite characterization",
+  "productiveToolNames": [
+    "bash",
+    "read",
+    "write",
+    "edit",
+    "glob",
+    "grep",
+    "web_fetch",
+    "todo_write",
+    "ask_user"
+  ],
+  "productiveBrowserTools": [],
+  "defaultApplicationActiveWeb": {
+    "schemaVersion": 1,
+    "domain": "ACTIVE_WEB",
+    "capabilities": {
+      "available": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "engine": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "engineVersion": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "browserVersion": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "controlClass": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "networkBroker": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "publicOnly": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "headful": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "screenshot": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "manualTakeover": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "upload": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "download": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "persistentSession": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "maxPages": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "platform": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      }
+    },
+    "browserSession": null,
+    "pages": [],
+    "takeoverRequests": [],
+    "receipts": [],
+    "cleanup": null,
+    "passiveWebIndependent": true,
+    "processModel": "HOST_UNISOLATED"
+  },
+  "realInstalledEngineCapabilities": {
+    "available": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "AW5 adapter is not ACTIVE_WEB_CORE READY"
+    },
+    "engine": {
+      "status": "KNOWN",
+      "value": "PLAYWRIGHT_CHROMIUM",
+      "reason": null
+    },
+    "engineVersion": {
+      "status": "KNOWN",
+      "value": "1.63.0",
+      "reason": null
+    },
+    "browserVersion": {
+      "status": "KNOWN",
+      "value": "153.0.8010.12",
+      "reason": null
+    },
+    "controlClass": {
+      "status": "KNOWN",
+      "value": "HOST_UNISOLATED",
+      "reason": null
+    },
+    "networkBroker": {
+      "status": "KNOWN",
+      "value": true,
+      "reason": null
+    },
+    "publicOnly": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "engine exclusive egress not certified"
+    },
+    "headful": {
+      "status": "KNOWN",
+      "value": false,
+      "reason": null
+    },
+    "screenshot": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "manualTakeover": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "upload": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "download": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "persistentSession": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "maxPages": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    },
+    "platform": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "not probed"
+    }
+  },
+  "productiveBrokerNoFixtureSubstitution": true,
+  "upstreamConnections": 0,
+  "brokerRecords": [
+    {
+      "origin": null,
+      "method": null,
+      "upstreamConnected": false,
+      "errorCode": "BROWSER_EGRESS_DESTINATION_DENIED",
+      "retryAllowed": false
+    }
+  ],
+  "nativeContextCleanupConfirmed": true,
+  "modelInference": 0,
+  "noPublicSites": true,
+  "noAvailabilityOverride": true,
+  "command": "$code=@'\nimport sys,os,json\nfrom pathlib import Path\nsys.path.insert(0,str(Path.cwd()/'ci'))\nfrom run_contracts import private_environment,new_output\nout=new_output(Path(r'C:/Users/joseh/AppData/Local/Temp/nova-aw8-20261009213551Z/capability-preflight-corrected'));env=private_environment(out,special=False)\nenv['PLAYWRIGHT_BROWSERS_PATH']=r'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines'\nos.environ.clear();os.environ.update(env)\nfrom local_cli.application.session import AgentSessionCoordinator\nfrom local_cli.application.commands import ApplicationCommand,CommandKind\nfrom local_cli.core.contracts import new_command_id\nfrom local_cli.tools import get_default_tools\nwork=out/'workspace';work.mkdir()\napp=AgentSessionCoordinator(provider=object(),model='AW8-no-model-inference',\n    tool_factory=lambda cwd:get_default_tools(cwd=cwd))\nreceipt=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_SESSION,{'workspace':str(work.resolve())}))\nif not receipt.accepted:raise RuntimeError('SESSION_PREFLIGHT_FAILED')\nsnap=app.get_snapshot(receipt.session_id)\nnative={}\nfrom tests.active_web_v1.test_aw5_engine import engine,end\nwith engine(work,substitute=False) as data:\n    port,manager,obs,owner,session,page,server,brokers=data\n    native=port.capabilities(session.browser_session_ref,deadline=end()).to_dict()\n    no_upstream=server.connections==0 and not server.hits\n    records=[dict(r) for r in brokers[0].records()[0]]\nprint(json.dumps(dict(schemaVersion=1,phase='AW8',purpose='read-only certification prerequisite characterization',\n    productiveToolNames=[tool.name for tool in app._session.tools],\n    productiveBrowserTools=[tool.name for tool in app._session.tools if tool.name.startswith('browser_')],\n    defaultApplicationActiveWeb=snap.services['activeWeb'],\n    realInstalledEngineCapabilities=native,productiveBrokerNoFixtureSubstitution=True,\n    upstreamConnections=0 if no_upstream else server.connections,brokerRecords=records,\n    nativeContextCleanupConfirmed=True,modelInference=0,noPublicSites=True,\n    noAvailabilityOverride=True),ensure_ascii=False,default=str))\n'@\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -c $code",
+  "runtime": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe",
+  "basePython": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe",
+  "pythonVersion": "3.14.6",
+  "harnessInitialFailure": {
+    "classification": "HARNESS_BUG",
+    "productFailure": false,
+    "command": "$code=@'\nimport sys,os,json\nfrom pathlib import Path\nsys.path.insert(0,str(Path.cwd()/'ci'))\nfrom run_contracts import private_environment,new_output\nout=new_output(Path(r'C:/Users/joseh/AppData/Local/Temp/nova-aw8-20261009213551Z/capability-preflight'));env=private_environment(out,special=False)\nenv['PLAYWRIGHT_BROWSERS_PATH']=r'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines'\nos.environ.clear();os.environ.update(env)\nfrom local_cli.application.session import AgentSessionCoordinator\nfrom local_cli.core.contracts import ApplicationCommand,CommandKind,new_command_id\nfrom local_cli.tools import get_default_tools\nwork=out/'workspace';work.mkdir()\napp=AgentSessionCoordinator(provider=object(),model='AW8-no-model-inference',\n    tool_factory=lambda cwd:get_default_tools(cwd=cwd))\nreceipt=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_SESSION,{'workspace':str(work.resolve())}))\nif not receipt.accepted:raise RuntimeError('SESSION_PREFLIGHT_FAILED')\nsnap=app.get_snapshot(receipt.session_id)\nnative={}\nfrom tests.active_web_v1.test_aw5_engine import engine,end\nwith engine(work,substitute=False) as data:\n    port,manager,obs,owner,session,page,server,brokers=data\n    native=port.capabilities(session.browser_session_ref,deadline=end()).to_dict()\n    no_upstream=server.connections==0 and not server.hits\n    records=[dict(r) for r in brokers[0].records()[0]]\nprint(json.dumps(dict(schemaVersion=1,phase='AW8',purpose='read-only certification prerequisite characterization',\n    productiveToolNames=[tool.name for tool in app._session.tools],\n    productiveBrowserTools=[tool.name for tool in app._session.tools if tool.name.startswith('browser_')],\n    defaultApplicationActiveWeb=snap.services['activeWeb'],\n    realInstalledEngineCapabilities=native,productiveBrokerNoFixtureSubstitution=True,\n    upstreamConnections=0 if no_upstream else server.connections,brokerRecords=records,\n    nativeContextCleanupConfirmed=True,modelInference=0,noPublicSites=True,\n    noAvailabilityOverride=True),ensure_ascii=False,default=str))\n'@\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -c $code",
+    "exitCode": 1,
+    "exception": "ImportError: cannot import ApplicationCommand from local_cli.core.contracts",
+    "corrected": "Import from existing local_cli.application.commands; new external output directory; no product/schema/assertion change",
+    "browserStarted": false,
+    "inference": 0
+  }
+}

@@ -1,0 +1,408 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW7",
+  "createdAt": "2026-10-09 21:19:00 UTC",
+  "runtime": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe",
+  "basePython": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe",
+  "python": "3.14.6",
+  "pytest": "9.1.1",
+  "platform": "Windows11 / local NTFS / HOST_UNISOLATED",
+  "outputRoot": "C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z",
+  "commands": {
+    "focused": "$code=@'\nimport sys,os\nfrom pathlib import Path\nsys.path.insert(0,str(Path.cwd()/'ci'))\nfrom run_contracts import private_environment,new_output\nout=new_output(Path(r'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/focused-final'));env=private_environment(out,special=False)\nenv['PLAYWRIGHT_BROWSERS_PATH']=r'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines'\nos.environ.clear();os.environ.update(env)\nimport pytest\nraise SystemExit(pytest.main(['-q','-p','no:cacheprovider','--basetemp',str(out/'pytest-private'),'--junitxml',str(out/'tests.xml'),'tests/active_web_v1']))\n'@\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -c $code",
+    "core": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job core --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/core-final'",
+    "security": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job security --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/security-final'",
+    "memory": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job memory --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/memory-final'",
+    "knowledge": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job knowledge --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/knowledge-final'",
+    "activeWeb": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job active-web --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/active-web-final'",
+    "native": "$env:PLAYWRIGHT_BROWSERS_PATH='C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines'\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job active-web-native --special --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/active-web-native-final'"
+  },
+  "baselineCommand": "$code=@'\nimport sys,os\nfrom pathlib import Path\nsys.path.insert(0,str(Path.cwd()/'ci'))\nfrom run_contracts import private_environment,new_output\nout=new_output(Path(r'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/baseline'));env=private_environment(out,special=False)\nenv['PLAYWRIGHT_BROWSERS_PATH']=r'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines'\nos.environ.clear();os.environ.update(env)\nimport pytest\nraise SystemExit(pytest.main(['-q','-p','no:cacheprovider','--basetemp',str(out/'pytest-private'),'--junitxml',str(out/'tests.xml'),'tests/active_web_v1','tests/security_v12/test_s5_contracts.py','tests/security_v12/test_s5_runtime.py','tests/test_nova_core_phase7_interactions.py','tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available']))\n'@\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -c $code",
+  "runs": [
+    {
+      "name": "active-web-final",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\active-web-final\\tests.xml",
+      "sha256": "a8b85f78b2b528688aa4619aee509f1412d4c7ddd14a24aadb70c4e46ef0d4bf",
+      "passed": 572,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 572,
+      "subtests": 0,
+      "durationSeconds": 26.209,
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "active-web",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "921d7fa8f06833c114b7db1189fe3ef2b2565475bb39258a36a1230c845deef2",
+        "positive_base_contracts": 202,
+        "collected_parameter_instances": 572,
+        "collected_nodeids_sha256": "4cc89c313c235dc0d9888fce4286cae86edaab864ac94456f2525f4f5e2bf34b",
+        "collection_guard": "PASS",
+        "tests_executed": 572,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      }
+    },
+    {
+      "name": "active-web-native-final",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\active-web-native-final\\tests.xml",
+      "sha256": "dac3fb1aac752a4816e836d6868626ba2d8066c79af940df6ec4ac6d0155a359",
+      "passed": 3,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 3,
+      "subtests": 0,
+      "durationSeconds": 6.127,
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "active-web-native",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "921d7fa8f06833c114b7db1189fe3ef2b2565475bb39258a36a1230c845deef2",
+        "positive_base_contracts": 2,
+        "collected_parameter_instances": 3,
+        "collected_nodeids_sha256": "e4a85fa4c234b1c8eca3633fd2d17d1fff5534b3cb2f09795bcbb60d49641bd6",
+        "collection_guard": "PASS",
+        "tests_executed": 3,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": true,
+        "new_skips_xfails_or_deselection": false
+      }
+    },
+    {
+      "name": "baseline",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\baseline\\tests.xml",
+      "sha256": "8c3601b3d619ba51f0e6b7c9418c1e67828fe15ca978c45e1002edb2fff046fa",
+      "passed": 675,
+      "failed": [
+        "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available"
+      ],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 676,
+      "subtests": 0,
+      "durationSeconds": 48.526,
+      "receipt": {}
+    },
+    {
+      "name": "core-final",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\core-final\\tests.xml",
+      "sha256": "0bd9871e9713aefc7a92f3acd16b763c0c5dd98a284e4ef6374f016a6e00cb8d",
+      "passed": 3311,
+      "failed": [
+        "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available"
+      ],
+      "errors": [],
+      "skips": [
+        {
+          "node": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "node": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "node": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw7-20261009205259Z\\\\core-final\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw7-20261009205259Z\\\\core-final\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'"
+        },
+        {
+          "node": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "node": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "node": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "reason": "legacy monitor removed in phase 1"
+        },
+        {
+          "node": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "reason": "legacy monitor removed in phase 1"
+        }
+      ],
+      "totalParameterInstances": 3319,
+      "subtests": 53,
+      "durationSeconds": 295.319,
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "core",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "921d7fa8f06833c114b7db1189fe3ef2b2565475bb39258a36a1230c845deef2",
+        "positive_base_contracts": 2832,
+        "collected_parameter_instances": 3319,
+        "collected_nodeids_sha256": "e02aee8fb386f95a27dea45d48384af3db7f0250595668afbda77fff8dda273f",
+        "collection_guard": "PASS",
+        "tests_executed": 3319,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      }
+    },
+    {
+      "name": "development-1",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\development-1\\tests.xml",
+      "sha256": "299a8775dac0a82e4e05bb85ba29ae8e01c35ab5f4a51cb0e0794cb598887e38",
+      "passed": 7,
+      "failed": [
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserActionCompleted]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserActionFailed]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserActionRequested]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserActionStarted]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserCleanupStatus]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserDownloadStaged]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserObservationCreated]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserOutcomeUnknown]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserSessionClosed]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserSessionCreated]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserTakeoverCompleted]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserTakeoverRequested]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[BrowserUploadStarted]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[NavigationCompleted]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[NavigationStarted]",
+        "tests.active_web_v1.test_aw7_frontends::test_every_browser_projection_is_correlated_bounded_and_non_authoritative[PageCreated]",
+        "tests.active_web_v1.test_aw7_frontends::test_application_snapshot_events_cli_jsonl_share_backend_without_authority",
+        "tests.active_web_v1.test_aw7_frontends::test_exact_approval_still_host_required_and_audited",
+        "tests.active_web_v1.test_aw7_engine::test_native_engine_application_metadata_no_privileged_desktop_surface[False]",
+        "tests.active_web_v1.test_aw7_engine::test_native_engine_application_metadata_no_privileged_desktop_surface[True]"
+      ],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 27,
+      "subtests": 0,
+      "durationSeconds": 4.574,
+      "receipt": {}
+    },
+    {
+      "name": "development-2",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\development-2\\tests.xml",
+      "sha256": "9b73a185be629f2ecace0eaf9b5d74599aff6e1dadec7fd041e2674a3d1f18e1",
+      "passed": 27,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 27,
+      "subtests": 0,
+      "durationSeconds": 4.067,
+      "receipt": {}
+    },
+    {
+      "name": "development-3",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\development-3\\tests.xml",
+      "sha256": "cd99ed5361edd51d116d3cd06aa182575117c6cbcd6d054d1fda8f19ae07bcaa",
+      "passed": 30,
+      "failed": [
+        "tests.active_web_v1.test_aw7_engine::test_native_sdk_receipt_durable_audit_and_shared_projection"
+      ],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 31,
+      "subtests": 0,
+      "durationSeconds": 5.626,
+      "receipt": {}
+    },
+    {
+      "name": "development-4",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\development-4\\tests.xml",
+      "sha256": "bf8c2e10c4e6980779abb91a858899e05b748ddb0495a26e3ebe08fd5164296a",
+      "passed": 31,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 31,
+      "subtests": 0,
+      "durationSeconds": 4.974,
+      "receipt": {}
+    },
+    {
+      "name": "development-5",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\development-5\\tests.xml",
+      "sha256": "ad7991512288e104a60aa9784e37be3ac0154febb1075305a6dc73399aa2ef09",
+      "passed": 34,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 34,
+      "subtests": 0,
+      "durationSeconds": 7.822,
+      "receipt": {}
+    },
+    {
+      "name": "focused-final",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\focused-final\\tests.xml",
+      "sha256": "af27b095f5e373171a0e011a7782dbbad933f7275125302a85912a041d1f8837",
+      "passed": 600,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 600,
+      "subtests": 0,
+      "durationSeconds": 60.222,
+      "receipt": {}
+    },
+    {
+      "name": "knowledge-final",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\knowledge-final\\tests.xml",
+      "sha256": "81435d7bedda0e33828317a74142680a935e0640445d135b3a06d004ebb09aa2",
+      "passed": 1015,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 1015,
+      "subtests": 0,
+      "durationSeconds": 183.815,
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "knowledge",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "921d7fa8f06833c114b7db1189fe3ef2b2565475bb39258a36a1230c845deef2",
+        "positive_base_contracts": 335,
+        "collected_parameter_instances": 1015,
+        "collected_nodeids_sha256": "40aed5a5c3606c0091ce3ee4323381343bc40e3ab561ebe5b04950785d5821dd",
+        "collection_guard": "PASS",
+        "tests_executed": 1015,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      }
+    },
+    {
+      "name": "memory-final",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\memory-final\\tests.xml",
+      "sha256": "4c1a4d63b74438f6809f25be9bb5abc638e22a5e19fa0305b4f5c889cbf908ab",
+      "passed": 791,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 791,
+      "subtests": 0,
+      "durationSeconds": 102.363,
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "memory",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "921d7fa8f06833c114b7db1189fe3ef2b2565475bb39258a36a1230c845deef2",
+        "positive_base_contracts": 326,
+        "collected_parameter_instances": 791,
+        "collected_nodeids_sha256": "ba148b5ebf41169141fcde97edc4a2f0380b25f232b047da9a28123f60b022e6",
+        "collection_guard": "PASS",
+        "tests_executed": 791,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      }
+    },
+    {
+      "name": "security-final",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\security-final\\tests.xml",
+      "sha256": "74fcecfc95ea73581a290ebbbc1392a2cc12ce35a07f6f99b69c49c14cc8fdd7",
+      "passed": 615,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "totalParameterInstances": 615,
+      "subtests": 0,
+      "durationSeconds": 33.173,
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "security",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "921d7fa8f06833c114b7db1189fe3ef2b2565475bb39258a36a1230c845deef2",
+        "positive_base_contracts": 274,
+        "collected_parameter_instances": 615,
+        "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+        "collection_guard": "PASS",
+        "tests_executed": 615,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      }
+    }
+  ],
+  "focusedAW7": {
+    "passed": 34,
+    "failed": 0,
+    "errors": 0,
+    "portable": 31,
+    "native": 3,
+    "reference": "development-5 (focused before freeze); all34 repeated inside focused-final and corresponding CI jobs"
+  },
+  "newFailures": 0,
+  "newSkips": 0,
+  "newXfails": 0,
+  "newExclusions": 0,
+  "historicalSkipComparison": {
+    "reference": "docs/active_web_v1/aw6/test_results.json",
+    "sameNodeids": true,
+    "count": 7
+  },
+  "knownDebt": {
+    "nodeid": "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "impact": "NON_BLOCKING_FOR_AW7",
+    "coreExitCode": 1,
+    "stillFail": true,
+    "privateEnvironmentASTUnchanged": true
+  },
+  "developmentFailureClassification": {
+    "development1": {
+      "productDefectsResolvedBeforeFreeze": 18,
+      "harnessFixtureErrors": 2,
+      "details": [
+        "Projection origin erroneously carried query metadata instead of pure origin (16 parameterized cases)",
+        "SessionClosed overwrote cleanup receipt (2 real-engine cases)",
+        "Unknown JSONL request shape / response helper incorrectly invoked (2 fixture errors)"
+      ]
+    },
+    "development3": {
+      "classification": "HARNESS_BUG",
+      "reason": "New native fixture requested SCROLL on a link that supports NAVIGATE/CLICK. Switched test request to its real supported NAVIGATE contract; no capability weakening."
+    },
+    "desktopDevelopment": {
+      "passed": 2,
+      "failed": 1,
+      "classification": "HARNESS_BUG",
+      "reason": "New test invoked disconnect instead of existing disconnected API; corrected only new test."
+    }
+  },
+  "noQualityCampaigns": true,
+  "models": 0,
+  "sites": 0,
+  "hostedGithubActionsExecuted": false,
+  "linuxMacOSExecution": "NOT_EVALUATED",
+  "postRuntimeOnlyChange": "CI artifact retention narrowed; commands/jobs/permissions/inputs and runtime product/test pins unchanged; reversible hash proof in integrity.json"
+}

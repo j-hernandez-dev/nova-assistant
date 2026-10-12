@@ -1,0 +1,67 @@
+{
+  "drift": [],
+  "historicalExternalArtifactCount": 288,
+  "historicalExternalDrift": [],
+  "unexpectedNewFiles": [],
+  "tests": [
+    {
+      "name": "baseline",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-20261009213551Z/baseline/tests.xml",
+      "sha256": "a02622e25650038a28f1df1f4b89b4ca4e8cb2f8caf3eb753ba8878326409cdd",
+      "denominator": 173,
+      "passed": 172,
+      "failed": [
+        "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available"
+      ],
+      "errors": [],
+      "skips": [],
+      "suite": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "1",
+          "skipped": "0",
+          "tests": "173",
+          "time": "39.821",
+          "timestamp": "2026-10-09T15:36:39.616493-06:00",
+          "hostname": "WINDEV-SPACE"
+        }
+      ],
+      "exitCode": 1
+    },
+    {
+      "name": "missing-tool-contract",
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-20261009213551Z/missing-tool-contract/tests.xml",
+      "sha256": "d3ff767a7eb1383b09bc5f3adec3f5e91cc9a362573771956c6c8c45f6a2f8fc",
+      "denominator": 1,
+      "passed": 1,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "suite": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "1",
+          "time": "0.499",
+          "timestamp": "2026-10-09T15:39:49.962792-06:00",
+          "hostname": "WINDEV-SPACE"
+        }
+      ],
+      "exitCode": 0
+    }
+  ],
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "staged": "",
+  "tagsUnchanged": true,
+  "schemaVersion": 1,
+  "phase": "AW8",
+  "noProductTestCiHarnessArchitectureChanges": true,
+  "commands": {
+    "baseline": "$code=@'\nimport sys,os\nfrom pathlib import Path\nsys.path.insert(0,str(Path.cwd()/'ci'))\nfrom run_contracts import private_environment,new_output\nout=new_output(Path(r'C:/Users/joseh/AppData/Local/Temp/nova-aw8-20261009213551Z/baseline'));env=private_environment(out,special=False)\nenv['PLAYWRIGHT_BROWSERS_PATH']=r'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines'\nos.environ.clear();os.environ.update(env)\nimport pytest\nraise SystemExit(pytest.main(['-q','-p','no:cacheprovider','--basetemp',str(out/'pytest-private'),'--junitxml',str(out/'tests.xml'),'tests/active_web_v1/test_aw5_engine.py','tests/active_web_v1/test_aw6_engine.py','tests/active_web_v1/test_aw7_engine.py','tests/active_web_v1/test_aw7_frontends.py','tests/active_web_v1/test_aw4_network.py','tests/active_web_v1/test_aw4_proxy.py','tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available']))\n'@\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -c $code",
+    "missingToolContract": "$code=@'\nimport sys,os\nfrom pathlib import Path\nsys.path.insert(0,str(Path.cwd()/'ci'))\nfrom run_contracts import private_environment,new_output\nout=new_output(Path(r'C:/Users/joseh/AppData/Local/Temp/nova-aw8-20261009213551Z/missing-tool-contract'));env=private_environment(out,special=False)\nos.environ.clear();os.environ.update(env)\nimport pytest\nraise SystemExit(pytest.main(['-q','-p','no:cacheprovider','--basetemp',str(out/'pytest-private'),'--junitxml',str(out/'tests.xml'),'tests/active_web_v1/test_aw3_policy.py::test_unimplemented_browser_name_has_no_generic_legacy_authority_path']))\n'@\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -c $code",
+    "inventory": "& 'C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe' -B ci/contract_inventory.py"
+  }
+}

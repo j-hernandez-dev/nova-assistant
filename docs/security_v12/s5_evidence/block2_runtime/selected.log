@@ -1,0 +1,49 @@
+........................................................................ [ 51%]
+..........F.....................F...................................     [100%]
+================================== FAILURES ===================================
+_ test_child_uses_same_service_and_narrow_parent_does_not_authorize_redirect __
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s5_evidence/block2_runtime/s5_private_cpo168sw/selected/test_child_uses_same_service_a0')
+
+    def test_child_uses_same_service_and_narrow_parent_does_not_authorize_redirect(tmp_path):
+        root, port, _ = runtime(tmp_path, ScriptedHTTPPort([HttpHop(302, '', '/b', b'')]))
+        inv = fetch(tmp_path)
+        now = datetime.now(timezone.utc)
+        exact = Capability(Permission('network.fetch'), ResourceScope(ScopeKind.URL, inv.arguments['url']),
+                           ControlClass.BROKER_ENFORCED)
+        parent_inv = replace(inv, name='agent', arguments={}, operation_id='delegate',
+                             context=replace(inv.context, operation_id='delegate'))
+        caps = tuple(c for c in root._issuer.ceiling.capabilities if c.permission.name != 'network.fetch') + (exact,)
+>       req = GrantRequest.from_invocation(parent_inv, capabilities=caps, ceiling=root._issuer.ceiling,
+            lifetime=GrantLifetime(now, now+timedelta(minutes=1), one_shot=False), policy_revision=1)
+E       TypeError: GrantRequest.from_invocation() missing 2 required keyword-only arguments: 'action' and 'effect_classification'
+
+tests\security_v12\test_s5_runtime.py:152: TypeError
+_____ test_effect_resource_intent_is_exact[web_fetch-args2-network.fetch] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s5_evidence/block2_runtime/s5_private_cpo168sw/selected/test_effect_resource_intent_is2')
+name = 'web_fetch', args = {'url': 'https://example.test/a'}
+permission = 'network.fetch'
+
+    @pytest.mark.parametrize('name,args,permission', [
+        ('read', {'file_path': 'a.txt'}, 'filesystem.read'),
+        ('write', {'file_path': 'a.txt', 'content': 'ok'}, 'filesystem.write'),
+        ('web_fetch', {'url': 'https://example.test/a'}, 'network.fetch'),
+    ])
+    def test_effect_resource_intent_is_exact(tmp_path, name, args, permission):
+        reg, policy = registry(tmp_path), PolicyEngineV2()
+        inv = invocation(tmp_path, name, args)
+        ceiling = host_ceiling(reg, tmp_path, 'session')
+        intent = policy.intent(inv, reg, ceiling)
+        assert intent.capabilities[-1].permission.name == permission
+>       assert intent.capabilities[-1].control_class is (
+            ControlClass.BROKER_ENFORCED if permission.startswith('filesystem.')
+            else ControlClass.APPLICATION_ENFORCED)
+E       AssertionError: assert <ControlClass.BROKER_ENFORCED: 'BROKER_ENFORCED'> is <ControlClass.APPLICATION_ENFORCED: 'APPLICATION_ENFORCED'>
+E        +  where <ControlClass.BROKER_ENFORCED: 'BROKER_ENFORCED'> = Capability(permission=Permission(name='network.fetch'), scope=ResourceScope(kind=<ScopeKind.URL: 'URL'>, resource='htt...None, executable=None), control_class=<ControlClass.BROKER_ENFORCED: 'BROKER_ENFORCED'>, restrictions=mappingproxy({})).control_class
+
+tests\security_v12\test_s2_policy.py:67: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s5_runtime.py::test_child_uses_same_service_and_narrow_parent_does_not_authorize_redirect
+FAILED tests/security_v12/test_s2_policy.py::test_effect_resource_intent_is_exact[web_fetch-args2-network.fetch]
+2 failed, 138 passed in 2.17s

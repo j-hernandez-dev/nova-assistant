@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Block05 SECRET_NON_EXPOSURE revision02 — authorized additive continuation",
+  "candidateFreeze": "candidate_freeze.json",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "originalRevision02Preflight": "../manifest.json",
+  "historicalArtifactsRewritten": false,
+  "available": "UNKNOWN",
+  "publicOnly": "UNKNOWN",
+  "networkEgressControl": "UNKNOWN",
+  "AW8": "BLOCKED",
+  "ACTIVE_WEB_CORE": "NOT_READY",
+  "category": "SCHEMA_AWARE_PUBLICATION_EVIDENCE",
+  "SCHEMA_AWARE_REDACTION": "PASS",
+  "pipeline": [
+    "Raw page state retained inside host",
+    "Final sensitive checkpoint",
+    "Redact/sanitize explicitly classified page-derived leaves",
+    "Construct bounded public capture payload",
+    "Wrap in closed fixed IPC envelope",
+    "Parse/serialize closed versioned length-prefixed frame"
+  ],
+  "changedProductFiles": [
+    {
+      "path": "native/nova-browser-host/TransferRuntime.cs",
+      "before": "b78383aa9013b702fb8bea9c064b7cccaa695c0a15c1fd505fda8d0d677285df",
+      "after": "13bab278e60935f4595a951617ba7690ed410ef9d216dff570de4658a481c62c"
+    },
+    {
+      "path": "native/nova-browser-host/ObservationRuntime.cs",
+      "before": "d5790248d7b79da174841ba08f2ebdde39a30182b0275819b002c7e05acad6a1",
+      "after": "07120a5baee9ecbf8f7c4f8b4c7e5c44f411463a570b082cd4a178cac44d5203"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveValueRegistry.cs",
+      "before": "5fb56a8ca16736b940444de3420c1720d8fdbc8f35f2b3af0d6c992263c8079b",
+      "after": "c80ffd19bd63763cc84591681607e9f9c264b43b94379b68f51da1f39697afe0"
+    }
+  ],
+  "controlPlaneExcluded": [
+    "kind at capture/resolve/action/transfer root",
+    "schemaVersion",
+    "messageType",
+    "requestId",
+    "operationId",
+    "browserSessionRef",
+    "pageRef",
+    "status/outcome/error enums",
+    "fixed event discriminators",
+    "engineEpoch/engineVersion",
+    "binding",
+    "public fingerprint",
+    "typed capability array",
+    "framing"
+  ],
+  "pageDerivedHandled": [
+    "title",
+    "visible text",
+    "accessible names and role/type/state derived from page",
+    "form accessible metadata",
+    "dialogs",
+    "href/link URLs",
+    "public page URL",
+    "download suggested filename",
+    "download MIME",
+    "transfer metadata extension/MIME classified as page-derived"
+  ],
+  "urls": {
+    "beforeIpc": true,
+    "userinfoRemoved": true,
+    "queryAndFragmentRemoved": true,
+    "knownRawOrNormalUriEscapedPathValueProtected": true,
+    "shortSensitiveOrUnsafeOrigin": "Fixed internal omission sentinel; Python does not convert it to remote authority or actionable refs"
+  },
+  "fingerprints": {
+    "private": "Freshness metadata remains host-private",
+    "public": "Opaque random incarnation fingerprint, not a hash of raw secret",
+    "contentDigest": "Existing Python observation service hashes already sanitized public data, not raw known material"
+  },
+  "nativeCollisionEvidence": {
+    "cases": 6,
+    "pass": 6,
+    "caseIds": "opaque-case-0 through opaque-case-5",
+    "rawSensitiveValuePersisted": false,
+    "includesShortValues": true,
+    "includesProtocolDiscriminatorCollision": true,
+    "pageLeafProtected": true,
+    "fixedCaptureDiscriminatorUnchanged": true,
+    "responseEventErrorEnvelopesUnchanged": true,
+    "closedCSharpParserAndLengthPrefixedSerializerValid": true,
+    "actualBrowserEngine": true,
+    "syntheticInEngineInput": true
+  },
+  "ipcScope": "No new operation, eval, selector API, schema expansion, authority field, or model-accessible page bridge. Capture snapshots are sanitized before crossing the Named Pipe. Transfer metadata is explicitly sanitized, never blanket-recursively redacted.",
+  "evidencePrivacy": {
+    "newRunnerPrintsOnlyCodesAndBooleans": true,
+    "valuesGeneratedInsideNativeMemory": true,
+    "noValuePassedFromPythonToNativeCommandLine": true,
+    "noRawCredentialInNewEvidence": true,
+    "xmlScans": [
+      {
+        "artifact": "C:/Users/joseh/AppData/Local/Temp/nvr20.xml",
+        "sha256": "67054bf97ea45bb699b3371548955ebc242fffd9bcec8d96dbe256043e049de2",
+        "fullHumanCredentialPatternFound": false
+      },
+      {
+        "artifact": "C:/Users/joseh/AppData/Local/Temp/nvr21.xml",
+        "sha256": "0979fa3a10d1ccb64fd65e724e18d896d174cd0981c881d224c052926b73131d",
+        "fullHumanCredentialPatternFound": false
+      },
+      {
+        "artifact": "C:/Users/joseh/AppData/Local/Temp/nvr22-aw/tests.xml",
+        "sha256": "508d5be691b8f1694f9224fc61da5a391685e90bd06afea962cb6ae0d3cfba64",
+        "fullHumanCredentialPatternFound": false
+      },
+      {
+        "artifact": "C:/Users/joseh/AppData/Local/Temp/nvr22-security/tests.xml",
+        "sha256": "2f535ba5ecc6618df1de1b13fa6b5e52aa710eeda6515d90c44a10b84cd152b1",
+        "fullHumanCredentialPatternFound": false
+      }
+    ],
+    "scanLimit": "Full known human-driver credential pattern scan, not a claim of universal secret detection in arbitrary artifacts"
+  },
+  "inheritedFailClosedTests": "Existing instrumentation/registry failure, expiration, count/length/control ceilings, browser disconnect and cleanup paths are in the final full runner. No skips, xfails, retries or replacement success evidence."
+}

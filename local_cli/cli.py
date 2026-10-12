@@ -452,6 +452,9 @@ def _handle_application_slash_command(command: str, console, ctx: SimpleNamespac
         from local_cli.interfaces.memory_cli import handle_memory_command
         handle_memory_command(argument,console)
         return True
+    if cmd == '/web':
+        console.web_v12(argument)
+        return True
     if cmd in ('/attach', '/source'):
         from local_cli.interfaces.knowledge_cli import handle_knowledge_command
         handle_knowledge_command(argument, console, attach=cmd == '/attach')

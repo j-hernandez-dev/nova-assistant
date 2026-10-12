@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "purpose": "C07 continuation after authorized direct terminal contract reconciliation",
+  "DIRECT_TERMINAL_CONTRACT_RECONCILIATION": "PASS",
+  "C07_TERMINAL_SNAPSHOT_FIX": "PARTIAL",
+  "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+  "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+  "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "decision": "WV2-B05-C07-TERMINAL-CONTRACT-001 prospectively authorized, historical preflight left unchanged",
+  "history": {
+    "preflight": "../manifest.json",
+    "preflightVerdict": "TERMINAL_SNAPSHOT_FIX=BLOCKED preserved",
+    "c06": "../../continuation_06_failure_reason/manifest.json",
+    "c05": "../../continuation_05_reproducibility/manifest.json",
+    "historicalArtifactsChanged": 0
+  },
+  "sourceCandidate": "final_evaluated_source_snapshot.json",
+  "modifiedFiles": [
+    {
+      "path": "native/nova-browser-host/SensitiveValueRegistry.cs",
+      "before": "80a20c6fb21fb417149c6c00472cb8ea0bac847d33b863ae8d4366412413e4ac",
+      "after": "18da597b9131e522501f43e24dab8de6cf61dd0bf2a938e4d59b430ca22c12ca"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTracking.cs",
+      "before": "10d02c758b06c2d8d2cd10c829779cc056993399e0c60fa8ff2b6719e46455e2",
+      "after": "12cb12d1d56dbbfe6631b2cfb76ac159866e327b3e44c71dacaf06333a5cea9a"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "before": "526df33cadf052634bd2ed8a919ca7dd9e2c21f3b4463f81855320d003f64872",
+      "after": "ce455bc332d6a9624ba441157a5b79e950a5a471fe778ae80c327178129c9b84"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTerminalState.cs",
+      "before": null,
+      "after": "98441ca3a6baa94e586f4ca2a90a5189ac27eac0910c27b6cbee08c1694993b1"
+    },
+    {
+      "path": "native/nova-browser-host/tests/test_terminal_ordering.py",
+      "before": null,
+      "after": "75ac4a11599019c9cfd8670be1f31541b7e1fa8fde1a10a115882a4088d78c06"
+    },
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "before": null,
+      "after": "3f0a31fd604e42e7bbaa8d28c1c70c926927be7dbe56755c347ea319f8f12eb5"
+    },
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/runner.csproj",
+      "before": null,
+      "after": "80b61f9bdf71b54d8019df58046fdc43f50c8be4bc921d5aca48604d54308aa8"
+    }
+  ],
+  "testReconciliation": "direct_contract_reconciliation.json",
+  "reconciledCases": [
+    "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-retire]",
+    "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-checkpoint]",
+    "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[history-clear]",
+    "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-retire-denied]",
+    "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-checkpoint-denied]"
+  ],
+  "unchanged": [
+    "Architecture V1/V1.1",
+    "Policy/Approval/Grant",
+    "Core/Memory/Knowledge/Desktop",
+    "Network/capability activation",
+    "Historical three scenarios, driver, HTML, sleeps/timeouts",
+    "No-exposure/monotonic/committed-short assertions"
+  ],
+  "testResults": {
+    "A": {
+      "status": "PASS",
+      "pass": 5,
+      "fail": 0,
+      "error": 0,
+      "finalArtifact": "A_final_result.json",
+      "initialA": "5 PASS retained; host-scalar reason label refined, then A rerun"
+    },
+    "B": {
+      "status": "PASS",
+      "pass": 32,
+      "fail": 0,
+      "error": 0,
+      "contract": 29,
+      "nativeInverseShort": 3,
+      "artifact": "B_final_result.json",
+      "priorSetupErrors": {
+        "error": 32,
+        "classification": "HARNESS_BUG / new runner CS0136",
+        "artifact": "B_initial_setup_errors.json",
+        "actorsExecuted": 0,
+        "correction": "Only local variable name, no test value/assertion/product semantic change"
+      }
+    },
+    "C": {
+      "status": "FAIL",
+      "pass": 22,
+      "fail": 2,
+      "error": 0,
+      "skip": 0,
+      "artifact": "C_policy_result.json",
+      "failures": [
+        {
+          "id": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_native[short-exact]",
+          "classification": "PRODUCT_BUG",
+          "firstPoint": "Native runner return code 34: title equals known value or trimmed public text equals known short value.",
+          "securityAssertionPreserved": true,
+          "rawValuePersisted": false,
+          "staticMechanism": "ObservationScripts.Summary appends host separators to raw text nodes; ObservationRuntime textLeaves holds per-world aggregated text, not original DOM leaves. Registry exact-leaf equality does not match a short known value plus host-added whitespace.",
+          "causalToTerminalFix": "UNKNOWN: this 24-case suite had never been executed on the historical candidate. No retrospective PREEXISTING label without baseline.",
+          "neededScope": "Native visible-text leaf boundary/projection extraction. Outside the requested minimal terminal-selection change; human review required."
+        },
+        {
+          "id": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_native[cross]",
+          "classification": "PRODUCT_BUG",
+          "firstPoint": "Native runner return code 32: public capture kind or exact terminal long COMMITTED state assertion. Capture kind is fixed; static path indicates terminal is not COMMITTED.",
+          "securityAssertionPreserved": true,
+          "rawValuePersisted": false,
+          "staticHypothesis": "Retired document reports are remembered but not promoted. A genuine PAGEHIDE snapshot received after retirement can remain TRANSIENT; actual event-order cause not instrumented/proven.",
+          "neededScope": "Review proof/lifecycle validity of explicitly observed terminal snapshots around cross-document retirement, without accepting arbitrary stale pending values.",
+          "automaticallyFixed": false
+        }
+      ]
+    },
+    "D": {
+      "status": "NOT_RUN",
+      "planned": 15,
+      "reason": "A–C prerequisite not met; stopped on C security failure."
+    },
+    "E": {
+      "status": "NOT_RUN",
+      "planned": 33
+    },
+    "F": {
+      "status": "NOT_RUN",
+      "historicalExpected": 396,
+      "policyAdditive": 24,
+      "orderingAdditive": 32,
+      "expectedIfInventoryUnchanged": 452,
+      "measuredDenominator": null
+    }
+  },
+  "gates": {
+    "DIRECT_TERMINAL_CONTRACT_RECONCILIATION": "PASS",
+    "TERMINAL_SNAPSHOT_PROVENANCE": "PARTIAL",
+    "CONTROL_DOCUMENT_ORDERING": "PARTIAL",
+    "LATE_EVENT_REJECTION": "PARTIAL",
+    "TRUE_SHORT_COMMITTED_DENIAL": "PASS",
+    "BOUNDED_TRANSIENT_SENSITIVE_VALUE_POLICY": "PARTIAL",
+    "MONOTONIC_SENSITIVE_KNOWLEDGE": "PARTIAL",
+    "SCHEMA_AWARE_REDACTION": "PARTIAL",
+    "CROSS_DOCUMENT_SECRET_REDACTION": "PARTIAL",
+    "MODEL_PROJECTION_SECRET_BOUNDARY": "FAIL",
+    "SECRET_REGISTRY_LIFECYCLE": "PARTIAL",
+    "SECRET_NON_EXPOSURE": "FAIL",
+    "BLOCK05_FINAL_REGRESSION": "NOT_RUN"
+  },
+  "failures": [
+    {
+      "id": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_native[short-exact]",
+      "classification": "PRODUCT_BUG",
+      "firstPoint": "Native runner return code 34: title equals known value or trimmed public text equals known short value.",
+      "securityAssertionPreserved": true,
+      "rawValuePersisted": false,
+      "staticMechanism": "ObservationScripts.Summary appends host separators to raw text nodes; ObservationRuntime textLeaves holds per-world aggregated text, not original DOM leaves. Registry exact-leaf equality does not match a short known value plus host-added whitespace.",
+      "causalToTerminalFix": "UNKNOWN: this 24-case suite had never been executed on the historical candidate. No retrospective PREEXISTING label without baseline.",
+      "neededScope": "Native visible-text leaf boundary/projection extraction. Outside the requested minimal terminal-selection change; human review required."
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_native[cross]",
+      "classification": "PRODUCT_BUG",
+      "firstPoint": "Native runner return code 32: public capture kind or exact terminal long COMMITTED state assertion. Capture kind is fixed; static path indicates terminal is not COMMITTED.",
+      "securityAssertionPreserved": true,
+      "rawValuePersisted": false,
+      "staticHypothesis": "Retired document reports are remembered but not promoted. A genuine PAGEHIDE snapshot received after retirement can remain TRANSIENT; actual event-order cause not instrumented/proven.",
+      "neededScope": "Review proof/lifecycle validity of explicitly observed terminal snapshots around cross-document retirement, without accepting arbitrary stale pending values.",
+      "automaticallyFixed": false
+    }
+  ],
+  "stopReason": "Gate C exposed model-facing short-leaf protection failure plus missing native cross-document terminal promotion; no assertions relaxed, D–F not started.",
+  "diagnosticC06": {
+    "temporarilyRetainedInternalFirstReason": true,
+    "productiveObserverDefaultNull": true,
+    "noCapabilityAnnounced": true,
+    "retirementDecision": "No final closure: leave only internal memory classification/test sink arrangement pending human review. No productive file logger or IPC export added."
+  },
+  "capabilities": {
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "cleanup": {
+    "ownedDirectoryRemaining": [],
+    "scopedProcessesRemaining": [],
+    "historical36UdfMaintenance": false
+  },
+  "noHistoricalUdfMaintenance": true,
+  "noCommitPushTagRelease": true,
+  "humanReviewRequired": true,
+  "nextDecision": "Authorize a strictly bounded native leaf-framing/projection repair and review retirement handling of genuinely observed PAGEHIDE terminal snapshots; do not weaken exact-leaf policy or accept arbitrary stale data."
+}

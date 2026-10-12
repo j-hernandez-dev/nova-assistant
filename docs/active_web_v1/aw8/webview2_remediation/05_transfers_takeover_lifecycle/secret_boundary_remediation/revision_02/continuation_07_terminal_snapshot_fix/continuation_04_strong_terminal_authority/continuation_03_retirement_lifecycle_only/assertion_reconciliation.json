@@ -1,0 +1,82 @@
+{
+  "authorization": "ENGINE_WORLD_RETIRE NON_TERMINAL — narrow direct contract reconciliation",
+  "cases": [
+    {
+      "path": "native/nova-browser-host/tests/strong_terminal_runner/Program.cs",
+      "ids": [
+        "change-then-retire",
+        "strong-engine_world_retire-long",
+        "strong-engine_world_retire-short",
+        "pagehide-retire-long",
+        "pagehide-retire-short"
+      ],
+      "old": "ENGINE_WORLD_RETIRE constructs snapshot, commits exact current, short denied by retirement",
+      "new": "seal lifecycle; known + TRANSIENT; retain exact current/revision; no new terminal/Commit; explicit unresolved-end denial separate",
+      "beforeSha256": "91cd8aceae55af0d3df87cb20a5018dac0ce12354483aa632e2cc33b905e989c",
+      "humanDecision": "ENGINE_WORLD_RETIRE NON_TERMINAL; only SUBMIT_CONFIRMED and TAKEOVER_END_CHECKPOINT",
+      "unchanged": [
+        "values/lengths",
+        "native fixtures/driver/sequences/assertions",
+        "no-exposure",
+        "monotonicity",
+        "bounds",
+        "genuine-short denial"
+      ],
+      "afterSha256": "3480286f5840ca936069776826934e29a4463c1daf67bab4bd831189a1f71274"
+    },
+    {
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "ids": [
+        "stale-terminal-current",
+        "short-1",
+        "short-2",
+        "short-3",
+        "pagehide-uncommitted",
+        "multiple-controls",
+        "forged-engine-reason"
+      ],
+      "old": "retirement implicitly commits current or unconsumed snapshot",
+      "new": "retirement never commits; only explicit SUBMIT/current CHECKPOINT may commit before seal; unresolved retirement retained",
+      "beforeSha256": "c7748c629c898c151bd99d44cf11cd00cf4d7f4ff79d146e819f516a2a8f0ac2",
+      "humanDecision": "ENGINE_WORLD_RETIRE NON_TERMINAL; only SUBMIT_CONFIRMED and TAKEOVER_END_CHECKPOINT",
+      "unchanged": [
+        "values/lengths",
+        "native fixtures/driver/sequences/assertions",
+        "no-exposure",
+        "monotonicity",
+        "bounds",
+        "genuine-short denial"
+      ],
+      "afterSha256": "5adf4458bef232db003d5b221b5ce17750fd1b9a16f362d716bd3eaa2c0b1466"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "terminal-retire",
+        "short-retire-denied"
+      ],
+      "old": "retirement proof commits terminal current",
+      "new": "explicit strong SUBMIT proof precedes retirement; genuine long COMMITTED / short denial preserved",
+      "beforeSha256": "1017b4710353da5de7bd46182a9ec93e293fe368e10b46e32a5925b236d3f072",
+      "humanDecision": "ENGINE_WORLD_RETIRE NON_TERMINAL; only SUBMIT_CONFIRMED and TAKEOVER_END_CHECKPOINT",
+      "unchanged": [
+        "values/lengths",
+        "native fixtures/driver/sequences/assertions",
+        "no-exposure",
+        "monotonicity",
+        "bounds",
+        "genuine-short denial"
+      ],
+      "afterSha256": "066a45e9590f9a1b6ae1a0efbcde03618b0a065ed7a285986f262fceecdc1de1"
+    }
+  ],
+  "unmodifiedNativeTests": [
+    "test_transient_sensitive_policy.py",
+    "test_sensitive_continuity.py",
+    "test_sensitive_disconnect_diagnostic.py",
+    "test_takeover_secret_navigation.py",
+    "human_driver/Program.cs",
+    "transfer_page.html"
+  ],
+  "noHistoricalResumeAssertionChanges": true
+}

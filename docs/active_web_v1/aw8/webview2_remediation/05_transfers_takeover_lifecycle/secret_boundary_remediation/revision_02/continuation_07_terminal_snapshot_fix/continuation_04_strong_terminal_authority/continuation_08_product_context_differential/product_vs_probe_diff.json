@@ -1,0 +1,283 @@
+{
+  "schemaVersion": 1,
+  "createdBeforePairedExecution": "Static portion was written before P1; measuredP1/decision enrichment is prospective after P1",
+  "staticRootCauseIdentified": false,
+  "settings": [
+    {
+      "name": "IsWebMessageEnabled",
+      "productConfigured": false,
+      "microConfigured": false,
+      "classification": "IDENTICAL",
+      "evidence": "Same supported setter assigns false in both code paths; old microprobe did not separately persist getter readback for all six",
+      "effectiveProductReadback": false,
+      "effectiveMicroValue": false,
+      "effectiveMicroEvidence": "SOURCE_SETTER_COMPLETED_IN_PASS; not a retrospective getter receipt",
+      "effectiveProductEvidence": "Native CoreWebView2Settings getter, P1 record2"
+    },
+    {
+      "name": "AreHostObjectsAllowed",
+      "productConfigured": false,
+      "microConfigured": false,
+      "classification": "IDENTICAL",
+      "evidence": "Same supported setter assigns false in both code paths; old microprobe did not separately persist getter readback for all six",
+      "effectiveProductReadback": false,
+      "effectiveMicroValue": false,
+      "effectiveMicroEvidence": "SOURCE_SETTER_COMPLETED_IN_PASS; not a retrospective getter receipt",
+      "effectiveProductEvidence": "Native CoreWebView2Settings getter, P1 record2"
+    },
+    {
+      "name": "AreDevToolsEnabled",
+      "productConfigured": false,
+      "microConfigured": false,
+      "classification": "IDENTICAL",
+      "evidence": "Same supported setter assigns false in both code paths; old microprobe did not separately persist getter readback for all six",
+      "effectiveProductReadback": false,
+      "effectiveMicroValue": false,
+      "effectiveMicroEvidence": "SOURCE_SETTER_COMPLETED_IN_PASS; not a retrospective getter receipt",
+      "effectiveProductEvidence": "Native CoreWebView2Settings getter, P1 record2"
+    },
+    {
+      "name": "IsPasswordAutosaveEnabled",
+      "productConfigured": false,
+      "microConfigured": false,
+      "classification": "IDENTICAL",
+      "evidence": "Same supported setter assigns false in both code paths; old microprobe did not separately persist getter readback for all six",
+      "effectiveProductReadback": false,
+      "effectiveMicroValue": false,
+      "effectiveMicroEvidence": "SOURCE_SETTER_COMPLETED_IN_PASS; not a retrospective getter receipt",
+      "effectiveProductEvidence": "Native CoreWebView2Settings getter, P1 record2"
+    },
+    {
+      "name": "IsGeneralAutofillEnabled",
+      "productConfigured": false,
+      "microConfigured": false,
+      "classification": "IDENTICAL",
+      "evidence": "Same supported setter assigns false in both code paths; old microprobe did not separately persist getter readback for all six",
+      "effectiveProductReadback": false,
+      "effectiveMicroValue": false,
+      "effectiveMicroEvidence": "SOURCE_SETTER_COMPLETED_IN_PASS; not a retrospective getter receipt",
+      "effectiveProductEvidence": "Native CoreWebView2Settings getter, P1 record2"
+    },
+    {
+      "name": "AreDefaultScriptDialogsEnabled",
+      "productConfigured": false,
+      "microConfigured": false,
+      "classification": "IDENTICAL",
+      "evidence": "Same supported setter assigns false in both code paths; old microprobe did not separately persist getter readback for all six",
+      "effectiveProductReadback": false,
+      "effectiveMicroValue": false,
+      "effectiveMicroEvidence": "SOURCE_SETTER_COMPLETED_IN_PASS; not a retrospective getter receipt",
+      "effectiveProductEvidence": "Native CoreWebView2Settings getter, P1 record2"
+    }
+  ],
+  "environmentAndController": [
+    {
+      "field": "SDK / Runtime / architecture",
+      "product": "1.0.4258.31 /154.0.4258.62/x64",
+      "micro": "same",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "Environment factory",
+      "product": "CoreWebView2Environment.CreateAsync(null,udf,options)",
+      "micro": "same",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "AdditionalBrowserArguments",
+      "product": "--disable-background-networking --disable-component-update --disable-sync --no-first-run",
+      "micro": "same",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "ExclusiveUserDataFolderAccess",
+      "product": true,
+      "micro": true,
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "TargetCompatibleBrowserVersion",
+      "product": "SDK default, checked >= by Nova",
+      "micro": "SDK default + exact runtime check",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "UDF owner/ACL",
+      "product": "fresh directory, current user SID only, ephemeral",
+      "micro": "same private semantics",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "UDF namespace and default-download directory",
+      "product": "nova_wv2_bws_GUID_bhi_GUID/_nova_transfers/pending",
+      "micro": "A/udf, pending at A/private-pending",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "field": "Profile InPrivate",
+      "product": true,
+      "micro": true,
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "Controller options",
+      "product": "CreateCoreWebView2ControllerOptions; IsInPrivateModeEnabled=true",
+      "micro": "same",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "HWND",
+      "product": "hidden Form, Sizable, ShowInTaskbar=false; Application.Run without showing",
+      "micro": "same",
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "Controller.IsVisible",
+      "product": false,
+      "micro": false,
+      "classification": "IDENTICAL"
+    },
+    {
+      "field": "Controller.Bounds",
+      "product": "SDK default; no product assignment",
+      "micro": "same default; historical native getter not logged",
+      "classification": "UNKNOWN_RELEVANCE"
+    },
+    {
+      "field": "STA lifetime",
+      "product": "background STA + owner CLI/pipe loop",
+      "micro": "foreground STA with standalone caller",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "field": "Native handlers",
+      "product": "guard + observation + tracking + transfer provider",
+      "micro": "trace/basic download cancellation + host provider",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    },
+    {
+      "field": "Default profile paths/length",
+      "product": "long owned native session namespace",
+      "micro": "short standalone probe location",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING"
+    }
+  ],
+  "closedCandidateList": [
+    {
+      "id": "CTX01",
+      "difference": "UDF/default-download-folder namespace/path/length",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING",
+      "causality": "NOT_PROVEN",
+      "timing": "Configured before content/controller use"
+    },
+    {
+      "id": "CTX02",
+      "difference": "Extra native event handlers and sensitivity/CDP lifecycle instrumentation",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING",
+      "causality": "NOT_PROVEN",
+      "scope": "Inventory only; no reopening secrets semantics"
+    },
+    {
+      "id": "CTX03",
+      "difference": "Minimal vs full fixture, including download href/base resolution",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING",
+      "causality": "NOT_PROVEN"
+    },
+    {
+      "id": "CTX04",
+      "difference": "Full fixed activation function and arguments, RemoteObject acquisition/group/proof",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING",
+      "causality": "NOT_PROVEN"
+    },
+    {
+      "id": "CTX05",
+      "difference": "Resource bytes acquisition and path validation work inside callback vs constant payload",
+      "classification": "DIFFERENT_AND_PRE_DOWNLOADSTARTING",
+      "causality": "NOT_PROVEN"
+    },
+    {
+      "id": "CTX06",
+      "difference": "Hidden HWND scheduling/STA and native callback return timing",
+      "classification": "UNKNOWN_RELEVANCE",
+      "causality": "NOT_PROVEN"
+    }
+  ],
+  "postBoundaryExcluded": [
+    "DownloadStarting handler Cancel/Handled policy differences",
+    "Progress/completion callbacks",
+    "Staging/DownloadRef/ownership",
+    "Policy/Approval/Grant/ToolRuntime",
+    "IPC result propagation",
+    "cleanup"
+  ],
+  "pairedAuthorizationUsedOnlyAfterStaticAuditCannotProveCause": true,
+  "pairedPlan": {
+    "P1": "Exact Nova native host/config/activation + byte-exact microprobe A HTML",
+    "P2": "Only if P1 PASS: same setup with original product HTML",
+    "maxExecutions": 2,
+    "P3": false,
+    "controlledVariables": "Both variants contain the same download.txt and payload.txt35-byte aliases, identical responses and matched managed-root path length. Only index.html bytes differ. Original fixture never edited.",
+    "deadlineSeconds": 25,
+    "sleepsAdded": false,
+    "productModified": false
+  },
+  "measuredP1": {
+    "settingsEffectiveReadback": {
+      "IsWebMessageEnabled": false,
+      "AreHostObjectsAllowed": false,
+      "AreDevToolsEnabled": false,
+      "IsPasswordAutosaveEnabled": false,
+      "IsGeneralAutofillEnabled": false,
+      "AreDefaultScriptDialogsEnabled": false
+    },
+    "profile": {
+      "IsInPrivateModeEnabled": true,
+      "udfChars": 212,
+      "defaultDownloadFolderChars": 236,
+      "defaultDownloadFolderInsideUdf": true,
+      "runtimeVersion": "154.0.4258.62",
+      "pageRef": "bwp_769686c7ce8f4ffc9662bc4105cede6b"
+    },
+    "controller": {
+      "IsVisible": false,
+      "bounds": {
+        "X": 0,
+        "Y": 0,
+        "Width": 0,
+        "Height": 0
+      },
+      "coreType": "Microsoft.Web.WebView2.Core.CoreWebView2"
+    },
+    "environmentOptions": {
+      "AdditionalBrowserArguments": "--disable-background-networking --disable-component-update --disable-sync --no-first-run",
+      "ExclusiveUserDataFolderAccess": true,
+      "TargetCompatibleBrowserVersion": "154.0.4258.31"
+    },
+    "fixtureHashMatchesHistoricalMicroprobeA": true,
+    "microFolderPathChars": 95,
+    "microUdfChars": 83,
+    "productFolderPathChars": 236,
+    "productUdfChars": 212,
+    "noDifferentHtmlNeededToReproduceFailure": true
+  },
+  "decision": {
+    "result": "ROOT_CAUSE_DOMAIN_IDENTIFIED",
+    "ROOT_CAUSE_DOMAIN": "PRODUCT_BROWSER_HOST_CONFIGURATION",
+    "P1": "FAIL",
+    "P2": "NOT_EXECUTED_CONDITIONAL_AUTHORIZATION",
+    "P3": false,
+    "first_material_difference": "UDF_NAMESPACE_AND_PROFILE_DEFAULT_DOWNLOAD_FOLDER",
+    "first_material_difference_scope": "Earliest measured pre-download configuration divergence; not proven as causal variable",
+    "causal_mechanism": "NOT_DEMONSTRATED_FOR_AN_INDIVIDUAL_DIFFERENCE",
+    "minimal_fix_candidate": null,
+    "remainingCandidates": [
+      "CTX01 profile/default folder path & semantics",
+      "CTX02 handlers/instrumentation",
+      "CTX04 full action function/RemoteObject context",
+      "CTX05 callback file IO/response lifetime",
+      "CTX06 STA/callback timing"
+    ],
+    "excludedPageDifferenceAsNecessaryCause": "Same minimal HTML, href and origin still fail under product host; original page not required",
+    "notClaimed": "No filename-too-long/ACL/GC/sensitivity/handler-specific cause inferred"
+  }
+}

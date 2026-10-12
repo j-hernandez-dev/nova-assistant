@@ -1,0 +1,405 @@
+{
+  "schemaVersion": 1,
+  "implementation": "SealForRetirement owner/page/generation/registered EngineUnique; synchronous dispatcher seal before snapshot; Commit exact witness before lifecycle cleanup",
+  "beforeAfter": [
+    {
+      "path": "native/nova-browser-host/SensitiveValueRegistry.cs",
+      "before": "94954e343ed011200388b1a6772f417c68a3ea341991c30233b5e82e8b086d75",
+      "after": "ea7d2d1ed9395beb990f6d63bba67e1c8e90af7f2a96941387735d94987e5066"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTracking.cs",
+      "before": "fe7bac9693854d1be71322875ac784d4dfe17a02469e29aaa4eded707af4fe7d",
+      "after": "c1434e4e8195d698b9e079dabd5c0e3b9eb07997d6ff38654b0945563ec4fb81"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveBoundaryFailure.cs",
+      "before": "3b5cb2601cee6920b91b878959b68f06262ea9cd41bc488784b1ec953327e65e",
+      "after": "1a63a61f17f5202a865f24dd3be0c554254a6b3009021339fed89e7f2a8904ad"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTerminalState.cs",
+      "before": "98441ca3a6baa94e586f4ca2a90a5189ac27eac0910c27b6cbee08c1694993b1",
+      "after": "a10a1fe743b8715c87535f3afae6ef68dd9d29df808b5ad18ef5dda5af0b6483"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTerminalDiagnostics.cs",
+      "before": "e36936b48d9d97fa9ecf241c8d46185dddf0a5b3e54f617b18a4acf23ddbeb60",
+      "after": "123e0d35e4f6cd4cb0b706125a62a66a49cf5e14e9a8c0dcd71a5820dce244ec"
+    }
+  ],
+  "callers": {
+    "RegisterProtectedWorld": "SensitiveMessage ready branch",
+    "SealForRetirement": "RetireProtected from engine context destruction/clear/replacement",
+    "Commit": "Existing explicit event/checkpoint/scalar callers retained; exact seal snapshot additional caller"
+  },
+  "directContracts": {
+    "new": 23,
+    "result": "23 PASS",
+    "modes": [
+      "stale-terminal-current",
+      "short-1",
+      "short-2",
+      "short-3",
+      "late-new",
+      "late-stale",
+      "late-duplicate",
+      "previous-generation",
+      "pagehide-reuse",
+      "pagehide-uncommitted",
+      "wrong-owner",
+      "wrong-page",
+      "wrong-generation",
+      "wrong-world",
+      "unregistered-world",
+      "invalid-revision",
+      "missing-current",
+      "multiple-controls",
+      "no-arbitrary-retire",
+      "forged-engine-reason",
+      "sticky-late",
+      "empty-world",
+      "dispose"
+    ],
+    "existingOrdering": 32,
+    "existingResult": "32 PASS",
+    "genuineShortNative": 3
+  },
+  "nativeCross": {
+    "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c07-retirement-20261010T224419Z\\A_cross_runtime\\temp\\test_bounded_transient_policy_0\\owned-udf.cross-terminal-metadata.json",
+    "sha256": "023d18ad0e213c82e2e55a9c2e2c8db91cfffabdba41be64f71caea02c3a9222",
+    "payload": {
+      "schemaVersion": 1,
+      "records": [
+        {
+          "sequence": 1,
+          "eventKind": "RETIREMENT_SEALED",
+          "documentGeneration": "document_1",
+          "controlOpaqueId": null,
+          "revision": null,
+          "terminalReason": null,
+          "snapshotLength": null,
+          "currentLength": null,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 2,
+          "eventKind": "RETIRE_BEGIN",
+          "documentGeneration": "document_1",
+          "controlOpaqueId": null,
+          "revision": null,
+          "terminalReason": null,
+          "snapshotLength": null,
+          "currentLength": null,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 3,
+          "eventKind": "RETIRE_END",
+          "documentGeneration": "document_1",
+          "controlOpaqueId": null,
+          "revision": null,
+          "terminalReason": null,
+          "snapshotLength": null,
+          "currentLength": null,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 4,
+          "eventKind": "TERMINAL_RECEIVED",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": "control_1",
+          "revision": 2,
+          "terminalReason": "CHECKPOINT",
+          "snapshotLength": 0,
+          "currentLength": null,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 5,
+          "eventKind": "TERMINAL_CREATED",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": "control_1",
+          "revision": 2,
+          "terminalReason": "CHECKPOINT",
+          "snapshotLength": 0,
+          "currentLength": 0,
+          "accepted": true,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 6,
+          "eventKind": "COMMIT_BEGIN",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": "control_1",
+          "revision": 2,
+          "terminalReason": "CHECKPOINT",
+          "snapshotLength": 0,
+          "currentLength": 0,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 7,
+          "eventKind": "RETIREMENT_SEALED",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": null,
+          "revision": null,
+          "terminalReason": null,
+          "snapshotLength": null,
+          "currentLength": null,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 8,
+          "eventKind": "TERMINAL_CREATED",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": "control_1",
+          "revision": 5,
+          "terminalReason": "ENGINE_WORLD_RETIRE",
+          "snapshotLength": 32,
+          "currentLength": 32,
+          "accepted": true,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 9,
+          "eventKind": "COMMIT_BEGIN",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": "control_1",
+          "revision": 5,
+          "terminalReason": "ENGINE_WORLD_RETIRE",
+          "snapshotLength": 32,
+          "currentLength": 32,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 10,
+          "eventKind": "COMMIT_ACCEPTED",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": "control_1",
+          "revision": 5,
+          "terminalReason": "ENGINE_WORLD_RETIRE",
+          "snapshotLength": 32,
+          "currentLength": 32,
+          "accepted": true,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 11,
+          "eventKind": "RETIRE_BEGIN",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": null,
+          "revision": null,
+          "terminalReason": null,
+          "snapshotLength": null,
+          "currentLength": null,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 12,
+          "eventKind": "RETIRE_CONTROL",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": "control_1",
+          "revision": 5,
+          "terminalReason": "ENGINE_WORLD_RETIRE",
+          "snapshotLength": 32,
+          "currentLength": 32,
+          "accepted": true,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 13,
+          "eventKind": "COMMIT_BEGIN",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": "control_1",
+          "revision": 5,
+          "terminalReason": "ENGINE_WORLD_RETIRE",
+          "snapshotLength": 32,
+          "currentLength": 32,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        },
+        {
+          "sequence": 14,
+          "eventKind": "RETIRE_END",
+          "documentGeneration": "document_2",
+          "controlOpaqueId": null,
+          "revision": null,
+          "terminalReason": null,
+          "snapshotLength": null,
+          "currentLength": null,
+          "accepted": null,
+          "rejectionReason": "NONE"
+        }
+      ],
+      "overflow": false,
+      "rawValueRecorded": false,
+      "credentialHashRecorded": false
+    }
+  },
+  "historicalE": {
+    "matrix": [
+      {
+        "round": 1,
+        "scenario": 1,
+        "testId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+        "result": "PASS",
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c07-retirement-20261010T224419Z\\E_round_1_scenario_1\\junit.xml"
+      },
+      {
+        "round": 1,
+        "scenario": 2,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+        "result": "FAIL",
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c07-retirement-20261010T224419Z\\E_round_1_scenario_2\\junit.xml"
+      },
+      {
+        "round": 1,
+        "scenario": 3,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 2,
+        "scenario": 1,
+        "testId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 2,
+        "scenario": 2,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 2,
+        "scenario": 3,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 3,
+        "scenario": 1,
+        "testId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 3,
+        "scenario": 2,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 3,
+        "scenario": 3,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 4,
+        "scenario": 1,
+        "testId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 4,
+        "scenario": 2,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 4,
+        "scenario": 3,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 5,
+        "scenario": 1,
+        "testId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 5,
+        "scenario": 2,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      },
+      {
+        "round": 5,
+        "scenario": 3,
+        "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]",
+        "result": "NOT_RUN_STOP_CONDITION"
+      }
+    ],
+    "scalarReasons": [
+      {
+        "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c07-retirement-20261010T224419Z\\E_round_1_scenario_1\\temp\\test_native_document_and_world0\\nova_wv2_bws_c4a09e5cf665461ea9166332afd3f605_bhi_64defe1ac7024f3eb39edf623b3315a5.failure-reason.bin",
+        "hostPid": 12256,
+        "ownerPid": 31520,
+        "reasonCode": 0,
+        "siteCode": 0,
+        "currentLength": 0,
+        "complete": 0,
+        "timestampUnixMs": 0,
+        "sha256": "3ddf8091422bd7c27bec271e812225396495bdf861b462b6e43841c39c8da27c"
+      },
+      {
+        "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c07-retirement-20261010T224419Z\\E_round_1_scenario_2\\temp\\test_native_capture_exception_0\\nova_wv2_bws_0ecec1d6422f4921aaa494dda8bfbcc5_bhi_d6e323f649ca48afa2a05a7961a90d5c.failure-reason.bin",
+        "hostPid": 45936,
+        "ownerPid": 4736,
+        "reasonCode": 2,
+        "siteCode": 8,
+        "currentLength": 1,
+        "complete": 1,
+        "timestampUnixMs": 1791672688570,
+        "sha256": "45e0514c0300e59c3245426052c6173fffd4b794e4315dea647ff55377df9810"
+      }
+    ],
+    "blocker": {
+      "id": "WV2-B05-C07-C03-HISTORICAL-SHORT-001",
+      "classification": "PRODUCT_BUG / TERMINAL_LIFECYCLE_CONTINUITY",
+      "testId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+      "stage": "E_round_1_scenario_2",
+      "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+      "firstFailureReason": "SHORT_COMMITTED_VALUE",
+      "firstFailureSite": "CURRENT_COMMIT_SHORT",
+      "selectedTerminalLength": 1,
+      "terminalReasonAtFailure": "NOT_CAPTURED",
+      "documentRevisionAtFailure": "NOT_CAPTURED",
+      "mechanismDeep": "UNKNOWN: scalar C06 proves exact branch/length, not whether selecting caller was CHANGE/BLUR/PAGEHIDE/CHECKPOINT/ENGINE_WORLD_RETIRE.",
+      "modelExposure": "No successful post-takeover BrowserObservation was returned on failed path. No raw sensitive value captured in evidence.",
+      "stop": "Spurious short denial in unchanged historical scenario; stop before remaining E attempts, F/G. No further repair or diagnostic campaign.",
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c07-retirement-20261010T224419Z\\E_round_1_scenario_2\\junit.xml",
+      "xmlSha256": "f4d29bec4a0dcec360e9ecef2eae69908846020b8b7ed63d855d4834f4182c67",
+      "reasonArtifact": {
+        "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-c07-retirement-20261010T224419Z\\E_round_1_scenario_2\\temp\\test_native_capture_exception_0\\nova_wv2_bws_0ecec1d6422f4921aaa494dda8bfbcc5_bhi_d6e323f649ca48afa2a05a7961a90d5c.failure-reason.bin",
+        "hostPid": 45936,
+        "ownerPid": 4736,
+        "reasonCode": 2,
+        "siteCode": 8,
+        "currentLength": 1,
+        "complete": 1,
+        "timestampUnixMs": 1791672688570,
+        "sha256": "45e0514c0300e59c3245426052c6173fffd4b794e4315dea647ff55377df9810"
+      }
+    }
+  },
+  "diagnostics": {
+    "productiveObserver": null,
+    "noPublicDiagnosticIPC": true,
+    "buildExcludesTestSources": true,
+    "decision": "TEST_ONLY_RETAINED; null productive observers; G not executed",
+    "rawValues": false,
+    "credentialHashes": false
+  },
+  "limitations": "Successful native cross confirms seal rev5/32; historical same-origin still selected terminal length1. Exact failing terminal event/revision not captured; no deeper causality fabricated."
+}

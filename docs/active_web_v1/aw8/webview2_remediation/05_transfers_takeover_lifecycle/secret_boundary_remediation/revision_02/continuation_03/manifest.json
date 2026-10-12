@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Prospective bounded transient sensitive-value policy, authorized continuation03; stopped on new focal failure",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+  "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+  "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+  "historical": {
+    "BLOCK05_ORIGINAL_EXECUTION": "BLOCKED",
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION": "BLOCKED",
+    "REVISION02_ORIGINAL_PREFLIGHT": "BLOCKED",
+    "continuation_01": "PARTIAL/BLOCKED",
+    "continuation_02": "PARTIAL/BLOCKED",
+    "nvr21": "363 PASS / 33 FAIL / 0 ERROR / 0 SKIP",
+    "nvr23": "28 PASS / 5 FAIL / 0 ERROR / 0 SKIP",
+    "historicalXml": [
+      {
+        "path": "C:/Users/joseh/AppData/Local/Temp/nvr21.xml",
+        "sha256": "0979fa3a10d1ccb64fd65e724e18d896d174cd0981c881d224c052926b73131d"
+      },
+      {
+        "path": "C:/Users/joseh/AppData/Local/Temp/nvr23.xml",
+        "sha256": "0f66a42fb50c382edc6a7ff84b974fa4ea5febdee84741492ed5f3c504a38e95"
+      }
+    ],
+    "historicalArtifactsChanged": 0,
+    "historical004": "UNKNOWN"
+  },
+  "authorization": {
+    "decision": "WV2-B05-C02-PROJECTION-PROOF-SCOPE-003 resolved by BOUNDED_TRANSIENT_SENSITIVE_VALUE_POLICY",
+    "noReconciliationOfFiveChecks": true,
+    "prospectiveOnly": true,
+    "policy": "transient_sensitive_policy.md"
+  },
+  "implementation": {
+    "changes": [
+      {
+        "path": "native/nova-browser-host/SensitiveValueRegistry.cs",
+        "before": "c80ffd19bd63763cc84591681607e9f9c264b43b94379b68f51da1f39697afe0",
+        "after": "27099fe37faf145a6b871e4ba0db8e91e8e8d34ce08fdfc9b061068ab072d5c0"
+      },
+      {
+        "path": "native/nova-browser-host/ObservationRuntime.cs",
+        "before": "07120a5baee9ecbf8f7c4f8b4c7e5c44f411463a570b082cd4a178cac44d5203",
+        "after": "a0b1cf146bde22aa5a353a535791a4cd8d1c72fb74eac51812cbc9e0b22c04af"
+      }
+    ],
+    "newTests": [
+      "native/nova-browser-host/tests/test_transient_sensitive_policy.py",
+      "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "native/nova-browser-host/tests/transient_policy_runner/runner.csproj"
+    ],
+    "existingTestDriverFixtureHarnessChanged": 0,
+    "monotonicRetentionPreserved": true,
+    "schemaAwareControlPlanePreserved": true,
+    "boundsUnchanged": true,
+    "rawRegistryHostOnly": true,
+    "classifiedStates": [
+      "TRANSIENT",
+      "COMMITTED"
+    ],
+    "shortTransient": "Exact-leaf only; no global substring matching",
+    "longTransientAndCommitted": "Literal substring protection",
+    "shortCommitted": "SECRET_BOUNDARY_UNCONFIRMED; no resume/publication",
+    "textLeafAssembly": "Redact each original page-derived text leaf before host-added separators, after final checkpoint"
+  },
+  "candidate": {
+    "freeze": "candidate_freeze.json",
+    "sourcePins": 75,
+    "sourceDriftAfterFocal": 0,
+    "historyPins": 198,
+    "historicalDrift": 0,
+    "productChangesAfterFocal": 0
+  },
+  "gates": {
+    "BOUNDED_TRANSIENT_SENSITIVE_VALUE_POLICY": "PARTIAL",
+    "MONOTONIC_SENSITIVE_KNOWLEDGE": "PARTIAL",
+    "SCHEMA_AWARE_REDACTION": "PARTIAL",
+    "CROSS_DOCUMENT_SECRET_REDACTION": "PARTIAL",
+    "MODEL_PROJECTION_SECRET_BOUNDARY": "PARTIAL",
+    "SECRET_REGISTRY_LIFECYCLE": "PARTIAL",
+    "SECRET_NON_EXPOSURE": "PARTIAL",
+    "BLOCK05_FINAL_REGRESSION": "NOT_RUN"
+  },
+  "focal": {
+    "total": 33,
+    "pass": 30,
+    "fail": 3,
+    "error": 0,
+    "skip": 0,
+    "exitCode": 1,
+    "xml": "C:/Users/joseh/AppData/Local/Temp/nvr24.xml",
+    "xmlSha256": "f3e48759f500a32b163dab965d848c997c262581bdd3fe1217c3273c969ca9b2",
+    "exactHistoricalSet": true,
+    "exactOrder": true,
+    "retries": 0
+  },
+  "fivePreviousFailures": [
+    {
+      "id": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_same_document_all_projection_surfaces[href]",
+      "historical": "FAIL (nvr23 unchanged)",
+      "current": "PASS"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[cross-origin]",
+      "historical": "FAIL (nvr23 unchanged)",
+      "current": "PASS"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_session_has_no_page_accessible_capture_bridge",
+      "historical": "FAIL (nvr23 unchanged)",
+      "current": "PASS"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_registry_survives_epoch_and_later_document",
+      "historical": "FAIL (nvr23 unchanged)",
+      "current": "PASS"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[cross-origin]",
+      "historical": "FAIL (nvr23 unchanged)",
+      "current": "PASS"
+    }
+  ],
+  "newFailures": [
+    {
+      "id": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+      "status": "FAIL",
+      "durationSeconds": "2.486",
+      "failure": "native\\nova-browser-host\\tests\\test_sensitive_continuity.py:154: in test_native_document_and_world_lifetime\n    t=begin_human(d);drive(d,human_driver,'sensitive');time.sleep(.3);finish(d,t,human_driver);r=check(d,transition='frame-destroy'if scenario=='iframe-destroy'else'same-document'if scenario=='dom-replacement'else'new-document')\n                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^\nnative\\nova-browser-host\\tests\\test_sensitive_continuity.py:86: in finish\n    d['takeover'].finish(d['owner'],t['takeoverRef'],actor=d['human'],authenticated=True)\nlocal_cli\\application\\browser_takeover.py:93: in finish\n    self.port.end_takeover(request.browser_session_ref,deadline=request.deadline)\nlocal_cli\\infrastructure\\active_web\\transfer_adapter.py:46: in end_takeover\n    r=self._client(session).call('takeover_end',timeout_ms=self._budget(deadline));require(r['humanActive']is False)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\transfer_adapter.py:28: in call\n    r=self.typed_call(dict(command=command),page=page,timeout_ms=timeout_ms,cancel=cancel)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\transfer_adapter.py:18: in typed_call\n    try:return super().typed_call(*args,**kwargs)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\observation_adapter.py:37: in typed_call\n    result=codec.correlate(request,reply)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\transfer_ipc.py:93: in correlate\n    if code in ERRORS:raise HostIpcError(code)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^\nE   local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED",
+      "classification": "UNKNOWN",
+      "subtype": "TAKEOVER_SECRET_BOUNDARY_UNCONFIRMED",
+      "firstCausalPoint": "takeover.finish -> BrowserPort.end_takeover -> host takeover_end returns SECRET_BOUNDARY_UNCONFIRMED before fresh model-facing observation",
+      "proven": "Typed secret-boundary fail-closed during takeover completion; not the previous public projection/target assertions",
+      "unproven": "Underlying cause (committed-short promotion versus capture/checkpoint continuity fault) is not distinguished by the existing typed error receipt",
+      "rootCauseCausalityClaim": false,
+      "automaticRetry": false
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+      "status": "FAIL",
+      "durationSeconds": "11.680",
+      "failure": "native\\nova-browser-host\\tests\\test_sensitive_disconnect_diagnostic.py:29: in test_native_capture_exception_diagnostic\n    try:scenario(d,human_driver,navigation)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nnative\\nova-browser-host\\tests\\test_sensitive_continuity.py:154: in test_native_document_and_world_lifetime\n    t=begin_human(d);drive(d,human_driver,'sensitive');time.sleep(.3);finish(d,t,human_driver);r=check(d,transition='frame-destroy'if scenario=='iframe-destroy'else'same-document'if scenario=='dom-replacement'else'new-document')\n                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^\nnative\\nova-browser-host\\tests\\test_sensitive_continuity.py:86: in finish\n    d['takeover'].finish(d['owner'],t['takeoverRef'],actor=d['human'],authenticated=True)\nlocal_cli\\application\\browser_takeover.py:93: in finish\n    self.port.end_takeover(request.browser_session_ref,deadline=request.deadline)\nlocal_cli\\infrastructure\\active_web\\transfer_adapter.py:46: in end_takeover\n    r=self._client(session).call('takeover_end',timeout_ms=self._budget(deadline));require(r['humanActive']is False)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\transfer_adapter.py:28: in call\n    r=self.typed_call(dict(command=command),page=page,timeout_ms=timeout_ms,cancel=cancel)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\transfer_adapter.py:18: in typed_call\n    try:return super().typed_call(*args,**kwargs)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\observation_adapter.py:37: in typed_call\n    result=codec.correlate(request,reply)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\transfer_ipc.py:93: in correlate\n    if code in ERRORS:raise HostIpcError(code)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^\nE   local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED",
+      "classification": "UNKNOWN",
+      "subtype": "TAKEOVER_SECRET_BOUNDARY_UNCONFIRMED",
+      "firstCausalPoint": "takeover.finish -> BrowserPort.end_takeover -> host takeover_end returns SECRET_BOUNDARY_UNCONFIRMED before fresh model-facing observation",
+      "proven": "Typed secret-boundary fail-closed during takeover completion; not the previous public projection/target assertions",
+      "unproven": "Underlying cause (committed-short promotion versus capture/checkpoint continuity fault) is not distinguished by the existing typed error receipt",
+      "rootCauseCausalityClaim": false,
+      "automaticRetry": false
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]",
+      "status": "FAIL",
+      "durationSeconds": "5.403",
+      "failure": "native\\nova-browser-host\\tests\\test_sensitive_disconnect_diagnostic.py:29: in test_native_capture_exception_diagnostic\n    try:scenario(d,human_driver,navigation)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nnative\\nova-browser-host\\tests\\test_sensitive_continuity.py:154: in test_native_document_and_world_lifetime\n    t=begin_human(d);drive(d,human_driver,'sensitive');time.sleep(.3);finish(d,t,human_driver);r=check(d,transition='frame-destroy'if scenario=='iframe-destroy'else'same-document'if scenario=='dom-replacement'else'new-document')\n                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^\nnative\\nova-browser-host\\tests\\test_sensitive_continuity.py:86: in finish\n    d['takeover'].finish(d['owner'],t['takeoverRef'],actor=d['human'],authenticated=True)\nlocal_cli\\application\\browser_takeover.py:93: in finish\n    self.port.end_takeover(request.browser_session_ref,deadline=request.deadline)\nlocal_cli\\infrastructure\\active_web\\transfer_adapter.py:46: in end_takeover\n    r=self._client(session).call('takeover_end',timeout_ms=self._budget(deadline));require(r['humanActive']is False)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\transfer_adapter.py:28: in call\n    r=self.typed_call(dict(command=command),page=page,timeout_ms=timeout_ms,cancel=cancel)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\transfer_adapter.py:18: in typed_call\n    try:return super().typed_call(*args,**kwargs)\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\observation_adapter.py:37: in typed_call\n    result=codec.correlate(request,reply)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nlocal_cli\\infrastructure\\active_web\\transfer_ipc.py:93: in correlate\n    if code in ERRORS:raise HostIpcError(code)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^\nE   local_cli.infrastructure.active_web.action_ipc.HostIpcError: SECRET_BOUNDARY_UNCONFIRMED",
+      "classification": "UNKNOWN",
+      "subtype": "TAKEOVER_SECRET_BOUNDARY_UNCONFIRMED",
+      "firstCausalPoint": "takeover.finish -> BrowserPort.end_takeover -> host takeover_end returns SECRET_BOUNDARY_UNCONFIRMED before fresh model-facing observation",
+      "proven": "Typed secret-boundary fail-closed during takeover completion; not the previous public projection/target assertions",
+      "unproven": "Underlying cause (committed-short promotion versus capture/checkpoint continuity fault) is not distinguished by the existing typed error receipt",
+      "rootCauseCausalityClaim": false,
+      "automaticRetry": false
+    }
+  ],
+  "newPolicyTests": {
+    "contract": 14,
+    "native": 10,
+    "total": 24,
+    "status": "NOT_RUN",
+    "reason": "Mandatory stop after original33 focal failed; new native runner not measured/claimed as evidence",
+    "paths": [
+      "native/nova-browser-host/tests/test_transient_sensitive_policy.py",
+      "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "native/nova-browser-host/tests/transient_policy_runner/runner.csproj"
+    ]
+  },
+  "fullRegression": {
+    "status": "NOT_RUN",
+    "originalDenominator": 396,
+    "additivePolicyTests": 24,
+    "expectedDenominator": 420,
+    "reason": "33/33 mandatory precondition unmet",
+    "noProductChangeAfterFocal": true
+  },
+  "openDecision": {
+    "id": "WV2-B05-C03-TAKEOVER-CONTINUITY-004",
+    "status": "OPEN FOR HUMAN REVIEW",
+    "reason": "Three new typed takeover secret-boundary denials; underlying cause UNKNOWN from existing evidence. Do not change product/harness or retry after observing this focal.",
+    "scopeNotExpanded": true
+  },
+  "historical004": {
+    "status": "UNKNOWN",
+    "currentSameOriginAndHistory": "takeover_end denied; subsequent capture not reached in failing diagnostic cases",
+    "currentCrossOrigin": "PASS in this focal",
+    "overallCurrentCaptureChannel": "PARTIAL",
+    "noAttributionTo003": true
+  },
+  "cleanup": {
+    "ownedUdfDirectoriesRemaining": 0,
+    "stagingDirectoriesRemaining": 0,
+    "ownedScopedProcessesRemaining": 0,
+    "safeReceiptCount": 30,
+    "knownValueAbsent": true,
+    "historical36Udfs": "CLEANUP_UNCONFIRMED — untouched"
+  },
+  "claims": {
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "noUniversalInformationFlowDlpTaintOrSecureMemoryClaim": true,
+  "references": {
+    "results": "resultados.md",
+    "tests": "test_results.json",
+    "integrity": "integrity.json",
+    "baseline": "baseline_freeze.json",
+    "candidate": "candidate_freeze.json",
+    "policy": "transient_sensitive_policy.md"
+  },
+  "prohibitedActionsPerformed": {
+    "block06": false,
+    "AW8E2E": false,
+    "historicalUdfMaintenance": false,
+    "architectureEdits": false,
+    "existingTestAssertionEdits": false,
+    "retries": false,
+    "skipsXfailsFiltersAdded": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "nextStep": "Stopped for human review; do not run full regression or further remediation under this authorization"
+}

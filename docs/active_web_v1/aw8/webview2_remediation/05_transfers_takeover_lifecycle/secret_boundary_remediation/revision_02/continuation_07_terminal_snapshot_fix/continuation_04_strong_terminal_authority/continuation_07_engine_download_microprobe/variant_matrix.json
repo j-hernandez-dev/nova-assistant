@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "observationScope": "Native initiation event + DownloadOperation creation only; not download completion or product certification",
+  "variants": [
+    {
+      "variant": "A",
+      "executionCount": 1,
+      "activationCount": 1,
+      "result": "PASS",
+      "runtime": "154.0.4258.62",
+      "handlerBeforeContent": true,
+      "requestProviderCallbackObserved": true,
+      "requestEvidence": "WebResourceRequested callback + response200/35",
+      "downloadStarting": true,
+      "downloadOperation": true,
+      "treatment": "download",
+      "normalDownloadTargetNavigationObserved": false,
+      "responseCompletionClaim": false,
+      "downloadResponse": "text/plain35, no Content-Disposition",
+      "activationToDownloadMilliseconds": 107.71209999999996,
+      "rawReportRef": "C:/Users/joseh/AppData/Local/Temp/nova-engine-download-probe-20261011T095835Z/A/probe.json"
+    },
+    {
+      "variant": "B",
+      "executionCount": 1,
+      "activationCount": 1,
+      "result": "PASS",
+      "runtime": "154.0.4258.62",
+      "handlerBeforeContent": true,
+      "requestProviderCallbackObserved": true,
+      "requestEvidence": "WebResourceRequested callback + response200/35",
+      "downloadStarting": true,
+      "downloadOperation": true,
+      "treatment": "download",
+      "normalDownloadTargetNavigationObserved": false,
+      "responseCompletionClaim": false,
+      "downloadResponse": "text/plain35 + Content-Disposition attachment",
+      "activationToDownloadMilliseconds": 223.26600000000008,
+      "rawReportRef": "C:/Users/joseh/AppData/Local/Temp/nova-engine-download-probe-20261011T095835Z/B/probe.json"
+    },
+    {
+      "variant": "C",
+      "executionCount": 1,
+      "activationCount": 1,
+      "result": "PASS",
+      "runtime": "154.0.4258.62",
+      "handlerBeforeContent": true,
+      "requestProviderCallbackObserved": false,
+      "requestEvidence": "DownloadStarting reports DOWNLOAD_TARGET from engine-mapped resource; no WebResourceRequested provider exists",
+      "downloadStarting": true,
+      "downloadOperation": true,
+      "treatment": "download",
+      "normalDownloadTargetNavigationObserved": false,
+      "responseCompletionClaim": false,
+      "downloadResponse": "engine-resolved static file35 bytes",
+      "activationToDownloadMilliseconds": 120.62290000000007,
+      "rawReportRef": "C:/Users/joseh/AppData/Local/Temp/nova-engine-download-probe-20261011T095835Z/C/probe.json"
+    }
+  ],
+  "decision": {
+    "observedPattern": "A PASS / B PASS / C PASS",
+    "appliedRule": "OTHER_PATTERN_FROM_PREMEASUREMENT_PLAN",
+    "ROOT_CAUSE": "UNKNOWN_IN_PRODUCT_CONTEXT",
+    "ENGINE_CURRENT_RESPONSE_CONTRACT_CAN_TRIGGER_NATIVE_DOWNLOAD": true,
+    "ENGINE_MICROPROBE_FAILURE_REPRODUCED": false,
+    "headerAbsenceDemonstratedAsRootCause": false,
+    "webResourceRequestedMechanismDemonstratedAsRootCause": false,
+    "why": "A demonstrates native initiation with current response contract. B/C also initiate. The historical product failure was not reproduced by the isolated engine; no failing-A decision rule applies.",
+    "noFourthVariant": true,
+    "noProbeModifiedAfterResults": true,
+    "noHistoricalReclassification": true
+  },
+  "interpretationLimits": {
+    "sameRuntimeSdkAndCoreTypeConfirmed": true,
+    "sameHtmlAcrossABC": true,
+    "samePayloadAcrossABC": true,
+    "sameAnchorAcrossABC": true,
+    "aAndBDifferOnlyDownloadResponseHeader": true,
+    "cDownloadNeverUsesWebResourceRequested": true,
+    "productContextNotReproducedFully": true,
+    "deliberateIsolationDifferences": [
+      "Minimal script-free HTML instead of the full transfers fixture, same-origin anchor id/label/download attribute retained",
+      "Requested probe endpoint /download.txt instead of historical /payload.txt",
+      "No Nova observation/sensitive worlds/agent/IPC/authority integration, as required",
+      "Fresh standalone UDF and private default download directory, not Nova BrowserSession-generated private paths",
+      "Direct fixed isolated-world node click, without Nova metadata/freshness checks"
+    ],
+    "rawCRequestFlag": "False only for resource-provider/response observer signal; C has no WebResourceRequested provider. Native DownloadStarting URI proves target resource, so not classified as ignored activation.",
+    "actualRootStillUnidentified": true
+  },
+  "MINIMAL_PRODUCT_FIX_CANDIDATE": null,
+  "WHY": "No response/header/hosting change is justified as the proven root fix when current headers already work in A. A product-context comparison would need separate authorization.",
+  "SECURITY_IMPLICATIONS": [
+    "Do not convert all resources into attachments/downloads",
+    "Keep exact FILE_DOWNLOAD authority",
+    "Unsolicited/drive-by cancellation remains pre-effect",
+    "Keep host-private bounded staging",
+    "Keep UNKNOWN after STARTED if effects are unconfirmed",
+    "No automatic retry after STARTED"
+  ],
+  "TESTS_TO_REVALIDATE_IF_FUTURE_FIX": [
+    "Authorized native download initiation with current policy/authority",
+    "Unsolicited native initiation denied before effect",
+    "Completed download to bounded private staging",
+    "Staging retention with explicit owner and lifetime",
+    "Exact Approval/Grant path and cancel/disconnect UNKNOWN"
+  ],
+  "futureTestsExecuted": false,
+  "productFixImplemented": false
+}

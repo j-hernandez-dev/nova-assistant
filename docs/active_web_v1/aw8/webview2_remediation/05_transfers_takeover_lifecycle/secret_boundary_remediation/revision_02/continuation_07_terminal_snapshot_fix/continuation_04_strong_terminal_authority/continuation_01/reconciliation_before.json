@@ -1,0 +1,81 @@
+{
+  "authorized": true,
+  "decision": "WV2-B05-C07-C04-TERMINAL-TEST-CONTRACT-001: STRONG_TERMINAL_TEST_CONTRACT_RECONCILIATION = AUTHORIZED",
+  "cases": [
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "ids": [
+        "reason-change",
+        "reason-blur"
+      ],
+      "old": "CHANGE/BLUR -> ConfirmTerminal -> Commit -> assert COMMITTED",
+      "new": "Observe weak signal -> updated current/revision, TRANSIENT, no TerminalSnapshot/Commit; retain known-value/no-exposure",
+      "boundary": null,
+      "beforeSha256": "3f0a31fd604e42e7bbaa8d28c1c70c926927be7dbe56755c347ea319f8f12eb5"
+    },
+    {
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "ids": [
+        "shared preparation: all 23 retirement-seal contracts"
+      ],
+      "old": "empty rev2 CHANGE terminal before current rev5",
+      "new": "explicit correlated rev2 CHECKPOINT witness for stale-snapshot preparation, weak CHANGE has no authority; seal commits exact rev5",
+      "boundary": "TAKEOVER_END_CHECKPOINT (direct correlated producer) then ENGINE_WORLD_RETIRE",
+      "beforeSha256": "e2d737e454b5d165f871bbeb211a76e732c37a8e9ceef0e80123bb96ad2e38fe"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "committed-long",
+        "committed-short-1",
+        "committed-short-2",
+        "committed-short-3",
+        "promotion"
+      ],
+      "old": "Input(commit=true) generic HOST_CONFIRMED",
+      "new": "Input transient + exact observed owner/page/generation/control/revision/value CHECKPOINT snapshot -> Commit(snapshot)",
+      "boundary": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "ce455bc332d6a9624ba441157a5b79e950a5a471fe778ae80c327178129c9b84"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "native-committed-long"
+      ],
+      "old": "CHANGE(initial) then replacement -> assert initial COMMITTED",
+      "new": "same native fixture/events/values: assert initial TRANSIENT; current replacement committed by end checkpoint; no-exposure unchanged",
+      "boundary": "TAKEOVER_END_CHECKPOINT for current only",
+      "beforeSha256": "ce455bc332d6a9624ba441157a5b79e950a5a471fe778ae80c327178129c9b84"
+    },
+    {
+      "path": "native/nova-browser-host/tests/leaf_boundary_runner/Program.cs",
+      "ids": [
+        "long-committed"
+      ],
+      "old": "Input(commit=true)",
+      "new": "same generated known value, Input transient + correlated explicit CHECKPOINT snapshot",
+      "boundary": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "30ba3f919d30b33dbec028cccce30b845a65e9e5179df47989364c6caffd5c8b"
+    },
+    {
+      "path": "native/nova-browser-host/tests/sensitive_runner/Program.cs",
+      "ids": [
+        "url",
+        "escaped-url",
+        "dispose",
+        "isolation",
+        "count",
+        "total",
+        "no-eviction",
+        "native-session-lifecycle",
+        "native-structural-collision"
+      ],
+      "old": "Input(commit=true) without a real terminal witness",
+      "new": "Input transient: these cases test known-value redaction/bounds/ownership, not terminality; security assertions byte-unchanged",
+      "boundary": null,
+      "beforeSha256": "cd49e2dd7d1fe3a49af9ed3a04c3f6b2acca2cd52056370250752f2bd8f49976"
+    }
+  ],
+  "allSensitiveValuesFixturesHistoricalNativeSequencesUnchanged": true,
+  "securityAssertionsUnchanged": true
+}

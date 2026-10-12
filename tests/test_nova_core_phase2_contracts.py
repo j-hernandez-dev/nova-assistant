@@ -51,7 +51,22 @@ class TestIdsAndCapabilities(unittest.TestCase):
         tree = ast.parse(source.read_text(encoding="utf-8"))
         imports = [node.module for node in ast.walk(tree)
                    if isinstance(node, ast.ImportFrom)]
-        self.assertFalse(any(name and name.startswith("local_cli")
+        imports.extend(alias.name for node in ast.walk(tree)
+                       if isinstance(node, ast.Import) for alias in node.names)
+        # RuntimeCapabilitySnapshot owns the approved Core WebCapabilitiesV12
+        # DTO. Core may compose Core types, while outer-layer dependencies remain
+        # forbidden even through the delayed import used to avoid a DTO cycle.
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call) or not node.args:
+                continue
+            dynamic = (isinstance(node.func, ast.Name) and node.func.id == "__import__") or (
+                isinstance(node.func, ast.Attribute) and node.func.attr == "import_module")
+            if dynamic:
+                self.assertIsInstance(node.args[0], ast.Constant, "Core dynamic imports must be inspectable")
+                self.assertIsInstance(node.args[0].value, str)
+                imports.append(node.args[0].value)
+        self.assertFalse(any(name and name.startswith("local_cli") and
+                             name != "local_cli.core" and not name.startswith("local_cli.core.")
                              for name in imports))
 
     def test_ids_are_opaque_unique_and_distinct_by_purpose(self):

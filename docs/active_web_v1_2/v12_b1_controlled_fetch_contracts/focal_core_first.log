@@ -1,0 +1,21 @@
+........................................................................ [ 71%]
+........................FF...                                            [100%]
+================================== FAILURES ===================================
+_ test_host_refs_have_no_public_serializer_or_wire_constructor[ControlledFetchSecretRef] _
+tests\active_web_v1_2\test_v12_b1_contracts.py:111: in test_host_refs_have_no_public_serializer_or_wire_constructor
+    with pytest.raises(TypeError):json_safe_copy(ref)
+                                  ^^^^^^^^^^^^^^^^^^^
+local_cli\core\contracts.py:48: in json_safe_copy
+    raise ValueError(f"not a JSON-safe contract value: {type(value).__name__}")
+E   ValueError: not a JSON-safe contract value: ControlledFetchSecretRef
+_ test_host_refs_have_no_public_serializer_or_wire_constructor[ControlledFetchNetworkProofRef] _
+tests\active_web_v1_2\test_v12_b1_contracts.py:111: in test_host_refs_have_no_public_serializer_or_wire_constructor
+    with pytest.raises(TypeError):json_safe_copy(ref)
+                                  ^^^^^^^^^^^^^^^^^^^
+local_cli\core\contracts.py:48: in json_safe_copy
+    raise ValueError(f"not a JSON-safe contract value: {type(value).__name__}")
+E   ValueError: not a JSON-safe contract value: ControlledFetchNetworkProofRef
+=========================== short test summary info ===========================
+FAILED tests/active_web_v1_2/test_v12_b1_contracts.py::test_host_refs_have_no_public_serializer_or_wire_constructor[ControlledFetchSecretRef]
+FAILED tests/active_web_v1_2/test_v12_b1_contracts.py::test_host_refs_have_no_public_serializer_or_wire_constructor[ControlledFetchNetworkProofRef]
+2 failed, 99 passed in 0.57s

@@ -1,0 +1,506 @@
+{
+  "schemaVersion": 1,
+  "purpose": "AW8 prerequisite remediation — revision 02",
+  "architecturalPhase": "AW8",
+  "notANewPhase": true,
+  "timestamp": "2026-10-10 03:14:05 UTC",
+  "originalAw8Verdict": "BLOCKED",
+  "originalAw8Manifest": "docs/active_web_v1/aw8/manifest.json",
+  "originalAw8ManifestSha256": "93d3ae2b2566e7af347212a5cac7aa2fa326d92d7f1f8ee738f42424a8d4ce19",
+  "revision01": {
+    "manifest": "docs/active_web_v1/aw8/prerequisite_remediation/manifest.json",
+    "sha256": "f4b9cf9b21f06ccc85817bed01230d228e754bcc9bb5293452076500c35b04d9",
+    "AW8_PREREQUISITES": "PARTIAL",
+    "SAFE_TO_RESUME_AW8": false,
+    "immutable": true
+  },
+  "PRODUCTIVE_BROWSER_TOOL_PATH": "PASS",
+  "EXCLUSIVE_PUBLIC_ONLY_EGRESS": "BLOCKED",
+  "TRUTHFUL_ACTIVE_WEB_CAPABILITY": "PASS",
+  "AW8_PREREQUISITES": "PARTIAL",
+  "SAFE_TO_RESUME_AW8": false,
+  "baseline": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "freeze": "baseline_freeze.json",
+    "pins": 2309,
+    "workingTree": " M .github/workflows/nova_knowledge_v1.yml\n M ci/README.md\n M ci/contract_inventory.py\n M ci/pytest_contracts.json\n M ci/run_contracts.py\n M desktop/electron/application_client.ts\n M desktop/shared/application.ts\n M desktop/src/App.tsx\n M local_cli/application/legacy_event_bridge.py\n M local_cli/application/security_audit.py\n M local_cli/application/session.py\n M local_cli/application/tool_runtime.py\n M local_cli/core/contracts.py\n M local_cli/interfaces/cli_application.py\n M pyproject.toml\n?? .github/workflows/nova_active_web_v1.yml\n?? desktop/tests/active_web.test.cjs\n?? docs/active_web_v1/\n?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md\n?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md\n?? local_cli/application/active_web.py\n?? local_cli/application/browser_actions.py\n?? local_cli/application/browser_network.py\n?? local_cli/application/browser_observation.py\n?? local_cli/application/browser_projection.py\n?? local_cli/application/browser_takeover.py\n?? local_cli/application/browser_transfers.py\n?? local_cli/core/active_web.py\n?? local_cli/core/active_web_lifecycle.py\n?? local_cli/core/active_web_network.py\n?? local_cli/core/active_web_observation.py\n?? local_cli/core/active_web_policy.py\n?? local_cli/core/active_web_transfers.py\n?? local_cli/infrastructure/active_web/\n?? tests/active_web_v1/\n",
+    "stagingEmpty": true,
+    "tags": [
+      "97f41c6dab89ee59332875bb8d89c29620b52156 refs/tags/nova-core-v1-stable",
+      "a26a94ebfb2db44551097f1641eec6706b52c101 refs/tags/nova-knowledge-inputs-v1-ready",
+      "fa6b2f7898692ddc6cec77a4d971dbc395b764a6 refs/tags/nova-memory-v1-ready",
+      "6a48c5252e40986ecf4180138d9d56bc519b3e49 refs/tags/nova-memory-v1.1-ready",
+      "e5bea6a4c2c559a1f5a2f8824316a83b548b2533 refs/tags/nova-security-v1.2-ready"
+    ],
+    "host": "Windows 11 build26200 / C: fixed local NTFS / HOST_UNISOLATED"
+  },
+  "normative": {
+    "architecture": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+    "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "audit": "docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md",
+    "auditSha256": "ee2a03ad2b887c2add4a5eac9402112edf3362d1e11118388cba9b268a405285",
+    "findings": "docs/active_web_v1/audit/findings.json",
+    "findingsSha256": "c81d8a9279cd7a7aec74a78fb5e805d0a0c93b8b034db32c5f4c66d0100d2a1d",
+    "sections": [
+      "§15",
+      "§17",
+      "§18",
+      "§25",
+      "§26",
+      "§27"
+    ],
+    "invariants": [
+      "AW-INV-001",
+      "AW-INV-002",
+      "AW-INV-003",
+      "AW-INV-004",
+      "AW-INV-005",
+      "AW-INV-006",
+      "AW-INV-007",
+      "AW-INV-008",
+      "AW-INV-009",
+      "AW-INV-010",
+      "AW-INV-011",
+      "AW-INV-016",
+      "AW-INV-017",
+      "AW-INV-018",
+      "AW-INV-019",
+      "AW-INV-020",
+      "AW-INV-021",
+      "AW-INV-022",
+      "AW-INV-025",
+      "AW-INV-027",
+      "AW-INV-028",
+      "AW-INV-029",
+      "AW-INV-030"
+    ],
+    "architectureModified": false,
+    "normativeContradiction": false,
+    "noFullInvariantRecertification": true
+  },
+  "blockers": [
+    {
+      "id": "AW8-PREFLIGHT-001",
+      "classification": "PRODUCT_INTEGRATION_GAP",
+      "status": "CLOSED_FOR_CONDITIONAL_PRODUCT_CODE_PATH",
+      "evidence": "productive_composition.json",
+      "scope": "Single factory/discovery in actual roots, nine real ToolRuntime-bound tools, Application host plans/intent and normal Approval/Grant. Verified with synthetic wiring; not productive host E2E certification."
+    },
+    {
+      "id": "AW8-PREFLIGHT-002",
+      "classification": "CERTIFICATION_PREREQUISITE_UNKNOWN",
+      "status": "OPEN",
+      "evidence": "egress_evidence.json",
+      "remaining": [
+        "Trusted admitted HTTPS renderer path not demonstrated without relaxing certificate checks/global CA.",
+        "Complete native Chromium/children TCP, UDP, DNS and background bypass absence observation not implemented/demonstrated.",
+        "All page-originated internal/file/javascript/data/custom-scheme pre-effect enforcement not demonstrated.",
+        "Fresh native negative https-metadata attempt has insufficient broker evidence; not recast as PASS.",
+        "Remaining V1 capability metadata (manualTakeover/upload/download/persistentSession/platform/maxPages) not fully measured by current native discovery."
+      ],
+      "fullExclusiveEngineProof": false
+    }
+  ],
+  "implementation": {
+    "modified": [
+      {
+        "before": "ba5e41e6ef572fe6e80e2e7f2d008e006f63702f9e2179474f8edff1f5520880",
+        "path": "local_cli/application/active_web.py",
+        "after": "45711e53c3440827359790483bf9624487e3c83756f9481e857b8869376698e4"
+      },
+      {
+        "before": "5e7fa503dc5605223ef63e899d8840b29cacf8d0450765c4a98eb2d264fdf519",
+        "path": "local_cli/application/browser_actions.py",
+        "after": "ab6c09f58beaec35b2630df6a23c5287b1b62ed89e8d4763d59ca8c58b6a3476"
+      },
+      {
+        "before": "3a73029a0fccd57bab4a0cd8835ab47fefe5706853149ac7f7b14e058a834bbc",
+        "path": "local_cli/application/browser_projection.py",
+        "after": "4f64521061c40ba44a4c3d78d6cfe26be3b00e94dd1714e7b61a1a9fb0d42c8c"
+      },
+      {
+        "before": "1adf13e2dffb30c50064771ed554739ca8c6778b9253c0cba6ee4bfafbab9ef9",
+        "path": "local_cli/infrastructure/active_web/playwright_adapter.py",
+        "after": "5028c927865bcccc66157c020a3db62247256fa6638add5efcc40c01f8a81c29"
+      },
+      {
+        "before": "c9726f2396691ed8b8df75087f2ed45ba8fa5bbd641f90293920b03bd4d085b5",
+        "path": "local_cli/infrastructure/active_web/productive_probe.py",
+        "after": "427e0e7ca61224059a9e02ada6be7be3330971805bcf673a244bc0f9b6c582dc"
+      },
+      {
+        "before": "074c840c873ee1dbcb53b1fedade7be6abcd1e17bba98ad35adf349f708228b1",
+        "path": "ci/pytest_contracts.json",
+        "after": "cbf958a3056afdf615d153c3d6454410a0d82e0419a07790176e1fcf784259b0"
+      },
+      {
+        "before": "c140898b82210e6e2018d8efcbf1f40702cda9102e43fc2daad1629e31ceb50f",
+        "path": "local_cli/application/session.py",
+        "after": "27b2f7678c904c9f8a48466476df64366e809346c17409cfd14703e10fcbc55e"
+      },
+      {
+        "before": "e524eace30f49d6f77cfa1cc45c45a258e5d1beb2b728770d5cade97c719c199",
+        "path": "local_cli/application/tool_runtime.py",
+        "after": "eddc1d226f573aca45a3d9d28688bdcf9b81f1504fbce83b3f391007b1d6e11e"
+      },
+      {
+        "before": "eabd3c7b9c62e481e0b94268ec6f45120a5f7fa213f5a0cc29b9216dce17aecd",
+        "path": "local_cli/bootstrap_cli.py",
+        "after": "adfa2443f508fced82614b667e0849bcb88ecb1b7851170a09975c4f8efe7d9c"
+      },
+      {
+        "before": "24d1a0dcd25fbbf2ab8069ab3fe28439a3cb7b2da77b0101cee2af923c956dd3",
+        "path": "local_cli/bootstrap_server.py",
+        "after": "3cafcfecfa0bc7ebada8276d0a3eaefcbfba30087f9a38c11fe491d75946c522"
+      },
+      {
+        "before": "ff3298298ec17819fab2eb0b6a4f77f6fc6b2382612b1f618ae640a1eea8313e",
+        "path": "local_cli/interfaces/cli_application.py",
+        "after": "6326d1b6984c794cafa9fb47010d482bce31b9758e26920d9451e0d34cd8c2e0"
+      },
+      {
+        "before": "0cc20d0312395ba0bad3bd3357fd0271111dbfe6efcfcbc109bbe30da7091587",
+        "path": "local_cli/interfaces/jsonl_application.py",
+        "after": "860b243682299f2f6e08051ae0612216b5b8ee33ad649ec1d74eeaed892facad"
+      }
+    ],
+    "added": [
+      {
+        "sha256": "63ab507c72e4b6787efdfb4e5cc6f00f559c793b702cf5a93d181d8a8c61e4d4",
+        "path": "local_cli/application/active_web_service.py"
+      },
+      {
+        "sha256": "9482f81f6b7ea574dea6d2259aa1644e5efbcf2c04d9f48e4cad59aacd710e4e",
+        "path": "local_cli/application/browser_tools.py"
+      },
+      {
+        "sha256": "10dbfc04145fc50b3fcdfe992488267c8f6e749da89dd24eb823d897af846a8d",
+        "path": "local_cli/bootstrap_active_web.py"
+      },
+      {
+        "sha256": "82a4eb0fef84c67700d73ed076780f4c2ea943ddfee5f97d459fcb0816fae76d",
+        "path": "local_cli/infrastructure/active_web/productive_backend.py"
+      },
+      {
+        "sha256": "3122cc68e24552d43e21c0c70a7bbb72d67d8bb93992cf42a554a4b53c9f0679",
+        "path": "tests/active_web_v1/test_aw8_productive_composition.py"
+      },
+      {
+        "sha256": "78e45d2c57dd53ee3457000b2a7d48d10ea7c10aa192c055a105b08659e84f4c",
+        "path": "tests/active_web_v1/test_aw8_revision02_engine.py"
+      }
+    ],
+    "componentFreeze": "component_freeze.json",
+    "noUnconditionalDefaultTools": true,
+    "noContractOnlyBrowserToolUsedInProduct": true,
+    "noTestPlansUsedInProduct": true,
+    "rootIntegrationImplemented": true,
+    "probeFedIntoRootDiscovery": true,
+    "positiveBranchExistsButNativeGateClosed": true,
+    "productionRegistryOnCurrentHost": [],
+    "productCapability": {
+      "available": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "native exclusive-egress proof incomplete"
+      },
+      "engine": {
+        "status": "KNOWN",
+        "value": "PLAYWRIGHT_CHROMIUM",
+        "reason": null
+      },
+      "engineVersion": {
+        "status": "KNOWN",
+        "value": "1.63.0",
+        "reason": null
+      },
+      "browserVersion": {
+        "status": "KNOWN",
+        "value": "153.0.8010.12",
+        "reason": null
+      },
+      "controlClass": {
+        "status": "KNOWN",
+        "value": "HOST_UNISOLATED",
+        "reason": null
+      },
+      "networkBroker": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "publicOnly": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "native exclusive-egress proof incomplete"
+      },
+      "headful": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "screenshot": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "manualTakeover": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "upload": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "download": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "persistentSession": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "maxPages": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      },
+      "platform": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "not probed"
+      }
+    },
+    "configuredHardeningNotExclusiveProof": true,
+    "securitySchemasUnchanged": true,
+    "coreMemoryKnowledgeDesktopProductModulesUnchanged": true,
+    "applicationSessionToolRuntimeExtended": true,
+    "securityAuthorityNotBypassed": true,
+    "hostScopeCeilingAddition": "Narrow explicit host SESSION browser.read/browser.act; existing GrantIssuer, exact Policy/Approval/Grant and audit path preserved.",
+    "newCiBaseContracts": 15,
+    "newCiPortableWiringContracts": 14,
+    "newCiExplicitLocalNativeTopologyContracts": 1,
+    "oldCiRowsRulesByteReconstruction": "PASS",
+    "workflowsChanged": false,
+    "runnersChanged": false,
+    "savedOrManualAvailabilityOverrides": false,
+    "globalConfigurationChanged": false,
+    "downloads": 0
+  },
+  "evidenceKinds": {
+    "portable": "Synthetic verified snapshot/port, actual coordinator/runtime/policy/approval/audit wiring",
+    "nativeCharacterization": "Real shipping Chromium + simulated public DNS-to-owned-loopback controlled topology, no native exclusivity claim",
+    "nativeProductDiscovery": "Real same-backend discovery without endpoint substitution; partial negative probe and loopback TCP canary only",
+    "modelQuality": "NOT_EVALUATED — no LLM campaign",
+    "finalAw8Certification": "NOT_EXECUTED"
+  },
+  "finalTests": [
+    {
+      "name": "final-active-web",
+      "passed": 691,
+      "failed": 0,
+      "errors": 0,
+      "skips": 0,
+      "subtests": 0,
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-active-web\\junit.xml",
+      "xmlSha256": "ea243f16c19577db515c5c1628a7c36e1b017e7660b51fc07abbb14448185b66",
+      "exitCode": 0
+    },
+    {
+      "name": "final-core",
+      "passed": 3400,
+      "failed": 1,
+      "errors": 0,
+      "skips": 7,
+      "subtests": 53,
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-core\\tests.xml",
+      "xmlSha256": "dba28fdfd15f84ba40d8d9d95ff2e5111dc1ffdc78382dc5bafb040c552c70d0",
+      "exitCode": 1
+    },
+    {
+      "name": "final-knowledge",
+      "passed": 1015,
+      "failed": 0,
+      "errors": 0,
+      "skips": 0,
+      "subtests": 0,
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-knowledge\\tests.xml",
+      "xmlSha256": "f10fb018daa1f80e5dcffeb2a0ba4030a524b1b703796525cb6378ce95938c30",
+      "exitCode": 0
+    },
+    {
+      "name": "final-memory",
+      "passed": 791,
+      "failed": 0,
+      "errors": 0,
+      "skips": 0,
+      "subtests": 0,
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-memory\\tests.xml",
+      "xmlSha256": "c58d0a7550e3c3dbe7a4733e8d1d2088e8818c65afdf9fab06231053fac9a805",
+      "exitCode": 0
+    },
+    {
+      "name": "final-security",
+      "passed": 615,
+      "failed": 0,
+      "errors": 0,
+      "skips": 0,
+      "subtests": 0,
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-security\\tests.xml",
+      "xmlSha256": "b2993ac476aada4308d82c359690863f4bf51b6921f2fb8553d1141f05f5e132",
+      "exitCode": 0
+    },
+    {
+      "name": "focused-locked",
+      "passed": 74,
+      "failed": 0,
+      "errors": 0,
+      "skips": 0,
+      "subtests": 0,
+      "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\focused-locked\\junit.xml",
+      "xmlSha256": "d1fb36564d147829253beb37b70e5db78c9e2afac6143bb9d38cd24ab33649c2",
+      "exitCode": 0
+    }
+  ],
+  "desktop": {
+    "command": [
+      "C:/Program Files/nodejs/node.exe",
+      "--experimental-transform-types",
+      "--test",
+      "--test-reporter=spec",
+      "--test-reporter-destination=C:/Users/joseh/AppData/Local/Temp/nova-aw8-revision02-20261010/desktop-final-valid.log",
+      "tests/application_client.test.cjs",
+      "tests/approval_host.test.cjs",
+      "tests/security_audit.test.cjs",
+      "tests/memory_control.test.cjs",
+      "tests/memory_maintenance.test.cjs",
+      "tests/knowledge_control.test.cjs",
+      "tests/knowledge_k7.test.cjs",
+      "tests/active_web.test.cjs"
+    ],
+    "cwd": "desktop",
+    "exitCode": 0,
+    "passed": 71,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "log": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-revision02-20261010/desktop-final-valid.log",
+    "typescriptCommand": [
+      "C:/Program Files/nodejs/node.exe",
+      "node_modules/typescript/bin/tsc",
+      "--noEmit"
+    ],
+    "typescriptExitCode": 0
+  },
+  "ciInventory": {
+    "status": "PASS",
+    "staticContracts": 4043,
+    "currentPortable": 3857,
+    "currentLocalOnly": 28,
+    "historical": 89,
+    "specialInfrastructure": 69,
+    "newBaseContracts": 15,
+    "oldRowsRulesByteReconstruction": "PASS",
+    "newNativeTopologyNotInOrdinaryCi": true
+  },
+  "regression": {
+    "newFailures": 0,
+    "newSkips": 0,
+    "newXfails": 0,
+    "newExclusions": 0,
+    "allExistingActiveWebTestsUnchanged": true,
+    "knownCoreFail": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "disposition": "NON_BLOCKING_FOR_THIS_REMEDIATION",
+    "failureNotReclassifiedAsPass": true,
+    "skipIdentityMatchesRevision01": true,
+    "headScope": "Current positive CI contract inventory across Core/Security/Memory/Knowledge plus complete Active Web native/component tests; historical quality campaigns not rerun."
+  },
+  "integrity": {
+    "file": "integrity.json",
+    "baselinePins": 2309,
+    "historicalDocuments": 1585,
+    "historicalExternalArtifacts": 372,
+    "historicalEvidenceDrift": [],
+    "unauthorizedDeltas": [],
+    "frozenProductDrift": [],
+    "tagsUnchanged": true,
+    "stagingEmpty": true
+  },
+  "evidenceFiles": [
+    {
+      "path": "baseline_freeze.json",
+      "bytes": 300707,
+      "sha256": "bd8a0bac586ad36bd933f47a3dc37cc8d0ca69eda3ed6d589fd8c1309b2b7843"
+    },
+    {
+      "path": "capability_probe.json",
+      "bytes": 14010,
+      "sha256": "9e398254a4c060e1ea9cea87af21fc9eae6538fde36079cf8f6a757f8eee3bc7"
+    },
+    {
+      "path": "component_freeze.json",
+      "bytes": 4167,
+      "sha256": "0948a60542ea3589657a939701b67d6e9b0fb3a36d4fe267345ad37dd2ff8d9c"
+    },
+    {
+      "path": "egress_evidence.json",
+      "bytes": 11703,
+      "sha256": "c8a70ad009c6548fce71a8c43e1820ed4e04fbe05d9d42a96764fad5150f197c"
+    },
+    {
+      "path": "integrity_initial.json",
+      "bytes": 6006,
+      "sha256": "3c31d1ab344e9e245d47651e70ced7b221c7a380ee4c8c6cf6fd8ca9747f2b3e"
+    },
+    {
+      "path": "integrity.json",
+      "bytes": 6416,
+      "sha256": "3b5440251f2fa5f2ed24756120bb32cf9d3ebb37a1679be2bac5015239092176"
+    },
+    {
+      "path": "productive_composition.json",
+      "bytes": 4122,
+      "sha256": "467a5caedb81d0d135d335a1113fedae36ef0cc122d07d400f145f7dc92905a6"
+    },
+    {
+      "path": "resultados.md",
+      "bytes": 10270,
+      "sha256": "99375db629a51cdb4da1f4d58ecca50a1ab0af5b048ae00ea92ee1867f6c554c"
+    },
+    {
+      "path": "test_results.json",
+      "bytes": 88699,
+      "sha256": "47cad42fe265c2eb2ab4f4357e4bdabb2af74b9a3e6b32193b05a3a30a3f40a0"
+    }
+  ],
+  "externalArtifacts": "test_results.json:artifacts (69 SHA-256 pins)",
+  "limitations": [
+    "Trusted admitted HTTPS renderer path not demonstrated without relaxing certificate checks/global CA.",
+    "Complete native Chromium/children TCP, UDP, DNS and background bypass absence observation not implemented/demonstrated.",
+    "All page-originated internal/file/javascript/data/custom-scheme pre-effect enforcement not demonstrated.",
+    "Fresh native negative https-metadata attempt has insufficient broker evidence; not recast as PASS.",
+    "Remaining V1 capability metadata (manualTakeover/upload/download/persistentSession/platform/maxPages) not fully measured by current native discovery."
+  ],
+  "preservation": {
+    "AW0ToAW7ManifestsUnchanged": true,
+    "originalAw8Unchanged": true,
+    "revision01Unchanged": true,
+    "olderCertificationsUnchanged": true
+  },
+  "finalAw8CampaignExecuted": false,
+  "modelInference": 0,
+  "activeWebCoreReadyDeclared": false,
+  "gitActions": {
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "nextAction": "Human review only; cannot resume final AW8 while native exclusive PUBLIC_ONLY proof remains incomplete."
+}

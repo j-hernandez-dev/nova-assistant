@@ -1,0 +1,460 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "nova:controlled-fetch:v12-b1",
+  "description": "Documentation of the executable closed runtime codecs. Dataclass and Application checks additionally enforce canonical spelling, ownership/expiry/revision/ceilings/Grant matching and cross-field outcome invariants. No model authority, no networking and no production tool registration.",
+  "$defs": {
+    "modelCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capabilityId",
+        "url",
+        "method",
+        "resultMode"
+      ],
+      "properties": {
+        "capabilityId": {
+          "const": "CONTROLLED_FETCH_V1_2"
+        },
+        "url": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "method": {
+          "enum": [
+            "GET",
+            "HEAD"
+          ]
+        },
+        "resultMode": {
+          "enum": [
+            "TEXT",
+            "HTML_STATIC",
+            "JSON"
+          ]
+        }
+      }
+    },
+    "privateHostRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capabilityId",
+        "owner",
+        "turnId",
+        "operationId",
+        "policyRevision",
+        "deadline",
+        "canonicalTarget",
+        "method",
+        "resultMode",
+        "limits"
+      ],
+      "properties": {
+        "capabilityId": {
+          "const": "CONTROLLED_FETCH_V1_2"
+        },
+        "owner": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ownerId",
+            "workspace",
+            "taskId"
+          ],
+          "properties": {
+            "ownerId": {
+              "type": "string",
+              "maxLength": 512
+            },
+            "workspace": {
+              "type": "string",
+              "maxLength": 512
+            },
+            "taskId": {
+              "type": "string",
+              "maxLength": 512
+            }
+          }
+        },
+        "turnId": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "operationId": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "policyRevision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "deadline": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "canonicalTarget": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 512
+        },
+        "method": {
+          "enum": [
+            "GET",
+            "HEAD"
+          ]
+        },
+        "resultMode": {
+          "enum": [
+            "TEXT",
+            "HTML_STATIC",
+            "JSON"
+          ]
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "timeout_seconds",
+            "max_redirects",
+            "max_header_bytes",
+            "max_response_bytes",
+            "max_published_chars",
+            "per_turn_requests",
+            "concurrency",
+            "per_turn_bytes"
+          ],
+          "properties": {
+            "timeout_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            },
+            "max_redirects": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "max_header_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 32768
+            },
+            "max_response_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2097152
+            },
+            "max_published_chars": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 32768
+            },
+            "per_turn_requests": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            },
+            "concurrency": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2
+            },
+            "per_turn_bytes": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50331648
+            }
+          }
+        }
+      }
+    },
+    "publicResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "capabilityId",
+        "operationId",
+        "sanitizedUrl",
+        "origin",
+        "method",
+        "resultMode",
+        "outcome",
+        "completeness",
+        "truncated",
+        "contentType",
+        "countedBytes",
+        "consumed",
+        "payload",
+        "absence",
+        "error",
+        "provenance",
+        "retryAllowed"
+      ],
+      "properties": {
+        "capabilityId": {
+          "const": "CONTROLLED_FETCH_V1_2"
+        },
+        "operationId": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "sanitizedUrl": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "origin": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "method": {
+          "enum": [
+            "GET",
+            "HEAD"
+          ]
+        },
+        "resultMode": {
+          "enum": [
+            "TEXT",
+            "HTML_STATIC",
+            "JSON"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "NOT_STARTED",
+            "STARTED",
+            "SUCCEEDED_OBSERVED",
+            "FAILED_NO_EFFECT_CONFIRMED",
+            "PARTIAL",
+            "UNKNOWN"
+          ]
+        },
+        "completeness": {
+          "enum": [
+            "NONE",
+            "COMPLETE",
+            "PARTIAL"
+          ]
+        },
+        "truncated": {
+          "type": "boolean"
+        },
+        "contentType": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "maxLength": 128,
+              "pattern": "^[a-z0-9.+-]+/[a-z0-9.+-]+$"
+            }
+          ]
+        },
+        "countedBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12582912
+        },
+        "consumed": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "logical_requests",
+            "hops",
+            "redirects",
+            "header_bytes",
+            "response_bytes",
+            "published_chars"
+          ],
+          "properties": {
+            "logical_requests": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "hops": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            },
+            "redirects": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "header_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 393216
+            },
+            "response_bytes": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 12582912
+            },
+            "published_chars": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32768
+            }
+          }
+        },
+        "payload": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "maxLength": 32768
+            }
+          ]
+        },
+        "absence": {
+          "enum": [
+            null,
+            "NO_RESULT",
+            "HEAD_NO_BODY",
+            "PUBLICATION_LIMIT"
+          ]
+        },
+        "error": {
+          "enum": [
+            null,
+            "CONTROLLED_FETCH_INVALID_SCHEMA",
+            "CONTROLLED_FETCH_WRONG_CAPABILITY",
+            "CONTROLLED_FETCH_OWNER_MISMATCH",
+            "CONTROLLED_FETCH_OPERATION_MISMATCH",
+            "CONTROLLED_FETCH_STALE_POLICY",
+            "CONTROLLED_FETCH_EXPIRED",
+            "CONTROLLED_FETCH_URL_DENIED",
+            "CONTROLLED_FETCH_UNSUPPORTED_METHOD",
+            "CONTROLLED_FETCH_UNSUPPORTED_MODE",
+            "CONTROLLED_FETCH_OPTIONAL_NOT_AVAILABLE",
+            "CONTROLLED_FETCH_AUTHORITY_DENIED",
+            "CONTROLLED_FETCH_ADMISSION_DENIED",
+            "CONTROLLED_FETCH_HOST_REF_DENIED",
+            "CONTROLLED_FETCH_REDIRECT_DENIED",
+            "CONTROLLED_FETCH_LIMIT_EXCEEDED",
+            "CONTROLLED_FETCH_CONCURRENCY_LIMIT",
+            "CONTROLLED_FETCH_REPLAY_DENIED",
+            "CONTROLLED_FETCH_TRANSPORT_NOT_CONFIGURED",
+            "CONTROLLED_FETCH_TRANSPORT_FAILED",
+            "CONTROLLED_FETCH_INVALID_RESPONSE",
+            "CONTROLLED_FETCH_INVALID_CONTENT",
+            "CONTROLLED_FETCH_RECEIPT_RECORD_FAILED",
+            "CONTROLLED_FETCH_INVALID_OUTCOME",
+            "CONTROLLED_FETCH_CANCELLED",
+            "CONTROLLED_FETCH_TIMEOUT"
+          ]
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source",
+            "trust",
+            "networkEgressControl",
+            "publicOnly"
+          ],
+          "properties": {
+            "source": {
+              "const": "V12_B1_CONTRACT_COMPOSITION"
+            },
+            "trust": {
+              "const": "UNTRUSTED_REMOTE_DATA"
+            },
+            "networkEgressControl": {
+              "const": "UNKNOWN"
+            },
+            "publicOnly": {
+              "const": "UNKNOWN"
+            }
+          }
+        },
+        "retryAllowed": {
+          "const": false
+        }
+      }
+    },
+    "hostLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timeout_seconds",
+        "max_redirects",
+        "max_header_bytes",
+        "max_response_bytes",
+        "max_published_chars",
+        "per_turn_requests",
+        "concurrency",
+        "per_turn_bytes"
+      ],
+      "properties": {
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "max_redirects": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "max_header_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "max_response_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2097152
+        },
+        "max_published_chars": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "per_turn_requests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "concurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        },
+        "per_turn_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50331648
+        }
+      }
+    }
+  },
+  "hostOnlyWithoutWireConstructor": [
+    "AdmittedControlledFetchRequest",
+    "ControlledFetchSecretRef",
+    "ControlledFetchNetworkProofRef"
+  ],
+  "optionalProfiles": {
+    "POST": {
+      "available": false,
+      "dispatch": "CONTROLLED_FETCH_OPTIONAL_NOT_AVAILABLE",
+      "privateComponent": "ControlledFetchFuturePost"
+    },
+    "auth": {
+      "available": false,
+      "metadataRef": "ControlledFetchSecretRef",
+      "credentialLookup": false
+    },
+    "binaryDownload": {
+      "available": false,
+      "privateComponent": "ControlledFetchFutureDownload"
+    }
+  }
+}

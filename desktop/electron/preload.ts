@@ -17,6 +17,10 @@ export type PythonMessage = {
 }
 
 contextBridge.exposeInMainWorld('api', {
+  configureWebV12: (configuration: {controlledFetchEnabled:boolean;interactiveBrowserEnabled:boolean}) =>
+    ipcRenderer.invoke('configure-web-v12', configuration),
+  selectWebV12Upload: (operationId:string) => ipcRenderer.invoke('web-v12-select-upload',operationId),
+  finishWebV12Takeover: (takeoverRef:string) => ipcRenderer.invoke('web-v12-finish-takeover',takeoverRef),
   memoryCommand: (name: string, args: Record<string, unknown>, commandId?: string) =>
     ipcRenderer.invoke('memory-command', name, args, commandId),
   knowledgePick: () => ipcRenderer.invoke('knowledge-pick'),

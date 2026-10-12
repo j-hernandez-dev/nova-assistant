@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "category": "DIRECT_CONTRACT",
+  "candidateSha256": "ca3a8087aef20bb96e00f09feb789515c6d494efa31835914ca31d3bf9f12288",
+  "authorityCases": [
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[weak-blur-one]",
+      "seconds": 11.954,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[weak-change-one]",
+      "seconds": 0.097,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[weak-blur-two]",
+      "seconds": 0.094,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[weak-change-two]",
+      "seconds": 0.091,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[weak-blur-long]",
+      "seconds": 0.094,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[weak-change-long]",
+      "seconds": 0.093,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[blur-then-end]",
+      "seconds": 0.097,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[change-then-end]",
+      "seconds": 0.088,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[change-then-retire]",
+      "seconds": 0.082,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[blur-then-pagehide]",
+      "seconds": 0.104,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[strong-submit-long]",
+      "seconds": 0.108,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[strong-submit-short]",
+      "seconds": 0.114,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[strong-pagehide-long]",
+      "seconds": 0.084,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[strong-pagehide-short]",
+      "seconds": 0.103,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[strong-engine_world_retire-long]",
+      "seconds": 0.097,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[strong-engine_world_retire-short]",
+      "seconds": 0.094,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[strong-checkpoint-long]",
+      "seconds": 0.097,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[strong-checkpoint-short]",
+      "seconds": 0.088,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[invalid-authority-1]",
+      "seconds": 0.092,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[invalid-authority-2]",
+      "seconds": 0.097,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[invalid-authority-6]",
+      "seconds": 0.095,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[legacy-input-commit-rejected]",
+      "seconds": 0.106,
+      "result": "PASS"
+    },
+    {
+      "class": "native.nova-browser-host.tests.test_strong_terminal_authority",
+      "name": "test_strong_terminal_authority[entry-coverage-no-commit]",
+      "seconds": 0.119,
+      "result": "PASS"
+    }
+  ],
+  "reconciledCases": [
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "ids": [
+        "reason-change",
+        "reason-blur"
+      ],
+      "old": "CHANGE/BLUR -> ConfirmTerminal -> Commit -> assert COMMITTED",
+      "new": "Observe weak signal -> updated current/revision, TRANSIENT, no TerminalSnapshot/Commit; retain known-value/no-exposure",
+      "boundary": null,
+      "beforeSha256": "3f0a31fd604e42e7bbaa8d28c1c70c926927be7dbe56755c347ea319f8f12eb5",
+      "afterSha256": "225d7ebcc1cabf57371be6b0f565b6a09478916ea12acf9150e8f689c6a28f87"
+    },
+    {
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "ids": [
+        "shared preparation: all 23 retirement-seal contracts"
+      ],
+      "old": "empty rev2 CHANGE terminal before current rev5",
+      "new": "explicit correlated rev2 CHECKPOINT witness for stale-snapshot preparation, weak CHANGE has no authority; seal commits exact rev5",
+      "boundary": "TAKEOVER_END_CHECKPOINT (direct correlated producer) then ENGINE_WORLD_RETIRE",
+      "beforeSha256": "e2d737e454b5d165f871bbeb211a76e732c37a8e9ceef0e80123bb96ad2e38fe",
+      "afterSha256": "8912a1dd14913ae6f68a46c0d1c206bb112110c567b7b3a06e65ba9748fd7367"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "committed-long",
+        "committed-short-1",
+        "committed-short-2",
+        "committed-short-3",
+        "promotion"
+      ],
+      "old": "Input(commit=true) generic HOST_CONFIRMED",
+      "new": "Input transient + exact observed owner/page/generation/control/revision/value CHECKPOINT snapshot -> Commit(snapshot)",
+      "boundary": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "ce455bc332d6a9624ba441157a5b79e950a5a471fe778ae80c327178129c9b84",
+      "afterSha256": "97cdc45bd8881366f64daf100c56019577ffdca06315247d26609fa37ebebd2f"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "native-committed-long"
+      ],
+      "old": "CHANGE(initial) then replacement -> assert initial COMMITTED",
+      "new": "same native fixture/events/values: assert initial TRANSIENT; current replacement committed by end checkpoint; no-exposure unchanged",
+      "boundary": "TAKEOVER_END_CHECKPOINT for current only",
+      "beforeSha256": "ce455bc332d6a9624ba441157a5b79e950a5a471fe778ae80c327178129c9b84",
+      "afterSha256": "97cdc45bd8881366f64daf100c56019577ffdca06315247d26609fa37ebebd2f"
+    },
+    {
+      "path": "native/nova-browser-host/tests/leaf_boundary_runner/Program.cs",
+      "ids": [
+        "long-committed"
+      ],
+      "old": "Input(commit=true)",
+      "new": "same generated known value, Input transient + correlated explicit CHECKPOINT snapshot",
+      "boundary": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "30ba3f919d30b33dbec028cccce30b845a65e9e5179df47989364c6caffd5c8b",
+      "afterSha256": "01e42b174bb0b02c1f8668310ab9191c12afc490d30290486ac374b641c9e23b"
+    },
+    {
+      "path": "native/nova-browser-host/tests/sensitive_runner/Program.cs",
+      "ids": [
+        "url",
+        "escaped-url",
+        "dispose",
+        "isolation",
+        "count",
+        "total",
+        "no-eviction",
+        "native-session-lifecycle",
+        "native-structural-collision"
+      ],
+      "old": "Input(commit=true) without a real terminal witness",
+      "new": "Input transient: these cases test known-value redaction/bounds/ownership, not terminality; security assertions byte-unchanged",
+      "boundary": null,
+      "beforeSha256": "cd49e2dd7d1fe3a49af9ed3a04c3f6b2acca2cd52056370250752f2bd8f49976",
+      "afterSha256": "a4df8fb58ebf8e2ac7a1b89789fa14cfc28a5f5db311147d88d5df04ddeff41d"
+    },
+    {
+      "path": "native/nova-browser-host/ObservationRuntime.cs",
+      "scope": "two internal checkpoint callers only",
+      "old": "Capture checkpoints created terminal snapshots",
+      "new": "capture fences verify current coverage without terminal authority",
+      "strongBoundary": null,
+      "beforeSha256": "41c554d74bd2ebd9024060df586ac274d0d0ec83ef0c727f6df33b2cc6cbe1ba",
+      "afterSha256": "7a47a59c744a4189bf7d098fac8fb1fda4d7b0af199cf32c882411fd781d651a"
+    }
+  ],
+  "securityPolicyUnchanged": true,
+  "notNativeRuntimeCertification": true
+}

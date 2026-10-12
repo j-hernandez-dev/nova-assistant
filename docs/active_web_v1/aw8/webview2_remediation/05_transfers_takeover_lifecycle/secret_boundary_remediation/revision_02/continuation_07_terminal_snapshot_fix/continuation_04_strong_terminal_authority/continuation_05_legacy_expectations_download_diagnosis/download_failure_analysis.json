@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "phase": "DIAGNOSIS_ONLY",
+  "fourFunctionalRepairsImplemented": false,
+  "rootCauseIdentifiedAllFour": false,
+  "cases": [
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_upload_and_download_smoke",
+      "classification": "INCONCLUSIVE",
+      "firstObservedBranches": [
+        "DOWNLOAD_EVENT_NOT_RECEIVED",
+        "DOWNLOAD_COMPLETION_TIMEOUT"
+      ],
+      "historicalState": {
+        "state": "Interrupted",
+        "reason": "FileFailed",
+        "bytes": 0,
+        "total": 35,
+        "ref": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_07_terminal_snapshot_fix/continuation_04_strong_terminal_authority/continuation_04_expected_outcome_reconciliation/failure_analysis.json",
+        "preserved": true
+      },
+      "currentObserved": {
+        "nativeDiagnosticHostUsed": true,
+        "hostPid": 8348,
+        "runtimeVersion": "154.0.4258.62",
+        "downloadSlotCreated": true,
+        "remainingDeadlineMilliseconds": 24986,
+        "fixtureRequested": true,
+        "fixtureResponseStatus": 200,
+        "fixtureResponseBytes": 35,
+        "downloadStartingObserved": false,
+        "downloadOperation": null,
+        "timeoutException": true,
+        "nativeState": null,
+        "nativeInterruptReason": null,
+        "privateDownloadDestinationAssigned": false,
+        "nativeFileOpened": false,
+        "pythonStagingFinalizationCalled": false,
+        "pythonStagingEntries": 0,
+        "actionStartedAck": true,
+        "finalOutcome": "UNKNOWN",
+        "finalEffectState": "unknown",
+        "noEffectClaim": false,
+        "timeoutMilliseconds": 25035.2036,
+        "cleanupBeginMilliseconds": 25227.944,
+        "cleanupConfirmedMilliseconds": 26959.6352,
+        "cleanupDidNotPrecedeFailure": true
+      },
+      "firstBranchCode": "TransferRuntime.cs: download.Done.Task.WaitAsync -> TimeoutException -> catch -> DownloadReport(STARTED, UNKNOWN)",
+      "missingEvidence": [
+        "Why Chromium does not initiate native DownloadStarting for the returned fixture response",
+        "Whether the previously observed FileFailed belongs to the same engine decision path; not reproduced in this one execution",
+        "Native OS/engine file-error detail for historical FileFailed; API reason is generic, not evidence of ACL/path length/stream disposal"
+      ],
+      "exclusionsProven": [
+        "Existing resource provider returned the actual 35-byte fixture",
+        "No Python stage() invocation",
+        "Browser cleanup began after the timeout, not before completion wait"
+      ],
+      "traceRef": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-legacy-download-diagnosis-20261011T083647Z\\P2_smoke_only_first_body\\temp\\test_native_upload_and_downloa0\\nova_wv2_bws_3eb6c0adc4654d5ba043845d299578c3_bhi_539f4619f05e47ec9933381f15d297cf.download-trace.json",
+      "diagnosticPerturbation": "Additional read-only native/CDP observers can alter timing; this diagnostic build is not certification or proof of equivalence of timing"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_drive_by_download_cancelled_no_staging",
+      "classification": "INCONCLUSIVE",
+      "firstObservedBranches": [
+        "DOWNLOAD_EVENT_NOT_RECEIVED"
+      ],
+      "currentObserved": {
+        "nativeDiagnosticHostUsed": false,
+        "pythonMetadataAvailable": true,
+        "approvedAdapterClickObserved": "SUCCEEDED_OBSERVED",
+        "existingPollCount": 114,
+        "denialObservedInExistingWindow": false,
+        "windowSeconds": 3,
+        "callbackEverEmitted": null,
+        "callbackLate": null,
+        "engineSuppression": null,
+        "stagingEntries": 0,
+        "cleanupConfirmed": true
+      },
+      "firstBranchCode": "test_webview2_transfers.py:178: existing poll window ends without DOWNLOAD_DENIED",
+      "missingEvidence": [
+        "Native DownloadStarting / resource / engine issue events in this exact execution",
+        "Whether download is engine-suppressed before Nova callback or emitted late",
+        "No post-window native callback trace exists because test-only diagnostic build setup failed for the first fixture"
+      ],
+      "reasonForLimit": "Diagnostic fixture setup bug retained the ordinary host for this and the remaining two; no authorized extra body execution performed"
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+      "classification": "INCONCLUSIVE",
+      "firstObservedBranches": [
+        "OTHER"
+      ],
+      "currentObserved": {
+        "nativeDiagnosticHostUsed": false,
+        "nativeRequestKind": "download",
+        "nativeStarted": true,
+        "nativeResult": "UNKNOWN",
+        "nativeResultWaitSeconds": 24.7644912,
+        "nativeCompletedStateObserved": null,
+        "pythonStagingFinalizationCalled": false,
+        "ownershipTransferReached": false,
+        "browserCleanupAfterResult": true,
+        "stagingEntries": 0,
+        "cleanupConfirmed": true
+      },
+      "firstBranchCode": "transfer_adapter.py: native outcome != SUCCEEDED_OBSERVED -> UNKNOWN; no payload.stage call",
+      "missingEvidence": [
+        "Native state/reason and download.Done completion/timeout branch for this exact execution",
+        "A Completed native state and file finalization witness; neither was delivered",
+        "No native read-only trace because the diagnostic build setup failed"
+      ]
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]",
+      "classification": "INCONCLUSIVE",
+      "identifiedBoundary": "DOWNLOAD_RESULT_JOIN_TIMEOUT",
+      "firstObservedBranches": [
+        "DOWNLOAD_RESULT_JOIN_TIMEOUT"
+      ],
+      "currentObserved": {
+        "nativeDiagnosticHostUsed": false,
+        "toolRuntimeEntered": true,
+        "exactApprovalResolved": true,
+        "prepareReturned": true,
+        "adapterDispatchEntered": true,
+        "ipcDownloadEntered": true,
+        "existingJoinSeconds": 8,
+        "workerAliveAfterJoin": true,
+        "downloadInFlightAtJoin": true,
+        "nativeResultDeliveredBeforeJoin": false,
+        "workerExceptionObserved": false,
+        "approvalPropagationFailureProven": false,
+        "finallyCancellationRequestedByUnchangedTest": true,
+        "subsequentIpcException": "HostIpcError",
+        "adapterReturnedAfterCancellation": "UNKNOWN",
+        "toolRuntimeReturnedAfterCancellation": "outcome_unknown",
+        "secondJoinEndedWorker": true,
+        "stagingFinalizationCalled": false,
+        "cleanupConfirmed": true
+      },
+      "firstBranchCode": "test_webview2_transfers.py:322: worker.join(8) returns with live download IPC task and empty result",
+      "missingEvidence": [
+        "Native callback/state of the in-flight operation before join8/cancellation",
+        "Why native completion is delayed/absent, not merely that join8 expired"
+      ],
+      "exclusionsProven": [
+        "Actual Approval.resolve returned approved",
+        "Actual prepare and dispatch reached host IPC",
+        "Result was not consumed early: no ToolRuntime return before first join",
+        "No worker exception observed; worker returned normally after cancellation"
+      ],
+      "noTimeoutIncreasePerformed": true
+    }
+  ],
+  "categoryMapping": {
+    "DOWNLOAD_EVENT_NOT_RECEIVED": "DownloadSlot remains without operation, or existing denial poll ends without event; does not assert an event can never occur",
+    "DOWNLOAD_COMPLETION_TIMEOUT": "Actual WaitAsync TimeoutException only, current smoke native trace",
+    "DOWNLOAD_FILE_FAILED": "Historical Interrupted/FileFailed only; no causal claim about ACL/long path",
+    "DOWNLOAD_RESULT_JOIN_TIMEOUT": "Existing join8 returns while download IPC task is in flight",
+    "STAGING_CREATION_FAILURE": "NOT_OBSERVED; initial Python staging root creation succeeded",
+    "STAGING_FINALIZATION_FAILURE": "NOT_OBSERVED; stage() never entered in these downloads",
+    "BROWSER_CLEANUP_RACE": "NOT_DEMONSTRATED; smoke cleanup occurs after timeout",
+    "APPROVAL_RESULT_PROPAGATION_FAILURE": "NOT_DEMONSTRATED; approval and dispatch were observed"
+  },
+  "diagnosticPreparationRef": "diagnostic_preparation_failure.json",
+  "executionLimits": {
+    "bodyRunsPerCase": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "initialSmokeSetupOnlyErrorPreserved": true,
+    "noStatisticalCampaign": true,
+    "noQualityReruns": true,
+    "noAdditionalDownloadRuns": true
+  },
+  "sourceInterpretation": {
+    "FileFailed": "Generic file error; cannot infer specific OS/path cause from this reason alone",
+    "officialDocs": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2downloadinterruptreason?view=webview2-dotnet-1.0.3800.47",
+    "pinnedSdkDocs": "Microsoft.Web.WebView2 1.0.4258.31 / lib/net462/Microsoft.Web.WebView2.Core.xml",
+    "DownloadStarting": "Event denotes an already begun download, not a guarantee that any programmatic click initiates a download",
+    "officialEventDocs": "https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.downloadstarting"
+  },
+  "repairProposal": "No functional fix proposed as confirmed. Four root causes are not all identified. Preserve UNKNOWN, request review of missing native evidence before any fix or timeout change.",
+  "networkCertificationClaim": false
+}

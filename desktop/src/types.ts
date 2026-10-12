@@ -80,6 +80,10 @@ export type PythonMessage = {
 declare global {
   interface Window {
     api: {
+      configureWebV12: (configuration: {controlledFetchEnabled:boolean;interactiveBrowserEnabled:boolean}) =>
+        Promise<import('../shared/application').BrowserControlResult>
+      selectWebV12Upload: (operationId:string) => Promise<import('../shared/application').BrowserControlResult>
+      finishWebV12Takeover: (takeoverRef:string) => Promise<import('../shared/application').BrowserControlResult>
       memoryCommand: (name: string, args: Record<string, unknown>, commandId?: string) => Promise<import('../shared/application').MemoryControlResult>
       knowledgePick: () => Promise<import('../shared/application').CommandReceipt>
       knowledgeRefresh:(sourceId:string)=>Promise<import('../shared/application').CommandReceipt>

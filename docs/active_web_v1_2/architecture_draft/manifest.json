@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "phase": "ACTIVE_WEB_V1_2_ARCHITECTURE_DRAFT",
+  "date": "2026-10-11",
+  "timezone": "America/Mexico_City",
+  "result": "READY_FOR_HUMAN_REVIEW",
+  "prospectiveOnly": true,
+  "humanDecision": {
+    "source": "Human request in the existing conversation",
+    "chromiumForkDirection": "ABANDONED_FOR_NOW_COST_BENEFIT",
+    "technicalImpossibilityClaim": false,
+    "assessmentPreserved": {
+      "SOURCE_CONTROLLED_CHROMIUM": "REQUIRES_SOURCE_PROTOTYPE",
+      "PATCH_SET": "LARGE_PATCH_SET",
+      "CONCEPTUAL_GATES": 22,
+      "MAINTENANCE_COST": "VERY_HIGH"
+    },
+    "capabilitySplit": "CONCEPTUALLY_APPROVED",
+    "implementationAuthorized": false
+  },
+  "scope": {
+    "draftedCapabilities": [
+      "CONTROLLED_FETCH_V1_2",
+      "INTERACTIVE_BROWSER_V1_2"
+    ],
+    "productChanges": false,
+    "existingDocumentChanges": false,
+    "newConversationOrContext": false,
+    "chromiumBuild": false,
+    "rtcP2PHardDisableExecuted": false,
+    "engineDownloadedOrInstalled": false,
+    "productTestsExecuted": 0,
+    "nativeTestsExecuted": 0,
+    "historicalBlock07Executed": false,
+    "historicalAW8E2EExecuted": false,
+    "profileMaintenanceExecuted": false,
+    "commitPushTagRelease": false
+  },
+  "capabilityDesign": {
+    "controlledFetch": {
+      "currentDraftAvailability": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "V1.2 not implemented or certified"
+      },
+      "networkEgressControlTarget": "ENFORCED_WITHIN_CONTROLLED_FETCH",
+      "publicOnlyTarget": "ENFORCED_WITHIN_CONTROLLED_FETCH",
+      "currentTargetEnforcementEvidence": "UNKNOWN_NOT_EXECUTED",
+      "browserEngine": false,
+      "browserEmulation": false,
+      "javascriptExecution": false,
+      "serviceWorkers": false,
+      "webRTC": false,
+      "quicBrowserNetworkService": false,
+      "initialMethods": [
+        "GET",
+        "HEAD"
+      ],
+      "optionalExplicitMethod": "BOUNDED_POST_WITH_EXACT_AUTHORITY",
+      "redirects": "REVALIDATE_EVERY_HOP_NO_AUTOMATIC_POST_OR_AUTH_REPLAY",
+      "browserCredentialsOrCookieJar": false,
+      "reuse": [
+        "BrowserNetworkPolicy",
+        "BrowserEgressBroker",
+        "S5 public_address",
+        "DNS all-answer validation",
+        "numeric IP pinning",
+        "FetchBudget",
+        "bounded responses",
+        "deadlines and quotas"
+      ]
+    },
+    "interactiveBrowser": {
+      "currentDraftAvailability": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "V1.2 not implemented or certified"
+      },
+      "networkIsolation": {
+        "status": "KNOWN",
+        "value": "NOT_PROVIDED",
+        "reason": null
+      },
+      "externalProtocolGuardTarget": "ENFORCED_DENY_ALL_PRE_EFFECT",
+      "remoteMutationControlTarget": "ENFORCED_FOR_NOVA_ACTIONS_ONLY",
+      "secretBoundaryTarget": "ENFORCED_FOR_BLOCK05_DECLARED_SENSITIVE_AND_KNOWN_VALUE_POLICY",
+      "currentTargetEnforcementEvidence": "UNKNOWN_REQUIRES_V1_2_RECERTIFICATION",
+      "controlClass": "HOST_UNISOLATED",
+      "recommendedAdapter": "EXISTING_WEBVIEW2_HOST_RECERTIFIED_FOR_V1_2",
+      "subagentsBrowserByDefault": false,
+      "allSocketsMediatedClaim": false,
+      "globallyDisabledWebRTCClaim": false,
+      "globallyDisabledServiceWorkersClaim": false,
+      "hostileSiteSandboxClaim": false
+    }
+  },
+  "routing": {
+    "default": "CONTROLLED_FETCH",
+    "interactiveRequires": "HOST_VALIDATED_REAL_INTERACTION_NEED_AND_SEPARATE_AUTHORITY",
+    "publicOnlyDenialFallback": "DENIED_NO_MODEL_OR_PAGE_OVERRIDE",
+    "authorityReusableAcrossCapabilities": false,
+    "loginIsMutationApproval": false,
+    "transferNetworkProofInterchangeable": false,
+    "mutationAutoRetryAfterStarted": false
+  },
+  "block05Classifications": [
+    "REUSABLE_AS_ARCHITECTURE_CONTRACT",
+    "WEBVIEW2_CERTIFICATION_ONLY",
+    "REQUIRES_V1_2_RECERTIFICATION",
+    "REMOVED_FROM_THREAT_MODEL"
+  ],
+  "block05FinalGuaranteeRows": 30,
+  "historicalStatesPreserved": {
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "PASS",
+    "WEBVIEW2_BLOCK06_ARCHITECTURE": "BLOCKED_ARCHITECTURAL_ENFORCEMENT_LIMIT",
+    "CEF_CHROMIUM_STANDARD_CANDIDATE": "REJECTED",
+    "SOURCE_CONTROLLED_CHROMIUM": "REQUIRES_SOURCE_PROTOTYPE",
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "roadmap": [
+    "V12-B0",
+    "V12-B1",
+    "V12-B2",
+    "V12-B3",
+    "V12-B4",
+    "V12-B5",
+    "V12-B6",
+    "V12-B7"
+  ],
+  "minimumOpenDecisions": [
+    {
+      "id": "D1_INITIAL_INTERACTIVE_ADAPTER",
+      "recommendation": "Reuse existing WebView2 under the new scope with focused recertification",
+      "blockingDraftCompleteness": false,
+      "requiresHumanReviewBeforeImplementation": true
+    }
+  ],
+  "documents": [
+    "README.md",
+    "architecture.md",
+    "threat_model.md",
+    "block05_reuse.md",
+    "roadmap.md"
+  ],
+  "preservation": {
+    "baseline": "baseline.json",
+    "verification": "integrity.json",
+    "profileInspectionOrCleanup": false
+  },
+  "stop": "Human architecture review; no product implementation or historical certification work",
+  "repository": {
+    "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant",
+    "baselineHead": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "existingDirtyWorkingTreePreserved": true,
+    "newArtifactNamespace": "docs/active_web_v1_2/architecture_draft/"
+  }
+}

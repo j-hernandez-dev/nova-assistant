@@ -1,0 +1,155 @@
+Failed to find real location of C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\python.exe
+.FFFF...                                                                 [100%]
+================================== FAILURES ===================================
+_______ test_private_desktop_proof_required_and_exact_positive_response _______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block3/s2_private_4cvsrfc3/selected/test_private_desktop_proof_req0')
+
+    def test_private_desktop_proof_required_and_exact_positive_response(tmp_path):
+        app, sid, exe = setup(tmp_path)
+        sent, key = [], 'ab' * 32
+>       adapter = JsonlApplicationAdapter(app, sid, sent.append, host_approval_key=key)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s2_approvals.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:45: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D37D941550>
+session_id = 'ses_04974060d0074c72a2c3402891d863ac', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1413: ValueError
+___________ test_cli_redirected_yes_is_denied_without_reading_input ___________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block3/s2_private_4cvsrfc3/selected/test_cli_redirected_yes_is_den0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D37DC755B0>
+
+    def test_cli_redirected_yes_is_denied_without_reading_input(tmp_path, monkeypatch):
+        app, sid, exe = setup(tmp_path)
+        monkeypatch.setattr(sys, 'stdin', io.StringIO('yes\n'))
+>       cli = CliApplicationClient(app, sid, read=lambda _: pytest.fail('headless input read'),
+                                    write=lambda _: None, write_error=lambda _: None)
+
+tests\security_v12\test_s2_approvals.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:67: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D37D8FAE40>
+session_id = 'ses_5112c6914bf44d2c864c172b53841ab8', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1413: ValueError
+_________ test_cli_verified_tty_positive_is_bound_to_current_request __________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block3/s2_private_4cvsrfc3/selected/test_cli_verified_tty_positive0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D37DC76060>
+
+    def test_cli_verified_tty_positive_is_bound_to_current_request(tmp_path, monkeypatch):
+        app, sid, exe = setup(tmp_path)
+        monkeypatch.setattr(CliApplicationClient, '_human_tty', staticmethod(lambda: True))
+>       cli = CliApplicationClient(app, sid, read=lambda _: 'yes',
+                                    write=lambda _: None, write_error=lambda _: None)
+
+tests\security_v12\test_s2_approvals.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:67: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D37D8FA900>
+session_id = 'ses_18946a1c1dd449e4a796d4a65c5dde23', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1413: ValueError
+_________________ test_legacy_confirm_frame_cannot_authorize __________________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block3/s2_private_4cvsrfc3/selected/test_legacy_confirm_frame_cann0')
+
+    def test_legacy_confirm_frame_cannot_authorize(tmp_path):
+        app, sid, exe = setup(tmp_path)
+        sent = []
+>       adapter = JsonlApplicationAdapter(app, sid, sent.append)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s2_approvals.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:45: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x000001D37D8FA3C0>
+session_id = 'ses_4fe8ae0bef3f4d40b83e6911bf5025aa', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1413: ValueError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s2_approvals.py::test_private_desktop_proof_required_and_exact_positive_response
+FAILED tests/security_v12/test_s2_approvals.py::test_cli_redirected_yes_is_denied_without_reading_input
+FAILED tests/security_v12/test_s2_approvals.py::test_cli_verified_tty_positive_is_bound_to_current_request
+FAILED tests/security_v12/test_s2_approvals.py::test_legacy_confirm_frame_cannot_authorize
+4 failed, 4 passed in 4.21s
+Exception ignored while calling deallocator <function Console.__del__ at 0x000001D37D0196F0>:
+Traceback (most recent call last):
+  File "C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pyreadline3\console\console.py", line 256, in __del__
+OSError: [WinError -1073741816] Windows Error 0xc0000008

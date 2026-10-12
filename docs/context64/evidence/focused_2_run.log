@@ -1,0 +1,65 @@
+........................................F.............................s. [ 18%]
+........................................................................ [ 36%]
+........................................................................ [ 54%]
+........................................................................ [ 72%]
+............s.s......................................................... [ 90%]
+.......................................                                  [100%]
+================================== FAILURES ===================================
+________ test_application_cli_server_snapshot_and_smaller_model_switch ________
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/context64_focused_2/pytest-private/test_application_cli_server_sn0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000028C2A2FBE70>
+capsys = <_pytest.capture.CaptureFixture object at 0x0000028C2AA91400>
+
+    def test_application_cli_server_snapshot_and_smaller_model_switch(tmp_path, monkeypatch, capsys):
+        from local_cli.server import JsonLineServer
+        from local_cli.session import SessionManager
+        from tests.cli_application_fixture import _ReplContext, _handle_slash_command
+        provider = CapacityProvider()
+        app = AgentSessionCoordinator(provider=provider, model='old', provider_manager=state_for(provider),
+            tool_factory=lambda _: [], prompt_factory=lambda *_: 'Synthetic mandatory safety.',
+            context_selection='64K', context_policy=ContextPolicy(resource_limit=65536),
+            capability_factory=capabilities)
+        session = start(app, tmp_path).session_id
+        receipt = submit(app, session, 'Synthetic Unicode acción 🙂')
+        assert app.wait_for_turn(receipt.created_ids['turnId'], 5)
+        state = snapshot(app, session)
+        assert state.turns[-1]['status'] == 'completed'
+        assert state.model_runtime['modelContextWindow'] == 65536
+        usage = app.get_context_usage(session)
+        budget = usage['budget']
+        assert usage['token_limit'] == budget['selected_context_window'] == 65536
+        assert budget['selection_verified'] is True
+        wire = []
+>       adapter = JsonlApplicationAdapter(app, session, wire.append)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_context_64k.py:173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:47: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000028C2AA91550>
+session_id = 'ses_12509bc6c49b4faea60faa955532a9ad', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -> EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+>               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1500: ValueError
+=========================== short test summary info ===========================
+FAILED tests/test_context_64k.py::test_application_cli_server_snapshot_and_smaller_model_switch
+1 failed, 395 passed, 3 skipped in 22.42s
+

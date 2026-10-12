@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW6",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "literalGate": "Cierre: credentials no pasan al agente.",
+  "sections": [
+    "§7.1",
+    "§9–10",
+    "§14.3",
+    "§15.6–8",
+    "§16.5–6",
+    "§17",
+    "§19–21",
+    "§25–26",
+    "§31",
+    "§33",
+    "§35 AW6",
+    "§36"
+  ],
+  "priorPhase": "AW5 = PASS; manifest/product/artifact/normative pins verified",
+  "reuse": [
+    "AW1 manager ownership, quotas, cancel, browserContextEpoch invalidation",
+    "AW2 host observation registry and SecretRedactor; freshness and context admission",
+    "AW3 ToolRuntime/Policy/Approval/claimed grants/durable SecurityAudit",
+    "AW4 PUBLIC_ONLY broker unchanged",
+    "AW5 opt-in engine/ephemeral sessions/private handles",
+    "K2 LocalHostFileAcquisition bounded host-selected file reader only, no Knowledge store/ingestion"
+  ],
+  "plannedFiles": [
+    "local_cli/core/active_web_transfers.py (new internal DTO/ports)",
+    "local_cli/application/browser_takeover.py",
+    "local_cli/application/browser_transfers.py",
+    "local_cli/infrastructure/active_web/download_staging.py",
+    "local_cli/application/active_web.py (pause/epoch only)",
+    "local_cli/application/browser_actions.py (opt-in takeover/transfer plans)",
+    "local_cli/infrastructure/active_web/playwright_adapter.py (private host takeover/upload/download)",
+    "tests/active_web_v1/test_aw6_contracts.py",
+    "tests/active_web_v1/test_aw6_engine.py",
+    "ci/pytest_contracts.json (minimum additive inventory only)",
+    "docs/active_web_v1/aw6/*"
+  ],
+  "claims": "No available/publicOnly true, no AW7/public frontend/tool bootstrap, no automatic Knowledge/Memory writes, no global setting/browser/model downloads, no READY.",
+  "architectureContradictionFound": false,
+  "hostBounds": "Finite explicit host transfer limits, not new normative defaults or global quotas.",
+  "tests": "Portable contracts plus explicit local Chromium native engine fixtures; old positive selections preserved."
+}

@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "timestampUtc": "2026-10-10T14:29:00.467Z",
+  "purpose": "Active Web V1.1 §35.2 block04 — observations/refs/actions; additive Infrastructure only",
+  "baseline": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "dirtyBefore": true,
+    "trackedModificationsBefore": 18,
+    "priorFiles": 2397,
+    "historicalFiles": 154,
+    "block03PinsMatchedBefore": true,
+    "tagsUnchanged": true,
+    "freeze": "baseline_freeze.json"
+  },
+  "normative": {
+    "architecture": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+    "sha256": "46ec3201460ba37a6fe47f6cf94e80f0024ec442c9323115a0cf19d64de95e1d",
+    "historicalV1Sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "sections": [
+      "§6.3",
+      "§12–17",
+      "§18.6–7",
+      "§19",
+      "§22",
+      "§23.1",
+      "§35.2 block4",
+      "§36.7"
+    ],
+    "coreSchemasChanged": false,
+    "architectureChanged": false
+  },
+  "lineage": {
+    "block01": "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/manifest.json",
+    "block02": "docs/active_web_v1/aw8/webview2_remediation/02_webview2_adapter/manifest.json",
+    "block03": "docs/active_web_v1/aw8/webview2_remediation/03_external_protocol_guard/manifest.json",
+    "allHistoricalEvidenceByteIntact": true
+  },
+  "implementation": {
+    "sdk": "1.0.4258.31",
+    "runtimeObserved": "154.0.4258.62",
+    "dotnetSdk": "10.0.203",
+    "framework": "net10.0-windows",
+    "platform": "win32 / Windows11 / x64 / NTFS",
+    "controlClass": "HOST_UNISOLATED",
+    "route": "BrowserPort/Capture/Resolve/Dispatch → private v4 Named Pipe → owned nova-browser-host → real WebView2/CDP",
+    "fixedScriptVersion": "nova-wv2-observation-1",
+    "bindings": "host-held exact RemoteObjects + random private token, engine epoch/version/origin/fingerprint, no selector rebind",
+    "publicRefs": "unchanged AW2 service",
+    "typedActions": [
+      "CLICK",
+      "INPUT_TEXT",
+      "SELECT_OPTION",
+      "PRESS_KEY",
+      "SCROLL",
+      "BACK",
+      "FORWARD",
+      "WAIT",
+      "FORM_SUBMIT"
+    ],
+    "navigation": "mapped local only, not productive public browser_navigate",
+    "budgetProfile": {
+      "maxElements": 32,
+      "maxText": 8192,
+      "maxField": 512,
+      "maxFormFields": 32,
+      "frameBytes": 16384,
+      "payloadBytes": 4096,
+      "noSilentClamp": true,
+      "wholeOverflowRowNotPublic": true
+    },
+    "waitUnits": "seconds within existing deadline",
+    "networkCertification": false,
+    "productiveToolsAdvertised": false,
+    "policyInCSharp": false,
+    "guardModified": false,
+    "fullBlock03Recertification": false
+  },
+  "changedExistingFiles": [
+    "native/nova-browser-host/WebView2Runtime.cs",
+    "native/nova-browser-host/Program.cs",
+    "native/nova-browser-host/LifecycleServer.cs"
+  ],
+  "newImplementationAndTests": [
+    "local_cli/infrastructure/active_web/action_ipc.py",
+    "local_cli/infrastructure/active_web/observation_adapter.py",
+    "native/nova-browser-host/ActionProtocol.cs",
+    "native/nova-browser-host/ObservationRuntime.cs",
+    "native/nova-browser-host/ObservationScripts.cs",
+    "native/nova-browser-host/tests/observation_page.html",
+    "native/nova-browser-host/tests/test_webview2_observation_actions.py"
+  ],
+  "productFreeze": "product_freeze_certification.json",
+  "gates": {
+    "STRUCTURED_OBSERVATION": {
+      "result": "PASS",
+      "evidence": "real redacted visible/title/URL/elements/forms/iframe capture, bounded truthful overflow/profile refusal; observation_evidence.json"
+    },
+    "OPAQUE_ELEMENT_REFS": {
+      "result": "PASS",
+      "evidence": "existing opaque bwe/bwo; host-only object handles; duplicate labels exact node and cross-owner/page checks"
+    },
+    "FRESHNESS_AND_STALE_REJECTION": {
+      "result": "PASS",
+      "evidence": "8 independent DOM actors, native origin/history/frame changes, one-use refs, atomic exact metadata check; no rebind"
+    },
+    "TYPED_WEBVIEW2_ACTIONS": {
+      "result": "PASS",
+      "evidence": "native union/submit and existing capabilities, pre-start mismatch refusal; WAIT compatibility, quota/concurrency"
+    },
+    "POLICY_APPROVAL_GRANT_PRESERVED": {
+      "result": "PASS",
+      "evidence": "unchanged ActiveWebService public arguments and real ToolRuntime/Approval/Grant/Audit with real engine; synthetic legacy capability ceiling only for wiring; AW1–AW3 244 PASS"
+    },
+    "ACTION_OUTCOME_INTEGRITY": {
+      "result": "PASS",
+      "evidence": "native STARTED→SUCCEEDED; native IPC loss/cancel after STARTED→UNKNOWN; pre-effect no-effect proof; approval stale NOT_STARTED; same-op cache not retry"
+    },
+    "CONTEXT_PROJECTION_BOUNDARY": {
+      "result": "PASS",
+      "evidence": "native snapshot → existing Core ContextManager/AW2 service, tool/untrusted framing, protected current-user and complete refs/rows"
+    }
+  },
+  "WEBVIEW2_REMEDIATION_BLOCK_04": "PASS",
+  "SAFE_TO_ADVANCE_TO_BLOCK_05": true,
+  "tests": {
+    "finalFocused": {
+      "passed": 198,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "exitCode": 0,
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-04-final03.xml",
+      "sha256": "5939b3b94d7d0c73386cec5157fbf022c329313b026f17ce280c9467aad0cf23",
+      "newBlock04Tests": 42,
+      "newCategories": {
+        "WEBVIEW2_OBSERVATION_NATIVE_TEST": 13,
+        "WEBVIEW2_ACTION_NATIVE_TEST": 20,
+        "WEBVIEW2_OBSERVATION_CONTRACT_TEST": 2,
+        "WEBVIEW2_ACTION_CONTRACT_TEST": 7
+      },
+      "inheritedHostTests": 156
+    },
+    "aw123": 244,
+    "inherited": {
+      "activeWeb": 672,
+      "security": 615,
+      "memory": 791,
+      "knowledge": 1015,
+      "desktop": 71,
+      "typescript": "PASS",
+      "core": {
+        "passed": 3411,
+        "failures": 1,
+        "errors": 0,
+        "skips": 7,
+        "subtestsPassed": 53,
+        "exitCode": 1,
+        "result": "NOT_GREEN",
+        "failure": "PREEXISTING_CORE_HARNESS_DEBT HOME/USERPROFILE",
+        "nonBlockingForBlock04": true
+      }
+    },
+    "preservedHistory": {
+      "attempt01": "1 FAIL",
+      "attempt02": "22 PASS/10 FAIL",
+      "attempt03": "33 PASS/5 FAIL",
+      "attempt04": "38 PASS",
+      "final01": "196 PASS",
+      "final02": "196 PASS before final bounded capture delta",
+      "block03Jsonl": "prior FAIL intact; current run PASS not substituted; HARNESS_RACE/NON_CAUSAL_TO_BLOCK04, not asserted historically PREEXISTING"
+    },
+    "details": "test_results.json",
+    "newSkips": 0,
+    "newXfails": 0,
+    "newFilters": 0,
+    "qualityRetries": 0,
+    "modelCampaigns": 0,
+    "notUniqueAllRepositoryHeadDenominator": true
+  },
+  "integrity": {
+    "priorFiles": 2397,
+    "historicalFiles": 154,
+    "productPins": 44,
+    "historicalDrift": 0,
+    "productDrift": 0,
+    "unexpectedChanges": 0,
+    "stagedFiles": 0,
+    "ownedEnginePidsRemaining": 0,
+    "details": "integrity.json",
+    "architectureAndPriorCertificatesUntouched": true
+  },
+  "evidence": {
+    "observation": "observation_evidence.json",
+    "action": "action_evidence.json",
+    "tests": "test_results.json",
+    "integrity": "integrity.json",
+    "report": "resultados.md",
+    "artifacts": {
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/action_evidence.json": "b2ea4b4237a3f439671aff49cad661e78a1eb6a72389483383fcdac01994f774",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/bounds_contract_plan.json": "6b318f666ea28f57c5121972e93b90418cda68c2970610758bc69d29186976fd",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/observation_evidence.json": "dac38b4de2e0aaf1b3cdd5f71af66748966545ac6cd98b96b92f98d608c8632f",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/certification_plan.json": "c14378e97152dab3846844379b3361d2917970159974462c4b22695463f95d9f",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/integrity.json": "00340a62e40148a6e13f612e53747e12535dfa163508206e7cfbf87ca9e91154",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/test_results.json": "10bf4f64cead2920cea91d4583553eb7a95597bd7aeed0f9bbca23f0414336ac",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/resultados.md": "7154adc34248a380cc4b9f431cff4302e8c4dfcda9b00bfdc8550dfec5759184",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/product_freeze_certification.json": "5d8d16b4e0baf55dc240d9f7795a39953bfb09857d87a4571b8eb41920ba86a8",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/supplemental_contract_plan.json": "807de21e2aec55806bf727633ab68de8812d4c879356eec3aa4fe3843a4c0900",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/baseline_freeze.json": "ef3e253a5b0af77a53627f14c4ef94404479ec3fa80915abe43b07c8f83aed71",
+      "docs/active_web_v1/aw8/webview2_remediation/04_observations_refs_actions/product_freeze_final.json": "a9fa23d2f000e1bb889878dde186755599739fa41b5dcdfada051453f342c481"
+    }
+  },
+  "retainedState": {
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "productiveSnapshotV2": "NOT_IMPLEMENTED_BLOCK07",
+    "browserTools": "NOT_ADVERTISED"
+  },
+  "limitations": [
+    "Closed bounded offline capture profile, not exhaustive DOM/vision/LLM quality",
+    "Two local virtual HTTPS origins are harness topology, not actual network/TLS/public-only certification",
+    "Native action receipts observe engine/renderer dispatch, not correctness of remote services",
+    "Synthetic legacy capability ceiling in integration is not host capability/discovery",
+    "No upload/download/full takeover/credentials/network/proxy/snapshotv2/productive activation/AW8 E2E",
+    "Core gate retains known HOME/USERPROFILE FAIL; prior JSONL FAIL preserved without historical PREEXISTING claim",
+    "Inherited suites reused after final bounds change only in new unused-by-CI native modules; final198 tests that change"
+  ],
+  "openDecisions": [],
+  "futureWork": "§35.2 block05 only as reference, requires separate authorization",
+  "git": {
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "verdict": "WEBVIEW2_REMEDIATION_BLOCK_04 = PASS"
+}

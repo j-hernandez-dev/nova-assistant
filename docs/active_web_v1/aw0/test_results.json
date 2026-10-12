@@ -1,0 +1,1879 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW0",
+  "realBrowser": false,
+  "realModelInference": 0,
+  "externalOutputRoot": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009",
+  "baselineAttemptsPreserved": true,
+  "executionRuntime": "Temporary offline Python 3.14.6 venv with .pth referencing already available pytest/pypdf/numpy; no downloads, pip or global configuration changes",
+  "runtimeDependencies": {
+    "pytest": "9.1.1",
+    "pypdf": "6.19.0",
+    "numpy": "2.5.3"
+  },
+  "runs": [
+    {
+      "name": "baseline-core",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B ci/run_contracts.py --job core --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-core",
+      "environment": "restricted filesystem sandbox",
+      "pytestSummary": "6 failed, 2734 passed, 7 skipped, 53 subtests passed in 394.05s (0:06:34)",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "6",
+        "skipped": "7",
+        "tests": "2800",
+        "time": "394.006",
+        "timestamp": "2026-10-09T09:37:43.922420-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 2734,
+      "failures": [
+        {
+          "id": "tests.test_nova_core_phase12_client::test_cli_tool_preview_and_session_log_survive_application_migration",
+          "message": "AssertionError: assert ('Result:' in '  [memory] MEMORY_REMOTE_INJECTION_DENIED; continuing without recall.\\n  [harness] knowledge_recall\\n  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\\n  [harness] error_stop\\n' and 'file content' in '  [memory] MEMORY_REMOTE_INJECTION_DENIED; continuing without recall.\\n  [harness] knowledge_recall\\n  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\\n  [harness] error_stop\\n')\n +  where '  [memory] MEMORY_REMOTE_INJECTION_DENIED; continuing without recall.\\n  [harness] knowledge_recall\\n  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\\n  [harness] error_stop\\n' = CaptureResult(out='local-cli v0.12.6 | model: old\\nTools: read\\nType /help for commands, /exit to quit.\\n\\nfinal reply...ithout recall.\\n  [harness] knowledge_recall\\n  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\\n  [harness] error_stop\\n').err\n +  and   '  [memory] MEMORY_REMOTE_INJECTION_DENIED; continuing without recall.\\n  [harness] knowledge_recall\\n  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\\n  [harness] error_stop\\n' = CaptureResult(out='local-cli v0.12.6 | model: old\\nTools: read\\nType /help for commands, /exit to quit.\\n\\nfinal reply...ithout recall.\\n  [harness] knowledge_recall\\n  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\\n  [harness] error_stop\\n').err",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.test_nova_core_phase14_platform::test_real_windows_powershell_fallback_without_pwsh_or_git_bash",
+          "message": "AssertionError: Failed to find real location of C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe\n  Traceback (most recent call last):\n    File \"<string>\", line 7, in <module>\n      r=create_executor(d).run(\"Write-Output 'fallback-ñ🧠'; exit 7\", 45, '.', get_sanitized_env())\n        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    File \"C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\local_cli\\shell_executor.py\", line 162, in run\n      raise error\n  OSError: PROCESS_LAUNCH_FAILED\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Python\\\\pythoncore-3.14-64\\\\python.exe', '-c', 'import json\\...i\\\\nova-assistant\\\\local_cli\\\\shell_executor.py\", line 162, in run\\n    raise error\\nOSError: PROCESS_LAUNCH_FAILED\\n').returncode",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.test_nova_core_phase3_cwd::test_two_worktree_agents_never_change_process_cwd",
+          "message": "AssertionError: assert ['error', 'error'] == ['success', 'success']\n  \n  At index 0 diff: 'error' != 'success'\n  Use -v to get more diff",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.test_nova_core_phase6_runtime::test_runtime_normalizes_call_revalidates_brokered_read_and_write",
+          "message": "AssertionError: assert <ToolStatus.DENIED: 'denied'> is <ToolStatus.COMPLETED: 'completed'>\n +  where <ToolStatus.DENIED: 'denied'> = ToolResult(status=<ToolStatus.DENIED: 'denied'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...mappingproxy({'securityErrorCode': 'FILESYSTEM_ALIAS_UNSUPPORTED'}), legacy_text='Error: FILESYSTEM_ALIAS_UNSUPPORTED').status\n +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.test_nova_core_phase7_session::test_brokered_read_keeps_one_terminal_per_tool_operation",
+          "message": "assert 0 == 2\n +  where 0 = len([])",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+          "message": "AssertionError: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-core\\\\private\\\\home' not found in 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-core\\\\private\\\\userprofile\\r\\n'",
+          "classification": "HARNESS_BUG / PREEXISTING"
+        }
+      ],
+      "skips": [
+        {
+          "id": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'"
+        },
+        {
+          "id": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "reason": "legacy monitor removed in phase 1"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "reason": "legacy monitor removed in phase 1"
+        }
+      ],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "core",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+        "positive_base_contracts": 2630,
+        "collected_parameter_instances": 2747,
+        "collected_nodeids_sha256": "734682a0f363a0b82bd3c461d8a23bffd27325a4d864709a682de6a89016e0af",
+        "collection_guard": "PASS",
+        "tests_executed": 2747,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-core\\collected_nodeids.json",
+          "sha256": "26522f3eca0696215d22473fda3114b0b94d7c3cad9a35cdbf3dad1d7439a247",
+          "sizeBytes": 256721
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-core\\pytest.log",
+          "sha256": "ab20f8a1bb20111e92c180faf3a3ad9516eb3f558b246ec2edac8a94f1cb7fbe",
+          "sizeBytes": 15885
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-core\\run.json",
+          "sha256": "060ae4edd14acedd2979384a39a969e2d101cd9f318d6f110dce4da02e6426f9",
+          "sizeBytes": 736
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-core\\selection.json",
+          "sha256": "4a0330004f69ea6a0d4570853a0054948881407e2857a68bb4280113c7e0e364",
+          "sizeBytes": 242356
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-core\\tests.xml",
+          "sha256": "1496516fb48304c9142a6726608f0b693a5c42cb3c66b7c0d28029ceea14f134",
+          "sizeBytes": 365163
+        }
+      }
+    },
+    {
+      "name": "baseline-security",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B ci/run_contracts.py --job security --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-security",
+      "environment": "restricted filesystem sandbox",
+      "pytestSummary": "2 failed, 613 passed in 58.68s",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "2",
+        "skipped": "0",
+        "tests": "615",
+        "time": "58.640",
+        "timestamp": "2026-10-09T09:37:53.788155-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 613,
+      "failures": [
+        {
+          "id": "tests.security_v12.test_s7_persistence::test_actual_crash_reopen_valid_complete_rows_no_fabricated_terminal",
+          "message": "AssertionError: Failed to find real location of C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe\n  Traceback (most recent call last):\r\n    File \"<string>\", line 3, in <module>\r\n      from tests.security_v12.test_s7_contracts import entry\r\n    File \"C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\security_v12\\test_s7_contracts.py\", line 5, in <module>\r\n      import pytest\r\n  ModuleNotFoundError: No module named 'pytest'\r\n  \nassert 1 == 37\n +  where 1 = CompletedProcess(args=['C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Python\\\\pythoncore-3.14-64\\\\python.exe', '-B', '-c', 'import...est_s7_contracts.py\", line 5, in <module>\\r\\n    import pytest\\r\\nModuleNotFoundError: No module named \\'pytest\\'\\r\\n').returncode",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.security_v12.test_s7_persistence::test_unowned_hardlinked_segment_never_purged",
+          "message": "PermissionError: [WinError 5] Acceso denegado: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-security\\\\pytest-private\\\\test_unowned_hardlinked_segmen0\\\\manual.jsonl' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-security\\\\pytest-private\\\\test_unowned_hardlinked_segmen0\\\\state\\\\nova-audit-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.closed.jsonl'",
+          "classification": "ENVIRONMENT"
+        }
+      ],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "security",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+        "positive_base_contracts": 274,
+        "collected_parameter_instances": 615,
+        "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+        "collection_guard": "PASS",
+        "tests_executed": 615,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-security\\collected_nodeids.json",
+          "sha256": "79e62e7fa06f97ecbf1232f50db6a50c5de4bb7442700a5c6ed9a0d5a494ece7",
+          "sizeBytes": 67843
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-security\\pytest.log",
+          "sha256": "67b78888cc9ae52d99878a4397a2e1e7b195c5c53f588fc21b35569495840c75",
+          "sizeBytes": 3966
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-security\\run.json",
+          "sha256": "d69f78c0594a76de54f3de78dcf9ded68da214dc70cdf5cefd6aaafc0098c9a5",
+          "sizeBytes": 737
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-security\\selection.json",
+          "sha256": "f82f2122017b8221b966979e696a10699a1ed1095e3aa4c27967cbf290742526",
+          "sizeBytes": 27804
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-security\\tests.xml",
+          "sha256": "fa01a2c0825f634c09b0d18e91f94dcb068a940bf1597e384b73ef68eb202425",
+          "sizeBytes": 92929
+        }
+      }
+    },
+    {
+      "name": "baseline-memory",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B ci/run_contracts.py --job memory --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-memory",
+      "environment": "restricted filesystem sandbox",
+      "pytestSummary": "142 failed, 649 passed in 121.49s (0:02:01)",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "142",
+        "skipped": "0",
+        "tests": "791",
+        "time": "121.379",
+        "timestamp": "2026-10-09T09:38:05.200673-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 649,
+      "failures": [
+        {
+          "id": "tests.memory_v1.test_m2_store::test_durable_subject_not_session_provider_and_host_workspace_canonicalization",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_application::test_normal_application_remember_restart_search_no_model_or_transcript_injection",
+          "message": "assert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_application::test_idempotent_write_digest_stale_revision_and_deleted_result_not_cached_content",
+          "message": "assert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_application::test_events_snapshots_audit_and_exception_do_not_log_content_or_secret",
+          "message": "assert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_application::test_cli_and_authenticated_desktop_share_store_and_transport_policy",
+          "message": "AssertionError: assert ('memory_result' == 'memory_result'\n  \n    memory_result and False)",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_application::test_security_audit_failure_denies_before_effect_or_retains_observed_write[post]",
+          "message": "assert (False)",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_application::test_cli_parser_controls_do_not_send_user_input_or_echo_invalid_secret",
+          "message": "assert ('Synthetic CLI control' in '{\\n  \"schemaVersion\": 1,\\n  \"commandId\": \"command_a8f4ba8fa0ea4308b3da9ca5eb698faf\",\\n  \"completed\": false,\\n  \"state.../export: includeSensitive:true. Forget does not erase audit, logs, source conversations or backups; no secure erase.\\n')",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_application::test_rebind_keeps_subject_and_current_scope_without_extending_authority",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_application::test_instruction_like_memory_is_data_and_failure_after_effect_is_observable_not_retried",
+          "message": "assert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_composition::test_normal_composition_roots_share_durable_identity_without_llm_or_eager_store",
+          "message": "assert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_explicit_remember_reopen_search_and_inspect_all_types[PREFERENCE]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_explicit_remember_reopen_search_and_inspect_all_types[SEMANTIC_FACT]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_explicit_remember_reopen_search_and_inspect_all_types[WORKSPACE_FACT]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_explicit_remember_reopen_search_and_inspect_all_types[EPISODE]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_explicit_remember_reopen_search_and_inspect_all_types[PROCEDURE]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_explicit_correction_lineage_stale_revision_and_key_ambiguity",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_same_exact_explicit_fact_adds_source_not_truth_or_record",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_workspace_scope_and_global_selection_do_not_cross_leak",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_explicit_forget_export_rebuild_and_legacy_sources_untouched",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_known_secret_and_obvious_credentials_denied_before_write[Synthetic secret dummy-provider-xyz-None]",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_SECRET_DENIED'\n  \n  - MEMORY_SECRET_DENIED\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_known_secret_and_obvious_credentials_denied_before_write[api_key=synthetic-unregistered-key-None]",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_SECRET_DENIED'\n  \n  - MEMORY_SECRET_DENIED\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_known_secret_and_obvious_credentials_denied_before_write[Bearer synthetic-token-None]",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_SECRET_DENIED'\n  \n  - MEMORY_SECRET_DENIED\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_known_secret_and_obvious_credentials_denied_before_write[Synthetic value-password]",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_SECRET_DENIED'\n  \n  - MEMORY_SECRET_DENIED\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_known_secret_and_obvious_credentials_denied_before_write[password=synthetic-pass-None]",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_SECRET_DENIED'\n  \n  - MEMORY_SECRET_DENIED\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_known_secret_and_obvious_credentials_denied_before_write[{\"api_key\": \"synthetic-unregistered-key\"}-None]",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_SECRET_DENIED'\n  \n  - MEMORY_SECRET_DENIED\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_known_secret_and_obvious_credentials_denied_before_write[AWS_SECRET_ACCESS_KEY=synthetic-unregistered-key-None]",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_SECRET_DENIED'\n  \n  - MEMORY_SECRET_DENIED\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_sensitive_requires_same_explicit_action_consent_and_inspection[Synthetic personal datum-extra0]",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_SENSITIVE_DENIED'\n  \n  - MEMORY_SENSITIVE_DENIED\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_sensitive_requires_same_explicit_action_consent_and_inspection[Synthetic medical diagnosis-extra1]",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_SENSITIVE_DENIED'\n  \n  - MEMORY_SENSITIVE_DENIED\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_model_like_call_not_explicit_and_command_schema_strict",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_long_explicit_content_dedup_is_not_an_fts_query_and_sensitivity_can_only_increase",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_key_matching_is_exact_scoped_and_not_limited_by_fts_word_syntax",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_export_is_read_only_even_for_previously_unregistered_workspace",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_competing_explicit_insert_cannot_commit_a_second_exact_copy",
+          "message": "AssertionError: assert 'MEMORY_INVALID_IDENTITY' == 'MEMORY_CONFLICT'\n  \n  - MEMORY_CONFLICT\n  + MEMORY_INVALID_IDENTITY",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m3_service::test_exact_content_fallback_deduplicates_without_creating_a_key_alias",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_first_prompt_after_restart_later_tool_rounds_one_recall_no_capsule_persistence",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_0c822fd0ddc64f9ab531c83606dd8cfc', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_application_admission_windows_current_input_priority_and_zero_irrelevant[4096]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_e51c298e90f049dbbe4120ecf2067ffe', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_application_admission_windows_current_input_priority_and_zero_irrelevant[8192]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_449196fd85d84545a391ead0e2b8baf3', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_application_admission_windows_current_input_priority_and_zero_irrelevant[16384]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_3e6c89aaf999478dae995e7a114112ad', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_application_admission_windows_current_input_priority_and_zero_irrelevant[32768]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_c37af2ad48be4cbda1fa695cd46bbf3c', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_application_admission_windows_current_input_priority_and_zero_irrelevant[65536]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_7f7b567601414f64b00d546f3c5ad5ae', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_optional_recall_typed_failure_no_retry_conversation_continues[MEMORY_STORE_LOCKED]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_abd566cdec7c4b70a397567c9f47d93c', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_optional_recall_typed_failure_no_retry_conversation_continues[MEMORY_STORE_CORRUPT]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_62616bcc5f374b42ba25e938b37b3665', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_optional_recall_typed_failure_no_retry_conversation_continues[MEMORY_MIGRATION_REQUIRED]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_4b7cc4864c7147d6a411c15e022acff2', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_optional_recall_typed_failure_no_retry_conversation_continues[MEMORY_SECRET_DENIED]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_934231ed97be47cf8dac747468b98bd4', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_remote_injection_requires_host_opt_in_and_visible_metadata[False]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_5790b4affbdb42b49e92fc2fc45f9872', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_remote_injection_requires_host_opt_in_and_visible_metadata[True]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_4dd1f3ca19a445d9b0d91cd047470da4', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_forget_between_turns_invalidates_future_capsule_not_audit_or_transcript",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_90b18f666b724ab99c81f6dba694b55f', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_child_fresh_inference_has_no_store_access_or_implicit_parent_capsule",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_5ee39f8c11f14d13babfb3f3c8abba28', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_rag_separate_service_shared_retrieval_budget_and_no_memory_write[False]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_2ef74e3a0ccc48daba4b106ec0b1f366', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_rag_separate_service_shared_retrieval_budget_and_no_memory_write[True]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_0d7e4374bfd441079d5f2a9b9491c805', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_workspace_rebind_and_ambient_cwd_do_not_recall_previous_workspace",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_9eec7c09ac7d49c2b1e3efe3efa5196b', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_application::test_poisoned_memory_never_grants_denied_tool_or_overrides_current_user",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_5432bf4c96d945ebb32055c061c70c5d', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_recall::test_exact_key_first_then_fts_bm25_and_query_modes_separate",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_recall::test_filter_subject_current_workspace_global_before_ranking",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_recall::test_candidates_bounded_ids_only_and_final_hydration_at_most_eight",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_recall::test_irrelevant_and_low_information_consume_zero",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_recall::test_restart_correction_forget_rebuild_no_future_capsule_resurrection",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_recall::test_interleaved_invalidation_after_index_returns_no_stale_content",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_recall::test_poison_is_quoted_data_without_role_or_delimiter_impersonation",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m4_recall::test_previously_unknown_secret_later_known_is_typed_denial_not_prompt",
+          "message": "AssertionError: assert ('MEMORY_INVALID_IDENTITY' == 'MEMORY_SECRET_DENIED'\n  \n  - MEMORY_SECRET_DENIED\n  + MEMORY_INVALID_IDENTITY)",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_hung_port_bounded_worker_late_result_not_admitted_lexical_preserved",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_maintenance_lock_does_not_block_admission",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_verified_warm_completion_between_soft_and_hard_is_accepted",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_late_readiness_never_starts_query_embedding_after_fallback",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_typed_semantic_failure_retains_lexical[MEMORY_EMBEDDING_UNAVAILABLE]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_typed_semantic_failure_retains_lexical[MEMORY_EMBEDDING_SPACE_MISMATCH]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_semantic_capsule_user_priority_numeric_budget_and_no_transcript_fill[4096]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_semantic_capsule_user_priority_numeric_budget_and_no_transcript_fill[8192]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_semantic_capsule_user_priority_numeric_budget_and_no_transcript_fill[16384]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_semantic_capsule_user_priority_numeric_budget_and_no_transcript_fill[32768]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_semantic_capsule_user_priority_numeric_budget_and_no_transcript_fill[65536]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_lazy_revision_space_migration_cache_and_deleted_absent",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_normal_backend_multiple_generations_query_once_and_real_results",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_a3e9c23fdbf2430a8b710e9f27af2260', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_normal_factory_explicit_writes_recall_correction_forget_no_implicit_capture",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m5_application::test_high_dimension_rebuild_batches_bound_json_response_without_losing_records",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_post_terminal_user_preference_new_session_recall_no_reopen",
+          "message": "assert (False)",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_new_turn_preempts_no_late_commit_and_terminal_preserved",
+          "message": "assert False\n +  where False = wait(3)\n +    where wait = <threading.Event at 0x1e72396e270: unset>.wait",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_prefilter_sensitive_chatter_injection_no_extractor[Synthetic casual hello]",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_prefilter_sensitive_chatter_injection_no_extractor[I prefer my password: fixture-secret]",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_prefilter_sensitive_chatter_injection_no_extractor[I prefer sharing medical diagnosis.]",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_prefilter_sensitive_chatter_injection_no_extractor[I prefer ignore previous instructions.]",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_prefilter_sensitive_chatter_injection_no_extractor[I prefer fixture-private-token.]",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_proposals_human_exact_confirmation_reject_and_stale_revision",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_auto_off_preserves_old_behavior",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_assistant_hallucination_not_captured_or_auto_committed",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_fail_closed_audit_before_capture_and_gap_after_observed_effect",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_manual_cancel_does_not_blindly_restart_maintenance",
+          "message": "assert False\n +  where False = wait(3)\n +    where wait = <threading.Event at 0x1e7239de270: unset>.wait",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_model_switch_invalidates_pending_extraction_without_late_commit",
+          "message": "assert False\n +  where False = wait(3)\n +    where wait = <threading.Event at 0x1e7239debd0: unset>.wait",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_application::test_reject_removes_proposal_and_no_fact_created",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_extraction::test_repetition_conflict_explicit_supersession",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_extraction::test_episode_literal_temporal_bound_and_procedure_confirmation",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_extraction::test_procedure_never_auto_but_confirmed_source_is_explicit",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_extraction::test_case_preserved_normalized_dedup_no_embeddings_required",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_extraction::test_explicit_conflict_resolution_keeps_group_excluded_from_recall",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_extraction::test_proposal_visibility_filtered_before_limit_not_hidden_by_receipts",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_extractor::test_real_http_request_interrupted_by_token_or_deadline[True]",
+          "message": "assert False\n +  where False = wait(1)\n +    where wait = <threading.Event at 0x1e7239dee10: unset>.wait",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m6_extractor::test_real_http_request_interrupted_by_token_or_deadline[False]",
+          "message": "assert False\n +  where False = wait(1)\n +    where wait = <threading.Event at 0x1e7239df7d0: unset>.wait",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_10k_history_not_10k_retrieval_hydration_or_duplicate_rag",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_07e906386f9744e18866cce983f159ae', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_external_delete_invalidates_next_generation_cached_memory",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_0400a4d2217d4c0da92ad3f6fdc504a5', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_delegated_scope_subset_relevance_revision_no_global_query",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_e0747175fd0e456d8f34266445041605', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_child_proposal_not_global_authoritative_idempotent_and_host_confirmable",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_child_cannot_bind_global_identity_confirmation_or_authority[extra0]",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_child_cannot_bind_global_identity_confirmation_or_authority[extra1]",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_child_cannot_bind_global_identity_confirmation_or_authority[extra2]",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_child_cannot_bind_global_identity_confirmation_or_authority[extra3]",
+          "message": "KeyError: 'data'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_soft_capacity_pauses_auto_keeps_explicit_correction_and_forget",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_1985eab52a9849e3abf98e55bb1b0e8e', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_forget_clears_owned_terminal_snapshot_but_not_historical_context_report",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_d828b900de7646e5b6c924680261699b', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_busy_optional_retrieval_is_typed_not_late_payload_or_failed_turn",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_6a4855bf9a5b411bbc78e62c7f70a740', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_normal_child_loop_only_delegated_memory_remote_denied_default[False]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_d1d546f5aca146f6b2d9bc3762855bbd', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_normal_child_loop_only_delegated_memory_remote_denied_default[True]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_abaec0d31aae4e8a995457d5604e8918', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m7_integration::test_agent_tool_route_uses_same_delegation_and_child_operation_provenance",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_b89efaa2a28a4517b163f8907c6d044d', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_capacity::test_transient_wal_checkpoint_not_immediate_capacity_reached[False]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_capacity::test_transient_wal_checkpoint_not_immediate_capacity_reached[True]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_capacity::test_busy_checkpoint_typed_no_false_size_capacity_and_correct_forget_preserved",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_capacity::test_final_defaults_are_independent_soft_limits_not_128mib_default",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_capacity::test_actual_20000_default_active_records_pauses_without_purge[False]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_capacity::test_actual_20000_default_active_records_pauses_without_purge[True]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_contracts::test_m8_complete_numeric_admission_user_priority_and_no_memory_authority[4096]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_0de4d860fd274d3391d6c7a862b4565e', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_contracts::test_m8_complete_numeric_admission_user_priority_and_no_memory_authority[8192]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_727786cfeb524198ad57d459b21e6a8a', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_contracts::test_m8_complete_numeric_admission_user_priority_and_no_memory_authority[16384]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_88dde4f1f5174460b3cef8bcb96e621c', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_contracts::test_m8_complete_numeric_admission_user_priority_and_no_memory_authority[32768]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_75c099031df94c33b6a891df6374b11e', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_contracts::test_m8_complete_numeric_admission_user_priority_and_no_memory_authority[65536]",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_5044bdc1279a487ead33ca168251360b', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_contracts::test_m8_confirm_and_delete_proposals_cannot_resurrect_or_grant_authority",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_5bf567a31855468ba8d09a3eb88b4276', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_metadata_admission::test_normal_admission_has_no_duplicate_discovery",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_metadata_admission::test_unsafe_revalidation_falls_back_lexical_and_after_restart_can_recover",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_metadata_admission::test_timeout_snapshot_immutable_busy_then_worker_recovers_no_late_search",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_metadata_admission::test_soft_deadline_still_stops_unverified_metadata_no_late_embed",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ps_admission::test_post_validation_failure_never_searches_or_enters_turn_snapshot[revision]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ps_admission::test_post_validation_failure_never_searches_or_enters_turn_snapshot[missing_alias]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ps_admission::test_post_validation_failure_never_searches_or_enters_turn_snapshot[dimension]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ps_admission::test_post_validation_failure_never_searches_or_enters_turn_snapshot[nonfinite]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ps_admission::test_post_validation_failure_never_searches_or_enters_turn_snapshot[wrong_count]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ps_admission::test_post_validation_failure_never_searches_or_enters_turn_snapshot[capability]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ps_admission::test_alias_changes_after_ps_before_embed_discards_returned_vector",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ps_admission::test_post_tag_failure_cannot_publish_warm_even_when_vector_already_returned",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_quality_isolation::test_timeout_busy_recovery_remains_separate_and_snapshot_immutable",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_quality_isolation::test_actual_quality_loop_keeps_timeout_then_next_distinct_case_starts_idle",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ranked_trace::test_actual_cosine_bm25_rrf_observed_without_changing_rankings",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ranked_trace::test_gold_absent_is_not_fabricated_or_used_to_rescore",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ranked_trace::test_real_adapter_response_hash_does_not_imply_post_validation_admission[False]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ranked_trace::test_real_adapter_response_hash_does_not_imply_post_validation_admission[True]",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.memory_v1.test_m8_ranked_trace::test_distinct_actual_response_vectors_get_distinct_observational_hashes",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        }
+      ],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "memory",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+        "positive_base_contracts": 326,
+        "collected_parameter_instances": 791,
+        "collected_nodeids_sha256": "34143ce497762c34526a2374875abcbaa2dcbbacc95ffb211ff3ec8c6be43804",
+        "collection_guard": "PASS",
+        "tests_executed": 791,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-memory\\collected_nodeids.json",
+          "sha256": "ff1d9842769f823adf16283f78da3e8b8afddb35a8cab7cdebfd3acfd926f9b4",
+          "sizeBytes": 94456
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-memory\\pytest.log",
+          "sha256": "88e66ff3b7a4e5575874a01ead582e3891a035fa8253902f883ed81920ebd6a7",
+          "sizeBytes": 280717
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-memory\\run.json",
+          "sha256": "06e4d4a60a7677729fe0956202b98ac4bf57a012a921de31eb50e21e931949ae",
+          "sizeBytes": 735
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-memory\\selection.json",
+          "sha256": "9af5b08ba867984e266e46f08fda163c9e694441c12873b6e5262a1f0a79efa1",
+          "sizeBytes": 35482
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-memory\\tests.xml",
+          "sha256": "30be9a18048d32b4bbed8a620299fabb5ebe5dbf1063b1e322e478f68743a119",
+          "sizeBytes": 391717
+        }
+      }
+    },
+    {
+      "name": "baseline-knowledge",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B ci/run_contracts.py --job knowledge --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-knowledge",
+      "environment": "restricted filesystem sandbox",
+      "pytestSummary": "20 failed, 995 passed in 308.05s (0:05:08)",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "20",
+        "skipped": "0",
+        "tests": "1015",
+        "time": "307.954",
+        "timestamp": "2026-10-09T09:38:15.669630-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 995,
+      "failures": [
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_native_directory_reparse_escape_denied_no_external_read_write_delete[blobs]",
+          "message": "AssertionError: Acceso denegado.\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\...edge\\\\pytest-private\\\\test_native_directory_reparse_0\\\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\\n').returncode",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_native_directory_reparse_escape_denied_no_external_read_write_delete[staging]",
+          "message": "AssertionError: Acceso denegado.\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\...edge\\\\pytest-private\\\\test_native_directory_reparse_1\\\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\\n').returncode",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_native_directory_reparse_escape_denied_no_external_read_write_delete[cache]",
+          "message": "AssertionError: Acceso denegado.\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\...edge\\\\pytest-private\\\\test_native_directory_reparse_2\\\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\\n').returncode",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_constructor_rejects_redirected_managed_components[knowledge]",
+          "message": "AssertionError: Acceso denegado.\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\...edge\\\\pytest-private\\\\test_constructor_rejects_redir0\\\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\\n').returncode",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_constructor_rejects_redirected_managed_components[v1]",
+          "message": "AssertionError: Acceso denegado.\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\...edge\\\\pytest-private\\\\test_constructor_rejects_redir1\\\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\\n').returncode",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_constructor_rejects_redirected_managed_components[database]",
+          "message": "PermissionError: [WinError 5] Acceso denegado: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_constructor_rejects_redir2\\\\outside\\\\synthetic.bin' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_constructor_rejects_redir2\\\\state\\\\knowledge\\\\v1\\\\knowledge.db'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_constructor_rejects_redirected_managed_components[wal]",
+          "message": "PermissionError: [WinError 5] Acceso denegado: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_constructor_rejects_redir3\\\\outside\\\\synthetic.bin' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_constructor_rejects_redir3\\\\state\\\\knowledge\\\\v1\\\\knowledge.db-wal'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_constructor_rejects_redirected_managed_components[lock]",
+          "message": "PermissionError: [WinError 5] Acceso denegado: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_constructor_rejects_redir4\\\\outside\\\\synthetic.bin' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_constructor_rejects_redir4\\\\state\\\\knowledge\\\\v1\\\\writer.lock'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_native_blob_hardlink_rejected_and_external_bytes_preserved",
+          "message": "PermissionError: [WinError 5] Acceso denegado: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_native_blob_hardlink_reje0\\\\external' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_native_blob_hardlink_reje0\\\\state\\\\knowledge\\\\v1\\\\blobs\\\\d486918c-6bc1-4ab4-b7c2-b8c54f5ef9f7.bin'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k1_containment::test_recovery_cannot_delete_linked_staging_or_escape",
+          "message": "PermissionError: [WinError 5] Acceso denegado: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_recovery_cannot_delete_li0\\\\external' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_recovery_cannot_delete_li0\\\\state\\\\knowledge\\\\v1\\\\staging\\\\op_1f4413281eee46eca2635ebbed3ee84e.part'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k2_acquisition::test_real_hardlink_is_not_an_import_authority",
+          "message": "PermissionError: [WinError 5] Acceso denegado: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_real_hardlink_is_not_an_i0\\\\target' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_real_hardlink_is_not_an_i0\\\\link'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k2_acquisition::test_real_directory_redirect_not_followed",
+          "message": "AssertionError: b'Acceso denegado.\\r\n  '\nassert 1 == 0\n +  where 1 = CompletedProcess(args=['cmd', '/c', 'mklink', '/J', 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseli...\\\\pytest-private\\\\test_real_directory_redirect_n0\\\\outside'], returncode=1, stdout=b'', stderr=b'Acceso denegado.\\r\\n').returncode",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k5_integration::test_memory_and_legacy_rag_coexist_without_automatic_memory_write",
+          "message": "AssertionError: {'schemaVersion': 1, 'commandId': 'command_0b852c4cd83c4269b9cb52fd56d3f1df', 'completed': False, 'stateRevision': 2, ...}\nassert False",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k5_integration::test_document_never_becomes_user_capture_when_capture_is_enabled",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_url_snapshot_real_pipeline_metadata_locator_citation_and_no_auto_memory",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_normal_agent_search_two_generations_real_toolresult_lifecycle_no_page_or_memory_write",
+          "message": "local_cli.core.memory.MemoryError: Memory contract validation failed.",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k6_passive_web::test_native_private_http_parser_headers_and_s5_denies_fixture_by_default",
+          "message": "AssertionError: assert (<ToolStatus.FAILED: 'failed'> is <ToolStatus.COMPLETED: 'completed'>)\n +  where <ToolStatus.FAILED: 'failed'> = ToolResult(status=<ToolStatus.FAILED: 'failed'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...session', 'controlClasses': ['APPLICATION_ENFORCED', 'BROKER_ENFORCED']}), legacy_text='Error: NETWORK_REQUEST_FAILED').status\n +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_repair4_audit::test_authorized_real_write_durable_normal_audit",
+          "message": "AssertionError: assert (<ToolStatus.DENIED: 'denied'> is <ToolStatus.COMPLETED: 'completed'>)\n +  where <ToolStatus.DENIED: 'denied'> = ToolResult(status=<ToolStatus.DENIED: 'denied'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c..., 'retryAllowed': None, 'errorCode': None, 'storageGapCodes': []}}), legacy_text='Error: FILESYSTEM_ALIAS_UNSUPPORTED').status\n +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_repair5_guard::test_positive_guard_followup_then_real_security_authorized_file[Create outcome.md with the answer]",
+          "message": "FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_positive_guard_followup_t0\\\\workspace\\\\outcome.md'",
+          "classification": "ENVIRONMENT"
+        },
+        {
+          "id": "tests.knowledge_inputs_v1.test_k8_repair5_guard::test_positive_guard_followup_then_real_security_authorized_file[Crea resultado.txt con el resultado]",
+          "message": "FileNotFoundError: [Errno 2] No such file or directory: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\baseline-knowledge\\\\pytest-private\\\\test_positive_guard_followup_t1\\\\workspace\\\\resultado.txt'",
+          "classification": "ENVIRONMENT"
+        }
+      ],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "knowledge",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+        "positive_base_contracts": 335,
+        "collected_parameter_instances": 1015,
+        "collected_nodeids_sha256": "40aed5a5c3606c0091ce3ee4323381343bc40e3ab561ebe5b04950785d5821dd",
+        "collection_guard": "PASS",
+        "tests_executed": 1015,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-knowledge\\collected_nodeids.json",
+          "sha256": "68a58767e376e94eb9297a8910a1257ad1233d20a473344747428cd7fa406d6a",
+          "sizeBytes": 132230
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-knowledge\\pytest.log",
+          "sha256": "f99b2730fce516ebc19a23d6ec3c70f8076d89270f3476ef8121565a23379d9e",
+          "sizeBytes": 46282
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-knowledge\\run.json",
+          "sha256": "d638279c090fa5f35cde3dd3528e177d3aec991ee2b0b720483c6d11a1541474",
+          "sizeBytes": 740
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-knowledge\\selection.json",
+          "sha256": "6ec9c87cef8c773707f362703dcd78a958d68ad74afbead536f3ff51d865ac8f",
+          "sizeBytes": 38804
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\baseline-knowledge\\tests.xml",
+          "sha256": "77df51d67c94782da0f2dcf4c5dccc3621288d6702a4ca0d1c96450f046c3eab",
+          "sizeBytes": 214651
+        }
+      }
+    },
+    {
+      "name": "native-baseline-security",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B ci/run_contracts.py --job security --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-security",
+      "environment": "native supplied runtime",
+      "pytestSummary": "1 failed, 614 passed in 23.88s",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "615",
+        "time": "23.855",
+        "timestamp": "2026-10-09T09:42:39.030296-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 614,
+      "failures": [
+        {
+          "id": "tests.security_v12.test_s7_persistence::test_actual_crash_reopen_valid_complete_rows_no_fabricated_terminal",
+          "message": "AssertionError: Traceback (most recent call last):\r\n    File \"<string>\", line 3, in <module>\r\n      from tests.security_v12.test_s7_contracts import entry\r\n    File \"C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\security_v12\\test_s7_contracts.py\", line 5, in <module>\r\n      import pytest\r\n  ModuleNotFoundError: No module named 'pytest'\r\n  \nassert 1 == 37\n +  where 1 = CompletedProcess(args=['C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Python\\\\pythoncore-3.14-64\\\\python.exe', '-B', '-c', 'import...est_s7_contracts.py\", line 5, in <module>\\r\\n    import pytest\\r\\nModuleNotFoundError: No module named \\'pytest\\'\\r\\n').returncode",
+          "classification": "ENVIRONMENT_DEPENDENCY_IMPORT"
+        }
+      ],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "security",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+        "positive_base_contracts": 274,
+        "collected_parameter_instances": 615,
+        "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+        "collection_guard": "PASS",
+        "tests_executed": 615,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-security\\collected_nodeids.json",
+          "sha256": "79e62e7fa06f97ecbf1232f50db6a50c5de4bb7442700a5c6ed9a0d5a494ece7",
+          "sizeBytes": 67843
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-security\\pytest.log",
+          "sha256": "98706f0db084d70e8b4076d84e7393e13f83b1953a1fb3821553668d3e708726",
+          "sizeBytes": 2788
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-security\\run.json",
+          "sha256": "d69f78c0594a76de54f3de78dcf9ded68da214dc70cdf5cefd6aaafc0098c9a5",
+          "sizeBytes": 737
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-security\\selection.json",
+          "sha256": "f82f2122017b8221b966979e696a10699a1ed1095e3aa4c27967cbf290742526",
+          "sizeBytes": 27804
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-security\\tests.xml",
+          "sha256": "df760e1da1f07fe944c52b2a3c59d90ef5b9bcc7cd90ebdb474e4d269c0b9321",
+          "sizeBytes": 91396
+        }
+      }
+    },
+    {
+      "name": "native-baseline-memory",
+      "command": "C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe -B ci/run_contracts.py --job memory --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-memory",
+      "environment": "native supplied runtime",
+      "pytestSummary": "791 passed in 82.01s (0:01:22)",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "791",
+        "time": "82.001",
+        "timestamp": "2026-10-09T09:42:51.102003-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 791,
+      "failures": [],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "memory",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+        "positive_base_contracts": 326,
+        "collected_parameter_instances": 791,
+        "collected_nodeids_sha256": "8fcc74205ad160a1c382fa5df060a6e5ad2541b33ea50270dee0e5851a1e0b78",
+        "collection_guard": "PASS",
+        "tests_executed": 791,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-memory\\collected_nodeids.json",
+          "sha256": "5a9c508bbaec8f246d9dc835bb071d81cedf0c0faa4ddcbff8e1b41153e2391a",
+          "sizeBytes": 94456
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-memory\\pytest.log",
+          "sha256": "2dc64d95d77e6ce3e0791fc6f2b96275b251e676334830872504a964df8b6173",
+          "sizeBytes": 923
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-memory\\run.json",
+          "sha256": "54b844d64ebe831f8dc8514ad6b2d8a4296c134977008da1c0840aa464f7603f",
+          "sizeBytes": 735
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-memory\\selection.json",
+          "sha256": "9af5b08ba867984e266e46f08fda163c9e694441c12873b6e5262a1f0a79efa1",
+          "sizeBytes": 35482
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\native-baseline-memory\\tests.xml",
+          "sha256": "ab6c45e49288c8c0f0e1f0c176bf0f837143ff551e2af31b444d77fd3d228ed8",
+          "sizeBytes": 121585
+        }
+      }
+    },
+    {
+      "name": "isolated-baseline-core",
+      "command": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\runtime\\Scripts\\python.exe -B ci/run_contracts.py --job core --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-core",
+      "environment": "native temporary offline venv",
+      "pytestSummary": "1 failed, 2739 passed, 7 skipped, 53 subtests passed in 239.61s (0:03:59)",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "7",
+        "tests": "2800",
+        "time": "239.587",
+        "timestamp": "2026-10-09T09:44:56.255080-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 2739,
+      "failures": [
+        {
+          "id": "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+          "message": "AssertionError: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\isolated-baseline-core\\\\private\\\\home' not found in 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\isolated-baseline-core\\\\private\\\\userprofile\\r\\n'",
+          "classification": "HARNESS_BUG / PREEXISTING"
+        }
+      ],
+      "skips": [
+        {
+          "id": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\isolated-baseline-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\isolated-baseline-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'"
+        },
+        {
+          "id": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "reason": "legacy monitor removed in phase 1"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "reason": "legacy monitor removed in phase 1"
+        }
+      ],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "core",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+        "positive_base_contracts": 2630,
+        "collected_parameter_instances": 2747,
+        "collected_nodeids_sha256": "734682a0f363a0b82bd3c461d8a23bffd27325a4d864709a682de6a89016e0af",
+        "collection_guard": "PASS",
+        "tests_executed": 2747,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-core\\collected_nodeids.json",
+          "sha256": "26522f3eca0696215d22473fda3114b0b94d7c3cad9a35cdbf3dad1d7439a247",
+          "sizeBytes": 256721
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-core\\pytest.log",
+          "sha256": "d35c4f31ec56f35831953a147787fcf52c92566f82612e29bf937a3fd8e9cea0",
+          "sizeBytes": 4340
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-core\\run.json",
+          "sha256": "060ae4edd14acedd2979384a39a969e2d101cd9f318d6f110dce4da02e6426f9",
+          "sizeBytes": 736
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-core\\selection.json",
+          "sha256": "4a0330004f69ea6a0d4570853a0054948881407e2857a68bb4280113c7e0e364",
+          "sizeBytes": 242356
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-core\\tests.xml",
+          "sha256": "85e4514c65bd97073c0768d08963a614308cab75e71951ca1c3978523ed0c70e",
+          "sizeBytes": 351479
+        }
+      }
+    },
+    {
+      "name": "isolated-baseline-security",
+      "command": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\runtime\\Scripts\\python.exe -B ci/run_contracts.py --job security --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-security",
+      "environment": "native temporary offline venv",
+      "pytestSummary": "615 passed in 20.67s",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "615",
+        "time": "20.650",
+        "timestamp": "2026-10-09T09:45:08.022361-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 615,
+      "failures": [],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "security",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+        "positive_base_contracts": 274,
+        "collected_parameter_instances": 615,
+        "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+        "collection_guard": "PASS",
+        "tests_executed": 615,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-security\\collected_nodeids.json",
+          "sha256": "79e62e7fa06f97ecbf1232f50db6a50c5de4bb7442700a5c6ed9a0d5a494ece7",
+          "sizeBytes": 67843
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-security\\pytest.log",
+          "sha256": "75cde7695fff86cd6b9a8b484849b3a68b70cea8a7b35b27b202d65295257950",
+          "sizeBytes": 751
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-security\\run.json",
+          "sha256": "a0307e786fd4348aa4d85be582fc4b87c5dc3f4fc935776454028b2a426ef834",
+          "sizeBytes": 737
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-security\\selection.json",
+          "sha256": "f82f2122017b8221b966979e696a10699a1ed1095e3aa4c27967cbf290742526",
+          "sizeBytes": 27804
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-security\\tests.xml",
+          "sha256": "3c72d9850d77a419090296f63368fa7cc60cba5dadb262c0a68f233252fb748b",
+          "sizeBytes": 88927
+        }
+      }
+    },
+    {
+      "name": "isolated-baseline-knowledge",
+      "command": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\runtime\\Scripts\\python.exe -B ci/run_contracts.py --job knowledge --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-knowledge",
+      "environment": "native temporary offline venv",
+      "pytestSummary": "1015 passed in 138.49s (0:02:18)",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "1015",
+        "time": "138.465",
+        "timestamp": "2026-10-09T09:45:21.094348-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 1015,
+      "failures": [],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "knowledge",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "a153c5862873b6b8a1b3f2efcdc25fed36d7d905dc083b586e6b8947b3253f2f",
+        "positive_base_contracts": 335,
+        "collected_parameter_instances": 1015,
+        "collected_nodeids_sha256": "40aed5a5c3606c0091ce3ee4323381343bc40e3ab561ebe5b04950785d5821dd",
+        "collection_guard": "PASS",
+        "tests_executed": 1015,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-knowledge\\collected_nodeids.json",
+          "sha256": "68a58767e376e94eb9297a8910a1257ad1233d20a473344747428cd7fa406d6a",
+          "sizeBytes": 132230
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-knowledge\\pytest.log",
+          "sha256": "2048aee063bdb5e8e1a6e344524f122f15abb993eb77b9f625bab3635ce6d8a3",
+          "sizeBytes": 1249
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-knowledge\\run.json",
+          "sha256": "6779663fb9d1ea5b7da1a0c386999e4c8266e7a6f5bc630cc8a1a633f14b728a",
+          "sizeBytes": 740
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-knowledge\\selection.json",
+          "sha256": "6ec9c87cef8c773707f362703dcd78a958d68ad74afbead536f3ff51d865ac8f",
+          "sizeBytes": 38804
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\isolated-baseline-knowledge\\tests.xml",
+          "sha256": "76a5148914e5f6e5bad82b25623dc18ba0430f9459bb947fdd161f9d5b3f5d71",
+          "sizeBytes": 167132
+        }
+      }
+    },
+    {
+      "name": "aw0-focused",
+      "command": "Private ci.private_environment; pytest -q -p no:cacheprovider --basetemp C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\aw0-focused\\pytest-private --junitxml C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\aw0-focused\\tests.xml tests/active_web_v1/test_aw0_contracts.py",
+      "environment": "native temporary offline venv",
+      "pytestSummary": null,
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "128",
+        "time": "1.269",
+        "timestamp": "2026-10-09T09:56:32.202462-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 128,
+      "failures": [],
+      "skips": [],
+      "receipt": {
+        "scope": "AW0_CONTRACT_ONLY",
+        "executedParameterInstances": 128,
+        "inference": 0,
+        "browserLaunches": 0,
+        "notes": "JUnit complete, no failures/errors/skips; original tool metadata not separately persisted."
+      },
+      "artifacts": {
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\aw0-focused\\tests.xml",
+          "sha256": "700cba1eed6f85912321e6082fffebf76e4846392e5531dd1cc57a004581660e",
+          "sizeBytes": 19765
+        }
+      }
+    },
+    {
+      "name": "final-core",
+      "command": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\runtime\\Scripts\\python.exe -B ci/run_contracts.py --job core --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-core",
+      "environment": "native temporary offline venv",
+      "pytestSummary": "1 failed, 2867 passed, 7 skipped, 53 subtests passed in 238.43s (0:03:58)",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "7",
+        "tests": "2928",
+        "time": "238.412",
+        "timestamp": "2026-10-09T09:57:20.661675-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 2867,
+      "failures": [
+        {
+          "id": "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+          "message": "AssertionError: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\final-core\\\\private\\\\home' not found in 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\final-core\\\\private\\\\userprofile\\r\\n'",
+          "classification": "HARNESS_BUG / PREEXISTING"
+        }
+      ],
+      "skips": [
+        {
+          "id": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\final-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw0-20261009\\\\final-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'"
+        },
+        {
+          "id": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "reason": "legacy monitor removed in phase 1"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "reason": "legacy monitor removed in phase 1"
+        }
+      ],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "core",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "8cc1ff612664ad2c65e5cf646918df725e8ab343d99c9ff7d1f89508daf05b84",
+        "positive_base_contracts": 2656,
+        "collected_parameter_instances": 2875,
+        "collected_nodeids_sha256": "dbcade37d3d5421d92409fddbc7dbc6bdddf150eeeb92d2427824dea3706324f",
+        "collection_guard": "PASS",
+        "tests_executed": 2875,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-core\\collected_nodeids.json",
+          "sha256": "0494bf1e03a48633593b86f899b61f5b7213cb5755b1f09f83336e42e483ec29",
+          "sizeBytes": 271884
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-core\\pytest.log",
+          "sha256": "d82914a2867434d817748eb051dc228b22668c58fa5d7634d644af57d4659245",
+          "sizeBytes": 4478
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-core\\run.json",
+          "sha256": "542dc517ccddf755b2be6221d7d622de024520fe3a934108a8bb8045004a3073",
+          "sizeBytes": 736
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-core\\selection.json",
+          "sha256": "44bdebfc1db0096c0f98222b283cf0038cbd60d42cda7cb9004dc8141c478eb8",
+          "sizeBytes": 245121
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-core\\tests.xml",
+          "sha256": "60516eb63319804f69e8abf33d1fc78f440751a424db5fe2fc009327c6d317b4",
+          "sizeBytes": 370898
+        }
+      }
+    },
+    {
+      "name": "final-security",
+      "command": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\runtime\\Scripts\\python.exe -B ci/run_contracts.py --job security --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-security",
+      "environment": "native temporary offline venv",
+      "pytestSummary": "615 passed in 19.31s",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "615",
+        "time": "19.296",
+        "timestamp": "2026-10-09T09:57:32.477053-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 615,
+      "failures": [],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "security",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "8cc1ff612664ad2c65e5cf646918df725e8ab343d99c9ff7d1f89508daf05b84",
+        "positive_base_contracts": 274,
+        "collected_parameter_instances": 615,
+        "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+        "collection_guard": "PASS",
+        "tests_executed": 615,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-security\\collected_nodeids.json",
+          "sha256": "79e62e7fa06f97ecbf1232f50db6a50c5de4bb7442700a5c6ed9a0d5a494ece7",
+          "sizeBytes": 67843
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-security\\pytest.log",
+          "sha256": "df90553ee2dd89e5d0806390a5e25465de24c635f68e25883446aae8bf7351b6",
+          "sizeBytes": 751
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-security\\run.json",
+          "sha256": "530191d8db89cf1a9066b182d45f66185245762e223a5ffad7a65536ff457940",
+          "sizeBytes": 737
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-security\\selection.json",
+          "sha256": "f82f2122017b8221b966979e696a10699a1ed1095e3aa4c27967cbf290742526",
+          "sizeBytes": 27804
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-security\\tests.xml",
+          "sha256": "a0094e996eb8cebd09812ff9703129599b4b805d8bc17917ba308467b0fefc7a",
+          "sizeBytes": 88927
+        }
+      }
+    },
+    {
+      "name": "final-memory",
+      "command": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\runtime\\Scripts\\python.exe -B ci/run_contracts.py --job memory --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-memory",
+      "environment": "native temporary offline venv",
+      "pytestSummary": "791 passed in 79.39s (0:01:19)",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "791",
+        "time": "79.374",
+        "timestamp": "2026-10-09T09:57:45.091304-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 791,
+      "failures": [],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "memory",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "8cc1ff612664ad2c65e5cf646918df725e8ab343d99c9ff7d1f89508daf05b84",
+        "positive_base_contracts": 326,
+        "collected_parameter_instances": 791,
+        "collected_nodeids_sha256": "ee78797c0dc40abe1a1409695d3e33e6b9ac194e1bd956dc02d135dd1e028f68",
+        "collection_guard": "PASS",
+        "tests_executed": 791,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-memory\\collected_nodeids.json",
+          "sha256": "c9102491e979f3cbac74c2785b2c2ebfe2f1d0badb2430c698925bfbf830adea",
+          "sizeBytes": 94456
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-memory\\pytest.log",
+          "sha256": "e8164721cf67becd235e4ea33196d04d130a7dbfff78540615f70fc76bdae4c7",
+          "sizeBytes": 923
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-memory\\run.json",
+          "sha256": "c3bb1659797a1855afb7cb8cf5e2291d5983231261b6e02880e12e845255f207",
+          "sizeBytes": 735
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-memory\\selection.json",
+          "sha256": "9af5b08ba867984e266e46f08fda163c9e694441c12873b6e5262a1f0a79efa1",
+          "sizeBytes": 35482
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-memory\\tests.xml",
+          "sha256": "1d780f0a7592b893618baaa746fa7a6dea404dbfbb3a64188f2475f5f8ec4376",
+          "sizeBytes": 121585
+        }
+      }
+    },
+    {
+      "name": "final-knowledge",
+      "command": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\runtime\\Scripts\\python.exe -B ci/run_contracts.py --job knowledge --output C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-knowledge",
+      "environment": "native temporary offline venv",
+      "pytestSummary": "1015 passed in 138.19s (0:02:18)",
+      "suite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "1015",
+        "time": "138.170",
+        "timestamp": "2026-10-09T09:57:57.322639-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "passed": 1015,
+      "failures": [],
+      "skips": [],
+      "receipt": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "knowledge",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "8cc1ff612664ad2c65e5cf646918df725e8ab343d99c9ff7d1f89508daf05b84",
+        "positive_base_contracts": 335,
+        "collected_parameter_instances": 1015,
+        "collected_nodeids_sha256": "40aed5a5c3606c0091ce3ee4323381343bc40e3ab561ebe5b04950785d5821dd",
+        "collection_guard": "PASS",
+        "tests_executed": 1015,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-knowledge\\collected_nodeids.json",
+          "sha256": "68a58767e376e94eb9297a8910a1257ad1233d20a473344747428cd7fa406d6a",
+          "sizeBytes": 132230
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-knowledge\\pytest.log",
+          "sha256": "cf04145518d45a68f0465062f38aed2e7030d73f4e9960b0dda16852928a26b6",
+          "sizeBytes": 1249
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-knowledge\\run.json",
+          "sha256": "4ad528357a75841b5bf63fe4c1b0794be2988622d3f5910a6491da91d351d0e6",
+          "sizeBytes": 740
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-knowledge\\selection.json",
+          "sha256": "6ec9c87cef8c773707f362703dcd78a958d68ad74afbead536f3ff51d865ac8f",
+          "sizeBytes": 38804
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw0-20261009\\final-knowledge\\tests.xml",
+          "sha256": "e38df914e1572e9b2037c6b458a87304cf9cbc53b3d6aae26b7d7a66d64b39a8",
+          "sizeBytes": 167132
+        }
+      }
+    }
+  ],
+  "comparison": {
+    "newInheritedFailures": 0,
+    "newSkips": 0,
+    "newXfails": 0,
+    "sameFailedNodeIds": true,
+    "sameSkippedNodeIds": true,
+    "aw0ParameterInstances": 128,
+    "baseContractsAdded": 26,
+    "unchangedSelectorsAndRules": 3795,
+    "memoryParameterizedNodeIdDifference": "One UUID generated at collection for test_subject_rejects_session_os_user_email_and_non_uuid4; same contract/parameter count, no filtering or missing case."
+  },
+  "desktop": {
+    "command": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs",
+    "cwd": "desktop",
+    "node": "24.16.0",
+    "passed": 68,
+    "failed": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "durationMs": 2723.382,
+    "typecheck": {
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exitCode": 0
+    },
+    "evidence": "Direct command results in this task, ordinary JS contracts and static check; no GUI, packaging, real model or browser"
+  }
+}

@@ -1,0 +1,941 @@
+[
+  {
+    "case": "ipv4_pinned_get",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51107
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51107",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51107",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true,
+    "noSecondDNS": true,
+    "noProxy": true
+  },
+  {
+    "case": "ipv6_pinned_get",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "::1",
+      51109,
+      0,
+      0
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51109",
+        "clientAddress": "::1",
+        "headers": {
+          "Host": "server.test:51109",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true
+  },
+  {
+    "case": "https_verified_hostname",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51111
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51111",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51111",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true,
+    "TLSVerificationDisabled": false,
+    "fixtureCA": true,
+    "untrustedRejected": true,
+    "wrongHostnameRejected": true
+  },
+  {
+    "case": "transport_no_auto_redirect",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51115
+    ],
+    "httpHits": [
+      {
+        "path": "/start",
+        "host": "server.test:51115",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51115",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true
+  },
+  {
+    "case": "application_blocked_redirect",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51118
+    ],
+    "httpHits": [
+      {
+        "path": "/start",
+        "host": "server.test:51118",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51118",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      },
+      {
+        "path": "/second",
+        "host": "server.test:51118",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51118",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 2,
+    "passed": true,
+    "forbiddenHits": 0,
+    "fixtureDNS": true,
+    "fixtureAdmission": true,
+    "resultMetadata": {
+      "requestedUrl": "http://server.test:51118/start",
+      "effectiveUrl": "http://server.test:51118/second",
+      "networkAudit": [
+        {
+          "kind": "http_hop",
+          "index": 0,
+          "url": "http://server.test:51118/start",
+          "address": "127.0.0.1",
+          "port": 51118,
+          "controlClass": "BROKER_ENFORCED",
+          "status": 302
+        },
+        {
+          "kind": "http_hop",
+          "index": 1,
+          "url": "http://server.test:51118/second",
+          "address": "127.0.0.1",
+          "port": 51118,
+          "controlClass": "BROKER_ENFORCED",
+          "status": 302
+        },
+        {
+          "kind": "fetch_denied_or_failed",
+          "attemptedUrl": "http://127.0.0.1:51117/forbidden",
+          "errorCode": "NETWORK_DESTINATION_DENIED",
+          "httpDispatched": true
+        }
+      ],
+      "networkControlClass": "BROKER_ENFORCED",
+      "truncated": false,
+      "cached": false,
+      "securityErrorCode": "NETWORK_DESTINATION_DENIED",
+      "httpDispatched": true,
+      "retryAllowed": false,
+      "policyDecision": "ALLOW",
+      "policyRevision": 1,
+      "requestDigest": "998c8b5de04a7f7f79e7de945457f07c29aa4d83307947120cbc0cee825cb951",
+      "grantId": "grant_90750a9a176f40abbb51a3e890bead0f",
+      "operationId": "operation",
+      "sessionId": "session",
+      "controlClasses": [
+        "APPLICATION_ENFORCED",
+        "BROKER_ENFORCED"
+      ]
+    }
+  },
+  {
+    "case": "productive_policy_denies_private",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51121
+    ],
+    "httpHits": [],
+    "tcpConnections": 0,
+    "passed": true,
+    "productiveAdmission": true,
+    "fixtureDNS": true
+  },
+  {
+    "case": "productive_ipv6_denied",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "::1",
+      51122,
+      0,
+      0
+    ],
+    "httpHits": [],
+    "tcpConnections": 0,
+    "passed": true,
+    "productiveAdmission": true
+  },
+  {
+    "case": "real_dns_localhost_denied",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51125
+    ],
+    "httpHits": [],
+    "tcpConnections": 0,
+    "passed": true,
+    "realOSResolver": true,
+    "resolvedAddresses": [
+      "::1",
+      "127.0.0.1"
+    ],
+    "productiveAdmission": true
+  },
+  {
+    "case": "last_guard_before_tcp",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51126
+    ],
+    "httpHits": [],
+    "tcpConnections": 0,
+    "passed": true
+  },
+  {
+    "case": "connection_refused",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51127
+    ],
+    "httpHits": [],
+    "tcpConnections": null,
+    "passed": true,
+    "httpDispatched": false,
+    "errorCode": "NETWORK_REQUEST_FAILED",
+    "configuredSeconds": 3,
+    "elapsedSeconds": 2.0329710000078194
+  },
+  {
+    "case": "total_budget_includes_redirects",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51144
+    ],
+    "httpHits": [
+      {
+        "path": "/start",
+        "host": "server.test:51144",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51144",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      },
+      {
+        "path": "/next",
+        "host": "server.test:51144",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51144",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 2,
+    "passed": true,
+    "configuredSeconds": 0.14,
+    "elapsedSeconds": 0.15149959998962004,
+    "fixtureDNS": true,
+    "fixtureAdmission": true
+  },
+  {
+    "case": "application_successful_redirect",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51147
+    ],
+    "httpHits": [
+      {
+        "path": "/start",
+        "host": "server.test:51147",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51147",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      },
+      {
+        "path": "/final",
+        "host": "server.test:51147",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51147",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 2,
+    "passed": true,
+    "fixtureDNS": true,
+    "fixtureAdmission": true,
+    "resultMetadata": {
+      "requestedUrl": "http://server.test:51147/start",
+      "effectiveUrl": "http://server.test:51147/final",
+      "networkAudit": [
+        {
+          "kind": "http_hop",
+          "index": 0,
+          "url": "http://server.test:51147/start",
+          "address": "127.0.0.1",
+          "port": 51147,
+          "controlClass": "BROKER_ENFORCED",
+          "status": 302
+        },
+        {
+          "kind": "http_hop",
+          "index": 1,
+          "url": "http://server.test:51147/final",
+          "address": "127.0.0.1",
+          "port": 51147,
+          "controlClass": "BROKER_ENFORCED",
+          "status": 200
+        }
+      ],
+      "networkControlClass": "BROKER_ENFORCED",
+      "truncated": false,
+      "cached": false,
+      "policyDecision": "ALLOW",
+      "policyRevision": 1,
+      "requestDigest": "3a06b3a172e35dcb9eb0f24e2078358d7d66c86aaee3023ee31afb4be2b402ad",
+      "grantId": "grant_ea37da49a5064ffdb5a6848fcfd1ac89",
+      "operationId": "operation",
+      "sessionId": "session",
+      "controlClasses": [
+        "APPLICATION_ENFORCED",
+        "BROKER_ENFORCED"
+      ]
+    }
+  },
+  {
+    "case": "payload_bounds",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51151
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51151",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51151",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      },
+      {
+        "path": "/",
+        "host": "server.test:51151",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51151",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 2,
+    "passed": true,
+    "retainedBytes": 2097152,
+    "publishedCharacters": 50,
+    "fixtureDNS": true,
+    "fixtureAdmission": true
+  },
+  {
+    "case": "total_timeout_headers",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51154
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51154",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51154",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true,
+    "configuredSeconds": 0.12,
+    "elapsedSeconds": 0.13401670000166632
+  },
+  {
+    "case": "total_timeout_body",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51156
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51156",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51156",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true,
+    "configuredSeconds": 0.12,
+    "elapsedSeconds": 0.13488300000608433
+  },
+  {
+    "case": "cancel_closes_socket_0",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51158
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51158",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51158",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "clientCreationSeconds": 0.013462500006426126,
+    "getElapsedSeconds": 0.028868499997770414,
+    "dispatched": true,
+    "errorCode": "NETWORK_CANCELLED"
+  },
+  {
+    "case": "cancel_peer_closure_0",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51158
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51158",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51158",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "peerClosed": true,
+    "peerStates": [
+      "EOF"
+    ]
+  },
+  {
+    "case": "cancel_closes_socket_1",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51160
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51160",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51160",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "clientCreationSeconds": 0.010143499996047467,
+    "getElapsedSeconds": 0.002043999993475154,
+    "dispatched": true,
+    "errorCode": "NETWORK_CANCELLED"
+  },
+  {
+    "case": "cancel_peer_closure_1",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51160
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51160",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51160",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "peerClosed": true,
+    "peerStates": [
+      "CONNECTION_RESET"
+    ]
+  },
+  {
+    "case": "cancel_closes_socket_2",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51162
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51162",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51162",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "clientCreationSeconds": 0.009819600003538653,
+    "getElapsedSeconds": 0.03391259998898022,
+    "dispatched": true,
+    "errorCode": "NETWORK_CANCELLED"
+  },
+  {
+    "case": "cancel_peer_closure_2",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51162
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51162",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51162",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "peerClosed": true,
+    "peerStates": [
+      "EOF"
+    ]
+  },
+  {
+    "case": "cancel_closes_socket_3",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51164
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51164",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51164",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "clientCreationSeconds": 0.007487599999876693,
+    "getElapsedSeconds": 0.0016170000017154962,
+    "dispatched": true,
+    "errorCode": "NETWORK_CANCELLED"
+  },
+  {
+    "case": "cancel_peer_closure_3",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51164
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51164",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51164",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "peerClosed": true,
+    "peerStates": [
+      "CONNECTION_RESET"
+    ]
+  },
+  {
+    "case": "cancel_closes_socket_4",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51166
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51166",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51166",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "clientCreationSeconds": 0.007937999995192513,
+    "getElapsedSeconds": 0.036423700003069825,
+    "dispatched": true,
+    "errorCode": "NETWORK_CANCELLED"
+  },
+  {
+    "case": "cancel_peer_closure_4",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51166
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51166",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51166",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "peerClosed": true,
+    "peerStates": [
+      "EOF"
+    ]
+  },
+  {
+    "case": "tls_handshake_timeout",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51168
+    ],
+    "httpHits": [],
+    "tcpConnections": null,
+    "passed": true,
+    "elapsedSeconds": 0.13736330000392627,
+    "TLSVerificationDisabled": false,
+    "peerEOF": true
+  },
+  {
+    "case": "tls_handshake_cancel",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51170
+    ],
+    "httpHits": [],
+    "tcpConnections": null,
+    "passed": true,
+    "elapsedSeconds": 0.019562300003599375,
+    "TLSVerificationDisabled": false,
+    "peerEOF": true
+  },
+  {
+    "case": "dns_deadline_bounded_worker",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": false,
+    "fixtureAddress": null,
+    "httpHits": [],
+    "tcpConnections": null,
+    "passed": true,
+    "DNSMock": true,
+    "lingeringWorkerLimit": 1
+  },
+  {
+    "case": "typed_error_binary",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51172
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51172",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51172",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true,
+    "errorCode": "NETWORK_CONTENT_TYPE_DENIED"
+  },
+  {
+    "case": "typed_error_compressed",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51174
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51174",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51174",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true,
+    "errorCode": "NETWORK_CONTENT_ENCODING_DENIED"
+  },
+  {
+    "case": "typed_error_incomplete",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51176
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51176",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51176",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true,
+    "errorCode": "NETWORK_RESPONSE_INCOMPLETE"
+  },
+  {
+    "case": "typed_error_duplicate_location",
+    "broker": "local_cli.infrastructure.http_fetch.HttpFetchBroker",
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51178
+    ],
+    "httpHits": [
+      {
+        "path": "/",
+        "host": "server.test:51178",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Host": "server.test:51178",
+          "User-Agent": "local-cli/1.0",
+          "Accept-Encoding": "identity",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true,
+    "errorCode": "NETWORK_REDIRECT_INVALID"
+  },
+  {
+    "case": "provider_host_route",
+    "broker": null,
+    "externalInternet": false,
+    "realSocket": true,
+    "fixtureAddress": [
+      "127.0.0.1",
+      51180
+    ],
+    "httpHits": [
+      {
+        "path": "/api/tags",
+        "host": "127.0.0.1:51180",
+        "clientAddress": "127.0.0.1",
+        "headers": {
+          "Accept-Encoding": "identity",
+          "Host": "127.0.0.1:51180",
+          "User-Agent": "Python-urllib/3.14",
+          "Connection": "close"
+        }
+      }
+    ],
+    "tcpConnections": 1,
+    "passed": true,
+    "realOllamaDaemon": false,
+    "providerServerFixture": true,
+    "productiveWebFetchDenied": true,
+    "client": "local_cli.ollama_client.OllamaClient"
+  }
+]

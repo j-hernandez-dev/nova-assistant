@@ -1,0 +1,53 @@
+{
+  "nativeNtfsDeny": true,
+  "pythonAuditVeto": true,
+  "aclRestored": true,
+  "noHashRestoration": true,
+  "blockedAttempts": [],
+  "scope": "TEST_ONLY_HISTORY_STORAGE",
+  "results": [
+    {
+      "name": "node_tests",
+      "exitCode": 0,
+      "log": "node_tests.log",
+      "command": [
+        "node",
+        "--test",
+        "tests/application_client.test.cjs",
+        "tests/active_web.test.cjs",
+        "tests/approval_host.test.cjs",
+        "tests/web_v12.test.cjs"
+      ]
+    },
+    {
+      "name": "typecheck",
+      "exitCode": 0,
+      "log": "typecheck.log",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ]
+    },
+    {
+      "name": "desktop_build",
+      "exitCode": 0,
+      "log": "desktop_build.log",
+      "command": [
+        "node",
+        "-e",
+        "const esbuild=require('esbuild'),fs=require('fs');\n    (async()=>{const r=await esbuild.build({entryPoints:['electron/main.ts','electron/preload.ts','electron/application_client.ts'],\n    bundle:true,platform:'node',format:'cjs',packages:'external',outdir:process.argv[1],outExtension:{'.js':'.cjs'},metafile:true});\n    fs.writeFileSync(process.argv[1]+'/metafile.json',JSON.stringify(r.metafile,null,2));\n    console.log(JSON.stringify({node:process.version,esbuild:esbuild.version,build:'FROZEN_SOURCE_DESKTOP_ROOTS',installer:false,guiTest:false}));})();",
+        "C:\\Users\\joseh\\AppData\\Local\\Temp\\nb7-candidate02-desktop\\output\\desktop_build"
+      ]
+    },
+    {
+      "name": "four_state_parity",
+      "exitCode": 0,
+      "log": "four_state_parity.log",
+      "command": [
+        "node",
+        "tests/run_web_v12_application_parity.cjs"
+      ]
+    }
+  ]
+}

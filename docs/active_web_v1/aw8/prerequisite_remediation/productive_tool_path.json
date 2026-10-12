@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "purpose": "AW8 prerequisite remediation productive integration status, not product E2E",
+  "requiredPath": "AgentLoop → ToolRegistry → ToolRuntime → Policy → Approval/Grant → ActiveWebService/BrowserRuntime",
+  "status": "BLOCKED",
+  "blocker": "AW8-PREFLIGHT-001 — PRODUCT_INTEGRATION_GAP",
+  "rootIntegrationImplemented": false,
+  "capabilityProbeCalledByCompositionRoots": false,
+  "productiveBrowserTools": [],
+  "requiredTools": [
+    "browser_open",
+    "browser_observe",
+    "browser_navigate",
+    "browser_act",
+    "browser_form_submit",
+    "browser_upload",
+    "browser_download",
+    "browser_takeover",
+    "browser_close"
+  ],
+  "inheritedCharacterization": "docs/active_web_v1/aw8/preflight_runtime.json",
+  "unchangedComponentPins": {
+    "local_cli/bootstrap_cli.py": "eabd3c7b9c62e481e0b94268ec6f45120a5f7fa213f5a0cc29b9216dce17aecd",
+    "local_cli/bootstrap_server.py": "24d1a0dcd25fbbf2ab8069ab3fe28439a3cb7b2da77b0101cee2af923c956dd3",
+    "local_cli/tools/__init__.py": "69c9f5d7f6aa661e3559bd60c27ea70cbe2f27cfa6ccc85f3b1563ffd7b67408",
+    "local_cli/application/session.py": "c140898b82210e6e2018d8efcbf1f40702cda9102e43fc2daad1629e31ceb50f",
+    "local_cli/application/tool_runtime.py": "e524eace30f49d6f77cfa1cc45c45a258e5d1beb2b728770d5cade97c719c199",
+    "local_cli/application/browser_actions.py": "5e7fa503dc5605223ef63e899d8840b29cacf8d0450765c4a98eb2d264fdf519",
+    "local_cli/core/contracts.py": "f327939669ad85a50cad8c44681d81313ab68daf3c7c6cbfcbdd9d68cede5e9a",
+    "local_cli/infrastructure/active_web/egress_broker.py": "7ead4431fe1174442c0e0073e09035e42293c52ac3bbc02c286e0dbfae9d6da2"
+  },
+  "observed": [
+    "CLI and JSONL composition roots still supply no productive active_web_factory.",
+    "SessionCoordinator optional BrowserFrontendBinding does not add ToolRegistry entries or extend a host authority ceiling.",
+    "Default registry still has bash/read/write/edit/glob/grep/web_fetch/todo_write/ask_user; no browser_* tools.",
+    "ToolRuntime browser names without valid BrowserActions/Policy/SecurityAudit remain fail-closed.",
+    "No ContractOnlyBrowserTool or private test plan has been installed into the product."
+  ],
+  "requiredTests": [
+    {
+      "requirement": "UNKNOWN/publicOnly not KNOWN true → productive browser tools absent",
+      "result": "PASS_ABSENCE_ONLY",
+      "evidence": "Original real root characterization preserved by exact root/registry hashes; no positive branch implemented."
+    },
+    {
+      "requirement": "all known valid prerequisites → nine productive browser tools through ToolRuntime",
+      "result": "NOT_EVALUATED",
+      "reason": "Root/bridge implementation missing and real exclusive egress not proven; doubles cannot substitute this branch."
+    },
+    {
+      "requirement": "generic/legacy browser name cannot acquire browser authority by fallback",
+      "result": "PASS_CONTRACT_ONLY",
+      "evidence": "test_aw3_policy.py::test_unimplemented_browser_name_has_no_generic_legacy_authority_path in full AW component suite; no sandbox/process containment claim."
+    }
+  ],
+  "integrationNotSolvedByProbe": true
+}

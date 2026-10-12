@@ -1,0 +1,33 @@
+....................................F...............................     [100%]
+================================== FAILURES ===================================
+_______ test_child_subject_parent_correlation_and_same_shared_redactor ________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s7_evidence/runtime/s7_private_25dx2lkr/selected/test_child_subject_parent_corr0')
+
+    def test_child_subject_parent_correlation_and_same_shared_redactor(tmp_path):
+        port, audit = audit_fixture()
+        root, _, _ = runtime(tmp_path, security_audit=audit)
+        parent = root.delegation_for(invocation(tmp_path).context)
+>       child, _, _ = runtime(tmp_path, security_audit=audit, issuer=root._issuer,
+            policy=root.policy, parent_grant=parent)
+
+tests\security_v12\test_s7_runtime.py:201: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\security_v12\test_s2_runtime.py:31: in runtime
+    rt.install_authority(tmp_path, 'session')
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.tool_runtime.ToolRuntime object at 0x000001D89A26E5D0>
+workspace = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s7_evidence/runtime/s7_private_25dx2lkr/selected/test_child_subject_parent_corr0')
+session_id = 'session'
+
+    def install_authority(self, workspace: Path, session_id: str) -> None:
+        """Host composition installs a ceiling, independently of model arguments."""
+        if self._issuer is not None:
+>           raise ValueError('authority already installed')
+E           ValueError: authority already installed
+
+local_cli\application\tool_runtime.py:180: ValueError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s7_runtime.py::test_child_subject_parent_correlation_and_same_shared_redactor
+1 failed, 67 passed in 1.90s

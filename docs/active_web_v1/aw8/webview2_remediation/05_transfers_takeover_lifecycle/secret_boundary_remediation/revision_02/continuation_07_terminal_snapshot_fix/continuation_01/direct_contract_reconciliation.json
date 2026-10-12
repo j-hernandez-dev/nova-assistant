@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "decision": "DIRECT_TERMINAL_CONTRACT_RECONCILIATION = AUTHORIZED",
+  "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+  "beforeSha256": "526df33cadf052634bd2ed8a919ca7dd9e2c21f3b4463f81855320d003f64872",
+  "cases": [
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-retire]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:44",
+      "proof": "Two Input(...commit=false) calls, then Retire, then State(longValue,true). No terminal snapshot, terminal event, generation/revision or ack is supplied.",
+      "conflict": "New requirement 8 prohibits Retire committing an arbitrary last current solely due to retirement.",
+      "kind": "DIRECT_INCOMPATIBILITY",
+      "newSequence": "Same transient values -> explicit exact PAGEHIDE snapshot -> Retire -> original COMMITTED assertion"
+    },
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-checkpoint]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:48",
+      "proof": "Two Input(...commit=false) calls, then parameterless Checkpoint, then State(longValue,true).",
+      "conflict": "Requirements 7/9 demand explicitly observed terminal snapshot + revision/generation/ack, not lookup of whatever pending contains.",
+      "kind": "DIRECT_INCOMPATIBILITY",
+      "newSequence": "Same transient values -> explicit exact CHECKPOINT snapshot -> original safety assertions"
+    },
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[history-clear]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:52",
+      "proof": "Intermediate editing values then parameterless Checkpoint; verifies all historical values protected and ordinary page text preserved.",
+      "conflict": "No terminal snapshot supplied to updated live-checkpoint semantics; preparation needs reconciliation, security assertions must remain.",
+      "kind": "PREPARATION_DEPENDENCY",
+      "newSequence": "Same transient values -> explicit exact CHECKPOINT snapshot -> original safety assertions"
+    },
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-retire-denied]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:58",
+      "proof": "Only uncommitted short Input, then expects Retire denial.",
+      "conflict": "New requirement 8 permits preserving buffers as TRANSIENT without a terminal. To test true committed-short denial prospectively, a real explicit terminal must be supplied; no claim that this assertion necessarily fails under every allowed conservative implementation.",
+      "kind": "TERMINAL_MEANING_AMBIGUITY",
+      "newSequence": "Same short value -> explicit PAGEHIDE snapshot -> original denial assertion"
+    },
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-checkpoint-denied]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:60",
+      "proof": "Only uncommitted short Input then parameterless Checkpoint denial.",
+      "conflict": "The inverse security test must demonstrate an observed true terminal snapshot, not generic missing-checkpoint evidence or arbitrary pending.",
+      "kind": "TERMINAL_MEANING_AMBIGUITY",
+      "newSequence": "Same short value -> explicit CHECKPOINT snapshot -> original denial assertion"
+    }
+  ],
+  "assertionsWeakened": false,
+  "valuesChanged": false,
+  "historicalNativeCasesChanged": false,
+  "helperAdded": "TerminalProof: exact registry owner/Page/document generation/control identity, observed revision, explicitly supplied observedValue/reason.",
+  "afterSha256": "ce455bc332d6a9624ba441157a5b79e950a5a471fe778ae80c327178129c9b84"
+}

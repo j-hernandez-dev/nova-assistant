@@ -1,0 +1,45 @@
+........................................................................ [ 20%]
+....F................................................................... [ 40%]
+........................................................................ [ 60%]
+........................................................................ [ 80%]
+.......................................................................  [100%]
+================================== FAILURES ===================================
+_______________ TestSubAgentRunSimple.test_format_tools_called ________________
+
+self = <tests.test_sub_agent.TestSubAgentRunSimple testMethod=test_format_tools_called>
+
+    def test_format_tools_called(self) -> None:
+        """Provider's format_tools is called to generate tool definitions."""
+        provider = _make_mock_provider()
+        _setup_provider_simple_response(provider)
+        tools = [_DummyTool()]
+        agent = SubAgent(
+            provider=provider,
+            model="qwen3:8b",
+            tools=tools,
+            prompt="task",
+        )
+        agent.run()
+    
+>       provider.format_tools.assert_called_once()
+
+tests\test_sub_agent.py:667: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <MagicMock name='mock.format_tools' id='1731028569792'>
+
+    def assert_called_once(self):
+        """assert that the mock was called only once.
+        """
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to have been called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+>           raise AssertionError(msg)
+E           AssertionError: Expected 'format_tools' to have been called once. Called 0 times.
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:965: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_sub_agent.py::TestSubAgentRunSimple::test_format_tools_called
+1 failed, 358 passed in 35.68s

@@ -1,0 +1,497 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW1",
+  "verdict": "AW1 = PASS",
+  "date": "2026-10-09",
+  "readyDeclared": false,
+  "normativeSource": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+    "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "section": "§35 — AW1 — Dominio y lifecycle",
+    "requirements": [
+      "BrowserSessionManager",
+      "Page refs",
+      "quotas",
+      "fake BrowserPort",
+      "cancel/cleanup"
+    ],
+    "literalGate": "Cierre: lifecycle determinista con adapter falso."
+  },
+  "baseline": {
+    "branch": "main",
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "platform": "Windows 11 build 26200 + local NTFS + HOST_UNISOLATED",
+    "freeze": "docs/active_web_v1/aw1/baseline_freeze.json",
+    "workingTree": [
+      " M ci/pytest_contracts.json",
+      " M local_cli/core/contracts.py",
+      "?? docs/active_web_v1/audit/findings.json",
+      "?? docs/active_web_v1/aw0/baseline_freeze.json",
+      "?? docs/active_web_v1/aw0/ci_contract_inventory.json",
+      "?? docs/active_web_v1/aw0/closure/RESOLUCION_FINAL_AW0.md",
+      "?? docs/active_web_v1/aw0/closure/manifest_final.json",
+      "?? docs/active_web_v1/aw0/integrity.json",
+      "?? docs/active_web_v1/aw0/invariant_corpus.json",
+      "?? docs/active_web_v1/aw0/manifest.json",
+      "?? docs/active_web_v1/aw0/resultados.md",
+      "?? docs/active_web_v1/aw0/test_results.json",
+      "?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md",
+      "?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+      "?? local_cli/core/active_web.py",
+      "?? tests/active_web_v1/__init__.py",
+      "?? tests/active_web_v1/test_aw0_contracts.py"
+    ],
+    "indexEmpty": true,
+    "tags": {
+      "refs/tags/nova-core-v1-stable": "97f41c6dab89ee59332875bb8d89c29620b52156",
+      "refs/tags/nova-knowledge-inputs-v1-ready": "a26a94ebfb2db44551097f1641eec6706b52c101",
+      "refs/tags/nova-memory-v1-ready": "fa6b2f7898692ddc6cec77a4d971dbc395b764a6",
+      "refs/tags/nova-memory-v1.1-ready": "6a48c5252e40986ecf4180138d9d56bc519b3e49",
+      "refs/tags/nova-security-v1.2-ready": "e5bea6a4c2c559a1f5a2f8824316a83b548b2533"
+    }
+  },
+  "prerequisite": {
+    "aw0OriginalExecution": "PARTIAL",
+    "aw0NormativeClosure": "PASS",
+    "closureManifest": "docs/active_web_v1/aw0/closure/manifest_final.json",
+    "sha256": "6ac8bc06f82dabfa6f6bdf68fa452e1e0688255b72b8ca51bbb49bb614bc9ab8",
+    "historyPreserved": true
+  },
+  "preflight": {
+    "reused": [
+      "AW0 refs/enums",
+      "Core CancellationToken",
+      "Application CancellationController",
+      "positive CI inventory/runner"
+    ],
+    "existing": "AW0 pure refs/schema/snapshot and Core cancellation. No prior BrowserSessionManager/BrowserPort/registry/browser adapter.",
+    "missing": "AW1 domain owner, resource registry, bounded scheduler and cancel/cleanup; implemented only for fake-port gate.",
+    "legacyBoundary": "CloseSession DTO exists but coordinator dispatch remains unsupported as documented in AW-AUD-018. AW1 does not change Core command semantics; close_owner/shutdown are host domain seams, no frontend browser bootstrap.",
+    "baselineFocused": {
+      "passed": 154,
+      "failures": 1,
+      "errors": 0,
+      "skips": 0,
+      "exitCode": 1,
+      "knownInheritedFailure": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available"
+    },
+    "materialContradictionFound": false
+  },
+  "modifiedExisting": [
+    "ci/pytest_contracts.json"
+  ],
+  "createdFiles": [
+    "local_cli/core/active_web_lifecycle.py",
+    "local_cli/application/active_web.py",
+    "tests/active_web_v1/fake_browser.py",
+    "tests/active_web_v1/test_aw1_lifecycle.py",
+    "docs/active_web_v1/aw1/baseline_freeze.json",
+    "docs/active_web_v1/aw1/integrity.json",
+    "docs/active_web_v1/aw1/test_results.json",
+    "docs/active_web_v1/aw1/resultados.md",
+    "docs/active_web_v1/aw1/manifest.json"
+  ],
+  "artifactPins": {
+    "local_cli/core/active_web_lifecycle.py": "42977ac61d6dc412c9e66ec932aee755ee1fab7c2f2bb3f296a6aeaa27bd32e7",
+    "local_cli/application/active_web.py": "03ebdde0fa5e03f87a2a87ab357e4cc60a99a7dc73af5d81857a9b988e427adf",
+    "tests/active_web_v1/fake_browser.py": "6104d0016c2f40ce51c48f080e1f496ae21ffcbb61dc86bbfe57e96b074c22c5",
+    "tests/active_web_v1/test_aw1_lifecycle.py": "f46509777bad78197fece6efe2566041cf336b444d4b83ffa4a1041375560922",
+    "ci/pytest_contracts.json": "f31fec5878d51d4f6433ae15af85c345d4ff8d9621055bfcf83df6c5306fe408",
+    "docs/active_web_v1/aw1/baseline_freeze.json": "353379884caa31d1f9c6269000e64c64733d7c787d80ce91b7672cec0ebaac7a",
+    "docs/active_web_v1/aw1/integrity.json": "646873308aebeed61ca703a50b00b95422652c4b5fbd0544c7713b887cc9b4db",
+    "docs/active_web_v1/aw1/test_results.json": "4b233ccc32f7b90a042af7589daa42efa6e04961d8a317167659a1bfaa22814b",
+    "docs/active_web_v1/aw1/resultados.md": "223372dee177768f0183006d598ec8c4c468ec3bfd0fd238f71c774f736da20d"
+  },
+  "inheritedPinsPreserved": {
+    "local_cli/core/contracts.py": "4f5037d8d543996dc21e44972f676ef7bcca2934a8d5f08a76164f8dfc6f6884",
+    "local_cli/core/active_web.py": "5925c45eaa954144586d2c0285b7b67a8ce2f29a457b3a179d8f44ee2f927c3a",
+    "tests/active_web_v1/__init__.py": "c51ed186e9b27f04133ea252ef7446dcbc05107f60fecb5bd304b33d551f8681",
+    "tests/active_web_v1/test_aw0_contracts.py": "96123673f185af874b37adb50ad27f3818da96aec8e872ce4cfce594758906d6",
+    "docs/active_web_v1/aw0/baseline_freeze.json": "c295db0dd4a6fa64f879f1c7ecb5a92a4c36901e36884dce6e27d17794d6faee",
+    "docs/active_web_v1/aw0/ci_contract_inventory.json": "29d68a1564a8a5ba9f1816c6897bfa93a416b2cab2b6a1285f4ae06913300d80",
+    "docs/active_web_v1/aw0/integrity.json": "3a808049b22c670b9a8216a02b46d6d6d4c1e7d5cc199b438665f893500dba8c",
+    "docs/active_web_v1/aw0/invariant_corpus.json": "67a6b89f4aaca54bfdb8f2b1642f4e6ff18b829e0cf1735e8d598072a0d243b4",
+    "docs/active_web_v1/aw0/resultados.md": "1f31b7a00bad32db77fa10899ba92a839d71fc047e88de5f92434b774ee14161",
+    "docs/active_web_v1/aw0/test_results.json": "130ad0d51c0079e138cc3fd5b5f331fd2be2ff09f5b8c0361c76cb3eff8aa2f7",
+    "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md": "ee2a03ad2b887c2add4a5eac9402112edf3362d1e11118388cba9b268a405285",
+    "docs/active_web_v1/audit/findings.json": "c81d8a9279cd7a7aec74a78fb5e805d0a0c93b8b034db32c5f4c66d0100d2a1d",
+    "tests/test_tools/test_bash_tool.py": "ebd7e028e4d649dc1d8a8af798a373cce98e8729e6d29403cbe4347403a79573",
+    "local_cli/tools/bash_tool.py": "8933cdee293bd418e134dd06b539d9e7fa403fe5559b25b57a5e09484f89b4db",
+    "local_cli/tools/shell_tool.py": "33fa40f9bd60f360a90d995b6fc4dd3fb17fa27c79b2df4f347bec8d54e5bc12",
+    "local_cli/shell_executor.py": "30eec5d2a8c76e20a858bf818a4563e0c2d94626e26b25f8079be2ecc9772a1a",
+    "ci/run_contracts.py": "e9d539cd787abff12f74a478550ee8eb99a4b6c43c313ef2f93b2fbff6f17d8d",
+    "docs/active_web_v1/aw0/manifest.json": "21a4a5b1a0af13e983873812dc78ac777f51b4c65c22427e7d3b1b1e7f0681f0",
+    "docs/active_web_v1/aw0/closure/RESOLUCION_FINAL_AW0.md": "ee0332e98bdcdfd46ee414a492b1e6e52c5c999b58b13929f858cac6b83b76ed",
+    "docs/active_web_v1/aw0/closure/manifest_final.json": "6ac8bc06f82dabfa6f6bdf68fa452e1e0688255b72b8ca51bbb49bb614bc9ab8",
+    "local_cli/application/cancellation.py": "4f9334d92e2d7051470bc936744a167ba405314d2af4cfa3297f15e947a3c7a2",
+    "local_cli/application/session.py": "5eefa260d43efb493fd16b34bc6958c68d3a7e47e21af5f04b6224986f1fa83f",
+    "ci/contract_inventory.py": "3edabf4eff1e299737dee54d1969910e1c846f48c42b8fe0d1016561abebb57f"
+  },
+  "integrity": {
+    "trackedOriginalReconstructed": "297a732140956cd5f06f2237b61ef37dbc23c00ffd868054830f52912acaa9fe",
+    "unexpectedTrackedDrift": 0,
+    "aw0HistoryPreserved": true,
+    "architecturePreserved": true,
+    "ciAdditionOnly": true,
+    "oldCiByteSha256Reconstructed": "8cc1ff612664ad2c65e5cf646918df725e8ab343d99c9ff7d1f89508daf05b84",
+    "priorCiEntriesPreserved": 3821,
+    "newCiBaseContracts": 37,
+    "previousRulesAndSelectionConfigurationPreserved": true,
+    "tagsUnchanged": true,
+    "indexEmpty": true
+  },
+  "contracts": {
+    "coreModule": "local_cli/core/active_web_lifecycle.py",
+    "schemaVersion": 1,
+    "domainTypes": [
+      "BrowserOwner",
+      "BrowserLimits",
+      "BrowserSession",
+      "BrowserPage",
+      "BrowserCleanupReceipt",
+      "BrowserCancellationReceipt",
+      "BrowserLifecycleError",
+      "BrowserLifecycleErrorCode"
+    ],
+    "port": "BrowserPort",
+    "portMethods": [
+      "create_context",
+      "create_page",
+      "cancel_page",
+      "close_page",
+      "close_context"
+    ],
+    "application": "BrowserSessionManager",
+    "ownership": "AgentSession ID plus exact host workspace ID; unknown/cross-owner/cross-session resource refs rejected before port.",
+    "newLoop": false,
+    "newModelTools": false,
+    "newPolicyOrGrantPath": false,
+    "capabilityAvailable": "UNKNOWN; no real engine or broker probe and no advertised browser tools.",
+    "storage": "Ephemeral in-memory domain; no serialization of browser engine state or automatic persistence.",
+    "leases": "Internal host scheduler reservations only. They neither authorize nor execute actions; future classification/Policy/ToolRuntime dispatch remain mandatory.",
+    "cleanup": "Only exact exhaustive True within budget and no pending work permits CLOSED. Otherwise CLEANUP_UNCONFIRMED remains visible and retains resource quota.",
+    "cancellation": "Existing CancellationController hierarchy; no rollback/outcome rewriting; slot retained until worker terminal."
+  },
+  "limits": {
+    "maxSessionsPerAgentSession": 1,
+    "maxPagesPerBrowserSession": 3,
+    "maxActionsPerTurn": 25,
+    "maxNavigationsPerTurn": 10,
+    "maxConcurrentOperationsPerPage": 1,
+    "maxConcurrentRemoteEffectOperationsPerSession": 1,
+    "hostMayReduceCeilings": true,
+    "timeBounds": "Explicit finite positive host parameters, no new global defaults.",
+    "fixtureSeconds": {
+      "lifetime": 120,
+      "action": 10,
+      "navigation": 20,
+      "cleanup": 5
+    },
+    "deadlineChecks": "Pre/post port call; minimum of request, host and session expiry. Real port must respect cancellation/deadlines; real-engine preemption not certified in AW1.",
+    "creationPendingCountsTowardQuota": true,
+    "uncertainCleanupRetainsQuota": true
+  },
+  "closureCriteria": [
+    {
+      "requirement": "BrowserSessionManager",
+      "result": "PASS",
+      "component": "local_cli/application/active_web.py",
+      "evidence": "test_open_domain_owner_refs_empty_page_and_frozen_snapshots; test_session_survives_turns_but_owner_close_is_terminal; shutdown/expiry/failure contracts"
+    },
+    {
+      "requirement": "Page refs",
+      "result": "PASS",
+      "component": "Application registry using AW0 opaque factories",
+      "evidence": "test_unknown_and_cross_session_page_refs_never_rebind; test_close_during_pending_page_does_not_publish_late_active_page"
+    },
+    {
+      "requirement": "quotas",
+      "result": "PASS",
+      "component": "BrowserLimits and atomic host reservations",
+      "evidence": "hard ceilings; per-Turn counters; page/session single flight; CREATING/uncertain slots"
+    },
+    {
+      "requirement": "fake BrowserPort",
+      "result": "PASS",
+      "component": "tests/active_web_v1/fake_browser.py",
+      "evidence": "DeterministicBrowserPort; no Chromium, network, credentials or profile"
+    },
+    {
+      "requirement": "cancel/cleanup",
+      "result": "PASS",
+      "component": "CancellationController, manager and immutable receipts",
+      "evidence": "pending cancellation, timeout/late returns, partial allocation, crash, close_owner/shutdown, no rollback"
+    },
+    {
+      "requirement": "lifecycle determinista con adapter falso",
+      "result": "PASS",
+      "evidence": "59/59 AW1 parameter instances focused and in complete applicable Core job",
+      "realEngineClaim": false
+    },
+    {
+      "requirement": "preserve inherited contracts/no introduced regressions",
+      "result": "PASS",
+      "evidence": "Full ordinary inherited jobs, AW0, Desktop, raw integrity reconstruction",
+      "newFailures": 0,
+      "newSkips": 0,
+      "newXfails": 0
+    }
+  ],
+  "invariantEvidence": [
+    {
+      "ids": [
+        "AW-INV-001",
+        "AW-INV-009",
+        "AW-INV-016"
+      ],
+      "scope": "Application domain ownership and issued page/session refs",
+      "result": "PASS_AW1_FAKE"
+    },
+    {
+      "ids": [
+        "AW-INV-010",
+        "AW-INV-011",
+        "AW-INV-046"
+      ],
+      "scope": "Port contract ephemeral fresh contexts, close_owner/shutdown/restart fake isolation; not real browser profile proof",
+      "result": "PASS_CONTRACT_ONLY"
+    },
+    {
+      "ids": [
+        "AW-INV-031",
+        "AW-INV-032",
+        "AW-INV-033",
+        "AW-INV-047"
+      ],
+      "scope": "No action replay, immutable UNKNOWN receipt preserved, cancellation/close no rollback, honest cleanup",
+      "result": "PASS_AW1_FAKE; real remote outcome enforcement deferred AW3/AW5"
+    },
+    {
+      "ids": [
+        "AW-INV-003",
+        "AW-INV-004",
+        "AW-INV-007",
+        "AW-INV-008",
+        "AW-INV-012",
+        "AW-INV-044",
+        "AW-INV-045",
+        "AW-INV-048",
+        "AW-INV-049",
+        "AW-INV-050"
+      ],
+      "scope": "No added model tools/page projection, credential/Memory path, subagent/browser authority or frontend path; inherited files preserved",
+      "result": "PRESERVED_BOUNDARIES"
+    },
+    {
+      "ids": [
+        "AW-INV-018",
+        "AW-INV-019",
+        "AW-INV-020",
+        "AW-INV-021",
+        "AW-INV-022",
+        "AW-INV-025",
+        "AW-INV-027",
+        "AW-INV-028",
+        "AW-INV-029",
+        "AW-INV-034",
+        "AW-INV-036",
+        "AW-INV-039",
+        "AW-INV-042"
+      ],
+      "scope": "Element observation/freshness, approval/effects, broker, projections, audit and transfers",
+      "result": "DEFERRED_TO_DEFINED_LATER_PHASES; not advertised/certified"
+    }
+  ],
+  "tests": {
+    "evidence": "docs/active_web_v1/aw1/test_results.json",
+    "evidenceSha256": "4b233ccc32f7b90a042af7589daa42efa6e04961d8a317167659a1bfaa22814b",
+    "runtime": {
+      "python": "3.14.6",
+      "pytest": "9.1.1",
+      "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+      "kind": "Existing temporary offline venv from AW0; no installation or global changes",
+      "platform": "Windows 11 build 26200 + local NTFS + HOST_UNISOLATED"
+    },
+    "focused": {
+      "aw1": 59,
+      "aw0": 128,
+      "total": 187,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "exitCode": 0
+    },
+    "jobs": [
+      {
+        "job": "final-core",
+        "passed": 2926,
+        "failures": 1,
+        "errors": 0,
+        "skips": 7,
+        "subtestsPassed": 53,
+        "exitCode": 1,
+        "xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw1-20261009T164424Z\\final-core\\tests.xml",
+          "sha256": "6217137663a07e2f7ff44a143d8dce8a97bdf0b94b7b74be1b536fd2c48eaff8",
+          "sizeBytes": 379761
+        },
+        "receipt": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw1-20261009T164424Z\\final-core\\run.json",
+          "sha256": "3b96c7bfe8c900b2d6ffa7e36b2af07c248546db510c7336a000abce1aadc389",
+          "sizeBytes": 736
+        }
+      },
+      {
+        "job": "final-security",
+        "passed": 615,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw1-20261009T164424Z\\final-security\\tests.xml",
+          "sha256": "f1efebfd780f2c6a414adcfaaeb5ce6665e78c1710cc842f9e2032d06411eeeb",
+          "sizeBytes": 88927
+        },
+        "receipt": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw1-20261009T164424Z\\final-security\\run.json",
+          "sha256": "1046b5bfa1fef32785ca3698b9db49937958b957e0fd0296cef311eb36353c4f",
+          "sizeBytes": 737
+        }
+      },
+      {
+        "job": "final-memory",
+        "passed": 791,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw1-20261009T164424Z\\final-memory\\tests.xml",
+          "sha256": "ec3d06b31a86073bdbbd7dd0788a71adb933a7a4be877e7e87dd258dabcb8bd0",
+          "sizeBytes": 121586
+        },
+        "receipt": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw1-20261009T164424Z\\final-memory\\run.json",
+          "sha256": "eadff3003f19adede163278cd21d8853460da3bb619780e9ff6a651a9e10cbdf",
+          "sizeBytes": 735
+        }
+      },
+      {
+        "job": "final-knowledge",
+        "passed": 1015,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw1-20261009T164424Z\\final-knowledge\\tests.xml",
+          "sha256": "8029704ecc6aaa0a27a542d8881711dbb47980d20f21f1e4cc26ba150e7dfc87",
+          "sizeBytes": 167132
+        },
+        "receipt": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw1-20261009T164424Z\\final-knowledge\\run.json",
+          "sha256": "4fa958b00f1d4b7e3b95240ec9e232bce3779b7d5aa26aac951ec757af5a6cae",
+          "sizeBytes": 740
+        }
+      }
+    ],
+    "finalApplicablePython": {
+      "parameterInstances": 5355,
+      "passed": 5347,
+      "failures": 1,
+      "errors": 0,
+      "skips": 7,
+      "subtestsPassed": 53,
+      "newFailures": 0,
+      "newSkips": 0,
+      "newXfails": 0
+    },
+    "desktop": {
+      "command": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs",
+      "cwd": "desktop",
+      "node": "24.16.0",
+      "passed": 68,
+      "failures": 0,
+      "cancelled": 0,
+      "skips": 0,
+      "exitCode": 0,
+      "durationMs": 1802.4419,
+      "evidenceKind": "DIRECT_NATIVE_COMMAND_RECEIPT; no GUI/model/browser certification",
+      "typecheck": {
+        "command": "node node_modules/typescript/bin/tsc --noEmit",
+        "exitCode": 0
+      }
+    },
+    "testEvidenceKinds": [
+      "Unit/domain contracts",
+      "Application integration with deterministic fake",
+      "Native inherited ordinary regression",
+      "Desktop JS/static typecheck"
+    ],
+    "realBrowserTests": 0,
+    "realModelCampaigns": 0,
+    "realNetworkBrokerCertification": false,
+    "externalOutputRoot": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw1-20261009T164424Z",
+    "historicalSkipsComparison": "Same seven exact IDs as AW0 final-core; see test_results.json.",
+    "historicalCampaignsReexecuted": false,
+    "python310": "Syntax AST checked only; no actual Python 3.10/Linux/macOS runtime certification.",
+    "qualityOrPerformanceCampaign": "No AW1 quality dataset/LLM/p95 gate prescribed; timed synthetic deadline contracts only.",
+    "warningAndDiagnosticHistoryPreserved": true
+  },
+  "inheritedFailure": {
+    "id": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "originalClassification": "HARNESS_BUG / PREEXISTING",
+    "baselineReproduced": true,
+    "finalReproduced": true,
+    "testOutcome": "FAIL",
+    "coreExitCode": 1,
+    "aw1Impact": "No AW1 regression demonstrated; literal lifecycle gate remains assessable. Not a green Core claim or waiver of later READY gates.",
+    "repaired": false,
+    "skipped": false,
+    "assertionChanged": false,
+    "blockingForLiteralAw1Gate": false,
+    "reason": "The same assertion failed in preflight and AW0 baseline/final. Test, shell and runner raw-byte pins remain unchanged; no new failed node. No requirement in the literal AW1 fake-lifecycle gate mandates repairing this separate Core harness debt.",
+    "noGreenCoreClaim": true
+  },
+  "openDecisions": {
+    "requiredForAw1": [],
+    "futureResolvedPrematurely": [],
+    "materialConflicts": []
+  },
+  "limitations": [
+    "Fake adapter only; not a real browser capability or engine/broker certification.",
+    "Manager is injected/host-side, not bootstrapped or exposed to model tools/CLI/JSONL/Desktop.",
+    "close_owner/expire/shutdown must be wired by later runtime/frontend phases; existing Core CloseSession dispatch not changed.",
+    "Port declares finite cancellation/deadline/exhaustive-cleanup obligations; cannot certify a real adapter watchdog/process cleanup from doubles.",
+    "No observation/element registry/freshness, actions/Policy/approvals, broker, engine, transfers, auth takeover, public browser events/audit/projections.",
+    "No physical process isolation claim; HOST_UNISOLATED preserved.",
+    "No cookies/profile persistence, restart resume, automated credentials or Memory/Knowledge import path.",
+    "No fifty-invariant runtime certification or ACTIVE_WEB_CORE READY.",
+    "Core ordinary regression still has one inherited harness FAIL/exit 1; kept visible.",
+    "No new cross-platform hosted CI run or real-engine certification."
+  ],
+  "operations": {
+    "architectureChanged": false,
+    "aw0EvidenceChanged": false,
+    "coreSecurityMemoryKnowledgeCertificationsReopened": false,
+    "existingProductEdited": false,
+    "existingTestsEdited": false,
+    "existingHarnessEdited": false,
+    "ciWorkflowEdited": false,
+    "newDependencies": false,
+    "globalConfigChanged": false,
+    "modelsDownloaded": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "nextPhaseReferenceOnly": "AW2 — Observation y refs; not started",
+  "stopForHumanReview": true
+}

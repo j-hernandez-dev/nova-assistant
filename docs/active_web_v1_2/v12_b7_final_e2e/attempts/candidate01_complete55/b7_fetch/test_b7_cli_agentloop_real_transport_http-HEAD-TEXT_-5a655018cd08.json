@@ -1,0 +1,255 @@
+{
+  "caseName": "test_b7_cli_agentloop_real_transport[http-HEAD-TEXT]",
+  "root": "create_cli_application",
+  "candidate": "AW_V12_B7_5d95ecd5fb5af30428f6",
+  "cases": [
+    {
+      "root": "CLI",
+      "productivePath": "create_cli_application/AgentSessionCoordinator/AgentLoop/ToolRuntime/WebProductV12/PolicyEngineV2/GrantIssuer/ControlledFetchService/RealControlledFetchTransport",
+      "proposalProducer": "SCRIPTED_INFERENCE_ONLY",
+      "turnId": "turn_b15a6b7133a24da49c980443e6b2bb1c",
+      "operationId": "op_d13161f40f0b4bebb298a81f120f0bf1",
+      "result": {
+        "status": "completed",
+        "effectState": "applied",
+        "stdout": "{\"capabilityId\": \"CONTROLLED_FETCH_V1_2\", \"operationId\": \"op_d13161f40f0b4bebb298a81f120f0bf1\", \"sanitizedUrl\": \"http://cf-public.test/[path-redacted]\", \"origin\": \"http://cf-public.test\", \"method\": \"HEAD\", \"resultMode\": \"TEXT\", \"outcome\": \"SUCCEEDED_OBSERVED\", \"completeness\": \"COMPLETE\", \"truncated\": false, \"contentType\": \"text/plain\", \"countedBytes\": 0, \"consumed\": {\"logical_requests\": 1, \"hops\": 1, \"redirects\": 0, \"header_bytes\": 275, \"response_bytes\": 0, \"published_chars\": 0}, \"payload\": null, \"absence\": \"HEAD_NO_BODY\", \"error\": null, \"provenance\": {\"source\": \"V12_B1_CONTRACT_COMPOSITION\", \"trust\": \"UNTRUSTED_REMOTE_DATA\", \"networkEgressControl\": \"UNKNOWN\", \"publicOnly\": \"UNKNOWN\"}, \"retryAllowed\": false}",
+        "stderr": "",
+        "exitCode": null,
+        "error": null,
+        "artifacts": [],
+        "metadata": {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "outcome": "SUCCEEDED_OBSERVED",
+          "policyDecision": "ALLOW",
+          "policyRevision": 2,
+          "requestDigest": "1bb7b7e629b42418f0aa6a205a3816987c16c6e86ac6f9d51d942685e6ba3a10",
+          "grantId": "grant_9284c589dd994f32a8666aef71506f02",
+          "operationId": "op_d13161f40f0b4bebb298a81f120f0bf1",
+          "sessionId": "ses_c9cf7e6560d24572bae673844cc8d121",
+          "controlClasses": [
+            "APPLICATION_ENFORCED"
+          ],
+          "securityAudit": {
+            "status": "durable_terminal",
+            "gap": false,
+            "retryAllowed": null,
+            "errorCode": null,
+            "storageGapCodes": []
+          }
+        },
+        "legacyText": null
+      },
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_d13161f40f0b4bebb298a81f120f0bf1",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "HEAD",
+          "hop": 0,
+          "origin": "http://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:e9f1:5389:6c46:5dff",
+            80
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:e9f1:5389:6c46:5dff",
+              80
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:e9f1:5389:6c46:5dff",
+            80
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 190,
+          "httpHeaderBytesReceived": 85,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "NONE",
+          "tlsHostname": null,
+          "status": 200,
+          "complete": true,
+          "tlsVerifyCode": null,
+          "errorCode": null,
+          "stage": "BODY",
+          "retryAllowed": false
+        }
+      ],
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:e9f1:5389:6c46:5dff"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:e9f1:5389:6c46:5dff",
+            80
+          ],
+          "native": true
+        }
+      ],
+      "forbiddenPrivateCanaryHits": 0,
+      "serverEvents": [
+        {
+          "method": "HEAD",
+          "path": "/b7-positive-TEXT",
+          "version": "HTTP/1.1",
+          "host": "cf-public.test",
+          "acceptEncoding": "identity",
+          "connection": "close",
+          "forbiddenHeadersPresent": false,
+          "localEndpoint": [
+            "2806:261:4a9:e25:e9f1:5389:6c46:5dff",
+            80
+          ],
+          "peer": [
+            "2806:261:4a9:e25:e9f1:5389:6c46:5dff",
+            50146
+          ],
+          "requestBytes": 190
+        }
+      ],
+      "snapshot": {
+        "schemaVersion": 1,
+        "schema": "WEB_CAPABILITIES_V12_1",
+        "controlledFetch": {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "available": {
+            "status": "KNOWN",
+            "value": true,
+            "reason": null
+          },
+          "unavailableReason": null,
+          "evidenceProfile": {
+            "status": "KNOWN",
+            "value": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+            "reason": null
+          },
+          "networkEgressControl": {
+            "status": "KNOWN",
+            "value": "ENFORCED",
+            "reason": null
+          },
+          "publicOnly": {
+            "status": "KNOWN",
+            "value": "ENFORCED",
+            "reason": null
+          },
+          "controlClass": {
+            "status": "KNOWN",
+            "value": "BROKER_ENFORCED",
+            "reason": null
+          },
+          "methods": [
+            "GET",
+            "HEAD"
+          ],
+          "resultModes": [
+            "TEXT",
+            "HTML_STATIC",
+            "JSON"
+          ],
+          "postAvailable": false,
+          "authAvailable": false,
+          "binaryDownloadAvailable": false,
+          "cookieJar": false,
+          "browserSessionImport": false
+        },
+        "interactiveBrowser": {
+          "capabilityId": "INTERACTIVE_BROWSER_V1_2",
+          "available": {
+            "status": "KNOWN",
+            "value": false,
+            "reason": null
+          },
+          "unavailableReason": "FEATURE_DISABLED",
+          "evidenceProfile": {
+            "status": "UNKNOWN",
+            "value": null,
+            "reason": "COMPATIBLE_EVIDENCE_REQUIRED"
+          },
+          "networkIsolation": {
+            "status": "KNOWN",
+            "value": "NOT_PROVIDED",
+            "reason": null
+          },
+          "controlClass": {
+            "status": "KNOWN",
+            "value": "HOST_UNISOLATED",
+            "reason": null
+          },
+          "adapter": {
+            "status": "KNOWN",
+            "value": "WEBVIEW2",
+            "reason": null
+          },
+          "externalProtocolGuard": {
+            "status": "UNKNOWN",
+            "value": null,
+            "reason": "COMPATIBLE_EVIDENCE_REQUIRED"
+          },
+          "remoteMutationControl": {
+            "status": "UNKNOWN",
+            "value": null,
+            "reason": "COMPATIBLE_EVIDENCE_REQUIRED"
+          },
+          "secretBoundary": {
+            "status": "UNKNOWN",
+            "value": null,
+            "reason": "COMPATIBLE_EVIDENCE_REQUIRED"
+          },
+          "formSubmitAvailable": false,
+          "subagentsBrowserByDefault": false,
+          "persistentSession": false,
+          "screenshot": false
+        }
+      },
+      "browserCreated": false
+    }
+  ],
+  "receipts": [
+    {
+      "operationId": "op_d13161f40f0b4bebb298a81f120f0bf1",
+      "outcome": "STARTED",
+      "countedBytes": 0,
+      "consumed": {
+        "logical_requests": 1,
+        "hops": 0,
+        "redirects": 0,
+        "header_bytes": 0,
+        "response_bytes": 0,
+        "published_chars": 0
+      }
+    },
+    {
+      "operationId": "op_d13161f40f0b4bebb298a81f120f0bf1",
+      "outcome": "SUCCEEDED_OBSERVED",
+      "countedBytes": 0,
+      "consumed": {
+        "logical_requests": 1,
+        "hops": 1,
+        "redirects": 0,
+        "header_bytes": 275,
+        "response_bytes": 0,
+        "published_chars": 0
+      }
+    }
+  ],
+  "sourceProfile": "DEFAULT_FROZEN_B6",
+  "browserCreated": false
+}

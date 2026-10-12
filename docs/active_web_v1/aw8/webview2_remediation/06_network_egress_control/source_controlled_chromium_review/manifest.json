@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "phase": "SOURCE_CONTROLLED_CHROMIUM_ARCHITECTURE_REVIEW",
+  "createdUtc": "2026-10-11 17:42:10 UTC",
+  "sourceControlledChromium": "REQUIRES_SOURCE_PROTOTYPE",
+  "direction": "SOURCE_CONTROLLED_CHROMIUM_CEF",
+  "sourcePins": {
+    "chromium": "b859317bf11f6be47f9b7799ec690a0a42a1fb33",
+    "cef": "14c5a089e8452874cb1a556dc3fde26ed2d87723",
+    "cefVersion": "154.0.34+g14c5a08+chromium-154.0.8037.98",
+    "chromiumVersion": "154.0.8037.98"
+  },
+  "assessment": {
+    "architectureSourceInspection": "COMPLETED",
+    "candidateCertification": "NOT_CERTIFIED",
+    "patchSet": "LARGE_PATCH_SET",
+    "conceptualGateCount": 22,
+    "crossCuttingGateCount": 8,
+    "highChurnGateCount": 10,
+    "cost": "VERY_HIGH",
+    "wholeTreeNetworkAndLaunchClosure": "NOT_DEMONSTRATED",
+    "sourceBuildCompatibility": "NOT_DEMONSTRATED",
+    "reproducibleWindowsBuild": "NOT_DEMONSTRATED"
+  },
+  "evidence": {
+    "type": "ARCHITECTURE_SOURCE_INSPECTION_ONLY",
+    "pinnedSourceFilesRetrieved": 80,
+    "unavailableSourcePaths": 8,
+    "fullSourceCheckout": false,
+    "patchesImplemented": false,
+    "fullBuildExecuted": false,
+    "newNativeProbesExecuted": 0,
+    "productTestsExecuted": 0,
+    "engineBinariesDownloadedOrInstalled": false
+  },
+  "firstPrototype": {
+    "id": "SC-PROTOTYPE-01",
+    "name": "RTC_P2P_HARD_DISABLE",
+    "status": "NOT_AUTHORIZED_TO_BUILD_IN_THIS_PHASE",
+    "sourcePins": {
+      "chromium": "b859317bf11f6be47f9b7799ec690a0a42a1fb33",
+      "cef": "14c5a089e8452874cb1a556dc3fde26ed2d87723",
+      "cefVersion": "154.0.34+g14c5a08+chromium-154.0.8037.98",
+      "chromiumVersion": "154.0.8037.98"
+    },
+    "onlyFirstPrototype": true,
+    "scope": [
+      "NCP-02 native Blink constructor rejection",
+      "NCP-03 NetworkService/content P2P build removal/native residual denial",
+      "Minimal immutable build-profile marker from NCP-01 needed to attest these two gates, not full engine/network certification"
+    ],
+    "preflight": [
+      "Resolve pinned CEF/Chromium GN/toolchain compatibility; do not treat existing MSVC harness toolchain as sufficient",
+      "Frozen patch series, generated GN graph, unsigned binary and module hashes",
+      "Separate app-local harness executable; no Nova product adapter"
+    ],
+    "tests": [
+      "General JavaScript and ordinary control rendering still work",
+      "Secure-context RTCPeerConnection and webkit alias creation denied before factory initialization",
+      "ICE absent, data-channel networking absent",
+      "Calibrated STUN canary with UDP OWNER_PID/owned process tree/time window: STUN hits=0 and owned UDP bypass=0",
+      "TURN TCP/TLS and UDP canaries: zero RTC transport path",
+      "Layer B tested independently using backend test entrypoints or a separately labelled fault build with Layer A deliberately omitted; never certify that fault artifact",
+      "Frames/context recreation/browser restart preserve deny"
+    ],
+    "acceptance": [
+      "PeerConnection unusable",
+      "ICE absent",
+      "STUN hits=0",
+      "owned UDP bypass=0",
+      "No min-permission or IP-policy substitute",
+      "Positive canary calibration in same observer environment",
+      "No availability/PUBLIC_ONLY inferred"
+    ],
+    "notIncluded": [
+      "Full 22-gate implementation",
+      "New productive browser-host/BrowserPort",
+      "SW/network/transfer recertification",
+      "Architecture V1.2",
+      "AW8"
+    ],
+    "stop": "Any surviving P2P RTC path -> reject prototype; additional patch surface or compile incompatibility -> human source/design review, no flags search."
+  },
+  "closedInventories": {
+    "gates": "patch_inventory.json",
+    "profile": "NOVA_ACTIVE_WEB_CHROMIUM_PROFILE",
+    "gateCountIsConceptualNotFiles": true,
+    "changesBeyondInventoryRequireReview": true,
+    "wsWss": "DISABLED_PROPOSED_PROFILE_PER_V1_1_18_5"
+  },
+  "preservedStates": {
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "PASS",
+    "WEBVIEW2_BLOCK06_ARCHITECTURE": "BLOCKED_ARCHITECTURAL_ENFORCEMENT_LIMIT",
+    "CEF_CHROMIUM_STANDARD_CANDIDATE": "REJECTED",
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "cleanup": {
+    "threeCEFProfiles": "CLEANUP_UNCONFIRMED",
+    "historicalUDFs36": "UNCHANGED_NO_MAINTENANCE",
+    "profileCleanupAttempted": false
+  },
+  "authorization": {
+    "productMutation": false,
+    "normativeArchitectureMutation": false,
+    "prototypeBuild": false,
+    "block07": false,
+    "aw8": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false,
+    "humanReviewRequired": true
+  },
+  "files": [
+    "resultados.md",
+    "source_gate_architecture.md",
+    "patch_inventory.json",
+    "network_boundary_design.md",
+    "block05_compatibility.json",
+    "build_pipeline_assessment.json",
+    "update_model.json",
+    "maintenance_cost.json",
+    "sources.json",
+    "manifest.json",
+    "integrity.json"
+  ]
+}

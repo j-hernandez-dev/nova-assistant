@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "PASS",
+  "historicalEngineOnly": "WebView2; accepted 561 PASS. No feature PASS transferred to CEF.",
+  "rows": [
+    {
+      "feature": "ToolRuntime/Policy/Approval/Grant",
+      "classification": "APPLICATION_CONTRACT_REUSABLE",
+      "design": "Existing Python authorities/effect classifications/exact binding stay unchanged; CEF host must not import them or issue authority.",
+      "source": "local_cli/application/browser_actions.py",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": false,
+      "recertificationRequired": false,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "BrowserSession/Page lifecycle/max3",
+      "classification": "ENGINE_IMPLEMENTATION_REQUIRED",
+      "design": "CEF CreateBrowser + RequestContext + lifecycle callbacks; host-owned handles, one session per owner, max3, Job-owned tree, no autonomous popup.",
+      "source": "F16 F20 F08",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "structured observations/projection",
+      "classification": "ENGINE_IMPLEMENTATION_REQUIRED",
+      "design": "Bounded fixed host DOM/CDP instrumentation, leaf-before-aggregation redaction; current Application projection/DTOs reusable; CEF-native secret capture needs own implementation.",
+      "source": "F16",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "opaque element refs/freshness",
+      "classification": "ENGINE_IMPLEMENTATION_REQUIRED",
+      "design": "Host-owned binding table session/page/navigation/context/observation versions + exact node/fingerprint, no heuristic rebind or public backend ID.",
+      "source": "F16",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "fixed actions/outcomes",
+      "classification": "ENGINE_IMPLEMENTATION_REQUIRED",
+      "design": "Closed typed commands mapped to host fixed primitives; before-dispatch revalidation, STARTED/UNKNOWN/no retry semantics retained.",
+      "source": "F16",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "human takeover/epoch",
+      "classification": "ENGINE_IMPLEMENTATION_REQUIRED",
+      "design": "Owned native window exposes page-only human interaction; no debug/browser UI escape; epoch increment/invalidation and pause/resume remain Python contracts.",
+      "source": "F16 F20",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "sensitive value continuity",
+      "classification": "RECERTIFICATION_REQUIRED",
+      "design": "Host-native volatile monotonic registry, bounded policy, schema-aware and leaf redaction; terminal authorities SUBMIT_CONFIRMED/TAKEOVER_END_CHECKPOINT only, destroyed unconfirmed lineage denies resume.",
+      "source": "Historical Block05 contracts",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "uploads/HostFileSelectionRef",
+      "classification": "ENGINE_IMPLEMENTATION_REQUIRED",
+      "design": "OnFileDialog or fixed private CDP binding assigns host-selected file only after exact approval/identity/epoch/digest revalidation; no path/model selectors.",
+      "source": "F18 F16",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "downloads/private staging",
+      "classification": "ENGINE_IMPLEMENTATION_REQUIRED",
+      "design": "OnBeforeDownload/OnDownloadUpdated callbacks exist; Chrome-style defaults must be overridden and pre-file-effect cancel ordering proved. Keep FILE_DOWNLOAD and existing staging contracts, no auto-open/ingestion.",
+      "source": "F17",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "private per-session profile/UDF",
+      "classification": "ENGINE_IMPLEMENTATION_REQUIRED",
+      "design": "Explicit CEF root_cache_path/cache_path, no ambient/default user profile. Incognito still writes installation state under root; singleton/relaunch cannot cross-owner reuse.",
+      "source": "F08 F11 F09",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "host/process/profile cleanup",
+      "classification": "RECERTIFICATION_REQUIRED",
+      "design": "Browser close/CEF shutdown != confirmed process/Job/profile deletion. Verify controller, NetworkService/renderer/utility exit, private roots and retained staging owners.",
+      "source": "F16 F20",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "ExternalProtocolGuard",
+      "classification": "RECERTIFICATION_REQUIRED",
+      "design": "Native source dispatcher + platform sinks deny all with registered-handler canaries/popups/takeover. WebView2 Block03 PASS not transferable.",
+      "source": "NCP-14 NCP-15",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "network boundary",
+      "classification": "RECERTIFICATION_REQUIRED",
+      "design": "Native suite must independently prove each gate plus broker PUBLIC_ONLY; profile/port availability remains UNKNOWN.",
+      "source": "NCP-01..22",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": true,
+      "recertificationRequired": true,
+      "nativeProofThisPhase": false
+    },
+    {
+      "feature": "IPC/frontends/Core DTOs",
+      "classification": "APPLICATION_CONTRACT_REUSABLE",
+      "design": "Concepts and private closed framing/ownership reusable; .NET host executable and engine-specific transport messages cannot be assumed CEF binary-compatible. Future Infrastructure implementation needs adapter bridge.",
+      "source": "Block01 and Core contracts",
+      "applicationContractReusable": true,
+      "engineImplementationRequired": false,
+      "recertificationRequired": false,
+      "nativeProofThisPhase": false,
+      "note": "Reuse is contractual, not executable binary compatibility; future CEF Infrastructure bridge requires its own implementation and integration verification."
+    }
+  ],
+  "architecturalGapsConfirmed": [],
+  "notProven": [
+    "CEF download callback versus first filesystem effect ordering",
+    "Complete CEF DOM/sensitive instrumentation migration",
+    "CEF profile/relaunch/NetworkService lifetime ownership"
+  ],
+  "note": "Unproven native integration is not proof of an architectural gap; no new capability is enabled."
+}

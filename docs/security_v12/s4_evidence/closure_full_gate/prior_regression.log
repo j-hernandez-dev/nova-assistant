@@ -1,0 +1,27 @@
+........................................................................ [ 11%]
+........................................................................ [ 23%]
+........................................................................ [ 35%]
+........................................................................ [ 47%]
+.............................................................. [ 57%]
+........................................................................ [ 69%]
+........................................................................ [ 80%]
+........................................................................ [ 92%]
+........................s.......F...........                             [100%]
+================================== FAILURES ===================================
+______ test_identical_replay_is_idempotent_and_cannot_repeat_the_effect _______
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/closure_full_gate/s4_private_2mx3p07d/prior_regression/test_identical_replay_is_idemp0')
+
+    def test_identical_replay_is_idempotent_and_cannot_repeat_the_effect(tmp_path):
+        with _pending_shell(tmp_path) as pending:
+            assert pending.gate.resolve(**_response(pending.request)) is True
+            pending.worker.join(2)
+>           assert pending.results[0].status is ToolStatus.COMPLETED
+E           AssertionError: assert <ToolStatus.FAILED: 'failed'> is <ToolStatus.COMPLETED: 'completed'>
+E            +  where <ToolStatus.FAILED: 'failed'> = ToolResult(status=<ToolStatus.FAILED: 'failed'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...a0383cff0', 'controlClasses': ['APPLICATION_ENFORCED', 'HOST_UNISOLATED']}), legacy_text='Error: EXECUTABLE_NOT_FOUND').status
+E            +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED
+
+tests\security_v12\test_s0_frontends.py:237: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s0_frontends.py::test_identical_replay_is_idempotent_and_cannot_repeat_the_effect
+1 failed, 608 passed, 1 skipped, 10 subtests passed in 57.11s

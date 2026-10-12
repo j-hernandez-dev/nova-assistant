@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "alternative": "C",
+  "assessment": {
+    "origin": "Interception con URL original puede conservar origin lógico, pero debe reproducir Fetch. Mapping local/rewrite cambia orígenes, secure context local no prueba TLS remoto.",
+    "CSP": "Políticas, nonces, hashes, SRI, connect/frame/script-src y redirects dependen de URL/origin reales.",
+    "CORS": "Preflight, credentials, opaque responses, redirects y response headers no son sólo response bytes.",
+    "cookies": "Domain/path/SameSite/Secure/HttpOnly/partitioning deben permanecer engine-private; no exportación genérica por IPC.",
+    "redirects": "Revalidar cada target y preservar método/body/auth/origin, incluso reuse/coalescing.",
+    "scripts_modules": "URLs relativas/absolutas/computadas, módulos, import maps, SRI y CSP implican transport completo; no regex rewrite suficiente.",
+    "iframes": "Origin aislado, sandbox, third-party storage y nested requests a preservar.",
+    "downloads": "Autoridad exacta separada + streaming/tamaño/completion; offline response no decide permiso.",
+    "authentication": "Login humano, challenge/TLS/cookies/sesiones, sin secrets Python/model; host relay cambia endpoint TLS.",
+    "dynamic_sites": "Fetch/XHR/events/cache/history/streaming/URLs calculadas requieren implementación Fetch/transport mantenible.",
+    "websockets": "Handshake y flujo bidireccional requieren engine transport mediado o disable explícito; recurso HTTP interceptado no demuestra cobertura.",
+    "service_workers": "Interception de respuestas no cumple SW-disabled; ejecución/cache/fetch sigue siendo frontera aparte.",
+    "navigation": "Navigation/origin/history/refs deben conservar identidad; local surrogate puede cambiar semánticas.",
+    "verdict": "NOT_PRACTICAL",
+    "incompatibleFinalShortcut": "Host HTTPS -> plaintext synthetic response para WebView2 no demuestra engine TLS estándar end-to-end through CONNECT.",
+    "readerOnly": "Un lector estático sin scripts podría ser otro producto, no cumplimiento de Active Web V1.1 sin enmienda humana.",
+    "sources": [
+      "MS_LOCAL",
+      "MS_WRR",
+      "FETCH",
+      "CSP"
+    ]
+  }
+}

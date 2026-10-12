@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "audit": "BLOCK06_PREIMPLEMENTATION_AUDIT",
+  "result": "REQUIRES_ARCHITECTURE_REVIEW",
+  "findingQualification": "Gaps e hipótesis de bypass a refutar; no bypass nuevo explotado ni límite arquitectónico demostrado.",
+  "bypassCases": [
+    {
+      "id": "PROXY_UNCONFIGURED",
+      "status": "CURRENT_STATIC_GAP",
+      "fact": "Host actual no configura proxy; public navigation no habilitada.",
+      "requiredControl": "Configurar y verificar antes de engine/content; no network authority mientras desconocido."
+    },
+    {
+      "id": "IMPLICIT_LOCAL_BYPASS",
+      "status": "UPSTREAM_DOCUMENTED_CANDIDATE_RISK",
+      "fact": "Proxy manual Chromium tiene bypass local implícito; no se traslada proof upstream al binario Microsoft.",
+      "requiredControl": "Eliminar todos los bypass de destinos; listener broker loopback no es destino público. Probar 127/8, ::1, link-local y localhost."
+    },
+    {
+      "id": "DIRECT_PAC_WPAD_SYSTEM",
+      "status": "DESIGN_EXCLUSION",
+      "fact": "PAC/listas con DIRECT/proxy de sistema pueden ofrecer ruta distinta.",
+      "requiredControl": "Único proxy HTTP fijo owned y ninguna alternativa DIRECT; no PAC/WPAD ni fallback de host."
+    },
+    {
+      "id": "OVERRIDE_AND_RUNTIME_DRIFT",
+      "status": "CURRENT_STATIC_GAP",
+      "fact": "CreateAsync puede recibir overrides ambiente/registro; requested arguments no son effective arguments; runtime evergreen.",
+      "requiredControl": "Saneamiento ambiente + detección read-only de overrides incompatibles + identity/config attestation; fail closed ante drift sin modificar registro."
+    },
+    {
+      "id": "DIRECT_DNS",
+      "status": "UNVERIFIED_CHANNEL",
+      "fact": "DNS broker pinning no impide resolución de Chromium; page hints/background/RTC requieren control independiente.",
+      "requiredControl": "Proxy numérico y DNS destination broker-owned; deshabilitar DNS directo útil, comprobar queries + canarios + sockets, no sólo lista host-resolver."
+    },
+    {
+      "id": "ENCRYPTED_ORIGIN_REUSE",
+      "status": "REVIEW_REQUIRED",
+      "fact": "CONNECT no ve redirects/origins/Upgrade internos; endpoint público físico no prueba validación de cada origin.",
+      "requiredControl": "Diseñar admission efectiva y coverage de coalescing/reuso; sin MITM, sin imponer una segunda Policy."
+    },
+    {
+      "id": "WS_IN_CONNECT",
+      "status": "REVIEW_REQUIRED",
+      "fact": "HTTP Upgrade denegado no prueba que WSS esté deshabilitado.",
+      "requiredControl": "Perfil §18.5 explícito y broker coverage o disable efectivo."
+    },
+    {
+      "id": "WORKER_SCRIPT_EXECUTION",
+      "status": "REVIEW_REQUIRED",
+      "fact": "Manager/stop/unregister/bypass fetch no son permanent pre-effect disable.",
+      "requiredControl": "Primitive engine-owned exhaustiva, conforme SW disabled, secure-context adversarial test."
+    },
+    {
+      "id": "RTC_UDP_QUIC",
+      "status": "REVIEW_REQUIRED",
+      "fact": "Permission denial/IP-handling/disable-quic solicitado no certifican no direct UDP/WebRTC.",
+      "requiredControl": "Disable engine-owned y observación calibrada para configuración exacta; sin wrappers como frontera."
+    },
+    {
+      "id": "SPECULATION_BACKGROUND",
+      "status": "UNVERIFIED_CHANNEL",
+      "fact": "NavigationStarting sólo top-level; cuatro flags no prueban comportamiento de network-service.",
+      "requiredControl": "Proxy/disable antes de startup y restart; medir sólo árbol owned/ventana relevante."
+    },
+    {
+      "id": "BROKER_FAILURE",
+      "status": "UNVERIFIED_ENGINE_BEHAVIOR",
+      "fact": "Broker stop aborta recursos propios; no demuestra ausencia de fallback browser.",
+      "requiredControl": "Caída/no-start/error de proxy antes/durante tráfico: ninguna conexión directa; retirar sesión/proof sin retry de acciones STARTED."
+    },
+    {
+      "id": "AUTH_CHALLENGE_CONFUSION",
+      "status": "DESIGN_GAP",
+      "fact": "Broker exige auth; host no atiende proxy challenge actualmente.",
+      "requiredControl": "Credential efímera host-private sólo a challenge owned exacta; nunca destino web/default UI/model/command line."
+    },
+    {
+      "id": "FILTER_AS_FIREWALL",
+      "status": "REJECTED_ASSUMPTION",
+      "fact": "WebResourceRequested no es interceptación general de sockets.",
+      "requiredControl": "Intercepción sólo admission complementaria; red efectiva mediada o canal deshabilitado."
+    }
+  ],
+  "notAcceptedAsEvidence": [
+    "broker exists",
+    "one broker request succeeded",
+    "proxy flag exists",
+    "RTCPeerConnection absent in about:blank",
+    "no visible external window",
+    "no socket seen in one table snapshot",
+    "Block05 561 PASS as network proof",
+    "loopback fixture accepted as public by synthetic resolver"
+  ],
+  "osObservability": {
+    "purpose": "Certificación, nunca autoridad ni requisito de firewall manual del usuario.",
+    "scope": [
+      "owned Chromium PID tree",
+      "exact monotonic time window",
+      "runtime binary/profile/config hashes",
+      "exact owned broker listener",
+      "TCP/UDP/DNS canaries"
+    ],
+    "minimumStrength": "Complementar logs de broker/canarios con observación capaz de detectar conexiones/paquetes breves. Calibración y cobertura explícitas; no concluir ausencia con muestreo de endpoints únicamente.",
+    "windowsApiCandidates": [
+      {
+        "api": "GetExtendedTcpTable OWNER_PID IPv4/IPv6",
+        "limitation": "Snapshot de conexiones, no historial completo; puede perder conexiones breves.",
+        "source": "https://learn.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getextendedtcptable"
+      },
+      {
+        "api": "GetExtendedUdpTable OWNER_PID IPv4/IPv6",
+        "limitation": "Endpoints UDP locales, no evidencia exhaustiva de paquetes enviados.",
+        "source": "https://learn.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getextendedudptable"
+      }
+    ],
+    "noHiddenAdminDependency": true,
+    "unresolved": "Elegir observador de eventos/canarios calibrado disponible sin requisito oculto de admin. Si cobertura insuficiente, proof UNKNOWN; no instalar firewall ni modificar global networking.",
+    "universalAbsenceClaim": false
+  },
+  "reviewDecisions": [
+    {
+      "id": "B06-REVIEW-001",
+      "topic": "Perfil effective/versionado y support de switches",
+      "acceptance": "Mecanismo verificable previo a content/startup; runtime drift/override invalida proof sin cambios globales."
+    },
+    {
+      "id": "B06-REVIEW-002",
+      "topic": "Disable de SW/WebRTC/QUIC/direct UDP/DNS útil",
+      "acceptance": "Primitives engine-owned concretas + evidencia negativa adversarial scoped; no equivalencia falsa con bypass/permission/wrapper."
+    },
+    {
+      "id": "B06-REVIEW-003",
+      "topic": "HTTPS origins/admission y bootstrap/auth privado",
+      "acceptance": "CONNECT sin MITM, revalidación de origins demostrable, IPC cerrado sin Grant/Approval bearer secrets, TLS test trust acotado."
+    }
+  ],
+  "architectureLimitDemonstrated": false,
+  "nativeExperimentsExecuted": 0,
+  "externalProtocolGuard": {
+    "changed": false,
+    "networkControlReplacement": false,
+    "preEffectDenyAllPreserved": true
+  }
+}

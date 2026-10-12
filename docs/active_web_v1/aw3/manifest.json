@@ -1,0 +1,680 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW3",
+  "verdict": "AW3 = PASS",
+  "createdAt": "2026-10-09T18:46:32.923579+00:00",
+  "closureType": "NORMATIVE_CONTRACTUAL_PHASE_GATE",
+  "readyDeclared": false,
+  "normative": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+    "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "sections": [
+      "§14 freshness",
+      "§15 routing names/unions (no public tool registration in AW3)",
+      "§16 taxonomy",
+      "§17 approvals",
+      "§19 redaction/secret constraints",
+      "§22 outcomes",
+      "§23 inherited bounded leases/quotas",
+      "§24 default child restriction",
+      "§31 control classes",
+      "§35 AW3",
+      "§37.27–29 preservation/current regression"
+    ],
+    "literalClosure": "Cierre: no action mutating sin policy/approval.",
+    "contradictionFound": false
+  },
+  "baseline": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "workingTreeInitiallyDirty": true,
+    "initialState": "baseline_freeze.json",
+    "staging": "EMPTY",
+    "tags": [
+      "97f41c6dab89ee59332875bb8d89c29620b52156 refs/tags/nova-core-v1-stable",
+      "a26a94ebfb2db44551097f1641eec6706b52c101 refs/tags/nova-knowledge-inputs-v1-ready",
+      "fa6b2f7898692ddc6cec77a4d971dbc395b764a6 refs/tags/nova-memory-v1-ready",
+      "6a48c5252e40986ecf4180138d9d56bc519b3e49 refs/tags/nova-memory-v1.1-ready",
+      "e5bea6a4c2c559a1f5a2f8824316a83b548b2533 refs/tags/nova-security-v1.2-ready"
+    ],
+    "hostScope": "Windows 11 + local NTFS + HOST_UNISOLATED",
+    "runtime": {
+      "python": "3.14.6",
+      "pytest": "9.1.1",
+      "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+      "host": "Windows 11 build 26200 + C: local NTFS + HOST_UNISOLATED",
+      "pluginAutoloadDisabled": true,
+      "privateConfiguration": true,
+      "outputsOutsideGit": true,
+      "realBrowser": 0,
+      "realModelCampaigns": 0,
+      "semanticProfile": "NOT_CERTIFIED"
+    }
+  },
+  "prerequisites": {
+    "AW0": {
+      "originalExecution": "PARTIAL",
+      "additiveNormativeClosure": "PASS",
+      "historicalManifestsUnchanged": true
+    },
+    "AW1": "PASS — inherited contractual phase",
+    "AW2": "PASS — inherited observation contracts, not browser availability",
+    "reopenedCertification": false,
+    "reusedComponents": [
+      "AW0 DTO/enums and Core GrantRequest.network_intent exact digest",
+      "AW1 BrowserSessionManager ownership/leases/quotas and linked cancellation",
+      "AW2 opaque registry, pre/post target proof and one-use ref invalidation",
+      "PolicyEngineV2 generic ceiling/revision/subset enforcement",
+      "ApprovalGate authenticated host actor and exact decision ledger",
+      "GrantIssuer issue/claim/validate_claimed",
+      "SecurityAuditService pre-effect durability and existing DATA_KEYS schema",
+      "SecretRedactor known-value registry; no universal DLP claim",
+      "positive CI inventory and private output runner"
+    ]
+  },
+  "scope": {
+    "included": [
+      "BrowserEffectClass classification from inherited V1 enums",
+      "Browser-specific logical policy branches, host risk facts and conservative high-impact denial",
+      "Exact authenticated approval and claimed-grant binding with fresh AW2 proof",
+      "Action receipts and typed dispatch reports; engine acknowledgement distinguishes STARTED",
+      "UNKNOWN/PARTIAL mutation-chain stop, no retry/rollback, separately authorized read reconciliation",
+      "Minimal optional ToolRuntime hook and inherited AW1 navigation quota/lease integration",
+      "Synthetic regression contracts and addition-only CI contract inventory"
+    ],
+    "excluded": [
+      "AW4 broker/probes",
+      "AW5 real engine/Playwright/Chromium/tools bootstrap",
+      "AW6 credentials/takeover/transfers",
+      "AW7 new frontend surfaces/audit schema",
+      "AW8 real browser/model E2E"
+    ],
+    "passiveAndActiveWebSeparate": true,
+    "untrustedContent": "Data can increase restriction, never supply host intent/approval/grant authority",
+    "realBrowserAvailability": "UNKNOWN / NOT_ENABLED",
+    "schemas": {
+      "browserDtoAndReceipt": "Existing V1 unchanged",
+      "securityGrantRequest": "Existing network_intent binding; no schema change",
+      "securityAudit": "Existing DATA_KEYS unchanged"
+    },
+    "migrations": [],
+    "dependenciesAdded": [],
+    "globalConfigurationChanges": [],
+    "policyAndGrantCoreUnchanged": true,
+    "frontendsUnchanged": true,
+    "memoryAndKnowledgeProductUnchanged": true,
+    "profiles": {
+      "memorySemantic": "NOT_CERTIFIED",
+      "documentSemantic": "NOT_CERTIFIED",
+      "activeWebVision": "NOT_CERTIFIED",
+      "activeWebPersistentSession": "NOT_CERTIFIED"
+    },
+    "evidenceKinds": {
+      "browser": "Synthetic fake port/provider/approval actor — contractual only",
+      "audit": "Real local durable JsonlSecurityAudit with synthetic data",
+      "regressions": "Native Windows/NTFS current contract gates; no real browser/model E2E"
+    }
+  },
+  "files": {
+    "productAndContractChanges": [
+      "local_cli/core/active_web_policy.py",
+      "local_cli/application/browser_actions.py",
+      "local_cli/application/browser_observation.py",
+      "local_cli/application/tool_runtime.py",
+      "tests/active_web_v1/test_aw3_policy.py",
+      "ci/pytest_contracts.json"
+    ],
+    "allowedInheritedDelta": [
+      "local_cli/application/tool_runtime.py — opt-in dispatch bridge, fail-closed defaults",
+      "local_cli/application/browser_observation.py — cached exact approval identity, optional existing lease, navigation quota hookup",
+      "ci/pytest_contracts.json — addition-only 31 synthetic contract IDs"
+    ],
+    "preexistingNotChangedByAW3": [
+      "local_cli/core/contracts.py"
+    ],
+    "evidenceCreated": [
+      "docs/active_web_v1/aw3/baseline_freeze.json",
+      "docs/active_web_v1/aw3/desktop_result.json",
+      "docs/active_web_v1/aw3/integrity.json",
+      "docs/active_web_v1/aw3/integrity_final.json",
+      "docs/active_web_v1/aw3/invariant_matrix.json",
+      "docs/active_web_v1/aw3/preflight.json",
+      "docs/active_web_v1/aw3/product_freeze.json",
+      "docs/active_web_v1/aw3/product_freeze_v2.json",
+      "docs/active_web_v1/aw3/resultados.md",
+      "docs/active_web_v1/aw3/test_results.json",
+      "docs/active_web_v1/aw3/manifest.json"
+    ]
+  },
+  "closureCriteria": [
+    {
+      "requirement": "BrowserEffectClass",
+      "result": "PASS",
+      "normative": "§16; §35 AW3",
+      "components": [
+        "local_cli/core/active_web.py (inherited enum unchanged)",
+        "local_cli/core/active_web_policy.py"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw3_policy.py::test_effect_taxonomy_never_trusts_click_or_input_as_read",
+        "tests/active_web_v1/test_aw3_policy.py::test_host_risk_assessment_cannot_be_overridden_by_page_label"
+      ],
+      "evidence": "All 16 ActionKinds classified; input disclosure and click/key uncertainty never promoted to read; host high-impact facts increase restriction."
+    },
+    {
+      "requirement": "policy branches",
+      "result": "PASS",
+      "normative": "§17.1–2; §31; §35 AW3",
+      "components": [
+        "local_cli/application/browser_actions.py::BrowserPolicyEngine",
+        "local_cli/application/tool_runtime.py"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw3_policy.py::test_read_grant_bounded_to_current_session_without_mutation_authority",
+        "tests/active_web_v1/test_aw3_policy.py::test_mutating_and_disclosure_actions_never_use_yes_or_legacy_approval",
+        "tests/active_web_v1/test_aw3_policy.py::test_high_impact_possible_is_denied_even_with_human_approval",
+        "tests/active_web_v1/test_aw3_policy.py::test_unavailable_composition_fails_closed_without_fallback_executor",
+        "tests/active_web_v1/test_aw3_policy.py::test_authorized_navigation_dispatch_consumes_existing_turn_navigation_quota"
+      ],
+      "evidence": "Opt-in only; existing ceiling/revision/subset checks; exact browser-session PUBLIC_ONLY logical read intent, bounded one-shot lifetime. Mutation/disclosure/unknown require approval; high-impact deny. Actual auth/transfers denied/deferred, no legacy executor fallback."
+    },
+    {
+      "requirement": "exact approval binding",
+      "result": "PASS",
+      "normative": "§14; §17.2–4; §35 AW3",
+      "components": [
+        "local_cli/application/browser_observation.py::approval_target",
+        "local_cli/application/browser_actions.py::binding/approval_display/execute",
+        "local_cli/application/tool_runtime.py",
+        "ApprovalGate/GrantIssuer (unchanged inherited implementation)"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw3_policy.py::test_host_exact_approval_claim_and_receipt_execute_once",
+        "tests/active_web_v1/test_aw3_policy.py::test_each_exact_binding_change_rejects_pending_approval_before_effect",
+        "tests/active_web_v1/test_aw3_policy.py::test_private_payload_changed_while_pending_invalidates_exact_approval",
+        "tests/active_web_v1/test_aw3_policy.py::test_unknown_target_fingerprint_after_approval_never_dispatches",
+        "tests/active_web_v1/test_aw3_policy.py::test_direct_dispatch_cannot_issue_claim_or_accept_unclaimed_grant"
+      ],
+      "evidence": "Existing GrantRequest.network_intent binds session/page/navigation/observation/target/origin/action/payload/effects/contextEpoch/deadline plus version/fingerprint. Authenticated existing gate ledger required even for claimed mutating grant. Host redacted structured display; fresh proof immediately before dispatch; no rebind."
+    },
+    {
+      "requirement": "action receipts",
+      "result": "PASS",
+      "normative": "§22.1–2; §35 AW3",
+      "components": [
+        "local_cli/core/active_web_policy.py::BrowserDispatchReport",
+        "local_cli/core/active_web.py::BrowserActionReceipt (unchanged)",
+        "local_cli/application/browser_actions.py"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw3_policy.py::test_started_receipt_is_only_engine_ack_and_terminal_uncertainty_is_sticky",
+        "tests/active_web_v1/test_aw3_policy.py::test_outcome_contract_rejects_unproven_success_or_no_effect",
+        "tests/active_web_v1/test_aw3_policy.py::test_confirmed_no_effect_is_truthful_not_an_automatic_retry",
+        "tests/active_web_v1/test_aw3_policy.py::test_host_exact_approval_claim_and_receipt_execute_once"
+      ],
+      "evidence": "Schema V1 unchanged. NOT_STARTED for pre-dispatch denials; STARTED only on engine acknowledgement; SUCCEEDED_OBSERVED, confirmed-no-effect, PARTIAL and UNKNOWN explicit. Generic Core TOOL_STARTED is not a browser engine receipt."
+    },
+    {
+      "requirement": "UNKNOWN outcome rules",
+      "result": "PASS",
+      "normative": "§22.2–4; §35 AW3",
+      "components": [
+        "local_cli/application/browser_actions.py::_results/_unknown_sessions/execute",
+        "local_cli/application/tool_runtime.py::_outcomes (inherited semantics)"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw3_policy.py::test_uncertain_outcome_stops_mutating_chain_no_retry_or_rollback",
+        "tests/active_web_v1/test_aw3_policy.py::test_unknown_chain_allows_only_separately_authorized_read_reconciliation",
+        "tests/active_web_v1/test_aw3_policy.py::test_manager_cancellation_reaches_dispatch_token_and_cannot_claim_late_success",
+        "tests/active_web_v1/test_aw3_policy.py::test_dispatch_uses_existing_lease_deadline_not_broader_user_deadline"
+      ],
+      "evidence": "Lost ack, timeout, cancel, late success, partial, unproven report preserve uncertainty. UNKNOWN maps to OUTCOME_UNKNOWN/EffectState.UNKNOWN. No retry; fresh IDs/observation do not reopen mutation chain. Read reconciliation independently authorized, not rollback/reset."
+    },
+    {
+      "requirement": "Cierre: no action mutating sin policy/approval.",
+      "result": "PASS",
+      "normative": "§35 AW3 literal",
+      "components": [
+        "ToolRegistry → Policy → ApprovalGate → GrantIssuer → claim → fresh target/grant proof → SecurityAudit pre-effect → injected BrowserActionPort"
+      ],
+      "tests": [
+        "tests/active_web_v1/test_aw3_policy.py::test_host_exact_approval_claim_and_receipt_execute_once",
+        "tests/active_web_v1/test_aw3_policy.py::test_direct_dispatch_cannot_issue_claim_or_accept_unclaimed_grant",
+        "tests/active_web_v1/test_aw3_policy.py::test_audit_pre_effect_failure_never_dispatches",
+        "tests/active_web_v1/test_aw3_policy.py::test_invalidated_ceiling_during_pre_effect_audit_cannot_dispatch"
+      ],
+      "evidence": "94 final synthetic AW3 cases; mandatory logical authority/approval/integrity assertions satisfied. No real browser capability announced. Inherited Core harness debt retained, no new regression."
+    }
+  ],
+  "invariantEvidence": {
+    "path": "docs/active_web_v1/aw3/invariant_matrix.json",
+    "sha256": "e0365136acf2d6700e3e5c6ccfa3521e3e7671b4b24613d51ca390a5f625ab2b",
+    "numberOfInheritedInvariants": 50,
+    "interpretation": "AW3 contract proof / inherited preservation / future deferred, not 50 real-browser PASS claims"
+  },
+  "testing": {
+    "externalOutputRoot": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw3-20261009T180059Z",
+    "details": "test_results.json",
+    "finalProductFreeze": "product_freeze_v2.json",
+    "finalRuns": [
+      {
+        "name": "final-v2-core",
+        "command": {
+          "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+          "arguments": [
+            "-B",
+            "ci/run_contracts.py",
+            "--job",
+            "core",
+            "--output",
+            "C:/Users/joseh/AppData/Local/Temp/nova-aw3-20261009T180059Z/final-v2-core"
+          ]
+        },
+        "passed": 3111,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 7,
+        "subtestsPassed": 53,
+        "parameterInstances": 3119,
+        "aw3Passed": 94,
+        "exitCode": 1,
+        "junit": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw3-20261009T180059Z\\final-v2-core\\tests.xml",
+          "sha256": "c43127d82744755fc09dfd092783fd03da0b0721772a7fca652c3c1aa5a1cd72",
+          "sizeBytes": 408908
+        },
+        "completed": true,
+        "runner": {
+          "schema": "positive-contract-ci-run-1",
+          "scope": "CURRENT_REGRESSION_CONTRACT",
+          "job": "core",
+          "host": "Windows",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "pytest": "9.1.1",
+          "selection_manifest_sha256": "07e9c00c4ab19d75599d29120f2acabff7c710033e599636ee86305dcc445b01",
+          "positive_base_contracts": 2764,
+          "collected_parameter_instances": 3119,
+          "collected_nodeids_sha256": "ac7daf51007bb3321edf36abb07e60a35c68866ff12ada446d19e680b57df93e",
+          "collection_guard": "PASS",
+          "tests_executed": 3119,
+          "quality_attempts": 0,
+          "model_campaigns": 0,
+          "exit_code": 1,
+          "special_infrastructure": false,
+          "new_skips_xfails_or_deselection": false
+        }
+      },
+      {
+        "name": "final-v2-knowledge",
+        "command": {
+          "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+          "arguments": [
+            "-B",
+            "ci/run_contracts.py",
+            "--job",
+            "knowledge",
+            "--output",
+            "C:/Users/joseh/AppData/Local/Temp/nova-aw3-20261009T180059Z/final-v2-knowledge"
+          ]
+        },
+        "passed": 1015,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "parameterInstances": 1015,
+        "aw3Passed": 0,
+        "exitCode": 0,
+        "junit": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw3-20261009T180059Z\\final-v2-knowledge\\tests.xml",
+          "sha256": "bd1e0339ea42e65ea4943ad3a1a9b8edebcbc1d1148cbeb9f228b3c5133d5691",
+          "sizeBytes": 167132
+        },
+        "completed": true,
+        "runner": {
+          "schema": "positive-contract-ci-run-1",
+          "scope": "CURRENT_REGRESSION_CONTRACT",
+          "job": "knowledge",
+          "host": "Windows",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "pytest": "9.1.1",
+          "selection_manifest_sha256": "07e9c00c4ab19d75599d29120f2acabff7c710033e599636ee86305dcc445b01",
+          "positive_base_contracts": 335,
+          "collected_parameter_instances": 1015,
+          "collected_nodeids_sha256": "40aed5a5c3606c0091ce3ee4323381343bc40e3ab561ebe5b04950785d5821dd",
+          "collection_guard": "PASS",
+          "tests_executed": 1015,
+          "quality_attempts": 0,
+          "model_campaigns": 0,
+          "exit_code": 0,
+          "special_infrastructure": false,
+          "new_skips_xfails_or_deselection": false
+        }
+      },
+      {
+        "name": "final-v2-memory",
+        "command": {
+          "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+          "arguments": [
+            "-B",
+            "ci/run_contracts.py",
+            "--job",
+            "memory",
+            "--output",
+            "C:/Users/joseh/AppData/Local/Temp/nova-aw3-20261009T180059Z/final-v2-memory"
+          ]
+        },
+        "passed": 791,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "parameterInstances": 791,
+        "aw3Passed": 0,
+        "exitCode": 0,
+        "junit": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw3-20261009T180059Z\\final-v2-memory\\tests.xml",
+          "sha256": "70e256fa2adc5f07bc7835e0e6063d56379613bffd619a5003a88c68fec89abe",
+          "sizeBytes": 121585
+        },
+        "completed": true,
+        "runner": {
+          "schema": "positive-contract-ci-run-1",
+          "scope": "CURRENT_REGRESSION_CONTRACT",
+          "job": "memory",
+          "host": "Windows",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "pytest": "9.1.1",
+          "selection_manifest_sha256": "07e9c00c4ab19d75599d29120f2acabff7c710033e599636ee86305dcc445b01",
+          "positive_base_contracts": 326,
+          "collected_parameter_instances": 791,
+          "collected_nodeids_sha256": "b6f0716824599db0199d900ffd58d8006eeaeae22e71d01a15a6e4d683f3eae9",
+          "collection_guard": "PASS",
+          "tests_executed": 791,
+          "quality_attempts": 0,
+          "model_campaigns": 0,
+          "exit_code": 0,
+          "special_infrastructure": false,
+          "new_skips_xfails_or_deselection": false
+        }
+      },
+      {
+        "name": "final-v2-security",
+        "command": {
+          "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+          "arguments": [
+            "-B",
+            "ci/run_contracts.py",
+            "--job",
+            "security",
+            "--output",
+            "C:/Users/joseh/AppData/Local/Temp/nova-aw3-20261009T180059Z/final-v2-security"
+          ]
+        },
+        "passed": 615,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "parameterInstances": 615,
+        "aw3Passed": 0,
+        "exitCode": 0,
+        "junit": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw3-20261009T180059Z\\final-v2-security\\tests.xml",
+          "sha256": "b4568f28d7cec4a4385da351eb8c9db7fbc2ee05a96fea8015119f1ff9a399df",
+          "sizeBytes": 88927
+        },
+        "completed": true,
+        "runner": {
+          "schema": "positive-contract-ci-run-1",
+          "scope": "CURRENT_REGRESSION_CONTRACT",
+          "job": "security",
+          "host": "Windows",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "pytest": "9.1.1",
+          "selection_manifest_sha256": "07e9c00c4ab19d75599d29120f2acabff7c710033e599636ee86305dcc445b01",
+          "positive_base_contracts": 274,
+          "collected_parameter_instances": 615,
+          "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+          "collection_guard": "PASS",
+          "tests_executed": 615,
+          "quality_attempts": 0,
+          "model_campaigns": 0,
+          "exit_code": 0,
+          "special_infrastructure": false,
+          "new_skips_xfails_or_deselection": false
+        }
+      },
+      {
+        "name": "focused-final-v2",
+        "command": {
+          "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+          "pythonOptions": [
+            "-B",
+            "-c"
+          ],
+          "setup": "sys.path.insert(0,str(Path.cwd()/'ci')); from run_contracts import private_environment,new_output; out=new_output(Path(output)); env=private_environment(out,special=False); os.environ.clear(); os.environ.update(env); import pytest",
+          "entry": "raise SystemExit(pytest.main(arguments))",
+          "arguments": [
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:/Users/joseh/AppData/Local/Temp/nova-aw3-20261009T180059Z/focused-final-v2/pytest-private",
+            "--junitxml",
+            "C:/Users/joseh/AppData/Local/Temp/nova-aw3-20261009T180059Z/focused-final-v2/tests.xml",
+            "tests/active_web_v1",
+            "tests/security_v12/test_s2_runtime.py",
+            "tests/security_v12/test_s2_policy.py",
+            "tests/security_v12/test_s2_approvals.py",
+            "tests/test_nova_core_phase7_interactions.py",
+            "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available"
+          ],
+          "output": "C:/Users/joseh/AppData/Local/Temp/nova-aw3-20261009T180059Z/focused-final-v2"
+        },
+        "passed": 445,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "parameterInstances": 446,
+        "aw3Passed": 94,
+        "exitCode": 1,
+        "junit": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw3-20261009T180059Z\\focused-final-v2\\tests.xml",
+          "sha256": "96da5ea066a46edbd84309107b20d4cf7df3d43f455e7e59abd2a681a02ca1f0",
+          "sizeBytes": 69065
+        },
+        "completed": true,
+        "runner": null
+      }
+    ],
+    "totals": {
+      "passed": 5532,
+      "failed": 1,
+      "errors": 0,
+      "skips": 7,
+      "subtestsPassed": 53,
+      "parameterInstances": 5540,
+      "aw3Passed": 94,
+      "focusedNotDoubleCounted": true
+    },
+    "aw3": {
+      "passed": 94,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "includedInCore": true
+    },
+    "desktop": {
+      "schemaVersion": 1,
+      "phase": "AW3",
+      "profile": "Native Windows current frontend regression, not Active Web browser certification",
+      "node": "24.16.0",
+      "cwd": "C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/desktop",
+      "tests": {
+        "command": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs",
+        "exitCode": 0,
+        "passed": 68,
+        "failed": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0,
+        "durationMs": 932.4277,
+        "evidenceKind": "Native Node test execution; stdout preserved in this task tool transcript",
+        "warnings": [
+          "ExperimentalWarning Transform Types",
+          "MODULE_TYPELESS_PACKAGE_JSON"
+        ],
+        "sourceUnchanged": true
+      },
+      "typecheck": {
+        "command": "node node_modules/typescript/bin/tsc --noEmit",
+        "exitCode": 0,
+        "stdout": "",
+        "sourceUnchanged": true
+      },
+      "appliesToFinalProduct": true,
+      "reason": "No Desktop/frontend or shared TypeScript source changed during either AW3 product revision."
+    },
+    "comparison": {
+      "previousPhase": "AW2",
+      "newFailures": [],
+      "removedFailures": [],
+      "newSkips": [],
+      "removedSkips": [],
+      "newXfails": [],
+      "priorSkips": [
+        {
+          "nodeid": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw2-20261009T173150Z\\\\final-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw2-20261009T173150Z\\\\final-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "reason": "Windows does not preserve POSIX executable bits",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "reason": "Windows does not preserve POSIX executable bits",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "reason": "legacy monitor removed in phase 1",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "reason": "legacy monitor removed in phase 1",
+          "type": "pytest.skip"
+        }
+      ]
+    },
+    "noNewFiltersOrQualityRetries": true,
+    "allDevelopmentFailuresPreserved": true,
+    "navigationQuotaDefect": {
+      "characterization": "navigation-quota-characterization: PRODUCT_BUG_AW3, 93 PASS / 1 FAIL (count 0 != 1)",
+      "postFix": "navigation-quota-post-fix: AW0–AW3 372 PASS",
+      "finalV2RegressionExecutedAfterFix": true,
+      "originalProductFreezePreserved": true
+    },
+    "memoryCollectedParameterUUID": "Existing new_session_id() import-time parameter changes raw collected_nodeids SHA; no source/selector/denominator change. Raw artifacts preserved; see collectionDifference in test_results.json"
+  },
+  "inheritedDebt": {
+    "nodeid": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "phaseBlocking": "NON_BLOCKING_FOR_AW3",
+    "testResult": "FAIL",
+    "coreJobResult": "FAIL — exit 1, not green",
+    "baseline": "351 PASS / 1 FAIL before AW3 edits",
+    "cause": "Private CI HOME differs from USERPROFILE; PowerShell HOME uses USERPROFILE",
+    "productTestRunnerAssertionUnchanged": true,
+    "reason": "§35 contractual gate satisfied and §37.29 inherited regression retained; baseline/final prove no regression introduced. This is not a waiver for global READY or a historical test PASS."
+  },
+  "integrity": {
+    "record": "integrity_final.json",
+    "finalProductPins": {
+      "local_cli/core/active_web_policy.py": "1ca5d35df6c995228082362143b465ba6f812c4f51b468f5c0551e1acafdc094",
+      "local_cli/application/browser_actions.py": "6749016e9e40382bdc0a8dc9e89ee431eba36099a91e54e0504dac10eb9da71e",
+      "local_cli/application/browser_observation.py": "312922a49558f327f697abf848f1fc8fe142041e9ea1b3c3230796b71d43bdc2",
+      "local_cli/application/tool_runtime.py": "99c15eb6d15cde0f994f7b311a525b89e87072428519b2791930a368e59b3d2f",
+      "tests/active_web_v1/test_aw3_policy.py": "1bfd4a8b4b874f6c8de24a1ee00ca44cb64bc79ba1eee3efa1f590f12ce83ddd",
+      "ci/pytest_contracts.json": "07e9c00c4ab19d75599d29120f2acabff7c710033e599636ee86305dcc445b01"
+    },
+    "finalProductDrift": [],
+    "architectureHistoryPreserved": true,
+    "trackedUnchangedDigest": "d127ade5f5cb1b7989057c79ad0d377f14ad200f5a4e70aff465d3e518418df6",
+    "unexpectedInheritedDrift": [],
+    "ci": {
+      "additionOnly": true,
+      "baseContractsAdded": 31,
+      "previousBytesPreserved": true,
+      "previousRawReconstructedSha256": "1a2c0f1cac221ddc8bbc72bb172de2a139f3efbbeb82f87c068b54b579592835",
+      "noWorkflowRunnerExclusionChanges": true
+    },
+    "headBranchTagsUnchanged": true,
+    "indexEmpty": true
+  },
+  "artifactPins": {
+    "docs/active_web_v1/aw3/baseline_freeze.json": "5b5449177dd86a76bddbaaf15bd5df0bee97bad6353c2e5e5fc32d5e1414ddb4",
+    "docs/active_web_v1/aw3/desktop_result.json": "631aa648f79f75f56681477d358f9531d1333118372e87b5680dba45011e6d4d",
+    "docs/active_web_v1/aw3/integrity.json": "a43b3b6203f88766e14d0306539682c59af2647cdec7841161200ed6c1403603",
+    "docs/active_web_v1/aw3/integrity_final.json": "b514a8ecf8700e8249e7af3c9f8b37f8263e80197d6f7bbfb49002563d38c6a7",
+    "docs/active_web_v1/aw3/invariant_matrix.json": "e0365136acf2d6700e3e5c6ccfa3521e3e7671b4b24613d51ca390a5f625ab2b",
+    "docs/active_web_v1/aw3/preflight.json": "e55762b6512ccc96339bf4496b3d9a1e504608b9f8584820353dc93a26681c84",
+    "docs/active_web_v1/aw3/product_freeze.json": "08565e2e2cd0b4b1b9d31fcb884950d83f08821ddc38a4d3451640fe18071789",
+    "docs/active_web_v1/aw3/product_freeze_v2.json": "cf9fbdc5e5e0119238bbfe263bd9f891656d4ba3f5675c6b586dbec90e3f28c9",
+    "docs/active_web_v1/aw3/resultados.md": "353598cf5b6a00736ab9ca16454ad85e4b5183d0819dd35ab55d2d4289457656",
+    "docs/active_web_v1/aw3/test_results.json": "28e84abb3645d4f24b7e5fcf4484356e38c0f188e66794db6bcdecea1cbb14bd",
+    "docs/active_web_v1/aw0/manifest.json": "21a4a5b1a0af13e983873812dc78ac777f51b4c65c22427e7d3b1b1e7f0681f0",
+    "docs/active_web_v1/aw0/closure/manifest_final.json": "6ac8bc06f82dabfa6f6bdf68fa452e1e0688255b72b8ca51bbb49bb614bc9ab8",
+    "docs/active_web_v1/aw1/manifest.json": "01c776a523b62f5ccc64f7840b86159cf289fb6b9a39f03fe91ade3e400239fa",
+    "docs/active_web_v1/aw2/manifest.json": "19109b0ed69a5e4625ee4162de2171b79dac16541954ab0b075e0004b8d7008e",
+    "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md": "ee2a03ad2b887c2add4a5eac9402112edf3362d1e11118388cba9b268a405285",
+    "docs/active_web_v1/audit/findings.json": "c81d8a9279cd7a7aec74a78fb5e805d0a0c93b8b034db32c5f4c66d0100d2a1d",
+    "local_cli/core/active_web_policy.py": "1ca5d35df6c995228082362143b465ba6f812c4f51b468f5c0551e1acafdc094",
+    "local_cli/application/browser_actions.py": "6749016e9e40382bdc0a8dc9e89ee431eba36099a91e54e0504dac10eb9da71e",
+    "local_cli/application/browser_observation.py": "312922a49558f327f697abf848f1fc8fe142041e9ea1b3c3230796b71d43bdc2",
+    "local_cli/application/tool_runtime.py": "99c15eb6d15cde0f994f7b311a525b89e87072428519b2791930a368e59b3d2f",
+    "tests/active_web_v1/test_aw3_policy.py": "1bfd4a8b4b874f6c8de24a1ee00ca44cb64bc79ba1eee3efa1f590f12ce83ddd",
+    "ci/pytest_contracts.json": "07e9c00c4ab19d75599d29120f2acabff7c710033e599636ee86305dcc445b01"
+  },
+  "artifactHashPolicy": "Raw-byte SHA-256. Manifest self-hash intentionally excluded. External XML/log/selection pins are preserved in test_results.json.",
+  "limitations": [
+    "No real browser/network broker/isolation certification; HOST_UNISOLATED remains",
+    "No real-browser or real-model E2E and no Linux/macOS host certification",
+    "Click/high-impact hints and known-secret redaction are conservative bounded contracts, not universal classification/DLP",
+    "Authentication/transfers/takeover remain denied/deferred; new browser tools are not registered",
+    "PUBLIC_ONLY is logical binding here, not egress proof",
+    "Inherited Core harness FAIL remains visible; global Core job not green",
+    "No inherited Memory/Knowledge semantic recertification"
+  ],
+  "openDecisions": {
+    "materialForAW3": [],
+    "futurePhases": "Not resolved or implemented"
+  },
+  "nextPhase": {
+    "reference": "AW4 — Network broker",
+    "implemented": false
+  },
+  "operationalControls": {
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "stopForHumanReview": true
+}

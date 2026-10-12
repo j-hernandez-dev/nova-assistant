@@ -121,7 +121,8 @@ class ToolRuntime:
                  process_service: ProcessExecutionService | None = None,
                  network_service: NetworkFetchService | None = None,
                  redactor=None, environment_service=None, environment_selector=None,
-                 security_audit=None, turn_effect_constraints=None) -> None:
+                 security_audit=None, turn_effect_constraints=None, browser_actions=None,
+                 browser_projection=None) -> None:
         self.registry = registry
         self._publish = publish or (lambda _event: None)
         self._auto_approve = auto_approve
@@ -147,6 +148,10 @@ class ToolRuntime:
         self._filesystem_error = None
         self._process_service = process_service
         self._network_service = network_service
+        # AW3 opt-in host contract composition only; no default browser tools.
+        self._browser_actions = browser_actions
+        self._web_v12 = None
+        self._browser_projection = browser_projection
         self.redactor = redactor or (security_audit.redactor if security_audit is not None else SecretRedactor())
         self._security_audit = security_audit
         self._audit_parents = {}
@@ -244,8 +249,14 @@ class ToolRuntime:
                                  one_shot=False)
         invocation = ToolInvocation('agent', {'source': 'StartSubAgent'}, new_tool_call_id(),
                                     context.operation_id, replace(context, agent_id=None))
+        delegated=self._issuer.ceiling.capabilities
+        if self._web_v12 is not None:
+            delegated=tuple(c for c in delegated if not c.permission.name.startswith('browser.') and
+                c.restrictions.get('capabilityId')not in ('CONTROLLED_FETCH_V1_2','INTERACTIVE_BROWSER_V1_2') and
+                not (c.permission.name=='application.tool.invoke' and
+                    (c.restrictions.get('tool')=='web_access' or str(c.restrictions.get('tool','')).startswith('browser_'))))
         request = GrantRequest.from_invocation(invocation,
-            capabilities=self._issuer.ceiling.capabilities, ceiling=self._issuer.ceiling,
+            capabilities=delegated, ceiling=self._issuer.ceiling,
             lifetime=lifetime, action='StartSubAgent', effect_classification='application.delegation',
             policy_revision=self.policy.revision)
         grant = self._issuer.issue(request, context.cancellation_token)
@@ -324,12 +335,22 @@ class ToolRuntime:
 
     def _emit(self, event):
         kind, invocation, result = event
+        if self._browser_projection is not None:
+            self._browser_projection.tool_event(kind, invocation, result, self._browser_actions)
         # Keep raw invocation/ExecutionContext private for digest validation.
         public = replace(invocation, arguments=self.redactor.value(invocation.arguments),
             context=replace(invocation.context, environment={}))
         self._publish((kind, public, result))
 
     def _request(self, invocation, lifetime, filesystem_plan=None, external=False, *, audit_denial=False):
+        if self._web_v12 is not None:
+            if invocation.name == 'web_access':
+                return self._web_v12.request(invocation, lifetime)
+            if invocation.name.startswith('browser_'):
+                self._web_v12.guard_browser(invocation)
+        if invocation.name.startswith('browser_') and (self._browser_actions is None or
+                getattr(self.policy, 'actions', None) is not self._browser_actions or self._security_audit is None):
+            raise PolicyInputError('BROWSER_CAPABILITY_UNAVAILABLE')
         ctx, tool = invocation.context, self.registry.tool(invocation.name)
         if self._security_workspace is not None and ctx.workspace != self._security_workspace:
             raise PolicyInputError('REQUEST_MISMATCH')
@@ -343,6 +364,21 @@ class ToolRuntime:
         if (isinstance(tool, ShellTool) and isinstance(tool._executor, PlatformShellExecutor)
                 and tool._executor.descriptor != tool.descriptor):
             raise PolicyInputError('REQUEST_MISMATCH')
+        if invocation.name.startswith('browser_') and hasattr(self._browser_actions, 'prepare_invocation'):
+            # Trusted Application assigns refs before Policy/grant binding.
+            # No frontend/model scope, issuer or approval can enter this hook.
+            from local_cli.application.policy import validate_arguments
+            try:
+                validate_arguments(invocation.arguments, self.registry.definition(invocation.name).parameters)
+            except PolicyInputError:
+                raise PolicyInputError('INVALID_BROWSER_ARGUMENTS') from None
+            self._browser_actions.prepare_invocation(invocation)
+            caps = self._browser_actions.host_capabilities(invocation)
+            old = self._issuer.ceiling
+            additions = tuple(c for c in caps if c not in old.capabilities)
+            if additions:
+                self._issuer.replace_ceiling(replace(old, revision=old.revision + 1,
+                    capabilities=(*old.capabilities, *additions)))
         intent = self.policy.intent(invocation, self.registry, self._issuer.ceiling)
         self._effects_for(ctx).check(intent)
         decision = self.policy.evaluate(invocation, self.registry, self._issuer.ceiling,
@@ -412,6 +448,10 @@ class ToolRuntime:
         return result, captured[0] if captured and result.status is ToolStatus.COMPLETED else None
 
     def execute(self, invocation: ToolInvocation, *, _fetch_capture=None) -> ToolResult:
+        if self._web_v12 is not None and (invocation.name == 'web_access' or invocation.name.startswith('browser_')):
+            try:invocation = self._web_v12.bound_invocation(invocation)
+            except ValueError as error:
+                return self._error(ToolStatus.DENIED,'Error: '+str(getattr(error,'code','WEB_TASK_AUTHORITY_DENIED')))
         if invocation.operation_id != invocation.context.operation_id:
             raise ValueError("operationId differs from execution context")
         resolved = self.registry.resolve(invocation.name)
@@ -494,7 +534,8 @@ class ToolRuntime:
                         raise PolicyInputError('APPROVAL_REQUIRED')
                     # --yes and tool callbacks cannot supply human consent.
                     selection = self._selection(bound)
-                    display = self.redactor.value(args)
+                    display = (self._browser_actions.approval_display(bound, request)
+                               if resolved.startswith('browser_') else self.redactor.value(args))
                     if selection and selection.values:
                         display = {**display, 'environment': self._environment_service.presentation(selection)}
                     approved = self._approval_gate.request(bound, display,
@@ -586,6 +627,8 @@ class ToolRuntime:
                         ('processModel','pid','processOutcome','processStates','cleanupScope',
                          'cleanupConfirmed','treeControl','processAudit') if key in raw_result.metadata}})
             result = replace(result, metadata={**result.metadata, **metadata})
+            if resolved is not None and resolved.startswith('browser_') and self._browser_actions is not None:
+                result = self._browser_actions.complete_result(invocation, result)
             if self._security_audit is not None:
                 self._security_audit.observations(invocation, result,
                     filesystem_binding=filesystem_plan.binding if filesystem_plan is not None else None,
@@ -616,8 +659,20 @@ class ToolRuntime:
         if (grant is not None and datetime.now(timezone.utc) >= grant.request.lifetime.expires_at):
             return self._error(ToolStatus.CANCELLED, 'Error: GRANT_EXPIRED')
         if self._security_audit is not None:
-            self._security_audit.before_effect(invocation, parents=self._audit_parents)
+            browser_binding = (self._browser_actions.binding(invocation)[1]
+                if name.startswith('browser_') and self._browser_actions is not None else None)
+            self._security_audit.before_effect(invocation, parents=self._audit_parents,
+                **({'browser_binding': browser_binding} if browser_binding is not None else {}))
         self._emit((EventKind.TOOL_STARTED, invocation, None))
+        if name == 'web_access':
+            if self._web_v12 is None or grant is None or validate_launch is None:
+                raise PolicyInputError('WEB_CAPABILITY_UNAVAILABLE')
+            return self._web_v12.execute(invocation, grant, validate_launch)
+        if name.startswith('browser_'):
+            if self._browser_actions is None or grant is None or validate_launch is None:
+                raise PolicyInputError('BROWSER_CAPABILITY_UNAVAILABLE')
+            validate_launch()
+            return self._browser_actions.execute(invocation, grant, self._issuer, approval_gate=self._approval_gate)
         # S4: callbacks/waits after claim may invalidate the launch. Revalidate
         # before dispatch, without consuming the one-shot a second time.
         if isinstance(tool, ShellTool) and validate_launch is not None:

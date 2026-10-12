@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "scope": "Focal metadata/gate contracts and complete Active Web regression, not AW8 final certification",
+  "runtime": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe",
+  "python": "3.14.6",
+  "platform": "Windows 11 build26200 / C: local NTFS / HOST_UNISOLATED",
+  "pluginAutoloadDisabled": true,
+  "privateConfigDisabled": true,
+  "cacheProviderDisabled": true,
+  "outputRoot": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010",
+  "commands": {
+    "metadata": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; PLAYWRIGHT_BROWSERS_PATH=C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines; C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B -m pytest -q --tb=short -p no:cacheprovider -c C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010/pytest.ini --rootdir=. tests/active_web_v1/test_aw8_egress_metadata.py --basetemp=C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010/metadata-final-temp --junitxml=C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010/metadata-final.xml",
+    "activeWeb": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; PLAYWRIGHT_BROWSERS_PATH=C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines; C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B -m pytest -q --tb=short -p no:cacheprovider -c C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010/pytest.ini --rootdir=. tests/active_web_v1 --basetemp=C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010/active-web-final-temp --junitxml=C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010/active-web-final.xml",
+    "nativeBoundary": "PLAYWRIGHT_BROWSERS_PATH=C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines; C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B -m tests.active_web_v1.egress_closure_probe C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010/protocol-boundary-final",
+    "inventory": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B -m ci.contract_inventory",
+    "discovery": "PLAYWRIGHT_BROWSERS_PATH=<same engine>; PYTHONPATH=<repository>; <same runtime> -B C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010/capture_discovery.py",
+    "metadataDenial": "PLAYWRIGHT_BROWSERS_PATH=<same engine>; PYTHONPATH=<repository>; <same runtime> -B C:/Users/joseh/AppData/Local/Temp/nova-aw8-egress-closure-20261010/capture_metadata_denial.py"
+  },
+  "runs": [
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\metadata.xml",
+      "sha256": "4efae4f2ea953cc39881edca4b01117ceb159e473b4bfea8583ff7c932ddcac0",
+      "exitCode": 1,
+      "name": "pytest",
+      "errors": "1",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "1",
+      "time": "0.575",
+      "timestamp": "2026-10-10T03:41:06.392354-06:00",
+      "hostname": "WINDEV-SPACE",
+      "passed": 0,
+      "classification": "HARNESS_BUG: new test imported an incorrect helper name; no product/assertion weakening",
+      "xfail": 0
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\active-web.xml",
+      "sha256": "dc21ef0ffb4400c2a59be5c5b6107f7a48e3387a1d758fcab6fdfe4013d7559f",
+      "exitCode": 1,
+      "name": "pytest",
+      "errors": "0",
+      "failures": "1",
+      "skipped": "0",
+      "tests": "702",
+      "time": "73.174",
+      "timestamp": "2026-10-10T03:41:36.252436-06:00",
+      "hostname": "WINDEV-SPACE",
+      "passed": 701,
+      "classification": "HARNESS_BUG: new contracts lacked positive CI inventory classification",
+      "xfail": 0
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\metadata-final.xml",
+      "sha256": "bd2c163fd241a40296d5434f3da73007279e2692dc7a4539329ad5f4afc40900",
+      "exitCode": 0,
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "11",
+      "time": "0.279",
+      "timestamp": "2026-10-10T03:41:34.480173-06:00",
+      "hostname": "WINDEV-SPACE",
+      "passed": 11,
+      "classification": null,
+      "xfail": 0
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\active-web-final.xml",
+      "sha256": "4dc499e076fb3436379cb7198d82ed9fa725f2be19efb1311365f986304f77c8",
+      "exitCode": 0,
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "702",
+      "time": "72.606",
+      "timestamp": "2026-10-10T03:43:13.017724-06:00",
+      "hostname": "WINDEV-SPACE",
+      "passed": 702,
+      "classification": null,
+      "xfail": 0
+    }
+  ],
+  "final": {
+    "metadata": {
+      "pass": 11,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0
+    },
+    "activeWeb": {
+      "pass": 702,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0
+    },
+    "newSkips": 0,
+    "newXfails": 0,
+    "noExistingAssertionsModified": true
+  },
+  "inventory": {
+    "status": "PASS",
+    "staticContracts": 4048,
+    "portable": 3862,
+    "localOnly": 28,
+    "historical": 89,
+    "specialInfrastructure": 69,
+    "unclassified": 0,
+    "newBaseContracts": 5,
+    "newParameterizedCases": 11,
+    "existingRowsAndRulesExactlyRecovered": true
+  },
+  "inheritedRegression": {
+    "manifest": "../revision_02/manifest.json",
+    "tests": [
+      {
+        "name": "final-active-web",
+        "passed": 691,
+        "failed": 0,
+        "errors": 0,
+        "skips": 0,
+        "subtests": 0,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-active-web\\junit.xml",
+        "xmlSha256": "ea243f16c19577db515c5c1628a7c36e1b017e7660b51fc07abbb14448185b66",
+        "exitCode": 0
+      },
+      {
+        "name": "final-core",
+        "passed": 3400,
+        "failed": 1,
+        "errors": 0,
+        "skips": 7,
+        "subtests": 53,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-core\\tests.xml",
+        "xmlSha256": "dba28fdfd15f84ba40d8d9d95ff2e5111dc1ffdc78382dc5bafb040c552c70d0",
+        "exitCode": 1
+      },
+      {
+        "name": "final-knowledge",
+        "passed": 1015,
+        "failed": 0,
+        "errors": 0,
+        "skips": 0,
+        "subtests": 0,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-knowledge\\tests.xml",
+        "xmlSha256": "f10fb018daa1f80e5dcffeb2a0ba4030a524b1b703796525cb6378ce95938c30",
+        "exitCode": 0
+      },
+      {
+        "name": "final-memory",
+        "passed": 791,
+        "failed": 0,
+        "errors": 0,
+        "skips": 0,
+        "subtests": 0,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-memory\\tests.xml",
+        "xmlSha256": "c58d0a7550e3c3dbe7a4733e8d1d2088e8818c65afdf9fab06231053fac9a805",
+        "exitCode": 0
+      },
+      {
+        "name": "final-security",
+        "passed": 615,
+        "failed": 0,
+        "errors": 0,
+        "skips": 0,
+        "subtests": 0,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\final-security\\tests.xml",
+        "xmlSha256": "b2993ac476aada4308d82c359690863f4bf51b6921f2fb8553d1141f05f5e132",
+        "exitCode": 0
+      },
+      {
+        "name": "focused-locked",
+        "passed": 74,
+        "failed": 0,
+        "errors": 0,
+        "skips": 0,
+        "subtests": 0,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-revision02-20261010\\focused-locked\\junit.xml",
+        "xmlSha256": "d1fb36564d147829253beb37b70e5db78c9e2afac6143bb9d38cd24ab33649c2",
+        "exitCode": 0
+      }
+    ],
+    "desktop": {
+      "command": [
+        "C:/Program Files/nodejs/node.exe",
+        "--experimental-transform-types",
+        "--test",
+        "--test-reporter=spec",
+        "--test-reporter-destination=C:/Users/joseh/AppData/Local/Temp/nova-aw8-revision02-20261010/desktop-final-valid.log",
+        "tests/application_client.test.cjs",
+        "tests/approval_host.test.cjs",
+        "tests/security_audit.test.cjs",
+        "tests/memory_control.test.cjs",
+        "tests/memory_maintenance.test.cjs",
+        "tests/knowledge_control.test.cjs",
+        "tests/knowledge_k7.test.cjs",
+        "tests/active_web.test.cjs"
+      ],
+      "cwd": "desktop",
+      "exitCode": 0,
+      "passed": 71,
+      "failed": 0,
+      "skipped": 0,
+      "todo": 0,
+      "log": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-revision02-20261010/desktop-final-valid.log",
+      "typescriptCommand": [
+        "C:/Program Files/nodejs/node.exe",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "typescriptExitCode": 0
+    },
+    "noRerunOrRecertification": true,
+    "reason": "Core/Security/Memory/Knowledge/Desktop code and evidence pins unchanged; bounded adapter metadata delta covered by complete Active Web suite."
+  },
+  "inheritedCoreDebt": {
+    "test": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "blockingForThisRemediation": false,
+    "testRunnerAssertionUnchanged": true,
+    "notRecastAsPass": true
+  },
+  "preservedDiagnosticFailures": [
+    {
+      "artifact": "protocol-boundary/native_protocol_boundary.json",
+      "classification": "HARNESS_BUG",
+      "reason": "Readonly CDP command-line diagnostic required --enable-automation; shipping arguments were NOT modified. Final evidence uses native CIM commands."
+    },
+    {
+      "artifact": "integrity_raw.json",
+      "classification": "HARNESS_BUG",
+      "reason": "Initial verifier compared external sha string against metadata object; corrected strict sha-field comparison in integrity_raw_v2.json. Historical files untouched."
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\active-web-final.xml",
+      "bytes": 111727,
+      "sha256": "4dc499e076fb3436379cb7198d82ed9fa725f2be19efb1311365f986304f77c8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\active-web.xml",
+      "bytes": 113470,
+      "sha256": "dc21ef0ffb4400c2a59be5c5b6107f7a48e3387a1d758fcab6fdfe4013d7559f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\capture_discovery.py",
+      "bytes": 573,
+      "sha256": "12687c16fce643720a9ef4ac62c478c3e58bd4724f4b18a2cebe93ee29588004"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\capture_metadata_denial.py",
+      "bytes": 2242,
+      "sha256": "36743d84cc23c5f729dea65ea26c05ccb583b47b3d98d2921c5d3720889342e5"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\fresh_https_metadata_denial.json",
+      "bytes": 1217,
+      "sha256": "527928c599aec4339b105a857c0f30e823db1da0d11957c6ac89a31047c09794"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\integrity_check.py",
+      "bytes": 4334,
+      "sha256": "0f661f1f53de0174b8f38a85cc949f069507b887b30b939be9f9a913784ed965"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\integrity_raw.json",
+      "bytes": 60086,
+      "sha256": "64e0483410db736a7e4d5deba5283f2194deac15f4d25b643359ea0face58b8f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\integrity_raw_v2.json",
+      "bytes": 29783,
+      "sha256": "fcb21153729e56b8c3b62b72e346ebd2c35f6d92fcc05a997f2a3b84beb3e988"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\metadata-final.xml",
+      "bytes": 1967,
+      "sha256": "bd2c163fd241a40296d5434f3da73007279e2692dc7a4539329ad5f4afc40900"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\metadata.xml",
+      "bytes": 1145,
+      "sha256": "4efae4f2ea953cc39881edca4b01117ceb159e473b4bfea8583ff7c932ddcac0"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\native_productive_discovery.json",
+      "bytes": 14041,
+      "sha256": "c3aff17f585bc4c60fec1d96a7d01667365ece9d332705e238b18102da2755d8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\package_evidence.py",
+      "bytes": 3195,
+      "sha256": "a3a40880adf87e63e297e285db2837ecc78d270336b0fc724c3214c27bf7cd19"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\pytest.ini",
+      "bytes": 9,
+      "sha256": "8250d20f42b419af40706490ead78aabab9feba93eab09a3f626e3de5256e1f4"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\protocol-boundary\\native_protocol_boundary.json",
+      "bytes": 2974,
+      "sha256": "ffad7d5217b971104019753e017a3d730a295bf2a66ddc6aa0cd10ab79761f45"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\protocol-boundary-02\\native_protocol_boundary.json",
+      "bytes": 10239,
+      "sha256": "4597cc323d947432eb2fc590015fef4f35d3aaff0b155ca89ede2a5e4e4226a3"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw8-egress-closure-20261010\\protocol-boundary-final\\native_protocol_boundary.json",
+      "bytes": 19405,
+      "sha256": "bd369b232e2119d91eff401f021f4b46ad691d80b04088781379907de50fa68d"
+    }
+  ],
+  "finalAw8Campaign": false,
+  "modelInference": 0
+}

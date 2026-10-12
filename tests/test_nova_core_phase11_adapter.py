@@ -288,9 +288,15 @@ def test_jsonl_slow_subscription_disconnects_then_reconnects_with_gap(tmp_path):
         adapter.handle({"id": 62, "type": "subscribe_events",
                         "sessionId": adapter.session_id,
                         "afterSequence": initial})
-        _wait_for(sent, "event", request_id=62)
-        replay = [item["event"]["kind"] for item in sent
-                  if item.get("id") == 62 and item["type"] == "event"]
+        # The adapter dispatches the recovery pair asynchronously. Waiting for
+        # the first frame alone races the second, required SessionSnapshot.
+        # Await the complete protocol pair rather than weakening its order.
+        for _ in range(500):
+            replay = [item["event"]["kind"] for item in sent
+                      if item.get("id") == 62 and item["type"] == "event"]
+            if len(replay) >= 2:
+                break
+            time.sleep(0.005)
         assert replay[:2] == ["EventGap", "SessionSnapshot"]
     finally:
         adapter.close()

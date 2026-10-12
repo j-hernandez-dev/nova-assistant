@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "classificationSet": [
+    "SATISFIES_ARCHITECTURE",
+    "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+    "VIOLATES_CURRENT_CONSTRAINTS",
+    "NOT_PRACTICAL"
+  ],
+  "nativeCertifiedAlternativeCount": 0,
+  "recommendation": "REPLACE_WINDOWS_BROWSER_ENGINE",
+  "alternatives": [
+    {
+      "id": "A_WEBVIEW2_OS_CONTAINMENT",
+      "classification": "NOT_PRACTICAL",
+      "verdict": "No mecanismo completo demostrado compatible con todas las obligaciones. Métodos privilegiados se descartan; token/packaging no deshabilita RTC/SW.",
+      "dimensions": {
+        "network_exclusivity": "Endpoint-only para todos los children no demostrado",
+        "PUBLIC_ONLY": "Conservaría broker, pero bypass invalida claim",
+        "UDP_WebRTC": "Containment de paquetes no equivale RTC-off",
+        "service_workers": "SW sigue activo; filtro OS no deshabilita ejecución",
+        "QUIC": "Posible filtrado de paquetes no demuestra engine suppression",
+        "DNS": "Servicio DNS/identidades todavía gap",
+        "proxy_failure": "Sin ruta peer exacta no se prueba broker-only",
+        "HTTPS": "CONNECT podría conservar TLS si peer funciona",
+        "external_protocol_guard": "Guard WebView2 existente conservable",
+        "lifecycle": "Job/owned lifecycle existente, packaging cambia tokens/UDF",
+        "transfers": "Compatibilidad pendiente bajo nuevos tokens",
+        "takeover": "UI/tokens/ACL pendientes; no autoridad nueva",
+        "deployment": "AppContainer/package changes; WFP/exemptions excluidos",
+        "admin_global_dependencies": "Receta WFP/global: VIOLATES_CURRENT_CONSTRAINTS",
+        "maintainability": "Alto y dependiente de integración WebView2 no documentada"
+      }
+    },
+    {
+      "id": "B_SOURCE_CONTROLLED_CHROMIUM",
+      "classification": "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+      "verdict": "Recomendación principal como diseño fuente/nativo, no engine stock certificado.",
+      "dimensions": {
+        "network_exclusivity": "Gate nativo deny-all salvo broker + admission separado, proof pendiente",
+        "PUBLIC_ONLY": "Reusar broker IP/DNS; nunca sólo hostname",
+        "UDP_WebRTC": "RTC feature/gate native off + UDP create/send disabled",
+        "service_workers": "Deny native registration/access/start en todas las particiones",
+        "QUIC": "Native DisableQuic + gate UDP reaplicado en restart",
+        "DNS": "Resolver nativo denies destinos; sólo broker hace useful DNS",
+        "proxy_failure": "Sin DIRECT/PAC/ambient updates; socket gate rechaza fallback",
+        "HTTPS": "Engine TLS estándar por CONNECT opaco",
+        "external_protocol_guard": "Deny native launch/default paths + registered canary",
+        "lifecycle": "Owned profiles/Job/close semantics a recertificar",
+        "transfers": "Contratos intactos; primitives nuevas deben recertificarse",
+        "takeover": "Owned UI y epochs + secret capture nueva certificación",
+        "deployment": "Host app-local privado, distribución/seguridad propia",
+        "admin_global_dependencies": "Diseñado sin admin ni mutación global; aún no probado",
+        "maintainability": "Alto/muy alto; no aceptar sin capacidad de update/fork"
+      }
+    },
+    {
+      "id": "B_STOCK_CHROMIUM_PLAYWRIGHT_ELECTRON_CEF",
+      "classification": "NOT_PRACTICAL",
+      "verdict": "No reutilizar proxy/flags/callbacks como certificado de exclusividad.",
+      "dimensions": {
+        "network_exclusivity": "No demostrado",
+        "PUBLIC_ONLY": "Broker sólo protege lo que recibe",
+        "UDP_WebRTC": "RTC-off no demostrado conjuntamente",
+        "service_workers": "No SW-off conjunto certificado",
+        "QUIC": "Flags no proof de QUIC-off",
+        "DNS": "DNS útil directo no descartado",
+        "proxy_failure": "Fallo proxy no certificado",
+        "HTTPS": "TLS estándar posible",
+        "external_protocol_guard": "Playwright gap; Electron/CEF hooks requieren cobertura propia",
+        "lifecycle": "Mecanismos disponibles, sin heredar PASS",
+        "transfers": "Primitives disponibles, contratos faltan",
+        "takeover": "Posible; no certificado",
+        "deployment": "App-local posible",
+        "admin_global_dependencies": "No admin inherente; no compensa gaps",
+        "maintainability": "Bajo wrapper, controles nativos faltantes"
+      }
+    },
+    {
+      "id": "B_QT_SOURCE_BUILD",
+      "classification": "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+      "verdict": "Segunda familia técnicamente plausible, no recomendación principal.",
+      "dimensions": {
+        "network_exclusivity": "Requiere gate Chromium propio",
+        "PUBLIC_ONLY": "Mismo broker",
+        "UDP_WebRTC": "Knob compile RTC observado; native proof pendiente",
+        "service_workers": "Necesita native SW-off no indiscriminado cookies",
+        "QUIC": "Native gating y proof pendientes",
+        "DNS": "Mismo requisito resolver deny",
+        "proxy_failure": "No DIRECT nativo pendiente",
+        "HTTPS": "CONNECT estándar posible",
+        "external_protocol_guard": "Unknown scheme enum insuficiente; native hook requerido",
+        "lifecycle": "Owned Qt profiles/processes a certificar",
+        "transfers": "Adapter nativo nuevo",
+        "takeover": "UI Qt posible",
+        "deployment": "Qt/runtime/licencias + source build",
+        "admin_global_dependencies": "No global changes previstos; probar estándar user",
+        "maintainability": "Alto; mayor stack adicional"
+      }
+    },
+    {
+      "id": "B_GECKO_SOURCE_HOST",
+      "classification": "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+      "verdict": "Gates RTC/SW concretos; integración Windows y exclusividad menos resueltas.",
+      "dimensions": {
+        "network_exclusivity": "No validado",
+        "PUBLIC_ONLY": "Mismo broker si plumbing correcto",
+        "UDP_WebRTC": "Pref/gate nativo RTC; no prueba conjunta",
+        "service_workers": "Pref/gate nativo SW; no prueba conjunta",
+        "QUIC": "No contrato congelado probado",
+        "DNS": "Resolver/proxy plumbing pendiente",
+        "proxy_failure": "No failover proof",
+        "HTTPS": "TLS estándar posible",
+        "external_protocol_guard": "Native pre-effect OS guard todavía por localizar/demostrar",
+        "lifecycle": "No embedding Windows drop-in validado",
+        "transfers": "Sin pérdida del DTO; engine paths nuevos",
+        "takeover": "Human UI/epoch/secret hooks pendientes",
+        "deployment": "Browser host empaquetado propio",
+        "admin_global_dependencies": "No global changes previsto; prueba pendiente",
+        "maintainability": "Muy alto en este proyecto"
+      }
+    },
+    {
+      "id": "C_HOST_MEDIATED_TRANSPORT",
+      "classification": "NOT_PRACTICAL",
+      "verdict": "No es simple WebResourceRequested; red + semánticas web completas exigirían nuevo transport/browser.",
+      "dimensions": {
+        "network_exclusivity": "WebView2 requiere retirar autoridad real de red aún no resuelta",
+        "PUBLIC_ONLY": "Broker validaría host fetch, no rutas directas engine",
+        "UDP_WebRTC": "RTC sigue activo sin gate distinto",
+        "service_workers": "SW sigue activo sin gate distinto",
+        "QUIC": "Intercepción recursos no prueba sockets UDP off",
+        "DNS": "Host resolver propio no evita resolver engine",
+        "proxy_failure": "No-network del engine aún no demostrado",
+        "HTTPS": "Host TLS no es engine↔destination TLS por CONNECT",
+        "external_protocol_guard": "Guard existente preservable",
+        "lifecycle": "Más buffers/state/profiles complejos",
+        "transfers": "Streaming/upload/retries/cancel semánticas complejas",
+        "takeover": "Cookies/auth/redirect/origin deben conservarse",
+        "deployment": "Reverse-proxy/rewrite/fetch stack grande",
+        "admin_global_dependencies": "No cambios globales deseados; falta primitive real",
+        "maintainability": "Muy alto / no razonable para mantener páginas reales V1.1"
+      }
+    },
+    {
+      "id": "FIXED_VERSION_WEBVIEW2",
+      "classification": "NOT_PRACTICAL",
+      "verdict": "Útil sólo para estabilidad; no alternativa de enforcement.",
+      "dimensions": {
+        "network_exclusivity": "No cambia exclusividad",
+        "PUBLIC_ONLY": "No modifica broker",
+        "UDP_WebRTC": "No repara RTC",
+        "service_workers": "No repara SW",
+        "QUIC": "No certifica QUIC",
+        "DNS": "No elimina DNS path",
+        "proxy_failure": "No prueba fallback",
+        "HTTPS": "TLS normal se conserva",
+        "external_protocol_guard": "Guard seguiría disponible en versión fijada",
+        "lifecycle": "Modelo actual reutilizable tras cambios distribución",
+        "transfers": "No reparación funcional de transfers",
+        "takeover": "No mejora autoridad",
+        "deployment": "App-local Fixed Version con updates a cargo publisher",
+        "admin_global_dependencies": "No instalación global runtime requerida por esa forma",
+        "maintainability": "Mejor control de versión, más distribución/patching"
+      }
+    }
+  ]
+}

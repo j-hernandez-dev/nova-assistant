@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import type { Message } from '../src/types'
 import type { DesktopSessionView, SessionSnapshot, EventEnvelope, CommandReceipt } from '../shared/application'
-import type { MemoryControlResult } from '../shared/application'
+import type { MemoryControlResult, BrowserControlResult } from '../shared/application'
 
 const PRODUCT_COMMANDS = new Set([
   'SubmitUserInput', 'CancelTurn', 'CancelOperation', 'StopGeneration', 'ChangeModel', 'ChangeProvider',
@@ -52,6 +52,7 @@ export class DesktopApplicationClient {
   private pending = new Map<string, { commandId: string; resolve: (receipt: CommandReceipt) => void }>()
   private memoryPending = new Map<string, { commandId: string; resolve: (result: MemoryControlResult) => void }>()
   private knowledgePending = new Map<string, {commandId:string;resolve:(receipt:CommandReceipt)=>void}>()
+  private browserPending = new Map<string, {commandId:string;resolve:(result:BrowserControlResult)=>void}>()
   constructor(private send: (frame: object) => boolean | void,
               private publish: (view: DesktopSessionView) => void,
               private approvalProof?: (command: Record<string, unknown>) => string) {}
@@ -79,7 +80,8 @@ export class DesktopApplicationClient {
     this.snapshotRequest = this.subscription = null
     this.refreshAgain = false
     this.view = { ...this.view, status: { ...this.view.status, ready: false, connected: false },
-      approvals: [], inputs: [], error: { code: 'BACKEND_DISCONNECTED', message: 'Backend disconnected. Restart to restore the saved transcript; active work is not resumed.' } }
+      approvals: [], inputs: [], activeWeb: undefined, webCapabilitiesV12: undefined, webV12: undefined,
+      error: { code: 'BACKEND_DISCONNECTED', message: 'Backend disconnected. Restart to restore the saved transcript; active work is not resumed.' } }
     for (const { commandId, resolve } of this.pending.values()) resolve({ schemaVersion: 1, commandId,
       accepted: false, createdIds: {}, error: { code: 'OUTCOME_UNKNOWN', message: 'Connection lost; command outcome is unknown. It will not be retried.' } })
     this.pending.clear()
@@ -90,6 +92,9 @@ export class DesktopApplicationClient {
       commandId, completed: false, error: { code: 'OUTCOME_UNKNOWN', message: 'Connection lost; memory outcome is unknown. No retry.',
         outcomeUnknown: true, retryable: false } })
     this.memoryPending.clear()
+    for (const {commandId,resolve} of this.browserPending.values()) resolve({schemaVersion:1,commandId,
+      error:{code:'OUTCOME_UNKNOWN',message:'Browser control outcome unknown. No retry.',outcomeUnknown:true,retryable:false}})
+    this.browserPending.clear()
     this.changed()
   }
   command(kind: string, payload: Record<string, unknown>, commandId = `cmd_${randomUUID()}`): Promise<CommandReceipt> {
@@ -136,6 +141,20 @@ export class DesktopApplicationClient {
       this.transmit({id,type:'knowledge_command',command,hostKnowledgeProof:this.approvalProof!(command)})
     })
   }
+  // Main-process authenticated human configuration, separate from tool Approval.
+  browser(name:string,args:Record<string,unknown>,commandId=`cmd_${randomUUID()}`): Promise<BrowserControlResult> {
+    if (!['configure_web_v12','finish_takeover','select_upload'].includes(name) || !this.view.status.ready ||
+        !this.view.sessionId || !this.approvalProof) {
+      return Promise.resolve({schemaVersion:1,commandId,error:{code:'BROWSER_HUMAN_CONTROL_DENIED',
+        message:'Authenticated host browser control is unavailable.',retryable:false}})
+    }
+    return new Promise(resolve => {
+      const id=this.id()
+      this.browserPending.set(id,{commandId,resolve})
+      const command={commandId,sessionId:this.view.sessionId,name,arguments:args}
+      this.transmit({id,type:'browser_control',command,hostBrowserProof:this.approvalProof!(command)})
+    })
+  }
   receive(frame: Record<string, any>) {
     if (frame.type === 'ready') {
       this.view = { ...this.view, sessionId: frame.sessionId,
@@ -169,6 +188,10 @@ export class DesktopApplicationClient {
       this.memoryPending.delete(frame.id)
       // No MEMORY payload stored in the chat view, transcript or recall cache.
       this.refresh()
+    } else if (frame.type === 'browser_control_result' && this.browserPending.has(frame.id)) {
+      this.browserPending.get(frame.id)!.resolve(frame.data as BrowserControlResult)
+      this.browserPending.delete(frame.id)
+      this.refresh()
     } else if (frame.type === 'error') {
       const error = { code: frame.code || 'TRANSPORT_ERROR', message: frame.message || 'Request failed' }
       if (this.pending.has(frame.id)) {
@@ -185,6 +208,11 @@ export class DesktopApplicationClient {
         const p=this.knowledgePending.get(frame.id)!
         p.resolve({schemaVersion:1,commandId:p.commandId,accepted:false,createdIds:{},error})
         this.knowledgePending.delete(frame.id)
+      }
+      if (this.browserPending.has(frame.id)) {
+        const pending=this.browserPending.get(frame.id)!
+        pending.resolve({schemaVersion:1,commandId:pending.commandId,error:{...error,retryable:false}})
+        this.browserPending.delete(frame.id)
       }
       if (frame.id === this.snapshotRequest) this.snapshotRequest = null
       this.view = { ...this.view, error }
@@ -222,6 +250,9 @@ export class DesktopApplicationClient {
       approvals: state.services.interactions?.approvals || [], inputs: state.services.interactions?.inputs || [],
       rag: state.services.rag,
       knowledge: state.services.knowledge,
+      activeWeb: state.services.activeWeb,
+      webCapabilitiesV12: state.services.webCapabilitiesV12,
+      webV12: state.services.webV12,
       knowledgeOperations: (state.services.operations || []).filter(op => op.service === 'knowledge'),
       memoryNotice: state.services.memory?.allowRemoteMemoryInjection
         ? 'Remote memory injection is enabled by host configuration. Selected memories may leave this host.' : null,

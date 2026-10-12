@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "assessment": "REQUIRES_SOURCE_PROTOTYPE",
+  "buildExecuted": false,
+  "sourcePins": {
+    "chromium": "b859317bf11f6be47f9b7799ec690a0a42a1fb33",
+    "cef": "14c5a089e8452874cb1a556dc3fde26ed2d87723",
+    "cefVersion": "154.0.34+g14c5a08+chromium-154.0.8037.98",
+    "chromiumVersion": "154.0.8037.98"
+  },
+  "toolPinsFromInspectedSource": {
+    "depot_tools": "c101dcbe0489c455fce7c2247bfee19680b116c3",
+    "GN": "150a9d6ba0aa7f407aa4feeabc5f03ce9aa7e04b",
+    "Ninja": "infra/3pp/tools/ninja/windows-amd64 version:3@1.12.1.chromium.4",
+    "ClangRevision": "llvmorg-24-init-3796-g20e97c4b",
+    "ClangSubRevision": 27
+  },
+  "toolchainRequirements": {
+    "chromiumPinnedDocumentation": "VS2026 >=18.0.0; clang-cl; SDK10.0.28000.2270; debugging tools10.0.26100.3323+",
+    "cefLiveBranchDocumentation": "VS2022 17.13.4 listed for branch8037; mutable page, not reconciled with pinned docs/DEPS build scripts.",
+    "decision": "Do not assume existing MSVC14.44/SDK10.0.26100.0 used for the tiny harness can build Chromium. Validate compatible exact toolchain against pinned build scripts in first prototype preflight; no installer/admin step authorized now.",
+    "sourceIds": [
+      "C26",
+      "F14",
+      "D01"
+    ]
+  },
+  "resources": {
+    "officialMinimumsAtPin": {
+      "ramGB": 8,
+      "recommendedRam": "more than16GB",
+      "diskFreeGB": 100,
+      "filesystem": "NTFS",
+      "source": "C26"
+    },
+    "localHistoricalObservationNotNewMeasurement": {
+      "ramGB": 15.5,
+      "freeRamGB": 1.4,
+      "freeDiskGB": 118.8
+    },
+    "assessment": "Official minimum does not imply practical CI capacity. Dedicated builder with substantially higher RAM/disk budget; no measured build time or fresh capacity certification."
+  },
+  "gnPlan": {
+    "existingObservedOptions": [
+      {
+        "option": "is_component_build=false",
+        "status": "CEF distribution requirement observed F14"
+      },
+      {
+        "option": "target_cpu=\"x64\"",
+        "status": "Architecture selection; validate resolved value"
+      },
+      {
+        "option": "is_debug=false",
+        "status": "Release candidate; standalone debug test artifact kept separate"
+      },
+      {
+        "option": "is_p2p_enabled=false",
+        "status": "Exists C54; backend sources guarded C50/C59/C06. Whole build compatibility untested"
+      },
+      {
+        "option": "enable_websockets=false",
+        "status": "Exists C51/C50; disables both WS/WSS profile, integration untested"
+      },
+      {
+        "option": "enable_extensions=false; enable_desktop_android_extensions=false",
+        "status": "Exists C38; derived core/platform/hosted app flags must resolve false. CEF dependencies untested"
+      },
+      {
+        "option": "enable_mdns=false",
+        "status": "Exists C51; complement to resolver/UDP bans, not an enforcement replacement"
+      },
+      {
+        "option": "enable_background_mode=false",
+        "status": "CEF default F14; not all background network services"
+      },
+      {
+        "option": "strip_absolute_paths_from_debug_symbols=true",
+        "status": "Compiler config C27; reproducibility aid only"
+      }
+    ],
+    "newNovaOption": "nova_active_web_chromium_profile=true: PROPOSED new immutable build flag, not upstream GN arg. No runtime off-switch.",
+    "notClaimedSupported": [
+      "enable_webrtc=false",
+      "enable_service_workers=false",
+      "universal enable_quic=false"
+    ],
+    "preserveRequiredCEFArgs": "F14 GetRequiredArgs incl Widevine/CDM-related assertions. Do not silently disable required CEF graph dependencies; reject or separately review incompatibility. No proprietary CDM binary/autodownload accepted in app distribution.",
+    "effectiveManifestRequired": true
+  },
+  "pipeline": [
+    "Approve isolated builder and source pins; fetch exact CEF + Chromium compatible tag/commit, record repository tree hashes.",
+    "Pin root depot_tools to chosen DEPS-derived commit, disable self-update only within task process environment; record Python/Git/GN/Ninja/CIPD instance IDs and byte hashes.",
+    "Resolve DEPS and CEF's existing patch.cfg series; include all CIPD/cloud toolchain inputs by content hash; never execute unrecorded moving hooks.",
+    "Apply ordered Nova conceptual patch series only after CEF upstream series; fail on offset/conflict or missing security hunk; emit applied-series digest.",
+    "Generate GN, capture requested AND resolved args/build graph/link inputs; reject unknown/unused options and incompatible mandatory CEF flags.",
+    "Build app-local CEF and dedicated host targets with pinned clang-cl/lld + Windows headers/libs; no stock engine fallback.",
+    "Two clean builds in controlled independent workspaces; compare unsigned PE/resource/packaging hashes, diagnose any variation. Signing/packaging timestamps separate.",
+    "Emit build manifest, binary/module hashes, gate/profile digest, SBOM/notices; archive symbols privately.",
+    "Run mandatory native security and BrowserPort/Block05 suite; human review; only exact artifacts receive certificate."
+  ],
+  "reproducibility": {
+    "status": "NOT_DEMONSTRATED",
+    "repeatableNotBitReproducible": "Pinned inputs permit repeatability; bit-for-bit requires clean rebuild comparisons of unsigned binaries and normalized packaging. Existing -ffile-compilation-dir/PDB flags do not prove full determinism.",
+    "requiredRecords": [
+      "Clang/lld/VS/SDK binary and library hashes",
+      "Python/Git/tools hashes",
+      "DEPS/CIPD immutable IDs",
+      "locales/ICU/paks hashes",
+      "GN resolved args",
+      "timestamp/path/debug-symbol/signing separation",
+      "patch series order/digest"
+    ]
+  },
+  "distribution": {
+    "shape": "App-local fixed CEF DLL/resources/subprocess binary; explicit private profiles; module identity attest before content; no installer/service/global networking/CA.",
+    "standardBinarySubstitution": "Rejected; missing build profile/gate hash -> fail closed.",
+    "licensing": "CEF/Chromium BSD plus per-DEPS third-party notices/SBOM. CDM/proprietary codecs redistribution not inferred from compiling CEF."
+  }
+}

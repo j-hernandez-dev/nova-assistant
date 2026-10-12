@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "title": "Bounded causal bisection — download initiation",
+  "RESULT": "PARTIAL",
+  "ROOT_CAUSE_DOMAIN": "PRODUCT_PROFILE_OR_HOST_CONTEXT",
+  "domainStatus": "INTERMEDIATE_DOMAIN_FROM_VALID_B2B_ONLY",
+  "FINAL_ROOT_CAUSE_DOMAIN": "NOT_IDENTIFIED",
+  "first_causal_individual_difference": "NOT_IDENTIFIED",
+  "minimal_product_fix_candidate": "none_confirmed",
+  "counts": {
+    "validNativeExecutions": 2,
+    "hostRunInvocations": 3,
+    "failedPreEnginePreparations": 1,
+    "maximumAuthorizedEffectiveExecutions": 3,
+    "baselineReruns": 0,
+    "B2AExecutions": 0,
+    "B4Executions": 0,
+    "retries": 0
+  },
+  "runs": [
+    {
+      "id": "B1",
+      "outcome": "FAIL",
+      "measurementValid": true,
+      "hostPid": 25688,
+      "ownerPid": 45560,
+      "startUtc": "2026-10-11T11:58:05.796Z",
+      "observerActive": true,
+      "DownloadStartingObserved": false,
+      "DownloadOperationObtained": false,
+      "resourceResponse": {
+        "resource": "PAYLOAD",
+        "status": 200,
+        "length": 35,
+        "contentDisposition": "ABSENT",
+        "streamType": "MemoryStream(data,false)",
+        "explicitDisposal": false
+      },
+      "activation": {
+        "objectRef": "opaque_0f82fdbcc72a429eb57fe13914dcf1f3",
+        "worldRef": "opaque_1b6f3c3300784e678fadd3c657038450",
+        "functionSha256": "c950e1e1b63000550c659e286b816700949343fde7f954ce33686f37d09c2754",
+        "functionChars": 37,
+        "argumentCount": 0,
+        "returnByValue": true,
+        "awaitPromiseSupplied": false,
+        "userGestureSupplied": false
+      },
+      "runtime": "154.0.4258.62",
+      "udfLength": 212,
+      "cleanupConfirmed": true,
+      "rawRunnerInnerMode": "P1",
+      "rawPrimitiveModifiedFlag": false,
+      "rawFlagQualification": "Legacy runner emits primitiveModified=false as a constant. It is NOT evidence about this derivative; actual substitutions are documented in surface_matrix/freeze/source hashes.",
+      "measureRef": "B1_measurement.json"
+    },
+    {
+      "id": "B2-B",
+      "outcome": "FAIL",
+      "measurementValid": true,
+      "hostPid": 44540,
+      "ownerPid": 36840,
+      "startUtc": "2026-10-11T11:59:28.366Z",
+      "observerActive": true,
+      "DownloadStartingObserved": false,
+      "DownloadOperationObtained": false,
+      "resourceResponse": {
+        "resource": "PAYLOAD",
+        "status": 200,
+        "length": 35,
+        "contentDisposition": "ABSENT",
+        "streamType": "MemoryStream(data,false)",
+        "explicitDisposal": false
+      },
+      "activation": {
+        "objectRef": "opaque_3d827b18b696460abda7a24fccc7b7b6",
+        "worldRef": "opaque_31db594f82cf4007af22f8b6f1217fda",
+        "functionSha256": "aa11e291156acd2363c572d8dbd3259262cdca30c6c4c083fa5bbdcb7fee5e6e",
+        "functionChars": 4754,
+        "argumentCount": 1,
+        "returnByValue": true,
+        "awaitPromiseSupplied": false,
+        "userGestureSupplied": false
+      },
+      "runtime": "154.0.4258.62",
+      "udfLength": 212,
+      "cleanupConfirmed": true,
+      "rawRunnerInnerMode": "P1",
+      "rawPrimitiveModifiedFlag": false,
+      "rawFlagQualification": "Legacy runner emits primitiveModified=false as a constant. It is NOT evidence about this derivative; actual substitutions are documented in surface_matrix/freeze/source hashes.",
+      "measureRef": "B2B_measurement.json"
+    },
+    {
+      "id": "B3",
+      "outcome": "BLOCKED_PRE_ENGINE_SETUP",
+      "measurementValid": false,
+      "DownloadStartingObserved": null,
+      "DownloadOperationObtained": null,
+      "nativeResourceResponse": null,
+      "hostRunInvocations": 1,
+      "effectiveNativeActivationExecutions": 0,
+      "publicObservedError": "HostIpcError",
+      "publicErrorCodeCaptured": false,
+      "setupBranch": {
+        "path": "native/nova-browser-host/LifecycleServer.cs",
+        "line": 23,
+        "condition": "Path.GetFileName(udf) == \"nova_wv2_\" + session + \"_\" + instance",
+        "branch": "OWNERSHIP_MISMATCH",
+        "evidenceType": "STATIC_INFERENCE_FROM_UNMODIFIED_EXACT_BOOTSTRAP_VALIDATION",
+        "publicObservedError": "HostIpcError",
+        "publicErrorCodeCaptured": false
+      },
+      "cleanupConfirmed": true,
+      "measureRef": "B3_preparation_failure.json"
+    }
+  ],
+  "firstRestoredDownloadStartingBoundary": null,
+  "interpretation": [
+    "B1 FAIL: paired bare activation/static provider did not restore native boundary in the retained product pre-handler/profile context. No individual cause attributed.",
+    "B2-B FAIL: removing documented product pre-handler/instrumentation surfaces while retaining original Perform/provider/UDF did not restore boundary.",
+    "The authorized intermediate domain after B2-B is PRODUCT_PROFILE_OR_HOST_CONTEXT.",
+    "B3 did not instantiate the engine: the unmodified host requires the session/instance-bound long UDF basename, rejecting the attempted short simple root/u3 before opening its pipe/constructing WebView2Runtime.",
+    "A startup preparation rejection is not DownloadStarting=absent after a served 200/35 and cannot be used as the user matrix's B3 FAIL.",
+    "No final selection among PRODUCT_UDF_PROFILE_CONSTRUCTION and PRODUCT_HOST_CONTEXT_OR_INTERACTION is supported. No retry/B4/fix performed."
+  ],
+  "deterministicSetupEvidence": {
+    "source": "native/nova-browser-host/LifecycleServer.cs:23",
+    "unalteredSourceVerified": true,
+    "attemptedPath": "C:/Users/joseh/AppData/Local/Temp/nbx-20261011T115404Z/u3",
+    "basename": "u3",
+    "requiredPattern": "nova_wv2_<BrowserSessionRef>_<hostInstanceRef>",
+    "checkedBeforeEngineConstruction": true,
+    "observedPublicError": "HostIpcError",
+    "internalCode": "OWNERSHIP_MISMATCH",
+    "internalCodeEvidence": "Deterministic static branch inference, not a captured public IPC fault."
+  },
+  "decision": "STOP_FOR_HUMAN_REVIEW",
+  "noRepair": true,
+  "noCompletionEvaluation": true,
+  "states": {
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  }
+}

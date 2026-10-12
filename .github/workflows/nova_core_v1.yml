@@ -9,6 +9,14 @@ on:
         required: false
         type: boolean
         default: false
+      native_symlink:
+        description: Explicit Windows symlink contracts; unavailable privilege fails without elevation
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
 
 env:
   PYTHONDONTWRITEBYTECODE: '1'
@@ -25,9 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         env:
-          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_COUNT: '2'
           GIT_CONFIG_KEY_0: core.autocrlf
           GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -44,11 +54,11 @@ jobs:
         with:
           name: core-contracts-${{ matrix.os }}
           path: |
-            ${{ runner.temp }}/nova-core-contracts/run.json
-            ${{ runner.temp }}/nova-core-contracts/selection.json
-            ${{ runner.temp }}/nova-core-contracts/collected_nodeids.json
-            ${{ runner.temp }}/nova-core-contracts/tests.xml
-            ${{ runner.temp }}/nova-core-contracts/pytest.log
+            ${{ runner.temp }}/nova-core-contracts/public/run.json
+            ${{ runner.temp }}/nova-core-contracts/public/selection.json
+            ${{ runner.temp }}/nova-core-contracts/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-core-contracts/public/tests.xml
+            ${{ runner.temp }}/nova-core-contracts/public/pytest.log
           if-no-files-found: error
 
   security-contracts:
@@ -62,9 +72,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         env:
-          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_COUNT: '2'
           GIT_CONFIG_KEY_0: core.autocrlf
           GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -83,11 +95,11 @@ jobs:
         with:
           name: security-contracts-${{ matrix.os }}
           path: |
-            ${{ runner.temp }}/nova-security-contracts/run.json
-            ${{ runner.temp }}/nova-security-contracts/selection.json
-            ${{ runner.temp }}/nova-security-contracts/collected_nodeids.json
-            ${{ runner.temp }}/nova-security-contracts/tests.xml
-            ${{ runner.temp }}/nova-security-contracts/pytest.log
+            ${{ runner.temp }}/nova-security-contracts/public/run.json
+            ${{ runner.temp }}/nova-security-contracts/public/selection.json
+            ${{ runner.temp }}/nova-security-contracts/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-security-contracts/public/tests.xml
+            ${{ runner.temp }}/nova-security-contracts/public/pytest.log
           if-no-files-found: error
 
   security-native-manual:
@@ -99,9 +111,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         env:
-          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_COUNT: '2'
           GIT_CONFIG_KEY_0: core.autocrlf
           GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.14'
@@ -116,9 +130,43 @@ jobs:
         with:
           name: security-native-windows
           path: |
-            ${{ runner.temp }}/nova-security-native/run.json
-            ${{ runner.temp }}/nova-security-native/selection.json
-            ${{ runner.temp }}/nova-security-native/collected_nodeids.json
-            ${{ runner.temp }}/nova-security-native/tests.xml
-            ${{ runner.temp }}/nova-security-native/pytest.log
+            ${{ runner.temp }}/nova-security-native/public/run.json
+            ${{ runner.temp }}/nova-security-native/public/selection.json
+            ${{ runner.temp }}/nova-security-native/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-security-native/public/tests.xml
+            ${{ runner.temp }}/nova-security-native/public/pytest.log
+          if-no-files-found: error
+
+  core-symlink-native-manual:
+    name: Manual Windows symlink containment prerequisite and contracts
+    if: github.event_name == 'workflow_dispatch' && inputs.native_symlink
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '2'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+          GIT_CONFIG_KEY_1: core.longpaths
+          GIT_CONFIG_VALUE_1: 'true'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - name: Require real owned Windows symlink creation; no privilege changes or skips
+        run: >-
+          python -B ci/run_contracts.py --job core-symlink-native --special
+          --output "${{ runner.temp }}/nova-core-symlink-native"
+      - name: Preserve sanitized symlink contract diagnostics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-symlink-native-windows
+          path: |
+            ${{ runner.temp }}/nova-core-symlink-native/public/run.json
+            ${{ runner.temp }}/nova-core-symlink-native/public/selection.json
+            ${{ runner.temp }}/nova-core-symlink-native/public/collected_nodeids.json
+            ${{ runner.temp }}/nova-core-symlink-native/public/tests.xml
+            ${{ runner.temp }}/nova-core-symlink-native/public/pytest.log
           if-no-files-found: error

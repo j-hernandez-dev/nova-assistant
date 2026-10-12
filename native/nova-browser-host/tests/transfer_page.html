@@ -1,0 +1,16 @@
+<!doctype html><html><head><title>Local transfer specimen</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'">
+<style>body{margin:10px}input,button,a{display:block;height:28px;margin:6px 0}input{width:300px}</style></head><body>
+<input type="password" id="password" aria-label="Password" autocomplete="off" oninput="document.getElementById('echo').textContent=this.value;document.cookie='test_session='+this.value;localStorage.setItem('private-test',this.value)">
+<input id="otp" aria-label="OTP" autocomplete="one-time-code">
+<input id="private_key" aria-label="Private key"><span id="echo"></span>
+<button id="external" onclick="location.href='mailto:guard-test@example.invalid'">External protocol attempt</button>
+<input id="file" type="file" aria-label="Chosen specimen" onchange="document.getElementById('upload-status').textContent='Uploaded '+this.files[0].name+' '+this.files[0].size;this.files[0].text().then(t=>document.getElementById('upload-digest').textContent=t)">
+<span id="upload-status">No file</span><span id="upload-digest"></span>
+<button>Not a file input</button>
+<a id="download" href="payload.txt" download="../../untrusted-name.txt">Approved specimen download</a>
+<a href="large.bin" download="untrusted-large.bin">Too large download</a>
+<button onclick="document.getElementById('download').click()">Unsolicited download attempt</button>
+<a href="https://nova-second.invalid/other.html">Second controlled origin</a>
+<a href="javascript:void(0)">Non HTTP destination</a>
+</body></html>

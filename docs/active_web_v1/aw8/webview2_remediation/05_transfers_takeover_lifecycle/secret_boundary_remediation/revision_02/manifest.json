@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Block05 SECRET_NON_EXPOSURE remediation revision02; additive preflight stop for incompatible closure requirements",
+  "timestampUtc": "2026-10-10T17:35:45.3033947Z",
+  "branch": "main",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "BLOCK05_ORIGINAL_EXECUTION": "BLOCKED",
+  "BLOCK05_SECRET_BOUNDARY_REMEDIATION": "BLOCKED",
+  "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "BLOCKED",
+  "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+  "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+  "productModified": false,
+  "testsModified": false,
+  "driverModified": false,
+  "fixturesModified": false,
+  "architectureModified": false,
+  "historicalEvidenceModified": false,
+  "openDecisions": [
+    {
+      "id": "WV2-B05-REV02-OPEN-DECISION-001",
+      "classification": "INCOMPATIBLE_CLOSURE_REQUIREMENTS",
+      "status": "OPEN",
+      "securityRequirement": "Every observed nonempty sensitive buffer, including length-one buffers, remains known; a matching short value requires whole-leaf redaction or typed publication denial, never a minimum-length exception.",
+      "immutableTestRequirement": "Two historical native tests require publication of literal page text that contains the first length-one buffer produced by their unchanged character-by-character UI driver.",
+      "scope": "Static compatibility proof about the authorized repair and immutable assertions, not a native execution or a new engine-enforcement limit.",
+      "consequence": "Correct short-buffer protection cannot simultaneously preserve those required literal page-derived leaves. Typed publication denial also prevents the required successful BrowserObservation assertions.",
+      "requestedDirection": "Human reconciliation of the affected test-observability contract, preserving the non-exposure invariant and historical evidence. No test/driver/fixture/assertion change is authorized or performed here.",
+      "cannotUse": [
+        "minimum length that ignores known short values",
+        "word-boundary exception",
+        "forgetting intermediate buffers",
+        "allow-listing harmless fixture text",
+        "changing the driver to avoid intermediate input states",
+        "editing assertions",
+        "skip/xfail/exclusion",
+        "claiming a regression was run or passed"
+      ]
+    }
+  ],
+  "authorizedDefects": [
+    {
+      "id": "WV2-B05-SECRET-EDIT-CONTINUITY-002",
+      "classification": "PRODUCT_BUG",
+      "status": "UNREPAIRED",
+      "historicalReference": "../manifest.json"
+    },
+    {
+      "id": "WV2-B05-SECRET-IPC-SCHEMA-003",
+      "classification": "PRODUCT_BUG",
+      "status": "UNREPAIRED",
+      "historicalReference": "../manifest.json"
+    },
+    {
+      "id": "WV2-B05-SECRET-CAPTURE-DISCONNECT-004",
+      "classification": "UNKNOWN",
+      "status": "NOT_REEXECUTED",
+      "historicalStatus": "REPRODUCED",
+      "historicalReference": "../manifest.json",
+      "directCausalityEstablished": false
+    }
+  ],
+  "gates": {
+    "MONOTONIC_SENSITIVE_KNOWLEDGE": {
+      "status": "BLOCKED",
+      "reason": "No repair candidate/recertification: OPEN DECISION WV2-B05-REV02-OPEN-DECISION-001 prevents satisfying short-buffer protection and the immutable literal-publication assertions simultaneously."
+    },
+    "SCHEMA_AWARE_REDACTION": {
+      "status": "BLOCKED",
+      "reason": "No repair candidate/recertification: OPEN DECISION WV2-B05-REV02-OPEN-DECISION-001 prevents satisfying short-buffer protection and the immutable literal-publication assertions simultaneously."
+    },
+    "CROSS_DOCUMENT_SECRET_REDACTION": {
+      "status": "BLOCKED",
+      "reason": "No repair candidate/recertification: OPEN DECISION WV2-B05-REV02-OPEN-DECISION-001 prevents satisfying short-buffer protection and the immutable literal-publication assertions simultaneously."
+    },
+    "MODEL_PROJECTION_SECRET_BOUNDARY": {
+      "status": "BLOCKED",
+      "reason": "No repair candidate/recertification: OPEN DECISION WV2-B05-REV02-OPEN-DECISION-001 prevents satisfying short-buffer protection and the immutable literal-publication assertions simultaneously."
+    },
+    "SECRET_REGISTRY_LIFECYCLE": {
+      "status": "BLOCKED",
+      "reason": "No repair candidate/recertification: OPEN DECISION WV2-B05-REV02-OPEN-DECISION-001 prevents satisfying short-buffer protection and the immutable literal-publication assertions simultaneously."
+    },
+    "BLOCK05_FINAL_REGRESSION": {
+      "status": "BLOCKED",
+      "reason": "No repair candidate/recertification: OPEN DECISION WV2-B05-REV02-OPEN-DECISION-001 prevents satisfying short-buffer protection and the immutable literal-publication assertions simultaneously."
+    }
+  },
+  "testEvidence": {
+    "staticInspection": "EXECUTED",
+    "nativeTests": "NOT_EXECUTED",
+    "contractTests": "NOT_EXECUTED",
+    "finalRegression": "NOT_EXECUTED",
+    "newRuntimeTestDenominator": 0,
+    "junitXml": null,
+    "historicalResultsNotReusedAsPass": true,
+    "noNewSkips": true,
+    "noNewXfails": true,
+    "noNewExclusions": true,
+    "noQualityRetries": true
+  },
+  "preservedReferences": {
+    "originalManifest": "../../manifest.json",
+    "originalManifestSha256": "096a43818213d6b2f12e0c17fc91b64873f561b98496243df05f4dba1fafdee3",
+    "originalResultados": "../../resultados.md",
+    "originalResultadosSha256": "064e6ce8183f897b0d3f96cf8697761c64ae7048388d2697d2ab92b5491b1cee",
+    "previousRemediationManifest": "../manifest.json",
+    "previousRemediationManifestSha256": "fc1247ea6da40698104a9eeeada9d231b53e2895f3677fdc89890ca0446a2889",
+    "previousRemediationTests": "../test_results.json",
+    "previousRemediationFinalProductIdentity": "../product_final_freeze.json",
+    "sourcePinsVerified": 67,
+    "sourceDrift": 0,
+    "historicalPinsVerified": 165,
+    "historicalDrift": 0,
+    "previousRemediationArtifactsVerified": 9,
+    "previousRemediationDrift": 0,
+    "trackedDirtyFilesPreserved": 18
+  },
+  "cleanup": {
+    "newHosts": 0,
+    "newUdfs": 0,
+    "historical36Udfs": "CLEANUP_UNCONFIRMED; untouched",
+    "maintenancePerformed": false
+  },
+  "claims": {
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "prohibitedActionsPerformed": {
+    "block06": false,
+    "AW8Final": false,
+    "inference": false,
+    "CoreSecurityMemoryKnowledgeDesktopCiChanges": false,
+    "historicalUdfMaintenance": false,
+    "skipXfailFilterAdded": false,
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "newFiles": [
+    "resultados.md",
+    "manifest.json",
+    "secret_continuity_evidence.json",
+    "schema_redaction_evidence.json",
+    "test_results.json",
+    "integrity.json"
+  ],
+  "artifactHashes": [
+    {
+      "path": "resultados.md",
+      "sha256": "0b900f86eb1d5a3348daa14a55c9282f5dec9d2bb8237ff5dd784f4bf1a4f23a"
+    },
+    {
+      "path": "schema_redaction_evidence.json",
+      "sha256": "fae95be451f6e28e6379d734b13bc939476592a6e9d7a30954281455e40550bb"
+    },
+    {
+      "path": "secret_continuity_evidence.json",
+      "sha256": "5f6373691f6ab97dfba432489317278d46007cf1ba912011d48edb25fb95e81f"
+    },
+    {
+      "path": "test_results.json",
+      "sha256": "1b463f2c605b4a215905d446b413d740b6c3b723428f2e58c930a73760aaad44"
+    },
+    {
+      "path": "integrity.json",
+      "sha256": "ad3c4858c4951034d2d287fdb0accbb301f291ec7c597420b0b804063fabdaa4"
+    }
+  ],
+  "nextStep": "Human reconciliation of the test-observability contract. No automatic code changes, regressions or advance to block06."
+}

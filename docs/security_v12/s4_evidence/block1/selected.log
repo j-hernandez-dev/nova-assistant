@@ -1,0 +1,63 @@
+....................F................................................... [100%]
+================================== FAILURES ===================================
+____ test_runtime_revalidates_after_tool_started_before_executor[command] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s4_evidence/block1/s4_private_iyu97tau/selected/test_runtime_revalidates_after0')
+mutation = 'command'
+
+    @pytest.mark.parametrize('mutation', ['command', 'cwd', 'environment', 'descriptor', 'policy', 'ceiling', 'revoke'])
+    def test_runtime_revalidates_after_tool_started_before_executor(tmp_path, mutation):
+        rt, exe, events = runtime(tmp_path)
+        inv = invocation(tmp_path)
+        def publish(event):
+            events.append(event)
+            if event[0] is not EventKind.TOOL_STARTED:
+                return
+            tool = rt.registry.tool('bash')
+            if mutation == 'command':
+                object.__setattr__(inv, 'arguments', {'command': 'echo changed'})
+            elif mutation == 'cwd':
+                tool.cwd = tmp_path/'other'
+            elif mutation == 'environment':
+                tool.environment['FIXTURE'] = 'changed'
+            elif mutation == 'descriptor':
+                tool.descriptor = replace(tool.descriptor, executable=str(tmp_path/'other.exe'))
+            elif mutation == 'policy':
+                rt.update_policy_revision(2)
+            elif mutation == 'ceiling':
+                rt._issuer.replace_ceiling(replace(rt._issuer.ceiling, revision=2))
+            else:
+                rt._issuer.revoke(next(iter(rt._issuer._issued.values())).grant)
+        rt._publish = publish
+        result = rt.execute(inv)
+        assert result.status is ToolStatus.DENIED
+        assert result.effect_state.value == 'none'
+        exe.run.assert_not_called()
+        assert len([e for e in events if e[0] is EventKind.TOOL_FAILED]) == 1
+>       assert rt.execute(inv) is result
+               ^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s4_contracts.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.tool_runtime.ToolRuntime object at 0x00000263D62E82F0>
+invocation = ToolInvocation(name='bash', arguments={'command': 'echo changed'}, tool_call_id='toolcall', operation_id='operation', ...='not probed')), turn_id='turn', agent_id=None, provider_revision=None, policy_revision=1), provider_tool_call_id=None)
+
+    def execute(self, invocation: ToolInvocation) -> ToolResult:
+        if invocation.operation_id != invocation.context.operation_id:
+            raise ValueError("operationId differs from execution context")
+        resolved = self.registry.resolve(invocation.name)
+        args = (normalize_arguments(resolved, dict(invocation.arguments))
+                if resolved is not None else dict(invocation.arguments))
+        fingerprint = self._fingerprint(invocation, resolved, args)
+        with self._lock:
+            previous = self._outcomes.get(invocation.operation_id)
+            if previous is not None:
+                if previous[0] != fingerprint:
+>                   raise ValueError("IDEMPOTENCY_CONFLICT")
+E                   ValueError: IDEMPOTENCY_CONFLICT
+
+local_cli\application\tool_runtime.py:260: ValueError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s4_contracts.py::test_runtime_revalidates_after_tool_started_before_executor[command]
+1 failed, 71 passed in 2.04s

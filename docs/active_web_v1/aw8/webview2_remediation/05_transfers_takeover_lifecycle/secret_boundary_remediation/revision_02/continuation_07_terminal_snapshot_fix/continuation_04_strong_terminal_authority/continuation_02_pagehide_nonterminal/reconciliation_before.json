@@ -1,0 +1,65 @@
+{
+  "prospectiveHumanAuthorization": true,
+  "cases": [
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "ids": [
+        "reason-pagehide"
+      ],
+      "old": "PAGEHIDE snapshot -> Commit -> COMMITTED",
+      "next": "PAGEHIDE updates exact observed current/revision -> TRANSIENT, no snapshot/Commit",
+      "strong": null,
+      "beforeSha256": "225d7ebcc1cabf57371be6b0f565b6a09478916ea12acf9150e8f689c6a28f87",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true
+    },
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "ids": [
+        "old-document"
+      ],
+      "old": "PAGEHIDE supplies old terminal proof before retire",
+      "next": "PAGEHIDE weak observed value first; explicit CHECKPOINT proof supplies the old terminal before document retires; old ownership/stale assertions preserved",
+      "strong": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "225d7ebcc1cabf57371be6b0f565b6a09478916ea12acf9150e8f689c6a28f87",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true
+    },
+    {
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "ids": [
+        "pagehide-reuse",
+        "pagehide-uncommitted"
+      ],
+      "old": "PAGEHIDE creates COMMIT-able proof then seal reuses it",
+      "next": "PAGEHIDE cannot terminalize; a separate explicit CHECKPOINT proof is reusable by the unchanged retirement seal; same identity/revision/commit-count assertions",
+      "strong": "TAKEOVER_END_CHECKPOINT and ENGINE_WORLD_RETIRE",
+      "beforeSha256": "8912a1dd14913ae6f68a46c0d1c206bb112110c567b7b3a06e65ba9748fd7367",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "terminal-retire",
+        "short-retire-denied"
+      ],
+      "old": "PAGEHIDE proof + generic Retire",
+      "next": "PAGEHIDE weak, then exact registered protected-world retirement seal supplies terminal authority; long COMMITTED and genuine short denial unchanged",
+      "strong": "ENGINE_WORLD_RETIRE",
+      "beforeSha256": "97cdc45bd8881366f64daf100c56019577ffdca06315247d26609fa37ebebd2f",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true
+    },
+    {
+      "path": "native/nova-browser-host/tests/strong_terminal_runner/Program.cs",
+      "ids": [
+        "blur-then-pagehide",
+        "strong-pagehide-long",
+        "strong-pagehide-short"
+      ],
+      "old": "PAGEHIDE directly COMMITTED/SHORT_COMMITTED_VALUE",
+      "next": "PAGEHIDE TRANSIENT with no failure; a separate CHECKPOINT proves COMMITTED or true short denial",
+      "strong": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "fdd36faeed8d8b60e83ff740a3c0b668d6ddcdaa26bbbb5ee6c4981ee845d746",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true
+    }
+  ],
+  "previousExecution": "A=48 PASS; B=102 PASS; C=0 PASS / 1 FAIL; intact"
+}

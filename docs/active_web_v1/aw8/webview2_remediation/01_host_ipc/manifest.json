@@ -1,0 +1,543 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Active Web V1.1 §35.2 block 01 — browser-host/private IPC contract and skeleton, additive remediation only",
+  "timestampUtc": "2026-10-10T11:40:20.2917762Z",
+  "baseline": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "freezeTimestampUtc": "2026-10-10T11:08:52.644390+00:00",
+    "dirtyBefore": true,
+    "trackedModificationsBefore": 18,
+    "priorStatus": [
+      " M .github/workflows/nova_knowledge_v1.yml",
+      " M ci/README.md",
+      " M ci/contract_inventory.py",
+      " M ci/pytest_contracts.json",
+      " M ci/run_contracts.py",
+      " M desktop/electron/application_client.ts",
+      " M desktop/shared/application.ts",
+      " M desktop/src/App.tsx",
+      " M local_cli/application/legacy_event_bridge.py",
+      " M local_cli/application/security_audit.py",
+      " M local_cli/application/session.py",
+      " M local_cli/application/tool_runtime.py",
+      " M local_cli/bootstrap_cli.py",
+      " M local_cli/bootstrap_server.py",
+      " M local_cli/core/contracts.py",
+      " M local_cli/interfaces/cli_application.py",
+      " M local_cli/interfaces/jsonl_application.py",
+      " M pyproject.toml",
+      "?? .github/workflows/nova_active_web_v1.yml",
+      "?? desktop/tests/active_web.test.cjs",
+      "?? docs/active_web_v1/architecture_review/EXTERNAL_PROTOCOL_ENFORCEMENT_REVIEW.md",
+      "?? docs/active_web_v1/architecture_review/manifest.json",
+      "?? docs/active_web_v1/architecture_v1_1/CHANGELOG.md",
+      "?? docs/active_web_v1/architecture_v1_1/manifest.json",
+      "?? docs/active_web_v1/architecture_v1_1/traceability.json",
+      "?? docs/active_web_v1/audit/findings.json",
+      "?? docs/active_web_v1/aw0/baseline_freeze.json",
+      "?? docs/active_web_v1/aw0/ci_contract_inventory.json",
+      "?? docs/active_web_v1/aw0/closure/RESOLUCION_FINAL_AW0.md",
+      "?? docs/active_web_v1/aw0/closure/manifest_final.json",
+      "?? docs/active_web_v1/aw0/integrity.json",
+      "?? docs/active_web_v1/aw0/invariant_corpus.json",
+      "?? docs/active_web_v1/aw0/manifest.json",
+      "?? docs/active_web_v1/aw0/resultados.md",
+      "?? docs/active_web_v1/aw0/test_results.json",
+      "?? docs/active_web_v1/aw1/baseline_freeze.json",
+      "?? docs/active_web_v1/aw1/integrity.json",
+      "?? docs/active_web_v1/aw1/manifest.json",
+      "?? docs/active_web_v1/aw1/resultados.md",
+      "?? docs/active_web_v1/aw1/test_results.json",
+      "?? docs/active_web_v1/aw2/baseline_freeze.json",
+      "?? docs/active_web_v1/aw2/integrity.json",
+      "?? docs/active_web_v1/aw2/invariant_matrix.json",
+      "?? docs/active_web_v1/aw2/manifest.json",
+      "?? docs/active_web_v1/aw2/product_freeze.json",
+      "?? docs/active_web_v1/aw2/resultados.md",
+      "?? docs/active_web_v1/aw2/test_results.json",
+      "?? docs/active_web_v1/aw3/baseline_freeze.json",
+      "?? docs/active_web_v1/aw3/desktop_result.json",
+      "?? docs/active_web_v1/aw3/integrity.json",
+      "?? docs/active_web_v1/aw3/integrity_final.json",
+      "?? docs/active_web_v1/aw3/invariant_matrix.json",
+      "?? docs/active_web_v1/aw3/manifest.json",
+      "?? docs/active_web_v1/aw3/preflight.json",
+      "?? docs/active_web_v1/aw3/product_freeze.json",
+      "?? docs/active_web_v1/aw3/product_freeze_v2.json",
+      "?? docs/active_web_v1/aw3/resultados.md",
+      "?? docs/active_web_v1/aw3/test_results.json",
+      "?? docs/active_web_v1/aw4/baseline_freeze.json",
+      "?? docs/active_web_v1/aw4/desktop_result.json",
+      "?? docs/active_web_v1/aw4/integrity.json",
+      "?? docs/active_web_v1/aw4/invariant_matrix.json",
+      "?? docs/active_web_v1/aw4/manifest.json",
+      "?? docs/active_web_v1/aw4/preflight.json",
+      "?? docs/active_web_v1/aw4/product_freeze.json",
+      "?? docs/active_web_v1/aw4/resultados.md",
+      "?? docs/active_web_v1/aw4/test_results.json",
+      "?? docs/active_web_v1/aw5/baseline_freeze.json",
+      "?? docs/active_web_v1/aw5/desktop_result.json",
+      "?? docs/active_web_v1/aw5/integrity.json",
+      "?? docs/active_web_v1/aw5/invariant_matrix.json",
+      "?? docs/active_web_v1/aw5/manifest.json",
+      "?? docs/active_web_v1/aw5/preflight.json",
+      "?? docs/active_web_v1/aw5/product_freeze.json",
+      "?? docs/active_web_v1/aw5/resultados.md",
+      "?? docs/active_web_v1/aw5/runtime_evidence.json",
+      "?? docs/active_web_v1/aw5/test_results.json",
+      "?? docs/active_web_v1/aw6/baseline_freeze.json",
+      "?? docs/active_web_v1/aw6/desktop_result.json",
+      "?? docs/active_web_v1/aw6/integrity.json",
+      "?? docs/active_web_v1/aw6/invariant_matrix.json",
+      "?? docs/active_web_v1/aw6/manifest.json",
+      "?? docs/active_web_v1/aw6/preflight.json",
+      "?? docs/active_web_v1/aw6/product_freeze.json",
+      "?? docs/active_web_v1/aw6/resultados.md",
+      "?? docs/active_web_v1/aw6/runtime_evidence.json",
+      "?? docs/active_web_v1/aw6/test_results.json",
+      "?? docs/active_web_v1/aw7/baseline_freeze.json",
+      "?? docs/active_web_v1/aw7/ci_retention_check.json",
+      "?? docs/active_web_v1/aw7/ci_scope.md",
+      "?? docs/active_web_v1/aw7/desktop_result.json",
+      "?? docs/active_web_v1/aw7/integrity.json",
+      "?? docs/active_web_v1/aw7/invariant_matrix.json",
+      "?? docs/active_web_v1/aw7/manifest.json",
+      "?? docs/active_web_v1/aw7/preflight.json",
+      "?? docs/active_web_v1/aw7/product_freeze.json",
+      "?? docs/active_web_v1/aw7/product_freeze_ci_retention_v2.json",
+      "?? docs/active_web_v1/aw7/resultados.md",
+      "?? docs/active_web_v1/aw7/runtime_evidence.json",
+      "?? docs/active_web_v1/aw7/test_results.json",
+      "?? docs/active_web_v1/aw8/baseline_freeze.json",
+      "?? docs/active_web_v1/aw8/manifest.json",
+      "?? docs/active_web_v1/aw8/preflight.json",
+      "?? docs/active_web_v1/aw8/preflight_runtime.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/baseline_freeze.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/capability_probe.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/component_freeze.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/capability_probe.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/egress_evidence.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/integrity.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/manifest.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/resultados.md",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/scope_reconciliation.md",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/test_results.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/egress_enforcement.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/integrity.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/manifest.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/productive_tool_path.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/resultados.md",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/baseline_freeze.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/capability_probe.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/component_freeze.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/egress_evidence.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/final_validation.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/integrity.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/integrity_initial.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/manifest.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/productive_composition.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/resultados.md",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/revision_02/test_results.json",
+      "?? docs/active_web_v1/aw8/prerequisite_remediation/test_results.json",
+      "?? docs/active_web_v1/aw8/resultados.md",
+      "?? docs/active_web_v1/aw8/tests_integrity.json",
+      "?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md",
+      "?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+      "?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+      "?? local_cli/application/active_web.py",
+      "?? local_cli/application/active_web_service.py",
+      "?? local_cli/application/browser_actions.py",
+      "?? local_cli/application/browser_network.py",
+      "?? local_cli/application/browser_observation.py",
+      "?? local_cli/application/browser_projection.py",
+      "?? local_cli/application/browser_takeover.py",
+      "?? local_cli/application/browser_tools.py",
+      "?? local_cli/application/browser_transfers.py",
+      "?? local_cli/bootstrap_active_web.py",
+      "?? local_cli/core/active_web.py",
+      "?? local_cli/core/active_web_lifecycle.py",
+      "?? local_cli/core/active_web_network.py",
+      "?? local_cli/core/active_web_observation.py",
+      "?? local_cli/core/active_web_policy.py",
+      "?? local_cli/core/active_web_transfers.py",
+      "?? local_cli/infrastructure/active_web/__init__.py",
+      "?? local_cli/infrastructure/active_web/capability_probe.py",
+      "?? local_cli/infrastructure/active_web/download_staging.py",
+      "?? local_cli/infrastructure/active_web/egress_broker.py",
+      "?? local_cli/infrastructure/active_web/playwright_adapter.py",
+      "?? local_cli/infrastructure/active_web/productive_backend.py",
+      "?? local_cli/infrastructure/active_web/productive_probe.py",
+      "?? tests/active_web_v1/__init__.py",
+      "?? tests/active_web_v1/egress_closure_probe.py",
+      "?? tests/active_web_v1/fake_browser.py",
+      "?? tests/active_web_v1/test_aw0_contracts.py",
+      "?? tests/active_web_v1/test_aw1_lifecycle.py",
+      "?? tests/active_web_v1/test_aw2_observation.py",
+      "?? tests/active_web_v1/test_aw3_policy.py",
+      "?? tests/active_web_v1/test_aw4_network.py",
+      "?? tests/active_web_v1/test_aw4_proxy.py",
+      "?? tests/active_web_v1/test_aw5_contracts.py",
+      "?? tests/active_web_v1/test_aw5_engine.py",
+      "?? tests/active_web_v1/test_aw6_contracts.py",
+      "?? tests/active_web_v1/test_aw6_engine.py",
+      "?? tests/active_web_v1/test_aw7_engine.py",
+      "?? tests/active_web_v1/test_aw7_frontends.py",
+      "?? tests/active_web_v1/test_aw8_egress_metadata.py",
+      "?? tests/active_web_v1/test_aw8_prerequisite_probe.py",
+      "?? tests/active_web_v1/test_aw8_productive_composition.py",
+      "?? tests/active_web_v1/test_aw8_revision02_engine.py"
+    ],
+    "nonIgnoredInheritedFileCount": 2341,
+    "expectedArchitectureV1": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "expectedArchitectureV1_1": "46ec3201460ba37a6fe47f6cf94e80f0024ec442c9323115a0cf19d64de95e1d"
+  },
+  "evaluatedHead": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "normativeScope": {
+    "sections": [
+      "§6.1–6.3",
+      "§8",
+      "§30",
+      "§35.2 block 1"
+    ],
+    "decisions": [
+      "C#/.NET Windows host",
+      "local private Windows Named Pipes",
+      "JSON UTF-8 uint32 little-endian length-prefix",
+      "closed protocol v1",
+      "Infrastructure-only health skeleton"
+    ],
+    "authority": "Application/ToolRuntime/Policy/Approval/Grant remain exclusively Python; no Core/Application/roots changes",
+    "prohibitedLaterBlocksExecuted": false
+  },
+  "reuse": {
+    "unchanged": [
+      "BrowserPort and Core refs/Session/Turn/Generation/Operation",
+      "Application/ToolRuntime/Policy/Approval/Grant",
+      "current productive composition and tools",
+      "frontends/Desktop",
+      "Memory/Knowledge",
+      "historical CI inventory/runner",
+      "all existing architecture/evidence"
+    ],
+    "ipcReferencesMatchExistingPrefixes": [
+      "bws",
+      "bwp",
+      "op"
+    ]
+  },
+  "filesCreated": [
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/baseline_freeze.json",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/evidence/focused.xml",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/protocol.json",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/resultados.md",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/test_results.json",
+    "local_cli/infrastructure/active_web/browser_host.py",
+    "local_cli/infrastructure/active_web/host_ipc_protocol.py",
+    "local_cli/infrastructure/active_web/host_named_pipe.py",
+    "native/nova-browser-host/NativePipe.cs",
+    "native/nova-browser-host/nova-browser-host.csproj",
+    "native/nova-browser-host/Program.cs",
+    "native/nova-browser-host/Protocol.cs",
+    "native/nova-browser-host/README.md",
+    "native/nova-browser-host/tests/conftest.py",
+    "native/nova-browser-host/tests/test_host_process.py",
+    "native/nova-browser-host/tests/test_ipc_contract.py",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/integrity.json",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/manifest.json"
+  ],
+  "filesModifiedFromTaskBaseline": [],
+  "productAndTestPins": {
+    "local_cli/infrastructure/active_web/browser_host.py": "54090b28e385fa25e4eee85852f545b17ddf975bc62b402aa2c264aee6adaecc",
+    "local_cli/infrastructure/active_web/host_ipc_protocol.py": "e25c280319bf51ae1e62f72096eaced1fdee008bc0cecf3666c9bb030d938c1f",
+    "local_cli/infrastructure/active_web/host_named_pipe.py": "516d7eed7d94853346146440b88d14fbfa646f53e1ee09e358949405d4b088a7",
+    "native/nova-browser-host/NativePipe.cs": "dc17dbe3d1490afe2a4d5e7e52b5d4c0f6eaeb7ba646dd0cfa39e6000b825b00",
+    "native/nova-browser-host/nova-browser-host.csproj": "44740c3491bc140bc67eef54b97ef2f0698b8e3f14dfc581868b29975daeb496",
+    "native/nova-browser-host/Program.cs": "38e43d708fe92d6331216826591bca7bcf30086a43aa2cc13c816ad557cc36d4",
+    "native/nova-browser-host/Protocol.cs": "0daa37a1c835ecff52f5d013a28bf457a90d5169f87d165b3212278466a70aac",
+    "native/nova-browser-host/README.md": "0adb15334d131559f7a20e64895141e5d68ec44f49f89e3daec78fa9c2e2a2ca",
+    "native/nova-browser-host/tests/conftest.py": "4828bd5c9b5fcdc2732e53604097be4fda0aba26b59c0714ae3ccb6c06013427",
+    "native/nova-browser-host/tests/test_host_process.py": "b23a4ea593ff8d128ae1a8df1263ef201d7a081305ab96641c7c4ea3df91b660",
+    "native/nova-browser-host/tests/test_ipc_contract.py": "2c60f88cdcf8ed2eede66bc08217b77ab1491a5c02869e16d7b0a8758af89e66"
+  },
+  "evidencePins": {
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/baseline_freeze.json": "859308e035afe7a5d11829c720d7f35a8c3c22a3a1127dca9525e9758142de6b",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/evidence/focused.xml": "1f0d8cba5bcab7873264025d0eaa6cac2e5d6a33f5ad38de742ce5ca06adcb32",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/protocol.json": "f985e15b8f26b92922834ce582bb3ef94986cc78a575441f3eacf9ad4492e2ea",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/resultados.md": "2b03be8af5ef3555030e0ba84c29659f6f39c5ca8cb33e6703ab180d877015b9",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/test_results.json": "f5ed12c3bee001f2343ebdc39b9eca80cf74a8e9d6574ec91bf31ba878fced52",
+    "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/integrity.json": "91ad2f9a59aad1aa6e8f0c3bd69851cffb52cb88aba8d798dd6b6f9d29ffc99d"
+  },
+  "protocol": {
+    "name": "nova-browser-host-ipc",
+    "schemaVersion": 1,
+    "wireVersion": 1,
+    "versionedSpecification": "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/protocol.json",
+    "healthOnly": true,
+    "modelTool": false
+  },
+  "requirements": [
+    {
+      "id": "IPC-01",
+      "requirement": "closed/versioned/bounded framing, typed request/response/event/cancel/error",
+      "component": [
+        "host_ipc_protocol.py",
+        "Protocol.cs",
+        "protocol.json"
+      ],
+      "evidence": [
+        "test_exact_utf8_length_prefixed_little_endian_contract",
+        "test_native_malformed_frame_rejected",
+        "test_native_oversized_frame_denied_before_body_allocation",
+        "test_native_version_mismatch_fail_closed",
+        "test_native_extra_authority_fields_rejected"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "IPC-02",
+      "requirement": "host identity/process/session/request/operation correlation",
+      "component": [
+        "browser_host.py",
+        "NativePipe.cs",
+        "Program.cs"
+      ],
+      "evidence": [
+        "test_success_handshake_health_shutdown_and_serialization",
+        "test_native_wrong_handshake_correlation",
+        "test_native_server_pid_mismatch_rejects_pipe",
+        "test_response_correlation_is_exact",
+        "test_deadline_and_page_correlation"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "IPC-03",
+      "requirement": "private local pipe, appropriate ACL, unique owner and opaque IDs",
+      "component": [
+        "host_named_pipe.py",
+        "NativePipe.cs",
+        "Program.cs"
+      ],
+      "evidence": [
+        "test_native_pipe_dacl_is_protected_network_denied_and_user_only",
+        "test_unauthorized_other_process_first_client_rejected",
+        "test_native_second_connection_rejected",
+        "test_native_owner_exit_terminates_host_without_orphan"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "IPC-04",
+      "requirement": "strict schema, duplicate IDs/messages/extra authority rejected",
+      "component": [
+        "host_ipc_protocol.py",
+        "Protocol.cs",
+        "Program.cs"
+      ],
+      "evidence": [
+        "test_no_authority_or_untyped_content_in_either_direction",
+        "test_native_duplicate_request_id",
+        "test_native_duplicate_operation_id",
+        "test_native_unknown_message",
+        "test_native_secret_like_payload_rejected"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "IPC-05",
+      "requirement": "deadlines/cancel/timeout, no late result or automatic retry",
+      "component": [
+        "browser_host.py",
+        "host_named_pipe.py",
+        "Program.cs"
+      ],
+      "evidence": [
+        "test_waiting_for_ipc_owner_cannot_escape_deadline",
+        "test_late_reply_is_never_committed_or_retried",
+        "test_native_partial_frame_timeout",
+        "test_native_pending_read_timeout_discards_no_late_result",
+        "test_native_pending_read_cancellation_releases_io_and_process",
+        "test_completed_health_cancellation_is_not_rollback"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "IPC-06",
+      "requirement": "lifecycle, typed start/handshake/disconnect/crash and orderly shutdown",
+      "component": [
+        "browser_host.py",
+        "Program.cs"
+      ],
+      "evidence": [
+        "test_host_never_started_and_clean_no_process_shutdown",
+        "test_start_failed_and_prestart_cancellation_do_not_create_a_process",
+        "test_success_handshake_health_shutdown_and_serialization",
+        "test_native_unexpected_disconnect_is_not_success",
+        "test_native_host_crash_is_explicit_and_never_retried",
+        "test_native_idle_disconnect_cleanup"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "IPC-07",
+      "requirement": "host pure Infrastructure, no browser/authority/second AgentLoop; capability stays unknown",
+      "component": [
+        "native/nova-browser-host/nova-browser-host.csproj",
+        "browser_host.py",
+        "inherited roots unchanged"
+      ],
+      "evidence": [
+        "test_existing_application_capability_remains_closed",
+        "test_response_cannot_announce_active_web_or_extra_features",
+        "test_no_functional_browser_commands",
+        "test_native_reserved_browser_returns_unsupported_not_ready",
+        "integrity.json"
+      ],
+      "result": "PASS"
+    },
+    {
+      "id": "IPC-08",
+      "requirement": "inherited contracts and history preserved, no new material regression",
+      "component": [
+        "unchanged positive CI selection",
+        "baseline_freeze.json",
+        "integrity.json"
+      ],
+      "evidence": [
+        "672 Active Web PASS",
+        "615 Security PASS",
+        "791 Memory PASS",
+        "1015 Knowledge PASS",
+        "3411 Core PASS + 1 historical FAIL + 7 historical SKIP + 53 passing subtests",
+        "106 focused PASS"
+      ],
+      "result": "PASS",
+      "qualification": "Not a globally green Core/HEAD claim; known HOME/USERPROFILE failure remains FAIL and non-blocking for this IPC skeleton."
+    }
+  ],
+  "gates": {
+    "BROWSER_HOST_CONTRACT": "PASS",
+    "PRIVATE_IPC": "PASS",
+    "HOST_LIFECYCLE": "PASS",
+    "WEBVIEW2_REMEDIATION_BLOCK_01": "PASS",
+    "SAFE_TO_ADVANCE_TO_BLOCK_02": true
+  },
+  "preservedStates": {
+    "ACTIVE_WEB_ARCHITECTURE_V1_1": "APPROVED_AND_DOCUMENTED",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "available": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "historicalCertifications": "unchanged"
+  },
+  "tests": {
+    "focused": {
+      "total": 106,
+      "IPC_CONTRACT_TEST": 55,
+      "HOST_PROCESS_TEST": 51,
+      "pass": 106,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0,
+      "exitCode": 0
+    },
+    "inheritedFinal": {
+      "activeWeb": {
+        "pass": 672,
+        "exitCode": 0
+      },
+      "security": {
+        "pass": 615,
+        "exitCode": 0
+      },
+      "memory": {
+        "pass": 791,
+        "exitCode": 0
+      },
+      "knowledge": {
+        "pass": 1015,
+        "exitCode": 0
+      },
+      "core": {
+        "baseCases": 3419,
+        "pass": 3411,
+        "fail": 1,
+        "error": 0,
+        "skip": 7,
+        "subtestsPass": 53,
+        "exitCode": 1
+      }
+    },
+    "scope": "unchanged ordinary positive CI contract jobs, not universal HEAD/native browser/LLM",
+    "evidence": "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/test_results.json",
+    "rawEvidencePreserved": true,
+    "newMaterialProductFailures": 0,
+    "newSkips": 0,
+    "newXfails": 0,
+    "newExclusions": 0,
+    "WebView2OrLLMCampaigns": 0,
+    "DesktopNewRun": false
+  },
+  "coreDebt": {
+    "id": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "result": "FAIL",
+    "disposition": "NON_BLOCKING_FOR_BLOCK_01",
+    "fixed": false,
+    "filtered": false,
+    "historicalEvidence": [
+      "docs/active_web_v1/aw0/closure/manifest_final.json",
+      "docs/active_web_v1/aw7/test_results.json",
+      "docs/active_web_v1/aw8/prerequisite_remediation/revision_02/test_results.json"
+    ]
+  },
+  "integrity": {
+    "previousFilesChecked": 2341,
+    "previousFilesChanged": 0,
+    "historicalFilesChecked": 116,
+    "historicalFilesChanged": 0,
+    "tagsUnchanged": true,
+    "stagingUnchanged": true,
+    "outputsOutsideGit": true,
+    "remainingHostProcesses": 0,
+    "fullEvidence": "docs/active_web_v1/aw8/webview2_remediation/01_host_ipc/integrity.json"
+  },
+  "platform": {
+    "Caption": "Microsoft Windows 11 Pro",
+    "Version": "10.0.26200",
+    "OSArchitecture": "64 bits",
+    "filesystem": "NTFS",
+    "controlClass": "HOST_UNISOLATED",
+    "dotnetSdk": "10.0.203",
+    "target": "net10.0",
+    "observedRuntime": "Microsoft.NETCore.App 10.0.7",
+    "python": "3.14.6",
+    "pytest": "9.1.1"
+  },
+  "limits": [
+    "Host IPC READY does not enable Active Web; no WebView2/runtime/browser certification.",
+    "No sandbox/admin/debugger/injected-process or trusted-host-file-replacement resistance claim.",
+    "Only completed health has wire cancellation receipt; future browser STARTED/outcome protocol deferred.",
+    "IPC call budget excludes separately bounded cleanup waits; no future Active Web latency certification.",
+    "Fresh native build/tests require already installed Windows/.NET 10; no auto-install.",
+    "Native tests explicit outside historical CI inventory; no new GitHub Actions check claim.",
+    "No packaging/distribution/WebView2 SDK/support on other hosts certified.",
+    "Known Core harness debt remains FAIL; other jobs overlap and are not aggregated as unique HEAD cases."
+  ],
+  "openDecisionsForBlock01": [],
+  "deferred": "§35.2 blocks 2–9: WebView2 adapter/runtime/UDF, guard, observations/actions, transfers/takeover, network, snapshot v2, composition tools and prerequisite/AW8 certification.",
+  "operationalLimits": {
+    "noProductiveBrowserCommands": true,
+    "noExternalNetworkIPC": true,
+    "noSecretsOrGrantAuthority": true,
+    "noGlobalConfigChanges": true,
+    "noCommit": true,
+    "noPush": true,
+    "noTag": true,
+    "noRelease": true
+  },
+  "verdict": "WEBVIEW2_REMEDIATION_BLOCK_01 = PASS",
+  "nextAction": "STOP_FOR_HUMAN_REVIEW; safe to seek separate block 02 authorization only; no automatic execution."
+}

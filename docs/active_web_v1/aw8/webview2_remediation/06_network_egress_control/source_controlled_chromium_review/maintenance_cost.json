@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "patchSet": "LARGE_PATCH_SET",
+  "conceptualGates": 22,
+  "crossCutting": 8,
+  "highChurn": 10,
+  "overall": "VERY_HIGH",
+  "costs": [
+    {
+      "item": "initial source setup",
+      "classification": "HIGH",
+      "basis": "Large source/DEPS/toolchain graph plus Windows provisioning, CEF overlay and deterministic input capture.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "initial gate implementation",
+      "classification": "VERY_HIGH",
+      "basis": "22 distinct conceptual gates, eight cross-cutting; additional callsite closure may expand scope.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "build time",
+      "classification": "HIGH",
+      "basis": "Whole Chromium and native tests, link and packaging. No measured duration in this review.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "CI compute",
+      "classification": "VERY_HIGH",
+      "basis": "Dedicated Windows builders, independent clean rebuilds, symbols and long native-security jobs. Official minima are not CI sizing.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "artifact storage",
+      "classification": "HIGH",
+      "basis": "Historical standard archive172752666 bytes/distribution452967884 bytes; source-controlled engine size not measured. Retain binaries/symbols/manifests/source/deps/test receipts per supported version.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "binary distribution",
+      "classification": "HIGH",
+      "basis": "Fixed app-local DLL/resources; packaging/version selection/modules verification, notices and update delivery. No installer/admin inherent to runtime.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "patch rebasing",
+      "classification": "VERY_HIGH",
+      "basis": "Profile propagation, proxy/DNS/HTTP2 and Windows launch sink interact with fast-moving internals; 10 high-churn gates.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "Chromium security updates",
+      "classification": "VERY_HIGH",
+      "basis": "Frequent security candidate builds/reviews, CEF lag and toolchain rolls; cannot indefinitely freeze pin.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "native certification suite",
+      "classification": "VERY_HIGH",
+      "basis": "Calibrated network/process canaries, reliable negative and fault evidence, HTTPS + protocol handlers + Block05 reimplementation proof.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "debugging",
+      "classification": "HIGH",
+      "basis": "UI/IO/renderer/utility threads, NetworkService lifetime, callbacks and irreversible outcomes; scalar private diagnostics only.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "licensing/notices",
+      "classification": "MEDIUM",
+      "basis": "Automated SBOM plus human notices/proprietary-CDM/codec review; compiling a dependency is not redistribution permission.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    },
+    {
+      "item": "ongoing profile coverage audit",
+      "classification": "VERY_HIGH",
+      "basis": "Selected source paths are not a callgraph proof; new socket or OS-launch caller requires explicit inventory/test/update review.",
+      "estimateType": "Qualitative; no person-hours/build-hours asserted."
+    }
+  ],
+  "notSimpleSmallFork": true,
+  "maintenanceFeasibility": "Plausible as a dedicated maintained engine product with funded Windows build/security ownership; not confirmed sustainable by documentation alone. Require prototype before committing full implementation.",
+  "redLines": [
+    "If unmediated WinHTTP/third-party sockets require pervasive changes, revisit ARCHITECTURALLY_UNREASONABLE rather than hiding more gates",
+    "No bypassing incompatible GN graph by enabling forbidden features",
+    "No engine freeze past acceptable security freshness",
+    "No claiming OS sandbox/admin firewall coverage"
+  ],
+  "fundingEvidence": "User accepted direction in principle; staffing/budget/CI capacity not evidenced."
+}

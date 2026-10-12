@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "defect": "WV2-B05-C03-TAKEOVER-CONTINUITY-004",
+  "analysisKind": "STATIC_PLUS_NATIVE_DIAGNOSTIC_METADATA",
+  "publicErrorUnchanged": "SECRET_BOUNDARY_UNCONFIRMED",
+  "candidatePins": [
+    {
+      "path": "native/nova-browser-host/WebView2Runtime.cs",
+      "sha256": "e106e8c59e4e8121079be9ae7c1c7b6140f50a51518c20a535d49efa021e9bf5"
+    },
+    {
+      "path": "native/nova-browser-host/TakeoverRuntime.cs",
+      "sha256": "073489b12a21ea6969c16aba798b3d499b915bbab89167fc2a412e23deda7571"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveValueRegistry.cs",
+      "sha256": "27099fe37faf145a6b871e4ba0db8e91e8e8d34ce08fdfc9b061068ab072d5c0"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTracking.cs",
+      "sha256": "6808d71327e601189ae91e89826b78875e8082a73069527fbcdf2c37c853fc8c"
+    }
+  ],
+  "semantics": [
+    {
+      "entry": "input",
+      "location": "native/nova-browser-host/SensitiveTracking.cs:26; SensitiveValueRegistry.cs:31-42",
+      "target": "Complete current buffer from this event is remembered immediately; pending[key] becomes that buffer (or is removed for empty). No promotion on input alone.",
+      "humanEditing": "Passed through; registry currently does not consult this parameter."
+    },
+    {
+      "entry": "change / blur",
+      "location": "native/nova-browser-host/SensitiveTracking.cs:27",
+      "target": "Input first records the full current DOM value and updates pending; Commit promotes pending for the exact control key."
+    },
+    {
+      "entry": "submit / pagehide",
+      "location": "native/nova-browser-host/SensitiveTracking.cs:25,28-29",
+      "target": "Fixed scan reads each sensitive control currently present, sends commit=true; disconnected controls are also sampled/committed. Not a loop over all historical known buffers."
+    },
+    {
+      "entry": "world/context removal",
+      "location": "native/nova-browser-host/SensitiveTracking.cs:74-77; SensitiveValueRegistry.cs:58-59",
+      "target": "Retire enumerates pending control keys for the retiring page/context prefix; each most recently received nonempty current buffer is promoted then pending removed. All historical known values remain retained, not all promoted."
+    },
+    {
+      "entry": "final takeover checkpoint",
+      "location": "native/nova-browser-host/SensitiveTracking.cs:78-98; TakeoverRuntime.cs:EndTakeover",
+      "target": "Find exactly one recorded protected world per current frame; invoke fixed scan(true) in it; wait nonce acknowledgment; then Commit each remaining pending control. No reconstruction of values from destroyed worlds."
+    },
+    {
+      "entry": "Commit",
+      "location": "native/nova-browser-host/SensitiveValueRegistry.cs:50-56",
+      "target": "pending.TryGetValue(key,out v) selects current pending value. Promotion sets values[v]=COMMITTED; length <=3 marks unavailable and throws existing public error.",
+      "historicalPrefixesPromotedAutomatically": false
+    },
+    {
+      "entry": "late value event",
+      "location": "native/nova-browser-host/SensitiveTracking.cs:61,66,73",
+      "target": "If context no longer exists, fail-closed. If context still exists, received event updates its exact pending control. No heuristic rebind; no explicit event-generation sequence discriminator in current product.",
+      "observedAfterRetirement": false
+    },
+    {
+      "entry": "expiry/bounds",
+      "location": "native/nova-browser-host/SensitiveValueRegistry.cs:14-15,26-28,34,39,47",
+      "target": "1024 distinct values, 64 pending controls, 4096 UTF-16/value, 262144 total UTF-16, 30-minute active lifetime. Failure permanently closes boundary; no eviction."
+    }
+  ],
+  "nativeFindings": [
+    {
+      "nodeId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+      "commits": [
+        {
+          "sequence": 368,
+          "controlOpaqueId": "control_4",
+          "worldOpaqueId": "world_incarnation_3",
+          "worldLive": true,
+          "valueLength": 42,
+          "commitReason": "pagehide",
+          "classification": "TRANSIENT"
+        },
+        {
+          "sequence": 373,
+          "controlOpaqueId": "control_4",
+          "worldOpaqueId": "world_incarnation_3",
+          "worldLive": false,
+          "valueLength": 42,
+          "commitReason": "world-retire",
+          "classification": "COMMITTED"
+        }
+      ],
+      "knownAtFirstDispose": 42,
+      "totalUtf16AtFirstDispose": 903,
+      "allCommittedTargetsLong": true,
+      "takeoverCompleted": true,
+      "firstFailureReason": null,
+      "channelCheckpointAcks": 8,
+      "noObservedChangeBlurSubmit": true,
+      "description": "At pagehide, current terminal length 42 is promoted. World retirement recommits that same current value. New world is protected and checkpoint acknowledged. Historical short prefixes remain TRANSIENT in this execution."
+    },
+    {
+      "nodeId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[same-origin]",
+      "commits": [
+        {
+          "sequence": 368,
+          "controlOpaqueId": "control_4",
+          "worldOpaqueId": "world_incarnation_3",
+          "worldLive": true,
+          "valueLength": 42,
+          "commitReason": "pagehide",
+          "classification": "TRANSIENT"
+        },
+        {
+          "sequence": 373,
+          "controlOpaqueId": "control_4",
+          "worldOpaqueId": "world_incarnation_3",
+          "worldLive": false,
+          "valueLength": 42,
+          "commitReason": "world-retire",
+          "classification": "COMMITTED"
+        }
+      ],
+      "knownAtFirstDispose": 42,
+      "totalUtf16AtFirstDispose": 903,
+      "allCommittedTargetsLong": true,
+      "takeoverCompleted": true,
+      "firstFailureReason": null,
+      "channelCheckpointAcks": 6,
+      "noObservedChangeBlurSubmit": true,
+      "description": "At pagehide, current terminal length 42 is promoted. World retirement recommits that same current value. New world is protected and checkpoint acknowledged. Historical short prefixes remain TRANSIENT in this execution."
+    },
+    {
+      "nodeId": "native/nova-browser-host/tests/test_sensitive_disconnect_diagnostic.py::test_native_capture_exception_diagnostic[history]",
+      "commits": [
+        {
+          "sequence": 368,
+          "controlOpaqueId": "control_4",
+          "worldOpaqueId": "world_incarnation_3",
+          "worldLive": true,
+          "valueLength": 42,
+          "commitReason": "pagehide",
+          "classification": "TRANSIENT"
+        },
+        {
+          "sequence": 373,
+          "controlOpaqueId": "control_4",
+          "worldOpaqueId": "world_incarnation_3",
+          "worldLive": false,
+          "valueLength": 42,
+          "commitReason": "world-retire",
+          "classification": "COMMITTED"
+        }
+      ],
+      "knownAtFirstDispose": 42,
+      "totalUtf16AtFirstDispose": 903,
+      "allCommittedTargetsLong": true,
+      "takeoverCompleted": true,
+      "firstFailureReason": null,
+      "channelCheckpointAcks": 8,
+      "noObservedChangeBlurSubmit": true,
+      "description": "At pagehide, current terminal length 42 is promoted. World retirement recommits that same current value. New world is protected and checkpoint acknowledged. Historical short prefixes remain TRANSIENT in this execution."
+    }
+  ],
+  "causalConclusion": {
+    "historicalFirstKnownPoint": "EndTakeover / RememberSensitive returns SECRET_BOUNDARY_UNCONFIRMED before post-takeover observation.",
+    "specificFailureReason": "UNKNOWN",
+    "mechanism": "NOT_DEMONSTRATED",
+    "whyOnlyThoseScenarios": "NOT_DEMONSTRATED / not stable in this diagnostic campaign",
+    "attributionTo003": false
+  },
+  "conditionalInspectionPoints": [
+    {
+      "condition": "Only if a future authorized failing trace proves a committed short intermediate instead of terminal value",
+      "focus": "Inspect event-generation/current-binding ordering at Input/Retire. Preserve all monotonic knowledge and committed-short fail-closed.",
+      "approvedFix": false
+    },
+    {
+      "condition": "Only if a future failing trace proves zero/multiple/unprotected worlds at checkpoint",
+      "focus": "Inspect active document/world correlation and pending lifecycle; do not create a replacement world or heuristic rebind to conceal lost continuity.",
+      "approvedFix": false
+    },
+    {
+      "condition": "Only if a future failing trace proves a late removed-world binding or expired nonce",
+      "focus": "Inspect exact lifecycle delivery ordering and fail-closed handling without publishing sensitive state.",
+      "approvedFix": false
+    }
+  ],
+  "minimalProductFixProposal": "No specific product fix is justified by current evidence. Stop for human review; do not alter policy, registry or checkpoint on the basis of non-reproduction.",
+  "regressionTestsForAnyFutureAuthorizedFix": [
+    "The three historical failing scenarios with unchanged drivers/HTML/assertions",
+    "Committed short denial remains fail-closed",
+    "Terminal promotion versus historical prefixes",
+    "Value/event receipt around pagehide and world retirement",
+    "History frame/world incarnation and final checkpoint",
+    "Same-origin/cross-origin capture continuity",
+    "No raw sensitive material in Named Pipe/audit/projection"
+  ],
+  "risks": [
+    "Instrumentation timing may suppress an intermittent ordering failure.",
+    "A speculative current-state fix can miss terminal credentials or weaken committed-short denial.",
+    "Changing world selection can silently introduce heuristic rebind or lose cross-document protection.",
+    "Unbounded diagnostic retries would violate this authorization."
+  ]
+}

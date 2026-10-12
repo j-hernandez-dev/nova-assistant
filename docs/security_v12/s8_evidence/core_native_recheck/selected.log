@@ -1,0 +1,28 @@
+F...
+================================== FAILURES ===================================
+_________ test_real_native_unicode_quoting_cwd_env_stdout_stderr_exit _________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_vibn9709/selected/test_real_native_unicode_quoti0')
+
+    def test_real_native_unicode_quoting_cwd_env_stdout_stderr_exit(tmp_path):
+        descriptor, executor = native()
+        folder = tmp_path / "á space ' quote"
+        folder.mkdir()
+        script = folder / "script.py"
+        script.write_text("import os,sys\nfrom pathlib import Path\n"
+            "print('ñ🧠|' + str(Path.cwd()) + '|' + os.environ['LANG'])\n"
+            "print('NATIVE_ERR', file=sys.stderr)\nsys.exit(7)\n", encoding="utf-8")
+        # S6 deliberately excludes Nova/internal variables. Exercise compatible
+        # locale env here; exact additional passes are covered by S6 native tests.
+        environment = {**get_sanitized_env(), "PYTHONIOENCODING": "utf-8", "LANG": "native"}
+        before = Path.cwd()
+        result = executor.run(python_command(descriptor, script), 10, str(folder), environment)
+        # python_command explicitly propagates $LASTEXITCODE in PowerShell.
+>       assert result.returncode == 7
+E       AssertionError: assert 1 == 7
+E        +  where 1 = CompletedProcess(args=['C:\\Users\\joseh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powersh...codeError: \'charmap\' codec can\'t encode character \'\\U0001f9e0\' in position 1: character maps to <undefined>\r\n').returncode
+
+tests\test_nova_core_phase14_platform.py:53: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_nova_core_phase14_platform.py::test_real_native_unicode_quoting_cwd_env_stdout_stderr_exit
+1 failed, 3 passed in 7.07s

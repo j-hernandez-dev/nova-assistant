@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "defaultNewEngineVersion": "NOT_CERTIFIED",
+  "evergreen": false,
+  "engineFreezeIndefinite": false,
+  "pipeline": [
+    "Upstream security release / supported branch advisory",
+    "Create separately pinned upgrade candidate; old approved artifacts retain historical evidence, operational exposure reviewed",
+    "Rebase CEF baseline + Nova series, inspect semantic changes at every gate; no automatic conflict resolution",
+    "Resolve deps/toolchain/GN changes; two clean unsigned builds and hashes",
+    "Mandatory native security suite and regression against exact artifact/profile",
+    "Human review of proof, unclosed gaps, notices and deadlines",
+    "Issue certificate binding all modules, gates, config, broker/host ABI, architecture and suite digest",
+    "Atomic app-local distribution selection; new sessions only. Never swap engine in a live BrowserSession or auto-fallback to rejected stock/WebView2."
+  ],
+  "certificateBinds": [
+    "CEF and Chromium source/tree commits",
+    "Nova patch series/profile digest",
+    "GN effective values/build graph",
+    "compiler/VS/SDK/DEPS/CIPD hashes",
+    "all loaded binary/resources modules and architecture",
+    "proxy/broker version and exact session bootstrap contract",
+    "host adapter IPC version",
+    "native suite receipts/process windows/canary calibration",
+    "human signoff and validity/security freshness constraints"
+  ],
+  "mandatorySuite": [
+    "RTC API AND backend: secure context, STUN/TURN TCP/UDP, ICE/data channels, aliases/frame contexts, zero bypass",
+    "SW register/activate/start/import/fetch, old cache/profile restore and background resurrection denied",
+    "TCP exact endpoint and raw/adopted sockets; UDP connected/unconnected, QUIC/Alt-Svc/HTTP3/WebTransport",
+    "Proxy absent/start/killed/restart, direct override/local bypass/PAC/WPAD, wrong proxy and destination auth challenges",
+    "DNS mixed/rebind/public->private, prefetch/preconnect/service endpoint/cache/native OS resolver; all destination sockets broker-owned",
+    "HTTP public + HTTPS standard success/hostname/chain/invalid/private denial, no MITM",
+    "Logical every-hop/new-origin admission + download/frame/subresource/XHR; H2 tunnel coalescing no cross-origin skip",
+    "Registered protocol canary scripts/clicks/popups/frames/takeover, lower platform sink zero launches",
+    "Owned Pages/opaque refs/freshness/exact approval/outcomes/STARTED->UNKNOWN/no retry",
+    "Takeover confirmed resume/unconfirmed terminal denial, known secret monotonicity/leaf redaction/pre-IPC secrecy",
+    "Uploads/downloads/drive-by, staging ownership and effect boundary, process/Job/profile cleanup"
+  ],
+  "rollbackPolicy": "Only a still-certified security-acceptable prior source-controlled artifact may be selected explicitly; otherwise Active Web closed. No availability-preserving stock fallback.",
+  "responseToSecurityDeadline": "If recertification is late or a relevant vulnerability invalidates assumptions, revoke operational availability rather than silently retain stale certification. Cadence tied to upstream advisories, not an invented fixed hours SLA.",
+  "noCertificatesIssued": true
+}

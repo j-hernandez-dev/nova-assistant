@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "phase": "V12_B2_CONTROLLED_FETCH_PUBLIC_ONLY",
+  "profile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+  "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362",
+  "status": "PASS",
+  "categories": {
+    "CONTRACT_PASS": {
+      "passed": 196,
+      "includes": "190 complete B1 tests plus 6 B2 seam extensions",
+      "certificationProof": false
+    },
+    "NATIVE_TRANSPORT_PASS": {
+      "passed": 83,
+      "controlledFixtureCases": 88,
+      "includesCalibration": true,
+      "doubles": false
+    },
+    "PUBLIC_ONLY_NEGATIVE_PASS": {
+      "forbiddenUpstreamConnects": 0,
+      "canaryCalibrationCase": "observer_calibration"
+    },
+    "TLS_PASS": {
+      "validRequired": true,
+      "wrongHostRejected": true,
+      "untrustedRejected": true,
+      "expiredVerifyCode": 10,
+      "notYetValidVerifyCode": 9,
+      "globalCAChanges": 0
+    },
+    "LIMIT_PASS": {
+      "headersStatusCountAndBytes": true,
+      "bodyDuringStreaming": true,
+      "aggregateReservations": true,
+      "deadlineNotReset": true,
+      "nativeConcurrency": true
+    },
+    "OUTCOME_PASS": {
+      "zeroHTTPBeforeDispatch": "FAILED_NO_EFFECT_CONFIRMED",
+      "afterHTTPDispatchLoss": "UNKNOWN",
+      "limitPrefix": "PARTIAL",
+      "noRetries": true
+    }
+  },
+  "gates": {
+    "CONTROLLED_FETCH_REAL_TRANSPORT": {
+      "status": "PASS",
+      "category": "NATIVE_TRANSPORT_PASS",
+      "caseNames": [
+        "positive_False_GET",
+        "positive_True_GET",
+        "positive_False_HEAD",
+        "positive_True_HEAD",
+        "host_plan_boundary",
+        "expired_plan"
+      ],
+      "rowIndexes": [
+        1,
+        2,
+        3,
+        4,
+        84,
+        85
+      ]
+    },
+    "CONTROLLED_FETCH_DNS_ALL_ANSWER": {
+      "status": "PASS",
+      "category": "NATIVE_TRANSPORT_PASS",
+      "caseNames": [
+        "dns_private",
+        "dns_mixed",
+        "dns_empty",
+        "dns_excessive",
+        "dns_ambiguous",
+        "dns_timeout",
+        "dns_unavailable",
+        "system_dns_localhost",
+        "system_dns_public_owned_http",
+        "redirect_rebinding_private"
+      ],
+      "rowIndexes": [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        45,
+        74
+      ]
+    },
+    "CONTROLLED_FETCH_NUMERIC_PINNING": {
+      "status": "PASS",
+      "category": "NATIVE_TRANSPORT_PASS",
+      "caseNames": [
+        "positive_False_GET",
+        "positive_True_GET",
+        "system_dns_public_owned_http"
+      ],
+      "rowIndexes": [
+        1,
+        2,
+        33
+      ]
+    },
+    "CONTROLLED_FETCH_PUBLIC_ONLY_NEGATIVES": {
+      "status": "PASS",
+      "category": "PUBLIC_ONLY_NEGATIVE_PASS",
+      "caseNames": [
+        "literal_denial_127.0.0.1",
+        "literal_denial_0.0.0.0",
+        "literal_denial_10.0.0.1",
+        "literal_denial_172.16.0.1",
+        "literal_denial_192.168.0.1",
+        "literal_denial_100.64.0.1",
+        "literal_denial_169.254.169.254",
+        "literal_denial_100.100.100.200",
+        "literal_denial_224.0.0.1",
+        "literal_denial_240.0.0.1",
+        "literal_denial_192.0.2.1",
+        "literal_denial_198.18.0.1",
+        "literal_denial_[::1]",
+        "literal_denial_[::]",
+        "literal_denial_[fc00::1]",
+        "literal_denial_[fe80::1]",
+        "literal_denial_[ff02::1]",
+        "literal_denial_[2001:db8::1]",
+        "literal_denial_[::ffff:127.0.0.1]",
+        "literal_denial_[2002:7f00:1::]",
+        "literal_denial_[64:ff9b::7f00:1]",
+        "observer_calibration",
+        "dns_private",
+        "dns_mixed",
+        "redirect_rebinding_private",
+        "redirect_mixed_dns"
+      ],
+      "rowIndexes": [
+        0,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        45,
+        82
+      ]
+    },
+    "CONTROLLED_FETCH_HTTP": {
+      "status": "PASS",
+      "category": "NATIVE_TRANSPORT_PASS",
+      "caseNames": [
+        "positive_False_GET",
+        "positive_False_HEAD",
+        "body_until_eof",
+        "204_no_body",
+        "304_no_body",
+        "framing_denial"
+      ],
+      "rowIndexes": [
+        1,
+        3,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        66,
+        67,
+        68
+      ]
+    },
+    "CONTROLLED_FETCH_HTTPS_TLS": {
+      "status": "PASS",
+      "category": "TLS_PASS",
+      "caseNames": [
+        "positive_True_GET",
+        "positive_True_HEAD",
+        "tls_invalid_cf-public.testFalse",
+        "tls_invalid_cf-wrong.testTrue",
+        "tls_expired",
+        "tls_not-yet-valid"
+      ],
+      "rowIndexes": [
+        2,
+        4,
+        34,
+        35,
+        75,
+        76
+      ]
+    },
+    "CONTROLLED_FETCH_REDIRECT_REVALIDATION": {
+      "status": "PASS",
+      "category": "NATIVE_TRANSPORT_PASS",
+      "caseNames": [
+        "redirect_public_FalseGET",
+        "redirect_public_TrueGET",
+        "redirect_public_FalseHEAD",
+        "redirect_public_TrueHEAD",
+        "redirect_rebinding_private",
+        "redirect_mixed_dns",
+        "https_downgrade",
+        "malformed_location",
+        "policy_revision_between_hops"
+      ],
+      "rowIndexes": [
+        36,
+        37,
+        38,
+        39,
+        45,
+        46,
+        82,
+        83,
+        86
+      ]
+    },
+    "CONTROLLED_FETCH_LIMIT_ENFORCEMENT": {
+      "status": "PASS",
+      "category": "LIMIT_PASS",
+      "caseNames": [
+        "header_limit",
+        "body_limit_True",
+        "body_limit_False",
+        "slow_headers",
+        "slow_body",
+        "aggregate_wire_allowance",
+        "native_concurrency",
+        "redirect_limit",
+        "deadline_between_hops"
+      ],
+      "rowIndexes": [
+        57,
+        58,
+        59,
+        60,
+        61,
+        64,
+        65,
+        69,
+        70,
+        79,
+        87
+      ]
+    },
+    "CONTROLLED_FETCH_OUTCOME_INTEGRITY": {
+      "status": "PASS",
+      "category": "OUTCOME_PASS",
+      "caseNames": [
+        "dns_private",
+        "connect_refused",
+        "connect_timeout_calibrated_backlog",
+        "disconnect_during_request_attempt",
+        "disconnect_early",
+        "slow_headers",
+        "slow_body",
+        "framing_denial",
+        "tls_expired",
+        "positive_True_GET",
+        "body_limit_True"
+      ],
+      "rowIndexes": [
+        2,
+        26,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        60,
+        61,
+        62,
+        63,
+        64,
+        75,
+        77,
+        80,
+        81
+      ]
+    },
+    "CONTROLLED_FETCH_NO_AMBIENT_FALLBACK": {
+      "status": "PASS",
+      "category": "NATIVE_TRANSPORT_PASS",
+      "caseNames": [
+        "ambient_proxy_ignored",
+        "auth_no_retry",
+        "positive_True_HEAD",
+        "connect_refused"
+      ],
+      "rowIndexes": [
+        4,
+        71,
+        72,
+        80
+      ]
+    }
+  },
+  "claims": {
+    "networkEgressControl": "ENFORCED",
+    "publicOnly": "ENFORCED",
+    "scope": "Every HTTP(S) DATA connection initiated by CONTROLLED_FETCH_V1_2 through this exact candidate profile. Not DNS sockets/OS/process sockets/browser network isolation.",
+    "methods": [
+      "GET",
+      "HEAD"
+    ],
+    "profile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+    "productiveAvailability": "NOT_ENABLED"
+  },
+  "notCertified": [
+    "Interactive Browser network",
+    "browser PUBLIC_ONLY",
+    "all process sockets",
+    "all OS traffic",
+    "hostile engine containment",
+    "POST/auth/binary download"
+  ],
+  "noThresholdsRelaxedForClosure": true,
+  "earlierFailuresPreserved": true
+}

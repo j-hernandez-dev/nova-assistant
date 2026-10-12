@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Prospective two-authority terminality — retirement lifecycle only",
+  "timestampUtc": "2026-10-11T00:57:51.817Z",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "parent": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_07_terminal_snapshot_fix/continuation_04_strong_terminal_authority/continuation_02_pagehide_nonterminal",
+  "candidateFreeze": "candidate_freeze.json",
+  "candidateFreezeSha256": "52a6c6bf9af12797b239015fc7909e838dd528752c0b423af00536b6c01b44d7",
+  "changes": [
+    {
+      "path": "native/nova-browser-host/TakeoverRuntime.cs",
+      "beforeSha256": "8141ca66409cc3180b7142d2678c61f1d5ee474ba9527a9350a13b1593e91cc0",
+      "sha256": "0fff41806aeff5d4b7a61339897ab4459b9fc6fe624968e01a5524c781675758"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveValueRegistry.cs",
+      "beforeSha256": "e79177c4b9da5ae61c6e3647b5872efea156ac1b341f4cd9c483d3643803dcc3",
+      "sha256": "f900bc5bc47941ce2b9fb54573d38ca446e27bc63a55b53b688832007f702c43"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTracking.cs",
+      "beforeSha256": "c951e1578ef8b7a3457abd0a9ae2584727d10e0f399c9bb8dd03d506a486b8ff",
+      "sha256": "0fb77a9127ce326200a1505b14d30bc3a927ef61490d78ba7a81dfc559858302"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "beforeSha256": "1017b4710353da5de7bd46182a9ec93e293fe368e10b46e32a5925b236d3f072",
+      "sha256": "066a45e9590f9a1b6ae1a0efbcde03618b0a065ed7a285986f262fceecdc1de1"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveBoundaryFailure.cs",
+      "beforeSha256": "84571e8d8371a14769d8633b9c4c28c8925432cfe21f23da6cc7f041c12e1dbc",
+      "sha256": "9527f2fe5995d80913379f97c4a06be167cc44990bfa59e2f635d0fd87c89175"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTerminalState.cs",
+      "beforeSha256": "392cf2790215a40a1d05b4f6244ad60de1bed7467954ebbaead5de0f8285c368",
+      "sha256": "8ac1691bcfabd6ca0c8c8e3a8db515dc0e590c56b74135c38759d5519d095283"
+    },
+    {
+      "path": "native/nova-browser-host/tests/test_terminal_ordering.py",
+      "beforeSha256": "75ac4a11599019c9cfd8670be1f31541b7e1fa8fde1a10a115882a4088d78c06",
+      "sha256": "c36f6b26191994498a3f7bd0a3220d46af20e19cfe2781241c27acec62b1154e"
+    },
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "beforeSha256": "91ebaf1b207080a0b647b5a72ee5f703d8014d514c1400e83a5a56a95319b775",
+      "sha256": "bc2b0773b19a70dd8195465d42d8339d8dbd50c341cc140472f26f0ca370c31d"
+    },
+    {
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "beforeSha256": "c7748c629c898c151bd99d44cf11cd00cf4d7f4ff79d146e819f516a2a8f0ac2",
+      "sha256": "5adf4458bef232db003d5b221b5ce17750fd1b9a16f362d716bd3eaa2c0b1466"
+    },
+    {
+      "path": "native/nova-browser-host/tests/strong_terminal_runner/Program.cs",
+      "beforeSha256": "91cd8aceae55af0d3df87cb20a5018dac0ce12354483aa632e2cc33b905e989c",
+      "sha256": "3480286f5840ca936069776826934e29a4463c1daf67bab4bd831189a1f71274"
+    },
+    {
+      "path": "native/nova-browser-host/tests/test_strong_terminal_authority.py",
+      "beforeSha256": "f88cb042fa17328320d229bf958fb98edea4e1ac0564c78aa1a2c14c79fad800",
+      "sha256": "d4fffd893d808bfb412eb5a913f7f37bf2225f197ec42e1531737c18e6f0f3e3"
+    }
+  ],
+  "reconciliation": [
+    {
+      "path": "native/nova-browser-host/tests/strong_terminal_runner/Program.cs",
+      "ids": [
+        "change-then-retire",
+        "strong-engine_world_retire-long",
+        "strong-engine_world_retire-short",
+        "pagehide-retire-long",
+        "pagehide-retire-short"
+      ],
+      "old": "ENGINE_WORLD_RETIRE constructs snapshot, commits exact current, short denied by retirement",
+      "new": "seal lifecycle; known + TRANSIENT; retain exact current/revision; no new terminal/Commit; explicit unresolved-end denial separate",
+      "beforeSha256": "91cd8aceae55af0d3df87cb20a5018dac0ce12354483aa632e2cc33b905e989c",
+      "humanDecision": "ENGINE_WORLD_RETIRE NON_TERMINAL; only SUBMIT_CONFIRMED and TAKEOVER_END_CHECKPOINT",
+      "unchanged": [
+        "values/lengths",
+        "native fixtures/driver/sequences/assertions",
+        "no-exposure",
+        "monotonicity",
+        "bounds",
+        "genuine-short denial"
+      ],
+      "afterSha256": "3480286f5840ca936069776826934e29a4463c1daf67bab4bd831189a1f71274"
+    },
+    {
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "ids": [
+        "stale-terminal-current",
+        "short-1",
+        "short-2",
+        "short-3",
+        "pagehide-uncommitted",
+        "multiple-controls",
+        "forged-engine-reason"
+      ],
+      "old": "retirement implicitly commits current or unconsumed snapshot",
+      "new": "retirement never commits; only explicit SUBMIT/current CHECKPOINT may commit before seal; unresolved retirement retained",
+      "beforeSha256": "c7748c629c898c151bd99d44cf11cd00cf4d7f4ff79d146e819f516a2a8f0ac2",
+      "humanDecision": "ENGINE_WORLD_RETIRE NON_TERMINAL; only SUBMIT_CONFIRMED and TAKEOVER_END_CHECKPOINT",
+      "unchanged": [
+        "values/lengths",
+        "native fixtures/driver/sequences/assertions",
+        "no-exposure",
+        "monotonicity",
+        "bounds",
+        "genuine-short denial"
+      ],
+      "afterSha256": "5adf4458bef232db003d5b221b5ce17750fd1b9a16f362d716bd3eaa2c0b1466"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "terminal-retire",
+        "short-retire-denied"
+      ],
+      "old": "retirement proof commits terminal current",
+      "new": "explicit strong SUBMIT proof precedes retirement; genuine long COMMITTED / short denial preserved",
+      "beforeSha256": "1017b4710353da5de7bd46182a9ec93e293fe368e10b46e32a5925b236d3f072",
+      "humanDecision": "ENGINE_WORLD_RETIRE NON_TERMINAL; only SUBMIT_CONFIRMED and TAKEOVER_END_CHECKPOINT",
+      "unchanged": [
+        "values/lengths",
+        "native fixtures/driver/sequences/assertions",
+        "no-exposure",
+        "monotonicity",
+        "bounds",
+        "genuine-short denial"
+      ],
+      "afterSha256": "066a45e9590f9a1b6ae1a0efbcde03618b0a065ed7a285986f262fceecdc1de1"
+    }
+  ],
+  "runtime": {
+    "python": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe",
+    "pythonVersion": "3.14.6",
+    "pytest": "9.1.1",
+    "dotnet": "C:/Program Files/dotnet/dotnet.exe",
+    "sdk": "10.0.203",
+    "webview2Sdk": "1.0.4258.31",
+    "webview2SdkLocalFeed": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31",
+    "native": "Windows / NTFS / AMD64"
+  },
+  "evidence": {
+    "testResults": "test_results.json",
+    "integrity": "integrity.json",
+    "baseline": "baseline.json",
+    "terminalAuthority": "terminal_authority.md",
+    "historicalExpectation": "historical_expectation_boundary.md",
+    "nativeEvidence": "native_boundary_evidence.json",
+    "externalRoot": "C:/Users/joseh/AppData/Local/Temp/nova-retirement-lifecycle-20261011T004828Z",
+    "outputsPinned": 117
+  },
+  "gates": {
+    "TWO_AUTHORITY_STATE_MACHINE": "PASS (focused)",
+    "RETIREMENT_NON_TERMINAL_LIFECYCLE": "PASS (focused)",
+    "GENUINE_SHORT_COMMITTED_DENIAL": "PASS (contract and native)",
+    "TERMINAL_CONTINUITY_FAIL_CLOSED": "PASS (contract and native)",
+    "STRONG_TERMINAL_AUTHORITY": "PARTIAL (full validation incomplete)",
+    "CROSS_DOCUMENT_SECRET_REDACTION": "PARTIAL",
+    "MODEL_PROJECTION_SECRET_BOUNDARY": "PARTIAL",
+    "BLOCK05_FINAL_REGRESSION": "BLOCKED",
+    "HISTORICAL_EXPECTATION_REQUIRES_UNCONFIRMED_TERMINAL_INFERENCE": true
+  },
+  "states": {
+    "C07_TERMINAL_SNAPSHOT_FIX": "PARTIAL",
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "historical36Udf": "CLEANUP_UNCONFIRMED / NOT_TOUCHED"
+  },
+  "noProductChangesAfterFreeze": true,
+  "noNativeHistoricalFixturesAssertionsDriversChanged": true,
+  "rawSensitiveMaterialPersisted": false,
+  "noNewDiagnosticCampaign": true,
+  "noNewSourcesOrLegacyCommit": true,
+  "noBlock06": true,
+  "noAW8E2E": true,
+  "noReady": true,
+  "noCommitPushTagRelease": true,
+  "cleanup": {
+    "ownedDirectoriesRemaining": [],
+    "scopedProcessesRemaining": [],
+    "historical36UdfTouched": false
+  },
+  "preserved": {
+    "historicalArtifacts": 340,
+    "trackedDirtyPins": 18,
+    "priorExternalPins": 208,
+    "sourcePins": 95,
+    "drift": 0
+  }
+}

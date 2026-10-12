@@ -1,0 +1,540 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW7",
+  "verdict": "PASS",
+  "createdAt": "2026-10-09 21:26:59 UTC",
+  "sourceOfTruth": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+    "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "phaseSection": "§35 AW7",
+    "applicableSections": [
+      "§26 Eventos y auditoría",
+      "§27 Frontends",
+      "§30 Recovery",
+      "§33 AW-INV",
+      "§36 phase-applicable test strategy"
+    ]
+  },
+  "baseline": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "initialWorkingTree": " M ci/pytest_contracts.json\n M local_cli/application/tool_runtime.py\n M local_cli/core/contracts.py\n M pyproject.toml\n?? docs/active_web_v1/\n?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md\n?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md\n?? local_cli/application/active_web.py\n?? local_cli/application/browser_actions.py\n?? local_cli/application/browser_network.py\n?? local_cli/application/browser_observation.py\n?? local_cli/application/browser_takeover.py\n?? local_cli/application/browser_transfers.py\n?? local_cli/core/active_web.py\n?? local_cli/core/active_web_lifecycle.py\n?? local_cli/core/active_web_network.py\n?? local_cli/core/active_web_observation.py\n?? local_cli/core/active_web_policy.py\n?? local_cli/core/active_web_transfers.py\n?? local_cli/infrastructure/active_web/\n?? tests/active_web_v1/\n",
+    "finalWorkingTree": " M .github/workflows/nova_knowledge_v1.yml\n M ci/README.md\n M ci/contract_inventory.py\n M ci/pytest_contracts.json\n M ci/run_contracts.py\n M desktop/electron/application_client.ts\n M desktop/shared/application.ts\n M desktop/src/App.tsx\n M local_cli/application/legacy_event_bridge.py\n M local_cli/application/security_audit.py\n M local_cli/application/session.py\n M local_cli/application/tool_runtime.py\n M local_cli/core/contracts.py\n M local_cli/interfaces/cli_application.py\n M pyproject.toml\n?? .github/workflows/nova_active_web_v1.yml\n?? desktop/tests/active_web.test.cjs\n?? docs/active_web_v1/\n?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md\n?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md\n?? local_cli/application/active_web.py\n?? local_cli/application/browser_actions.py\n?? local_cli/application/browser_network.py\n?? local_cli/application/browser_observation.py\n?? local_cli/application/browser_projection.py\n?? local_cli/application/browser_takeover.py\n?? local_cli/application/browser_transfers.py\n?? local_cli/core/active_web.py\n?? local_cli/core/active_web_lifecycle.py\n?? local_cli/core/active_web_network.py\n?? local_cli/core/active_web_observation.py\n?? local_cli/core/active_web_policy.py\n?? local_cli/core/active_web_transfers.py\n?? local_cli/infrastructure/active_web/\n?? tests/active_web_v1/\n",
+    "initialStaging": "EMPTY",
+    "finalStaging": "EMPTY",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "filesystem": "Windows + C: fixed local NTFS",
+    "controlClass": "HOST_UNISOLATED",
+    "tags": [
+      "97f41c6dab89ee59332875bb8d89c29620b52156 refs/tags/nova-core-v1-stable",
+      "a26a94ebfb2db44551097f1641eec6706b52c101 refs/tags/nova-knowledge-inputs-v1-ready",
+      "fa6b2f7898692ddc6cec77a4d971dbc395b764a6 refs/tags/nova-memory-v1-ready",
+      "6a48c5252e40986ecf4180138d9d56bc519b3e49 refs/tags/nova-memory-v1.1-ready",
+      "e5bea6a4c2c559a1f5a2f8824316a83b548b2533 refs/tags/nova-security-v1.2-ready"
+    ],
+    "prerequisite": "AW6 = PASS",
+    "initialRegression": {
+      "passed": 675,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "exitCode": 1,
+      "source": "preflight.json"
+    }
+  },
+  "scope": {
+    "literalGate": "frontend no crea authority path",
+    "objective": "Frontends, audit y CI",
+    "deliverables": [
+      "CLI/JSONL/Desktop projections",
+      "durable audit",
+      "positive CI classification",
+      "fake and real-browser suites"
+    ],
+    "noAW8": true,
+    "noReady": true,
+    "noCommitPushTagRelease": true,
+    "noProductOrArchitectureChangesDuringEvidenceClosure": true
+  },
+  "gateEvaluation": [
+    {
+      "id": "AW7-PROJECTIONS",
+      "requirement": "CLI/JSONL/Desktop projections",
+      "result": "PASS",
+      "components": [
+        "BrowserFrontendProjection",
+        "BrowserFrontendBinding",
+        "SessionCoordinator",
+        "CliApplicationClient",
+        "JSONL event transport",
+        "Desktop backend DTO reducer/App"
+      ],
+      "evidence": [
+        "test_every_browser_projection_is_correlated_bounded_and_non_authoritative",
+        "test_application_snapshot_events_cli_jsonl_share_backend_without_authority",
+        "desktop/tests/active_web.test.cjs",
+        "focused-final/tests.xml"
+      ],
+      "qualification": "Common backend; display-only correlated allowlist, host-only approval boundary and no frontend action API. Optional injected host composition; public tools not activated."
+    },
+    {
+      "id": "AW7-AUDIT",
+      "requirement": "durable audit",
+      "result": "PASS",
+      "components": [
+        "ToolRuntime",
+        "SecurityAuditService",
+        "JsonlSecurityAudit"
+      ],
+      "evidence": [
+        "test_pre_effect_flush_contains_browser_target_before_sdk",
+        "test_browser_pre_effect_audit_failure_denies_before_dispatch",
+        "test_durable_browser_binding_complete_before_effect_and_terminal",
+        "test_exact_approval_still_host_required_and_audited",
+        "test_native_sdk_receipt_durable_audit_and_shared_projection"
+      ],
+      "qualification": "Flush/append boundary and SDK order demonstrated under existing durable store contract; no universal crash/power guarantee, no new Security DATA_KEYS/schema."
+    },
+    {
+      "id": "AW7-CI",
+      "requirement": "positive CI classification",
+      "result": "PASS",
+      "components": [
+        "ci/contract_inventory.py",
+        "ci/run_contracts.py",
+        "ci/pytest_contracts.json",
+        ".github/workflows/nova_active_web_v1.yml",
+        ".github/workflows/nova_knowledge_v1.yml"
+      ],
+      "evidence": [
+        "ci_retention_check.json",
+        "ci_scope.md",
+        "active-web-final/run.json",
+        "active-web-native-final/run.json",
+        "test_ci_additional_job_retains_core_and_native_requires_explicit_scope"
+      ],
+      "qualification": "Static complete inventory and current Windows runner executed; Linux/macOS/hosted workflows NOT_EVALUATED."
+    },
+    {
+      "id": "AW7-SUITES",
+      "requirement": "fake and real-browser suites",
+      "result": "PASS",
+      "components": [
+        "tests/active_web_v1/test_aw7_frontends.py",
+        "tests/active_web_v1/test_aw7_engine.py"
+      ],
+      "evidence": [
+        "34 focused AW7 PASS",
+        "600 complete AW0–7 PASS",
+        "572 portable CI PASS",
+        "3 actual installed Chromium CI PASS"
+      ],
+      "qualification": "Native SDK against synthetic substituted origin, not public-site/LLM quality or global egress exclusivity."
+    },
+    {
+      "id": "AW7-LITERAL-CLOSURE",
+      "requirement": "frontend no crea authority path",
+      "result": "PASS",
+      "evidence": [
+        "Projection has no execute/dispatch/approve/grant/navigate surface",
+        "Opaque host actor boundary/exact approval contracts",
+        "Application common snapshot/event transport and invalid parallel command rejection",
+        "Desktop never loads Active Web pages in privileged renderer",
+        "ToolRuntime current Policy/Approval/Grant path and durable real SDK receipt"
+      ],
+      "qualification": "No new authority/ceiling/tool registration; display-only events do not terminalize Operations. Existing optional host composition remains unavailable for public activation until capability proof."
+    },
+    {
+      "id": "AW7-NO-NEW-REGRESSIONS",
+      "requirement": "preserve inherited contracts",
+      "result": "PASS",
+      "evidence": [
+        "baseline and core-final reproduce same unchanged HOME/USERPROFILE failure",
+        "newFailures=0,newSkips=0,newXfails=0,newExclusions=0",
+        "Security615,Memory791,Knowledge1015,Desktop71 PASS"
+      ],
+      "qualification": "Core final is 3311 PASS / 1 FAIL / 7 SKIP / 53 subtests PASS, exit1. PREEXISTING_CORE_HARNESS_DEBT remains FAIL and NON_BLOCKING_FOR_AW7; not represented as a globally green Core suite."
+    }
+  ],
+  "files": {
+    "implementationTestCi": [
+      "local_cli/application/browser_projection.py",
+      "local_cli/application/session.py",
+      "local_cli/application/active_web.py",
+      "local_cli/application/browser_observation.py",
+      "local_cli/application/browser_actions.py",
+      "local_cli/application/browser_takeover.py",
+      "local_cli/application/tool_runtime.py",
+      "local_cli/application/security_audit.py",
+      "local_cli/application/legacy_event_bridge.py",
+      "local_cli/interfaces/cli_application.py",
+      "local_cli/core/contracts.py",
+      "desktop/shared/application.ts",
+      "desktop/electron/application_client.ts",
+      "desktop/src/App.tsx",
+      "desktop/tests/active_web.test.cjs",
+      "ci/contract_inventory.py",
+      "ci/run_contracts.py",
+      "ci/pytest_contracts.json",
+      "ci/README.md",
+      ".github/workflows/nova_active_web_v1.yml",
+      ".github/workflows/nova_knowledge_v1.yml",
+      "tests/active_web_v1/test_aw7_frontends.py",
+      "tests/active_web_v1/test_aw7_engine.py"
+    ],
+    "existingFileDeltas": 18,
+    "newFiles": [
+      "local_cli/application/browser_projection.py",
+      "desktop/tests/active_web.test.cjs",
+      ".github/workflows/nova_active_web_v1.yml",
+      "tests/active_web_v1/test_aw7_frontends.py",
+      "tests/active_web_v1/test_aw7_engine.py"
+    ],
+    "productPins": {
+      "local_cli/application/browser_projection.py": "3a73029a0fccd57bab4a0cd8835ab47fefe5706853149ac7f7b14e058a834bbc",
+      "local_cli/application/session.py": "c140898b82210e6e2018d8efcbf1f40702cda9102e43fc2daad1629e31ceb50f",
+      "local_cli/application/active_web.py": "ba5e41e6ef572fe6e80e2e7f2d008e006f63702f9e2179474f8edff1f5520880",
+      "local_cli/application/browser_observation.py": "c3bff0d389153090f9946282907825fbc4240dca72bf3caeae000ebfcfbf182f",
+      "local_cli/application/browser_actions.py": "5e7fa503dc5605223ef63e899d8840b29cacf8d0450765c4a98eb2d264fdf519",
+      "local_cli/application/browser_takeover.py": "95e6a264f425fdd0376d11ad7241dddbbfa2efd1d2ff09d72c9c220ee810c2f0",
+      "local_cli/application/tool_runtime.py": "e524eace30f49d6f77cfa1cc45c45a258e5d1beb2b728770d5cade97c719c199",
+      "local_cli/application/security_audit.py": "633b428de50845e238ac5f4e18bee99c855dddb61a36b2d282cac02cf22b7b3b",
+      "local_cli/application/legacy_event_bridge.py": "e00582107679eef248319d1a132d7ee7f0aa31cc1a47acb7a28bb6f7ddf28d34",
+      "local_cli/interfaces/cli_application.py": "ff3298298ec17819fab2eb0b6a4f77f6fc6b2382612b1f618ae640a1eea8313e",
+      "local_cli/core/contracts.py": "f327939669ad85a50cad8c44681d81313ab68daf3c7c6cbfcbdd9d68cede5e9a",
+      "desktop/shared/application.ts": "5b22375384a5f21853c06462922d5e93f402cb1af417aaa26da19a1cd38f1096",
+      "desktop/electron/application_client.ts": "7ac44c16c8db42859ce2a26fb3d4427632f05e61a8433edf86c5d1445cd7576f",
+      "desktop/src/App.tsx": "f768a55d28e784614a709380f6b690ee9b5fa1c1f37bafedcd5840deb8d4ddfe",
+      "desktop/tests/active_web.test.cjs": "c94690cf9a06e834cdbf3803f4be7f0df34f990d59c8d47784becad2e71af8e5",
+      "ci/contract_inventory.py": "fa8c7758f2bee0723070514197a781d501d8ca38e0305cea2236ef559f8b61d4",
+      "ci/run_contracts.py": "4f5cc75882c4f6bcd32c6da34e90a833e906bf2b1318972c46d15e82230e9070",
+      "ci/pytest_contracts.json": "921d7fa8f06833c114b7db1189fe3ef2b2565475bb39258a36a1230c845deef2",
+      "ci/README.md": "06a4d16627e9e61d228bc3d9e0d2316982d8b6ba40d5260650e9979c846c1c4a",
+      ".github/workflows/nova_active_web_v1.yml": "f8e18dec2e6f204abb6f8a6197653d470c81ff3863f223dfd4e38c85bbe20fe8",
+      ".github/workflows/nova_knowledge_v1.yml": "e98380965438ce5be8084e3bc6204b30d14d73bc899a3762356b97c0ce89b760",
+      "tests/active_web_v1/test_aw7_frontends.py": "1a5efe36e1c974d38f174dd0317b3bde673c4406edc1ad3d7e96af70fdf669e7",
+      "tests/active_web_v1/test_aw7_engine.py": "f698a180201e44bd45ba47b495738c070a721ba130bfcce9379c2c707fc3c2c0"
+    },
+    "evidenceReferences": {
+      "docs/active_web_v1/aw7/baseline_freeze.json": {
+        "sha256": "5ef4fc6174bf9eff445a883e95b57cc1add4b378146d33f0cd30ea25f5a098bb",
+        "bytes": 295787
+      },
+      "docs/active_web_v1/aw7/ci_retention_check.json": {
+        "sha256": "f930213e7310be2e7b96016b784f7610340771ebdc3d06e6bb0bd8ee6fac884b",
+        "bytes": 815
+      },
+      "docs/active_web_v1/aw7/ci_scope.md": {
+        "sha256": "4883488d528021199a12995c136a55ed437d89fafc71db6b4859054f94aa6ad5",
+        "bytes": 1485
+      },
+      "docs/active_web_v1/aw7/desktop_result.json": {
+        "sha256": "bf9027de06345e6262c3879f0fe036366ff86daa0f6158266d7d293b7e195fba",
+        "bytes": 925
+      },
+      "docs/active_web_v1/aw7/integrity.json": {
+        "sha256": "7d95c8360fc2a71f5a14a03005f0dcef44ae62a0bb2c4ae249d2edb79507480a",
+        "bytes": 47076
+      },
+      "docs/active_web_v1/aw7/invariant_matrix.json": {
+        "sha256": "634c98a9f902fcb80fe3b8c0bf64e5f242fc3265595203dfe772e87a35f6f045",
+        "bytes": 36399
+      },
+      "docs/active_web_v1/aw7/preflight.json": {
+        "sha256": "7409ae16505ce0a57e9b40c7c8fe5e7b9594a2591905df3bad2ef5968f86c48b",
+        "bytes": 4335
+      },
+      "docs/active_web_v1/aw7/product_freeze.json": {
+        "sha256": "0d276cbab65a3af7f2a539a553b7ece73d0de8cd2a496249ac858431bd9de29a",
+        "bytes": 2763
+      },
+      "docs/active_web_v1/aw7/product_freeze_ci_retention_v2.json": {
+        "sha256": "c58814ca06250ea2b0c142e53baf51bf88d15ecdf562e58f1b2305a18aed7197",
+        "bytes": 3222
+      },
+      "docs/active_web_v1/aw7/resultados.md": {
+        "sha256": "cfd9121a8473ed9780644140335a0255d46bce8a300eaae1cc61340ab0e71913",
+        "bytes": 12501
+      },
+      "docs/active_web_v1/aw7/runtime_evidence.json": {
+        "sha256": "9ac6f759ef40c5439e90a58745bb3b0b2bc98cc8fc84572ea2cd3c6374f7c1ba",
+        "bytes": 13939
+      },
+      "docs/active_web_v1/aw7/test_results.json": {
+        "sha256": "42c7cba947538dfb181bd8c8894ef19d5fc655f67a9146bacae6b26c6ca292f6",
+        "bytes": 21170
+      },
+      "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md": {
+        "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+        "bytes": 42669
+      },
+      "docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md": {
+        "sha256": "ee2a03ad2b887c2add4a5eac9402112edf3362d1e11118388cba9b268a405285",
+        "bytes": 69406
+      },
+      "docs/active_web_v1/audit/findings.json": {
+        "sha256": "c81d8a9279cd7a7aec74a78fb5e805d0a0c93b8b034db32c5f4c66d0100d2a1d",
+        "bytes": 87080
+      },
+      "docs/active_web_v1/aw6/manifest.json": {
+        "sha256": "142f14a6d03231b8e6a46cd1310e94f7fb3fe964702300271cffc87cbf965652",
+        "bytes": 17921
+      },
+      "docs/active_web_v1/aw0/closure/manifest_final.json": {
+        "sha256": "6ac8bc06f82dabfa6f6bdf68fa452e1e0688255b72b8ca51bbb49bb614bc9ab8",
+        "bytes": 18741
+      }
+    },
+    "freeze": "docs/active_web_v1/aw7/product_freeze_ci_retention_v2.json",
+    "preservedFirstFreeze": {
+      "path": "docs/active_web_v1/aw7/product_freeze.json",
+      "sha256": "0d276cbab65a3af7f2a539a553b7ece73d0de8cd2a496249ac858431bd9de29a"
+    },
+    "onlyPostRuntimeDelta": {
+      "path": ".github/workflows/nova_active_web_v1.yml",
+      "change": "Artifact allowlist restricted to existing CI convention run/selection/nodeids/XML/log; no profiles/staging/private runtime uploaded.",
+      "commandsJobsPermissionsAndTestsUnchanged": true
+    }
+  },
+  "tests": {
+    "runs": [
+      {
+        "name": "active-web-final",
+        "denominator": 572,
+        "passed": 572,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "durationSeconds": 26.209,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\active-web-final\\tests.xml",
+        "xmlSha256": "a8b85f78b2b528688aa4619aee509f1412d4c7ddd14a24aadb70c4e46ef0d4bf",
+        "command": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job active-web --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/active-web-final'"
+      },
+      {
+        "name": "active-web-native-final",
+        "denominator": 3,
+        "passed": 3,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "durationSeconds": 6.127,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\active-web-native-final\\tests.xml",
+        "xmlSha256": "dac3fb1aac752a4816e836d6868626ba2d8066c79af940df6ec4ac6d0155a359",
+        "command": "$env:PLAYWRIGHT_BROWSERS_PATH='C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines'\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job active-web-native --special --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/active-web-native-final'"
+      },
+      {
+        "name": "core-final",
+        "denominator": 3319,
+        "passed": 3311,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 7,
+        "subtestsPassed": 53,
+        "exitCode": 1,
+        "durationSeconds": 295.319,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\core-final\\tests.xml",
+        "xmlSha256": "0bd9871e9713aefc7a92f3acd16b763c0c5dd98a284e4ef6374f016a6e00cb8d",
+        "command": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job core --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/core-final'"
+      },
+      {
+        "name": "focused-final",
+        "denominator": 600,
+        "passed": 600,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "durationSeconds": 60.222,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\focused-final\\tests.xml",
+        "xmlSha256": "af27b095f5e373171a0e011a7782dbbad933f7275125302a85912a041d1f8837",
+        "command": "$code=@'\nimport sys,os\nfrom pathlib import Path\nsys.path.insert(0,str(Path.cwd()/'ci'))\nfrom run_contracts import private_environment,new_output\nout=new_output(Path(r'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/focused-final'));env=private_environment(out,special=False)\nenv['PLAYWRIGHT_BROWSERS_PATH']=r'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/engines'\nos.environ.clear();os.environ.update(env)\nimport pytest\nraise SystemExit(pytest.main(['-q','-p','no:cacheprovider','--basetemp',str(out/'pytest-private'),'--junitxml',str(out/'tests.xml'),'tests/active_web_v1']))\n'@\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -c $code"
+      },
+      {
+        "name": "knowledge-final",
+        "denominator": 1015,
+        "passed": 1015,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "durationSeconds": 183.815,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\knowledge-final\\tests.xml",
+        "xmlSha256": "81435d7bedda0e33828317a74142680a935e0640445d135b3a06d004ebb09aa2",
+        "command": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job knowledge --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/knowledge-final'"
+      },
+      {
+        "name": "memory-final",
+        "denominator": 791,
+        "passed": 791,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "durationSeconds": 102.363,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\memory-final\\tests.xml",
+        "xmlSha256": "4c1a4d63b74438f6809f25be9bb5abc638e22a5e19fa0305b4f5c889cbf908ab",
+        "command": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job memory --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/memory-final'"
+      },
+      {
+        "name": "security-final",
+        "denominator": 615,
+        "passed": 615,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "subtestsPassed": 0,
+        "exitCode": 0,
+        "durationSeconds": 33.173,
+        "xml": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw7-20261009205259Z\\security-final\\tests.xml",
+        "xmlSha256": "74fcecfc95ea73581a290ebbbc1392a2cc12ce35a07f6f99b69c49c14cc8fdd7",
+        "command": "& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B ci/run_contracts.py --job security --output 'C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z/security-final'"
+      }
+    ],
+    "focusedAW7": {
+      "passed": 34,
+      "failed": 0,
+      "errors": 0,
+      "portable": 31,
+      "native": 3,
+      "reference": "development-5 (focused before freeze); all34 repeated inside focused-final and corresponding CI jobs"
+    },
+    "desktop": {
+      "schemaVersion": 1,
+      "phase": "AW7",
+      "node": "24.16.0",
+      "command": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs tests/active_web.test.cjs",
+      "passed": 71,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "todo": 0,
+      "exitCode": 0,
+      "durationMs": 1597.1987,
+      "typecheck": {
+        "command": "node node_modules/typescript/bin/tsc --noEmit",
+        "exitCode": 0
+      },
+      "scope": "8 current synthetic Node suites; rendering source contract, not GUI/site/LLM certification",
+      "evidenceKind": "Native Node execution, original stdout captured in task tools",
+      "warnings": [
+        "ExperimentalWarning Transform Types",
+        "MODULE_TYPELESS_PACKAGE_JSON"
+      ],
+      "noNewSkipsOrXfails": true
+    },
+    "inventory": {
+      "functions": 4018,
+      "unclassified": 0,
+      "portable": 3834,
+      "local": 26,
+      "historical": 89,
+      "special": 69,
+      "ordinaryHostBaseSelections": {
+        "Windows": 202,
+        "Linux": 202,
+        "macOS": 202
+      },
+      "nativeBaseFunctions": 2,
+      "nativeInstances": 3
+    },
+    "commandsAndHistory": "docs/active_web_v1/aw7/test_results.json",
+    "runtimeRawArtifactsAndTimings": "docs/active_web_v1/aw7/runtime_evidence.json",
+    "outputRoot": "C:/Users/joseh/AppData/Local/Temp/nova-aw7-20261009205259Z",
+    "qualityAttempts": 0,
+    "modelCampaigns": 0,
+    "realRemoteSites": 0,
+    "noNewSkipsOrXfailsOrExclusions": true,
+    "overlap": "Rows are overlapping selections, do not sum as independent tests"
+  },
+  "inheritedDebt": {
+    "nodeid": "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "impact": "NON_BLOCKING_FOR_AW7",
+    "coreExitCode": 1,
+    "stillFail": true,
+    "privateEnvironmentASTUnchanged": true,
+    "baselineExitCode": 1,
+    "blockingForAW7": false,
+    "notRepaired": true,
+    "notSkippedOrXfailed": true,
+    "productTestAndAssertionUnchanged": true,
+    "historicalSkipComparison": {
+      "reference": "docs/active_web_v1/aw6/test_results.json",
+      "sameNodeids": true,
+      "count": 7
+    }
+  },
+  "invariants": {
+    "matrix": "docs/active_web_v1/aw7/invariant_matrix.json",
+    "count": 50,
+    "qualification": "AW7-scoped verification or preserved inherited contracts, not 50 newly certified global guarantees",
+    "egressInvariant": "AW-INV-027 remains capability gated; global exclusivity NOT_CERTIFIED"
+  },
+  "integrity": {
+    "repositoryBaselineFilePins": 2274,
+    "historicalExternalArtifacts": 251,
+    "repositoryProductDrift": 0,
+    "protectedBaselineDrift": 0,
+    "historicalEvidenceDrift": 0,
+    "historicalExternalDrift": 0,
+    "unexpectedNewFiles": 0,
+    "authorizedExistingDeltas": 18,
+    "authorizedNewProductTestCiFiles": 5,
+    "headUnchanged": true,
+    "tagsUnchanged": true,
+    "stagingEmpty": true,
+    "securityDataKeysAndSchemaUnchanged": true,
+    "privateEnvironmentAstUnchanged": true,
+    "architectureUnchanged": true,
+    "onlyWorkflowRetentionDelta": true,
+    "proof": "docs/active_web_v1/aw7/integrity.json",
+    "readOnlyFinalVerification": "docs/active_web_v1/aw7/runtime_evidence.json",
+    "newFailures": 0,
+    "newSkips": 0,
+    "newXfails": 0,
+    "newExclusions": 0
+  },
+  "preservedDomains": {
+    "Core": "Contracts preserved; known Core harness debt remains FAIL",
+    "Security": "Current regression PASS, existing Policy/Approval/Grants/audit schema preserved",
+    "Memory": "Product/certifications intact; SEMANTIC_PROFILE=NOT_CERTIFIED unchanged",
+    "Knowledge": "Product/certifications/history unchanged",
+    "PASSIVE_WEB": "Unchanged, separate from ACTIVE_WEB"
+  },
+  "claims": {
+    "phase": "AW7 = PASS",
+    "globalReady": "NOT_EVALUATED",
+    "publicActiveWebAvailable": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "globalEgressExclusivity": "NOT_CERTIFIED",
+    "control": "HOST_UNISOLATED",
+    "visionProfile": "NOT_CERTIFIED",
+    "persistentSessionProfile": "NOT_CERTIFIED",
+    "privateNetworkProfile": "NOT_CERTIFIED",
+    "automatedCredentialProfile": "NOT_CERTIFIED",
+    "memorySemanticProfile": "NOT_CERTIFIED"
+  },
+  "limitations": [
+    "No AW8 E2E/READY or public browser tool activation",
+    "No global egress-exclusivity/public-site certification",
+    "Real-engine tests use synthetic substituted origin and explicit installed runtime",
+    "No real LLM/credentials/human-login campaign",
+    "No Desktop GUI browser E2E or embedded web renderer",
+    "No Linux/macOS host-real or hosted GitHub Actions execution in this phase",
+    "No universal sandbox/process isolation, DLP or disk/power durability claim",
+    "External raw evidence remains outside Git and requires retention at recorded paths",
+    "Known HOME/USERPROFILE Core harness debt remains FAIL"
+  ],
+  "normativeConflict": false,
+  "openDecisions": [],
+  "nextPhaseReferenceOnly": "AW8 — E2E y certificación; NOT IMPLEMENTED/NOT EXECUTED",
+  "stopForHumanReview": true
+}

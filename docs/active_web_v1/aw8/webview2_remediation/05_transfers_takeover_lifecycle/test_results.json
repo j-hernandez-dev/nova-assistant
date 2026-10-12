@@ -1,0 +1,1555 @@
+{
+  "schemaVersion": 1,
+  "runtime": {
+    "python": "3.14.6",
+    "pytest": "9.1.1",
+    "dotnetSdk": "10.0.203",
+    "webview2Sdk": "1.0.4258.31",
+    "webview2RuntimeObserved": "154.0.4258.62",
+    "node": "24.16.0",
+    "platform": "Windows 11 build 26200 / AMD64 / local NTFS",
+    "controlClass": "HOST_UNISOLATED",
+    "assemblySha256": "d91dbd9eadfa793180067ebf179306e857ed347b28f9e4b019c314f1b3e506cd",
+    "webview2CoreAssemblySha256": "d60e6e94245078cb56e44ebd5f360dc04bf18e460136be93bfc4cfca43b98505"
+  },
+  "commands": {
+    "native": {
+      "executable": "verified absolute Python 3.14.6 (private runtime path)",
+      "arguments": [
+        "-B",
+        "-m",
+        "pytest",
+        "native/nova-browser-host/tests/test_webview2_transfers.py",
+        "native/nova-browser-host/tests/test_transfer_contract.py",
+        "native/nova-browser-host/tests/test_webview2_observation_actions.py",
+        "native/nova-browser-host/tests/test_ipc_contract.py",
+        "native/nova-browser-host/tests/test_host_process.py",
+        "native/nova-browser-host/tests/test_webview2_contract.py",
+        "native/nova-browser-host/tests/test_webview2_native.py",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=%TEMP%/nova-wv2-05-final01-private",
+        "--junitxml=%TEMP%/nova-wv2-05-final01.xml"
+      ],
+      "env": {
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "NOVA_WEBVIEW2_SDK_FEED": "explicit local pinned official SDK feed; no download"
+      }
+    },
+    "critical": {
+      "arguments": [
+        "-B",
+        "-m",
+        "pytest",
+        "native/nova-browser-host/tests/test_takeover_secret_navigation.py",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=%TEMP%/nova-wv2-05-secret-navigation02-private",
+        "--junitxml=%TEMP%/nova-wv2-05-secret-navigation02.xml"
+      ],
+      "env": "same native test environment"
+    },
+    "inherited": [
+      {
+        "job": "core",
+        "arguments": [
+          "-B",
+          "ci/run_contracts.py",
+          "--job",
+          "core",
+          "--output",
+          "%TEMP%/nova-wv2-05-reg-core"
+        ]
+      },
+      {
+        "job": "knowledge",
+        "arguments": [
+          "-B",
+          "ci/run_contracts.py",
+          "--job",
+          "knowledge",
+          "--output",
+          "%TEMP%/nova-wv2-05-reg-knowledge"
+        ]
+      },
+      {
+        "job": "memory",
+        "arguments": [
+          "-B",
+          "ci/run_contracts.py",
+          "--job",
+          "memory",
+          "--output",
+          "%TEMP%/nova-wv2-05-reg-memory"
+        ]
+      },
+      {
+        "job": "active-web",
+        "arguments": [
+          "-B",
+          "ci/run_contracts.py",
+          "--job",
+          "active-web",
+          "--output",
+          "%TEMP%/nova-wv2-05-reg-active-web"
+        ]
+      },
+      {
+        "job": "security",
+        "arguments": [
+          "-B",
+          "ci/run_contracts.py",
+          "--job",
+          "security",
+          "--output",
+          "%TEMP%/nova-wv2-05-reg-security"
+        ]
+      }
+    ],
+    "desktop": {
+      "arguments": [
+        "--experimental-transform-types",
+        "--test",
+        "--test-reporter=tap",
+        "--test-reporter-destination=%TEMP%/nova-wv2-05-desktop.tap",
+        "tests/application_client.test.cjs",
+        "tests/approval_host.test.cjs",
+        "tests/security_audit.test.cjs",
+        "tests/memory_control.test.cjs",
+        "tests/memory_maintenance.test.cjs",
+        "tests/knowledge_control.test.cjs",
+        "tests/knowledge_k7.test.cjs",
+        "tests/active_web.test.cjs"
+      ],
+      "cwd": "desktop",
+      "typescript": [
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ]
+    },
+    "pathConvention": "Host runtime/temp prefixes normalized for publication; argument order and files unchanged. Runtimes invoked by absolute executable paths, no PATH Python, no model inference."
+  },
+  "positiveFinalSuite": {
+    "errors": 0,
+    "passed": 286,
+    "timestamp": "2026-10-10T09:34:09.916916-06:00",
+    "tests": 286,
+    "duration": 435.415,
+    "failed": [],
+    "name": "final01",
+    "skips": 0,
+    "sha256": "6fd91c45f035c11c6773703745260744350f97af02f6c12db1143b3bf2d83f6c",
+    "location": "%TEMP%/nova-wv2-05-final01.xml",
+    "failures": 0
+  },
+  "newFinalCases": [
+    {
+      "result": "PASS",
+      "seconds": 6.809,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_upload_and_download_smoke"
+    },
+    {
+      "result": "PASS",
+      "seconds": 3.148,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_takeover_ui_epoch_secret_smoke"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.487,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_host_selection_rejects_changes_before_upload[content]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.448,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_host_selection_rejects_changes_before_upload[replace]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.379,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_host_selection_rejects_changes_before_upload[missing]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.36,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_host_selection_rejects_changes_before_upload[foreign]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.465,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_host_selection_rejects_changes_before_upload[epoch]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.412,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_selection_lock_spans_prepare_and_dispatch"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.331,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_invalid_upload_not_started[mime]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.322,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_invalid_upload_not_started[size]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.59,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_invalid_upload_not_started[digest]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.596,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_invalid_upload_not_started[session]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.447,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_invalid_upload_not_started[target]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.439,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_invalid_upload_not_started[stale]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.406,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_invalid_upload_not_started[origin]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 1.397,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_drive_by_download_cancelled_no_staging"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.406,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_oversized_download_unknown_not_delivered"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.34,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[cancel-before-UPLOAD_FILE]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.404,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[cancel-before-DOWNLOAD]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.936,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[cancel-after-UPLOAD_FILE]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.86,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[cancel-after-DOWNLOAD]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.907,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[disconnect-UPLOAD_FILE]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.869,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[disconnect-DOWNLOAD]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.893,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[crash-UPLOAD_FILE]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.931,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[crash-DOWNLOAD]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 25.956,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[engine-loss-UPLOAD_FILE]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 26.069,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_transfer_losses_never_rollback_or_retry[engine-loss-DOWNLOAD]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 2.127,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_takeover_host_completion_required_refs_files_stale_guard_retained"
+    },
+    {
+      "result": "PASS",
+      "seconds": 1.31,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_host_loss_during_takeover_no_resume[crash]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 1.352,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_host_loss_during_takeover_no_resume[disconnect]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 2.168,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_completed_staging_survives_browser_cleanup_with_finite_owner"
+    },
+    {
+      "result": "PASS",
+      "seconds": 2.036,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_secrets_not_automated_even_after_manual_takeover"
+    },
+    {
+      "result": "PASS",
+      "seconds": 2.07,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_toolruntime_exact_approval_transfers[allow-UPLOAD_FILE]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 1.966,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.723,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_toolruntime_exact_approval_transfers[deny-UPLOAD_FILE]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.83,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_toolruntime_exact_approval_transfers[deny-DOWNLOAD]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 1.606,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_toolruntime_exact_approval_transfers[file-or-observation-changed-UPLOAD_FILE]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 7.732,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_toolruntime_exact_approval_transfers[file-or-observation-changed-DOWNLOAD]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 1.855,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_toolruntime_exact_approval_transfers[takeover-UPLOAD_FILE]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 1.798,
+      "class": "native.nova-browser-host.tests.test_webview2_transfers",
+      "name": "test_native_toolruntime_exact_approval_transfers[takeover-DOWNLOAD]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_closed_transfer_serialization[takeover_begin]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_closed_transfer_serialization[takeover_end]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_closed_transfer_serialization[takeover_state]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_closed_transfer_serialization[transfer_metadata]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_closed_transfer_serialization[upload]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_closed_transfer_serialization[download]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[path]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[filepath]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[selector]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[xpath]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[js]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[cdp]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[grant]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[approval]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[cookies]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[password]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[token]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_no_model_paths_authority_or_secret_fields[storageState]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_filename_not_path[../bad.txt]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_filename_not_path[..\\\\bad.txt]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_filename_not_path[C:bad.txt]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_filename_not_path[.]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_filename_not_path[..]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_filename_not_path[bad\\x01.txt]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_filename_not_path[]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_typed_upload_metadata[size--1]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_typed_upload_metadata[size-True]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_typed_upload_metadata[sha256-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_typed_upload_metadata[mime-text/plain\\r\\n]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_wire_typed_upload_metadata[mime-]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_host_response_no_authority_fields[approval]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_host_response_no_authority_fields[grant]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_host_response_no_authority_fields[password]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_host_response_no_authority_fields[temporaryPath]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_host_response_no_authority_fields[cookies]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_request_session_operation_page_correlation"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.002,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_retained_staging_requires_finite_lifetime[True]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.002,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_retained_staging_requires_finite_lifetime[0]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.002,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_retained_staging_requires_finite_lifetime[-1]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.003,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_retained_staging_requires_finite_lifetime[inf]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.003,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_retained_staging_requires_finite_lifetime[nan]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.008,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_staging_private_ownership_expiry_no_ingestion"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.008,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_staging_lock_cleanup_unconfirmed_not_closed"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_mime_detected_host_side_not_extension[%PDF-1.7-application/pdf]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.001,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_mime_detected_host_side_not_extension[plain text-text/plain]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_mime_detected_host_side_not_extension[\\x89PNG\\r\\n\\x1a\\n-image/png]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_mime_detected_host_side_not_extension[\\x00\\x01-application/octet-stream]"
+    },
+    {
+      "result": "PASS",
+      "seconds": 0.807,
+      "class": "native.nova-browser-host.tests.test_transfer_contract",
+      "name": "test_static_no_capability_activation_or_credential_manager"
+    }
+  ],
+  "newFinalDenominator": 88,
+  "newNativeDenominator": 40,
+  "newContractDenominator": 48,
+  "inheritedNativeContracts": 198,
+  "additionalCritical": [
+    {
+      "xml": "%TEMP%/nova-wv2-05-secret-navigation.xml",
+      "tests": 1,
+      "name": "secret-navigation",
+      "timestamp": "2026-10-10T09:48:32.817736-06:00",
+      "errors": 0,
+      "failures": 1,
+      "sha256": "2075ca6017aad208d731ce1c886bd47040fc6ecbc1a5ba03139618ecc10efd6b",
+      "skips": 0,
+      "duration": 9.814
+    },
+    {
+      "xml": "%TEMP%/nova-wv2-05-secret-navigation02.xml",
+      "tests": 1,
+      "name": "secret-navigation02",
+      "timestamp": "2026-10-10T09:50:26.686392-06:00",
+      "errors": 0,
+      "failures": 1,
+      "sha256": "83e2facf2929142f2612f465dbac799c9afbc7fe9005aed34b343dfa63ef94ae",
+      "skips": 0,
+      "duration": 9.629
+    }
+  ],
+  "finalOverall": "BLOCKED: final positive 286 PASS plus mandatory supplemental 1 FAIL",
+  "historicalRuns": [
+    {
+      "errors": 2,
+      "passed": 0,
+      "timestamp": "2026-10-10T08:59:38.603536-06:00",
+      "tests": 2,
+      "duration": 5.637,
+      "failed": [
+        {
+          "test": "test_native_upload_and_download_smoke",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_takeover_ui_epoch_secret_smoke",
+          "kind": "ERROR"
+        }
+      ],
+      "name": "attempt01",
+      "skips": 0,
+      "sha256": "f9fb1d07b62897b536089fee682192e9fd24f74e1ae2394235d8447ee1b602b1",
+      "location": "%TEMP%/nova-wv2-05-attempt01.xml",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "passed": 0,
+      "timestamp": "2026-10-10T09:00:09.438549-06:00",
+      "tests": 2,
+      "duration": 36.851,
+      "failed": [
+        {
+          "test": "test_native_upload_and_download_smoke",
+          "kind": "FAIL"
+        },
+        {
+          "test": "test_native_takeover_ui_epoch_secret_smoke",
+          "kind": "FAIL"
+        }
+      ],
+      "name": "attempt02",
+      "skips": 0,
+      "sha256": "0b4e471a1e6215f07ef3269ebb09f22a53fea52ee64c75948b8b0814beecc8fa",
+      "location": "%TEMP%/nova-wv2-05-attempt02.xml",
+      "failures": 2
+    },
+    {
+      "errors": 0,
+      "passed": 1,
+      "timestamp": "2026-10-10T09:02:56.871607-06:00",
+      "tests": 2,
+      "duration": 15.455,
+      "failed": [
+        {
+          "test": "test_native_upload_and_download_smoke",
+          "kind": "FAIL"
+        }
+      ],
+      "name": "attempt03",
+      "skips": 0,
+      "sha256": "2d664976a0ded4a24a4da00210ba9cc46c5f001f71c010f6db675f9ecba350d9",
+      "location": "%TEMP%/nova-wv2-05-attempt03.xml",
+      "failures": 1
+    },
+    {
+      "errors": 0,
+      "passed": 1,
+      "timestamp": "2026-10-10T09:04:33.817487-06:00",
+      "tests": 2,
+      "duration": 16.471,
+      "failed": [
+        {
+          "test": "test_native_upload_and_download_smoke",
+          "kind": "FAIL"
+        }
+      ],
+      "name": "attempt04",
+      "skips": 0,
+      "sha256": "f7db227db7810b3e62f555cfceef976366ff8b251a9c58d8572024c8eb525f8a",
+      "location": "%TEMP%/nova-wv2-05-attempt04.xml",
+      "failures": 1
+    },
+    {
+      "errors": 0,
+      "passed": 1,
+      "timestamp": "2026-10-10T09:06:40.447891-06:00",
+      "tests": 2,
+      "duration": 15.956,
+      "failed": [
+        {
+          "test": "test_native_upload_and_download_smoke",
+          "kind": "FAIL"
+        }
+      ],
+      "name": "attempt05",
+      "skips": 0,
+      "sha256": "712e97d6d75df786d660c7c4e05453a820aeb6632b61e258b94348298626b7a6",
+      "location": "%TEMP%/nova-wv2-05-attempt05.xml",
+      "failures": 1
+    },
+    {
+      "errors": 0,
+      "passed": 1,
+      "timestamp": "2026-10-10T09:09:48.939083-06:00",
+      "tests": 2,
+      "duration": 16.236,
+      "failed": [
+        {
+          "test": "test_native_upload_and_download_smoke",
+          "kind": "FAIL"
+        }
+      ],
+      "name": "attempt06",
+      "skips": 0,
+      "sha256": "9cf4644e8c3a960f8940aa286618f01f0dbf24a64510609daa1887743d208328",
+      "location": "%TEMP%/nova-wv2-05-attempt06.xml",
+      "failures": 1
+    },
+    {
+      "errors": 0,
+      "passed": 1,
+      "timestamp": "2026-10-10T09:11:51.324107-06:00",
+      "tests": 2,
+      "duration": 16.222,
+      "failed": [
+        {
+          "test": "test_native_upload_and_download_smoke",
+          "kind": "FAIL"
+        }
+      ],
+      "name": "attempt07",
+      "skips": 0,
+      "sha256": "2a17effb698e422d458d158ed2bde097a6a390b6f7e6b5dce4b38cc113ca0fbc",
+      "location": "%TEMP%/nova-wv2-05-attempt07.xml",
+      "failures": 1
+    },
+    {
+      "errors": 0,
+      "passed": 1,
+      "timestamp": "2026-10-10T09:16:39.993052-06:00",
+      "tests": 2,
+      "duration": 16.03,
+      "failed": [
+        {
+          "test": "test_native_upload_and_download_smoke",
+          "kind": "FAIL"
+        }
+      ],
+      "name": "attempt08",
+      "skips": 0,
+      "sha256": "869a8d4c4c091a8dd654a20fff16b5d532e54475aca24dc64ea54c7d07d7210a",
+      "location": "%TEMP%/nova-wv2-05-attempt08.xml",
+      "failures": 1
+    },
+    {
+      "errors": 0,
+      "passed": 2,
+      "timestamp": "2026-10-10T09:17:44.124460-06:00",
+      "tests": 2,
+      "duration": 10.895,
+      "failed": [],
+      "name": "attempt09",
+      "skips": 0,
+      "sha256": "4646227aa173db0e7a56367bbee5a9a62ebc7d7c2fe37095f030ad6a2bf2e335",
+      "location": "%TEMP%/nova-wv2-05-attempt09.xml",
+      "failures": 0
+    },
+    {
+      "errors": 36,
+      "passed": 0,
+      "timestamp": "2026-10-10T09:23:27.710747-06:00",
+      "tests": 36,
+      "duration": 39.44,
+      "failed": [
+        {
+          "test": "test_native_upload_and_download_smoke",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_takeover_ui_epoch_secret_smoke",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_host_selection_rejects_changes_before_upload[content]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_host_selection_rejects_changes_before_upload[replace]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_host_selection_rejects_changes_before_upload[missing]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_host_selection_rejects_changes_before_upload[foreign]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_host_selection_rejects_changes_before_upload[epoch]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_selection_lock_spans_prepare_and_dispatch",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_invalid_upload_not_started[mime]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_invalid_upload_not_started[size]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_invalid_upload_not_started[digest]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_invalid_upload_not_started[session]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_invalid_upload_not_started[target]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_invalid_upload_not_started[stale]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_invalid_upload_not_started[origin]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_drive_by_download_cancelled_no_staging",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_oversized_download_unknown_not_delivered",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_transfer_losses_never_rollback_or_retry[cancel-before-UPLOAD_FILE]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_transfer_losses_never_rollback_or_retry[cancel-before-DOWNLOAD]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_transfer_losses_never_rollback_or_retry[cancel-after-UPLOAD_FILE]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_transfer_losses_never_rollback_or_retry[cancel-after-DOWNLOAD]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_transfer_losses_never_rollback_or_retry[disconnect-UPLOAD_FILE]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_transfer_losses_never_rollback_or_retry[disconnect-DOWNLOAD]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_transfer_losses_never_rollback_or_retry[crash-UPLOAD_FILE]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_transfer_losses_never_rollback_or_retry[crash-DOWNLOAD]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_takeover_host_completion_required_refs_files_stale_guard_retained",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_host_loss_during_takeover_no_resume[crash]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_host_loss_during_takeover_no_resume[disconnect]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_toolruntime_exact_approval_transfers[allow-UPLOAD_FILE]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_toolruntime_exact_approval_transfers[deny-UPLOAD_FILE]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_toolruntime_exact_approval_transfers[deny-DOWNLOAD]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_toolruntime_exact_approval_transfers[file-or-observation-changed-UPLOAD_FILE]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_toolruntime_exact_approval_transfers[file-or-observation-changed-DOWNLOAD]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_toolruntime_exact_approval_transfers[takeover-UPLOAD_FILE]",
+          "kind": "ERROR"
+        },
+        {
+          "test": "test_native_toolruntime_exact_approval_transfers[takeover-DOWNLOAD]",
+          "kind": "ERROR"
+        }
+      ],
+      "name": "focused01",
+      "skips": 0,
+      "sha256": "88465e5f8fd5faf758cef255fc19fc58cbcc549eeea46be6241d722885307694",
+      "location": "%TEMP%/nova-wv2-05-focused01.xml",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "passed": 36,
+      "timestamp": "2026-10-10T09:24:57.271728-06:00",
+      "tests": 36,
+      "duration": 196.021,
+      "failed": [],
+      "name": "focused02",
+      "skips": 0,
+      "sha256": "b977ecbbbb904b037d9dc52a2a7753448711db6366962c0a6f68ff9050635969",
+      "location": "%TEMP%/nova-wv2-05-focused02.xml",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "passed": 84,
+      "timestamp": "2026-10-10T09:29:37.900443-06:00",
+      "tests": 86,
+      "duration": 176.101,
+      "failed": [
+        {
+          "test": "test_native_takeover_ui_epoch_secret_smoke",
+          "kind": "FAIL"
+        },
+        {
+          "test": "test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+          "kind": "FAIL"
+        }
+      ],
+      "name": "focused03",
+      "skips": 0,
+      "sha256": "d719864c1f92f2dd060dde2a7ba14c4439d17812564059a982ee165320f80e89",
+      "location": "%TEMP%/nova-wv2-05-focused03.xml",
+      "failures": 2
+    },
+    {
+      "errors": 0,
+      "passed": 47,
+      "timestamp": "2026-10-10T09:26:25.717651-06:00",
+      "tests": 48,
+      "duration": 0.803,
+      "failed": [
+        {
+          "test": "test_request_session_operation_page_correlation",
+          "kind": "FAIL"
+        }
+      ],
+      "name": "contract01",
+      "skips": 0,
+      "sha256": "be4c47c8b6a4b02606a8f45aeea86e266770e82c0a1e566b92ce6da9dfe471c1",
+      "location": "%TEMP%/nova-wv2-05-contract01.xml",
+      "failures": 1
+    },
+    {
+      "errors": 0,
+      "passed": 48,
+      "timestamp": "2026-10-10T09:28:22.127638-06:00",
+      "tests": 48,
+      "duration": 1.253,
+      "failed": [],
+      "name": "contract02",
+      "skips": 0,
+      "sha256": "bd71f257a81edfe07c58109e471e5f41c450f6b6c866248103c7b049aa225dfa",
+      "location": "%TEMP%/nova-wv2-05-contract02.xml",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "passed": 286,
+      "timestamp": "2026-10-10T09:34:09.916916-06:00",
+      "tests": 286,
+      "duration": 435.415,
+      "failed": [],
+      "name": "final01",
+      "skips": 0,
+      "sha256": "6fd91c45f035c11c6773703745260744350f97af02f6c12db1143b3bf2d83f6c",
+      "location": "%TEMP%/nova-wv2-05-final01.xml",
+      "failures": 0
+    }
+  ],
+  "classifications": [
+    {
+      "runs": [
+        "attempt01"
+      ],
+      "classification": "PRODUCT_BUILD_BUG",
+      "cause": "Nullable SDK unsigned total comparison / nullable warning; corrected native type handling, no test assertion change."
+    },
+    {
+      "runs": [
+        "attempt02"
+      ],
+      "classification": "PRODUCT_BUG",
+      "cause": "Takeover window style mutation recreated parent HWND after owned controller creation; corrected stable parent lifecycle. Download remained UNKNOWN."
+    },
+    {
+      "runs": [
+        "attempt02",
+        "attempt03",
+        "attempt04",
+        "attempt05",
+        "attempt06",
+        "attempt07",
+        "attempt08"
+      ],
+      "classification": "PRODUCT_CONFIGURATION_BUG / CHARACTERIZATION",
+      "cause": "Forced internal .bin caused default file-type security check to remain InProgress. Virtual mapping did not invoke resource header interception. Corrected owned token directory + sanitized engine filename; retained unchanged default security checks and required native Completed."
+    },
+    {
+      "runs": [
+        "focused01"
+      ],
+      "classification": "PRODUCT_BUG_PRIVATE_DACL_VERIFIER + HARNESS_BUG",
+      "cause": "Windows adds auto-inheritance bookkeeping AI to protected single-user DACL. Exact SDDL equality rejected correct ACL; semantic protected single-current-user ACE verification preserved. Old fixture setup error omitted browser cleanup, leaving 36 private historical UDFs; not reclassified as CLOSED."
+    },
+    {
+      "runs": [
+        "contract01"
+      ],
+      "classification": "HARNESS_BUG",
+      "cause": "New synthetic response used null payload, violating unchanged original protocol. Corrected construction to empty object, preserved assertion and valid-before-extra-field proof."
+    },
+    {
+      "runs": [
+        "focused03"
+      ],
+      "classification": "PRODUCT_BUG_RUNTIME_METADATA",
+      "cause": "initialContent incorrectly reported current navigated URL; corrected to initial about:blank established/verified during control creation. Both prior FAILs preserved."
+    },
+    {
+      "runs": [
+        "secret-navigation"
+      ],
+      "classification": "HARNESS_BUG",
+      "cause": "Inline password reflection moved native click target; navigation assertion failed, no transition proved. Corrected only controlled fixture layout and bounded transition wait, no product/assertion change."
+    },
+    {
+      "runs": [
+        "secret-navigation02"
+      ],
+      "classification": "PRODUCT_BUG",
+      "code": "WV2-B05-SECRET-NAVIGATION-001",
+      "cause": "Declared password knowledge is document-local and lost on navigation during takeover. Fresh model-facing observation contains reflected synthetic credential. Block05 BLOCKED; no product changes or automatic repair after discovery."
+    }
+  ],
+  "inheritedRegressions": {
+    "core": {
+      "xml": "%TEMP%/nova-wv2-05-reg-core/tests.xml",
+      "xmlSha256": "8db0d402afc5d4f40c1075039ba77cce8701b96da274936af4d6cc17f5f7cb53",
+      "skippedCases": [
+        {
+          "reason": "Creating symlinks requires Developer Mode on Windows",
+          "name": "test_symlink_rejected",
+          "class": "tests.test_config.TestLoadConfigFile"
+        },
+        {
+          "reason": "Creating symlinks requires Developer Mode on Windows",
+          "name": "test_load_symlink_rejected",
+          "class": "tests.test_model_registry.TestLoadRegistry"
+        },
+        {
+          "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-wv2-05-reg-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-wv2-05-reg-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'",
+          "name": "test_relative_symlink_cannot_escape_explicit_cwd",
+          "class": "tests.test_nova_core_phase3_cwd"
+        },
+        {
+          "reason": "Windows does not preserve POSIX executable bits",
+          "name": "test_preserves_file_mode",
+          "class": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite"
+        },
+        {
+          "reason": "Windows does not preserve POSIX executable bits",
+          "name": "test_overwrite_preserves_existing_mode",
+          "class": "tests.test_tools.test_fileio.TestAtomicWriteText"
+        },
+        {
+          "reason": "legacy monitor removed in phase 1",
+          "name": "test_bind_address_is_all_interfaces",
+          "class": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure"
+        },
+        {
+          "reason": "legacy monitor removed in phase 1",
+          "name": "test_post_without_credentials_starts_agent",
+          "class": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure"
+        }
+      ],
+      "tests": 3472,
+      "failedCases": [
+        {
+          "class": "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization",
+          "name": "test_non_sensitive_env_vars_available"
+        }
+      ],
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "core",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 2860,
+        "collected_parameter_instances": 3419,
+        "collected_nodeids_sha256": "266caac6f4e9daed2d275971a8240f7a709b45b891491ef5912dc1eda6f079f3",
+        "collection_guard": "PASS",
+        "tests_executed": 3419,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "timestamp": "2026-10-10T09:40:17.599237-06:00",
+      "errors": 0,
+      "artifacts": {
+        "runJson": "298c0dda561b4ed4768a96318bc6cf88c7d6519daab1059b8d611058f8067caf",
+        "selection": "64e5f9586ca6d85089abef3d791a3b1dfeefa1678580c981ad304d22c915a730",
+        "pytestLog": "3dc9b2011bad730117e16e21b0ef9de3c6e7983e5bcc8668e20101e60f17de78"
+      },
+      "failures": 1,
+      "skips": 7,
+      "duration": 244.86
+    },
+    "knowledge": {
+      "xml": "%TEMP%/nova-wv2-05-reg-knowledge/tests.xml",
+      "xmlSha256": "8c2526e1fe4fb4f079698fb57eb1f62384e65b4129ac076ff8f00f851d5929fc",
+      "skippedCases": [],
+      "tests": 1015,
+      "failedCases": [],
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "knowledge",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 335,
+        "collected_parameter_instances": 1015,
+        "collected_nodeids_sha256": "40aed5a5c3606c0091ce3ee4323381343bc40e3ab561ebe5b04950785d5821dd",
+        "collection_guard": "PASS",
+        "tests_executed": 1015,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "timestamp": "2026-10-10T09:36:28.702191-06:00",
+      "errors": 0,
+      "artifacts": {
+        "runJson": "f8b81d22223483a68cf4fe1255563b2ff8f83a456e8bd7f174b7e1fdf08c0747",
+        "selection": "6ec9c87cef8c773707f362703dcd78a958d68ad74afbead536f3ff51d865ac8f",
+        "pytestLog": "161951095c6187448af58993aafec8a7814026e0510b7c2f2bea500ae112aff2"
+      },
+      "failures": 0,
+      "skips": 0,
+      "duration": 125.732
+    },
+    "memory": {
+      "xml": "%TEMP%/nova-wv2-05-reg-memory/tests.xml",
+      "xmlSha256": "a75672dd5917e7c538bdd13e5b1d081f66d6e32e1c3f45633d6e1b23718b1da5",
+      "skippedCases": [],
+      "tests": 791,
+      "failedCases": [],
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "memory",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 326,
+        "collected_parameter_instances": 791,
+        "collected_nodeids_sha256": "6bf04dd626b16d00af2d9747571f6821988e32ada2c20ea839c15296f8c584b0",
+        "collection_guard": "PASS",
+        "tests_executed": 791,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "timestamp": "2026-10-10T09:36:17.295171-06:00",
+      "errors": 0,
+      "artifacts": {
+        "runJson": "9e68ff64be3e0149419888e4ce6b2c86bb943ee38fabb64229245da292cb93a8",
+        "selection": "9af5b08ba867984e266e46f08fda163c9e694441c12873b6e5262a1f0a79efa1",
+        "pytestLog": "a286c7ade074c719bf409b0f42b34e2d0fbd1e8a60020d3d4a628f145dab93b6"
+      },
+      "failures": 0,
+      "skips": 0,
+      "duration": 65.201
+    },
+    "active-web": {
+      "xml": "%TEMP%/nova-wv2-05-reg-active-web/tests.xml",
+      "xmlSha256": "50d7430a795bd8f99e2efb1f23d1744328d5dd20e89916ca30d6b4d721a5e7e6",
+      "skippedCases": [],
+      "tests": 672,
+      "failedCases": [],
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "active-web",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 230,
+        "collected_parameter_instances": 672,
+        "collected_nodeids_sha256": "2e5b053d00c0a0ef5615e6bd61164be2d4c9b042ca9976a2055d11359c506a54",
+        "collection_guard": "PASS",
+        "tests_executed": 672,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "timestamp": "2026-10-10T09:37:50.315312-06:00",
+      "errors": 0,
+      "artifacts": {
+        "runJson": "63ca78d66753c90bf2dcba4bdb98a6e1a4500d2dfc99817370bfd4e92500957f",
+        "selection": "c3f674d43bbbff2bbd1334a7c4c1b7bbb1a231b5ae896b40bcec7063e5deabe0",
+        "pytestLog": "0ff284a1d7d4d45bcab167758b09db17f9eb36f2b6b1cfb562e701737363b1d6"
+      },
+      "failures": 0,
+      "skips": 0,
+      "duration": 23.625
+    },
+    "security": {
+      "xml": "%TEMP%/nova-wv2-05-reg-security/tests.xml",
+      "xmlSha256": "e3fceecde6db447485d2ccd9011029853326621cf052460a40b1c46e13ad8382",
+      "skippedCases": [],
+      "tests": 615,
+      "failedCases": [],
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "security",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 274,
+        "collected_parameter_instances": 615,
+        "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+        "collection_guard": "PASS",
+        "tests_executed": 615,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "timestamp": "2026-10-10T09:37:39.286529-06:00",
+      "errors": 0,
+      "artifacts": {
+        "runJson": "d77f0279fbd2ac54c2b1570d04c7e83d946603f65764853b85efc3f13620839d",
+        "selection": "f82f2122017b8221b966979e696a10699a1ed1095e3aa4c27967cbf290742526",
+        "pytestLog": "e3e2a2ff3acb6d5f6cf9d5b3718f094e0c20de8bd72ecf93d9187ec25f81a38b"
+      },
+      "failures": 0,
+      "skips": 0,
+      "duration": 22.432
+    }
+  },
+  "desktop": {
+    "skips": 0,
+    "passed": 71,
+    "typescriptExitCode": 0,
+    "sha256": "917b60d2114a8b04b956b1d1d6f346c9eb06b6ce1aeddc00c3dfc7ffa3c2b791",
+    "exitCode": 0,
+    "path": "%TEMP%/nova-wv2-05-desktop.tap",
+    "failures": 0
+  },
+  "coreSummary": {
+    "collected": 3419,
+    "passed": 3411,
+    "failed": 1,
+    "skipped": 7,
+    "subtestsPassed": 53,
+    "junitRows": 3472,
+    "exitCode": 1,
+    "debt": "PREEXISTING_CORE_HARNESS_DEBT HOME/USERPROFILE",
+    "nonBlockingForBlock05": true,
+    "jsonlCurrent": "PASS; block03 FAIL retained, not historically relabeled PREEXISTING",
+    "newCoreFailures": 0,
+    "newSkips": 0,
+    "newXfails": 0,
+    "skipComparison": "Exact seven node IDs match block04 Core XML",
+    "historicalXmlSha256": "f94a2e4b38ec7b82b1094e72a276023a2c43b18c86252ab6773f151b81ea7d45"
+  },
+  "qualityAttempts": 0,
+  "modelCampaigns": 0,
+  "newFilters": 0,
+  "rawArtifacts": [
+    {
+      "sha256": "e0a12a7da095e8ce2f284f9fc5a6ea09a447ce2d1dd107de20a0a4f6e54267ca",
+      "kind": "native_takeover.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_takeover_ui_epoch_0/native_takeover.json"
+    },
+    {
+      "sha256": "e37ab3541140a7dd5fae6dcfc6c35997369d7a4e5cbf2827e7f1c7cff7110a8e",
+      "kind": "native_transfers.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_upload_and_downloa0/native_transfers.json"
+    },
+    {
+      "sha256": "bf50c296fcf2d11e802e6f43977b13a7241a0f9bfd11d91c2c62f1d10272e20a",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne0/native_loss.json"
+    },
+    {
+      "sha256": "35afa2a57e92168fa539636c4f3923abadab63328b11374483b8efac3141f27f",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne1/native_loss.json"
+    },
+    {
+      "sha256": "2046d1751daa6f02d25d5cab1c31601a77e74ab263dfbbc47b259e8aab154eb0",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne2/native_loss.json"
+    },
+    {
+      "sha256": "0f9ba30d8f769eae4619812484f4e7c8112118e9988c3f13f4280055c527351f",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne3/native_loss.json"
+    },
+    {
+      "sha256": "fb7044eaec010ffccc65c90835740f84de0fd0b2e0129d4254fc417795e022e6",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne4/native_loss.json"
+    },
+    {
+      "sha256": "59565e567cceff8030d547c594f47e97cafa91c1817639ff004ef910cbe4b86b",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne5/native_loss.json"
+    },
+    {
+      "sha256": "f4d3ba5b8a2e01482822cbdc4ddaff0acef364e1596613f78b76f996a8aacf78",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne6/native_loss.json"
+    },
+    {
+      "sha256": "ad4a9ceec345e1469f283750a1782fd1768cecf4f59aaca85ea382787ccdb981",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne7/native_loss.json"
+    },
+    {
+      "sha256": "e412e45caf018973e3eda5db709cdc4c1c35c1da4a013a69309a7f67a150c0b9",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne8/native_loss.json"
+    },
+    {
+      "sha256": "da45e91ba466a3962aadac8762ee0a34372097fe00393a586fef42d95370d144",
+      "kind": "native_loss.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_transfer_losses_ne9/native_loss.json"
+    },
+    {
+      "sha256": "0baa88e864c63a8c21dd7a664fb32b9154d0e671019cd90190e45b10f98d110e",
+      "kind": "native_driveby.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_drive_by_download_0/native_driveby.json"
+    },
+    {
+      "sha256": "1529fce01cc3402de289b1ee2fe1cba6a708312ff23b29686b1d3981c05d3f77",
+      "kind": "native_takeover_guard.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_takeover_host_comp0/native_takeover_guard.json"
+    },
+    {
+      "sha256": "82dc12bca711ea58da32b21b4e4417754499410ee2d14a4935d3dc50e6a3243e",
+      "kind": "native_lifecycle.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_completed_staging_0/native_lifecycle.json"
+    },
+    {
+      "sha256": "81cd66dc8c2ede7819d33469de9c31adb84c620bdc68ef154d9a6b2678271a11",
+      "kind": "mediated_transfer.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_toolruntime_exact_0/mediated_transfer.json"
+    },
+    {
+      "sha256": "16aed5ac7a256ed100d7e0ec6dba755e52bae53b161285a590ca9940f1a0ee4c",
+      "kind": "mediated_transfer.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_toolruntime_exact_1/mediated_transfer.json"
+    },
+    {
+      "sha256": "6eb1e7df6b3e2da9a0d04d91059c322371d18b3876ee5c1f713f186f69cead3b",
+      "kind": "mediated_transfer.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_toolruntime_exact_2/mediated_transfer.json"
+    },
+    {
+      "sha256": "2bc73a8fd8f2b2fce004f5fb40fa269157a74f715f17f22197c8cde6c5dfb726",
+      "kind": "mediated_transfer.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_toolruntime_exact_3/mediated_transfer.json"
+    },
+    {
+      "sha256": "2d85ea460e17f8368518df74a1609af955859ea246e8574d32d3428a75bebb01",
+      "kind": "mediated_transfer.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_toolruntime_exact_4/mediated_transfer.json"
+    },
+    {
+      "sha256": "1d1ff4496082b389a89ae6c855375b4ba3f5fc9ebf986256550047196af331e7",
+      "kind": "mediated_transfer.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_toolruntime_exact_5/mediated_transfer.json"
+    },
+    {
+      "sha256": "676fb7259866df71b15d3657f005285bc02cd54720a1e48a726a9fe701c41cff",
+      "kind": "mediated_transfer.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_toolruntime_exact_6/mediated_transfer.json"
+    },
+    {
+      "sha256": "eecb8d831f4adb3193ac95a350a862cee40869072e84edf8af06b605abe9dfe8",
+      "kind": "mediated_transfer.json",
+      "path": "%TEMP%/nova-wv2-05-final01-private/test_native_toolruntime_exact_7/mediated_transfer.json"
+    },
+    {
+      "sha256": "5287d79b6b29539f0331a3dd1ca841dbfa22b334fb062959ce7fe5f2b47e8fa4",
+      "kind": "build.txt",
+      "path": "%TEMP%/nova-wv2-05-final01-private/engine-contract-build0/build.txt"
+    },
+    {
+      "sha256": "13626571031588fbe5e7eda1fad424ac84f431612d3a771429751e4dccd651bc",
+      "kind": "build.txt",
+      "path": "%TEMP%/nova-wv2-05-final01-private/host-build0/build.txt"
+    }
+  ]
+}

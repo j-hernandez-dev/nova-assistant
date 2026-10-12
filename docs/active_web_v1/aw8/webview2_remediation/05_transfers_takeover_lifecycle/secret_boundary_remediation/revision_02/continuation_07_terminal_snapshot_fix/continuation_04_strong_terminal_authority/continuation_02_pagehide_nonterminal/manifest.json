@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Additive prospective PAGEHIDE non-terminal correction; no Block06",
+  "humanDecision": "Only SUBMIT_CONFIRMED / ENGINE_WORLD_RETIRE / TAKEOVER_END_CHECKPOINT terminalize; PAGEHIDE weak",
+  "timestampUtc": "2026-10-11T00:41:49.153Z",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "candidateFreezeSha256": "c30e51594cc841fd98bda91c6c912c1f92a00eb1aeeee2f94939ccd3ec75d4a0",
+  "scope": "Internal terminal enum and exclusively PAGEHIDE legacy contract preparation/expectations plus seven additive direct cases",
+  "changedFiles": [
+    {
+      "sha256": "1017b4710353da5de7bd46182a9ec93e293fe368e10b46e32a5925b236d3f072",
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "beforeSha256": "97cdc45bd8881366f64daf100c56019577ffdca06315247d26609fa37ebebd2f"
+    },
+    {
+      "sha256": "392cf2790215a40a1d05b4f6244ad60de1bed7467954ebbaead5de0f8285c368",
+      "path": "native/nova-browser-host/SensitiveTerminalState.cs",
+      "beforeSha256": "12447296d3cafecf4a8391f8a30cab9397d88581cb6d01a5bc8c23f0c989f398"
+    },
+    {
+      "sha256": "91ebaf1b207080a0b647b5a72ee5f703d8014d514c1400e83a5a56a95319b775",
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "beforeSha256": "225d7ebcc1cabf57371be6b0f565b6a09478916ea12acf9150e8f689c6a28f87"
+    },
+    {
+      "sha256": "c7748c629c898c151bd99d44cf11cd00cf4d7f4ff79d146e819f516a2a8f0ac2",
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "beforeSha256": "8912a1dd14913ae6f68a46c0d1c206bb112110c567b7b3a06e65ba9748fd7367"
+    },
+    {
+      "sha256": "91cd8aceae55af0d3df87cb20a5018dac0ce12354483aa632e2cc33b905e989c",
+      "path": "native/nova-browser-host/tests/strong_terminal_runner/Program.cs",
+      "beforeSha256": "fdd36faeed8d8b60e83ff740a3c0b668d6ddcdaa26bbbb5ee6c4981ee845d746"
+    },
+    {
+      "sha256": "f88cb042fa17328320d229bf958fb98edea4e1ac0564c78aa1a2c14c79fad800",
+      "path": "native/nova-browser-host/tests/test_strong_terminal_authority.py",
+      "beforeSha256": "7a473401ac22ea1e366c1b37bd47ca95402602f2ee789e717cb82bdefcb02eab"
+    }
+  ],
+  "newTestCases": 7,
+  "productionDelta": "SensitiveTerminalState.cs only: PAGEHIDE moved to SensitiveInputSignal and removed from SensitiveTerminalReason; existing private parser takes weak ObserveInput path",
+  "unchangedProductAreas": [
+    "SensitiveTracking source / SUBMIT event handling",
+    "SensitiveValueRegistry / retirement seal / bounds / current ordering",
+    "SensitiveBoundaryFailure diagnostics / failure sink",
+    "ObservationRuntime / leaf-boundary / schema-aware redaction",
+    "TransferRuntime",
+    "Policy/Approval/Grant",
+    "Core/Memory/Knowledge/Desktop",
+    "network/capability availability"
+  ],
+  "reconciliation": [
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "ids": [
+        "reason-pagehide"
+      ],
+      "old": "PAGEHIDE snapshot -> Commit -> COMMITTED",
+      "next": "PAGEHIDE updates exact observed current/revision -> TRANSIENT, no snapshot/Commit",
+      "strong": null,
+      "beforeSha256": "225d7ebcc1cabf57371be6b0f565b6a09478916ea12acf9150e8f689c6a28f87",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true,
+      "afterSha256": "91ebaf1b207080a0b647b5a72ee5f703d8014d514c1400e83a5a56a95319b775"
+    },
+    {
+      "path": "native/nova-browser-host/tests/terminal_ordering_runner/Program.cs",
+      "ids": [
+        "old-document"
+      ],
+      "old": "PAGEHIDE supplies old terminal proof before retire",
+      "next": "PAGEHIDE weak observed value first; explicit CHECKPOINT proof supplies the old terminal before document retires; old ownership/stale assertions preserved",
+      "strong": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "225d7ebcc1cabf57371be6b0f565b6a09478916ea12acf9150e8f689c6a28f87",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true,
+      "afterSha256": "91ebaf1b207080a0b647b5a72ee5f703d8014d514c1400e83a5a56a95319b775"
+    },
+    {
+      "path": "native/nova-browser-host/tests/retirement_seal_runner/Program.cs",
+      "ids": [
+        "pagehide-reuse",
+        "pagehide-uncommitted"
+      ],
+      "old": "PAGEHIDE creates COMMIT-able proof then seal reuses it",
+      "next": "PAGEHIDE cannot terminalize; a separate explicit CHECKPOINT proof is reusable by the unchanged retirement seal; same identity/revision/commit-count assertions",
+      "strong": "TAKEOVER_END_CHECKPOINT and ENGINE_WORLD_RETIRE",
+      "beforeSha256": "8912a1dd14913ae6f68a46c0d1c206bb112110c567b7b3a06e65ba9748fd7367",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true,
+      "afterSha256": "c7748c629c898c151bd99d44cf11cd00cf4d7f4ff79d146e819f516a2a8f0ac2"
+    },
+    {
+      "path": "native/nova-browser-host/tests/transient_policy_runner/Program.cs",
+      "ids": [
+        "terminal-retire",
+        "short-retire-denied"
+      ],
+      "old": "PAGEHIDE proof + generic Retire",
+      "next": "PAGEHIDE weak, then exact registered protected-world retirement seal supplies terminal authority; long COMMITTED and genuine short denial unchanged",
+      "strong": "ENGINE_WORLD_RETIRE",
+      "beforeSha256": "97cdc45bd8881366f64daf100c56019577ffdca06315247d26609fa37ebebd2f",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true,
+      "afterSha256": "1017b4710353da5de7bd46182a9ec93e293fe368e10b46e32a5925b236d3f072"
+    },
+    {
+      "path": "native/nova-browser-host/tests/strong_terminal_runner/Program.cs",
+      "ids": [
+        "blur-then-pagehide",
+        "strong-pagehide-long",
+        "strong-pagehide-short"
+      ],
+      "old": "PAGEHIDE directly COMMITTED/SHORT_COMMITTED_VALUE",
+      "next": "PAGEHIDE TRANSIENT with no failure; a separate CHECKPOINT proves COMMITTED or true short denial",
+      "strong": "TAKEOVER_END_CHECKPOINT",
+      "beforeSha256": "fdd36faeed8d8b60e83ff740a3c0b668d6ddcdaa26bbbb5ee6c4981ee845d746",
+      "valuesLengthsNativeHistoricalFixturesDriverAndSecurityAssertionsUnchanged": true,
+      "afterSha256": "91cd8aceae55af0d3df87cb20a5018dac0ce12354483aa632e2cc33b905e989c"
+    }
+  ],
+  "gates": {
+    "PAGEHIDE_NON_TERMINAL_AUTHORITY": "PASS",
+    "PAGEHIDE_CONTRACT_RECONCILIATION": "PASS",
+    "STRONG_TERMINAL_TEST_CONTRACT_RECONCILIATION": "PASS",
+    "STRONG_TERMINAL_AUTHORITY": "PARTIAL",
+    "TERMINAL_SNAPSHOT_PROVENANCE": "PARTIAL",
+    "RETIREMENT_TERMINAL_SEAL": "PASS",
+    "C07_CROSS_TERMINAL_CONTINUITY": "PASS",
+    "C07_C_SECRET_LEAF": "PASS",
+    "TRUE_SHORT_COMMITTED_DENIAL": "PASS",
+    "BOUNDED_TRANSIENT_SENSITIVE_VALUE_POLICY": "PASS",
+    "MONOTONIC_SENSITIVE_KNOWLEDGE": "PASS",
+    "SCHEMA_AWARE_REDACTION": "PASS",
+    "CROSS_DOCUMENT_SECRET_REDACTION": "PARTIAL",
+    "MODEL_PROJECTION_SECRET_BOUNDARY": "PARTIAL",
+    "SECRET_REGISTRY_LIFECYCLE": "PARTIAL",
+    "SECRET_NON_EXPOSURE": "PARTIAL",
+    "BLOCK05_FINAL_REGRESSION": "BLOCKED"
+  },
+  "states": {
+    "C07_TERMINAL_SNAPSHOT_FIX": "PARTIAL",
+    "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "historical36Udf": "CLEANUP_UNCONFIRMED"
+  },
+  "failure": {
+    "testId": "native/nova-browser-host/tests/test_sensitive_continuity.py::test_native_document_and_world_lifetime[history]",
+    "publicError": "SECRET_BOUNDARY_UNCONFIRMED",
+    "firstSelectedFailure": "SHORT_COMMITTED_VALUE",
+    "classification": "PRODUCT_BUG / TERMINAL_LIFECYCLE_CONTINUITY",
+    "TerminalReason": "ENGINE_WORLD_RETIRE",
+    "CommitCaller": "SealForRetirement",
+    "snapshotRevision": 49,
+    "currentRevision": 49,
+    "generation": "40c46da26d204210b982d43bc22c96c5",
+    "scalarEvidence": {
+      "reason": 2,
+      "generation": "40c46da26d204210b982d43bc22c96c5",
+      "TerminalReason": 7,
+      "CommitCaller": "SealForRetirement",
+      "sha256": "f5fe1229a13232bc5943dc0da938141ae2f06afd755233c07b642c79de27840b",
+      "version": 1,
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-pagehide-nonterminal-20261011T003352Z\\C_round_1_scenario_1\\temp\\test_native_document_and_world0\\nova_wv2_bws_2e25aba9191b49ddad6a8c09eff384c9_bhi_33b58af9b1194858a5f81da388ca23bf.strong-terminal-failure.bin",
+      "complete": 1,
+      "magic": 1314275636,
+      "currentRevision": 49,
+      "ownerPid": 34136,
+      "hostPid": 34064,
+      "timestampUnixMs": 1791679193665,
+      "site": 8,
+      "snapshotRevision": 49
+    },
+    "deepMechanism": "NOT_INVESTIGATED / no new diagnostic campaign authorized"
+  },
+  "history": {
+    "previousExecution": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_07_terminal_snapshot_fix/continuation_04_strong_terminal_authority/continuation_01",
+    "previousResult": "A=48 PASS; B=102 PASS; C=0 PASS / 1 FAIL; PAGEHIDE/SensitiveMessage/rev48 unchanged",
+    "previousManifestSha256": "23be1ffbd591065f1cd56fef2390444ad062a2ec139edfff424db453ca1b8876",
+    "previousFreezeSha256": "ca3a8087aef20bb96e00f09feb789515c6d494efa31835914ca31d3bf9f12288",
+    "preflight": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_07_terminal_snapshot_fix/continuation_04_strong_terminal_authority",
+    "preservedHistoricalArtefacts": 314,
+    "noOldResultRewritten": true
+  },
+  "evidence": {
+    "results": "resultados.md",
+    "tests": "test_results.json",
+    "authority": "terminal_authority.md",
+    "reconciliation": "assertion_reconciliation.md",
+    "stateMachine": "state_machine_tests.json",
+    "freeze": "candidate_freeze.json",
+    "integrity": "integrity.json",
+    "externalRoot": "C:/Users/joseh/AppData/Local/Temp/nova-pagehide-nonterminal-20261011T003352Z"
+  },
+  "diagnosticDecision": "Existing failure-only scalar sink retained TEST_ONLY; productive observer null, no new diagnostic campaign, no public debug IPC",
+  "notRun": [
+    "14 remaining C attempts",
+    "D focal33",
+    "E fullBlock05",
+    "Block06",
+    "AW8 final"
+  ],
+  "noProductChangesAfterFirstRuntimeGate": true,
+  "noFurtherFunctionalRepairAfterCFailure": true,
+  "noCommitPushTagRelease": true
+}

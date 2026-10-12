@@ -1,0 +1,269 @@
+Failed to find real location of C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\python.exe
+........................................................................ [  1%]
+........................................................................ [  3%]
+........................................................................ [  5%]
+........................................................................ [  7%]
+....................................F................................... [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 21%]
+........................................................................ [ 23%]
+.................F...................................................... [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 29%]
+.......................................s................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 38%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 44%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+.......................................s................................ [ 50%]
+........................................................................ [ 52%]
+......................................F....s.s..................F..s.... [ 54%]
+..................sF.................................F........ [ 55%]
+.............................F.......................................... [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 61%]
+........................................................................ [ 63%]
+........................................................................ [ 65%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+....................................................................................................... [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 87%]
+........................................................................ [ 89%]
+........................................................................ [ 91%]
+........................................................................ [ 93%]
+.....................................................................s.. [ 95%]
+.......s................................................................ [ 97%]
+........................................................................ [ 99%]
+..............ss......                                                 [100%]
+================================== FAILURES ===================================
+_ test_durable_subject_not_session_provider_and_host_workspace_canonicalization _
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_before/pytest-private/test_durable_subject_not_sessi0')
+
+    def test_durable_subject_not_session_provider_and_host_workspace_canonicalization(tmp_path):
+        workspace=tmp_path/'workspace'
+        workspace.mkdir()
+        (workspace/'child').mkdir()
+        with open_store(tmp_path/'state') as store:
+            subject=store.load_or_create_subject()
+>           identity=store.resolve_workspace(workspace)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m2_store.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.infrastructure.memory_sqlite.SQLiteMemoryStore object at 0x0000016CB6AE9850>
+workspace = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_before/pytest-private/test_durable_subject_not_sessi0/workspace')
+
+    def resolve_workspace(self, workspace):
+        try:
+            path = Path(workspace)
+            if not path.is_absolute() or not path.is_dir():
+                raise ValueError()
+            canonical = os.path.normcase(str(path.resolve(strict=True)))
+        except (OSError, TypeError, ValueError):
+>           raise MemoryError(MemoryErrorCode.INVALID_IDENTITY) from None
+E           local_cli.core.memory.MemoryError: Memory contract validation failed.
+
+local_cli\infrastructure\memory_sqlite.py:280: MemoryError
+________________ test_unowned_hardlinked_segment_never_purged _________________
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_before/pytest-private/test_unowned_hardlinked_segmen0')
+
+    def test_unowned_hardlinked_segment_never_purged(tmp_path):
+        source = tmp_path/'manual.jsonl'; source.write_bytes(b'manual evidence')
+        state = tmp_path/'state'; state.mkdir()
+        target = state/('nova-audit-'+'a'*32+'.closed.jsonl')
+>       os.link(source,target)
+E       PermissionError: [WinError 5] Acceso denegado: 'C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m3_before\\pytest-private\\test_unowned_hardlinked_segmen0\\manual.jsonl' -> 'C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m3_before\\pytest-private\\test_unowned_hardlinked_segmen0\\state\\nova-audit-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.closed.jsonl'
+
+tests\security_v12\test_s7_persistence.py:253: PermissionError
+_____ test_cli_tool_preview_and_session_log_survive_application_migration _____
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_before/pytest-private/test_cli_tool_preview_and_sess0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000016CB5C80910>
+capsys = <_pytest.capture.CaptureFixture object at 0x0000016CB7074650>
+
+    def test_cli_tool_preview_and_session_log_survive_application_migration(tmp_path, monkeypatch, capsys):
+        import json
+        from local_cli.application.providers import ProviderManager
+        from local_cli.application.rag import RAGService
+        from local_cli.cli import run_repl
+        from local_cli.config import Config
+        from local_cli.session_log import SessionLogger
+        from local_cli.tools.read_tool import ReadTool
+        from tests.test_nova_core_phase8_providers import Provider
+    
+        (tmp_path / "data.txt").write_text("file content", encoding="utf-8")
+        read = {"role": "assistant", "content": "", "tool_calls": [{
+            "function": {"name": "read", "arguments": {"file_path": "data.txt"}},
+        }]}
+        provider = Provider(steps=[read, "final reply"])
+        config = Config()
+        config.state_dir, config.model, config.mascot = str(tmp_path / "state"), "old", "off"
+        logger = SessionLogger(config.state_dir, cwd=str(tmp_path))
+        monkeypatch.setattr("local_cli.cli.SessionLogger", lambda *_args, **_kwargs: logger)
+        answers = iter(["read file", "/exit"])
+        monkeypatch.setattr("builtins.input", lambda _: next(answers))
+        run_repl(config, object(), [ReadTool(cwd=tmp_path)],
+                 provider_manager=ProviderManager(provider, "old"), rag_service=RAGService(None))
+        captured = capsys.readouterr()
+>       assert "Result:" in captured.err and "file content" in captured.err
+E       AssertionError: assert ('Result:' in '  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\n  [harness] error_stop\n' and 'file content' in '  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\n  [harness] error_stop\n')
+E        +  where '  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\n  [harness] error_stop\n' = CaptureResult(out='local-cli v0.12.6 | model: old\nTools: read\nType /help for commands, /exit to quit.\n\nfinal replydone\nGoodbye!\n', err='  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\n  [harness] error_stop\n').err
+E        +  and   '  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\n  [harness] error_stop\n' = CaptureResult(out='local-cli v0.12.6 | model: old\nTools: read\nType /help for commands, /exit to quit.\n\nfinal replydone\nGoodbye!\n', err='  Result: Error: FILESYSTEM_ALIAS_UNSUPPORTED\n  [harness] error_stop\n').err
+
+tests\test_nova_core_phase12_client.py:419: AssertionError
+_______ test_real_windows_powershell_fallback_without_pwsh_or_git_bash ________
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_before/pytest-private/test_real_windows_powershell_f0')
+
+    @pytest.mark.skipif(sys.platform != "win32", reason="Real Windows PowerShell fallback gate")
+    def test_real_windows_powershell_fallback_without_pwsh_or_git_bash(tmp_path):
+        root = Path(__file__).resolve().parents[1]
+        system = Path(os.environ.get("SystemRoot", "C:/Windows"))
+        folder = system / "System32/WindowsPowerShell/v1.0"
+        assert (folder / "powershell.exe").is_file()
+        environment = {**get_sanitized_env(), "PYTHONPATH": str(root),
+            "PYTHONIOENCODING": "utf-8", "PATH": os.pathsep.join(map(str, [folder, system / "System32"]))}
+        # Restrict only the child's PATH: this is a real detector/executor probe,
+        # without patching sys.platform, which(), versions or subprocess results.
+        script = """import json
+    from local_cli.shell_executor import detect_shell, create_executor
+    from local_cli.security import get_sanitized_env
+    d=detect_shell()
+    # This smoke owns fallback discovery/execution; timeout semantics are covered
+    # separately. Hosted Windows PowerShell 5 cold-start can exceed 10 seconds.
+    r=create_executor(d).run("Write-Output 'fallback-ñ🧠'; exit 7", 45, '.', get_sanitized_env())
+    print(json.dumps({'kind':d.kind,'executable':d.executable,'version':d.version,
+                     'stdout':r.stdout,'exitCode':r.returncode}))
+    """
+        result = subprocess.run([sys.executable, "-c", script], env=environment, cwd=tmp_path,
+            capture_output=True, text=True, encoding="utf-8", timeout=60)
+>       assert result.returncode == 0, result.stderr
+E       AssertionError: Failed to find real location of C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\python.exe
+E         Traceback (most recent call last):
+E           File "<string>", line 7, in <module>
+E             r=create_executor(d).run("Write-Output 'fallback-ñ🧠'; exit 7", 45, '.', get_sanitized_env())
+E               ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "C:\Users\joseh\Downloads\nova-local-cli\nova-assistant\local_cli\shell_executor.py", line 162, in run
+E             raise error
+E         OSError: PROCESS_LAUNCH_FAILED
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe', '-c', 'import json\...i\\nova-assistant\\local_cli\\shell_executor.py", line 162, in run\n    raise error\nOSError: PROCESS_LAUNCH_FAILED\n').returncode
+
+tests\test_nova_core_phase14_platform.py:81: AssertionError
+______________ test_two_worktree_agents_never_change_process_cwd ______________
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_before/pytest-private/test_two_worktree_agents_never0')
+
+    def test_two_worktree_agents_never_change_process_cwd(tmp_path):
+        left, right = tmp_path / "left", tmp_path / "right"
+        left.mkdir()
+        right.mkdir()
+        barrier = Barrier(2)
+        original = os.getcwd()
+        main_tools = {tool.name: tool for tool in create_tools("sub_agent", cwd=tmp_path)}
+        assert "Successfully wrote" in main_tools["write"].execute(
+            file_path="item.txt", content="main")
+    
+        def make_agent(worktree):
+            agent = SubAgent(provider=object(), model="test",
+                             tools=create_tools("sub_agent", cwd=tmp_path),
+                             prompt="task", cwd=tmp_path)
+            agent._worktree_path = str(worktree)
+    
+            def loop(_start):
+                barrier.wait(timeout=5)
+                assert Path.cwd() == Path(original)
+                assert f"WORKING DIRECTORY: {worktree}" in agent._messages[0]["content"]
+                tools = {tool.name: tool for tool in agent._tools}
+                assert "Successfully wrote" in tools["write"].execute(
+                    file_path="item.txt", content=worktree.name)
+                return tools["read"].execute(file_path="item.txt")
+    
+            agent._run_agent_loop = loop
+            return agent
+    
+        agents = [make_agent(left), make_agent(right)]
+        with patch.object(SubAgent, "_teardown_worktree", return_value=False):
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                results = list(pool.map(lambda agent: agent.run(), agents))
+>       assert [result.status for result in results] == ["success", "success"]
+E       AssertionError: assert ['error', 'error'] == ['success', 'success']
+E         
+E         At index 0 diff: 'error' != 'success'
+E         Use -v to get more diff
+
+tests\test_nova_core_phase3_cwd.py:113: AssertionError
+______ test_runtime_normalizes_call_revalidates_brokered_read_and_write _______
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_before/pytest-private/test_runtime_normalizes_call_r0')
+
+    def test_runtime_normalizes_call_revalidates_brokered_read_and_write(tmp_path):
+        target = tmp_path / "note.txt"
+        target.write_text("old", encoding="utf-8")
+        runtime = ToolRuntime(ToolRegistry(get_default_tools(cwd=tmp_path)))
+        first = runtime.execute(_invoke("read_file", {"path": "note.txt"},
+                                        _context(tmp_path)))
+        second = runtime.execute(_invoke("read", {"file_path": "note.txt"},
+                                         _context(tmp_path)))
+>       assert first.status is ToolStatus.COMPLETED
+E       AssertionError: assert <ToolStatus.DENIED: 'denied'> is <ToolStatus.COMPLETED: 'completed'>
+E        +  where <ToolStatus.DENIED: 'denied'> = ToolResult(status=<ToolStatus.DENIED: 'denied'>, effect_state=<EffectState.NONE: 'none'>, stdout='', stderr='', exit_c...mappingproxy({'securityErrorCode': 'FILESYSTEM_ALIAS_UNSUPPORTED'}), legacy_text='Error: FILESYSTEM_ALIAS_UNSUPPORTED').status
+E        +  and   <ToolStatus.COMPLETED: 'completed'> = ToolStatus.COMPLETED
+
+tests\test_nova_core_phase6_runtime.py:78: AssertionError
+__________ test_brokered_read_keeps_one_terminal_per_tool_operation ___________
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_before/pytest-private/test_brokered_read_keeps_one_t0')
+
+    def test_brokered_read_keeps_one_terminal_per_tool_operation(tmp_path):
+        path = tmp_path / "note.txt"
+        path.write_text("hello", encoding="utf-8")
+        read_call = {"role": "assistant", "content": "", "tool_calls": [{
+            "function": {"name": "read", "arguments": {"file_path": str(path)}},
+        }]}
+        coordinator = AgentSessionCoordinator(
+            provider=ScriptedProvider([read_call, read_call, "done"]), model="local",
+            tool_factory=lambda cwd: [ReadTool(cwd=cwd)],
+            event_config=EventBufferConfig(64, 64, 8),
+        )
+        session_id = _start(coordinator, tmp_path)
+        turn = coordinator.handle(_command(CommandKind.SUBMIT_USER_INPUT,
+                                           session_id, {"content": "read twice"}))
+        assert coordinator.wait_for_turn(turn.created_ids["turnId"], 5)
+        assert coordinator.get_snapshot(session_id).turns[0]["status"] == "completed"
+        terminal = [e for e in _events(coordinator, session_id)
+                    if e.kind is EventKind.TOOL_COMPLETED]
+>       assert len(terminal) == 2
+E       assert 0 == 2
+E        +  where 0 = len([])
+
+tests\test_nova_core_phase7_session.py:254: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/memory_v1/test_m2_store.py::test_durable_subject_not_session_provider_and_host_workspace_canonicalization
+FAILED tests/security_v12/test_s7_persistence.py::test_unowned_hardlinked_segment_never_purged
+FAILED tests/test_nova_core_phase12_client.py::test_cli_tool_preview_and_session_log_survive_application_migration
+FAILED tests/test_nova_core_phase14_platform.py::test_real_windows_powershell_fallback_without_pwsh_or_git_bash
+FAILED tests/test_nova_core_phase3_cwd.py::test_two_worktree_agents_never_change_process_cwd
+FAILED tests/test_nova_core_phase6_runtime.py::test_runtime_normalizes_call_revalidates_brokered_read_and_write
+FAILED tests/test_nova_core_phase7_session.py::test_brokered_read_keeps_one_terminal_per_tool_operation
+7 failed, 3698 passed, 11 skipped, 53 subtests passed in 314.33s (0:05:14)

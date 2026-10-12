@@ -189,6 +189,8 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
     from local_cli.core.contracts import new_command_id
     from local_cli.interfaces.jsonl_application import JsonlApplicationAdapter
     from local_cli.bootstrap_passive_web import passive_web_tools
+    from local_cli.bootstrap_active_web import active_web_factory
+    from local_cli.bootstrap_web_v12 import web_v12_factory
     self._tools = passive_web_tools(self._tools,self._config)
 
     def inference_options() -> dict[str, Any]:
@@ -210,6 +212,8 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
         return result
 
     self._application = AgentSessionCoordinator(
+        web_v12_factory=web_v12_factory(self._config.state_dir),
+        active_web_factory=active_web_factory(self._config.state_dir),
         knowledge_factory=knowledge_factory(self._config.state_dir),
         memory_factory=memory_factory(self._config.state_dir,
             embedding_model=getattr(self._config,'memory_embedding_model',''),
@@ -222,7 +226,7 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
         provider=self._provider, model=self._config.model,
         provider_manager=self._provider_manager,
         tool_factory=lambda _workspace: self._tools,
-        prompt_factory=lambda _tools, _workspace: self._system_prompt,
+        prompt_factory=lambda _tools, _workspace: build_system_prompt(_tools, cwd=_workspace),
         initial_messages_factory=lambda _workspace, _tools: self._messages,
         turn_messages_factory=lambda content: build_skill_messages(self._skills_loader, content),
         inference_options_factory=inference_options,

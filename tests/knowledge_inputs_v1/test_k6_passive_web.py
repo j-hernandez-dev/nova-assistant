@@ -471,6 +471,11 @@ def test_cli_and_jsonl_normal_roots_url_host_route_search_capabilities_and_opt_i
     config=Config();config.state_dir=str(tmp_path/'state');config.model='old'
     provider=Provider();manager=ProviderManager(provider,'old');manager.redactor=SecretRedactor(source={})
     port=ScriptedHTTPPort(hops=[HttpHop(200,'text/plain',None,b'Synthetic normal URL')])
+    # The host URL import owns its own S5 ToolRuntime when no model fetch tool
+    # exists. Bind the synthetic HTTP fixture there explicitly: B6 no longer
+    # retains the supplied legacy tool as a transport injection point.
+    monkeypatch.setattr('local_cli.application.knowledge_web.WebFetchTool',
+        lambda: WebFetchTool(http_broker=port))
     audit=JsonlSecurityAudit(tmp_path/'cli-audit',workspace=work)
     monkeypatch.setattr('local_cli.bootstrap_cli.create_security_audit',lambda _:audit)
     monkeypatch.setattr(CliApplicationClient,'_human_tty',staticmethod(lambda:True))
@@ -479,13 +484,19 @@ def test_cli_and_jsonl_normal_roots_url_host_route_search_capabilities_and_opt_i
         rag_service=RAGService(None),write=lambda _:None)
     try:
         caps=cli.snapshot().services['knowledge']['capabilities']['capabilities']
-        assert next(r['state'] for r in caps if r['name']=='webSearch')=='DISABLED'
+        # B6 replaces legacy model web tools in both normal product roots. K6's
+        # direct provider tests retain opt-in coverage; this root must project
+        # the actual V1.2 catalog rather than an absent legacy search provider.
+        assert next(r['state'] for r in caps if r['name']=='webSearch')=='UNAVAILABLE'
+        assert not any(t.name in ('web_fetch','web_search') for t in cli.application._session.tools)
+        assert 'webCapabilitiesV12' in cli.snapshot().services
         receipt=cli.knowledge('source_import_url',{'url':'https://example.test/normal.txt','scope':'WORKSPACE'})
         assert receipt['accepted']
         op=cli.application._service_operations[receipt['createdIds']['operationId']]
         assert op.done.wait(5) and op.status.value=='completed'
         ref=cli.snapshot().services['knowledge']['attachmentRefs'][0]
         assert ref['state']=='READY' and provider.requests==[]
+        assert len(port.gets)==1 and port.resolutions
     finally:cli.close();assert cli.application._knowledge.closed.wait(5);audit.close()
     config.web_search_enabled=True;config.web_search_endpoint='https://search.example.test/search'
     audit=JsonlSecurityAudit(tmp_path/'server-audit',workspace=work)
@@ -499,7 +510,9 @@ def test_cli_and_jsonl_normal_roots_url_host_route_search_capabilities_and_opt_i
     try:
         app=server._application;sid=server._app_adapter.session_id
         cap=app.get_snapshot(sid).services['knowledge']['capabilities']['capabilities']
-        assert next(r['state'] for r in cap if r['name']=='webSearch')=='AVAILABLE'
+        assert next(r['state'] for r in cap if r['name']=='webSearch')=='UNAVAILABLE'
+        assert not any(t.name in ('web_fetch','web_search') for t in app._session.tools)
+        assert 'webCapabilitiesV12' in app.get_snapshot(sid).services
         wire=KnowledgeCommand(new_command_id(),sid,'source_list',{},app.get_snapshot(sid).state_revision).to_dict()
         server._app_adapter.handle(dict(id='synthetic',type='knowledge_command',command=wire,
             hostKnowledgeProof=approval_proof('ab'*32,wire)))

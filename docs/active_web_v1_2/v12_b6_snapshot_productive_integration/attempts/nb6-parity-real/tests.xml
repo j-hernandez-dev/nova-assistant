@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="1" skipped="0" tests="7" time="43.762" timestamp="2026-10-12T06:36:59.616818-06:00" hostname="WINDEV-SPACE"><testcase classname="native.nova-browser-host.tests.v12_b6.test_productive_application" name="test_native_full_application_browser_read_approval_unknown_barrier" time="6.798" /><testcase classname="native.nova-browser-host.tests.v12_b6.test_productive_application" name="test_native_full_application_takeover_pauses_and_requires_host_resume" time="8.881" /><testcase classname="native.nova-browser-host.tests.v12_b6.test_productive_application" name="test_native_full_application_upload_picker_then_exact_approval" time="6.890" /><testcase classname="native.nova-browser-host.tests.v12_b6.test_productive_application" name="test_native_product_profile_mismatch_revokes_only_affected_branch[CONTROLLED_FETCH_V1_2]" time="5.574" /><testcase classname="native.nova-browser-host.tests.v12_b6.test_productive_application" name="test_native_product_profile_mismatch_revokes_only_affected_branch[INTERACTIVE_BROWSER_V1_2]" time="7.726" /><testcase classname="native.nova-browser-host.tests.v12_b6.test_productive_application" name="test_native_four_states_share_cli_jsonl_application_and_desktop_wire" time="7.167"><failure message="local_cli.core.active_web_transfers.BrowserTransferError: CLEANUP_UNCONFIRMED">native\nova-browser-host\tests\v12_b6\test_productive_application.py:276: in test_native_four_states_share_cli_jsonl_application_and_desktop_wire
+    cli.close();jsonl.close()
+                ^^^^^^^^^^^^^
+local_cli\interfaces\jsonl_application.py:76: in close
+    if close_browser: close_browser()
+                      ^^^^^^^^^^^^^^^
+local_cli\application\session.py:1998: in close_browser
+    if self._web_v12 is not None:self._web_v12.close()
+                                 ^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\web_product_v12.py:404: in close
+    if not self.browser.staging._files:self.browser.staging.close()
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\active_web\webview2_staging.py:31: in close
+    except OSError:raise BrowserTransferError('CLEANUP_UNCONFIRMED')from None
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   local_cli.core.active_web_transfers.BrowserTransferError: CLEANUP_UNCONFIRMED</failure></testcase><testcase classname="native.nova-browser-host.tests.v12_b6.test_productive_application" name="test_native_four_states_share_cli_jsonl_application_and_desktop_wire" time="0.190"><error message="failed on teardown with &quot;local_cli.core.active_web_transfers.BrowserTransferError: CLEANUP_UNCONFIRMED&quot;">native\nova-browser-host\tests\v12_b6\test_productive_application.py:117: in product_application
+    app.close_browser();store.close()
+    ^^^^^^^^^^^^^^^^^^^
+local_cli\application\session.py:1998: in close_browser
+    if self._web_v12 is not None:self._web_v12.close()
+                                 ^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\web_product_v12.py:404: in close
+    if not self.browser.staging._files:self.browser.staging.close()
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\active_web\webview2_staging.py:31: in close
+    except OSError:raise BrowserTransferError('CLEANUP_UNCONFIRMED')from None
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   local_cli.core.active_web_transfers.BrowserTransferError: CLEANUP_UNCONFIRMED</error></testcase></testsuite></testsuites>

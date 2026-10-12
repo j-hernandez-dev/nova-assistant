@@ -1,0 +1,39 @@
+.............................................................F.......... [ 96%]
+...                                                                      [100%]
+================================== FAILURES ===================================
+___________________ test_durable_redaction_before_real_file ___________________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s7_private_jfq_hufd/selected/test_durable_redaction_before_0')
+
+    def test_durable_redaction_before_real_file(tmp_path):
+        disk = JsonlSecurityAudit(tmp_path/'state')
+        audit = SecurityAuditService(disk, redactor=SecretRedactor(source={'API_KEY':'dummy-provider-123'}))
+        inv = invocation(tmp_path, arguments={'command':'echo dummy-provider-123'})
+>       audit.request(inv); audit.before_effect(inv)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s7_persistence.py:227: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.security_audit.SecurityAuditService object at 0x0000025FD8B76060>
+invocation = ToolInvocation(name='bash', arguments=mappingproxy({'command': 'echo dummy-provider-123'}), tool_call_id='toolcall', o...='not probed')), turn_id='turn', agent_id=None, provider_revision=None, policy_revision=1), provider_tool_call_id=None)
+parents = None, origin = None
+
+    def before_effect(self, invocation, *, parents=None, origin=None):
+        with self._lock:
+            key = (invocation.context.session_id, invocation.operation_id)
+            try:
+                # Optional for explicit old fixture ports; production OD-05
+                # implements this check for every current ExecutionContext.
+                validate = getattr(self.port, 'validate_workspace', None)
+                if validate is not None:
+                    validate(str(invocation.context.workspace))
+            except Exception:
+                self._failed(invocation)
+>               raise SecurityAuditError('SECURITY_AUDIT_PRE_EFFECT_FAILED') from None
+E               local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_PRE_EFFECT_FAILED
+
+local_cli\application\security_audit.py:55: SecurityAuditError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s7_persistence.py::test_durable_redaction_before_real_file
+1 failed, 74 passed in 4.80s

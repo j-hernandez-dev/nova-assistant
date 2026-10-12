@@ -1,0 +1,144 @@
+........................................................................ [ 18%]
+.................................F...................................... [ 37%]
+...............................................................F........ [ 56%]
+........................................................................ [ 74%]
+........................................................................ [ 93%]
+.........................                                                [100%]
+================================== FAILURES ===================================
+__________ test_common_application_session_uses_injected_s4_service ___________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s6_evidence/block3/s6_private_gk47w8mo/selected/test_common_application_sessio0')
+
+    def test_common_application_session_uses_injected_s4_service(tmp_path):
+        from local_cli.application.session import AgentSessionCoordinator
+        from local_cli.application.events import EventBufferConfig
+        from local_cli.tools.shell_tool import ShellTool
+        from local_cli.shell_executor import ShellDescriptor
+        from tests.test_nova_core_phase4_session import ScriptedProvider, start, submit
+        descriptor = ShellDescriptor('Windows', 'powershell', str(tmp_path/'fixture_pwsh.exe'), 'fixture')
+        shell = ShellTool(descriptor=descriptor, cwd=tmp_path, environment={})
+        launcher = Mock()
+        launcher.launch.return_value = ProcessReport(123, 0, 'fixture-ok', '', 'completed', None,
+            ('running', 'root_exited', 'cleanup_confirmed'), cleanup_scope='assigned_job_members', cleanup_confirmed=True)
+        service = ProcessExecutionService(launcher, limits())
+        call = {'role': 'assistant', 'content': '', 'tool_calls': [{
+            'function': {'name': 'bash', 'arguments': {'command': 'echo fixture-ok'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([call, 'done']), model='local',
+            tool_factory=lambda cwd: [shell], process_service=service, event_config=EventBufferConfig())
+        session_id = start(app, tmp_path).session_id
+        receipt = submit(app, session_id, 'benign fixture')
+        assert app.wait_for_turn(receipt.created_ids['turnId'], timeout=5)
+>       events = app.poll_events(app.subscribe_events(session_id, after_sequence=0))
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s4_contracts.py:268: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\application\session.py:1469: in subscribe_events
+    self._snapshot_unlocked(session_id)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000025F59317A10>
+session_id = 'ses_9c1249be25b541069f32c4e10668f2e5'
+
+    def _snapshot_unlocked(self, session_id: SessionId | None) -> SessionSnapshot:
+        session = self._session
+        if session is None or session.session_id != session_id:
+            raise ValueError("No matching active AgentSession")
+        snapshot = SessionSnapshot(
+            session_id=session.session_id,
+            workspace=str(session.workspace), model=session.model,
+            status=session.status, state_revision=session.state_revision,
+            last_sequence=self._events.last_sequence if self._events else 0,
+            model_runtime=self.provider_manager.snapshot().snapshot.to_dict(),
+            capabilities=session.capabilities.to_dict() if session.capabilities else {},
+            services={"rag": self._rag.status(),
+                      "filesystem": {"revision": session.filesystem_revision},
+                      "interactions": {
+                          "approvals": [{"approvalId": req.approval_id,
+                              "turnId": req.turn_id, "operationId": req.operation_id,
+                              "toolCallId": req.tool_call_id, "name": req.tool_name,
+                              "arguments": self.redactor.value(req.arguments), "cwd": req.cwd,
+                              "policyRevision": req.policy_revision,
+                              "requestDigest": req.request_digest,
+                              "deadline": req.deadline.isoformat() if req.deadline else None}
+                              for req in session.approval_gate.pending()],
+                          "inputs": [{"inputRequestId": req.input_request_id,
+                              "turnId": req.turn_id, "question": req.question,
+                              "deadline": req.deadline.isoformat() if req.deadline else None}
+                              for req in session.user_input_gate.pending()]},
+                      "persistence": {"available": self._persistence is not None,
+                          "errorCode": self._persistence.last_error.code
+                              if self._persistence and self._persistence.last_error else self._persistence_setup_error},
+                      "operations": [{"operationId": op.operation_id, "status": op.status.value,
+                          "service": "rag", "phase": op.progress.get("phase", "started"),
+                          "result": deepcopy(op.result),
+                          "turnId": op.turn_id, "cancelRequested": op.token.is_cancel_requested()}
+                          for op in self._service_operations.values()]},
+            transcript=tuple(self.redactor.messages(session.transcript)),
+            turns=tuple({
+                "turnId": turn.turn_id, "operationId": turn.operation_id,
+                "commandId": turn.command_id, "status": turn.status.value,
+                "operationStatus": turn.operation_status.value,
+                "activeGenerationId": turn.active_generation,
+                "cancelRequested": turn.cancellation.is_cancel_requested(),
+                "stopGenerationRequested": turn.stop_generation_requested,
+                "finalContent": turn.final_content,
+                "errorCode": turn.error_code,
+                "terminalCount": turn.terminal_count,
+                "operationTerminalCount": turn.terminal_count,
+                "modelRuntime": turn.model_runtime.snapshot.to_dict() if turn.model_runtime else None,
+                "generations": deepcopy(turn.generations),
+                "contextReports": deepcopy(turn.context_reports),
+                "displayMessages": self.redactor.value(turn.display_messages),
+                "transcriptStart": turn.transcript_start,
+                "transcriptEnd": turn.transcript_end,
+            } for turn in session.turns),
+        )
+        safe = self.redactor.snapshot(snapshot.to_dict())
+>       return replace(snapshot, workspace=safe['workspace'], model=safe['model'],
+               ^^^^^^^
+            transcript=tuple(safe['transcript']), turns=tuple(safe['turns']),
+            model_runtime=safe['modelRuntime'], capabilities=safe['capabilities'], services=safe['services'])
+E       NameError: name 'replace' is not defined
+
+local_cli\application\session.py:1456: NameError
+_______________ TestSubAgentRunSimple.test_format_tools_called ________________
+
+self = <tests.test_sub_agent.TestSubAgentRunSimple testMethod=test_format_tools_called>
+
+    def test_format_tools_called(self) -> None:
+        """Provider's format_tools is called to generate tool definitions."""
+        provider = _make_mock_provider()
+        _setup_provider_simple_response(provider)
+        tools = [_DummyTool()]
+        agent = SubAgent(
+            provider=provider,
+            model="qwen3:8b",
+            tools=tools,
+            prompt="task",
+        )
+        agent.run()
+    
+>       provider.format_tools.assert_called_once()
+
+tests\test_sub_agent.py:667: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <MagicMock name='mock.format_tools' id='2608541553328'>
+
+    def assert_called_once(self):
+        """assert that the mock was called only once.
+        """
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to have been called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+>           raise AssertionError(msg)
+E           AssertionError: Expected 'format_tools' to have been called once. Called 0 times.
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\unittest\mock.py:965: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s4_contracts.py::test_common_application_session_uses_injected_s4_service
+FAILED tests/test_sub_agent.py::TestSubAgentRunSimple::test_format_tools_called
+2 failed, 383 passed in 38.40s

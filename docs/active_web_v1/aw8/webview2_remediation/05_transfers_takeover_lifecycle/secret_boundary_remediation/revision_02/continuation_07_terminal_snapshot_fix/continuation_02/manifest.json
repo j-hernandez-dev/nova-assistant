@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "purpose": "C07 continuation02, leaf functional repair + cross diagnostic only",
+  "C07_TERMINAL_SNAPSHOT_FIX": "PARTIAL",
+  "C07_C_SECRET_LEAF_001": "REPAIRED / FOCAL_PASS",
+  "CROSS_TERMINAL_ROOT_CAUSE": "IDENTIFIED",
+  "FIRST_CAUSAL_BRANCH": "RETIRE_CONTROL_CURRENT_REVISION_MISMATCH_NO_CURRENT_TERMINAL_SNAPSHOT",
+  "CROSS_FUNCTIONAL_FIX_IMPLEMENTED": false,
+  "BLOCK05_SECRET_BOUNDARY_REMEDIATION_REV02": "PARTIAL",
+  "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "BLOCKED",
+  "SAFE_TO_ADVANCE_TO_BLOCK_06": false,
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "candidate": {
+    "freeze": "candidate_freeze.json",
+    "sha256": "7a44190861df37f2903b2f7b562f08e6ef580ce580fe24d84cd217051ed0558c",
+    "pins": 87
+  },
+  "leafEvidence": "leaf_boundary_evidence.json",
+  "crossDiagnosis": "cross_terminal_diagnosis.json",
+  "history": {
+    "prior": "../continuation_01/manifest.json",
+    "priorPolicy": "22/24 preserved",
+    "preflight": "../manifest.json",
+    "historicalVerdictsRewritten": false
+  },
+  "filesChanged": [
+    {
+      "path": "native/nova-browser-host/SensitiveValueRegistry.cs",
+      "before": "18da597b9131e522501f43e24dab8de6cf61dd0bf2a938e4d59b430ca22c12ca",
+      "after": "94954e343ed011200388b1a6772f417c68a3ea341991c30233b5e82e8b086d75"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTracking.cs",
+      "before": "12cb12d1d56dbbfe6631b2cfb76ac159866e327b3e44c71dacaf06333a5cea9a",
+      "after": "fe7bac9693854d1be71322875ac784d4dfe17a02469e29aaa4eded707af4fe7d"
+    },
+    {
+      "path": "native/nova-browser-host/ObservationScripts.cs",
+      "before": "df1a16245d75f24b395cf5e9450cd517d9f229d75344cc62ec9afae74ac689d0",
+      "after": "48bf95047b62bc690a821a33141a5534e0b3efcc757e26d3c226c9955f1c29bf"
+    },
+    {
+      "path": "native/nova-browser-host/ObservationRuntime.cs",
+      "before": "a0b1cf146bde22aa5a353a535791a4cd8d1c72fb74eac51812cbc9e0b22c04af",
+      "after": "41c554d74bd2ebd9024060df586ac274d0d0ec83ef0c727f6df33b2cc6cbe1ba"
+    },
+    {
+      "path": "native/nova-browser-host/PageDerivedTextLeaves.cs",
+      "before": null,
+      "after": "5faf4cda8a499c86b0ef0afb8df137816cb70fe2b70eedb3fa4ce2c873a70c1a"
+    },
+    {
+      "path": "native/nova-browser-host/SensitiveTerminalDiagnostics.cs",
+      "before": null,
+      "after": "e36936b48d9d97fa9ecf241c8d46185dddf0a5b3e54f617b18a4acf23ddbeb60"
+    },
+    {
+      "path": "native/nova-browser-host/tests/cross_terminal_diagnosis/CrossTerminalSink.cs",
+      "before": null,
+      "after": "64266cd6cdec2486847c29f0820ee649042778770d2fd95b8f4b87fa7886c7f0"
+    },
+    {
+      "path": "native/nova-browser-host/tests/cross_terminal_diagnosis/cross_terminal_plugin.py",
+      "before": null,
+      "after": "f2df6785c98297247e86daf5fc0ffde719af64a91d9c7ab3409da2a35958924e"
+    },
+    {
+      "path": "native/nova-browser-host/tests/leaf_boundary_runner/runner.csproj",
+      "before": null,
+      "after": "80b61f9bdf71b54d8019df58046fdc43f50c8be4bc921d5aca48604d54308aa8"
+    },
+    {
+      "path": "native/nova-browser-host/tests/leaf_boundary_runner/Program.cs",
+      "before": null,
+      "after": "30ba3f919d30b33dbec028cccce30b845a65e9e5179df47989364c6caffd5c8b"
+    },
+    {
+      "path": "native/nova-browser-host/tests/test_leaf_boundary.py",
+      "before": null,
+      "after": "bbba8c192fe6731d27fc104641f6a1c85ef465908b1e06f31ae9c3a1fce2f523"
+    }
+  ],
+  "terminalProtocol": {
+    "functionalChanges": false,
+    "onlyMetadataHooksInRegistryAndTracking": true,
+    "observerDefaultNull": true,
+    "diagnosticSinkTestOnly": true,
+    "noValuesCredentialHashesDomUrls": true,
+    "noAutomaticCrossFix": true
+  },
+  "validation": {
+    "leafTests": {
+      "pass": 21,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "contract": 15,
+      "native": 6
+    },
+    "originalShortExact": {
+      "pass": 1,
+      "fail": 0
+    },
+    "policyGate": {
+      "total": 24,
+      "pass": 23,
+      "fail": 1,
+      "error": 0,
+      "skip": 0,
+      "onlyFail": "test_bounded_transient_policy_native[cross]",
+      "verdict": "PARTIAL / NOT PASS"
+    },
+    "crossInstrumented": {
+      "executions": 1,
+      "pass": 0,
+      "fail": 1,
+      "maximumAuthorized": 5,
+      "stoppedOnIdentifiedFailure": true,
+      "notQualityRetry": true
+    }
+  },
+  "publicSurfaces": {
+    "BrowserObservationUnchanged": true,
+    "modelDoesNotReceivePrivateLeaves": true,
+    "noNewBrowserToolOrCapability": true,
+    "coreSecurityMemoryKnowledgeDesktopNetworkUnchanged": true
+  },
+  "preservedCapabilities": {
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "cleanup": {
+    "ownedResourcesRemaining": 0,
+    "historical36UdfInspectedOrMaintained": false
+  },
+  "humanReviewRequired": true,
+  "requestedNextAuthorization": "Review missing current terminal proof at retirement before authorizing a cross functional fix. Do not select pending or accept stale snapshot merely to satisfy COMMITTED state.",
+  "noDEorF": true,
+  "noBlock06": true,
+  "noReadyCommitPushTagRelease": true,
+  "artifacts": [
+    "resultados.md",
+    "leaf_boundary_evidence.json",
+    "cross_terminal_diagnosis.json",
+    "test_results.json",
+    "integrity.json"
+  ]
+}

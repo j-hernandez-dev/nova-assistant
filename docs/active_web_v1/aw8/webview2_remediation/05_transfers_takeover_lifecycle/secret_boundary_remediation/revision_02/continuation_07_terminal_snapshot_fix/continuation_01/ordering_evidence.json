@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "implementation": "CANDIDATE / NOT_CLOSED",
+  "gates": {
+    "DIRECT_TERMINAL_CONTRACT_RECONCILIATION": "PASS",
+    "TERMINAL_SNAPSHOT_PROVENANCE": "PARTIAL",
+    "CONTROL_DOCUMENT_ORDERING": "PARTIAL",
+    "LATE_EVENT_REJECTION": "PARTIAL",
+    "TRUE_SHORT_COMMITTED_DENIAL": "PASS",
+    "BOUNDED_TRANSIENT_SENSITIVE_VALUE_POLICY": "PARTIAL",
+    "MONOTONIC_SENSITIVE_KNOWLEDGE": "PARTIAL",
+    "SCHEMA_AWARE_REDACTION": "PARTIAL",
+    "CROSS_DOCUMENT_SECRET_REDACTION": "PARTIAL",
+    "MODEL_PROJECTION_SECRET_BOUNDARY": "FAIL",
+    "SECRET_REGISTRY_LIFECYCLE": "PARTIAL",
+    "SECRET_NON_EXPOSURE": "FAIL",
+    "BLOCK05_FINAL_REGRESSION": "NOT_RUN"
+  },
+  "design": {
+    "sessionOwnership": "One registry SessionOwner opaque per WebView2Runtime/BrowserSession; every identity carries that owner.",
+    "pageOwnership": "Exact guard.PageIdentity in the host-native path.",
+    "documentGeneration": "Host-minted opaque Guid per protected lifecycle, plus isolated fixed-producer generation nonce; engine uniqueId, not numeric executionContextId, for native checkpoint dispatch.",
+    "ordering": "Monotonic producer revision per exact WeakMap control; complete values remembered before stale/retired current rejection. Duplicate same-revision conflicting value is denied.",
+    "terminal": "Immutable host snapshot with exact identity/revision/value/reason; host instance reference witness must equal current confirmed snapshot. Commit never looks up arbitrary pending.",
+    "realNativeReasons": [
+      "CHANGE",
+      "BLUR",
+      "SUBMIT",
+      "PAGEHIDE",
+      "CHECKPOINT"
+    ],
+    "hostScalarReason": "HOST_CONFIRMED only for old internal explicit commit=true producer; rejected from page/CDP messages.",
+    "retire": "Use already-confirmed exact-current snapshot, otherwise preserve known TRANSIENT. No terminal fabricated from disappearance.",
+    "checkpoint": "Single exact protected world, unique engine context, fresh nonce, explicit snapshot list+generation and exact ack, coverage and immutable snapshot validation, then Commit.",
+    "redactionPolicy": "Unchanged 1..3 exact-leaf TRANSIENT, >=4 substring, COMMITTED short denial. Host-private only."
+  },
+  "contractEvidence": {
+    "reconciledDirect": 5,
+    "ordering": 29,
+    "realWebview2ShortLengths": [
+      1,
+      2,
+      3
+    ],
+    "shortDenialReason": "SHORT_COMMITTED_VALUE",
+    "notMocksForNative": true
+  },
+  "knownGaps": [
+    {
+      "id": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_native[short-exact]",
+      "classification": "PRODUCT_BUG",
+      "firstPoint": "Native runner return code 34: title equals known value or trimmed public text equals known short value.",
+      "securityAssertionPreserved": true,
+      "rawValuePersisted": false,
+      "staticMechanism": "ObservationScripts.Summary appends host separators to raw text nodes; ObservationRuntime textLeaves holds per-world aggregated text, not original DOM leaves. Registry exact-leaf equality does not match a short known value plus host-added whitespace.",
+      "causalToTerminalFix": "UNKNOWN: this 24-case suite had never been executed on the historical candidate. No retrospective PREEXISTING label without baseline.",
+      "neededScope": "Native visible-text leaf boundary/projection extraction. Outside the requested minimal terminal-selection change; human review required."
+    },
+    {
+      "id": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_native[cross]",
+      "classification": "PRODUCT_BUG",
+      "firstPoint": "Native runner return code 32: public capture kind or exact terminal long COMMITTED state assertion. Capture kind is fixed; static path indicates terminal is not COMMITTED.",
+      "securityAssertionPreserved": true,
+      "rawValuePersisted": false,
+      "staticHypothesis": "Retired document reports are remembered but not promoted. A genuine PAGEHIDE snapshot received after retirement can remain TRANSIENT; actual event-order cause not instrumented/proven.",
+      "neededScope": "Review proof/lifecycle validity of explicitly observed terminal snapshots around cross-document retirement, without accepting arbitrary stale pending values.",
+      "automaticallyFixed": false
+    }
+  ],
+  "callerChanges": [
+    "Input explicit host terminal calls Commit(snapshot)",
+    "Retire/RetireDocument consume only previously confirmed snapshot",
+    "native SensitiveCheckpoint consumes correlated snapshot list",
+    "native terminal event ReadSensitiveValue confirms its explicit identity/revision/value/reason"
+  ],
+  "limits": {
+    "values": 1024,
+    "pendingNonemptyActiveControls": 64,
+    "valueUtf16": 4096,
+    "totalUtf16": 262144,
+    "lifetimeMinutes": 30,
+    "retainedDocuments": 1024,
+    "retainedControlStates": 1024,
+    "revisionCeiling": 9007199254740991
+  },
+  "fullNativeOrderingNotCertified": true
+}

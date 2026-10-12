@@ -1,0 +1,110 @@
+Failed to find real location of C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\python.exe
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+________________ test_native_relative_read_and_atomic_replace _________________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native/s3_private_gtjnp6o7/s3_windows_host_real/test_native_relative_read_and_0')
+
+    def test_native_relative_read_and_atomic_replace(tmp_path):
+        broker = WindowsFilesystemBroker()
+        try:
+>           root = broker.bind_root(tmp_path)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s3_windows.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:291: in bind_root
+    root = self.api.chain(logical, stack)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\windows_filesystem.py:217: in chain
+    h = stack.enter_context(self.open(h, name, directory=True))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\windows_filesystem.py:168: in open
+    if PureWindowsPath(self.final_path(result)).name.casefold() != name.casefold():
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.infrastructure.windows_filesystem.WindowsApi object at 0x0000029E65BD1BE0>
+handle = <local_cli.infrastructure.windows_filesystem.Handle object at 0x0000029E65BD4550>
+
+    def final_path(self, handle):
+        buf = c.create_unicode_buffer(32768)
+        length = self.kernel.GetFinalPathNameByHandleW(handle.value, buf, len(buf), 0)
+        if not length or length >= len(buf) or not buf.value.startswith('\\\\?\\'):
+>           raise FilesystemError('FILESYSTEM_ALIAS_UNSUPPORTED')
+E           local_cli.core.filesystem.FilesystemError: FILESYSTEM_ALIAS_UNSUPPORTED
+
+local_cli\infrastructure\windows_filesystem.py:210: FilesystemError
+_________________ test_native_active_parent_cannot_be_renamed _________________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native/s3_private_gtjnp6o7/s3_windows_host_real/test_native_active_parent_cann0')
+
+    def test_native_active_parent_cannot_be_renamed(tmp_path):
+        directory = tmp_path/'pinned'; directory.mkdir()
+        broker = WindowsFilesystemBroker()
+        try:
+            with ExitStack() as stack:
+>               broker.api.chain(str(directory), stack)
+
+tests\security_v12\test_s3_windows.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:217: in chain
+    h = stack.enter_context(self.open(h, name, directory=True))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\windows_filesystem.py:168: in open
+    if PureWindowsPath(self.final_path(result)).name.casefold() != name.casefold():
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.infrastructure.windows_filesystem.WindowsApi object at 0x0000029E65BD7750>
+handle = <local_cli.infrastructure.windows_filesystem.Handle object at 0x0000029E65CA8C30>
+
+    def final_path(self, handle):
+        buf = c.create_unicode_buffer(32768)
+        length = self.kernel.GetFinalPathNameByHandleW(handle.value, buf, len(buf), 0)
+        if not length or length >= len(buf) or not buf.value.startswith('\\\\?\\'):
+>           raise FilesystemError('FILESYSTEM_ALIAS_UNSUPPORTED')
+E           local_cli.core.filesystem.FilesystemError: FILESYSTEM_ALIAS_UNSUPPORTED
+
+local_cli\infrastructure\windows_filesystem.py:210: FilesystemError
+____________ test_native_create_parent_directory_and_hardlink_deny ____________
+
+tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native/s3_private_gtjnp6o7/s3_windows_host_real/test_native_create_parent_dire0')
+
+    def test_native_create_parent_directory_and_hardlink_deny(tmp_path):
+        broker = WindowsFilesystemBroker()
+        try:
+            with ExitStack() as stack:
+>               parent = broker.api.chain(str(tmp_path), stack)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s3_windows.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:217: in chain
+    h = stack.enter_context(self.open(h, name, directory=True))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\windows_filesystem.py:168: in open
+    if PureWindowsPath(self.final_path(result)).name.casefold() != name.casefold():
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.infrastructure.windows_filesystem.WindowsApi object at 0x0000029E65DB4410>
+handle = <local_cli.infrastructure.windows_filesystem.Handle object at 0x0000029E65B4E450>
+
+    def final_path(self, handle):
+        buf = c.create_unicode_buffer(32768)
+        length = self.kernel.GetFinalPathNameByHandleW(handle.value, buf, len(buf), 0)
+        if not length or length >= len(buf) or not buf.value.startswith('\\\\?\\'):
+>           raise FilesystemError('FILESYSTEM_ALIAS_UNSUPPORTED')
+E           local_cli.core.filesystem.FilesystemError: FILESYSTEM_ALIAS_UNSUPPORTED
+
+local_cli\infrastructure\windows_filesystem.py:210: FilesystemError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s3_windows.py::test_native_relative_read_and_atomic_replace
+FAILED tests/security_v12/test_s3_windows.py::test_native_active_parent_cannot_be_renamed
+FAILED tests/security_v12/test_s3_windows.py::test_native_create_parent_directory_and_hardlink_deny
+3 failed in 2.39s
+Exception ignored while calling deallocator <function Console.__del__ at 0x0000029E656799B0>:
+Traceback (most recent call last):
+  File "C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pyreadline3\console\console.py", line 255, in __del__
+OSError: [WinError -1073741816] Windows Error 0xc0000008

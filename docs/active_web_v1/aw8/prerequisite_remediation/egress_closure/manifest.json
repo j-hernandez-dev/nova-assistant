@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 1,
+  "purpose": "AW8 focal EXCLUSIVE_PUBLIC_ONLY_EGRESS closure; additive resolution",
+  "notANewArchitecturalPhase": true,
+  "timestamp": "2026-10-10T09:48:20.116510+00:00",
+  "EXCLUSIVE_PUBLIC_ONLY_EGRESS": "BLOCKED",
+  "BLOCKER_TYPE": "ARCHITECTURAL_ENFORCEMENT_LIMIT",
+  "PRODUCTIVE_BROWSER_TOOL_PATH": "PASS",
+  "TRUTHFUL_ACTIVE_WEB_CAPABILITY": "PASS",
+  "AW8_PREREQUISITES": "BLOCKED",
+  "SAFE_TO_RESUME_AW8": false,
+  "originalAw8": {
+    "verdict": "BLOCKED",
+    "manifest": "docs/active_web_v1/aw8/manifest.json",
+    "sha256": "93d3ae2b2566e7af347212a5cac7aa2fa326d92d7f1f8ee738f42424a8d4ce19",
+    "unchanged": true
+  },
+  "revision01": {
+    "verdict": "PARTIAL",
+    "manifest": "docs/active_web_v1/aw8/prerequisite_remediation/manifest.json",
+    "sha256": "f4b9cf9b21f06ccc85817bed01230d228e754bcc9bb5293452076500c35b04d9",
+    "unchanged": true
+  },
+  "revision02": {
+    "verdict": "PARTIAL",
+    "manifest": "docs/active_web_v1/aw8/prerequisite_remediation/revision_02/manifest.json",
+    "sha256": "e9c83555ac7ff0d6bcd7b0ade600e9a8d34bf97f5ce5489f61f52bf01df07136",
+    "unchanged": true,
+    "wiringAndTruthfulClaimsCarriedForward": true,
+    "notRecertifiedAsProductE2E": true
+  },
+  "baseline": {
+    "branch": "main",
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "workingTree": "Inherited dirty tree preserved; two authorized existing-file deltas, new harness/tests/additive evidence",
+    "status": " M .github/workflows/nova_knowledge_v1.yml\n M ci/README.md\n M ci/contract_inventory.py\n M ci/pytest_contracts.json\n M ci/run_contracts.py\n M desktop/electron/application_client.ts\n M desktop/shared/application.ts\n M desktop/src/App.tsx\n M local_cli/application/legacy_event_bridge.py\n M local_cli/application/security_audit.py\n M local_cli/application/session.py\n M local_cli/application/tool_runtime.py\n M local_cli/bootstrap_cli.py\n M local_cli/bootstrap_server.py\n M local_cli/core/contracts.py\n M local_cli/interfaces/cli_application.py\n M local_cli/interfaces/jsonl_application.py\n M pyproject.toml\n?? .github/workflows/nova_active_web_v1.yml\n?? desktop/tests/active_web.test.cjs\n?? docs/active_web_v1/\n?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md\n?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md\n?? local_cli/application/active_web.py\n?? local_cli/application/active_web_service.py\n?? local_cli/application/browser_actions.py\n?? local_cli/application/browser_network.py\n?? local_cli/application/browser_observation.py\n?? local_cli/application/browser_projection.py\n?? local_cli/application/browser_takeover.py\n?? local_cli/application/browser_tools.py\n?? local_cli/application/browser_transfers.py\n?? local_cli/bootstrap_active_web.py\n?? local_cli/core/active_web.py\n?? local_cli/core/active_web_lifecycle.py\n?? local_cli/core/active_web_network.py\n?? local_cli/core/active_web_observation.py\n?? local_cli/core/active_web_policy.py\n?? local_cli/core/active_web_transfers.py\n?? local_cli/infrastructure/active_web/\n?? tests/active_web_v1/\n",
+    "tags": [
+      "97f41c6dab89ee59332875bb8d89c29620b52156 refs/tags/nova-core-v1-stable",
+      "a26a94ebfb2db44551097f1641eec6706b52c101 refs/tags/nova-knowledge-inputs-v1-ready",
+      "fa6b2f7898692ddc6cec77a4d971dbc395b764a6 refs/tags/nova-memory-v1-ready",
+      "6a48c5252e40986ecf4180138d9d56bc519b3e49 refs/tags/nova-memory-v1.1-ready",
+      "e5bea6a4c2c559a1f5a2f8824316a83b548b2533 refs/tags/nova-security-v1.2-ready"
+    ],
+    "stagingEmpty": true,
+    "platform": "Windows 11 build26200 / local C: NTFS / HOST_UNISOLATED"
+  },
+  "architecture": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+    "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "unchanged": true,
+    "clauses": [
+      "§3.2",
+      "§3.6",
+      "§18.2",
+      "§18.3",
+      "§18.4",
+      "§18.5",
+      "§25",
+      "§36.4",
+      "AW-INV-007",
+      "AW-INV-008",
+      "AW-INV-027",
+      "AW-INV-028",
+      "AW-INV-029",
+      "AW-INV-030",
+      "AW-INV-047",
+      "AW-INV-048"
+    ]
+  },
+  "scopeReconciliation": "scope_reconciliation.md",
+  "blocker": {
+    "id": "AW8-EGRESS-EXTERNAL-PROTOCOL-001",
+    "type": "ARCHITECTURAL_ENFORCEMENT_LIMIT",
+    "channel": "PAGE_ORIGINATED_EXTERNAL_PROTOCOL_HANDLER",
+    "requirement": "§18.2 custom protocols denied; host escape prohibited; §18.3/AW-INV-027/029/030",
+    "observed": "Renderer button → location.href → Chromium Windows external handler lookup, outside authenticated HTTP broker. Handler absent, NOT a native refusal.",
+    "notObserved": "No registered application launched; no Security grant/authority expansion demonstrated.",
+    "supportedPermissionControl": "CDP Browser.setPermission rejects protocol-handler. Actual HTTP routing/canonicalization does not intercept the external launch path.",
+    "scope": "Frozen Playwright 1.63.0 / Chromium 153.0.8010.12 / Windows configuration. NOT a universal claim about all Chromium builds/configurations.",
+    "reasonForStop": "Current V1 port and opaque broker offer no supported pre-effect mediator for this host channel; a registered-handler launch must not be inferred safe from an unregistered canary. No new engine/OS-policy architecture is introduced.",
+    "noFourthHardeningRound": true
+  },
+  "implementation": {
+    "changes": [
+      {
+        "path": "local_cli/infrastructure/active_web/playwright_adapter.py",
+        "before": "5028c927865bcccc66157c020a3db62247256fa6638add5efcc40c01f8a81c29",
+        "after": "9816c286e197a8c70a3efd6519ca9496f844056af8fd00f4ce1a07b960fa2638",
+        "authorized": true
+      },
+      {
+        "path": "ci/pytest_contracts.json",
+        "before": "cbf958a3056afdf615d153c3d6454410a0d82e0419a07790176e1fcf784259b0",
+        "after": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "authorized": true
+      }
+    ],
+    "newFiles": [
+      {
+        "path": "tests/active_web_v1/egress_closure_probe.py",
+        "sha256": "2a4f99c73458f3cabcb7b591ecc5920b90f8238fbde3f2bd4b8757d8fb13901f"
+      },
+      {
+        "path": "tests/active_web_v1/test_aw8_egress_metadata.py",
+        "sha256": "bcc0d5b5ec0da38bc8e0ee59ed56cdc3fbdf61a696e30a4e488b3575dbb19db9"
+      },
+      {
+        "path": "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/scope_reconciliation.md",
+        "sha256": "e4ece995bbb589f574b495943b790bd3cc61da76394e5eeb67c7683d9403f229"
+      }
+    ],
+    "existingSourceExactReversal": true,
+    "existingInventoryExactReversal": true,
+    "scope": "Only static adapter metadata, five new portable inventory rows, native diagnostic/metadata contracts. No engine arguments/network routing/root/policy/grant changes.",
+    "workflowsChanged": false,
+    "existingTestsChanged": false,
+    "engineArgsChanged": false,
+    "coreSecurityMemoryKnowledgeDesktopChanged": false,
+    "authorityExpanded": false,
+    "globalConfigurationChanged": false
+  },
+  "nativeEvidence": {
+    "kind": "REAL_SHIPPING_ENGINE_WITH_EXPLICIT_CONTROLLED_TOPOLOGY; NOT PRODUCT E2E OR CERTIFIED PUBLIC_LOOPBACK_AUTHORITY",
+    "rawBoundary": "egress_evidence.json:nativeProtocolBoundary",
+    "broker": "BrowserEgressBroker",
+    "timeWindow": [
+      "2026-10-10T09:40:06.994577+00:00",
+      "2026-10-10T09:40:10.586653+00:00"
+    ],
+    "sdk": "1.63.0",
+    "engine": "153.0.8010.12",
+    "nativePidTree": [
+      2988,
+      7400,
+      8624,
+      9620,
+      14260,
+      15460,
+      19356,
+      26136
+    ],
+    "tcpUdpDnsExclusivityCertified": false,
+    "trustedHttpsRendererDemonstrated": false,
+    "metadataDenial": "PASS_EXPLICIT_FRESH_DESTINATION_DENIED_NO_UPSTREAM",
+    "agenticProhibitedTargets": {
+      "pass": 6,
+      "total": 6
+    },
+    "externalProtocolHostBoundary": "BLOCKED",
+    "cleanupConfirmed": true,
+    "remainingCapturedPids": 0,
+    "registeredApplicationLaunches": 0,
+    "registryWrites": 0
+  },
+  "capability": {
+    "engine": "KNOWN PLAYWRIGHT_CHROMIUM",
+    "networkBroker": "KNOWN true",
+    "controlClass": "KNOWN HOST_UNISOLATED",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "metadata": {
+      "available": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "native exclusive-egress proof incomplete"
+      },
+      "engine": {
+        "status": "KNOWN",
+        "value": "PLAYWRIGHT_CHROMIUM",
+        "reason": null
+      },
+      "engineVersion": {
+        "status": "KNOWN",
+        "value": "1.63.0",
+        "reason": null
+      },
+      "browserVersion": {
+        "status": "KNOWN",
+        "value": "153.0.8010.12",
+        "reason": null
+      },
+      "controlClass": {
+        "status": "KNOWN",
+        "value": "HOST_UNISOLATED",
+        "reason": null
+      },
+      "networkBroker": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "publicOnly": {
+        "status": "UNKNOWN",
+        "value": null,
+        "reason": "native exclusive-egress proof incomplete"
+      },
+      "headful": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "screenshot": {
+        "status": "KNOWN",
+        "value": false,
+        "reason": null
+      },
+      "manualTakeover": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "upload": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "download": {
+        "status": "KNOWN",
+        "value": true,
+        "reason": null
+      },
+      "persistentSession": {
+        "status": "KNOWN",
+        "value": false,
+        "reason": null
+      },
+      "maxPages": {
+        "status": "KNOWN",
+        "value": 3,
+        "reason": null
+      },
+      "platform": {
+        "status": "KNOWN",
+        "value": "win32",
+        "reason": null
+      }
+    },
+    "screenshotProfile": "NOT_CERTIFIED",
+    "browserToolsAdvertisedOnNativeHost": 0,
+    "manualSavedAvailabilityOverride": false,
+    "silentBestEffortFallback": false
+  },
+  "finalTests": {
+    "focusedMetadata": {
+      "pass": 11,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0
+    },
+    "activeWeb": {
+      "pass": 702,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "xfail": 0
+    },
+    "focusedCasesIncludedInActiveWebTotal": true,
+    "inventory": {
+      "pass": true,
+      "staticContracts": 4048,
+      "unclassified": 0
+    },
+    "initialHarnessFailuresPreserved": "test_results.json:runs/preservedDiagnosticFailures",
+    "otherDomains": "Revision02 evidence reused, code/hash scope verified; not a new full HEAD/Core/Memory/Knowledge/Desktop run"
+  },
+  "inheritedDebt": {
+    "test": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "nonBlocking": true,
+    "unchanged": true,
+    "notRecastAsPass": true
+  },
+  "integrity": {
+    "path": "integrity.json",
+    "evaluatedPins": 2315,
+    "unchanged": 2313,
+    "authorizedDeltas": 2,
+    "unexpectedDrift": 0,
+    "missing": 0,
+    "oldExternalVerified": 69,
+    "oldExternalMismatch": 0,
+    "oldRepoReferencesVerified": 12,
+    "tagsUnchanged": true,
+    "stagingEmpty": true
+  },
+  "evidenceFiles": [
+    {
+      "path": "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/capability_probe.json",
+      "bytes": 16617,
+      "sha256": "0e44a65deef7c5e7c3392616467d19a676adfaab5f860338cb223d2050579cad"
+    },
+    {
+      "path": "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/egress_evidence.json",
+      "bytes": 25600,
+      "sha256": "470ac2f472c207ab810562706042d05e0ea13e544d28d44c0a30c1a4763cce9a"
+    },
+    {
+      "path": "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/integrity.json",
+      "bytes": 30472,
+      "sha256": "de59eae13a9a7f02ba993d47809d6b5e984195c487ff13ae0413f61805ff7ba7"
+    },
+    {
+      "path": "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/resultados.md",
+      "bytes": 7727,
+      "sha256": "c156e1ca30548b6cafa9dc47116f92ff8726d4abf67d7aef6e2cfa3ff1bf95b4"
+    },
+    {
+      "path": "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/scope_reconciliation.md",
+      "bytes": 5562,
+      "sha256": "e4ece995bbb589f574b495943b790bd3cc61da76394e5eeb67c7683d9403f229"
+    },
+    {
+      "path": "docs/active_web_v1/aw8/prerequisite_remediation/egress_closure/test_results.json",
+      "bytes": 13870,
+      "sha256": "a0a36042c7e079216eb9941451a4f0c88fb26c2e7c2d0015a5ad295a3e590f12"
+    }
+  ],
+  "externalArtifacts": "test_results.json:artifacts",
+  "limitations": [
+    "External host handler request not intercepted/pre-effect denied by frozen V1 port. Unregistered protocol prevented actual host launch; missing handler is not enforcement.",
+    "Trusted HTTPS positive renderer and complete native channel trace were not completed after concrete blocker; no vacuous PASS.",
+    "No universal OS/network isolation claim; scope correction does not remove real host escape requirement.",
+    "No final AW8 campaign; component/native diagnostic evidence is not productive AgentLoop E2E."
+  ],
+  "finalAw8CampaignExecuted": false,
+  "modelInference": 0,
+  "activeWebCoreReadyDeclared": false,
+  "automaticFourthRemediation": false,
+  "gitActions": {
+    "commit": false,
+    "push": false,
+    "tag": false,
+    "release": false
+  },
+  "nextAction": "Human review; stop, no final AW8 or additional hardening initiated."
+}

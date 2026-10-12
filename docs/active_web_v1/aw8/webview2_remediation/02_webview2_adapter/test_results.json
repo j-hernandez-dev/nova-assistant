@@ -1,0 +1,1460 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Block02 scoped validation, not Active Web certification",
+  "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+  "branch": "main",
+  "platform": "Windows 11 Pro 10.0.26200 / x64 / local NTFS / HOST_UNISOLATED",
+  "python": "3.14.6",
+  "pytest": "9.1.1",
+  "environment": {
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "NOVA_WEBVIEW2_SDK_FEED": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31"
+  },
+  "focused": {
+    "path": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final07.xml",
+    "sha256": "5f8679f068b5398354d39ec9a5a5a0c40e21700a76d2731d896de8d5aec11800",
+    "tests": 156,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": "37.042",
+    "timestamp": "2026-10-10T06:21:18.823498-06:00",
+    "lastWriteUtc": "2026-10-10T12:21:56.0235559Z",
+    "failIds": [],
+    "errorIds": [],
+    "command": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B -m pytest native/nova-browser-host/tests -q -p no:cacheprovider --basetemp=C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final07-private --junitxml=C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final07.xml",
+    "exitCode": 0,
+    "passed": 156,
+    "xfails": 0,
+    "counts": {
+      "IPC_CONTRACT_TEST": 55,
+      "HOST_PROCESS_TEST": 51,
+      "WEBVIEW2_ADAPTER_CONTRACT_TEST": 35,
+      "WEBVIEW2_NATIVE_HOST_TEST": 15
+    },
+    "classificationNotes": [
+      "15 native host tests include 8 real WebView2 environment/controller lifecycle scenarios, 1 real SDK runtime-absent test via a process-local harness override, and 6 IPC/pre-existing-UDF refusal scenarios without page content.",
+      "5 C# fault-factory tests are contract evidence, not unavailable-runtime installation or real failing-controller quality proof."
+    ],
+    "cases": [
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_success_handshake_health_shutdown_and_serialization",
+        "result": "PASS",
+        "seconds": "5.216",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_completed_health_cancellation_is_not_rollback",
+        "result": "PASS",
+        "seconds": "0.185",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_cancel_before_dispatch_closes_without_late_results",
+        "result": "PASS",
+        "seconds": "0.164",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_zero_timeout_has_no_retry_or_late_result",
+        "result": "PASS",
+        "seconds": "0.174",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_version_mismatch_fail_closed[2]",
+        "result": "PASS",
+        "seconds": "0.176",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_version_mismatch_fail_closed[0]",
+        "result": "PASS",
+        "seconds": "0.177",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_version_mismatch_fail_closed[True]",
+        "result": "PASS",
+        "seconds": "0.161",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_version_mismatch_fail_closed[1.0]",
+        "result": "PASS",
+        "seconds": "0.163",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_version_mismatch_fail_closed[1]",
+        "result": "PASS",
+        "seconds": "0.163",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_malformed_frame_rejected[{]",
+        "result": "PASS",
+        "seconds": "0.246",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_malformed_frame_rejected[\\xff]",
+        "result": "PASS",
+        "seconds": "0.185",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_malformed_frame_rejected[null]",
+        "result": "PASS",
+        "seconds": "0.151",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_malformed_frame_rejected[[]]",
+        "result": "PASS",
+        "seconds": "0.145",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_malformed_frame_rejected[{\"x\":NaN}]",
+        "result": "PASS",
+        "seconds": "0.164",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_oversized_frame_denied_before_body_allocation[0]",
+        "result": "PASS",
+        "seconds": "0.201",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_oversized_frame_denied_before_body_allocation[16385]",
+        "result": "PASS",
+        "seconds": "0.199",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_oversized_frame_denied_before_body_allocation[4294967295]",
+        "result": "PASS",
+        "seconds": "0.205",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_partial_frame_timeout",
+        "result": "PASS",
+        "seconds": "5.160",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_wrong_handshake_correlation[browserSessionRef]",
+        "result": "PASS",
+        "seconds": "0.158",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_wrong_handshake_correlation[clientPid]",
+        "result": "PASS",
+        "seconds": "0.150",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_wrong_handshake_correlation[expectedHostPid]",
+        "result": "PASS",
+        "seconds": "0.161",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_wrong_handshake_correlation[hostInstanceRef]",
+        "result": "PASS",
+        "seconds": "0.145",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_duplicate_request_id",
+        "result": "PASS",
+        "seconds": "0.178",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_duplicate_operation_id",
+        "result": "PASS",
+        "seconds": "0.167",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_unknown_message[navigate]",
+        "result": "PASS",
+        "seconds": "0.150",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_unknown_message[execute]",
+        "result": "PASS",
+        "seconds": "0.152",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_unknown_message[grant]",
+        "result": "PASS",
+        "seconds": "0.167",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_unknown_message[]",
+        "result": "PASS",
+        "seconds": "0.172",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_extra_authority_fields_rejected[grant]",
+        "result": "PASS",
+        "seconds": "0.169",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_extra_authority_fields_rejected[approvalToken]",
+        "result": "PASS",
+        "seconds": "0.166",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_extra_authority_fields_rejected[password]",
+        "result": "PASS",
+        "seconds": "0.174",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_extra_authority_fields_rejected[cookie]",
+        "result": "PASS",
+        "seconds": "0.197",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_extra_authority_fields_rejected[javascript]",
+        "result": "PASS",
+        "seconds": "0.182",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_extra_authority_fields_rejected[available]",
+        "result": "PASS",
+        "seconds": "0.169",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_secret_like_payload_rejected",
+        "result": "PASS",
+        "seconds": "0.156",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_reserved_browser_returns_unsupported_not_ready",
+        "result": "PASS",
+        "seconds": "0.197",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_expired_deadline_is_not_health_success",
+        "result": "PASS",
+        "seconds": "0.184",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_handshake_required_before_health",
+        "result": "PASS",
+        "seconds": "0.186",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_protocol_identity_mismatch",
+        "result": "PASS",
+        "seconds": "0.198",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_duplicate_json_keys_are_rejected",
+        "result": "PASS",
+        "seconds": "0.175",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_pipe_dacl_is_protected_network_denied_and_user_only",
+        "result": "PASS",
+        "seconds": "0.194",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_owner_exit_terminates_host_without_orphan",
+        "result": "PASS",
+        "seconds": "0.348",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_bad_cancel_correlation",
+        "result": "PASS",
+        "seconds": "0.172",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_second_connection_rejected",
+        "result": "PASS",
+        "seconds": "0.247",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_server_pid_mismatch_rejects_pipe",
+        "result": "PASS",
+        "seconds": "0.122",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_pending_read_timeout_discards_no_late_result",
+        "result": "PASS",
+        "seconds": "0.214",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_pending_read_cancellation_releases_io_and_process",
+        "result": "PASS",
+        "seconds": "0.213",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_unexpected_disconnect_is_not_success",
+        "result": "PASS",
+        "seconds": "0.183",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_host_crash_is_explicit_and_never_retried",
+        "result": "PASS",
+        "seconds": "0.190",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_native_idle_disconnect_cleanup",
+        "result": "PASS",
+        "seconds": "0.230",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_host_process::test_unauthorized_other_process_first_client_rejected",
+        "result": "PASS",
+        "seconds": "0.269",
+        "classification": "HOST_PROCESS_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_exact_utf8_length_prefixed_little_endian_contract",
+        "result": "PASS",
+        "seconds": "0.002",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[approval]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[approvalToken]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[grant]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[grantId]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[authority]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[password]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[cookie]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[providerCredentials]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[javascript]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[selector]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_authority_or_untyped_content_in_either_direction[url]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_missing_fields_rejected[schemaVersion]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_missing_fields_rejected[messageType]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_missing_fields_rejected[payload]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_missing_fields_rejected[result]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_missing_fields_rejected[error]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_missing_fields_rejected[deadline]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_malformed_json_and_utf8[{]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_malformed_json_and_utf8[\\xff]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_malformed_json_and_utf8[[]]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_malformed_json_and_utf8[null]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_malformed_json_and_utf8[\"word\"]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_malformed_json_and_utf8[{\"x\":NaN}]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_duplicate_json_keys_are_never_last_wins",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_oversized_and_empty_body",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_protocol_version_is_strict_integer[2]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_protocol_version_is_strict_integer[0]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_protocol_version_is_strict_integer[True]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_protocol_version_is_strict_integer[1.0]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_protocol_version_is_strict_integer[1]",
+        "result": "PASS",
+        "seconds": "0.003",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_unknown_messages_rejected[execute]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_unknown_messages_rejected[navigation]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_unknown_messages_rejected[grant]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_unknown_messages_rejected[HOST_READY]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_unknown_messages_rejected[]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_response_correlation_is_exact[requestId-bhr]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_response_correlation_is_exact[browserSessionRef-bws]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_response_correlation_is_exact[operationId-op]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_deadline_and_page_correlation",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_functional_browser_commands[navigate]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_functional_browser_commands[eval]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_functional_browser_commands[write]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_functional_browser_commands[shell]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_no_functional_browser_commands[browser_open]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_reserved_browser_has_no_payload_authority",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_cancelled_and_timeout_transport_checks_are_deterministic",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_host_never_started_and_clean_no_process_shutdown",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_start_failed_and_prestart_cancellation_do_not_create_a_process",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_zero_timeout_is_immediate_without_clock_advancement",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_deadline_budget_rejects_unbounded_values",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_response_cannot_announce_active_web_or_extra_features",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_existing_application_capability_remains_closed",
+        "result": "PASS",
+        "seconds": "0.081",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_waiting_for_ipc_owner_cannot_escape_deadline",
+        "result": "PASS",
+        "seconds": "0.022",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_ipc_contract::test_late_reply_is_never_committed_or_retried",
+        "result": "PASS",
+        "seconds": "0.022",
+        "classification": "IPC_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_closed_v2_serialization[session_create]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_closed_v2_serialization[page_create]",
+        "result": "PASS",
+        "seconds": "0.002",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_closed_v2_serialization[page_metadata]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_closed_v2_serialization[runtime_metadata]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_closed_v2_serialization[page_close]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_closed_v2_serialization[session_close]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_no_authority_or_future_payload[approval]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_no_authority_or_future_payload[grant]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_no_authority_or_future_payload[password]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_no_authority_or_future_payload[cookies]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_no_authority_or_future_payload[script]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_no_authority_or_future_payload[selector]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_no_authority_or_future_payload[uri]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_no_authority_or_future_payload[authority]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_unimplemented_fail_closed[navigate]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_unimplemented_fail_closed[eval]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_unimplemented_fail_closed[ExternalProtocolGuard]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_unimplemented_fail_closed[browser_open]",
+        "result": "PASS",
+        "seconds": "0.000",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_unimplemented_fail_closed[install_runtime]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_adapter_typed_fault_no_retry[RUNTIME_ABSENT]",
+        "result": "PASS",
+        "seconds": "0.004",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_adapter_typed_fault_no_retry[RUNTIME_INCOMPATIBLE]",
+        "result": "PASS",
+        "seconds": "0.003",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_adapter_typed_fault_no_retry[ENVIRONMENT_CREATION_FAILED]",
+        "result": "PASS",
+        "seconds": "0.002",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_adapter_typed_fault_no_retry[CONTROL_CREATION_FAILED]",
+        "result": "PASS",
+        "seconds": "0.002",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_adapter_typed_fault_no_retry[WEBVIEW2_PROCESS_FAILED]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_adapter_typed_fault_no_retry[NOT_SUPPORTED_IN_CURRENT_BLOCK]",
+        "result": "PASS",
+        "seconds": "0.001",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_adapter_typed_fault_no_retry[OWNERSHIP_MISMATCH]",
+        "result": "PASS",
+        "seconds": "0.002",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_cleanup_unconfirmed_is_not_close_success",
+        "result": "PASS",
+        "seconds": "0.002",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_delete_on_close_cleanup_race_is_idempotent",
+        "result": "PASS",
+        "seconds": "0.023",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_python_310_path_api_and_syntax_compatibility",
+        "result": "PASS",
+        "seconds": "0.007",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_engine_is_not_productive_capability_or_default_tool",
+        "result": "PASS",
+        "seconds": "0.895",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_csharp_fault_mapping[version]",
+        "result": "PASS",
+        "seconds": "2.361",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_csharp_fault_mapping[absent]",
+        "result": "PASS",
+        "seconds": "0.161",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_csharp_fault_mapping[incompatible]",
+        "result": "PASS",
+        "seconds": "0.168",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_csharp_fault_mapping[environment]",
+        "result": "PASS",
+        "seconds": "0.208",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_contract::test_csharp_fault_mapping[controller]",
+        "result": "PASS",
+        "seconds": "0.226",
+        "classification": "WEBVIEW2_ADAPTER_CONTRACT_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_real_runtime_two_unique_sessions_owned_pages_and_cleanup",
+        "result": "PASS",
+        "seconds": "2.531",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_three_owned_pages_limit",
+        "result": "PASS",
+        "seconds": "0.876",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_host_crash_invalidates_no_retry_no_orphan_udf",
+        "result": "PASS",
+        "seconds": "0.754",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_disconnect_invalidates_no_fallback",
+        "result": "PASS",
+        "seconds": "0.681",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_native_cancel_and_deadline_do_not_publish_late_resource",
+        "result": "PASS",
+        "seconds": "0.731",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_native_timeout_no_automatic_retry",
+        "result": "PASS",
+        "seconds": "0.726",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_browser_process_failure_is_typed_and_invalidates",
+        "result": "PASS",
+        "seconds": "1.009",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_real_udf_file_lock_reports_cleanup_unconfirmed",
+        "result": "PASS",
+        "seconds": "4.099",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_real_sdk_missing_runtime_override_is_fail_closed",
+        "result": "PASS",
+        "seconds": "0.260",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_native_v2_protocol_rejects_before_effect[version]",
+        "result": "PASS",
+        "seconds": "0.242",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_native_v2_protocol_rejects_before_effect[extra]",
+        "result": "PASS",
+        "seconds": "0.246",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_native_v2_protocol_rejects_before_effect[unknown]",
+        "result": "PASS",
+        "seconds": "0.262",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_native_v2_protocol_rejects_before_effect[wrong_session]",
+        "result": "PASS",
+        "seconds": "0.232",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_native_v2_protocol_rejects_before_effect[duplicate]",
+        "result": "PASS",
+        "seconds": "0.260",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      },
+      {
+        "id": "native.nova-browser-host.tests.test_webview2_native::test_existing_udf_is_never_reused",
+        "result": "PASS",
+        "seconds": "0.265",
+        "classification": "WEBVIEW2_NATIVE_HOST_TEST"
+      }
+    ]
+  },
+  "intermediateAttempts": [
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-attempt01.xml",
+      "sha256": "32c7239e96f3208fd0be8b8b88457642e6d59dc3c69f5be26dbdd9f59fa7252e",
+      "tests": 152,
+      "failures": 7,
+      "errors": 5,
+      "skipped": 0,
+      "seconds": "39.204",
+      "timestamp": "2026-10-10T06:07:23.567300-06:00",
+      "lastWriteUtc": "2026-10-10T12:08:02.9010636Z",
+      "failIds": [
+        "native.nova-browser-host.tests.test_webview2_contract::test_csharp_fault_mapping[environment]",
+        "native.nova-browser-host.tests.test_webview2_contract::test_csharp_fault_mapping[controller]",
+        "native.nova-browser-host.tests.test_webview2_native::test_three_owned_pages_limit",
+        "native.nova-browser-host.tests.test_webview2_native::test_host_crash_invalidates_no_retry_no_orphan_udf",
+        "native.nova-browser-host.tests.test_webview2_native::test_disconnect_invalidates_no_fallback",
+        "native.nova-browser-host.tests.test_webview2_native::test_native_cancel_and_deadline_do_not_publish_late_resource",
+        "native.nova-browser-host.tests.test_webview2_native::test_native_timeout_no_automatic_retry"
+      ],
+      "errorIds": [
+        "native.nova-browser-host.tests.test_webview2_native::test_three_owned_pages_limit",
+        "native.nova-browser-host.tests.test_webview2_native::test_host_crash_invalidates_no_retry_no_orphan_udf",
+        "native.nova-browser-host.tests.test_webview2_native::test_disconnect_invalidates_no_fallback",
+        "native.nova-browser-host.tests.test_webview2_native::test_native_cancel_and_deadline_do_not_publish_late_resource",
+        "native.nova-browser-host.tests.test_webview2_native::test_native_timeout_no_automatic_retry"
+      ],
+      "exitCode": 1,
+      "status": "HISTORICAL_BLOCK02_DEVELOPMENT_ATTEMPT_PRESERVED"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-attempt02.xml",
+      "sha256": "83ff64464348eb096c9b9c18a771e16e91d2708202f12c20d2843cf3cf42dcfc",
+      "tests": 147,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "32.553",
+      "timestamp": "2026-10-10T06:08:51.467105-06:00",
+      "lastWriteUtc": "2026-10-10T12:09:24.0748944Z",
+      "failIds": [],
+      "errorIds": [],
+      "exitCode": 0,
+      "status": "HISTORICAL_BLOCK02_DEVELOPMENT_ATTEMPT_PRESERVED"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-attempt03.xml",
+      "sha256": "518ca9e4aa7f8ffc682442cd97daba42d572b0030379f37b0647c457107a220b",
+      "tests": 154,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "35.071",
+      "timestamp": "2026-10-10T06:11:51.566222-06:00",
+      "lastWriteUtc": "2026-10-10T12:12:26.7799846Z",
+      "failIds": [
+        "native.nova-browser-host.tests.test_webview2_native::test_real_runtime_two_unique_sessions_owned_pages_and_cleanup"
+      ],
+      "errorIds": [],
+      "exitCode": 1,
+      "status": "HISTORICAL_BLOCK02_DEVELOPMENT_ATTEMPT_PRESERVED"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final.xml",
+      "sha256": "f8fecb6a8eda52935e06649a0ab49054e1e28132e3e3470cb29d9e8e7a8c7ef5",
+      "tests": 154,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "34.731",
+      "timestamp": "2026-10-10T06:13:22.647538-06:00",
+      "lastWriteUtc": "2026-10-10T12:13:57.5155308Z",
+      "failIds": [
+        "native.nova-browser-host.tests.test_host_process::test_native_server_pid_mismatch_rejects_pipe"
+      ],
+      "errorIds": [],
+      "exitCode": 1,
+      "status": "HISTORICAL_BLOCK02_DEVELOPMENT_ATTEMPT_PRESERVED"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final05.xml",
+      "sha256": "c26e04c091380c642004af8933075262cd4b527e49b920de87d3b731f4209f16",
+      "tests": 154,
+      "failures": 2,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "34.721",
+      "timestamp": "2026-10-10T06:14:51.713742-06:00",
+      "lastWriteUtc": "2026-10-10T12:15:26.4926755Z",
+      "failIds": [
+        "native.nova-browser-host.tests.test_webview2_native::test_three_owned_pages_limit",
+        "native.nova-browser-host.tests.test_webview2_native::test_host_crash_invalidates_no_retry_no_orphan_udf"
+      ],
+      "errorIds": [],
+      "exitCode": 1,
+      "status": "HISTORICAL_BLOCK02_DEVELOPMENT_ATTEMPT_PRESERVED"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final06.xml",
+      "sha256": "083963fdc1598eb61126026852d6c72556acec396938ee2c16a70b527b5dcc20",
+      "tests": 155,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "37.154",
+      "timestamp": "2026-10-10T06:17:18.811983-06:00",
+      "lastWriteUtc": "2026-10-10T12:17:56.1431610Z",
+      "failIds": [],
+      "errorIds": [],
+      "exitCode": 0,
+      "status": "HISTORICAL_BLOCK02_DEVELOPMENT_ATTEMPT_PRESERVED"
+    }
+  ],
+  "failureClassifications": [
+    {
+      "attempt": "attempt01",
+      "cases": [
+        "test_csharp_fault_mapping[environment]",
+        "test_csharp_fault_mapping[controller]"
+      ],
+      "classification": "HARNESS_BUG",
+      "cause": "Test console referenced the SDK assembly manually; its loader needed placement at the executable root. Assertions unchanged."
+    },
+    {
+      "attempt": "attempt01",
+      "classification": "PRODUCT_BUG",
+      "cause": "Forced termination cleanup encountered sharing locks immediately after active job count reached zero. Bounded maintenance after process exit, never operation retry, now handles transient sharing violations; persistent lock still yields CLEANUP_UNCONFIRMED."
+    },
+    {
+      "attempt": "attempt03",
+      "classification": "HARNESS_BUG",
+      "cause": "Windows PowerShell inherited PowerShell 7 PSMODULEPATH, failed to load Microsoft.PowerShell.Security, and returned a null ACL property. Only child env/module autoload/error behavior repaired; ACL assertions unchanged."
+    },
+    {
+      "attempt": "final.xml",
+      "classification": "PRODUCT_BUG_IPC_DISCONNECT_CLASSIFICATION",
+      "cause": "Unchanged v1 server-PID-mismatch test observed Windows broken-pipe IOException classified as generic exit16 instead of disconnect15. Known Win32 pipe disconnect HRESULTs now preserve the EOF contract. Historical test/assertion unchanged."
+    },
+    {
+      "attempt": "final05",
+      "classification": "PRODUCT_BUG_CLEANUP_RACE",
+      "cause": "EBWebView/lockfile delete-on-close disappeared between enumeration and lstat. Missing child inside already verified owned tree is idempotently absent after process-exit proof; explicit new regression added."
+    },
+    {
+      "attempt": "final06",
+      "classification": "PASS_BEFORE_PYTHON_API_RECONCILIATION",
+      "cause": "155 PASS. Added Python3.10 path-API/syntax regression and replaced unavailable Path.is_junction with Win32 reparse-point inspection; final07 is 156 PASS."
+    }
+  ],
+  "inheritedRuns": [
+    {
+      "job": "active-web",
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "active-web",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 230,
+        "collected_parameter_instances": 672,
+        "collected_nodeids_sha256": "d7c57be9ecf771769a97d2f0f707892fcad225a267f7a7edf03c83f0b485407b",
+        "collection_guard": "PASS",
+        "tests_executed": 672,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-active-web/tests.xml",
+      "xmlSha256": "a41fe94c1049fcad88bb1052c6744f94cb511beef15fdf131d83d3f64992ce93",
+      "log": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-active-web/pytest.log",
+      "logSha256": "0faec77ea204dd7e69e65fb21eb93f04457b69ad10954540338d7d5d72c4f5e1",
+      "tests": 672,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "22.475",
+      "timestamp": "2026-10-10T06:18:28.770374-06:00",
+      "lastWriteUtc": "2026-10-10T12:18:51.2480732Z",
+      "failIds": [],
+      "skips": [],
+      "command": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B ci/run_contracts.py --job active-web --output C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-active-web"
+    },
+    {
+      "job": "security",
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "security",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 274,
+        "collected_parameter_instances": 615,
+        "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+        "collection_guard": "PASS",
+        "tests_executed": 615,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-security/tests.xml",
+      "xmlSha256": "ffc4e3b873d417f3a8221b7c06a6baa44771b9653e9e148bbd88c6cc13fa8672",
+      "log": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-security/pytest.log",
+      "logSha256": "04b6e81b61fda7097a0bc975cb9d5c440e0ab1ccb55e73cb429f53349e409663",
+      "tests": 615,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "18.668",
+      "timestamp": "2026-10-10T06:19:16.803403-06:00",
+      "lastWriteUtc": "2026-10-10T12:19:35.4736784Z",
+      "failIds": [],
+      "skips": [],
+      "command": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B ci/run_contracts.py --job security --output C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-security"
+    },
+    {
+      "job": "memory",
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "memory",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 326,
+        "collected_parameter_instances": 791,
+        "collected_nodeids_sha256": "41cf20d5dd0f6c53f0643923d261ba6ef23ed2bd0d80a1c03cf47b1e794e501c",
+        "collection_guard": "PASS",
+        "tests_executed": 791,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-memory/tests.xml",
+      "xmlSha256": "5cdba90607a9f08da05482b5a54a3c84fd92eea62c072145cb179963dd1f6c6e",
+      "log": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-memory/pytest.log",
+      "logSha256": "1556802bc34025b479d78d5a3c47088defa5444f6b917db131a59d8d17de12a3",
+      "tests": 791,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "61.305",
+      "timestamp": "2026-10-10T06:19:57.369662-06:00",
+      "lastWriteUtc": "2026-10-10T12:20:58.6784158Z",
+      "failIds": [],
+      "skips": [],
+      "command": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B ci/run_contracts.py --job memory --output C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-memory"
+    },
+    {
+      "job": "knowledge",
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "knowledge",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 335,
+        "collected_parameter_instances": 1015,
+        "collected_nodeids_sha256": "40aed5a5c3606c0091ce3ee4323381343bc40e3ab561ebe5b04950785d5821dd",
+        "collection_guard": "PASS",
+        "tests_executed": 1015,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-knowledge/tests.xml",
+      "xmlSha256": "46810a1cf4e762b514b5dc4720b39e391e15a2c12e758396e774df1ec8b9dd59",
+      "log": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-knowledge/pytest.log",
+      "logSha256": "a541cbd516a38a8fc05b8a54ea9b6d8778ef81af1037594af5478102aafdd3ce",
+      "tests": 1015,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "seconds": "127.185",
+      "timestamp": "2026-10-10T06:22:12.286003-06:00",
+      "lastWriteUtc": "2026-10-10T12:24:19.4783609Z",
+      "failIds": [],
+      "skips": [],
+      "command": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B ci/run_contracts.py --job knowledge --output C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-knowledge"
+    },
+    {
+      "job": "core",
+      "run": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "core",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "2a6f16dc2af6675f1994f970141746d1ba133cf99c4fea4d1ce49348648f2a30",
+        "positive_base_contracts": 2860,
+        "collected_parameter_instances": 3419,
+        "collected_nodeids_sha256": "1b2af7e00613d1d72cd39e85ab976462e7d52ee07a4918dc25e34c4e6c064211",
+        "collection_guard": "PASS",
+        "tests_executed": 3419,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-core/tests.xml",
+      "xmlSha256": "c04b3d2c80e4e27c56ad3cee1ef7a9d19f697c0b055564934f334ad49e2d3d09",
+      "log": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-core/pytest.log",
+      "logSha256": "460cafcac6fa68bd55292260abdddeaee64281713e2375bb668bb6d5292a9a94",
+      "tests": 3472,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 7,
+      "seconds": "253.286",
+      "timestamp": "2026-10-10T06:23:23.698958-06:00",
+      "lastWriteUtc": "2026-10-10T12:27:37.0080501Z",
+      "failIds": [
+        "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available"
+      ],
+      "skips": [
+        {
+          "id": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "type": "pytest.skip",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "type": "pytest.skip",
+          "reason": "Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "type": "pytest.skip",
+          "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-wv2-02-reg-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-wv2-02-reg-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'"
+        },
+        {
+          "id": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "type": "pytest.skip",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "type": "pytest.skip",
+          "reason": "Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "type": "pytest.skip",
+          "reason": "legacy monitor removed in phase 1"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "type": "pytest.skip",
+          "reason": "legacy monitor removed in phase 1"
+        }
+      ],
+      "command": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe -B ci/run_contracts.py --job core --output C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-reg-core"
+    }
+  ],
+  "coreCountNotes": {
+    "baseCollected": 3419,
+    "passed": 3411,
+    "failed": 1,
+    "skipped": 7,
+    "passingSubtestsAdditional": 53,
+    "junitTests": 3472,
+    "exitCode": 1,
+    "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+    "nonBlockingForBlock02": true,
+    "test": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+    "cause": "HOME fixture path differs from PowerShell automatic HOME derived from USERPROFILE; same pre-existing assertion at line223. Test/BashTool/runner unchanged."
+  },
+  "skipComparison": {
+    "baseline": "01_host_ipc/test_results.json skipComparison",
+    "same": true,
+    "previousIds": [
+      "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+      "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+      "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+      "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+      "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent"
+    ],
+    "current": [
+      {
+        "id": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+        "type": "pytest.skip",
+        "reason": "Creating symlinks requires Developer Mode on Windows"
+      },
+      {
+        "id": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+        "type": "pytest.skip",
+        "reason": "Creating symlinks requires Developer Mode on Windows"
+      },
+      {
+        "id": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+        "type": "pytest.skip",
+        "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-wv2-02-reg-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-wv2-02-reg-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'"
+      },
+      {
+        "id": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+        "type": "pytest.skip",
+        "reason": "Windows does not preserve POSIX executable bits"
+      },
+      {
+        "id": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+        "type": "pytest.skip",
+        "reason": "Windows does not preserve POSIX executable bits"
+      },
+      {
+        "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+        "type": "pytest.skip",
+        "reason": "legacy monitor removed in phase 1"
+      },
+      {
+        "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+        "type": "pytest.skip",
+        "reason": "legacy monitor removed in phase 1"
+      }
+    ],
+    "newSkips": 0,
+    "newXfails": 0,
+    "newExclusions": 0
+  },
+  "desktop": {
+    "node": "v24.16.0",
+    "tests": 71,
+    "passed": 71,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exitCode": 0,
+    "artifact": "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-desktop.tap",
+    "sha256": "37bf488aeceaf92d40d8f23525e33e9c6a0b367994aef9f55a9a6cc7b1c9ecea",
+    "command": "node --experimental-transform-types --test --test-reporter=tap --test-reporter-destination=C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-desktop.tap tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs tests/active_web.test.cjs",
+    "cwd": "desktop",
+    "typeScript": {
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exitCode": 0
+    }
+  },
+  "countNotes": [
+    "Overlapping inherited jobs are not a unique full HEAD denominator. Selection is exactly the unchanged positive CI contract inventory, not every repository test.",
+    "JUnit duration/timestamp and LastWriteUtc reflect pytest/report production; LastWriteUtc is not an independently instrumented process exit timestamp.",
+    "No test assertion, skip, xfail, CI selection or historical scorer modified. No browser/LLM quality retries or AW8 campaign."
+  ],
+  "newMaterialRegressionFailures": 0,
+  "modelInference": 0,
+  "AW8FinalExecuted": false,
+  "build": {
+    "sdk": "Microsoft.Web.WebView2 1.0.4258.31",
+    "dotnetSdk": "10.0.203",
+    "framework": "net10.0-windows",
+    "architecture": "x64",
+    "nugetTestRestore": "offline local pinned SDK feed only",
+    "runtimeAutoInstall": false,
+    "warnings": 0,
+    "errors": 0,
+    "buildExitCode": 0,
+    "artifactHashes": {
+      "C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31/microsoft.web.webview2.1.0.4258.31.nupkg": "56f7f4b8bf9aee4b8efefbbdd4f67d5f74ebd1b100ed0806da71bf76af481aa9",
+      "C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31/LICENSE.txt": "0af8f1b807512aae39c2ac1aa4d0cae65cabecb6fd554b8439a5162a0d6eca55",
+      "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final07-private/host-build0/bin/nova-browser-host.dll": "fe92d45eee4df0266d64925542d2a6f0336023e4860774e10d85f21b42da4260",
+      "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final07-private/host-build0/bin/Microsoft.Web.WebView2.Core.dll": "d60e6e94245078cb56e44ebd5f360dc04bf18e460136be93bfc4cfca43b98505",
+      "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final07-private/host-build0/bin/runtimes/win-x64/native/WebView2Loader.dll": "3426dcc55fdfb8b5e7ac623cf33b4ccf283fbf68a0c5a65bddfdb4d749a8abee",
+      "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final07-private/host-build0/bin/nova-browser-host.runtimeconfig.json": "96bc2946dff8790400d652ec7f8de7bb043e954980d59470c112788b68a1fbd3",
+      "C:/Users/joseh/AppData/Local/Temp/nova-wv2-02-final07-private/host-build0/build.txt": "1040688898b45aee64fb4795b02fbd78fc3507fc90dd3e51ca34c0583fbad63c",
+      "C:/Program Files (x86)/Microsoft/EdgeWebView/Application/154.0.4258.62/msedgewebview2.exe": "7e941ccb324fd87c849dca6356079e65a31ff264b8b5b37cc43d055b2764b9b3"
+    }
+  }
+}

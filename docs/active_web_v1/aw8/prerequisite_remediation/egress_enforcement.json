@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "purpose": "AW8 prerequisite remediation egress proof boundaries",
+  "verdict": "BLOCKED",
+  "blocker": "AW8-PREFLIGHT-002 — CERTIFICATION_PREREQUISITE_UNKNOWN",
+  "fullEngineExclusiveProof": false,
+  "sameShippingAdapterPolicyBroker": true,
+  "sameProductCompositionRoot": false,
+  "probeScope": "Explicit numeric-canary host reduction, tighter than normal PUBLIC_ONLY; no resolver/endpoint substitution.",
+  "capabilityStatus": {
+    "engine": {
+      "status": "KNOWN",
+      "value": "PLAYWRIGHT_CHROMIUM",
+      "reason": null
+    },
+    "networkBroker": {
+      "status": "KNOWN",
+      "value": true,
+      "reason": null
+    },
+    "publicOnly": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "exclusive productive egress obligations incomplete"
+    },
+    "available": {
+      "status": "UNKNOWN",
+      "value": null,
+      "reason": "exclusive productive egress obligations incomplete"
+    },
+    "controlClass": {
+      "status": "KNOWN",
+      "value": "HOST_UNISOLATED",
+      "reason": null
+    }
+  },
+  "matrix": [
+    {
+      "surface": "Manual authenticated HTTP proxy/broker",
+      "implemented": "Fixed numeric broker endpoint with no DIRECT proxy entry/bypass; per-session credentials",
+      "evidence": "Actual broker records, eight denied targets, owned TCP canary",
+      "result": "PARTIAL"
+    },
+    {
+      "surface": "DNS",
+      "implemented": "Fixed process-local catch-all host-resolver-rules; broker resolver validates all address answers",
+      "evidence": "Configured argument and policy contracts; no engine-wide raw-DNS witness",
+      "result": "NOT_DEMONSTRATED"
+    },
+    {
+      "surface": "HTTP/HTTPS private/loopback/link-local/metadata",
+      "implemented": "PUBLIC_ONLY target admission including finite ports/Host consistency",
+      "evidence": "Native eight negative targets, 8/8 denied at broker, no upstream",
+      "result": "PASS_NEGATIVE_SUBSET"
+    },
+    {
+      "surface": "Admitted public HTTP/HTTPS + TLS",
+      "implemented": "Broker forwarding/CONNECT adapter components retained",
+      "evidence": "Positive controlled native public endpoint not demonstrated by this scoped probe",
+      "result": "NOT_DEMONSTRATED"
+    },
+    {
+      "surface": "Redirects/subresources/new origins",
+      "implemented": "Each broker request authorization and engine route hook",
+      "evidence": "Existing deterministic/component contracts, not full productive composition witness",
+      "result": "NOT_DEMONSTRATED"
+    },
+    {
+      "surface": "WS/WSS",
+      "implemented": "Fixed Playwright context.route_web_socket closes connections; no WSS profile advertised",
+      "evidence": "Code present; no secure-context native negative probe in this task",
+      "result": "NOT_DEMONSTRATED"
+    },
+    {
+      "surface": "Service workers",
+      "implemented": "Playwright service_workers=block",
+      "evidence": "about:blank lacks secureContext; absence of serviceWorker API is not secure-context disable proof",
+      "result": "NOT_DEMONSTRATED"
+    },
+    {
+      "surface": "QUIC/direct UDP/WebRTC",
+      "implemented": "--disable-quic, disable_non_proxied_udp and fixed init script suppress RTC page constructors",
+      "evidence": "RTC undefined in one native window only; no engine-wide UDP/non-page-context proof",
+      "result": "NOT_DEMONSTRATED"
+    },
+    {
+      "surface": "Broker failure/direct fallback",
+      "implemented": "Manual single proxy/no bypass, fail-closed lifetime hook",
+      "evidence": "Stopped actual broker; two http/https canary attempts failed; host positive control observed; browser TCP connections=0 through cleanup",
+      "result": "PASS_LOOPBACK_TCP_SUBSET"
+    },
+    {
+      "surface": "Non-loopback TCP / UDP fallback",
+      "implemented": "No best-effort branch configured",
+      "evidence": "No controlled negative engine witness across these surfaces",
+      "result": "NOT_DEMONSTRATED"
+    },
+    {
+      "surface": "Internal/file/data/javascript/custom protocols",
+      "implemented": "Fixed canonical URL admission, context route guarding; no arbitrary URL or eval tool surface",
+      "evidence": "Existing URL contracts only; full native engine negative schemes campaign not performed",
+      "result": "NOT_DEMONSTRATED"
+    }
+  ],
+  "unprovenObligations": [
+    "positive admitted HTTP/HTTPS composition and redirects/subresources",
+    "fresh browser command-line/engine-wide DNS mediation evidence",
+    "WS/WSS and service-worker negative engine probes in secure context",
+    "QUIC/direct UDP/WebRTC engine-wide negative evidence",
+    "proxy failure with direct UDP canary and non-loopback direct TCP coverage",
+    "internal/file/javascript/data/custom scheme negative engine evidence",
+    "same certified composition bound to productive CLI/JSONL tool registration"
+  ],
+  "backgroundEgressCorrection": {
+    "rawHistoricalRun": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-prerequisites-20261009T230110Z/productive-probe-final/result.json",
+    "rawNeverOverwritten": true,
+    "incorrectRawClaim": "noThirdPartySites=true",
+    "correctedConclusion": "False for that run: Chromium background CONNECT to https://www.google.com had upstreamConnected=true via broker. This is not evidence of direct bypass, authority expansion or model inference.",
+    "classification": "PROBE_SCOPE_BUG",
+    "repair": "Optional trusted host reduction for explicit probe; denied before DNS. Normal PUBLIC_ONLY default remains unchanged.",
+    "noPayloadGuarantee": "Raw TLS/background connection is not inspected; no universal no-payload claim.",
+    "cleanScopedRun": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-prerequisites-20261009T230110Z/productive-probe-scoped/result.json",
+    "cleanScopedNoUpstream": true
+  },
+  "configuredFlagsAreNotEngineWideProof": true,
+  "noFirewallOrGlobalConfigDependency": true,
+  "noSilentBestEffort": true,
+  "availabilityNotPromoted": true
+}

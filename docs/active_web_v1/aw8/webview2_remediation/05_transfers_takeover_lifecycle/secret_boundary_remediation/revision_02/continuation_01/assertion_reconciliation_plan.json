@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "decision": "ASSERTION_TRANSITION_RECONCILIATION = AUTHORIZED",
+  "resolves": "WV2-B05-REV02-OPEN-DECISION-001",
+  "before": [
+    {
+      "path": "native/nova-browser-host/tests/test_takeover_secret_navigation.py",
+      "sha256": "e491489a7dbee997057d70fd723db9c3a8393a8ab714c2cc494bf346ed234829"
+    },
+    {
+      "path": "native/nova-browser-host/tests/test_sensitive_continuity.py",
+      "sha256": "c33dc18137eb465340c2324753dd960b29269f8c746bfaf4de970cd04645575c"
+    }
+  ],
+  "scope": [
+    {
+      "test": "test_native_an_already_observed_sensitive_buffer_is_not_forgotten",
+      "previousTransitionAssertion": "Shared check(d): literal page-derived summary contains the fixture transition text.",
+      "replacement": "Same BrowserSession/PageRef; completed takeover increments context epoch once; same native navigation epoch; native observation version and public observation version increase; new ObservationRef; distinct sanitized contentDigest; no-exposure/audit assertions preserved locally without changing shared check(d)."
+    },
+    {
+      "test": "test_declared_human_secret_not_projected_after_same_origin_navigation",
+      "previousTransitionAssertion": "Literal post-navigation page-derived summary contains the fixture transition text.",
+      "replacement": "Same BrowserSession/PageRef; native navigation epoch increases; native observation version increases; completed takeover increments context epoch once; new ObservationRef and increased public observation version."
+    }
+  ],
+  "unchanged": [
+    "human driver",
+    "sensitive generated value",
+    "per-character input",
+    "page reflection action",
+    "navigation sequence",
+    "non-exposure assertions",
+    "shared check(d) behavior for all other tests",
+    "fixtures",
+    "skips/xfails/filters/retries"
+  ],
+  "reason": "Whole-leaf protection of a short previously observed buffer can remove harmless page text; content publication is not valid proof of navigation when it conflicts with SECRET_NON_EXPOSURE.",
+  "after": "Recorded after the prospectively authorized edit in final evidence"
+}

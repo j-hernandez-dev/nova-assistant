@@ -1,0 +1,21 @@
+.........F..................                                             [100%]
+================================== FAILURES ===================================
+________ test_native_connection_refused_is_typed_without_http_dispatch ________
+
+    def test_native_connection_refused_is_typed_without_http_dispatch():
+        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listener.bind(('127.0.0.1', 0))
+        port = listener.getsockname()[1]
+        listener.close()
+        broker = HttpFetchBroker()
+        start = time.monotonic()
+>       with pytest.raises(NetworkError, match='NETWORK_REQUEST_FAILED') as error:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'NETWORK_REQUEST_FAILED'
+E         Actual message: 'NETWORK_TIMEOUT'
+
+tests\security_v12\test_s5_network.py:238: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s5_network.py::test_native_connection_refused_is_typed_without_http_dispatch
+1 failed, 27 passed in 3.08s

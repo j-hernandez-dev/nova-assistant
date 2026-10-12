@@ -1,0 +1,570 @@
+{
+  "schemaVersion": 1,
+  "phase": "V12_B1_CONTROLLED_FETCH_CONTRACTS",
+  "capabilityId": "CONTROLLED_FETCH_V1_2",
+  "initialExecutableMethods": [
+    "GET",
+    "HEAD"
+  ],
+  "closedModelFields": [
+    "capabilityId",
+    "url",
+    "method",
+    "resultMode"
+  ],
+  "privateRequestFields": [
+    "capabilityId",
+    "owner",
+    "turnId",
+    "operationId",
+    "policyRevision",
+    "deadline",
+    "canonicalTarget",
+    "method",
+    "resultMode",
+    "limits"
+  ],
+  "initialResultModes": [
+    "TEXT",
+    "HTML_STATIC",
+    "JSON"
+  ],
+  "unsupportedDesignedOptions": [
+    "POST",
+    "auth",
+    "binary download"
+  ],
+  "classes": [
+    {
+      "name": "ControlledFetchErrorCode",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 26,
+      "methods": []
+    },
+    {
+      "name": "ControlledFetchError",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 54,
+      "methods": [
+        "__init__"
+      ]
+    },
+    {
+      "name": "ControlledFetchMethod",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 94,
+      "methods": []
+    },
+    {
+      "name": "ControlledFetchResultMode",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 99,
+      "methods": []
+    },
+    {
+      "name": "ControlledFetchCompleteness",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 105,
+      "methods": []
+    },
+    {
+      "name": "ControlledFetchAbsence",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 111,
+      "methods": []
+    },
+    {
+      "name": "ControlledFetchOwner",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 118,
+      "methods": [
+        "__post_init__",
+        "to_dict",
+        "from_dict"
+      ]
+    },
+    {
+      "name": "ControlledFetchLimits",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 143,
+      "methods": [
+        "__post_init__",
+        "covers",
+        "to_dict",
+        "from_dict"
+      ]
+    },
+    {
+      "name": "ControlledFetchRequest",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 173,
+      "methods": [
+        "__post_init__",
+        "to_dict",
+        "from_dict"
+      ]
+    },
+    {
+      "name": "ControlledFetchConsumption",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 220,
+      "methods": [
+        "__post_init__",
+        "to_dict",
+        "from_dict"
+      ]
+    },
+    {
+      "name": "ControlledFetchProvenance",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 244,
+      "methods": [
+        "__post_init__",
+        "to_dict"
+      ]
+    },
+    {
+      "name": "ControlledFetchResult",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 259,
+      "methods": [
+        "__post_init__",
+        "to_dict",
+        "from_dict"
+      ]
+    },
+    {
+      "name": "AdmittedControlledFetchRequest",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 338,
+      "methods": [
+        "__post_init__"
+      ]
+    },
+    {
+      "name": "ControlledFetchHop",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 360,
+      "methods": [
+        "__post_init__"
+      ]
+    },
+    {
+      "name": "ControlledFetchTransportPort",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 382,
+      "methods": [
+        "validate",
+        "dispatch"
+      ]
+    },
+    {
+      "name": "ControlledFetchSecretRef",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 407,
+      "methods": [
+        "__repr__"
+      ]
+    },
+    {
+      "name": "ControlledFetchNetworkProofRef",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 414,
+      "methods": [
+        "__repr__"
+      ]
+    },
+    {
+      "name": "ControlledFetchOutcomeLedger",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 421,
+      "methods": [
+        "__init__",
+        "started",
+        "dispatch",
+        "finish"
+      ]
+    },
+    {
+      "name": "ControlledFetchFuturePost",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 449,
+      "methods": [
+        "__post_init__"
+      ]
+    },
+    {
+      "name": "ControlledFetchFutureDownload",
+      "source": "local_cli/core/controlled_fetch.py",
+      "line": 466,
+      "methods": [
+        "__post_init__"
+      ]
+    },
+    {
+      "name": "ControlledFetchContext",
+      "source": "local_cli/application/controlled_fetch.py",
+      "line": 43,
+      "methods": [
+        "__post_init__"
+      ]
+    },
+    {
+      "name": "ControlledFetchTurnBudget",
+      "source": "local_cli/application/controlled_fetch.py",
+      "line": 58,
+      "methods": [
+        "__init__",
+        "begin",
+        "allowance",
+        "consume_bytes",
+        "end"
+      ]
+    },
+    {
+      "name": "ControlledFetchHostRefs",
+      "source": "local_cli/application/controlled_fetch.py",
+      "line": 102,
+      "methods": [
+        "__init__",
+        "_issue",
+        "secret",
+        "proof",
+        "validate",
+        "close"
+      ]
+    },
+    {
+      "name": "_StaticHTML",
+      "source": "local_cli/application/controlled_fetch.py",
+      "line": 142,
+      "methods": [
+        "__init__",
+        "handle_starttag",
+        "handle_endtag",
+        "handle_data"
+      ]
+    },
+    {
+      "name": "ControlledFetchService",
+      "source": "local_cli/application/controlled_fetch.py",
+      "line": 162,
+      "methods": [
+        "__init__",
+        "_current",
+        "request_from_candidate",
+        "grant_request",
+        "_check_grant",
+        "_admit",
+        "validate_admitted",
+        "redirect_candidate",
+        "_payload",
+        "execute"
+      ]
+    },
+    {
+      "name": "UnconfiguredControlledFetchTransport",
+      "source": "local_cli/infrastructure/controlled_fetch_transport.py",
+      "line": 11,
+      "methods": [
+        "validate",
+        "dispatch"
+      ]
+    }
+  ],
+  "gates": {
+    "CONTROLLED_FETCH_REQUEST_CONTRACT": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "test_request_private_schema_round_trip",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 25
+        },
+        {
+          "name": "test_private_request_rejects_unknown_network_browser_or_authority_fields",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 38
+        },
+        {
+          "name": "test_model_candidate_cannot_supply_host_fields_or_increase_ceilings",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 45
+        },
+        {
+          "name": "test_private_request_requires_host_canonical_spelling_and_unambiguous_authority",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 81
+        },
+        {
+          "name": "test_stale_policy_expired_or_cancelled_operation_fails_closed",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 72
+        }
+      ]
+    },
+    "CONTROLLED_FETCH_RESULT_CONTRACT": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "test_result_round_trip_contains_no_authority_or_network_internals",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 97
+        },
+        {
+          "name": "test_result_cannot_encode_fallback_authority_or_private_material",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 109
+        },
+        {
+          "name": "test_static_html_has_no_resource_script_iframe_meta_refresh_or_form_actions",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 301
+        },
+        {
+          "name": "test_json_result_is_bounded_untrusted_data_not_requests",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 309
+        },
+        {
+          "name": "test_incomplete_head_metadata_is_partial_never_complete_or_retried",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 53
+        }
+      ]
+    },
+    "CONTROLLED_FETCH_CAPABILITY_SEPARATION": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "test_wrong_capability_id_never_constructs_request",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 51
+        },
+        {
+          "name": "test_real_browser_grant_rejected_by_fetch_binding",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 171
+        },
+        {
+          "name": "test_real_fetch_grant_rejected_by_unchanged_browser_authority_path",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 181
+        },
+        {
+          "name": "test_browser_refs_cannot_be_used_as_fetch_owner",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 32
+        }
+      ]
+    },
+    "CONTROLLED_FETCH_REDIRECT_CONTRACT": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "test_redirect_is_new_admission_same_operation_same_budget_no_head_switch",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 86
+        },
+        {
+          "name": "test_redirect_target_is_data_not_admitted_authority",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 114
+        },
+        {
+          "name": "test_redirect_denied_without_scope_expansion_new_socket_or_browser_authority",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 105
+        },
+        {
+          "name": "test_dns_rebinding_next_hop_requires_fresh_admission",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 144
+        }
+      ]
+    },
+    "CONTROLLED_FETCH_BUDGET_CONTRACT": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "test_limits_have_finite_non_boolean_architecture_ceilings",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 72
+        },
+        {
+          "name": "test_redirect_does_not_reset_deadline_after_time_has_passed",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 120
+        },
+        {
+          "name": "test_concurrent_request_budget_blocks_second_and_releases_first",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 290
+        },
+        {
+          "name": "test_concurrent_byte_reservations_never_duplicate_per_turn_allowance",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 364
+        },
+        {
+          "name": "test_per_turn_byte_quota_consumes_errors_and_cannot_be_reset",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 283
+        }
+      ]
+    },
+    "CONTROLLED_FETCH_OUTCOME_CONTRACT": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "test_outcome_ledger_requires_started_before_dispatch_and_terminal_once",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 133
+        },
+        {
+          "name": "test_started_dispatch_loss_stays_unknown_no_retry_no_secret_error_echo",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 226
+        },
+        {
+          "name": "test_record_failure_before_dispatch_and_policy_change_after_started_do_not_send",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 238
+        },
+        {
+          "name": "test_terminal_record_failure_after_dispatch_returns_unknown_without_reexecuting",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 253
+        },
+        {
+          "name": "test_receipt_recorder_rejection_or_untyped_ack_cannot_dispatch",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 248
+        }
+      ]
+    },
+    "CONTROLLED_FETCH_SECRET_REF_CONTRACT": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "test_host_refs_have_no_public_serializer_or_wire_constructor",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 115
+        },
+        {
+          "name": "test_host_refs_are_origin_endpoint_owner_operation_policy_expiry_bound",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 190
+        },
+        {
+          "name": "test_network_provenance_ref_is_consumed_atomically_once",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 212
+        },
+        {
+          "name": "test_secret_query_values_are_redacted_from_every_public_projection",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 383
+        },
+        {
+          "name": "test_contract_composition_does_not_read_ambient_secrets_or_cookie_state",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 391
+        }
+      ]
+    },
+    "CONTROLLED_FETCH_NO_BYPASS_CONTRACT": {
+      "status": "PASS",
+      "tests": [
+        {
+          "name": "test_nonadmitted_dns_answers_never_reach_transport_or_create_browser_authority",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 137
+        },
+        {
+          "name": "test_auth_challenge_or_server_error_never_retries_or_issues_browser_fallback",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 351
+        },
+        {
+          "name": "test_result_cannot_encode_fallback_authority_or_private_material",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 109
+        }
+      ]
+    },
+    "CONTROLLED_FETCH_INITIAL_METHODS": {
+      "status": "GET_HEAD_ONLY",
+      "tests": [
+        {
+          "name": "test_only_get_head_are_initial_methods",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 57
+        },
+        {
+          "name": "test_get_head_exactly_once_with_started_before_dispatch_and_no_body_on_head",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 34
+        },
+        {
+          "name": "test_head_never_falls_back_to_get_for_error_or_unexpected_body",
+          "file": "tests/active_web_v1_2/test_v12_b1_composition.py",
+          "line": 46
+        },
+        {
+          "name": "test_future_optional_contracts_exist_but_dispatch_is_unavailable",
+          "file": "tests/active_web_v1_2/test_v12_b1_contracts.py",
+          "line": 122
+        }
+      ]
+    }
+  },
+  "hostOwnedLimits": {
+    "timeoutSeconds": 30,
+    "maxRedirects": 5,
+    "maxHeaderBytesPerRequestAndResponse": 32768,
+    "maxResponseBytesPerHop": 2097152,
+    "maxPublishedChars": 32768,
+    "perTurnRequests": 8,
+    "concurrency": 2,
+    "perTurnBytes": 50331648
+  },
+  "hostPlanFields": [
+    "request with owner/capability/operation/policy/deadline/limits",
+    "canonical target",
+    "approved scope",
+    "S5 numeric endpoint",
+    "hop",
+    "private lineage",
+    "host reserved transfer_byte_allowance"
+  ],
+  "scopeProfile": "Exact URL or explicit ORIGIN; no URL_SCHEME wildcard or redirect scope expansion in B1",
+  "authority": "Existing GrantIssuer/PolicyEngineV2; one-shot exact binding. APPLICATION_ENFORCED for B1 logical contract, not BROKER_ENFORCED network proof.",
+  "reuse": {
+    "BrowserNetworkPolicy": "Executed for admission with injected resolver and Controlled Fetch context proof; no BrowserSession",
+    "S5": "canonical_url, ResourceScope, FetchBudget/FetchLimits, NetworkEndpoint, classification through BrowserNetworkPolicy",
+    "BrowserEgressBrokerPrimitives": "Typed direct seam defined; pinned connection/TLS/framing implementation deferred to B2. No proxy tool/listener/generic CONNECT API."
+  },
+  "noBypass": "Fetch result has no browser authority fields. Wrong namespace, grant/ref/cookie/profile payloads rejected.",
+  "outcomes": [
+    "NOT_STARTED",
+    "STARTED",
+    "SUCCEEDED_OBSERVED",
+    "FAILED_NO_EFFECT_CONFIRMED",
+    "PARTIAL",
+    "UNKNOWN"
+  ],
+  "retryAllowed": false,
+  "proofRef": "Host-only admission provenance, identity/owner/operation/policy/endpoint/expiry bound and consumed atomically once; no certified network claim or new authority.",
+  "authRef": "Host-only HTTPS endpoint-scoped metadata, no credential bytes or ambient lookup; execution unavailable.",
+  "defaultTransport": "Missing/unconfigured: typed denial before dispatch; no implicit legacy S5 GET fallback.",
+  "capabilityClaims": {
+    "available": "UNKNOWN",
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN"
+  },
+  "registeredInProduct": false,
+  "sourceFreeze": "source_freeze.json",
+  "candidate": "FINAL_RECEIPT_GUARD",
+  "receiptSinkContract": "Synchronous host sink commits/records or raises; only None accepted as normal completion. Untyped/rejected ACK cannot dispatch. Final validation includes this guard."
+}

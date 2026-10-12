@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "noCertifiedReplacement": true,
+  "historicalPlaywrightStatus": "HISTORICAL_NON_CERTIFIED",
+  "engines": [
+    {
+      "id": "PLAYWRIGHT_PACKAGED_CHROMIUM",
+      "classification": "NOT_PRACTICAL",
+      "NETWORK_ENFORCEMENT": "Proxy/route y service_workers=block existentes no demuestran exclusividad nativa de todos los canales. No se rehabilita el perfil histórico.",
+      "EXTERNAL_PROTOCOL_ENFORCEMENT": "Gap histórico no resuelto por unregistered handler/dialog/route. Requeriría nueva frontera pre-effect nativa, no callback posterior.",
+      "ENGINE_VERSION_CONTROL": "Puede fijarse binario/hashes; playwright==1.63.0 en proyecto no certifica su engine.",
+      "DISTRIBUTION_COST": "Browser binario propio + actualizaciones; no admin inherente.",
+      "BLOCK05_FEATURE_COMPATIBILITY": "CDP/DOM/input/transfers plausibles; ningún PASS histórico se hereda a composición distinta.",
+      "IMPLEMENTATION_COST": "Bajo para wrapper, muy alto para fronteras faltantes; stock no recomendado.",
+      "EVIDENCE_REQUIRED": [
+        "guard registered canary all frames/popups/takeover",
+        "RTC and SW native off",
+        "socket/DNS/QUIC exclusivity",
+        "all BrowserPort/transfer/secret lifecycle"
+      ],
+      "sources": [
+        "CEF_MAIN",
+        "CR_CLIENT"
+      ]
+    },
+    {
+      "id": "ELECTRON_STANDALONE_STOCK",
+      "classification": "NOT_PRACTICAL",
+      "NETWORK_ENFORCEMENT": "setProxy + webRequest proporcionan configuración/admission; no prueba de sólo broker. WebRTC UDP policy no deshabilita RTC; SW manager no es switch off.",
+      "EXTERNAL_PROTOCOL_ENFORCEMENT": "Permission openExternal tiene hook nativo previo a abrir; DENY_ALL debe instalarse en todos los contexts y probarse. No usar shell.openExternal.",
+      "ENGINE_VERSION_CONTROL": "Paquete/version + Chromium pin/hash. desktop/package.json actual ^33.0.0 no es una versión candidata certificada.",
+      "DISTRIBUTION_COST": "Distribuir otro Electron host app-local, no reutilizar ventana/profile privilegiado Desktop.",
+      "BLOCK05_FEATURE_COMPATIBILITY": "Downloads/uploads/owned BrowserWindow/takeover compatibles conceptualmente; adaptar host y recertificar.",
+      "IMPLEMENTATION_COST": "Medio para adapter; alto/muy alto si fork nativo para cobertura normativa.",
+      "EVIDENCE_REQUIRED": [
+        "revisión de source exacto openExternal",
+        "SW/RTC off nativo",
+        "red/socket gate completo",
+        "Block03-05 nuevo engine"
+      ],
+      "sources": [
+        "EL_SESSION",
+        "EL_PROXY",
+        "EL_WEBREQUEST",
+        "EL_WEB",
+        "EL_PROTOCOL",
+        "EL_SECURITY"
+      ]
+    },
+    {
+      "id": "CEF_STOCK",
+      "classification": "NOT_PRACTICAL",
+      "NETWORK_ENFORCEMENT": "Request callbacks y proxy no son deny de todos los sockets. Stock callbacks no demuestran disable integral de RTC/SW.",
+      "EXTERNAL_PROTOCOL_ENFORCEMENT": "OnProtocolExecution existe; rutas Chrome-style default también deben controlarse. No PASS a partir de un callback por nombre.",
+      "ENGINE_VERSION_CONTROL": "App-local binario fijable; fuente y estilo elegidos deben fijarse.",
+      "DISTRIBUTION_COST": "CEF/runtime/resources/natives; tamaño y licencias de versión a presupuestar.",
+      "BLOCK05_FEATURE_COMPATIBILITY": "Embedding/DOM/transfers viables; semánticas default de downloads deben sustituirse por contrato fail-closed.",
+      "IMPLEMENTATION_COST": "Medio-alto wrapper; stock insuficiente bajo invariantes actuales.",
+      "EVIDENCE_REQUIRED": [
+        "native request/launch coverage",
+        "SW/RTC off",
+        "all red/DNS paths",
+        "native compatibility"
+      ],
+      "sources": [
+        "CEF_USAGE",
+        "CEF_REQ",
+        "CEF_CTX",
+        "CEF_CHROME",
+        "CEF_DL"
+      ]
+    },
+    {
+      "id": "SOURCE_CONTROLLED_CEF_CHROMIUM_HOST",
+      "classification": "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+      "recommended": true,
+      "NETWORK_ENFORCEMENT": "Fuente propia: request admission + red NetworkContexts fijos + rechazo nativo de conexiones que no sean broker. SW deny nativo, RTC feature ausente/gate nativo, DNS/UDP/QUIC auditados. Diseño, no implementación existente.",
+      "EXTERNAL_PROTOCOL_ENFORCEMENT": "DENY_ALL en entrada nativa HandleExternalProtocol con todos los delegados/default launch cerrados; cobertura real debe demostrarse con handler registrado.",
+      "ENGINE_VERSION_CONTROL": "Commit Chromium/CEF, build inputs, binary hashes y certificado conjunto; cualquier cambio invalida prueba.",
+      "DISTRIBUTION_COST": "Build/distribution grande, cadena CI nativa y parches de seguridad propios; instalación app-local sin requisito admin propuesto.",
+      "BLOCK05_FEATURE_COMPATIBILITY": "BrowserPort engine-neutral conservado. Implementación nativa observation/ref/action/transfer/takeover y secret hooks requiere adaptación + recertificación, no reescritura de Policy.",
+      "IMPLEMENTATION_COST": "Alto/muy alto y recurrente. Requiere capacidad de mantener fork; no simple selección de SDK.",
+      "EVIDENCE_REQUIRED": [
+        "puntos de socket/resolver exhaustivos para configuración congelada",
+        "SW execution/import/reload/cache zero",
+        "RTC secure-context no ICE/STUN/TURN/data channel",
+        "QUIC/Alt-Svc adversarial broker down",
+        "HTTPS end-to-end standard CONNECT",
+        "guard pre-effect + Block03-05 engine-specific",
+        "runtime restart/NetworkService recreation fail-closed"
+      ],
+      "sources": [
+        "CR_CLIENT",
+        "CR_NETCTX",
+        "CR_NETSVC",
+        "CR_TCP",
+        "CR_UDP",
+        "CR_DNS",
+        "CEF_CHROME",
+        "CEF_DL"
+      ]
+    },
+    {
+      "id": "QT_WEBENGINE_SOURCE_BUILD",
+      "classification": "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+      "NETWORK_ENFORCEMENT": "Build inspeccionado tiene knob nativo WebRTC. Aún necesita SW-off independiente de cookies y fronteras Chromium socket/DNS/proxy; Qt stock no basta.",
+      "EXTERNAL_PROTOCOL_ENFORCEMENT": "UnknownUrlSchemePolicy no se asume DENY_ALL de protocolos registrados. Revisar/hookear entrada native OS launch.",
+      "ENGINE_VERSION_CONTROL": "Qt + Chromium vendored + build feature hashes, actualizar conjunto.",
+      "DISTRIBUTION_COST": "Qt/native resources/runtime + licencias redistribución evaluables; no coste/MB inventado.",
+      "BLOCK05_FEATURE_COMPATIBILITY": "Page/profile/widgets/transfers disponibles conceptualmente; nuevo host y hooks DOM/secret/lifecycle.",
+      "IMPLEMENTATION_COST": "Alto; más dependencias UI y cambios engine-specific que CEF propuesto.",
+      "EVIDENCE_REQUIRED": [
+        "WebRTC off en binario, no sólo build string",
+        "SW off sin romper auth",
+        "external protocols registrados",
+        "red full + Block03-05"
+      ],
+      "sources": [
+        "QT_BUILD",
+        "QT_CLIENT",
+        "QT_SETTINGS"
+      ]
+    },
+    {
+      "id": "GECKO_FIREFOX_SOURCE_CONTROLLED_HOST",
+      "classification": "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+      "NETWORK_ENFORCEMENT": "Gates nativos RTC/SW identificables; no se ha demostrado proxy exclusivo/DNS/fallback/QUIC conjunto en Windows.",
+      "EXTERNAL_PROTOCOL_ENFORCEMENT": "No primitive de embedding Windows exhaustiva validada en esta revisión; requiere source-level pre-effect deny y canary.",
+      "ENGINE_VERSION_CONTROL": "Source/binary pin y update pipeline propio, no prefs de instalación Firefox del usuario.",
+      "DISTRIBUTION_COST": "Runtime completo y host/automation privado; no profile personal.",
+      "BLOCK05_FEATURE_COMPATIBILITY": "BrowserPort plausible, pero no drop-in API Windows de host aquí verificada; DOM/actions/transfers/takeover rehacer sólo engine layer.",
+      "IMPLEMENTATION_COST": "Muy alto; posible, menos acoplado al stack Chromium conocido.",
+      "EVIDENCE_REQUIRED": [
+        "embedding mantenible en Windows",
+        "proxy/UDP/DNS/QUIC exclusivity",
+        "guard concrete native",
+        "engine-neutral contract compatibility"
+      ],
+      "sources": [
+        "GECKO_PREF",
+        "GECKO_RTC",
+        "GECKO_SW"
+      ]
+    }
+  ]
+}

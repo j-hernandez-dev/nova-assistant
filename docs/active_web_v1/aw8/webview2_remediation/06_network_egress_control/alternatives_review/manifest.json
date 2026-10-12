@@ -1,0 +1,115 @@
+{
+  "task": "BLOCK06_ARCHITECTURE_ALTERNATIVES_REVIEW",
+  "schemaVersion": 1,
+  "evidenceType": "STATIC_ARCHITECTURE_REVIEW_NOT_NATIVE_CERTIFICATION",
+  "evaluatedAt": "2026-10-11",
+  "nativeExecutions": 0,
+  "builds": 0,
+  "productEdits": 0,
+  "normativeArchitectureEdits": 0,
+  "recommendation": "REPLACE_WINDOWS_BROWSER_ENGINE",
+  "recommendationStatus": "PROPOSAL_REQUIRES_HUMAN_AUTHORIZATION_AND_NATIVE_PROOF",
+  "preserved": {
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "PASS",
+    "acceptedBlock05Regression": {
+      "pass": 561,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "rerunThisReview": false
+    },
+    "BLOCK06_ARCHITECTURE": "BLOCKED_ARCHITECTURAL_ENFORCEMENT_LIMIT",
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "controlClass": "HOST_UNISOLATED",
+    "historicalUdfs": {
+      "count": 36,
+      "status": "CLEANUP_UNCONFIRMED",
+      "maintenancePerformed": false
+    }
+  },
+  "reviewedProfile": {
+    "runtime": "154.0.4258.62",
+    "sdk": "1.0.4258.31",
+    "architecture": "X64",
+    "retested": false
+  },
+  "reviewStatus": "COMPLETED_REVIEW_ONLY",
+  "normativeArchitecture": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1_1.md",
+    "sha256": "46ec3201460ba37a6fe47f6cf94e80f0024ec442c9323115a0cf19d64de95e1d",
+    "edited": false,
+    "replacementWouldRequireProspectiveApproval": true
+  },
+  "acceptedCausalEvidence": {
+    "path": "docs/active_web_v1/aw8/webview2_remediation/06_network_egress_control/feasibility/resultados.md",
+    "blocker": "B06-FEAS-NATIVE-RTC-UDP-001",
+    "nativeUDPDatagrams": 4,
+    "protocol": "STUN_NOT_QUIC",
+    "serviceWorkers": "ACTIVE",
+    "reinterpreted": false
+  },
+  "alternatives": {
+    "A": "NOT_PRACTICAL",
+    "A_privilegedWfpOrDebugExemption": "VIOLATES_CURRENT_CONSTRAINTS",
+    "B_stockChromium": "NOT_PRACTICAL",
+    "B_sourceControlledChromium": "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+    "B_qtSourceBuild": "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+    "B_geckoSourceHost": "PLAUSIBLE_REQUIRES_NATIVE_PROOF",
+    "C": "NOT_PRACTICAL",
+    "FixedVersion": "VERSION_STABILITY_ONLY_NOT_EGRESS_FIX"
+  },
+  "recommendedImplementationShape": "Source-controlled CEF/Chromium embedder in a separate private Infrastructure browser-host. No stock-engine certificate, no privileged Desktop renderer/profile reuse.",
+  "noNativeCertifiedAlternatives": true,
+  "nativeProofRequiredBeforeAnyImplementationApproval": [
+    "SW native off",
+    "RTC native off",
+    "all applicable NetworkContexts/socket/DNS gates",
+    "logical redirect/new-origin admission",
+    "broker failure/restart no direct fallback",
+    "standard end-to-end HTTPS",
+    "external OS protocol DENY_ALL",
+    "engine-specific BrowserPort/Block03-05 compatibility"
+  ],
+  "constraintsUnchanged": [
+    "PUBLIC_ONLY",
+    "broker-owned DNS and destination validation",
+    "no useful direct UDP",
+    "SW disabled",
+    "RTC disabled",
+    "QUIC disabled where relevant",
+    "no proxy DIRECT/PAC/WPAD fallback",
+    "no MITM/standard HTTPS validation",
+    "ExternalProtocolGuard pre-effect",
+    "HOST_UNISOLATED only",
+    "no admin",
+    "no global firewall/network/registry policy mutation",
+    "no permanent CA",
+    "local-first"
+  ],
+  "verification": {
+    "method": "Read-only file/schema/reference checks + SHA-256 comparison of full preexisting nonignored repository files",
+    "pytestExecutions": 0,
+    "nativeExecutions": 0,
+    "flagsTested": 0,
+    "installations": 0,
+    "historicalUdfOperations": 0
+  },
+  "artifacts": [
+    "resultados.md",
+    "architecture_alternatives.md",
+    "decision_matrix.json",
+    "os_containment_matrix.json",
+    "engine_matrix.json",
+    "host_mediated_transport.json",
+    "compatibility_map.json",
+    "sources.json",
+    "manifest.json",
+    "integrity.json"
+  ],
+  "forbiddenActionsPerformed": [],
+  "humanReviewStop": true
+}

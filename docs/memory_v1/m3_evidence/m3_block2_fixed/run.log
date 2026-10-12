@@ -1,0 +1,398 @@
+.........................FFF.FF......................................s.s [ 20%]
+........................................................................ [ 41%]
+........................................................................ [ 62%]
+........................................................................ [ 83%]
+...............................................F.......                  [100%]
+================================== FAILURES ===================================
+________ test_host_action_required_and_renderer_scope_cannot_be_forged ________
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_block2_fixed/pytest-private/test_host_action_required_and_0')
+
+    def test_host_action_required_and_renderer_scope_cannot_be_forged(tmp_path):
+        app,sid,actor,audit,work=app_fixture(tmp_path)
+        for bad_actor in (None,object(),'cli_tty',{'host':True}):
+            # Mapping is not a registered opaque identity; never a serialized actor.
+>           result=call(app,sid,bad_actor,'status')
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m3_application.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\memory_v1\test_m3_application.py:38: in call
+    return app.execute_memory(MemoryCommand(cid or new_command_id(),sid,'memory_'+name,args or {},revision),actor=actor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\session.py:1435: in execute_memory
+    return rejected('MEMORY_UNTRUSTED_INPUT')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+code = 'MEMORY_UNTRUSTED_INPUT', unknown = False
+
+    def rejected(code, unknown=False):
+        raw_id=getattr(command,'command_id','')
+>       safe_id=self._redactor.text(raw_id) if isinstance(raw_id,str) else ''
+                ^^^^^^^^^^^^^^
+E       AttributeError: 'AgentSessionCoordinator' object has no attribute '_redactor'. Did you mean: 'redactor'?
+
+local_cli\application\session.py:1421: AttributeError
+_ test_idempotent_write_digest_stale_revision_and_deleted_result_not_cached_content _
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_block2_fixed/pytest-private/test_idempotent_write_digest_s0')
+
+    def test_idempotent_write_digest_stale_revision_and_deleted_result_not_cached_content(tmp_path):
+        app,sid,actor,audit,work=app_fixture(tmp_path)
+        command=MemoryCommand('same-command',sid,'memory_remember',dict(kind='PREFERENCE',text='Synthetic exact action'),0)
+>       first=app.execute_memory(command,actor=actor)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m3_application.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\application\session.py:1448: in execute_memory
+    return rejected('REVISION_CONFLICT')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+code = 'REVISION_CONFLICT', unknown = False
+
+    def rejected(code, unknown=False):
+        raw_id=getattr(command,'command_id','')
+>       safe_id=self._redactor.text(raw_id) if isinstance(raw_id,str) else ''
+                ^^^^^^^^^^^^^^
+E       AttributeError: 'AgentSessionCoordinator' object has no attribute '_redactor'. Did you mean: 'redactor'?
+
+local_cli\application\session.py:1421: AttributeError
+___ test_events_snapshots_audit_and_exception_do_not_log_content_or_secret ____
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x00000238EDA2DD30>
+command = MemoryCommand(command_id='command_5fcc1610bd614608a8a50b24c680eeaf', session_id='ses_defde7caebe74af1838682a7e89dbcba'...member', arguments=mappingproxy({'kind': 'SEMANTIC_FACT', 'text': 'dummy-known-provider-key'}), expected_revision=None)
+actor = <object object at 0x00000238E88A1FE0>
+
+    def execute_memory(self, command, *, actor=None):
+        """Explicit synchronous Application controls, with Core operation terminal.
+    
+        Replies contain requested inspection data; events/snapshots/idempotency
+        entries retain summaries only. Never append memories to transcript or
+        call the model. A receipt here reports a synchronous *observed* outcome.
+        """
+        import hashlib
+        from types import SimpleNamespace
+        from local_cli.application.memory import MemoryCommand, MEMORY_WRITES
+        from local_cli.core.memory import MemoryError
+        from local_cli.core.security_audit import AuditKind
+    
+        def rejected(code, unknown=False):
+            raw_id=getattr(command,'command_id','')
+            safe_id=self._redactor.text(raw_id) if isinstance(raw_id,str) else ''
+            return dict(schemaVersion=1,commandId=safe_id,completed=False,
+                stateRevision=self._session.state_revision if self._session else None,
+                error=dict(code=code,category='MEMORY',message='Memory command could not complete.',
+                           outcomeUnknown=unknown,retryable=False))
+    
+        with self._lock:
+            if not isinstance(command,MemoryCommand):
+                return rejected('MEMORY_UNTRUSTED_INPUT')
+            try: registered=self._memory_actors.get(actor)
+            except TypeError: registered=None
+            try: verified=registered is not None and registered[1]() is True
+            except Exception: verified=False
+            if not verified:
+                return rejected('MEMORY_UNTRUSTED_INPUT')
+            session=self._session
+            if session is None or session.session_id!=command.session_id or session.status!='active':
+                return rejected('INVALID_SESSION')
+            if any(self.redactor.text(v)!=v for v in (command.command_id,command.session_id)):
+                return rejected('MEMORY_UNTRUSTED_INPUT')
+            digest=hashlib.sha256(json.dumps(command.to_dict(),ensure_ascii=False,sort_keys=True,
+                separators=(',',':')).encode('utf-8')).hexdigest()
+            key=(command.session_id,command.command_id)
+            cached=self._memory_receipts.get(key)
+            if cached:
+                return deepcopy(cached[1]) if cached[0]==digest else rejected('IDEMPOTENCY_CONFLICT')
+            if command.expected_revision is not None and command.expected_revision!=session.state_revision:
+                return rejected('REVISION_CONFLICT')
+            if any(not t.done.is_set() for t in session.turns) or any(not a.done.is_set() for a in session.agent_operations.values()):
+                return rejected('CONFLICT_ACTIVE_OPERATION')
+            if self._memory_factory is None:
+                return rejected('MEMORY_UNAVAILABLE')
+            operation=ServiceOperation(new_operation_id(),command.command_id,service='memory')
+            self._service_operations[operation.operation_id]=operation
+            context=SimpleNamespace(session_id=session.session_id,operation_id=operation.operation_id,
+                turn_id=None,agent_id=None,workspace=session.workspace,cwd=session.workspace)
+            invocation=SimpleNamespace(context=context,operation_id=operation.operation_id,
+                tool_call_id=None,name=command.name,arguments={})
+            audit=self.security_audit
+            response=None
+            status=OperationStatus.FAILED
+            try:
+                if audit is not None:
+                    audit.request(invocation,origin='application')
+                    audit.record(invocation,AuditKind.POLICY,dict(decision='EXPLICIT_USER_CONTROL',
+                        actor=registered[0]),origin='application')
+                    audit.before_effect(invocation,origin='application')
+                if self._memory is None:
+                    self._memory=self._memory_factory(session.workspace,self.redactor)
+>               data=self._memory.execute(command.name,command.arguments,workspace=str(session.workspace),
+                    session_id=str(session.session_id),operation_id=str(operation.operation_id),explicit_user_action=True)
+
+local_cli\application\session.py:1470: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\application\memory.py:159: in execute
+    if self.policy.evaluate(proposal,explicit_user_action=explicit_user_action,
+local_cli\application\memory_policy.py:33: in evaluate
+    validate_sensitivity(proposal.sensitivity_class,
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+sensitivity = <MemorySensitivity.SECRET_DENIED: 'SECRET_DENIED'>
+explicit_sensitive_consent = False
+
+    def validate_sensitivity(sensitivity: MemorySensitivity, *, explicit_sensitive_consent: bool = False) -> None:
+        """Necessary contract precondition, NOT the Application WritePolicy.
+    
+        Classification and consent must come from the host; no secret detector or
+        consent inference is implemented. A successful check grants no permission.
+        """
+        _enum(sensitivity, MemorySensitivity)
+        if type(explicit_sensitive_consent) is not bool:
+            raise MemoryError(MemoryErrorCode.INVALID_RECORD)
+        if sensitivity is MemorySensitivity.SECRET_DENIED:
+>           raise MemoryError(MemoryErrorCode.SECRET_DENIED)
+E           local_cli.core.memory.MemoryError: Memory contract validation failed.
+
+local_cli\core\memory.py:295: MemoryError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_block2_fixed/pytest-private/test_events_snapshots_audit_an0')
+
+    def test_events_snapshots_audit_and_exception_do_not_log_content_or_secret(tmp_path):
+        app,sid,actor,audit,work=app_fixture(tmp_path)
+        result=call(app,sid,actor,'remember',dict(kind='PREFERENCE',text='Synthetic private canonical content'))
+        assert result['completed']
+>       secret=call(app,sid,actor,'remember',dict(kind='SEMANTIC_FACT',text='dummy-known-provider-key'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m3_application.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\memory_v1\test_m3_application.py:38: in call
+    return app.execute_memory(MemoryCommand(cid or new_command_id(),sid,'memory_'+name,args or {},revision),actor=actor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\session.py:1478: in execute_memory
+    response=rejected(exc.code,unknown)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+code = 'MEMORY_SECRET_DENIED', unknown = False
+
+    def rejected(code, unknown=False):
+        raw_id=getattr(command,'command_id','')
+>       safe_id=self._redactor.text(raw_id) if isinstance(raw_id,str) else ''
+                ^^^^^^^^^^^^^^
+E       AttributeError: 'AgentSessionCoordinator' object has no attribute '_redactor'. Did you mean: 'redactor'?
+
+local_cli\application\session.py:1421: AttributeError
+_____ test_unavailable_memory_and_revoked_actor_fail_closed_without_store _____
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_block2_fixed/pytest-private/test_unavailable_memory_and_re0')
+
+    def test_unavailable_memory_and_revoked_actor_fail_closed_without_store(tmp_path):
+        app,sid,actor,audit,work=app_fixture(tmp_path)
+        app._memory_factory=None
+>       assert call(app,sid,actor,'status')['error']['code']=='MEMORY_UNAVAILABLE'
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m3_application.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\memory_v1\test_m3_application.py:38: in call
+    return app.execute_memory(MemoryCommand(cid or new_command_id(),sid,'memory_'+name,args or {},revision),actor=actor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\session.py:1452: in execute_memory
+    return rejected('MEMORY_UNAVAILABLE')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+code = 'MEMORY_UNAVAILABLE', unknown = False
+
+    def rejected(code, unknown=False):
+        raw_id=getattr(command,'command_id','')
+>       safe_id=self._redactor.text(raw_id) if isinstance(raw_id,str) else ''
+                ^^^^^^^^^^^^^^
+E       AttributeError: 'AgentSessionCoordinator' object has no attribute '_redactor'. Did you mean: 'redactor'?
+
+local_cli\application\session.py:1421: AttributeError
+_ test_security_audit_failure_denies_before_effect_or_retains_observed_write[pre] _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x00000238EDA2E510>
+command = MemoryCommand(command_id='command_68843506fda040e0aed4cd159c1672e4', session_id='ses_70e21eb6b7e34b819717830709389224'... arguments=mappingproxy({'kind': 'PREFERENCE', 'text': 'Synthetic durable despite audit gap'}), expected_revision=None)
+actor = <object object at 0x00000238E88A32A0>
+
+    def execute_memory(self, command, *, actor=None):
+        """Explicit synchronous Application controls, with Core operation terminal.
+    
+        Replies contain requested inspection data; events/snapshots/idempotency
+        entries retain summaries only. Never append memories to transcript or
+        call the model. A receipt here reports a synchronous *observed* outcome.
+        """
+        import hashlib
+        from types import SimpleNamespace
+        from local_cli.application.memory import MemoryCommand, MEMORY_WRITES
+        from local_cli.core.memory import MemoryError
+        from local_cli.core.security_audit import AuditKind
+    
+        def rejected(code, unknown=False):
+            raw_id=getattr(command,'command_id','')
+            safe_id=self._redactor.text(raw_id) if isinstance(raw_id,str) else ''
+            return dict(schemaVersion=1,commandId=safe_id,completed=False,
+                stateRevision=self._session.state_revision if self._session else None,
+                error=dict(code=code,category='MEMORY',message='Memory command could not complete.',
+                           outcomeUnknown=unknown,retryable=False))
+    
+        with self._lock:
+            if not isinstance(command,MemoryCommand):
+                return rejected('MEMORY_UNTRUSTED_INPUT')
+            try: registered=self._memory_actors.get(actor)
+            except TypeError: registered=None
+            try: verified=registered is not None and registered[1]() is True
+            except Exception: verified=False
+            if not verified:
+                return rejected('MEMORY_UNTRUSTED_INPUT')
+            session=self._session
+            if session is None or session.session_id!=command.session_id or session.status!='active':
+                return rejected('INVALID_SESSION')
+            if any(self.redactor.text(v)!=v for v in (command.command_id,command.session_id)):
+                return rejected('MEMORY_UNTRUSTED_INPUT')
+            digest=hashlib.sha256(json.dumps(command.to_dict(),ensure_ascii=False,sort_keys=True,
+                separators=(',',':')).encode('utf-8')).hexdigest()
+            key=(command.session_id,command.command_id)
+            cached=self._memory_receipts.get(key)
+            if cached:
+                return deepcopy(cached[1]) if cached[0]==digest else rejected('IDEMPOTENCY_CONFLICT')
+            if command.expected_revision is not None and command.expected_revision!=session.state_revision:
+                return rejected('REVISION_CONFLICT')
+            if any(not t.done.is_set() for t in session.turns) or any(not a.done.is_set() for a in session.agent_operations.values()):
+                return rejected('CONFLICT_ACTIVE_OPERATION')
+            if self._memory_factory is None:
+                return rejected('MEMORY_UNAVAILABLE')
+            operation=ServiceOperation(new_operation_id(),command.command_id,service='memory')
+            self._service_operations[operation.operation_id]=operation
+            context=SimpleNamespace(session_id=session.session_id,operation_id=operation.operation_id,
+                turn_id=None,agent_id=None,workspace=session.workspace,cwd=session.workspace)
+            invocation=SimpleNamespace(context=context,operation_id=operation.operation_id,
+                tool_call_id=None,name=command.name,arguments={})
+            audit=self.security_audit
+            response=None
+            status=OperationStatus.FAILED
+            try:
+                if audit is not None:
+                    audit.request(invocation,origin='application')
+                    audit.record(invocation,AuditKind.POLICY,dict(decision='EXPLICIT_USER_CONTROL',
+                        actor=registered[0]),origin='application')
+>                   audit.before_effect(invocation,origin='application')
+
+local_cli\application\session.py:1467: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.security_audit.SecurityAuditService object at 0x00000238EDBE5370>
+invocation = namespace(context=namespace(session_id='ses_70e21eb6b7e34b819717830709389224', operation_id='op_a5b6df818d314970ab26de...kspace')), operation_id='op_a5b6df818d314970ab26de91c77050b8', tool_call_id=None, name='memory_remember', arguments={})
+parents = None, origin = 'application'
+
+    def before_effect(self, invocation, *, parents=None, origin=None):
+        with self._lock:
+            key = (invocation.context.session_id, invocation.operation_id)
+            try:
+                # Optional for explicit old fixture ports; production OD-05
+                # implements this check for every current ExecutionContext.
+                validate = getattr(self.port, 'validate_workspace', None)
+                if validate is not None:
+                    validate(str(invocation.context.workspace))
+            except Exception:
+                self._failed(invocation)
+                raise SecurityAuditError('SECURITY_AUDIT_PRE_EFFECT_FAILED') from None
+            delivered = self.record(invocation, AuditKind.DISPATCH, {
+                'observationScope': 'dispatch_requested_not_proof_of_effect'}, parents=parents, origin=origin)
+            if delivered and key not in self._lost_operations:
+                try:
+                    self.port.flush()
+                    return
+                except Exception:
+                    self._failed(invocation)
+>           raise SecurityAuditError('SECURITY_AUDIT_PRE_EFFECT_FAILED')
+E           local_cli.core.security_audit.SecurityAuditError: SECURITY_AUDIT_PRE_EFFECT_FAILED
+
+local_cli\application\security_audit.py:64: SecurityAuditError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m3_block2_fixed/pytest-private/test_security_audit_failure_de0')
+phase = 'pre'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000238EDB75F30>
+
+    @pytest.mark.parametrize('phase',['pre','post'])
+    def test_security_audit_failure_denies_before_effect_or_retains_observed_write(tmp_path,phase,monkeypatch):
+        app,sid,actor,audit,work=app_fixture(tmp_path)
+        original_flush=audit.flush
+        calls=[]
+        def broken_flush():
+            calls.append(1)
+            if phase=='pre' or len(calls)==2: raise OSError('dummy-known-provider-key')
+            original_flush()
+        monkeypatch.setattr(audit,'flush',broken_flush)
+>       result=call(app,sid,actor,'remember',dict(kind='PREFERENCE',text='Synthetic durable despite audit gap'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m3_application.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\memory_v1\test_m3_application.py:38: in call
+    return app.execute_memory(MemoryCommand(cid or new_command_id(),sid,'memory_'+name,args or {},revision),actor=actor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\application\session.py:1478: in execute_memory
+    response=rejected(exc.code,unknown)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+code = 'SECURITY_AUDIT_PRE_EFFECT_FAILED', unknown = False
+
+    def rejected(code, unknown=False):
+        raw_id=getattr(command,'command_id','')
+>       safe_id=self._redactor.text(raw_id) if isinstance(raw_id,str) else ''
+                ^^^^^^^^^^^^^^
+E       AttributeError: 'AgentSessionCoordinator' object has no attribute '_redactor'. Did you mean: 'redactor'?
+
+local_cli\application\session.py:1421: AttributeError
+__________ test_domain_dependency_direction_and_zero_runtime_wiring ___________
+
+    def test_domain_dependency_direction_and_zero_runtime_wiring():
+        core_path = ROOT / 'local_cli/core/memory.py'
+        tree = ast.parse(core_path.read_text(encoding='utf-8'))
+        imports = [n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module]
+        imports += [alias.name for n in ast.walk(tree) if isinstance(n, ast.Import) for alias in n.names]
+        assert not any(name.startswith(('local_cli.application', 'local_cli.infrastructure',
+            'sqlite3', 'urllib', 'requests', 'local_cli.providers')) for name in imports)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                name = node.func.id if isinstance(node.func, ast.Name) else node.func.attr if isinstance(node.func, ast.Attribute) else ''
+                assert name not in {'open', 'connect', 'read_text', 'write_text', 'resolve', 'getcwd', 'chdir', 'getenv'}
+        # Only the unused Application boundary imports MEMORY. No feature wiring.
+        for name in ('local_cli/application/session.py', 'local_cli/core/runtime.py',
+                     'local_cli/bootstrap_cli.py', 'local_cli/bootstrap_server.py',
+                     'local_cli/cli.py', 'local_cli/server.py'):
+            content = (ROOT / name).read_text(encoding='utf-8')
+>           assert 'local_cli.core.memory' not in content and 'memory_admission' not in content
+E           assert ('local_cli.core.memory' not in '"""Single A...t(timeout)\n'
+E             
+E             'local_cli.core.memory' is contained here:
+E                    from local_cli.core.memory import MemoryError
+E                       from local_cli.core.security_audit import AuditKind
+E               
+E                       def rejected(code, unknown=False):
+E                           raw_id=getattr(command,'command_id','')...
+E             
+E             ...Full output truncated (226 lines hidden), use '-vv' to show)
+
+tests\memory_v1\test_m1_admission_ports.py:198: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/memory_v1/test_m3_application.py::test_host_action_required_and_renderer_scope_cannot_be_forged
+FAILED tests/memory_v1/test_m3_application.py::test_idempotent_write_digest_stale_revision_and_deleted_result_not_cached_content
+FAILED tests/memory_v1/test_m3_application.py::test_events_snapshots_audit_and_exception_do_not_log_content_or_secret
+FAILED tests/memory_v1/test_m3_application.py::test_unavailable_memory_and_revoked_actor_fail_closed_without_store
+FAILED tests/memory_v1/test_m3_application.py::test_security_audit_failure_denies_before_effect_or_retains_observed_write[pre]
+FAILED tests/memory_v1/test_m1_admission_ports.py::test_domain_dependency_direction_and_zero_runtime_wiring
+6 failed, 335 passed, 2 skipped in 27.89s

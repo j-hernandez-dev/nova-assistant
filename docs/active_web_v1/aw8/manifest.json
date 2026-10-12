@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW8",
+  "verdict": "BLOCKED",
+  "phaseTitle": "E2E y certificación",
+  "timestamp": "2026-10-09 21:42:58 UTC",
+  "normative": {
+    "path": "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md",
+    "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+    "phaseSection": "§35 AW8",
+    "noStandaloneClosureSentence": true,
+    "closureEvaluation": "Nine required AW8 items, constrained by §§3.2/18/23/25/33 and §37.30; no invented gate/threshold",
+    "requiredWorkflow": "current AgentLoop → ToolRegistry → ToolRuntime/Policy/Approval/Grant → BrowserRuntime → receipt/audit",
+    "noK8SCFReuse": true
+  },
+  "baseline": {
+    "head": "b0bf60f91956e4a5c17af02be5a6e241ec0363a7",
+    "branch": "main",
+    "initialWorkingTree": " M .github/workflows/nova_knowledge_v1.yml\n M ci/README.md\n M ci/contract_inventory.py\n M ci/pytest_contracts.json\n M ci/run_contracts.py\n M desktop/electron/application_client.ts\n M desktop/shared/application.ts\n M desktop/src/App.tsx\n M local_cli/application/legacy_event_bridge.py\n M local_cli/application/security_audit.py\n M local_cli/application/session.py\n M local_cli/application/tool_runtime.py\n M local_cli/core/contracts.py\n M local_cli/interfaces/cli_application.py\n M pyproject.toml\n?? .github/workflows/nova_active_web_v1.yml\n?? desktop/tests/active_web.test.cjs\n?? docs/active_web_v1/\n?? docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md\n?? docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md\n?? local_cli/application/active_web.py\n?? local_cli/application/browser_actions.py\n?? local_cli/application/browser_network.py\n?? local_cli/application/browser_observation.py\n?? local_cli/application/browser_projection.py\n?? local_cli/application/browser_takeover.py\n?? local_cli/application/browser_transfers.py\n?? local_cli/core/active_web.py\n?? local_cli/core/active_web_lifecycle.py\n?? local_cli/core/active_web_network.py\n?? local_cli/core/active_web_observation.py\n?? local_cli/core/active_web_policy.py\n?? local_cli/core/active_web_transfers.py\n?? local_cli/infrastructure/active_web/\n?? tests/active_web_v1/\n",
+    "stagingEmpty": true,
+    "repositoryFilePins": 2292,
+    "fullFreeze": "docs/active_web_v1/aw8/baseline_freeze.json",
+    "python": "3.14.6",
+    "basePython": "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "validationPython": "C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe",
+    "pytest": "9.1.1",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "filesystem": "C: fixed local NTFS",
+    "controlClass": "HOST_UNISOLATED",
+    "priorAW7": {
+      "verdict": "PASS",
+      "manifest": "docs/active_web_v1/aw7/manifest.json",
+      "sha256": "68460552d16b664a850146b477d02d7c996fd927735e98b30b72b41be499fa37",
+      "preserved": true
+    },
+    "tags": [
+      "97f41c6dab89ee59332875bb8d89c29620b52156 refs/tags/nova-core-v1-stable",
+      "a26a94ebfb2db44551097f1641eec6706b52c101 refs/tags/nova-knowledge-inputs-v1-ready",
+      "fa6b2f7898692ddc6cec77a4d971dbc395b764a6 refs/tags/nova-memory-v1-ready",
+      "6a48c5252e40986ecf4180138d9d56bc519b3e49 refs/tags/nova-memory-v1.1-ready",
+      "e5bea6a4c2c559a1f5a2f8824316a83b548b2533 refs/tags/nova-security-v1.2-ready"
+    ]
+  },
+  "blockers": [
+    {
+      "id": "AW8-PREFLIGHT-001",
+      "classification": "PRODUCT_INTEGRATION_GAP",
+      "required": "§§3.2/15/23 current AgentLoop → productive browser tools → ToolRuntime/Policy",
+      "observed": "get_default_tools and normal Application composition register no browser_* tools; active_web_factory is optional host seam with no productive caller. Native fixtures use ContractOnlyBrowserTool and private host plans, not a shipping model/tool bridge.",
+      "evidence": [
+        "local_cli/tools/__init__.py:get_default_tools",
+        "local_cli/application/session.py:_start_session",
+        "tests/active_web_v1/test_aw3_policy.py:ContractOnlyBrowserTool",
+        "preflight_runtime.json:productiveBrowserTools=[]"
+      ],
+      "impact": "Cannot certify product multi-step browser E2E by relabeling synthetic host composition as productive AgentLoop."
+    },
+    {
+      "id": "AW8-PREFLIGHT-002",
+      "classification": "CERTIFICATION_PREREQUISITE_UNKNOWN",
+      "required": "§18.2–3/§25/AW-INV-007–008,027: availability only after engine + exclusive PUBLIC_ONLY broker proof",
+      "observed": "Native engine KNOWN; networkBroker KNOWN(true), but publicOnly and available UNKNOWN by current capability implementation. Basic denied-loopback broker probe is not complete engine-exclusive egress proof.",
+      "evidence": [
+        "local_cli/infrastructure/active_web/playwright_adapter.py:capabilities",
+        "local_cli/infrastructure/active_web/capability_probe.py:probe_browser_broker",
+        "preflight_runtime.json:realInstalledEngineCapabilities"
+      ],
+      "impact": "Must not force availability, silently downgrade mediation, or advertise browser tools based on installed Chromium. No actual network bypass has been demonstrated."
+    }
+  ],
+  "phaseCriteria": [
+    {
+      "requirement": "real browser deterministic tasks",
+      "result": "BLOCKED",
+      "reason": "Installed real engine/component tests available, but product tool surface/capability prerequisites absent"
+    },
+    {
+      "requirement": "multi-step",
+      "result": "BLOCKED",
+      "reason": "No productive browser_* tool path in existing AgentLoop; do not relabel test-only descriptors/private host plans as productive E2E"
+    },
+    {
+      "requirement": "stale refs",
+      "result": "NOT_EVALUATED",
+      "existingEvidence": "Passing AW5–7 native/component tests preserved; not a new AW8 campaign"
+    },
+    {
+      "requirement": "approval",
+      "result": "NOT_EVALUATED",
+      "existingEvidence": "ToolRuntime/host exact approval component tests preserved"
+    },
+    {
+      "requirement": "unknown outcome",
+      "result": "NOT_EVALUATED",
+      "existingEvidence": "Native timeout/cancel/no-retry component contracts preserved"
+    },
+    {
+      "requirement": "network denial",
+      "result": "PARTIAL",
+      "reason": "Real productive broker denied loopback, but complete exclusive engine mediation/publicOnly proof UNKNOWN"
+    },
+    {
+      "requirement": "download/upload",
+      "result": "NOT_EVALUATED",
+      "existingEvidence": "AW6 native component contracts preserved; no AW8 product campaign"
+    },
+    {
+      "requirement": "manual takeover boundary",
+      "result": "NOT_EVALUATED",
+      "existingEvidence": "AW6 native opaque host boundary preserved; no real human/credentials claim"
+    },
+    {
+      "requirement": "cleanup",
+      "result": "PASS_PREFLIGHT_ONLY",
+      "reason": "Native preflight context/worker/broker cleanup confirmed; does not substitute complete AW8 cleanup campaign"
+    }
+  ],
+  "reused": [
+    "BrowserSessionManager / BrowserPort",
+    "BrowserObservationService opaque refs/projection",
+    "BrowserActions / BrowserPolicyEngine",
+    "ToolRuntime / Policy / ApprovalGate / GrantIssuer",
+    "BrowserEgressBroker / BrowserNetworkPolicy",
+    "PlaywrightBrowserAdapter installed native Chromium",
+    "BrowserTransferService / BrowserDownloadStaging / LocalHostFileAcquisition",
+    "BrowserTakeoverService opaque host actor",
+    "BrowserFrontendBinding / SessionCoordinator / EventStream / SecurityAudit"
+  ],
+  "changes": {
+    "product": [],
+    "tests": [],
+    "ci": [],
+    "repositoryHarness": [],
+    "architecture": [],
+    "newEvidence": [
+      "docs/active_web_v1/aw8/baseline_freeze.json",
+      "docs/active_web_v1/aw8/preflight.json",
+      "docs/active_web_v1/aw8/preflight_runtime.json",
+      "docs/active_web_v1/aw8/resultados.md",
+      "docs/active_web_v1/aw8/tests_integrity.json",
+      "docs/active_web_v1/aw8/manifest.json"
+    ],
+    "newSkips": 0,
+    "newXfails": 0,
+    "newExclusions": 0,
+    "newOutcomeRetries": 0
+  },
+  "tests": {
+    "scope": "Preflight only; no AW8 final campaign",
+    "runs": [
+      {
+        "name": "baseline",
+        "xml": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-20261009213551Z/baseline/tests.xml",
+        "sha256": "a02622e25650038a28f1df1f4b89b4ca4e8cb2f8caf3eb753ba8878326409cdd",
+        "denominator": 173,
+        "passed": 172,
+        "failed": [
+          "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available"
+        ],
+        "errors": [],
+        "skips": [],
+        "suite": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "1",
+            "skipped": "0",
+            "tests": "173",
+            "time": "39.821",
+            "timestamp": "2026-10-09T15:36:39.616493-06:00",
+            "hostname": "WINDEV-SPACE"
+          }
+        ],
+        "exitCode": 1
+      },
+      {
+        "name": "missing-tool-contract",
+        "xml": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-20261009213551Z/missing-tool-contract/tests.xml",
+        "sha256": "d3ff767a7eb1383b09bc5f3adec3f5e91cc9a362573771956c6c8c45f6a2f8fc",
+        "denominator": 1,
+        "passed": 1,
+        "failed": [],
+        "errors": [],
+        "skips": [],
+        "suite": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "0",
+            "tests": "1",
+            "time": "0.499",
+            "timestamp": "2026-10-09T15:39:49.962792-06:00",
+            "hostname": "WINDEV-SPACE"
+          }
+        ],
+        "exitCode": 0
+      }
+    ],
+    "exactCommands": "docs/active_web_v1/aw8/tests_integrity.json",
+    "baselineExitCode": 1,
+    "baselineTotals": {
+      "denominator": 173,
+      "passed": 172,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "missingToolContract": {
+      "denominator": 1,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "meaning": "Correct fail-closed denial of unimplemented browser_open, not functional browser_open support"
+    },
+    "inventory": {
+      "result": "PASS",
+      "functions": 4018,
+      "unclassified": 0,
+      "productTestsExecuted": 0,
+      "inference": 0
+    },
+    "nativePreflight": "docs/active_web_v1/aw8/preflight_runtime.json",
+    "completeRegressionsNotRepeated": "No product/test/CI/harness changes; stop at prerequisite gap. AW7 current full regression evidence remains intact, not re-scored or represented as new AW8 run."
+  },
+  "failureClassification": {
+    "core": {
+      "nodeid": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+      "classification": "PREEXISTING_CORE_HARNESS_DEBT",
+      "stillFail": true,
+      "aw8BlockingCause": false,
+      "noChangeToProductTestRunnerAssertion": true
+    },
+    "diagnosticImport": {
+      "classification": "HARNESS_BUG",
+      "source": "One-off external diagnostic command",
+      "beforeBrowserOrInference": true,
+      "retained": "preflight_runtime.json:harnessInitialFailure",
+      "notProductFailure": true
+    }
+  },
+  "integrity": {
+    "repositoryDrift": [],
+    "historicalExternalArtifactCount": 288,
+    "historicalExternalDrift": [],
+    "unexpectedNewFiles": [],
+    "headUnchanged": true,
+    "tagsUnchanged": true,
+    "staged": "",
+    "priorAW7PinsUnchanged": true,
+    "allHistoricalCertificationsPreserved": true,
+    "source": "docs/active_web_v1/aw8/tests_integrity.json"
+  },
+  "evidenceReferences": {
+    "docs/active_web_v1/aw8/baseline_freeze.json": {
+      "sha256": "3cd3e85692a5a4889ea6d019902a7bee1ba318fc0859684d7f511d2b1733d05c",
+      "bytes": 298565
+    },
+    "docs/active_web_v1/aw8/preflight.json": {
+      "sha256": "4390e379b10b2d354cd9a0b1a596d27d1f7d86b330734e839560a8e10469eac3",
+      "bytes": 6043
+    },
+    "docs/active_web_v1/aw8/preflight_runtime.json": {
+      "sha256": "5a988ca7820f851eba8623cee7bcb1514cd4d98d0bbc7225ce98d4c858d83ae7",
+      "bytes": 9502
+    },
+    "docs/active_web_v1/aw8/resultados.md": {
+      "sha256": "19073478364440ace63d559860a9d68b39f7286940c8e96486112f8f4cdf31c9",
+      "bytes": 9432
+    },
+    "docs/active_web_v1/aw8/tests_integrity.json": {
+      "sha256": "bbb1652b6ad34140100165c697189401f39eaf913d30f86bdc8406e3e41f9f1f",
+      "bytes": 3696
+    },
+    "docs/active_web_v1/aw7/manifest.json": {
+      "sha256": "68460552d16b664a850146b477d02d7c996fd927735e98b30b72b41be499fa37",
+      "bytes": 26865
+    },
+    "docs/architecture/NOVA_ACTIVE_WEB_ARQUITECTURA_V1.md": {
+      "sha256": "e09eb2d7bfe8da8becec79f557c84db3696e8b8abff80e2a3286bf71ac5a098e",
+      "bytes": 42669
+    },
+    "docs/architecture/AUDITORIA_ACTIVE_WEB_NOVA_V1.md": {
+      "sha256": "ee2a03ad2b887c2add4a5eac9402112edf3362d1e11118388cba9b268a405285",
+      "bytes": 69406
+    },
+    "docs/active_web_v1/audit/findings.json": {
+      "sha256": "c81d8a9279cd7a7aec74a78fb5e805d0a0c93b8b034db32c5f4c66d0100d2a1d",
+      "bytes": 87080
+    },
+    "local_cli/tools/__init__.py": {
+      "sha256": "69c9f5d7f6aa661e3559bd60c27ea70cbe2f27cfa6ccc85f3b1563ffd7b67408",
+      "bytes": 4841
+    },
+    "local_cli/application/session.py": {
+      "sha256": "c140898b82210e6e2018d8efcbf1f40702cda9102e43fc2daad1629e31ceb50f",
+      "bytes": 130651
+    },
+    "local_cli/application/browser_actions.py": {
+      "sha256": "5e7fa503dc5605223ef63e899d8840b29cacf8d0450765c4a98eb2d264fdf519",
+      "bytes": 19701
+    },
+    "local_cli/infrastructure/active_web/playwright_adapter.py": {
+      "sha256": "5baf7ec9e669de2ebf3263cfd990cc80f422a79d9667e0d2776fa89230407da5",
+      "bytes": 30109
+    },
+    "local_cli/infrastructure/active_web/capability_probe.py": {
+      "sha256": "9530f60a2b37c336fe1f6c2dc08be92267f71e1cdc5bc7e168e248e6e963a86a",
+      "bytes": 2382
+    },
+    "tests/active_web_v1/test_aw3_policy.py": {
+      "sha256": "1bfd4a8b4b874f6c8de24a1ee00ca44cb64bc79ba1eee3efa1f590f12ce83ddd",
+      "bytes": 31950
+    }
+  },
+  "runtimeBoundary": {
+    "actualEngine": "PLAYWRIGHT_CHROMIUM 153.0.8010.12 / Playwright1.63.0",
+    "networkBroker": "KNOWN true",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "productiveBrowserTools": [],
+    "productiveAdmissionNotSubstitutedInCapabilityProbe": true,
+    "nativeCleanupConfirmed": true,
+    "defaultApplicationProvider": "No-model-inference object; only StartSession/snapshot characterization, not LLM quality",
+    "noInstalledModelsEvaluated": true,
+    "noModelInference": true,
+    "noPublicSiteDependency": true,
+    "noGlobalConfigChange": true,
+    "noDownloads": true,
+    "outputRoot": "C:/Users/joseh/AppData/Local/Temp/nova-aw8-20261009213551Z",
+    "basetempOutsideGit": true
+  },
+  "normativeContradiction": false,
+  "openNormativeDecisions": [],
+  "materialPrerequisiteGap": true,
+  "phaseVerdictRationale": "Required productive E2E/certification cannot be demonstrated against current capability-gated product. Stop rather than force UNKNOWN, bypass authority or substitute test-only host composition.",
+  "resumptionRequirements": [
+    "Bounded productive browser composition/capability-gated tool surface through the existing AgentLoop and ToolRuntime",
+    "Real host-scoped proof of exclusive PUBLIC_ONLY engine mediation and truthful capability discovery",
+    "Then independent AW8 tasks/corpus/freeze, never K8/SCF"
+  ],
+  "claims": {
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY",
+    "activeWebAvailable": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "control": "HOST_UNISOLATED",
+    "globalReady": "NOT_DECLARED",
+    "visionProfile": "NOT_CERTIFIED",
+    "persistentSessionProfile": "NOT_CERTIFIED",
+    "memorySemanticProfile": "NOT_CERTIFIED"
+  },
+  "noFurtherPhase": true,
+  "noCommitPushTagRelease": true,
+  "stopForHumanReview": true
+}

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "category": "READ_ONLY_PREFLIGHT_NO_TEST_EXECUTION",
+  "executed": 0,
+  "pass": null,
+  "fail": null,
+  "error": null,
+  "skip": null,
+  "newXfails": 0,
+  "phases": {
+    "A": {
+      "status": "NOT_RUN",
+      "reason": "Stop before implementation pending contract reconciliation."
+    },
+    "B": {
+      "status": "NOT_RUN",
+      "denominatorPlanned": 24,
+      "reason": "Existing direct terminal-retire/terminal-checkpoint setup contradicts the requested terminal provenance."
+    },
+    "C": {
+      "status": "NOT_RUN",
+      "denominatorPlanned": 15,
+      "originalScenariosByteIntact": true
+    },
+    "D": {
+      "status": "NOT_RUN",
+      "denominatorPlanned": 33
+    },
+    "E": {
+      "status": "NOT_RUN",
+      "historicalPlanned": 396,
+      "policyPlanned": 24,
+      "newOrderingTests": "NOT_CREATED; total not measured"
+    }
+  },
+  "staticEvidence": [
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-retire]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:44",
+      "proof": "Two Input(...commit=false) calls, then Retire, then State(longValue,true). No terminal snapshot, terminal event, generation/revision or ack is supplied.",
+      "conflict": "New requirement 8 prohibits Retire committing an arbitrary last current solely due to retirement.",
+      "kind": "DIRECT_INCOMPATIBILITY"
+    },
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[terminal-checkpoint]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:48",
+      "proof": "Two Input(...commit=false) calls, then parameterless Checkpoint, then State(longValue,true).",
+      "conflict": "Requirements 7/9 demand explicitly observed terminal snapshot + revision/generation/ack, not lookup of whatever pending contains.",
+      "kind": "DIRECT_INCOMPATIBILITY"
+    },
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[history-clear]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:52",
+      "proof": "Intermediate editing values then parameterless Checkpoint; verifies all historical values protected and ordinary page text preserved.",
+      "conflict": "No terminal snapshot supplied to updated live-checkpoint semantics; preparation needs reconciliation, security assertions must remain.",
+      "kind": "PREPARATION_DEPENDENCY"
+    },
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-retire-denied]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:58",
+      "proof": "Only uncommitted short Input, then expects Retire denial.",
+      "conflict": "New requirement 8 permits preserving buffers as TRANSIENT without a terminal. To test true committed-short denial prospectively, a real explicit terminal must be supplied; no claim that this assertion necessarily fails under every allowed conservative implementation.",
+      "kind": "TERMINAL_MEANING_AMBIGUITY"
+    },
+    {
+      "testId": "native/nova-browser-host/tests/test_transient_sensitive_policy.py::test_bounded_transient_policy_contract[short-checkpoint-denied]",
+      "source": "native/nova-browser-host/tests/transient_policy_runner/Program.cs:60",
+      "proof": "Only uncommitted short Input then parameterless Checkpoint denial.",
+      "conflict": "The inverse security test must demonstrate an observed true terminal snapshot, not generic missing-checkpoint evidence or arbitrary pending.",
+      "kind": "TERMINAL_MEANING_AMBIGUITY"
+    }
+  ],
+  "historicalVerdictsReclassified": false,
+  "noBuildOrNativeProcessStarted": true,
+  "historicalReferences": {
+    "c06": "../continuation_06_failure_reason/manifest.json",
+    "c05": "../continuation_05_reproducibility/manifest.json"
+  }
+}

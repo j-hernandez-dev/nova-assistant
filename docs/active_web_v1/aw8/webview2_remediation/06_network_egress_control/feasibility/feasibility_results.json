@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "phase": "BLOCK06_ARCHITECTURE_FEASIBILITY",
+  "BLOCK06_ARCHITECTURE": "BLOCKED_ARCHITECTURAL_ENFORCEMENT_LIMIT",
+  "scope": "Limit of the evaluated certified-profile candidate and audited native mechanisms in SDK/runtime 1.0.4258.31 / 154.0.4258.62 X64; not a theorem about every hypothetical WebView2 configuration.",
+  "decisionsAccepted": {
+    "B06_REVIEW_001": "CONDITIONALLY_APPROVED_CERTIFIED_ENGINE_PROFILE",
+    "B06_REVIEW_002": "NATIVE_FEASIBILITY_PROOF_REQUIRED",
+    "B06_REVIEW_003": "APPROVED_DUAL_LOGICAL_AND_PHYSICAL_ENFORCEMENT"
+  },
+  "results": {
+    "ENGINE_PROFILE_IDENTITY": "PASS_SCOPED_IDENTITY_ONLY",
+    "PROXY_EXCLUSIVITY": "FAIL",
+    "DESTINATION_DNS_ONLY_AT_BROKER": "INCONCLUSIVE",
+    "SERVICE_WORKER_SUPPRESSION": "FAIL",
+    "WEBRTC_SUPPRESSION": "FAIL",
+    "QUIC_DIRECT_UDP_SUPPRESSION": "FAIL",
+    "QUIC_SPECIFIC_SUPPRESSION": "INCONCLUSIVE",
+    "LOGICAL_ORIGIN_ADMISSION": "INCONCLUSIVE",
+    "HTTPS_FEASIBILITY": "NOT_DEMONSTRATED",
+    "PROXY_AUTH_BOOTSTRAP": "INCONCLUSIVE",
+    "FIXED_VERSION_APP_LOCAL": "TECHNICALLY_COMPATIBLE_CONDITIONAL_FUTURE_DECISION"
+  },
+  "blocker": {
+    "id": "B06-FEAS-NATIVE-RTC-UDP-001",
+    "channel": "WebRTC ICE/STUN direct UDP to controlled loopback canary, outside HTTP proxy",
+    "nativeRun": "secure-suppression-v4",
+    "secureContext": true,
+    "peerConnectionConstructed": true,
+    "dataChannelCreated": true,
+    "offerCreated": true,
+    "stunDatagrams": 4,
+    "packetBytesEach": 20,
+    "sourcePort": 64470,
+    "ownedUtilityPid": 35476,
+    "ownedBrowserPid": 9860,
+    "hostPid": 35864,
+    "pidPortMatches": [
+      {
+        "ms": 2052.345,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2117.178,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2182.053,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2246.925,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2311.536,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2376.604,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2443.814,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2509.329,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2574.989,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2640.158,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2705.954,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2770.633,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2835.222,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2899.876,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 2966.647,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 3031.649,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 3098.925,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 3163.346,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 3228.459,
+        "sourcePort": 64470,
+        "pid": 35476
+      },
+      {
+        "ms": 3293.379,
+        "sourcePort": 64470,
+        "pid": 35476
+      }
+    ],
+    "nativeLogCorrelation": {
+      "kind": "UDP_BYTES_SENT",
+      "sourceId": 44,
+      "count": 4,
+      "endpointRole": "LOOPBACK"
+    },
+    "proxyDoesNotObserveOrMediateTheseDatagrams": true,
+    "noNativeWebRtcOffPrimitiveVerified": true,
+    "notAQuicClaim": "These packets are positively identified STUN, not HTTP3/QUIC.",
+    "reason": "Normative WebRTC-disabled and no relevant direct UDP requirements are contradicted by an owned native process in a valid secure context. IP-handling switch/readback is insufficient; no OS/global firewall or JS wrapper substituted."
+  },
+  "serviceWorkerCounterexample": {
+    "run": "secure-suppression-v4",
+    "nativeFilter": "WebResourceRequested '*' All contexts + All source kinds, deny Service-Worker script header or ServiceWorker source",
+    "context": "WebView2 virtual-host mapped HTTPS controlled context; no TLS error needed",
+    "actual": {
+      "registration": true,
+      "active": true,
+      "importExecuted": true,
+      "reloadControlled": true,
+      "cacheResponse": true,
+      "nativeRegistrations": 1,
+      "workerBlocks": 0
+    },
+    "limitation": "Mapped resource route did not emit the blocking callback for these script loads. This refutes exhaustive SW-off for this candidate; it does not prove that remote network script blocking can never work.",
+    "workerFetchExercise": "Fixed worker calls fetch on execution and when serving cache; network counters do not certify external egress because these resources were mapped locally."
+  },
+  "unprovenAreas": {
+    "HTTP_HTTPS": "First auth NavigationCompleted failure was consumed before auth-triggered renavigation; navigation helper is not NavigationId-correlated. No positive end-to-end renderer/TLS proof. Do not attribute these failures to product.",
+    "logicalAdmission": "Native URL and frame denials observed, but redirects/second origin/reuse/coalescing not successfully exercised. No overall PASS.",
+    "dns": "Calibrated UDP canary was not system resolver. Native netlog+snapshot metadata are insufficient to exclude all useful DNS.",
+    "proxyAuth": "One exact proxy challenge received credentials in candidate-v3, none exposed to site; destination auth challenge test did not reach fixture, so isolation is not fully proven.",
+    "quic": "Kestrel/MsQuic capability present; Alt-Svc page did not successfully load through authenticated proxy. No separate QUIC PASS from UDP silence.",
+    "TLS": "Exact fixture-pin mechanism coded test-only; no successful validation callback/rendered response observed. Not a certificate-validation or trusted-HTTPS PASS."
+  },
+  "stopReason": "Concrete normative essential-channel violation demonstrated; no further profile changes/hardening/probes authorized by this result.",
+  "states": {
+    "WEBVIEW2_REMEDIATION_BLOCK_05_FINAL": "PASS",
+    "SAFE_TO_ADVANCE_TO_BLOCK_06": true,
+    "networkEgressControl": "UNKNOWN",
+    "publicOnly": "UNKNOWN",
+    "available": "UNKNOWN",
+    "AW8": "BLOCKED",
+    "ACTIVE_WEB_CORE": "NOT_READY"
+  },
+  "productModified": false,
+  "block07": false,
+  "aw8E2E": false
+}

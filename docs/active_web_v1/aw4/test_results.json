@@ -1,0 +1,907 @@
+{
+  "schemaVersion": 1,
+  "phase": "AW4",
+  "externalOutputRoot": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z",
+  "runs": [
+    {
+      "name": "baseline",
+      "passed": 481,
+      "failed": [
+        {
+          "nodeid": "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+          "message": "AssertionError: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\baseline\\\\private\\\\home' not found in 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\baseline\\\\private\\\\userprofile\\r\\n'",
+          "traceSha256": "7c0149bfd994d938b63014538617d0fcc607c497e4bf7ee8a546dcdba1aa99aa"
+        }
+      ],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 482,
+      "subtestsPassed": 0,
+      "aw4Passed": 0,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "482",
+        "time": "18.269",
+        "timestamp": "2026-10-09T12:49:57.204386-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T12:49:57.204386-06:00",
+      "end": "2026-10-09T12:50:15.473386-06:00",
+      "artifacts": {
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\baseline\\tests.xml",
+          "sha256": "d13ae55946ed71f8c4e65eebd93400d403d161b1b162514bfa000fc90bff4b1e",
+          "sizeBytes": 74416
+        }
+      },
+      "runner": null,
+      "completed": true,
+      "exitCode": 1,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "pythonOptions": [
+          "-B",
+          "-c"
+        ],
+        "setup": "sys.path.insert(0,str(Path.cwd()/'ci')); from run_contracts import private_environment,new_output; out=new_output(Path(output)); env=private_environment(out,special=False); os.environ.clear(); os.environ.update(env); import pytest",
+        "entry": "raise SystemExit(pytest.main(arguments))",
+        "arguments": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/baseline/pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/baseline/tests.xml",
+          "tests/active_web_v1",
+          "tests/security_v12/test_s5_contracts.py",
+          "tests/security_v12/test_s5_runtime.py",
+          "tests/test_nova_core_phase7_interactions.py",
+          "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available"
+        ],
+        "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/baseline"
+      },
+      "scope": "PRE_MODIFICATION_BASELINE",
+      "failureClassification": "PREEXISTING_CORE_HARNESS_DEBT — HOME/USERPROFILE; reproduced before/after; unchanged product/test/runner/assertion"
+    },
+    {
+      "name": "development-1",
+      "passed": 105,
+      "failed": [
+        {
+          "nodeid": "tests.active_web_v1.test_aw4_proxy::test_native_timeout_busy_recovery_no_late_response_or_automatic_retry",
+          "message": "ConnectionAbortedError: [WinError 10053] Se ha anulado una conexión establecida por el software en su equipo host",
+          "traceSha256": "5d55307d912363c71c06017d6334328ffd94556b63ca8a9d6e387019dda30964"
+        }
+      ],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 106,
+      "subtestsPassed": 0,
+      "aw4Passed": 105,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "106",
+        "time": "1.815",
+        "timestamp": "2026-10-09T13:00:40.631938-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:00:40.631938-06:00",
+      "end": "2026-10-09T13:00:42.446938-06:00",
+      "artifacts": {
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\development-1\\tests.xml",
+          "sha256": "0c9f08ea90cd3638f84234f90515745eac6054f11e1955cd42b20a2b67c8febd",
+          "sizeBytes": 19705
+        }
+      },
+      "runner": null,
+      "completed": true,
+      "exitCode": 1,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "pythonOptions": [
+          "-B",
+          "-c"
+        ],
+        "setup": "sys.path.insert(0,str(Path.cwd()/'ci')); from run_contracts import private_environment,new_output; out=new_output(Path(output)); env=private_environment(out,special=False); os.environ.clear(); os.environ.update(env); import pytest",
+        "entry": "raise SystemExit(pytest.main(arguments))",
+        "arguments": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-1/pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-1/tests.xml",
+          "tests/active_web_v1/test_aw4_network.py",
+          "tests/active_web_v1/test_aw4_proxy.py"
+        ],
+        "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-1"
+      },
+      "scope": "DEVELOPMENT_CONTRACT_TEST",
+      "failureClassification": "HARNESS_BUG / NATIVE_PEER_ABORT; socket reader did not handle Windows ConnectionAbortedError. Assertions of BUSY unchanged; next run demonstrated independent PRODUCT_BUG_AW4."
+    },
+    {
+      "name": "development-2",
+      "passed": 104,
+      "failed": [
+        {
+          "nodeid": "tests.active_web_v1.test_aw4_proxy::test_native_header_request_and_relay_limits_enforced",
+          "message": "AssertionError: assert b'HEADER_LIMIT' in b''",
+          "traceSha256": "8b3c1a6104383ef8dfe2982600924d2746ea6cb7513fa956cc838ac1d473a84e"
+        },
+        {
+          "nodeid": "tests.active_web_v1.test_aw4_proxy::test_native_timeout_busy_recovery_no_late_response_or_automatic_retry",
+          "message": "AssertionError: assert b'503' in b''",
+          "traceSha256": "f30d7453176e5ec1f644dd4842d71129cfc7c26acbe7481253f0ff5b7a8e405c"
+        }
+      ],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 106,
+      "subtestsPassed": 0,
+      "aw4Passed": 104,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "2",
+        "skipped": "0",
+        "tests": "106",
+        "time": "1.558",
+        "timestamp": "2026-10-09T13:01:45.243598-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:01:45.243598-06:00",
+      "end": "2026-10-09T13:01:46.801598-06:00",
+      "artifacts": {
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\development-2\\tests.xml",
+          "sha256": "232318d0f462f56bd42ef580f5bfe51d1e91b28835e36f6b987c3504a6322e51",
+          "sizeBytes": 19531
+        }
+      },
+      "runner": null,
+      "completed": true,
+      "exitCode": 1,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "pythonOptions": [
+          "-B",
+          "-c"
+        ],
+        "setup": "sys.path.insert(0,str(Path.cwd()/'ci')); from run_contracts import private_environment,new_output; out=new_output(Path(output)); env=private_environment(out,special=False); os.environ.clear(); os.environ.update(env); import pytest",
+        "entry": "raise SystemExit(pytest.main(arguments))",
+        "arguments": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-2/pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-2/tests.xml",
+          "tests/active_web_v1/test_aw4_network.py",
+          "tests/active_web_v1/test_aw4_proxy.py"
+        ],
+        "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-2"
+      },
+      "scope": "DEVELOPMENT_CONTRACT_TEST",
+      "failureClassification": "PRODUCT_BUG_AW4: unread TCP input + close could discard DENY/BUSY. Fixed bounded half-close/discard; same assertions. No upstream connection or retry added."
+    },
+    {
+      "name": "development-3",
+      "passed": 106,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 106,
+      "subtestsPassed": 0,
+      "aw4Passed": 106,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "106",
+        "time": "1.682",
+        "timestamp": "2026-10-09T13:03:01.748632-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:03:01.748632-06:00",
+      "end": "2026-10-09T13:03:03.430632-06:00",
+      "artifacts": {
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\development-3\\tests.xml",
+          "sha256": "0bb45da85c37d45e5f4dde06a51cbea34d808a7816d2bb2aa642fd0e2f088d4f",
+          "sizeBytes": 17777
+        }
+      },
+      "runner": null,
+      "completed": true,
+      "exitCode": 0,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "pythonOptions": [
+          "-B",
+          "-c"
+        ],
+        "setup": "sys.path.insert(0,str(Path.cwd()/'ci')); from run_contracts import private_environment,new_output; out=new_output(Path(output)); env=private_environment(out,special=False); os.environ.clear(); os.environ.update(env); import pytest",
+        "entry": "raise SystemExit(pytest.main(arguments))",
+        "arguments": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-3/pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-3/tests.xml",
+          "tests/active_web_v1/test_aw4_network.py",
+          "tests/active_web_v1/test_aw4_proxy.py"
+        ],
+        "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-3"
+      },
+      "scope": "DEVELOPMENT_CONTRACT_TEST"
+    },
+    {
+      "name": "development-4",
+      "passed": 108,
+      "failed": [
+        {
+          "nodeid": "tests.active_web_v1.test_aw4_proxy::test_no_session_proof_no_listener_and_transport_failure_no_retry",
+          "message": "AssertionError: assert b'TRANSPORT_FAILED' in b'HTTP/1.1 403 Forbidden\\r\\nConnection: close\\r\\nContent-Type: text/plain\\r\\nContent-Length: 15\\r\\n\\r\\nNETWORK_TIMEOUT'\n +  where b'HTTP/1.1 403 Forbidden\\r\\nConnection: close\\r\\nContent-Type: text/plain\\r\\nContent-Length: 15\\r\\n\\r\\nNETWORK_TIMEOUT' = exchange(<local_cli.infrastructure.active_web.egress_broker.BrowserEgressBroker object at 0x000001B615F55390>, 'http://server.test:51763/')",
+          "traceSha256": "16c58fc6e433d7929614f33c68f4f239e02e9a951035d0bca75701f56835abba"
+        }
+      ],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 109,
+      "subtestsPassed": 0,
+      "aw4Passed": 108,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "109",
+        "time": "4.480",
+        "timestamp": "2026-10-09T13:05:32.314547-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:05:32.314547-06:00",
+      "end": "2026-10-09T13:05:36.794547-06:00",
+      "artifacts": {
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\development-4\\tests.xml",
+          "sha256": "ec4997315212d796c9c035ae05b075608a5b0832dd879d786fc4783292ec5a74",
+          "sizeBytes": 19961
+        }
+      },
+      "runner": null,
+      "completed": true,
+      "exitCode": 1,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "pythonOptions": [
+          "-B",
+          "-c"
+        ],
+        "setup": "sys.path.insert(0,str(Path.cwd()/'ci')); from run_contracts import private_environment,new_output; out=new_output(Path(output)); env=private_environment(out,special=False); os.environ.clear(); os.environ.update(env); import pytest",
+        "entry": "raise SystemExit(pytest.main(arguments))",
+        "arguments": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-4/pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-4/tests.xml",
+          "tests/active_web_v1/test_aw4_network.py",
+          "tests/active_web_v1/test_aw4_proxy.py"
+        ],
+        "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-4"
+      },
+      "scope": "DEVELOPMENT_CONTRACT_TEST",
+      "failureClassification": "HARNESS_BUG / OS_DEPENDENT_EXPECTATION: closed native TCP port timed out rather than immediate refused-connect. Deterministic OSError injection used for exact transport-error/no-retry contract, not presented as native upstream failure. Native timeout separately covered."
+    },
+    {
+      "name": "development-5",
+      "passed": 110,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 110,
+      "subtestsPassed": 0,
+      "aw4Passed": 110,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "110",
+        "time": "2.190",
+        "timestamp": "2026-10-09T13:07:00.146277-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:07:00.146277-06:00",
+      "end": "2026-10-09T13:07:02.336277-06:00",
+      "artifacts": {
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\development-5\\tests.xml",
+          "sha256": "8713d34a9716db0e8d8382c6b0451bc67117e8a88f9d2b06fe9b254836190a85",
+          "sizeBytes": 18376
+        }
+      },
+      "runner": null,
+      "completed": true,
+      "exitCode": 0,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "pythonOptions": [
+          "-B",
+          "-c"
+        ],
+        "setup": "sys.path.insert(0,str(Path.cwd()/'ci')); from run_contracts import private_environment,new_output; out=new_output(Path(output)); env=private_environment(out,special=False); os.environ.clear(); os.environ.update(env); import pytest",
+        "entry": "raise SystemExit(pytest.main(arguments))",
+        "arguments": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-5/pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-5/tests.xml",
+          "tests/active_web_v1/test_aw4_network.py",
+          "tests/active_web_v1/test_aw4_proxy.py"
+        ],
+        "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/development-5"
+      },
+      "scope": "DEVELOPMENT_CONTRACT_TEST"
+    },
+    {
+      "name": "final-core",
+      "passed": 3224,
+      "failed": [
+        {
+          "nodeid": "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+          "message": "AssertionError: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\final-core\\\\private\\\\home' not found in 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\final-core\\\\private\\\\userprofile\\r\\n'",
+          "traceSha256": "ee30886ecb065d5d17523920e5da78f484375b568191c328e479defad63bb593"
+        }
+      ],
+      "errors": [],
+      "skips": [
+        {
+          "nodeid": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "reason": "Creating symlinks requires Developer Mode on Windows",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\final-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\final-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "reason": "Windows does not preserve POSIX executable bits",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "reason": "Windows does not preserve POSIX executable bits",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "reason": "legacy monitor removed in phase 1",
+          "type": "pytest.skip"
+        },
+        {
+          "nodeid": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "reason": "legacy monitor removed in phase 1",
+          "type": "pytest.skip"
+        }
+      ],
+      "parameterInstances": 3232,
+      "subtestsPassed": 53,
+      "subtestCounting": "pytest 9 aggregates passing subtests in suite.tests and pytest.log, not separate testcase nodes.",
+      "aw4Passed": 113,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "7",
+        "tests": "3285",
+        "time": "278.998",
+        "timestamp": "2026-10-09T13:10:02.662844-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:10:02.662844-06:00",
+      "end": "2026-10-09T13:14:41.660844-06:00",
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-core\\collected_nodeids.json",
+          "sha256": "859e1ea058dab432227a8d7d952cf20ff6dd22effc9d56c95e6e53c7e6dfd34d",
+          "sizeBytes": 316299
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-core\\pytest.log",
+          "sha256": "4fcb65b4bfdf7a9382fd90ea4984f7c6c5caea7a670f3f4b0ade1b1732d61b8d",
+          "sizeBytes": 4899
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-core\\run.json",
+          "sha256": "c9c042e02ca9c5e1839e2e686563b3133d8d4b933629924c49d8972deec15230",
+          "sizeBytes": 736
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-core\\selection.json",
+          "sha256": "4a9a58ba1ffefb394682c1993ad960e7c5e45610f584efc4ed0974da1fa45b1d",
+          "sizeBytes": 260736
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-core\\tests.xml",
+          "sha256": "525c01c24fb7701e3d8cbb53967175793bf45019e4554b5f45047536fd7a1f24",
+          "sizeBytes": 427506
+        }
+      },
+      "runner": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "core",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "18a5930defb4bca8cd1ff9202a83dcd9f9caa8db9fc29bde681e150f72088c5e",
+        "positive_base_contracts": 2793,
+        "collected_parameter_instances": 3232,
+        "collected_nodeids_sha256": "240873a78cfc93dafe158c32af91ad829329a769e32bf0f5a5adb2b7e2049eeb",
+        "collection_guard": "PASS",
+        "tests_executed": 3232,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 1,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "completed": true,
+      "exitCode": 1,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "arguments": [
+          "-B",
+          "ci/run_contracts.py",
+          "--job",
+          "core",
+          "--output",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/final-core"
+        ]
+      },
+      "scope": "CURRENT_COMPLETE_POSITIVE_CONTRACT_SELECTION",
+      "failureClassification": "PREEXISTING_CORE_HARNESS_DEBT — FAIL retained, NON_BLOCKING_FOR_AW4 literal component gate"
+    },
+    {
+      "name": "final-knowledge",
+      "passed": 1015,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 1015,
+      "subtestsPassed": 0,
+      "aw4Passed": 0,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "1015",
+        "time": "168.215",
+        "timestamp": "2026-10-09T13:10:04.041107-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:10:04.041107-06:00",
+      "end": "2026-10-09T13:12:52.256107-06:00",
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-knowledge\\collected_nodeids.json",
+          "sha256": "68a58767e376e94eb9297a8910a1257ad1233d20a473344747428cd7fa406d6a",
+          "sizeBytes": 132230
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-knowledge\\pytest.log",
+          "sha256": "0c6ae8e2824c64798282dbc0e74ade2d2525d0d835b69fd97e58c523a9b3a031",
+          "sizeBytes": 1249
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-knowledge\\run.json",
+          "sha256": "c7661708cf33c261322b7ca9e1779d4fb58f0b2a2c05c27d03254795fd3d4321",
+          "sizeBytes": 740
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-knowledge\\selection.json",
+          "sha256": "6ec9c87cef8c773707f362703dcd78a958d68ad74afbead536f3ff51d865ac8f",
+          "sizeBytes": 38804
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-knowledge\\tests.xml",
+          "sha256": "6a820404f61cea0df5cf4d35bb00fcff4a18d0e0ee939e7780941382d8b4e8ba",
+          "sizeBytes": 167132
+        }
+      },
+      "runner": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "knowledge",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "18a5930defb4bca8cd1ff9202a83dcd9f9caa8db9fc29bde681e150f72088c5e",
+        "positive_base_contracts": 335,
+        "collected_parameter_instances": 1015,
+        "collected_nodeids_sha256": "40aed5a5c3606c0091ce3ee4323381343bc40e3ab561ebe5b04950785d5821dd",
+        "collection_guard": "PASS",
+        "tests_executed": 1015,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "completed": true,
+      "exitCode": 0,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "arguments": [
+          "-B",
+          "ci/run_contracts.py",
+          "--job",
+          "knowledge",
+          "--output",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/final-knowledge"
+        ]
+      },
+      "scope": "CURRENT_COMPLETE_POSITIVE_CONTRACT_SELECTION",
+      "failureClassification": "NONE"
+    },
+    {
+      "name": "final-memory",
+      "passed": 791,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 791,
+      "subtestsPassed": 0,
+      "aw4Passed": 0,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "791",
+        "time": "89.911",
+        "timestamp": "2026-10-09T13:10:03.431525-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:10:03.431525-06:00",
+      "end": "2026-10-09T13:11:33.342525-06:00",
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-memory\\collected_nodeids.json",
+          "sha256": "f5c5aab16ae707e54b172ee8e4126ad703f6068dec8264542fab91c86685367e",
+          "sizeBytes": 94456
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-memory\\pytest.log",
+          "sha256": "38bcc14f9e9c0bd7fe414d39f4f6030676cc78df380208896be8f3a481a5b9ab",
+          "sizeBytes": 923
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-memory\\run.json",
+          "sha256": "eed40251b791d103c98d28a2ecd5b0765722d07f899ef2faaa1286af10ab8910",
+          "sizeBytes": 735
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-memory\\selection.json",
+          "sha256": "9af5b08ba867984e266e46f08fda163c9e694441c12873b6e5262a1f0a79efa1",
+          "sizeBytes": 35482
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-memory\\tests.xml",
+          "sha256": "ceed30e3170816d56ba198faac9dd20a91c22558263fcbb636d8e5923374cfbe",
+          "sizeBytes": 121585
+        }
+      },
+      "runner": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "memory",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "18a5930defb4bca8cd1ff9202a83dcd9f9caa8db9fc29bde681e150f72088c5e",
+        "positive_base_contracts": 326,
+        "collected_parameter_instances": 791,
+        "collected_nodeids_sha256": "6bceb7258547825c932164ac9ead6edc226ee5d253de610e65530eb71a981f42",
+        "collection_guard": "PASS",
+        "tests_executed": 791,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "completed": true,
+      "exitCode": 0,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "arguments": [
+          "-B",
+          "ci/run_contracts.py",
+          "--job",
+          "memory",
+          "--output",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/final-memory"
+        ]
+      },
+      "scope": "CURRENT_COMPLETE_POSITIVE_CONTRACT_SELECTION",
+      "failureClassification": "NONE"
+    },
+    {
+      "name": "final-security",
+      "passed": 615,
+      "failed": [],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 615,
+      "subtestsPassed": 0,
+      "aw4Passed": 0,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "615",
+        "time": "25.517",
+        "timestamp": "2026-10-09T13:10:02.914369-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:10:02.914369-06:00",
+      "end": "2026-10-09T13:10:28.431369-06:00",
+      "artifacts": {
+        "collected_nodeids.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-security\\collected_nodeids.json",
+          "sha256": "79e62e7fa06f97ecbf1232f50db6a50c5de4bb7442700a5c6ed9a0d5a494ece7",
+          "sizeBytes": 67843
+        },
+        "pytest.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-security\\pytest.log",
+          "sha256": "36f9ff001b083e77959bb064e4391192a76a8abea8c127d6ea1ac280e5889442",
+          "sizeBytes": 751
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-security\\run.json",
+          "sha256": "de984746b156828dd9e974244bd687bc4eb98f6cb9c4765d32abf685c2b4b8a2",
+          "sizeBytes": 737
+        },
+        "selection.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-security\\selection.json",
+          "sha256": "f82f2122017b8221b966979e696a10699a1ed1095e3aa4c27967cbf290742526",
+          "sizeBytes": 27804
+        },
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\final-security\\tests.xml",
+          "sha256": "05bd903fb4a88a8194ef8046a0f216a8af39ea9fa65d03be95fdc8d28206f263",
+          "sizeBytes": 88927
+        }
+      },
+      "runner": {
+        "schema": "positive-contract-ci-run-1",
+        "scope": "CURRENT_REGRESSION_CONTRACT",
+        "job": "security",
+        "host": "Windows",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "pytest": "9.1.1",
+        "selection_manifest_sha256": "18a5930defb4bca8cd1ff9202a83dcd9f9caa8db9fc29bde681e150f72088c5e",
+        "positive_base_contracts": 274,
+        "collected_parameter_instances": 615,
+        "collected_nodeids_sha256": "ad203d2d9c67c100fbd906185c8a328a80df3bc4e62ded9136caca97bc40fb38",
+        "collection_guard": "PASS",
+        "tests_executed": 615,
+        "quality_attempts": 0,
+        "model_campaigns": 0,
+        "exit_code": 0,
+        "special_infrastructure": false,
+        "new_skips_xfails_or_deselection": false
+      },
+      "completed": true,
+      "exitCode": 0,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "arguments": [
+          "-B",
+          "ci/run_contracts.py",
+          "--job",
+          "security",
+          "--output",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/final-security"
+        ]
+      },
+      "scope": "CURRENT_COMPLETE_POSITIVE_CONTRACT_SELECTION",
+      "failureClassification": "NONE"
+    },
+    {
+      "name": "focused-final",
+      "passed": 594,
+      "failed": [
+        {
+          "nodeid": "tests.test_tools.test_bash_tool.TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+          "message": "AssertionError: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\focused-final\\\\private\\\\home' not found in 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\focused-final\\\\private\\\\userprofile\\r\\n'",
+          "traceSha256": "cc041ee40553185650c6cfbd611c276eabfbbae4e5de6589d2cf1ae3f2bd9668"
+        }
+      ],
+      "errors": [],
+      "skips": [],
+      "parameterInstances": 595,
+      "subtestsPassed": 0,
+      "aw4Passed": 113,
+      "junitSuite": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "595",
+        "time": "17.037",
+        "timestamp": "2026-10-09T13:09:24.129125-06:00",
+        "hostname": "WINDEV-SPACE"
+      },
+      "start": "2026-10-09T13:09:24.129125-06:00",
+      "end": "2026-10-09T13:09:41.166125-06:00",
+      "artifacts": {
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z\\focused-final\\tests.xml",
+          "sha256": "991ccde54e643d1fda3b590687feba1781b1583eaa2216e9a61478b62302fe3a",
+          "sizeBytes": 93058
+        }
+      },
+      "runner": null,
+      "completed": true,
+      "exitCode": 1,
+      "command": {
+        "executable": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+        "pythonOptions": [
+          "-B",
+          "-c"
+        ],
+        "setup": "sys.path.insert(0,str(Path.cwd()/'ci')); from run_contracts import private_environment,new_output; out=new_output(Path(output)); env=private_environment(out,special=False); os.environ.clear(); os.environ.update(env); import pytest",
+        "entry": "raise SystemExit(pytest.main(arguments))",
+        "arguments": [
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/focused-final/pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/focused-final/tests.xml",
+          "tests/active_web_v1",
+          "tests/security_v12/test_s5_contracts.py",
+          "tests/security_v12/test_s5_runtime.py",
+          "tests/test_nova_core_phase7_interactions.py",
+          "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available"
+        ],
+        "output": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-aw4-20261009T184936Z/focused-final"
+      },
+      "scope": "FINAL_FOCUSED_REGRESSION",
+      "failureClassification": "PREEXISTING_CORE_HARNESS_DEBT — HOME/USERPROFILE; reproduced before/after; unchanged product/test/runner/assertion"
+    }
+  ],
+  "environment": {
+    "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+    "executable": "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "fixtureRuntime": "C:/Users/joseh/AppData/Local/Temp/nova-aw0-20261009/runtime/Scripts/python.exe",
+    "pytest": "9.1.1",
+    "pluginAutoload": false,
+    "userConfiguration": "private_environment; outside Git"
+  },
+  "createdAt": "2026-10-09T19:22:11.187209+00:00",
+  "comparison": {
+    "previousPhase": "AW3",
+    "newFailures": [],
+    "newSkips": [],
+    "removedSkips": [],
+    "newXfails": [],
+    "currentSkips": [
+      {
+        "nodeid": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+        "reason": "Creating symlinks requires Developer Mode on Windows",
+        "type": "pytest.skip"
+      },
+      {
+        "nodeid": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+        "reason": "Creating symlinks requires Developer Mode on Windows",
+        "type": "pytest.skip"
+      },
+      {
+        "nodeid": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+        "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\final-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-aw4-20261009T184936Z\\\\final-core\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'",
+        "type": "pytest.skip"
+      },
+      {
+        "nodeid": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+        "reason": "Windows does not preserve POSIX executable bits",
+        "type": "pytest.skip"
+      },
+      {
+        "nodeid": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+        "reason": "Windows does not preserve POSIX executable bits",
+        "type": "pytest.skip"
+      },
+      {
+        "nodeid": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+        "reason": "legacy monitor removed in phase 1",
+        "type": "pytest.skip"
+      },
+      {
+        "nodeid": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+        "reason": "legacy monitor removed in phase 1",
+        "type": "pytest.skip"
+      }
+    ],
+    "previousCoreDetails": "docs/active_web_v1/aw3/test_results.json",
+    "noNewExclusions": true,
+    "collectionNote": "Security/Knowledge same collected multiset; Memory has exactly one historical import-time UUID parameter changing, no selector/source/count drift; raw artifacts retained."
+  },
+  "finalRunNames": [
+    "final-core",
+    "final-security",
+    "final-memory",
+    "final-knowledge"
+  ],
+  "finalTotals": {
+    "passed": 5645,
+    "failed": 1,
+    "errors": 0,
+    "skips": 7,
+    "subtestsPassed": 53,
+    "parameterInstances": 5653,
+    "aw4Passed": 113,
+    "focusedNotDoubleCounted": true
+  },
+  "desktop": {
+    "schemaVersion": 1,
+    "phase": "AW4",
+    "profile": "Native Windows current frontend regression; not Active Web engine certification",
+    "node": "24.16.0 (same installed runtime as AW3; version separately checked)",
+    "cwd": "C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/desktop",
+    "tests": {
+      "command": "node --experimental-transform-types --test tests/application_client.test.cjs tests/approval_host.test.cjs tests/security_audit.test.cjs tests/memory_control.test.cjs tests/memory_maintenance.test.cjs tests/knowledge_control.test.cjs tests/knowledge_k7.test.cjs",
+      "exitCode": 0,
+      "passed": 68,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0,
+      "todo": 0,
+      "durationMs": 1261.5106,
+      "evidenceKind": "Native Node execution; counts preserved in task tool transcript",
+      "warnings": [
+        "ExperimentalWarning Transform Types",
+        "MODULE_TYPELESS_PACKAGE_JSON"
+      ]
+    },
+    "typecheck": {
+      "command": "node node_modules/typescript/bin/tsc --noEmit",
+      "exitCode": 0,
+      "stdout": ""
+    },
+    "sourceUnchanged": true
+  }
+}

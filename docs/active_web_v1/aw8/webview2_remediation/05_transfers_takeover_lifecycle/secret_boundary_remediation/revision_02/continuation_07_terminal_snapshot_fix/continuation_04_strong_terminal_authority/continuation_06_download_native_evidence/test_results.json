@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Exactly missing native evidence, not quality certification",
+  "currentRun": {
+    "targets": [
+      "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_drive_by_download_cancelled_no_staging",
+      "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+      "native/nova-browser-host/tests/test_webview2_transfers.py::test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]"
+    ],
+    "command": "$env:PYTEST_DISABLE_PLUGIN_AUTOLOAD='1'; $env:PYTHONDONTWRITEBYTECODE='1'; $env:NOVA_WEBVIEW2_SDK_FEED='C:/Users/joseh/AppData/Local/Temp/nova-wv2-block02-20261010/build/packages/microsoft.web.webview2/1.0.4258.31'; $env:PYTHONPATH='native/nova-browser-host/tests/download_native_completion'\nNew-Item -ItemType Directory -Path 'C:/Users/joseh/AppData/Local/Temp/nova-download-native-20261011T090457Z/missing_native_three' -Force | Out-Null\n& 'C:/Users/joseh/AppData/Local/Temp/nova-aw5-20261009T194457Z/runtime/Scripts/python.exe' -B -m pytest 'native/nova-browser-host/tests/test_webview2_transfers.py::test_native_drive_by_download_cancelled_no_staging' 'native/nova-browser-host/tests/test_webview2_transfers.py::test_native_completed_staging_survives_browser_cleanup_with_finite_owner' 'native/nova-browser-host/tests/test_webview2_transfers.py::test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]' -q --tb=short -p no:cacheprovider -p native_download_plugin --basetemp='C:/Users/joseh/AppData/Local/Temp/nova-download-native-20261011T090457Z/missing_native_three/temp' --junitxml='C:/Users/joseh/AppData/Local/Temp/nova-download-native-20261011T090457Z/missing_native_three/junit.xml' 2>&1 | Tee-Object -FilePath 'C:/Users/joseh/AppData/Local/Temp/nova-download-native-20261011T090457Z/missing_native_three/pytest_output.txt'\nexit $LASTEXITCODE",
+    "root": "C:/Users/joseh/AppData/Local/Temp/nova-download-native-20261011T090457Z/missing_native_three",
+    "startUtc": "2026-10-11T09:09:23.745Z",
+    "tests": 3,
+    "fail": 3,
+    "error": 0,
+    "skip": 0,
+    "seconds": 59.103,
+    "xmlSha256": "82861787f83e063e503632b34ef6128995ffb41158e8cd9644fa0a2f1e11cfc6",
+    "stdoutSha256": "d88dcb45516a54e6f80b4ff9017d6a33bde60fff51c9f378ddb72eda94bebcf4",
+    "cases": [
+      {
+        "class": "native.nova-browser-host.tests.test_webview2_transfers",
+        "name": "test_native_drive_by_download_cancelled_no_staging",
+        "seconds": 18.466,
+        "failure": "native\\nova-browser-host\\tests\\test_webview2_transfers.py:178: in test_native_drive_by_download_cancelled_no_staging\n    else:pytest.fail('Native unsolicited download event/denial not observed')\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   Failed: Native unsolicited download event/denial not observed"
+      },
+      {
+        "class": "native.nova-browser-host.tests.test_webview2_transfers",
+        "name": "test_native_completed_staging_survives_browser_cleanup_with_finite_owner",
+        "seconds": 26.077,
+        "failure": "native\\nova-browser-host\\tests\\test_webview2_transfers.py:256: in test_native_completed_staging_survives_browser_cleanup_with_finite_owner\n    assert report.outcome is O.SUCCEEDED_OBSERVED and acks==[True]\nE   AssertionError: assert (<BrowserOutcomeState.UNKNOWN: 'UNKNOWN'> is <BrowserOutcomeState.SUCCEEDED_OBSERVED: 'SUCCEEDED_OBSERVED'>)\nE    +  where <BrowserOutcomeState.UNKNOWN: 'UNKNOWN'> = BrowserDispatchReport(outcome=<BrowserOutcomeState.UNKNOWN: 'UNKNOWN'>, effect_state=<EffectState.UNKNOWN: 'unknown'>, no_effect_confirmed=False).outcome\nE    +  and   <BrowserOutcomeState.SUCCEEDED_OBSERVED: 'SUCCEEDED_OBSERVED'> = O.SUCCEEDED_OBSERVED"
+      },
+      {
+        "class": "native.nova-browser-host.tests.test_webview2_transfers",
+        "name": "test_native_toolruntime_exact_approval_transfers[allow-DOWNLOAD]",
+        "seconds": 14.112,
+        "failure": "native\\nova-browser-host\\tests\\test_webview2_transfers.py:322: in test_native_toolruntime_exact_approval_transfers\n    worker.join(8);assert result and not worker.is_alive();r=result[0]\n                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE   assert ([])"
+      }
+    ],
+    "endUtc": "2026-10-11T09:11:26.462Z",
+    "exitCode": 1,
+    "bodyExecutionCounts": [
+      1,
+      1,
+      1
+    ],
+    "allNativeObserversReady": true,
+    "pass": 0
+  },
+  "verdict": "ROOT_CAUSE_LOCALIZED_NOT_FULLY_IDENTIFIED",
+  "effectiveBodyCount": 3,
+  "effectiveBodiesPerCase": [
+    1,
+    1,
+    1
+  ],
+  "pass": 0,
+  "fail": 3,
+  "error": 0,
+  "skip": 0,
+  "xfail": 0,
+  "smokeEffectiveBodies": 0,
+  "preBodyNativeObserverGates": [
+    {
+      "case": "test_native_drive_by_download_0",
+      "hostPid": 23980,
+      "preBodyGatePassed": true,
+      "readyBeforeFixtureNavigation": true
+    },
+    {
+      "case": "test_native_completed_staging_0",
+      "hostPid": 14552,
+      "preBodyGatePassed": true,
+      "readyBeforeFixtureNavigation": true
+    },
+    {
+      "case": "test_native_toolruntime_exact_0",
+      "hostPid": 40008,
+      "preBodyGatePassed": true,
+      "readyBeforeFixtureNavigation": true
+    }
+  ],
+  "initialBuildPreparation": {
+    "history": [
+      {
+        "exitCode": 1,
+        "error": "FileNotFoundError: new external root parent not yet created",
+        "caseBodiesExecuted": 0,
+        "productChanged": false
+      },
+      {
+        "exitCode": 0,
+        "result": "PASS",
+        "caseBodiesExecuted": 0,
+        "correction": "Create new external output parent directory before builder, no code change"
+      }
+    ],
+    "noCaseBodiesExecutedDuringPrebuild": true
+  },
+  "untouchedAcceptedPhase1": {
+    "status": "PASS",
+    "focalExpectedOutcome": 6,
+    "fullFilePass": 24,
+    "reexecuted": false,
+    "productOrTestsChanged": false
+  },
+  "previousContinuationRef": "docs/active_web_v1/aw8/webview2_remediation/05_transfers_takeover_lifecycle/secret_boundary_remediation/revision_02/continuation_07_terminal_snapshot_fix/continuation_04_strong_terminal_authority/continuation_05_legacy_expectations_download_diagnosis/manifest.json",
+  "previousFourFailAndMkdirSetupErrorPreserved": true,
+  "historical527Pass10FailPreserved": true,
+  "exclusions": "No full Block05, Core, secrets campaigns, Block06, AW8 E2E or statistics; exact three named IDs only"
+}

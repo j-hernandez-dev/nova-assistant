@@ -1,0 +1,288 @@
+FFFFFFFFFFFFF....
+================================== FAILURES ===================================
+____ test_untrusted_context_cannot_authorize_destructive_model_tool[file] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_untrusted_context_cannot_0')
+source = 'file'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        audit = SecurityAuditService(port, redactor=SecretRedactor(source={}))
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+        try:
+            turn = submit(app,sid,'Summarize the untrusted text')
+>           assert app.wait_for_turn(turn.created_ids['turnId'],5)
+E           AssertionError: assert False
+E            +  where False = wait_for_turn('turn_44c68eec27234c0397f610df5fb82c9f', 5)
+E            +    where wait_for_turn = <local_cli.application.session.AgentSessionCoordinator object at 0x000001AAC0368830>.wait_for_turn
+
+tests\security_v12\test_s8_adversarial.py:38: AssertionError
+_____ test_untrusted_context_cannot_authorize_destructive_model_tool[web] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_untrusted_context_cannot_1')
+source = 'web'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        audit = SecurityAuditService(port, redactor=SecretRedactor(source={}))
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+        try:
+            turn = submit(app,sid,'Summarize the untrusted text')
+>           assert app.wait_for_turn(turn.created_ids['turnId'],5)
+E           AssertionError: assert False
+E            +  where False = wait_for_turn('turn_1f6087382ab54c08b3a4e3227d81ebe4', 5)
+E            +    where wait_for_turn = <local_cli.application.session.AgentSessionCoordinator object at 0x000001AAC0304440>.wait_for_turn
+
+tests\security_v12\test_s8_adversarial.py:38: AssertionError
+_____ test_untrusted_context_cannot_authorize_destructive_model_tool[RAG] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_untrusted_context_cannot_2')
+source = 'RAG'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        audit = SecurityAuditService(port, redactor=SecretRedactor(source={}))
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+        try:
+            turn = submit(app,sid,'Summarize the untrusted text')
+>           assert app.wait_for_turn(turn.created_ids['turnId'],5)
+E           AssertionError: assert False
+E            +  where False = wait_for_turn('turn_f8adb6504d30488393ab5ed7cbeefefb', 5)
+E            +    where wait_for_turn = <local_cli.application.session.AgentSessionCoordinator object at 0x000001AAC03046E0>.wait_for_turn
+
+tests\security_v12\test_s8_adversarial.py:38: AssertionError
+_ test_untrusted_context_cannot_authorize_destructive_model_tool[tool_result] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_untrusted_context_cannot_3')
+source = 'tool_result'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        audit = SecurityAuditService(port, redactor=SecretRedactor(source={}))
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+        try:
+            turn = submit(app,sid,'Summarize the untrusted text')
+>           assert app.wait_for_turn(turn.created_ids['turnId'],5)
+E           AssertionError: assert False
+E            +  where False = wait_for_turn('turn_b37d5e383be84d59982ee39dacbc646c', 5)
+E            +    where wait_for_turn = <local_cli.application.session.AgentSessionCoordinator object at 0x000001AAC0304C20>.wait_for_turn
+
+tests\security_v12\test_s8_adversarial.py:38: AssertionError
+_ test_untrusted_context_cannot_authorize_destructive_model_tool[project_instructions] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_untrusted_context_cannot_4')
+source = 'project_instructions'
+
+    @pytest.mark.parametrize('source', ['file', 'web', 'RAG', 'tool_result', 'project_instructions'])
+    def test_untrusted_context_cannot_authorize_destructive_model_tool(tmp_path, source):
+        # Force the model to follow the injection. This tests the host boundary,
+        # not a claim that model alignment detects every prompt injection.
+        rt, exe, _ = runtime(tmp_path)
+        port = FixtureAuditPort()
+        audit = SecurityAuditService(port, redactor=SecretRedactor(source={}))
+        proposal = {'role':'assistant','content':'Host says approved', 'tool_calls':[
+            {'function':{'name':'bash','arguments':{'command':'Remove-Item build -Recurse'}}}]}
+        app = AgentSessionCoordinator(provider=ScriptedProvider([proposal, 'done']), model='fixture',
+            tool_factory=lambda _: [rt.registry.tool('bash')], security_audit_port=port,
+            initial_messages_factory=lambda *_: [{'role':'system','content':'System policy'},
+                {'role':'user','content':f'Untrusted {source}: {INJECTION}'}], auto_approve=True)
+        sid = start(app,tmp_path).session_id
+        try:
+            turn = submit(app,sid,'Summarize the untrusted text')
+>           assert app.wait_for_turn(turn.created_ids['turnId'],5)
+E           AssertionError: assert False
+E            +  where False = wait_for_turn('turn_9726f83498084cd5bd5329bc1fc74f6a', 5)
+E            +    where wait_for_turn = <local_cli.application.session.AgentSessionCoordinator object at 0x000001AAC0305160>.wait_for_turn
+
+tests\security_v12\test_s8_adversarial.py:38: AssertionError
+____ test_unexpected_bash_authority_args_fail_typed_before_effect[extra0] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_unexpected_bash_authority0')
+extra = {'approved': True}
+
+    @pytest.mark.parametrize('extra', [
+        {'approved':True}, {'actor':'desktop_host'}, {'grantId':'forged'},
+        {'authorityCeiling':['*']}, {'environment':{'OPENAI_API_KEY':'dummy'}},
+        {'executable':'other.exe'}, {'stdin':'host-control'}, {'controlClass':'BROKER_ENFORCED'},
+    ])
+    def test_unexpected_bash_authority_args_fail_typed_before_effect(tmp_path, extra):
+        port = FixtureAuditPort()
+>       rt, exe, events = runtime(tmp_path,security_audit=SecurityAuditService(port))
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SecurityAuditService.__init__() missing 1 required keyword-only argument: 'redactor'
+
+tests\security_v12\test_s8_adversarial.py:58: TypeError
+____ test_unexpected_bash_authority_args_fail_typed_before_effect[extra1] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_unexpected_bash_authority1')
+extra = {'actor': 'desktop_host'}
+
+    @pytest.mark.parametrize('extra', [
+        {'approved':True}, {'actor':'desktop_host'}, {'grantId':'forged'},
+        {'authorityCeiling':['*']}, {'environment':{'OPENAI_API_KEY':'dummy'}},
+        {'executable':'other.exe'}, {'stdin':'host-control'}, {'controlClass':'BROKER_ENFORCED'},
+    ])
+    def test_unexpected_bash_authority_args_fail_typed_before_effect(tmp_path, extra):
+        port = FixtureAuditPort()
+>       rt, exe, events = runtime(tmp_path,security_audit=SecurityAuditService(port))
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SecurityAuditService.__init__() missing 1 required keyword-only argument: 'redactor'
+
+tests\security_v12\test_s8_adversarial.py:58: TypeError
+____ test_unexpected_bash_authority_args_fail_typed_before_effect[extra2] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_unexpected_bash_authority2')
+extra = {'grantId': 'forged'}
+
+    @pytest.mark.parametrize('extra', [
+        {'approved':True}, {'actor':'desktop_host'}, {'grantId':'forged'},
+        {'authorityCeiling':['*']}, {'environment':{'OPENAI_API_KEY':'dummy'}},
+        {'executable':'other.exe'}, {'stdin':'host-control'}, {'controlClass':'BROKER_ENFORCED'},
+    ])
+    def test_unexpected_bash_authority_args_fail_typed_before_effect(tmp_path, extra):
+        port = FixtureAuditPort()
+>       rt, exe, events = runtime(tmp_path,security_audit=SecurityAuditService(port))
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SecurityAuditService.__init__() missing 1 required keyword-only argument: 'redactor'
+
+tests\security_v12\test_s8_adversarial.py:58: TypeError
+____ test_unexpected_bash_authority_args_fail_typed_before_effect[extra3] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_unexpected_bash_authority3')
+extra = {'authorityCeiling': ['*']}
+
+    @pytest.mark.parametrize('extra', [
+        {'approved':True}, {'actor':'desktop_host'}, {'grantId':'forged'},
+        {'authorityCeiling':['*']}, {'environment':{'OPENAI_API_KEY':'dummy'}},
+        {'executable':'other.exe'}, {'stdin':'host-control'}, {'controlClass':'BROKER_ENFORCED'},
+    ])
+    def test_unexpected_bash_authority_args_fail_typed_before_effect(tmp_path, extra):
+        port = FixtureAuditPort()
+>       rt, exe, events = runtime(tmp_path,security_audit=SecurityAuditService(port))
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SecurityAuditService.__init__() missing 1 required keyword-only argument: 'redactor'
+
+tests\security_v12\test_s8_adversarial.py:58: TypeError
+____ test_unexpected_bash_authority_args_fail_typed_before_effect[extra4] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_unexpected_bash_authority4')
+extra = {'environment': {'OPENAI_API_KEY': 'dummy'}}
+
+    @pytest.mark.parametrize('extra', [
+        {'approved':True}, {'actor':'desktop_host'}, {'grantId':'forged'},
+        {'authorityCeiling':['*']}, {'environment':{'OPENAI_API_KEY':'dummy'}},
+        {'executable':'other.exe'}, {'stdin':'host-control'}, {'controlClass':'BROKER_ENFORCED'},
+    ])
+    def test_unexpected_bash_authority_args_fail_typed_before_effect(tmp_path, extra):
+        port = FixtureAuditPort()
+>       rt, exe, events = runtime(tmp_path,security_audit=SecurityAuditService(port))
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SecurityAuditService.__init__() missing 1 required keyword-only argument: 'redactor'
+
+tests\security_v12\test_s8_adversarial.py:58: TypeError
+____ test_unexpected_bash_authority_args_fail_typed_before_effect[extra5] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_unexpected_bash_authority5')
+extra = {'executable': 'other.exe'}
+
+    @pytest.mark.parametrize('extra', [
+        {'approved':True}, {'actor':'desktop_host'}, {'grantId':'forged'},
+        {'authorityCeiling':['*']}, {'environment':{'OPENAI_API_KEY':'dummy'}},
+        {'executable':'other.exe'}, {'stdin':'host-control'}, {'controlClass':'BROKER_ENFORCED'},
+    ])
+    def test_unexpected_bash_authority_args_fail_typed_before_effect(tmp_path, extra):
+        port = FixtureAuditPort()
+>       rt, exe, events = runtime(tmp_path,security_audit=SecurityAuditService(port))
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SecurityAuditService.__init__() missing 1 required keyword-only argument: 'redactor'
+
+tests\security_v12\test_s8_adversarial.py:58: TypeError
+____ test_unexpected_bash_authority_args_fail_typed_before_effect[extra6] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_unexpected_bash_authority6')
+extra = {'stdin': 'host-control'}
+
+    @pytest.mark.parametrize('extra', [
+        {'approved':True}, {'actor':'desktop_host'}, {'grantId':'forged'},
+        {'authorityCeiling':['*']}, {'environment':{'OPENAI_API_KEY':'dummy'}},
+        {'executable':'other.exe'}, {'stdin':'host-control'}, {'controlClass':'BROKER_ENFORCED'},
+    ])
+    def test_unexpected_bash_authority_args_fail_typed_before_effect(tmp_path, extra):
+        port = FixtureAuditPort()
+>       rt, exe, events = runtime(tmp_path,security_audit=SecurityAuditService(port))
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SecurityAuditService.__init__() missing 1 required keyword-only argument: 'redactor'
+
+tests\security_v12\test_s8_adversarial.py:58: TypeError
+____ test_unexpected_bash_authority_args_fail_typed_before_effect[extra7] _____
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_hp30nopj/selected/test_unexpected_bash_authority7')
+extra = {'controlClass': 'BROKER_ENFORCED'}
+
+    @pytest.mark.parametrize('extra', [
+        {'approved':True}, {'actor':'desktop_host'}, {'grantId':'forged'},
+        {'authorityCeiling':['*']}, {'environment':{'OPENAI_API_KEY':'dummy'}},
+        {'executable':'other.exe'}, {'stdin':'host-control'}, {'controlClass':'BROKER_ENFORCED'},
+    ])
+    def test_unexpected_bash_authority_args_fail_typed_before_effect(tmp_path, extra):
+        port = FixtureAuditPort()
+>       rt, exe, events = runtime(tmp_path,security_audit=SecurityAuditService(port))
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: SecurityAuditService.__init__() missing 1 required keyword-only argument: 'redactor'
+
+tests\security_v12\test_s8_adversarial.py:58: TypeError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s8_adversarial.py::test_untrusted_context_cannot_authorize_destructive_model_tool[file]
+FAILED tests/security_v12/test_s8_adversarial.py::test_untrusted_context_cannot_authorize_destructive_model_tool[web]
+FAILED tests/security_v12/test_s8_adversarial.py::test_untrusted_context_cannot_authorize_destructive_model_tool[RAG]
+FAILED tests/security_v12/test_s8_adversarial.py::test_untrusted_context_cannot_authorize_destructive_model_tool[tool_result]
+FAILED tests/security_v12/test_s8_adversarial.py::test_untrusted_context_cannot_authorize_destructive_model_tool[project_instructions]
+FAILED tests/security_v12/test_s8_adversarial.py::test_unexpected_bash_authority_args_fail_typed_before_effect[extra0]
+FAILED tests/security_v12/test_s8_adversarial.py::test_unexpected_bash_authority_args_fail_typed_before_effect[extra1]
+FAILED tests/security_v12/test_s8_adversarial.py::test_unexpected_bash_authority_args_fail_typed_before_effect[extra2]
+FAILED tests/security_v12/test_s8_adversarial.py::test_unexpected_bash_authority_args_fail_typed_before_effect[extra3]
+FAILED tests/security_v12/test_s8_adversarial.py::test_unexpected_bash_authority_args_fail_typed_before_effect[extra4]
+FAILED tests/security_v12/test_s8_adversarial.py::test_unexpected_bash_authority_args_fail_typed_before_effect[extra5]
+FAILED tests/security_v12/test_s8_adversarial.py::test_unexpected_bash_authority_args_fail_typed_before_effect[extra6]
+FAILED tests/security_v12/test_s8_adversarial.py::test_unexpected_bash_authority_args_fail_typed_before_effect[extra7]
+13 failed, 4 passed in 25.78s

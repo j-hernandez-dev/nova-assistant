@@ -1,0 +1,34 @@
+{
+  "result": "PASS",
+  "capabilityId": "INTERACTIVE_BROWSER_V1_2",
+  "descriptor": {
+    "capabilityId": "INTERACTIVE_BROWSER_V1_2",
+    "adapter": "WEBVIEW2",
+    "networkIsolation": "NOT_PROVIDED",
+    "controlClass": "HOST_UNISOLATED",
+    "productiveAvailability": "NOT_ENABLED",
+    "pageContentTrust": "UNTRUSTED_DATA",
+    "externalProtocolPolicy": "DENY_ALL",
+    "popupPolicy": "DENY_ALL"
+  },
+  "negativeTests": [
+    "test_v12_metadata_no_cross_capability_or_page_authority",
+    "test_v12_closed_ipc5_rejects_fetch_or_dom_authority",
+    "test_v12_browser_authority_rejected_by_fetch_candidate",
+    "test_real_browser_grant_rejected_by_fetch_binding",
+    "test_real_fetch_grant_rejected_by_unchanged_browser_authority_path"
+  ],
+  "grantTests": "Two reused real issuer/schema contract tests; doubles for actions. No B4 authority/action certification.",
+  "proofScope": "Fetch proof/admission/pass cannot enter closed browser DTO/IPC or change fixed network metadata. It never substitutes a bws/bwp/bwe binding or browser Grant.",
+  "controlledFetch": {
+    "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+    "networkEgressControl": "ENFORCED",
+    "publicOnly": "ENFORCED",
+    "certificationStatus": "PASS",
+    "productiveAvailability": "NOT_ENABLED",
+    "B2Reopened": false
+  },
+  "noBypass": true,
+  "availableTruePublished": false,
+  "productiveToolRegistered": false
+}

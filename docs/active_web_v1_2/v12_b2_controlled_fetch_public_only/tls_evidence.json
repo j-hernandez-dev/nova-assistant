@@ -1,0 +1,1588 @@
+{
+  "schemaVersion": 1,
+  "phase": "V12_B2_CONTROLLED_FETCH_PUBLIC_ONLY",
+  "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362",
+  "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+  "source": "native_sealed.json",
+  "sourceSha256": "2229f0bb3c539d6088d9d6fe16c5717462a4c96b2af2f461d41e61c7cfde1c61",
+  "doublesUsed": false,
+  "productionPolicyException": false,
+  "scope": "Controlled Fetch HTTP(S) data connections only; DNS fixture datagrams are outside publicOnly data-connection claim.",
+  "status": "PASS",
+  "rows": [
+    {
+      "rowIndex": 2,
+      "case": "positive_True_GET",
+      "method": "GET",
+      "scheme": "https",
+      "outcome": "SUCCEEDED_OBSERVED",
+      "error": null,
+      "countedBytes": 26,
+      "complete": "COMPLETE",
+      "truncated": false,
+      "durationSeconds": 0.0503,
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_41d3da2ce3364f9b821d8938b5c155cc",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "GET",
+          "hop": 0,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 175,
+          "httpHeaderBytesReceived": 115,
+          "httpBodyBytesReceived": 26,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": 200,
+          "complete": true,
+          "tlsVerifyCode": null,
+          "errorCode": null,
+          "stage": "BODY",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 1,
+      "httpCanaryConnections": 1,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [
+        {
+          "method": "GET",
+          "path": "/ok",
+          "version": "HTTP/1.1",
+          "host": "cf-public.test",
+          "acceptEncoding": "identity",
+          "connection": "close",
+          "forbiddenHeadersPresent": false,
+          "localEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "peer": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            51019
+          ],
+          "requestBytes": 175
+        }
+      ],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 2
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 2
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-public.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "SUCCEEDED_OBSERVED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 1,
+            "redirects": 0,
+            "header_bytes": 290,
+            "response_bytes": 26,
+            "published_chars": 26
+          }
+        }
+      ],
+      "actualPayloadSha256": "f720523e4a79710839e7dc134a484047bc3be91d274022ee4944e137c7d8201e",
+      "testTLSExactFixtureTrust": true,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    },
+    {
+      "rowIndex": 4,
+      "case": "positive_True_HEAD",
+      "method": "HEAD",
+      "scheme": "https",
+      "outcome": "SUCCEEDED_OBSERVED",
+      "error": null,
+      "countedBytes": 0,
+      "complete": "COMPLETE",
+      "truncated": false,
+      "durationSeconds": 0.0461,
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_8c654955817d40d5a2dfe0df8535bdae",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "HEAD",
+          "hop": 0,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 176,
+          "httpHeaderBytesReceived": 115,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": 200,
+          "complete": true,
+          "tlsVerifyCode": null,
+          "errorCode": null,
+          "stage": "BODY",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 1,
+      "httpCanaryConnections": 1,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [
+        {
+          "method": "HEAD",
+          "path": "/ok",
+          "version": "HTTP/1.1",
+          "host": "cf-public.test",
+          "acceptEncoding": "identity",
+          "connection": "close",
+          "forbiddenHeadersPresent": false,
+          "localEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "peer": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            51021
+          ],
+          "requestBytes": 176
+        }
+      ],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 4
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 4
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-public.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "SUCCEEDED_OBSERVED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 1,
+            "redirects": 0,
+            "header_bytes": 291,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        }
+      ],
+      "actualPayloadSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testTLSExactFixtureTrust": true,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    },
+    {
+      "rowIndex": 34,
+      "case": "tls_invalid_cf-public.testFalse",
+      "method": "GET",
+      "scheme": "https",
+      "outcome": "FAILED_NO_EFFECT_CONFIRMED",
+      "error": "CONTROLLED_FETCH_TLS_FAILED",
+      "countedBytes": 0,
+      "complete": "NONE",
+      "truncated": false,
+      "durationSeconds": 0.0396,
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_642ebaea5b9d40e494b9a27afb3fcdaa",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "GET",
+          "hop": 0,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 0,
+          "httpHeaderBytesReceived": 0,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": null,
+          "complete": false,
+          "tlsVerifyCode": 18,
+          "errorCode": "CONTROLLED_FETCH_TLS_FAILED",
+          "stage": "CONNECT_TLS",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 0,
+      "httpCanaryConnections": 1,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 5
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 5
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-public.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "FAILED_NO_EFFECT_CONFIRMED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 1,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        }
+      ],
+      "actualPayloadSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testTLSExactFixtureTrust": false,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    },
+    {
+      "rowIndex": 35,
+      "case": "tls_invalid_cf-wrong.testTrue",
+      "method": "GET",
+      "scheme": "https",
+      "outcome": "FAILED_NO_EFFECT_CONFIRMED",
+      "error": "CONTROLLED_FETCH_TLS_FAILED",
+      "countedBytes": 0,
+      "complete": "NONE",
+      "truncated": false,
+      "durationSeconds": 0.0375,
+      "dns": [
+        {
+          "host": "cf-wrong.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-wrong.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_209f4c481d80443d988a9c25fc2f0b7f",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "GET",
+          "hop": 0,
+          "origin": "https://cf-wrong.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 0,
+          "httpHeaderBytesReceived": 0,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-wrong.test",
+          "status": null,
+          "complete": false,
+          "tlsVerifyCode": 62,
+          "errorCode": "CONTROLLED_FETCH_TLS_FAILED",
+          "stage": "CONNECT_TLS",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 0,
+      "httpCanaryConnections": 1,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-wrong.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 1
+        },
+        {
+          "host": "cf-wrong.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 1
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-wrong.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "FAILED_NO_EFFECT_CONFIRMED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 1,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        }
+      ],
+      "actualPayloadSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testTLSExactFixtureTrust": true,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    },
+    {
+      "rowIndex": 37,
+      "case": "redirect_public_TrueGET",
+      "method": "GET",
+      "scheme": "https",
+      "outcome": "SUCCEEDED_OBSERVED",
+      "error": null,
+      "countedBytes": 26,
+      "complete": "COMPLETE",
+      "truncated": false,
+      "durationSeconds": 0.0648,
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_a8fcbd6d5fc94ab7898368f8099711a8",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "GET",
+          "hop": 0,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 181,
+          "httpHeaderBytesReceived": 56,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": 302,
+          "complete": true,
+          "tlsVerifyCode": null,
+          "errorCode": null,
+          "stage": "BODY",
+          "retryAllowed": false
+        },
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_a8fcbd6d5fc94ab7898368f8099711a8",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "GET",
+          "hop": 1,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 175,
+          "httpHeaderBytesReceived": 115,
+          "httpBodyBytesReceived": 26,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": 200,
+          "complete": true,
+          "tlsVerifyCode": null,
+          "errorCode": null,
+          "stage": "BODY",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 2,
+      "httpCanaryConnections": 2,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [
+        {
+          "method": "GET",
+          "path": "/redirect",
+          "version": "HTTP/1.1",
+          "host": "cf-public.test",
+          "acceptEncoding": "identity",
+          "connection": "close",
+          "forbiddenHeadersPresent": false,
+          "localEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "peer": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            51031
+          ],
+          "requestBytes": 181
+        },
+        {
+          "method": "GET",
+          "path": "/ok",
+          "version": "HTTP/1.1",
+          "host": "cf-public.test",
+          "acceptEncoding": "identity",
+          "connection": "close",
+          "forbiddenHeadersPresent": false,
+          "localEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "peer": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            51032
+          ],
+          "requestBytes": 175
+        }
+      ],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        },
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 8
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 8
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 9
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 9
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-public.test",
+        "cf-public.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "SUCCEEDED_OBSERVED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 2,
+            "redirects": 1,
+            "header_bytes": 527,
+            "response_bytes": 26,
+            "published_chars": 26
+          }
+        }
+      ],
+      "actualPayloadSha256": "f720523e4a79710839e7dc134a484047bc3be91d274022ee4944e137c7d8201e",
+      "testTLSExactFixtureTrust": true,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    },
+    {
+      "rowIndex": 39,
+      "case": "redirect_public_TrueHEAD",
+      "method": "HEAD",
+      "scheme": "https",
+      "outcome": "SUCCEEDED_OBSERVED",
+      "error": null,
+      "countedBytes": 0,
+      "complete": "COMPLETE",
+      "truncated": false,
+      "durationSeconds": 0.0698,
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_3551ab7b96194e78b677deff1755961d",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "HEAD",
+          "hop": 0,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 182,
+          "httpHeaderBytesReceived": 56,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": 302,
+          "complete": true,
+          "tlsVerifyCode": null,
+          "errorCode": null,
+          "stage": "BODY",
+          "retryAllowed": false
+        },
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_3551ab7b96194e78b677deff1755961d",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "HEAD",
+          "hop": 1,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 176,
+          "httpHeaderBytesReceived": 115,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": 200,
+          "complete": true,
+          "tlsVerifyCode": null,
+          "errorCode": null,
+          "stage": "BODY",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 2,
+      "httpCanaryConnections": 2,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [
+        {
+          "method": "HEAD",
+          "path": "/redirect",
+          "version": "HTTP/1.1",
+          "host": "cf-public.test",
+          "acceptEncoding": "identity",
+          "connection": "close",
+          "forbiddenHeadersPresent": false,
+          "localEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "peer": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            51035
+          ],
+          "requestBytes": 182
+        },
+        {
+          "method": "HEAD",
+          "path": "/ok",
+          "version": "HTTP/1.1",
+          "host": "cf-public.test",
+          "acceptEncoding": "identity",
+          "connection": "close",
+          "forbiddenHeadersPresent": false,
+          "localEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "peer": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            51036
+          ],
+          "requestBytes": 176
+        }
+      ],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        },
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 12
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 12
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 13
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 13
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-public.test",
+        "cf-public.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "SUCCEEDED_OBSERVED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 2,
+            "redirects": 1,
+            "header_bytes": 529,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        }
+      ],
+      "actualPayloadSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testTLSExactFixtureTrust": true,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    },
+    {
+      "rowIndex": 46,
+      "case": "https_downgrade",
+      "method": "GET",
+      "scheme": "https",
+      "outcome": "UNKNOWN",
+      "error": "CONTROLLED_FETCH_REDIRECT_DENIED",
+      "countedBytes": 0,
+      "complete": "NONE",
+      "truncated": false,
+      "durationSeconds": 0.0438,
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_72103f3ec8e6411983a41df893e43c0b",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "GET",
+          "hop": 0,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 182,
+          "httpHeaderBytesReceived": 77,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": 302,
+          "complete": true,
+          "tlsVerifyCode": null,
+          "errorCode": null,
+          "stage": "BODY",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 1,
+      "httpCanaryConnections": 1,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [
+        {
+          "method": "GET",
+          "path": "/downgrade",
+          "version": "HTTP/1.1",
+          "host": "cf-public.test",
+          "acceptEncoding": "identity",
+          "connection": "close",
+          "forbiddenHeadersPresent": false,
+          "localEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "peer": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            51044
+          ],
+          "requestBytes": 182
+        }
+      ],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 20
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 20
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-public.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "UNKNOWN",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 1,
+            "redirects": 0,
+            "header_bytes": 259,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        }
+      ],
+      "actualPayloadSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testTLSExactFixtureTrust": true,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    },
+    {
+      "rowIndex": 71,
+      "case": "ambient_proxy_ignored",
+      "method": "GET",
+      "scheme": "https",
+      "outcome": "SUCCEEDED_OBSERVED",
+      "error": null,
+      "countedBytes": 26,
+      "complete": "COMPLETE",
+      "truncated": false,
+      "durationSeconds": 0.0472,
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_ba2ae126eb444cd5aafafa5bc8634840",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "GET",
+          "hop": 0,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 175,
+          "httpHeaderBytesReceived": 115,
+          "httpBodyBytesReceived": 26,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": 200,
+          "complete": true,
+          "tlsVerifyCode": null,
+          "errorCode": null,
+          "stage": "BODY",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 1,
+      "httpCanaryConnections": 1,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [
+        {
+          "method": "GET",
+          "path": "/ok",
+          "version": "HTTP/1.1",
+          "host": "cf-public.test",
+          "acceptEncoding": "identity",
+          "connection": "close",
+          "forbiddenHeadersPresent": false,
+          "localEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "peer": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            51071
+          ],
+          "requestBytes": 175
+        }
+      ],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 47
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 47
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-public.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "SUCCEEDED_OBSERVED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 1,
+            "redirects": 0,
+            "header_bytes": 290,
+            "response_bytes": 26,
+            "published_chars": 26
+          }
+        }
+      ],
+      "actualPayloadSha256": "f720523e4a79710839e7dc134a484047bc3be91d274022ee4944e137c7d8201e",
+      "testTLSExactFixtureTrust": true,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    },
+    {
+      "rowIndex": 75,
+      "case": "tls_expired",
+      "method": "GET",
+      "scheme": "https",
+      "outcome": "FAILED_NO_EFFECT_CONFIRMED",
+      "error": "CONTROLLED_FETCH_TLS_FAILED",
+      "countedBytes": 0,
+      "complete": "NONE",
+      "truncated": false,
+      "durationSeconds": 0.0424,
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_541acd6c1e6143919e92f553d08d2021",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "GET",
+          "hop": 0,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 0,
+          "httpHeaderBytesReceived": 0,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": null,
+          "complete": false,
+          "tlsVerifyCode": 10,
+          "errorCode": "CONTROLLED_FETCH_TLS_FAILED",
+          "stage": "CONNECT_TLS",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 0,
+      "httpCanaryConnections": 1,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 50
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 50
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-public.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "FAILED_NO_EFFECT_CONFIRMED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 1,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        }
+      ],
+      "actualPayloadSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testTLSExactFixtureTrust": true,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "presentedFixtureCertSha256": "82841c15581ba36c2dc6e75996e7403f54ca85a9d35faae7d9c71fd583929725",
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    },
+    {
+      "rowIndex": 76,
+      "case": "tls_not-yet-valid",
+      "method": "GET",
+      "scheme": "https",
+      "outcome": "FAILED_NO_EFFECT_CONFIRMED",
+      "error": "CONTROLLED_FETCH_TLS_FAILED",
+      "countedBytes": 0,
+      "complete": "NONE",
+      "truncated": false,
+      "durationSeconds": 0.0433,
+      "dns": [
+        {
+          "host": "cf-public.test",
+          "queryType": 1,
+          "answerCount": 0,
+          "addresses": [],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        },
+        {
+          "host": "cf-public.test",
+          "queryType": 28,
+          "answerCount": 1,
+          "addresses": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a"
+          ],
+          "transport": "REAL_UDP_PROCESS_SCOPED_DNS"
+        }
+      ],
+      "transport": [
+        {
+          "capabilityId": "CONTROLLED_FETCH_V1_2",
+          "operationId": "op_4a57326fed24402980e6b9be1bb9c9ee",
+          "transportSha256": "d17f52684206b4d3bc3e4d764fd07f037f12273059059a96e606c66b1fe1d668",
+          "method": "GET",
+          "hop": 0,
+          "origin": "https://cf-public.test",
+          "admittedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "dnsAnswers": [
+            [
+              "2806:261:4a9:e25:b510:6afb:4425:a92a",
+              443
+            ]
+          ],
+          "connectedEndpoint": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "connected": true,
+          "httpRequestBytesSent": 0,
+          "httpHeaderBytesReceived": 0,
+          "httpBodyBytesReceived": 0,
+          "tlsMode": "STANDARD_HOSTNAME_VERIFICATION",
+          "tlsHostname": "cf-public.test",
+          "status": null,
+          "complete": false,
+          "tlsVerifyCode": 9,
+          "errorCode": "CONTROLLED_FETCH_TLS_FAILED",
+          "stage": "CONNECT_TLS",
+          "retryAllowed": false
+        }
+      ],
+      "httpCanaryHits": 0,
+      "httpCanaryConnections": 1,
+      "forbiddenCanaryConnections": 0,
+      "serverEvents": [],
+      "nativeTCPConnectAttempts": [
+        {
+          "family": 23,
+          "target": [
+            "2806:261:4a9:e25:b510:6afb:4425:a92a",
+            443
+          ],
+          "native": true
+        }
+      ],
+      "dnsServerPackets": [
+        {
+          "host": "cf-public.test",
+          "qtype": 1,
+          "behavior": "public",
+          "step": 51
+        },
+        {
+          "host": "cf-public.test",
+          "qtype": 28,
+          "behavior": "public",
+          "step": 51
+        }
+      ],
+      "tlsServerSNI": [
+        "cf-public.test"
+      ],
+      "receipts": [
+        {
+          "outcome": "STARTED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 0,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        },
+        {
+          "outcome": "FAILED_NO_EFFECT_CONFIRMED",
+          "consumed": {
+            "logical_requests": 1,
+            "hops": 1,
+            "redirects": 0,
+            "header_bytes": 0,
+            "response_bytes": 0,
+            "published_chars": 0
+          }
+        }
+      ],
+      "actualPayloadSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "testTLSExactFixtureTrust": true,
+      "fixtureCertSha256": "47055783997ad12d5608c237b94c190aea22714614c6273dd8178e5f0034f596",
+      "resolverMode": "process_dns",
+      "retryAllowed": false,
+      "presentedFixtureCertSha256": "c385cfab3f30a4777ace978c268451fbcc9398c37bf6518aa1b800552b53325b",
+      "evidenceProfile": "CF_B2_GET_HEAD_HTTP11_WINDOWS_V1",
+      "candidateDigest": "75fbf3c132eb1b12393ae6a4e4decc3a26179a7ed6de03741a2c40d18c27b362"
+    }
+  ]
+}

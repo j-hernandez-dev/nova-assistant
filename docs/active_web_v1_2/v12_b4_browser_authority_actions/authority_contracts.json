@@ -1,0 +1,77 @@
+{
+  "result": "PASS",
+  "capabilityId": "INTERACTIVE_BROWSER_V1_2",
+  "profile": "IB_B4_WEBVIEW2_V5_FIXED_ACTIONS_WINDOWS_X64_V1",
+  "chain": [
+    "Host human/task ticket",
+    "AgentLoop proposal",
+    "LegacyToolAdapter",
+    "ToolRuntime",
+    "PolicyEngineV2",
+    "Exact ApprovalGate when required",
+    "one-use GrantIssuer claim",
+    "fresh owner/page/ref/epoch/native fingerprint",
+    "fixed native v5 action",
+    "honest outcome"
+  ],
+  "bindingFields": [
+    "accessibleLabel",
+    "actionKind",
+    "browserContextEpoch",
+    "browserSessionRef",
+    "capabilityId",
+    "controlClass",
+    "deadline",
+    "destination",
+    "documentIdentity",
+    "effectClasses",
+    "elementRef",
+    "limits",
+    "navigationEpoch",
+    "networkIsolation",
+    "observationRef",
+    "observationVersion",
+    "operationId",
+    "origin",
+    "owner",
+    "pageRef",
+    "payloadDigest",
+    "policyRevision",
+    "profile",
+    "targetFingerprint",
+    "taskAuthorityDigest",
+    "taskId",
+    "toolCallId",
+    "turnId",
+    "workspace"
+  ],
+  "modelTools": [
+    "browser_act",
+    "browser_navigate"
+  ],
+  "actionAllowlist": [
+    "CLICK",
+    "INPUT_TEXT",
+    "SELECT_OPTION",
+    "PRESS_KEY",
+    "NAVIGATE"
+  ],
+  "explicitUnsupported": [
+    "FORM_SUBMIT",
+    "UPLOAD_FILE",
+    "DOWNLOAD",
+    "HUMAN_TAKEOVER",
+    "generic JS/eval/command/selector/XPath/coordinates/backend IDs"
+  ],
+  "humanTask": "Host-only turn/owner/workspace/task/expiry ticket; neither DOM nor a model can create it",
+  "subagentsBrowserByDefault": false,
+  "ceilings": {
+    "actionsPerTurn": 25,
+    "navigationsPerTurn": 10,
+    "pages": 3,
+    "mutationsInFlight": 1
+  },
+  "productiveRegistration": false,
+  "deadline": "Host context intersects ticket, lifecycle timeout, Grant lifetime and IPC deadline",
+  "scope": "Focal injected composition only; no productive CLI/JSONL/Desktop snapshot integration"
+}

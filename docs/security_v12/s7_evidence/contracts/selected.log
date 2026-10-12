@@ -1,0 +1,20 @@
+......................F.                                                 [100%]
+================================== FAILURES ===================================
+_________________________ test_url_privacy[None-None] _________________________
+
+url = None, expected = None
+
+    @pytest.mark.parametrize('url,expected', [
+        ('https://user:password@example.com/a?token=secret#secret', 'https://example.com/a'),
+        ('https://[2606:4700::1111]:443/a?secret=value', 'https://[2606:4700::1111]:443/a'),
+        (None, None), ('https://example.com:bad/a', None),
+    ])
+    def test_url_privacy(url, expected):
+>       assert safe_url(url) == expected
+E       AssertionError: assert b'' == None
+E        +  where b'' = safe_url(None)
+
+tests\security_v12\test_s7_contracts.py:119: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/security_v12/test_s7_contracts.py::test_url_privacy[None-None]
+1 failed, 23 passed in 0.30s
