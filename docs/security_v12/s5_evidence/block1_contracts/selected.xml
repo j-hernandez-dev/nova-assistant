@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="8" skipped="0" tests="49" time="0.309" timestamp="2026-10-03T10:48:03.199167-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[file:///x]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.001" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[data:text/plain,x]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[ftp://example.com/x]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[http://user:pass@example.com/]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[http://127.1/]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.001"><failure message="AttributeError: 'ResourceScope' object has no attribute 'value'">url = 'http://127.1/'
+
+    @pytest.mark.parametrize('url', ['file:///x', 'data:text/plain,x', 'ftp://example.com/x',
+        'http://user:pass@example.com/', 'http://127.1/', 'http://2130706433/',
+        'http://0177.0.0.1/', 'http://0x7f000001/', 'http://example.com\\@localhost/',
+        'http://example.com/#x', 'http://example.com/\r\nHeader:x'])
+    def test_url_denied_without_ambient_scheme_handlers(url):
+        with pytest.raises(NetworkError, match='NETWORK_URL_DENIED'):
+&gt;           canonical_url(url)
+
+tests\security_v12\test_s5_contracts.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://127.1/'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+&gt;           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError</failure></testcase><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[http://2130706433/]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.000"><failure message="AttributeError: 'ResourceScope' object has no attribute 'value'">url = 'http://2130706433/'
+
+    @pytest.mark.parametrize('url', ['file:///x', 'data:text/plain,x', 'ftp://example.com/x',
+        'http://user:pass@example.com/', 'http://127.1/', 'http://2130706433/',
+        'http://0177.0.0.1/', 'http://0x7f000001/', 'http://example.com\\@localhost/',
+        'http://example.com/#x', 'http://example.com/\r\nHeader:x'])
+    def test_url_denied_without_ambient_scheme_handlers(url):
+        with pytest.raises(NetworkError, match='NETWORK_URL_DENIED'):
+&gt;           canonical_url(url)
+
+tests\security_v12\test_s5_contracts.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://2130706433/'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+&gt;           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError</failure></testcase><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[http://0177.0.0.1/]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.001"><failure message="AttributeError: 'ResourceScope' object has no attribute 'value'">url = 'http://0177.0.0.1/'
+
+    @pytest.mark.parametrize('url', ['file:///x', 'data:text/plain,x', 'ftp://example.com/x',
+        'http://user:pass@example.com/', 'http://127.1/', 'http://2130706433/',
+        'http://0177.0.0.1/', 'http://0x7f000001/', 'http://example.com\\@localhost/',
+        'http://example.com/#x', 'http://example.com/\r\nHeader:x'])
+    def test_url_denied_without_ambient_scheme_handlers(url):
+        with pytest.raises(NetworkError, match='NETWORK_URL_DENIED'):
+&gt;           canonical_url(url)
+
+tests\security_v12\test_s5_contracts.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://0177.0.0.1/'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+&gt;           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError</failure></testcase><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[http://0x7f000001/]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.001"><failure message="AttributeError: 'ResourceScope' object has no attribute 'value'">url = 'http://0x7f000001/'
+
+    @pytest.mark.parametrize('url', ['file:///x', 'data:text/plain,x', 'ftp://example.com/x',
+        'http://user:pass@example.com/', 'http://127.1/', 'http://2130706433/',
+        'http://0177.0.0.1/', 'http://0x7f000001/', 'http://example.com\\@localhost/',
+        'http://example.com/#x', 'http://example.com/\r\nHeader:x'])
+    def test_url_denied_without_ambient_scheme_handlers(url):
+        with pytest.raises(NetworkError, match='NETWORK_URL_DENIED'):
+&gt;           canonical_url(url)
+
+tests\security_v12\test_s5_contracts.py:20: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://0x7f000001/'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+&gt;           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError</failure></testcase><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[http://example.com\\@localhost/]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[http://example.com/#x]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_url_denied_without_ambient_scheme_handlers[http://example.com/\r\nHeader:x]" file="tests\security_v12\test_s5_contracts.py" line="13" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_canonical_http_https[https://EXAMPLE.com:443-https://example.com/]" file="tests\security_v12\test_s5_contracts.py" line="22" time="0.000"><failure message="AttributeError: 'ResourceScope' object has no attribute 'value'">url = 'https://EXAMPLE.com:443', expected = 'https://example.com/'
+
+    @pytest.mark.parametrize('url,expected', [('https://EXAMPLE.com:443', 'https://example.com/'),
+        ('http://example.com:80/a?q=x', 'http://example.com/a?q=x'),
+        ('http://[2606:4700:4700::1111]/a', 'http://[2606:4700:4700::1111]/a')])
+    def test_canonical_http_https(url, expected):
+&gt;       assert canonical_url(url) == expected
+               ^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s5_contracts.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'https://EXAMPLE.com:443'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+&gt;           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError</failure></testcase><testcase classname="tests.security_v12.test_s5_contracts" name="test_canonical_http_https[http://example.com:80/a?q=x-http://example.com/a?q=x]" file="tests\security_v12\test_s5_contracts.py" line="22" time="0.000"><failure message="AttributeError: 'ResourceScope' object has no attribute 'value'">url = 'http://example.com:80/a?q=x', expected = 'http://example.com/a?q=x'
+
+    @pytest.mark.parametrize('url,expected', [('https://EXAMPLE.com:443', 'https://example.com/'),
+        ('http://example.com:80/a?q=x', 'http://example.com/a?q=x'),
+        ('http://[2606:4700:4700::1111]/a', 'http://[2606:4700:4700::1111]/a')])
+    def test_canonical_http_https(url, expected):
+&gt;       assert canonical_url(url) == expected
+               ^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s5_contracts.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://example.com:80/a?q=x'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+&gt;           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError</failure></testcase><testcase classname="tests.security_v12.test_s5_contracts" name="test_canonical_http_https[http://[2606:4700:4700::1111]/a-http://[2606:4700:4700::1111]/a]" file="tests\security_v12\test_s5_contracts.py" line="22" time="0.000"><failure message="AttributeError: 'ResourceScope' object has no attribute 'value'">url = 'http://[2606:4700:4700::1111]/a'
+expected = 'http://[2606:4700:4700::1111]/a'
+
+    @pytest.mark.parametrize('url,expected', [('https://EXAMPLE.com:443', 'https://example.com/'),
+        ('http://example.com:80/a?q=x', 'http://example.com/a?q=x'),
+        ('http://[2606:4700:4700::1111]/a', 'http://[2606:4700:4700::1111]/a')])
+    def test_canonical_http_https(url, expected):
+&gt;       assert canonical_url(url) == expected
+               ^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s5_contracts.py:27: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+raw = 'http://[2606:4700:4700::1111]/a'
+
+    def canonical_url(raw):
+        try:
+            # Core's URL schema denies credentials, fragments, ambiguous host syntax,
+            # CR/LF and non-HTTP(S). No alternate numeric host spellings are admitted.
+&gt;           result = ResourceScope(ScopeKind.URL, raw).value
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ResourceScope' object has no attribute 'value'
+
+local_cli\application\network.py:18: AttributeError</failure></testcase><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[127.0.0.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[0.0.0.0]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[10.0.0.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[172.16.0.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[192.168.0.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[169.254.169.254]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[100.64.0.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[192.0.2.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[198.18.0.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[224.0.0.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[255.255.255.255]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[::1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[::]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[fc00::1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[fd00::1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[fe80::1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[ff02::1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[2001:db8::1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[::ffff:127.0.0.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.001" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[::ffff:10.0.0.1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[2002:0a00:0001::1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[2001:0000:4136:e378:8000:63bf:3fff:fdd2]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_special_destinations_denied[fe80::1%1]" file="tests\security_v12\test_s5_contracts.py" line="29" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_globally_routable_destinations[8.8.8.8]" file="tests\security_v12\test_s5_contracts.py" line="38" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_globally_routable_destinations[1.1.1.1]" file="tests\security_v12\test_s5_contracts.py" line="38" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_globally_routable_destinations[2606:4700:4700::1111]" file="tests\security_v12\test_s5_contracts.py" line="38" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_globally_routable_destinations[::ffff:8.8.8.8]" file="tests\security_v12\test_s5_contracts.py" line="38" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_explicit_limits_are_validated[timeout_seconds-0]" file="tests\security_v12\test_s5_contracts.py" line="43" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_explicit_limits_are_validated[timeout_seconds-nan]" file="tests\security_v12\test_s5_contracts.py" line="43" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_explicit_limits_are_validated[body_bytes-0]" file="tests\security_v12\test_s5_contracts.py" line="43" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_explicit_limits_are_validated[body_bytes-True]" file="tests\security_v12\test_s5_contracts.py" line="43" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_explicit_limits_are_validated[redirects--1]" file="tests\security_v12\test_s5_contracts.py" line="43" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_explicit_limits_are_validated[published_chars-0]" file="tests\security_v12\test_s5_contracts.py" line="43" time="0.000" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_authorized_defaults_and_bound_text_including_marker" file="tests\security_v12\test_s5_contracts.py" line="50" time="0.003" /><testcase classname="tests.security_v12.test_s5_contracts" name="test_total_budget_and_core_deadline_and_cancellation" file="tests\security_v12\test_s5_contracts.py" line="60" time="0.000"><failure message="TypeError: Protocols cannot be instantiated">def test_total_budget_and_core_deadline_and_cancellation():
+&gt;       token = CancellationToken()
+                ^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s5_contracts.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.core.contracts.CancellationToken object at 0x000001ECFB300830&gt;
+args = (), kwargs = {}
+
+    def _no_init_or_replace_init(self, *args, **kwargs):
+        cls = type(self)
+    
+        if cls._is_protocol:
+&gt;           raise TypeError('Protocols cannot be instantiated')
+E           TypeError: Protocols cannot be instantiated
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\typing.py:1869: TypeError</failure></testcase></testsuite></testsuites>

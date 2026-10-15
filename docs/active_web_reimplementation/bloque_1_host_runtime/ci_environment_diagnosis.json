@@ -1,0 +1,42 @@
+{
+  "scope": "Windows manual browser-block1 test environment only",
+  "rootCause": "INCOHERENT_TEST_USERPROFILE_APPDATA_LAYOUT",
+  "nativeFailure": "WebView2 did not publish its CDP port.",
+  "observed": {
+    "nativeExitCode": 2,
+    "debuggingArgumentsPresent": true,
+    "ownedCdpListenerPresent": false,
+    "devToolsActivePortPresent": false,
+    "ownedJobsEmptyAfterDiagnosis": true
+  },
+  "controlledComparisons": [
+    {"case": "normal environment, same long owned profile", "ready": true, "elapsedSeconds": 1.30},
+    {"case": "sanitized environment, long owned profile", "ready": false, "elapsedSeconds": 16.17},
+    {"case": "sanitized environment, short owned profile", "ready": false, "elapsedSeconds": 16.15},
+    {"case": "restore only original USERPROFILE", "ready": true, "elapsedSeconds": 1.50},
+    {"case": "restore only original APPDATA", "ready": false, "elapsedSeconds": 16.34},
+    {"case": "restore only original LOCALAPPDATA", "ready": false, "elapsedSeconds": 16.36},
+    {"case": "restore only original TEMP/TMP", "ready": false, "elapsedSeconds": 16.32},
+    {"case": "coherent fully owned Windows profile layout", "nativeSmoke": "PASS", "exitCode": 0}
+  ],
+  "fix": {
+    "file": "ci/run_contracts.py",
+    "job": "browser-block1",
+    "USERPROFILE": "<owned-output>/private/windows-user",
+    "HOME": "<USERPROFILE>",
+    "APPDATA": "<USERPROFILE>/AppData/Roaming",
+    "LOCALAPPDATA": "<USERPROFILE>/AppData/Local",
+    "TEMP": "<LOCALAPPDATA>/Temp",
+    "TMP": "<LOCALAPPDATA>/Temp",
+    "inheritsPersonalProfile": false,
+    "changesProductHostOrRuntime": false,
+    "claimsOsSandbox": false
+  },
+  "finalEvidence": {
+    "runner": "runs/ci-wrapper-03.json",
+    "native": "runs/ci-native-03.json",
+    "runnerExitCode": 0,
+    "testsExecuted": 1,
+    "silentSkips": false
+  }
+}

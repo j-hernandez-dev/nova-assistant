@@ -1,0 +1,219 @@
+{
+  "status": "PASS",
+  "scope": "read-only local structure, not actionlint or hosted execution",
+  "actionlintAvailable": false,
+  "yamlParser": "PyYAML BaseLoader",
+  "workflows": [
+    {
+      "path": ".github/workflows/nova_core_v1.yml",
+      "syntax": "PASS",
+      "sha256": "1e6e65dbb3eef4a628883942dd3d167cae7988ad879b9c5634f5f620731b5485",
+      "permissions": {
+        "contents": "read"
+      },
+      "triggers": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "jobs": [
+        "core-contracts",
+        "security-contracts",
+        "security-native-manual"
+      ],
+      "localPaths": [
+        {
+          "job": "core-contracts",
+          "path": "ci/contract_inventory.py",
+          "exists": true
+        },
+        {
+          "job": "core-contracts",
+          "path": "ci/run_contracts.py",
+          "exists": true
+        },
+        {
+          "job": "security-contracts",
+          "path": "ci/run_contracts.py",
+          "exists": true
+        },
+        {
+          "job": "security-native-manual",
+          "path": "ci/run_contracts.py",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "path": ".github/workflows/nova_knowledge_v1.yml",
+      "syntax": "PASS",
+      "sha256": "8f80990675d913dde2108c098ceb6499d5a10ca55e9973cc695402bb3602f081",
+      "permissions": {
+        "contents": "read"
+      },
+      "triggers": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "jobs": [
+        "knowledge-contracts",
+        "desktop-contracts"
+      ],
+      "localPaths": [
+        {
+          "job": "knowledge-contracts",
+          "path": "ci/contract_inventory.py",
+          "exists": true
+        },
+        {
+          "job": "knowledge-contracts",
+          "path": "ci/run_contracts.py",
+          "exists": true
+        },
+        {
+          "job": "knowledge-contracts",
+          "path": "ci/run_contracts.py",
+          "exists": true
+        },
+        {
+          "job": "desktop-contracts",
+          "path": "desktop/tests/application_client.test.cjs",
+          "exists": true
+        },
+        {
+          "job": "desktop-contracts",
+          "path": "desktop/tests/approval_host.test.cjs",
+          "exists": true
+        },
+        {
+          "job": "desktop-contracts",
+          "path": "desktop/tests/security_audit.test.cjs",
+          "exists": true
+        },
+        {
+          "job": "desktop-contracts",
+          "path": "desktop/tests/memory_control.test.cjs",
+          "exists": true
+        },
+        {
+          "job": "desktop-contracts",
+          "path": "desktop/tests/memory_maintenance.test.cjs",
+          "exists": true
+        },
+        {
+          "job": "desktop-contracts",
+          "path": "desktop/tests/knowledge_control.test.cjs",
+          "exists": true
+        },
+        {
+          "job": "desktop-contracts",
+          "path": "desktop/tests/knowledge_k7.test.cjs",
+          "exists": true
+        }
+      ]
+    },
+    {
+      "path": ".github/workflows/nova_memory_v1.yml",
+      "syntax": "PASS",
+      "sha256": "d7473a07678aa1c4767fded8cc193cd5457d529a95459534a6236935c09b1a90",
+      "permissions": {
+        "contents": "read"
+      },
+      "triggers": [
+        "push",
+        "pull_request",
+        "workflow_dispatch"
+      ],
+      "jobs": [
+        "memory-contracts"
+      ],
+      "localPaths": [
+        {
+          "job": "memory-contracts",
+          "path": "ci/run_contracts.py",
+          "exists": true
+        }
+      ]
+    }
+  ],
+  "helpAudit": {
+    "help": [
+      "/agents",
+      "/attach",
+      "/brain",
+      "/browser",
+      "/checkpoint",
+      "/clear",
+      "/context",
+      "/copy",
+      "/diff",
+      "/exit",
+      "/fetch",
+      "/help",
+      "/ideate",
+      "/info",
+      "/install",
+      "/knowledge",
+      "/memory",
+      "/model",
+      "/models",
+      "/plan",
+      "/provider",
+      "/rag",
+      "/registry",
+      "/resume",
+      "/rollback",
+      "/running",
+      "/save",
+      "/search",
+      "/skills",
+      "/source",
+      "/status",
+      "/undo",
+      "/uninstall",
+      "/update",
+      "/usage"
+    ],
+    "handlers": [
+      "/agents",
+      "/attach",
+      "/brain",
+      "/browser",
+      "/checkpoint",
+      "/clear",
+      "/context",
+      "/copy",
+      "/diff",
+      "/exit",
+      "/fetch",
+      "/help",
+      "/ideate",
+      "/info",
+      "/install",
+      "/knowledge",
+      "/memory",
+      "/model",
+      "/models",
+      "/plan",
+      "/provider",
+      "/rag",
+      "/registry",
+      "/resume",
+      "/rollback",
+      "/running",
+      "/save",
+      "/search",
+      "/skills",
+      "/source",
+      "/status",
+      "/undo",
+      "/uninstall",
+      "/update",
+      "/usage"
+    ],
+    "missingFromHelp": [],
+    "noHandler": []
+  },
+  "issues": []
+}

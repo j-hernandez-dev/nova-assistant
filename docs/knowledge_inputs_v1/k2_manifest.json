@@ -1,0 +1,664 @@
+{
+  "schemaVersion": 1,
+  "phase": "K2",
+  "normativeSection": "NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md §57",
+  "status": "PASS",
+  "verdict": "K2 PASS",
+  "evaluatedDate": "2026-10-07",
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "initialWorkingTree": [
+      " M tests/memory_v1/run_m8_qwen4_chat7b.py",
+      " M tests/memory_v1/test_m8_metadata_admission.py",
+      " M tests/memory_v1/test_m8_ps_operational.py",
+      " M tests/memory_v1/test_m8_qwen4_chat7b.py",
+      "?? docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "?? docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "?? docs/knowledge_inputs_v1/",
+      "?? local_cli/application/knowledge.py",
+      "?? local_cli/bootstrap_knowledge.py",
+      "?? local_cli/core/knowledge.py",
+      "?? local_cli/core/knowledge_store.py",
+      "?? local_cli/infrastructure/knowledge_files.py",
+      "?? local_cli/infrastructure/knowledge_migrations.py",
+      "?? local_cli/infrastructure/knowledge_sqlite.py",
+      "?? tests/knowledge_inputs_v1/"
+    ],
+    "initialFreeze": "docs/knowledge_inputs_v1/k2_freeze.json",
+    "preflight": "docs/knowledge_inputs_v1/k2_preflight.md",
+    "evaluatedState": "HEAD + preserved uncommitted K0/K1 baseline + explicit K2 file hashes. Not HEAD alone.",
+    "dirtyAtStart": true,
+    "dirtyAtClose": true,
+    "staged": [],
+    "preexistingMemoryFilesModifiedByK2": false,
+    "initialHashesPreserved": true,
+    "protectedPinCount": 70,
+    "protectedMismatches": [],
+    "finalProductFreeze": "docs/knowledge_inputs_v1/k2_product_freeze_v2.json",
+    "finalProductPinCount": 34,
+    "finalProductMismatches": [],
+    "previousProductFreezePreserved": "docs/knowledge_inputs_v1/k2_product_freeze.json",
+    "tags": [
+      {
+        "tag": "nova-core-v1-stable",
+        "commit": "158b60effa484cd34a58b991f3ee4ca3f808d924",
+        "ancestor": true,
+        "object": "97f41c6dab89ee59332875bb8d89c29620b52156",
+        "unchanged": true
+      },
+      {
+        "tag": "nova-security-v1.2-ready",
+        "commit": "26dc87786d8ad1c1d879255a068c7fb50a25e6f2",
+        "ancestor": true,
+        "object": "e5bea6a4c2c559a1f5a2f8824316a83b548b2533",
+        "unchanged": true
+      },
+      {
+        "tag": "nova-memory-v1-ready",
+        "commit": "9911ad4ca0fc13edfef49e84441a759d35cbefda",
+        "ancestor": true,
+        "object": "fa6b2f7898692ddc6cec77a4d971dbc395b764a6",
+        "unchanged": true
+      },
+      {
+        "tag": "nova-memory-v1.1-ready",
+        "commit": "3678d5b597a888b743e90d26efda6219943d58df",
+        "ancestor": true,
+        "object": "6a48c5252e40986ecf4180138d9d56bc519b3e49",
+        "unchanged": true
+      }
+    ],
+    "integrity": "docs/knowledge_inputs_v1/k2_evidence/final_integrity.json"
+  },
+  "architecture": {
+    "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+    "sha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "approvedByUser": true,
+    "modified": false,
+    "precedence": "Core V1 > SECURITY V1.2 > MEMORY V1 > Knowledge (§3)",
+    "blockingContradictions": []
+  },
+  "scope": {
+    "os": "Windows 11",
+    "build": "10.0.26200",
+    "filesystem": "C: local NTFS",
+    "processModel": "HOST_UNISOLATED",
+    "sandbox": false,
+    "processIsolation": false,
+    "inheritsS3Claims": false,
+    "nativeLinuxMacos": "NOT_RUN / NOT_CERTIFIED",
+    "packageVersion": "0.12.6",
+    "python": "3.14.6",
+    "pytest": "9.1.1",
+    "sqlite": "3.50.4",
+    "alternateContractPython": "3.12.14",
+    "node": "24.19.0",
+    "memorySemanticProfile": "NOT_CERTIFIED"
+  },
+  "implementation": {
+    "attachmentRefSchemaVersion": 1,
+    "knowledgeControlSchemaVersion": 1,
+    "knowledgeStoreSchemaVersion": 1,
+    "sqliteSchemaChanged": false,
+    "migrationsAdded": [],
+    "toolSchemasChanged": false,
+    "acquisition": "Explicit verified host-selected regular local file via Core port / Infrastructure reader; no Source.origin/renderer/model path authority.",
+    "commands": [
+      "source_import",
+      "source_list",
+      "source_status",
+      "source_promote",
+      "source_delete",
+      "source_cancel"
+    ],
+    "cliCommands": [
+      "/attach",
+      "/source import",
+      "/source select",
+      "/source detach",
+      "/source list",
+      "/source status",
+      "/source promote",
+      "/source delete",
+      "/source cancel"
+    ],
+    "jsonl": "Signed knowledge_command / knowledge_result; exact KnowledgeControl domain with session/revision",
+    "desktop": "Main-frame validated native one-file picker; no renderer path import or raw pipe controls; refs/progress UI only",
+    "lifecycle": "Existing Application ServiceOperation + Core ExecutionContext/events/cancellation; no second loop/session",
+    "defaultSourceScope": "SESSION",
+    "workspacePersistence": "Explicit import scope or promote only",
+    "promotion": "Copy scoped current published bytes/projection to new Source/Revision/blocks/chunks; original intact; no origin reopen or vector reinterpretation",
+    "sourceCleanup": "SESSION on close/rebind, WORKSPACE persisted; EOF closes adapter; deferred cooperative worker teardown",
+    "audit": "Existing SecurityAuditService; durable pre-effect failure denies acquisition; terminal gap reported with observed effect/no retry/rollback",
+    "capabilities": {
+      "attachments": "DEGRADED",
+      "workspaceLibrary": "DEGRADED",
+      "extraction": false,
+      "lexicalRetrieval": false,
+      "semanticRetrieval": "UNAVAILABLE",
+      "pdfText": "UNAVAILABLE",
+      "docx": "UNAVAILABLE",
+      "html": "UNAVAILABLE",
+      "ocr": "UNAVAILABLE",
+      "webSearch": "UNAVAILABLE",
+      "webFetch": "UNAVAILABLE in Knowledge snapshot; existing Security web_fetch tool untouched"
+    },
+    "productionExtraction": "prepare=None. Real acquisition/staging then UNSUPPORTED_FORMAT / FAILED; no published revision, no retained staging/blob, no false READY.",
+    "preparedProjectionProducer": "Minimal trusted future K3 seam; test-only synthetic producer in publication/promotion tests. Not parser quality or future capability implementation.",
+    "documentPromptAdmission": false,
+    "knowledgeWritesMemory": false,
+    "newRecall": false,
+    "newParser": false,
+    "activeWeb": false,
+    "limits": {
+      "sourceBytes": 52428800,
+      "readUnitBytes": 262144,
+      "otherK1Limits": "Unchanged",
+      "claim": "Operational bounds, not OS quota or process isolation."
+    }
+  },
+  "traceability": [
+    {
+      "criterion": "attachmentRefs",
+      "norm": "§32; KI-OD-21; KI-INV-005/007/027",
+      "implementation": "Core AttachmentRef V1; SubmitUserInput strict refs, transcript separate; runtime and MEMORY receive only actual user content",
+      "components": [
+        "local_cli/core/attachments.py",
+        "local_cli/application/commands.py",
+        "local_cli/application/session.py"
+      ],
+      "tests": [
+        "test_ref_strict_versioned_roundtrip_no_path_or_content_authority",
+        "test_attachment_refs_separate_from_user_memory_capture_provider_and_system",
+        "test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref"
+      ],
+      "result": "PASS",
+      "evidenceLimit": null
+    },
+    {
+      "criterion": "Desktop picker flow",
+      "norm": "§33, §57; KI-OD-21; KI-INV-039/040",
+      "implementation": "Main-owned one-file dialog, verified main frame, captured session/workspace/revision; signed host import; renderer ID-only controls",
+      "components": [
+        "desktop/electron/knowledge_control.cjs",
+        "desktop/electron/main.ts",
+        "desktop/electron/application_client.ts",
+        "desktop/src/App.tsx"
+      ],
+      "tests": [
+        "picker path comes from main dialog, signed exact SESSION import; no optimistic Turn",
+        "picker cancel/multiple/session/workspace/revision cannot grant stale or invented file authority",
+        "main frame is validated; raw pipe blocked; preview is not used for ingestion; renderer no DB/parser"
+      ],
+      "result": "PASS",
+      "evidenceLimit": "Native picker response is a double; no interactive Electron E2E claim"
+    },
+    {
+      "criterion": "CLI/JSONL import",
+      "norm": "§9, §33, §57; KI-OD-21/24; KI-INV-010/011/039",
+      "implementation": "TTY explicit import or exact signed JSONL KnowledgeControl; shared Application and ServiceOperation",
+      "components": [
+        "local_cli/interfaces/knowledge_cli.py",
+        "local_cli/interfaces/cli_application.py",
+        "local_cli/interfaces/jsonl_application.py",
+        "local_cli/application/knowledge_host.py"
+      ],
+      "tests": [
+        "test_jsonl_import_requires_authenticated_exact_host_intent",
+        "test_cli_explicit_path_spaces_default_session_and_host_tty_enforcement",
+        "test_cli_and_server_normal_roots_activate_host_route_without_eager_store_or_fake_format_support"
+      ],
+      "result": "PASS",
+      "evidenceLimit": null
+    },
+    {
+      "criterion": "SESSION sources",
+      "norm": "§8/32, §57; KI-OD-03/04; KI-INV-029",
+      "implementation": "SESSION default, bound host workspace/session, no global source; cleanup on close/rebind",
+      "components": [
+        "local_cli/application/knowledge.py",
+        "local_cli/application/knowledge_host.py",
+        "local_cli/bootstrap_knowledge.py"
+      ],
+      "tests": [
+        "test_real_session_acquisition_operation_publication_progress_no_paths_or_content",
+        "test_explicit_scope_and_reopen_session_cleanup_workspace_persistence",
+        "test_workspace_rebind_invalidates_session_refs_and_cannot_cross_scope_or_reopen_origin"
+      ],
+      "result": "PASS",
+      "evidenceLimit": "Prepared projection is synthetic in publication tests; acquisition, Application and SQLite are real; no K3 parser claim"
+    },
+    {
+      "criterion": "Explicit promote/import WORKSPACE",
+      "norm": "§8, §57; KI-OD-03/04; KI-INV-001/002/008/029/033",
+      "implementation": "Explicit import scope; promote copies a scoped published revision into independent Source/Revision without origin reopen or vector reuse",
+      "components": [
+        "local_cli/application/knowledge.py",
+        "local_cli/core/knowledge_store.py",
+        "local_cli/infrastructure/knowledge_sqlite.py"
+      ],
+      "tests": [
+        "test_promotion_is_independent_new_source_revision_preserves_original_and_no_origin_reopen",
+        "test_cli_workspace_import_list_promote_delete_share_backend_no_second_loop",
+        "test_missing_producer_real_route_acquires_but_typed_failure_no_fake_ready_and_cleanup"
+      ],
+      "result": "PASS",
+      "evidenceLimit": "Prepared projection is synthetic in publication tests; acquisition, Application and SQLite are real; no K3 parser claim"
+    },
+    {
+      "criterion": "progress/status/cancel",
+      "norm": "§42/46, §57; KI-OD-24; KI-INV-033/034/039",
+      "implementation": "Existing Core operation lifecycle, cooperative bounded acquisition, idempotency and exact cancel; terminal observed, no blind retries",
+      "components": [
+        "local_cli/application/knowledge_host.py",
+        "local_cli/infrastructure/knowledge_acquisition.py",
+        "local_cli/server.py"
+      ],
+      "tests": [
+        "test_progress_status_cooperative_cancel_single_terminal_and_no_publish",
+        "test_idempotency_bound_to_exact_arguments_no_reimport_no_automatic_retry",
+        "test_real_cancel_before_or_between_units"
+      ],
+      "result": "PASS",
+      "evidenceLimit": null
+    },
+    {
+      "criterion": "Exit: attachment is not user assertion",
+      "norm": "§57 closure; §32; KI-INV-005/006/007/027",
+      "implementation": "No acquired text/display name/ref auto-concatenated to user assertion/system/MEMORY capture; no K5 admission yet",
+      "components": [
+        "local_cli/application/session.py",
+        "desktop/electron/application_client.ts"
+      ],
+      "tests": [
+        "test_attachment_refs_separate_from_user_memory_capture_provider_and_system",
+        "backend projection preserves refs/progress separately; content never silently concatenated"
+      ],
+      "result": "PASS",
+      "evidenceLimit": null
+    },
+    {
+      "criterion": "Exit: renderer no direct authority",
+      "norm": "§57 closure; §9/10/33; KI-INV-008/009/010/011/039/040",
+      "implementation": "No renderer-selected file path, parser, DB or prepared projections; host signed action, IDs scoped by store; preview not ingestion",
+      "components": [
+        "desktop/electron/main.ts",
+        "desktop/electron/knowledge_control.cjs",
+        "local_cli/interfaces/jsonl_application.py",
+        "local_cli/application/knowledge_host.py"
+      ],
+      "tests": [
+        "renderer ID actions cannot submit paths, content, prepared projections or arbitrary commands",
+        "test_authority_and_freshness_rejections_before_file_or_store_effect",
+        "test_jsonl_import_requires_authenticated_exact_host_intent"
+      ],
+      "result": "PASS",
+      "evidenceLimit": null
+    },
+    {
+      "criterion": "Preserve Core/SECURITY/MEMORY",
+      "norm": "§3; applicable existing contracts",
+      "implementation": "No second loop or main session; ToolRuntime/Policy/grants/ContextManager/Memory product and normative docs unchanged; normal host imports audited",
+      "components": [
+        "local_cli/application/session.py",
+        "local_cli/bootstrap_cli.py",
+        "local_cli/bootstrap_server.py"
+      ],
+      "tests": [
+        "test_audit_pre_effect_failure_denies_acquisition_no_store_or_auto_retry",
+        "test_terminal_audit_gap_keeps_observed_publication_and_never_retries_or_rolls_back",
+        "final HEAD + boundary + MEMORY + Desktop regressions"
+      ],
+      "result": "PASS",
+      "evidenceLimit": null
+    }
+  ],
+  "invariantsDemonstrated": [
+    {
+      "id": "KI-INV-001/002/003/016",
+      "result": "PASS",
+      "evidence": "Versioned Source/Revision/locators and independent promote identities; K1 publication retained. No new refresh/chunking algorithm."
+    },
+    {
+      "id": "KI-INV-004/005/006/007",
+      "result": "PASS",
+      "evidence": "Document content stays separate from MEMORY, current user assertions, system instructions, grants and approvals."
+    },
+    {
+      "id": "KI-INV-008/009/010/011",
+      "result": "PASS",
+      "evidence": "Explicit authenticated host path, real owned store validation; no S3 claim inheritance and normal agent tools unchanged."
+    },
+    {
+      "id": "KI-INV-014/015",
+      "result": "PASS",
+      "evidence": "Missing parsers unavailable, unsupported extraction typed, no false READY."
+    },
+    {
+      "id": "KI-INV-023/024/025",
+      "result": "PASS",
+      "evidence": "No legacy/vector reinterpretation; delete/tombstones/no-resurrection without erasing audit/transcript/MEMORY."
+    },
+    {
+      "id": "KI-INV-027/028/029",
+      "result": "PASS",
+      "evidence": "Current user unchanged, zero document prompt injection pending K5; scope/session/workspace validation. Existing budgets intact."
+    },
+    {
+      "id": "KI-INV-031/032",
+      "result": "PASS",
+      "evidence": "Host sources keep remote forwarding off; no new remote forwarding/search enabled."
+    },
+    {
+      "id": "KI-INV-033/034/035",
+      "result": "PASS",
+      "evidence": "Mandatory publish transaction, no incomplete READY, cooperative cancellation and bounded acquisition."
+    },
+    {
+      "id": "KI-INV-038/039/040",
+      "result": "PASS",
+      "evidence": "No Active Web; shared Application, renderer/main boundaries and preview not ingestion."
+    }
+  ],
+  "invariantsNotClaimedByK2": [
+    "KI-INV-017/018/019 citations (K5)",
+    "KI-INV-020/021/022 productive document retrieval/semantic (K4)",
+    "KI-INV-026 new Knowledge context integration/shared cap (K5; existing MEMORY/RAG caps retained)",
+    "KI-INV-030 document delegation feature (K7)"
+  ],
+  "decisionsApplicable": [
+    "KI-OD-01",
+    "KI-OD-02",
+    "KI-OD-03",
+    "KI-OD-04",
+    "KI-OD-11",
+    "KI-OD-12",
+    "KI-OD-16",
+    "KI-OD-17",
+    "KI-OD-21",
+    "KI-OD-23",
+    "KI-OD-24",
+    "KI-OD-25",
+    "KI-OD-28"
+  ],
+  "tests": {
+    "details": "docs/knowledge_inputs_v1/k2_evidence/test_runs.json",
+    "baseline": {
+      "knowledge": 329,
+      "boundaries": 131,
+      "failed": 0
+    },
+    "phaseFinal": {
+      "k0": 167,
+      "k1": 162,
+      "k2": 103,
+      "total": 432,
+      "failed": 0,
+      "skipped": 0,
+      "xfail": 0,
+      "focusedRun": "final-knowledge-v3",
+      "currentFinalStateRevalidatedIn": "final-head-v2"
+    },
+    "alternateRuntime": {
+      "run": "final-py312-v2",
+      "passed": 432,
+      "failed": 0,
+      "skipped": 0,
+      "installedDependencies": false
+    },
+    "boundaries": {
+      "run": "final-boundaries",
+      "passed": 131,
+      "failed": 0,
+      "skipped": 0
+    },
+    "compatibility": {
+      "run": "compatibility",
+      "passed": 55,
+      "failed": 0,
+      "skipped": 0
+    },
+    "memory": {
+      "run": "final-memory",
+      "passed": 790,
+      "failed": 0,
+      "skipped": 0
+    },
+    "head": {
+      "run": "final-head-v2",
+      "passed": 4578,
+      "failed": 0,
+      "skipped": 11,
+      "xmlCases": 4589,
+      "subtestsPassed": 53,
+      "durationSeconds": 324.68,
+      "categories": {
+        "other": 2752,
+        "k0_k1": 329,
+        "k2": 103,
+        "memory": 790,
+        "security": 615
+      },
+      "skippedIds": [
+        "::tests.test_model_selector",
+        "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+        "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+        "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+        "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+        "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+        "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+        "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+        "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+        "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+        "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent"
+      ]
+    },
+    "desktop": {
+      "passed": 50,
+      "failed": 0,
+      "skipped": 0,
+      "newK2": 10,
+      "preexisting": 40,
+      "tscExitCode": 0,
+      "details": "docs/knowledge_inputs_v1/k2_evidence/desktop.json"
+    },
+    "observedFailuresPreserved": true,
+    "failuresDetail": "docs/knowledge_inputs_v1/k2_evidence/test_runs.json (each observed failing ID and classification); *_failure.txt (full tracebacks)",
+    "currentFailures": [],
+    "staleExpectationUpdate": {
+      "file": "tests/knowledge_inputs_v1/test_k1_application.py",
+      "classification": "STALE_EXPECTATION",
+      "reason": "K1 phase-only static prohibition on normal root activation is superseded by explicit K2 activation requirement; replaced by common-root/no-parser/no-bypass checks. Historical K1 report unchanged."
+    },
+    "noNewSkips": true,
+    "noNewXfail": true,
+    "noNewExclusions": true
+  },
+  "evidenceTypes": {
+    "unitContract": "DTO/schema, scope, authentication, snapshots, boundaries and typed errors",
+    "integration": "Real Application + CLI/JSONL + native file reader + real SQLite, with named synthetic prepared-projection producer",
+    "persistence": "Real SQLite transactions/FTS/current publication/tombstones/reopen; no schema migration introduced",
+    "hostReal": [
+      "Native selected-file Unicode/raw-byte/bounded reads",
+      "Native mutation and cooperative cancellation",
+      "Native hardlink and directory junction rejection",
+      "Existing K1 process-exit/recovery fixtures reexecuted"
+    ],
+    "doubles": [
+      "Synthetic prebuilt document/chunk producer",
+      "Provider/runtime behavior double",
+      "Native picker dialog response / Electron transport frames",
+      "Audit failure injection"
+    ],
+    "realParsers": false,
+    "realModels": false,
+    "realEmbeddings": false,
+    "realElectronInteractive": false,
+    "remoteProviders": false,
+    "noModelQualityClaim": true
+  },
+  "performance": {
+    "gateRequiresNewBenchmark": false,
+    "newSla": false,
+    "benchmark": "NOT_RUN",
+    "operationalBoundsTested": true,
+    "totalTestDurationNotProductLatency": true,
+    "growthAndFootprint": "UNKNOWN; later pertinent phases"
+  },
+  "limitations": [
+    "K2 closes host acquisition/control/reference contracts only, not end-to-end useful document parsing or answer-from-attachment.",
+    "Production imports without a K3 producer fail UNSUPPORTED_FORMAT rather than publishing placeholder READY.",
+    "Native Linux/macOS and interactive Electron E2E not evaluated; no certification expanded.",
+    "No sandbox/process isolation or inherited S3 mediation claim for host acquisition; no universal same-user concurrent adversary protection.",
+    "Cancel cooperative; not physical power-loss certification or forced process tree isolation.",
+    "Delete not secure erase and does not erase MEMORY/transcript/audit/backups.",
+    "No universal DLP/encryption/secret-detection claim; no local documents sent to remote providers.",
+    "No document semantic profile/model/parser/retrieval quality certified by these doubles. Existing MEMORY Semantic Profile stays NOT_CERTIFIED."
+  ],
+  "debt": [
+    "K3 actual parsers/normalization/MIME/encodings/format-specific bounds",
+    "K4 productive retrieval/chunking/lexical quality/semantic spaces/legacy rebuild",
+    "K5 KnowledgeCapsule/shared context/citations",
+    "K6 passive search/URL imports, K7 delegation/observability, K8 final quality/E2E"
+  ],
+  "openDecisions": {
+    "blockingK2": [],
+    "future": "No future open decisions resolved in K2; approved architecture and limits remain intact."
+  },
+  "filesCreated": [
+    "desktop/electron/knowledge_control.cjs",
+    "desktop/electron/knowledge_control.d.cts",
+    "desktop/tests/knowledge_control.test.cjs",
+    "local_cli/application/knowledge_host.py",
+    "local_cli/core/attachments.py",
+    "local_cli/infrastructure/knowledge_acquisition.py",
+    "local_cli/interfaces/knowledge_cli.py",
+    "local_cli/server.py",
+    "tests/knowledge_inputs_v1/k2_helpers.py",
+    "tests/knowledge_inputs_v1/run_k2.py",
+    "tests/knowledge_inputs_v1/test_k2_acquisition.py",
+    "tests/knowledge_inputs_v1/test_k2_application.py",
+    "tests/knowledge_inputs_v1/test_k2_composition.py",
+    "tests/knowledge_inputs_v1/test_k2_contracts.py",
+    "tests/knowledge_inputs_v1/test_k2_interfaces.py",
+    "docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/compatibility.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/desktop.json",
+    "docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/final-memory.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/final-py312.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/head_final.txt",
+    "docs/knowledge_inputs_v1/k2_evidence/integrity.json",
+    "docs/knowledge_inputs_v1/k2_evidence/test_runs.json",
+    "docs/knowledge_inputs_v1/k2_freeze.json",
+    "docs/knowledge_inputs_v1/k2_preflight.md",
+    "docs/knowledge_inputs_v1/k2_product_freeze_v2.json",
+    "docs/knowledge_inputs_v1/k2_product_freeze.json",
+    "docs/knowledge_inputs_v1/k2_resultados.md",
+    "docs/knowledge_inputs_v1/k2_evidence/final_integrity.json",
+    "docs/knowledge_inputs_v1/k2_manifest.json"
+  ],
+  "filesModified": [
+    "desktop/electron/application_client.ts",
+    "desktop/electron/main.ts",
+    "desktop/electron/preload.ts",
+    "desktop/shared/application.ts",
+    "desktop/src/App.tsx",
+    "desktop/src/types.ts",
+    "local_cli/application/commands.py",
+    "local_cli/application/knowledge.py",
+    "local_cli/application/session.py",
+    "local_cli/bootstrap_cli.py",
+    "local_cli/bootstrap_knowledge.py",
+    "local_cli/bootstrap_server.py",
+    "local_cli/cli.py",
+    "local_cli/core/knowledge_store.py",
+    "local_cli/infrastructure/knowledge_sqlite.py",
+    "local_cli/interfaces/cli_application.py",
+    "local_cli/interfaces/jsonl_application.py",
+    "tests/knowledge_inputs_v1/test_k1_application.py",
+    "tests/test_nova_core_phase11_characterization.py"
+  ],
+  "artifacts": {
+    "desktop/electron/application_client.ts": "999ab927779ddb6e642c584055f0e0d431cdda93ab5cc0667a79c017fe4849ee",
+    "desktop/electron/knowledge_control.cjs": "62813ed4529d009678a1f0993e5cdd7a988c7389c350cd04c386959e681fc052",
+    "desktop/electron/knowledge_control.d.cts": "a4c4ab6f388a3c55bd1bf4a590e59544abeb641e3d5dea5c65c5754c7d3e4bcd",
+    "desktop/electron/main.ts": "a1736c5851fb949a60bb4b709134edcf15c93c600020204a3a4d173629d9e156",
+    "desktop/electron/preload.ts": "73770a759571a49ec5ceba967f39dbb807953ef07a098035521047c450a04c7e",
+    "desktop/shared/application.ts": "e993033e8e3367d4300c5589cd5eab8b706d98b8b4e3d7df4a42b7ce81881164",
+    "desktop/src/App.tsx": "3d39fc23c25b1f6b65acda4e02939310b8871585bfcd49090ec90071c1634f9c",
+    "desktop/src/types.ts": "14930d1b913b294d411c783ec5854696fdd04e17689ba786a1b79017f051cc09",
+    "desktop/tests/knowledge_control.test.cjs": "b810659a8454e2c007fc27137bc0c69ad85908d2b0b462518ced88d6f8de9e9c",
+    "docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt": "6faa80fd68d3b8868444ed4cad89c34fc8c8387c76b1f59c058926b0ccd2fa7d",
+    "docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt": "f29f7133c1ff96b095f2de0c65fef6f463e7117adc77e2b677a1234ce4805bf4",
+    "docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt": "2031951d63b4e67af74f6defa4dbb5324aa098fce4ab0756db43dab7bbeba154",
+    "docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt": "d44be98e76bd517342a5c594d96e2efe0744f6e7578a24a3f57595c40e15e6aa",
+    "docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt": "f432d0071437104b1a2bb514f06bf7ec4795ef91bbfb3e2b81030f4463c12d1a",
+    "docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt": "aa3723ce7b1e61bac9c418f955b7185f4d72af2273349332c0f3b7f67359308f",
+    "docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt": "00cda2d52deb7427de0b5cd63f7bd00a8fdc8c8d3f441d2704dbdf6a7dff480a",
+    "docs/knowledge_inputs_v1/k2_evidence/compatibility.txt": "c49ce51e239ed8eb7f5f87ce2e404d344ef57dcccca09e6888382253ea7fd233",
+    "docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt": "42986692857666d8223b1b462bff7811f0f343ba27da8f2ca6623375a6fde9de",
+    "docs/knowledge_inputs_v1/k2_evidence/desktop.json": "c474220fffa54d3be30cbdc290009be76cae545835135ea50c9f3ea92889eab9",
+    "docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt": "a7e504c829d40041874cc540910eb668678d6ae2ad58060bc0be41ba6dbc3443",
+    "docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt": "d6e49b1d4f37762cdf38a7e927624e917191491a0f4cf3a3c5ad468dfbc31706",
+    "docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt": "57c83140a6026933cd55f4f2ae833cf43c9209d7734ec3917283ed0488c7dab0",
+    "docs/knowledge_inputs_v1/k2_evidence/final-memory.txt": "31dd0e20ed8c5d6217f71a95e80a1f34e386a848671435ec745f5bb7529a73fe",
+    "docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt": "767d351178ce0a74405486c1a8f475bcb308ae2ff948ed6d78d7d8d6162dd99c",
+    "docs/knowledge_inputs_v1/k2_evidence/final-py312.txt": "31bbe4672b10b3ac242f78265f96e55e519cf08a15b4e75bd8c44fc32840b900",
+    "docs/knowledge_inputs_v1/k2_evidence/head_final.txt": "3693c593627335e91b12d443dff57ad9a705cca7339441e6848dde123ed9ec3a",
+    "docs/knowledge_inputs_v1/k2_evidence/integrity.json": "2d959bad3e8e3ff18139de3d531faa9c239520af127a19486f6e3085ce3a4824",
+    "docs/knowledge_inputs_v1/k2_evidence/test_runs.json": "e6f18208b87d389c0e2f0a0b404772fdc577ca1dbfd7154d52aca84a4f30ca49",
+    "docs/knowledge_inputs_v1/k2_freeze.json": "023654676666b8ef1c99ffa0fe85eb765d405b42adc29cb187d6b31325d38585",
+    "docs/knowledge_inputs_v1/k2_preflight.md": "a9f18a49cc9d2f31dfafbc4f36d046699903953976c1b57783feb22fe8280b9e",
+    "docs/knowledge_inputs_v1/k2_product_freeze_v2.json": "51fa4ebfcdb34dcfcc8efa39a597e4b2d3af49cdcf7e4e629df8b3dc3d8c6999",
+    "docs/knowledge_inputs_v1/k2_product_freeze.json": "1ffe4d67d9a21a553406759fd8d21830550a7931efc4cb903698521fa4d21d91",
+    "local_cli/application/commands.py": "2884a95ac9c4e1f144f6118151cfe6180cbebd540bb4d310bda8ead34b0a4db9",
+    "local_cli/application/knowledge_host.py": "4936155ba26aa58e96a4c45a60fedbd5419301b5f3ab21d672f123af105a9abe",
+    "local_cli/application/knowledge.py": "c2ba434fe6177955c6abcd311638895c5745710416ea5ebb62c8c0a8a161f4c0",
+    "local_cli/application/session.py": "18d670e4caaf8724da3fbeb236999a74ee5d340761745dcb492a54bca658d6f8",
+    "local_cli/bootstrap_cli.py": "1fd8ed6d7a1c3bde0284a89937195df289ee681b977e3ea80c478a70a8b757b6",
+    "local_cli/bootstrap_knowledge.py": "731b7d0fcf32de774d0185e7edc01b449e6abfa7df67003c1002363c5c2db0a6",
+    "local_cli/bootstrap_server.py": "69e42b00f822bb7752355a9b4e167d38cc7bbea9e50f40b969214df65c0609ba",
+    "local_cli/cli.py": "b36ec3bc14b102c9dbc6f1cf938efb8bc3a509f270c5eefb3945e6f14a9e9eea",
+    "local_cli/core/attachments.py": "4e75a52dcffeaeaa21d9425a9ef243098b3c6d35d8767ef686cc8e740d1462ba",
+    "local_cli/core/knowledge_store.py": "83a9169962e74986815dae1d9af25511389c317d2bcf3db13d5aa8b13a5ceed9",
+    "local_cli/infrastructure/knowledge_acquisition.py": "fa42c83a75a5af3bf22de940143e0f48b7aae86b7f2fec71b6309e4adfc5351f",
+    "local_cli/infrastructure/knowledge_sqlite.py": "8802d321ecb8f179b53eef51eee988f90a650d1d53987eb5c65356c165224120",
+    "local_cli/interfaces/cli_application.py": "efa9302121c9f1f07885d229f491f59f0e4eb628d41c235a1f017d04698847df",
+    "local_cli/interfaces/jsonl_application.py": "0cc20d0312395ba0bad3bd3357fd0271111dbfe6efcfcbc109bbe30da7091587",
+    "local_cli/interfaces/knowledge_cli.py": "cc20983b94c097a4a4286ef529dc069db9fc11f42deea6a20ea3cc4d26f37ca6",
+    "local_cli/server.py": "44899c0e7df4decc14801a1ad8446ec10479f1d25586d5bd4c0eb9004bae5560",
+    "tests/knowledge_inputs_v1/k2_helpers.py": "aa0c01020d07431937e861a2003214c6887598d271c0fb094f18a7974879189b",
+    "tests/knowledge_inputs_v1/run_k2.py": "81d1592b15df185a481d4ce13ba9de0091d1467a4cd8ae6cf36708a193ee4202",
+    "tests/knowledge_inputs_v1/test_k1_application.py": "ae4d21e357ee43d0f0e8c50e40a195961a6c3624d5e5bdc7868ab98e03d1d1c4",
+    "tests/knowledge_inputs_v1/test_k2_acquisition.py": "6ec85f0352354b00eb25abd040313016dc619bc2e2f19a88a5c8135b61ea2a97",
+    "tests/knowledge_inputs_v1/test_k2_application.py": "d8d97d4af1d2d5cdbd27c9cfecfe9a67227d8efd6531631bccb8cf41a89339ef",
+    "tests/knowledge_inputs_v1/test_k2_composition.py": "cbd4a8759723c71e5d3f10c76ab4bd4bbe0d48ce11edb4d14a921a0268e76077",
+    "tests/knowledge_inputs_v1/test_k2_contracts.py": "0401e98c2a96e8f3b0a062a3cd078df22d4fe48848d2ed795b50aa2aac12994b",
+    "tests/knowledge_inputs_v1/test_k2_interfaces.py": "a2f6c27ab4dcf1423d6569070570944267a18c2662b172a1a917c2609aeae53d",
+    "tests/test_nova_core_phase11_characterization.py": "36407b4ceac27b0c63de7911f1094bdebb64b4cbf426b4b8a2752eeb3d32ada4",
+    "docs/knowledge_inputs_v1/k2_resultados.md": "a7e0d54a96ea392b4cc4f866bed984e7fbaf69e77f42d9a5d902b16fbfd87b6e",
+    "docs/knowledge_inputs_v1/k2_evidence/final_integrity.json": "9b33d7e9116c067621d83e7d8d65b31f352d2eaae31b93bd11bedef05679aca6"
+  },
+  "artifactHashScope": "SHA-256 of working-tree bytes; no self-hash of this manifest; raw external logs and XML hashed separately in test_runs.json.",
+  "nextPhase": "K3 (reference only; not implemented)",
+  "commit": false,
+  "push": false,
+  "tagsChanged": false,
+  "stagingChanged": false,
+  "ciModified": false,
+  "dependenciesChanged": false,
+  "globalConfigChanged": false,
+  "downloads": false
+}

@@ -1,0 +1,609 @@
+{
+  "schemaVersion": 1,
+  "phase": "M4",
+  "status": "PASS",
+  "date": "2026-10-06",
+  "gate": {
+    "normative": "NOVA_MEMORY_ARQUITECTURA_V1.md §37 M4",
+    "literal": "persistent lexical memory ayuda al Turn sin romper presupuesto ni authority hierarchy.",
+    "satisfied": true,
+    "mandatoryUnknown": [],
+    "allDeliverablesExist": true,
+    "noLaterPhaseImplemented": true,
+    "memoryReadyDeclared": false,
+    "evidence": [
+      "tests/memory_v1/test_m4_context.py",
+      "tests/memory_v1/test_m4_recall.py",
+      "tests/memory_v1/test_m4_application.py",
+      "m4_evidence/m4_gate_final_native/tests.xml",
+      "m4_evidence/m4_head_final_native/tests.xml",
+      "m4_evidence/m4_metrics_repeat_native/metrics.json"
+    ]
+  },
+  "baseline": {
+    "branch": "main",
+    "initialHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "finalHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "tags": [
+      "nova-core-v1-stable",
+      "nova-security-v1.2-ready"
+    ],
+    "initialWorkingTree": "dirty, no staged changes; M0-M3 and 64K already present, uncommitted",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "filesystem": "NTFS",
+    "python": "3.14.6",
+    "sqlite": "3.50.4",
+    "node": "24.16.0",
+    "preflightRegression": {
+      "mode": "context64",
+      "passed": 695,
+      "skipped": 3,
+      "failed": 0,
+      "durationSeconds": 37.16
+    }
+  },
+  "precedence": {
+    "coreCapsPreserved": true,
+    "sharedCap": "min(floor(.15*(N-O-S)),floor(.15*availableCore),remainingOptional,combinedCapRemaining)",
+    "memoryHardCap": "min(sharedCap,floor(.08*N),1024)",
+    "memorySubsetOfRetrieval": true,
+    "remainingConflict": null
+  },
+  "implementation": {
+    "query": "bounded current-input exact/keyword; OR Turn recall, explicit AND search unchanged",
+    "candidates": 24,
+    "shortlist": 16,
+    "finalItems": 8,
+    "recall": "once per Turn admission",
+    "capsule": "quoted canonical statements; user role; trusted constant guard; private frozen snapshot; no canonical persistence",
+    "remoteDefault": "DENIED unless known local adapter with explicit loopback endpoint",
+    "remoteOptIn": "trusted host allow_remote_memory_injection boolean; default false; CLI/Desktop notice",
+    "embeddings": false,
+    "autoCapture": false,
+    "consolidation": false,
+    "ragStoreReuse": false,
+    "toolSchemasChanged": false,
+    "coreApplicationCommandSchemaChanged": false,
+    "secondAgentLoop": false,
+    "persistenceSchemaVersion": 1,
+    "migrationsIntroduced": [],
+    "ephemeralContracts": [
+      "MemoryQuery.match_any default false",
+      "ContextBudget memory fields (memory_tokens subset)",
+      "TurnMemorySnapshot",
+      "services.memory additive DTO",
+      "Desktop optional memoryNotice"
+    ],
+    "processModel": "HOST_UNISOLATED",
+    "processIsolation": false
+  },
+  "files": {
+    "modifiedRelativeToM4Preflight": [
+      "desktop/electron/application_client.ts",
+      "desktop/shared/application.ts",
+      "desktop/src/App.tsx",
+      "desktop/tests/application_client.test.cjs",
+      "local_cli/application/session.py",
+      "local_cli/application/memory.py",
+      "local_cli/bootstrap_cli.py",
+      "local_cli/bootstrap_server.py",
+      "local_cli/config.py",
+      "local_cli/core/context.py",
+      "local_cli/core/memory.py",
+      "local_cli/infrastructure/memory_sqlite.py",
+      "local_cli/interfaces/cli_application.py",
+      "tests/memory_v1/run_regression.py",
+      "tests/memory_v1/test_m3_service.py",
+      "tests/test_nova_core_phase0_characterization.py"
+    ],
+    "createdProduct": [
+      "local_cli/application/memory_recall.py"
+    ],
+    "createdTestsAndHarness": [
+      "tests/memory_v1/test_m4_context.py",
+      "tests/memory_v1/test_m4_recall.py",
+      "tests/memory_v1/test_m4_application.py",
+      "tests/memory_v1/run_m4_metrics.py"
+    ],
+    "closure": [
+      "docs/memory_v1/m4_resultados.md",
+      "docs/memory_v1/m4_manifest.json",
+      "docs/memory_v1/m4_invariants.json",
+      "docs/memory_v1/m4_evidence/"
+    ]
+  },
+  "verification": {
+    "newPythonCases": 92,
+    "newPythonSkips": 0,
+    "newDesktopCases": 1,
+    "directed": {
+      "passed": 840,
+      "skipped": 3,
+      "failed": 0,
+      "durationSeconds": 63.39,
+      "evidence": "m4_evidence/m4_gate_final_native/"
+    },
+    "head": {
+      "passed": 3843,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "failed": 0,
+      "durationSeconds": 244.32,
+      "evidence": "m4_evidence/m4_head_final_native/",
+      "headExclusionsUnchanged": true
+    },
+    "desktop": {
+      "passed": 39,
+      "skipped": 0,
+      "failed": 0,
+      "typecheckExitCode": 0,
+      "evidence": "m4_evidence/m4_desktop_native/"
+    },
+    "diffCheckExitCode": 0,
+    "categories": {
+      "unitContract": true,
+      "realSQLiteFTSPersistence": true,
+      "migrationRecoveryRegression": "M2 tests unchanged, no new migration",
+      "applicationToolRuntimeAuditIntegration": true,
+      "adversarialContract": true,
+      "realHostFilesystemIdentity": "Windows NTFS synthetic fixtures",
+      "scriptedInference": "contract evidence only",
+      "realChatLLME2E": false,
+      "electronRuntimeE2E": false,
+      "cloudCalls": false
+    }
+  },
+  "metrics": {
+    "rows": 40,
+    "windows": [
+      4096,
+      8192,
+      16384,
+      32768,
+      65536
+    ],
+    "records": 1000,
+    "lexicalWarmSamples": 20,
+    "lexicalWarmP50Ms": 4.3365,
+    "lexicalWarmMaxMs": 8.92,
+    "maxCandidates": 24,
+    "maxSelected": 8,
+    "smallMemoryTokens": 293,
+    "irrelevantAndZeroTokens": 0,
+    "hardCeilings": [
+      327,
+      655,
+      1024,
+      1024,
+      1024
+    ],
+    "tokenCount": "estimated Core UTF-8/3 + overhead, not observed model tokens",
+    "contextLatencyMaxMs": 38.21,
+    "qualityThresholdChosen": false,
+    "evidence": "m4_evidence/m4_metrics_repeat_native/metrics.json"
+  },
+  "preservation": {
+    "initialUniqueFiles": 1144,
+    "unchangedFiles": 1128,
+    "requiredOverlaps": 16,
+    "missingFiles": 0,
+    "protectedSample": 809,
+    "protectedModified": 0,
+    "historicalManifestReferences": 60,
+    "historicalManifestMatches": 60,
+    "allIntermediateFailuresRetained": true,
+    "ciChanged": false,
+    "securityProductChanged": false,
+    "normativeDocumentsChanged": false,
+    "goldenRegenerated": false,
+    "rawLogs": "original .log plus byte-identical .txt copies so evidence is committable without gitignore changes",
+    "scope": "Preflight sample and historical manifest references, not universal ignored-file hash coverage"
+  },
+  "intermediateFailures": [
+    {
+      "run": "m4_block1_native",
+      "classification": "HARNESS_BUG",
+      "failed": 3,
+      "passed": 744,
+      "reason": "new fixture soft-share assertion omitted hard 1024 ceiling"
+    },
+    {
+      "run": "m4_block2_native",
+      "classification": "HARNESS_BUG_STALE_FIXTURE_EXPECTATION",
+      "failed": 4,
+      "passed": 456,
+      "reason": "sensitive origin, ID-in-canonical fixture, missing workspace arg, late-known secret denial vs redaction"
+    },
+    {
+      "run": "metrics_restricted_failure",
+      "classification": "HARNESS_ENVIRONMENT",
+      "error": "MEMORY_INVALID_IDENTITY",
+      "rawLogAvailable": false,
+      "summary": "m4_evidence/metrics_restricted_failure.json"
+    },
+    {
+      "run": "m4_head_native",
+      "classification": "STALE_EXPECTATION",
+      "failed": 1,
+      "passed": 3837,
+      "reason": "phase0 golden did not account for one new M4 observation"
+    },
+    {
+      "run": "m4_final_directed_native",
+      "classification": "HARNESS_BUG",
+      "failed": 2,
+      "passed": 838,
+      "reason": "legacy metadata bridge data empty and exact denied tool error INVALID_CONTRACT"
+    },
+    {
+      "run": "m4_final_directed_repeat_native",
+      "classification": "HARNESS_BUG",
+      "failed": 1,
+      "passed": 839,
+      "reason": "legacy request id=7 omitted in new assertion"
+    },
+    {
+      "run": "m4_head_repeat_native",
+      "classification": "HARNESS_BUG",
+      "failed": 1,
+      "passed": 3842,
+      "reason": "same pre-fix assertion collected before correction"
+    }
+  ],
+  "unknownOrDebt": [
+    "real local chat LLM recall/precision/quality (M8)",
+    "semantic/paraphrase/embedding/cold capability (M5)",
+    "real hardware/model 64K capacity not certified",
+    "Linux/macOS M4 native runs not executed",
+    "M7 repeated history context work/cache",
+    "general at-rest encryption",
+    "no claim to erase past RAM/model context/transcript/audit/backups on forget",
+    "simple bilingual keyword filter; no optional TurnAnchor"
+  ],
+  "openDecisions": {
+    "requiredByM4": [],
+    "remainOpen": [
+      "MEM1-OD-01",
+      "MEM1-OD-02",
+      "MEM1-OD-03",
+      "MEM1-OD-04",
+      "MEM1-OD-05",
+      "MEM1-OD-06",
+      "MEM1-OD-07"
+    ]
+  },
+  "regressionsRemaining": [],
+  "operations": {
+    "commit": false,
+    "push": false,
+    "tagsChanged": false,
+    "ciModified": false,
+    "globalConfigModified": false,
+    "modelsDownloaded": false,
+    "gpuChanged": false
+  },
+  "nextPhase": "M5 reference only, not implemented",
+  "hashes": [
+    {
+      "path": "desktop/electron/application_client.ts",
+      "sha256": "8beef27312d6979292b14cdbc2e1f02f69bec7ff39958b471ddbaab1b7ef2cab"
+    },
+    {
+      "path": "desktop/shared/application.ts",
+      "sha256": "291947df35dd094b1441c4b02b3ce65e41bc137583a1f396b6c3cd6dcfe6c183"
+    },
+    {
+      "path": "desktop/src/App.tsx",
+      "sha256": "6b54ff47f0f7bb46e8819a7ffbf28d46b81551ee3dd829766a18fc040d152e50"
+    },
+    {
+      "path": "desktop/tests/application_client.test.cjs",
+      "sha256": "38eeb31c627dbcdb208dc2335a9817b18d13448953f60c0a30b9110d97f16ebc"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/historical_manifest_check.json",
+      "sha256": "5fabdceec8152c15320a9c80849fe7835a65659ace0c5223ddb3e8e25203166a"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_before_native/run.json",
+      "sha256": "997dae7430ff8907a96418e75d8557865f1dcc862122b09dd7ce1688cb20e1a7"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_before_native/run.log",
+      "sha256": "c492b0b53f4d0b604f4eabc42bb2b34216ab12aba6e235e03940f9c35c66ce65"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_before_native/run.txt",
+      "sha256": "c492b0b53f4d0b604f4eabc42bb2b34216ab12aba6e235e03940f9c35c66ce65"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_before_native/tests.xml",
+      "sha256": "2e9e966fe88f49732eb83a8f00b15c4d7847ba1fc9789be68f1fafb5f8791ef6"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block1_native/run.json",
+      "sha256": "d413f2e1e0ce807873cb4e28883da73ee8b67a2877a687ee96a9dc901cd318b7"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block1_native/run.log",
+      "sha256": "9d73fa1229b84f9a576378f639cd3a207ce4238b0d9afbb722c08a880a53d1ff"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block1_native/run.txt",
+      "sha256": "9d73fa1229b84f9a576378f639cd3a207ce4238b0d9afbb722c08a880a53d1ff"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block1_native/tests.xml",
+      "sha256": "1ebb953e1605762e331b7929f0145f1ce97d7e87d8da8ee68ceb11396dc1a1d8"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block1_repeat_native/run.json",
+      "sha256": "4ff86d0e2f582c0dba3aacc1f009e39f82e94d1bcd033e3e74406c9d6c4a13e0"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block1_repeat_native/run.log",
+      "sha256": "6db154039276404f7e5c858ddb308d29f97fbe2f5c47c09f240d8a6af418f4f8"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block1_repeat_native/run.txt",
+      "sha256": "6db154039276404f7e5c858ddb308d29f97fbe2f5c47c09f240d8a6af418f4f8"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block1_repeat_native/tests.xml",
+      "sha256": "8b204a6359c52cdcccab14d2cb0ecedd1df9bf55598152c45fb39a471b9f9899"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block2_native/run.json",
+      "sha256": "eb79f560d6f57e20c827314982083e63e5a704d04f1024eb4cd5ebe5ab2a8483"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block2_native/run.log",
+      "sha256": "1e9d956b8d4d26215352a35c59ebe5a4f2c156aec62428a9c8cf5e9bd8a83aaa"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block2_native/run.txt",
+      "sha256": "1e9d956b8d4d26215352a35c59ebe5a4f2c156aec62428a9c8cf5e9bd8a83aaa"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block2_native/tests.xml",
+      "sha256": "ddcc77421e2778e45ec3d9fea861eacfe1aa18fb08a3f0b5710bf358232ebd3b"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block2_repeat_native/run.json",
+      "sha256": "5613df5b62c2b59af74b1d5e3ce2e61c3ff84bff3c6d2d7a74c2159687c3587e"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block2_repeat_native/run.log",
+      "sha256": "2d61f58835ab273c438a878a257d10fd61ea1c56bd546c25796f9a0657f2ca99"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block2_repeat_native/run.txt",
+      "sha256": "2d61f58835ab273c438a878a257d10fd61ea1c56bd546c25796f9a0657f2ca99"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block2_repeat_native/tests.xml",
+      "sha256": "8380fc1aa2ade78d1a25c891df0a5026d26c3bb638ebd05288e1e4f8751dba3a"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block3_native/run.json",
+      "sha256": "dd0d9277852a43dd73d0dbb2fdefd4cc026d601e62120e2ef5e58245adefd5db"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block3_native/run.log",
+      "sha256": "a66e49d7a0ff5942994f5f9ed08a453be114eb2822a0a21908476dfa56d1445a"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block3_native/run.txt",
+      "sha256": "a66e49d7a0ff5942994f5f9ed08a453be114eb2822a0a21908476dfa56d1445a"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_block3_native/tests.xml",
+      "sha256": "edba619080357963a3a9108b4b6a0a1ebee9905ee19122898d0791ec65d05976"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_desktop_native/node.log",
+      "sha256": "f41aab15f0b30ba8dd2a10d6f1a3cfcb35abaf246a094787a6648db48d41367d"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_desktop_native/node.txt",
+      "sha256": "f41aab15f0b30ba8dd2a10d6f1a3cfcb35abaf246a094787a6648db48d41367d"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_desktop_native/run.json",
+      "sha256": "ddc0f2ce49bfb9a4e773a46129d71c7562c388600665948055728a74916e1b9e"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_desktop_native/typescript.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_desktop_native/typescript.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_final_directed_native/run.json",
+      "sha256": "2944f365a969fc504955c73031f3076d271ed1cdf7875a17a531ad8ac7b4dffe"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_final_directed_native/run.log",
+      "sha256": "1e6ddf961a0f67db0a439afe20f106f075d63f0405e26e97bd905fc5ce5672db"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_final_directed_native/run.txt",
+      "sha256": "1e6ddf961a0f67db0a439afe20f106f075d63f0405e26e97bd905fc5ce5672db"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_final_directed_native/tests.xml",
+      "sha256": "7d79444734862cd6544f0a727ff36a03794efe45608bb7914d2b8350faa0329f"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_final_directed_repeat_native/run.json",
+      "sha256": "eff6c149f33b5314f35ee2211fea574f8fa3c0ac75ec98c9f4da141280f4b2fc"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_final_directed_repeat_native/run.log",
+      "sha256": "7c245f82a8a5c479e4ee385d39d39a6ffa6add150ca32c122bdb96397d520916"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_final_directed_repeat_native/run.txt",
+      "sha256": "7c245f82a8a5c479e4ee385d39d39a6ffa6add150ca32c122bdb96397d520916"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_final_directed_repeat_native/tests.xml",
+      "sha256": "4ddc58fc4ac2d6412c4f9d26de38e42042b754e4fc5dde54c3b9e4e6ee533e82"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_gate_final_native/run.json",
+      "sha256": "d51d93e1c7578738ab9e75042bf9b2306be521cf28e03077248bec87d072a5b6"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_gate_final_native/run.log",
+      "sha256": "b207e8f7ba4f32da150b35f91ec1911a49856693b250b10f14b70c3bc6f4dd4b"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_gate_final_native/run.txt",
+      "sha256": "b207e8f7ba4f32da150b35f91ec1911a49856693b250b10f14b70c3bc6f4dd4b"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_gate_final_native/tests.xml",
+      "sha256": "176411682fdbde3746b0d39e0558ad1c7aa0ac9b3a2ee81878437e82127e7759"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_final_native/run.json",
+      "sha256": "107380a16feeda65cef945b24d01667bd068a93e7428392572cdd9d5b09dab80"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_final_native/run.log",
+      "sha256": "37485affad834ec287a268bd7b5a671043259425636e8b95a05d565be70a6c53"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_final_native/run.txt",
+      "sha256": "37485affad834ec287a268bd7b5a671043259425636e8b95a05d565be70a6c53"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_final_native/tests.xml",
+      "sha256": "f3a46035718bf90f16832bc691f401c30c61151a287746af7f4d9131c9d0ff42"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_native/run.json",
+      "sha256": "16b5a36fdfdc9d2b2251e5d80c74eff910c9fd2d4c50ad94a1bac9a8129b6f50"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_native/run.log",
+      "sha256": "6a9c53dc4da9066dab9dd178ad9b92d6c6ac6c14f487149cfbd0e8f688ef8720"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_native/run.txt",
+      "sha256": "6a9c53dc4da9066dab9dd178ad9b92d6c6ac6c14f487149cfbd0e8f688ef8720"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_native/tests.xml",
+      "sha256": "567a6d3d250b895e5ea8de9bfc8c44b59f5d5c92d40469df35b76f7cd5dce7d0"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_repeat_native/run.json",
+      "sha256": "3642d309f35e9910bb63d96eb60f1c2168b77fd35243e93a4c14ea2996c8079f"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_repeat_native/run.log",
+      "sha256": "061113e15e757604deab82e9577c2b8b00bee4373ada246907415843969ca36f"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_repeat_native/run.txt",
+      "sha256": "061113e15e757604deab82e9577c2b8b00bee4373ada246907415843969ca36f"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_head_repeat_native/tests.xml",
+      "sha256": "04fe104c88d9788c3578222e34ccb30d81e550c56823431d7efcf1870786bb28"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/m4_metrics_repeat_native/metrics.json",
+      "sha256": "6d57a1ba027109d3be696083c6a22a975455bd6b03bcd2b3d70fa4baae308215"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/metrics_restricted_failure.json",
+      "sha256": "b9019a11a5c5c3a07eaafeecac486ce17dc8195890b82ebcb54f6c4034e79441"
+    },
+    {
+      "path": "docs/memory_v1/m4_evidence/preflight_preservation.json",
+      "sha256": "7f232f3bd1cf37f20b63053997081392a3e90d5b46db35cd8cdd71acdd5de1b1"
+    },
+    {
+      "path": "docs/memory_v1/m4_invariants.json",
+      "sha256": "bfe68f75febe44177b735f92ea91739836c8d7495db83c21a876c1041299d27c"
+    },
+    {
+      "path": "docs/memory_v1/m4_resultados.md",
+      "sha256": "3eeaf1d52ecc229571f91b54f3bb384fa10647cabbdc49a1cab583e345bad989"
+    },
+    {
+      "path": "local_cli/application/memory_recall.py",
+      "sha256": "a1e654060ef0438ebdf19983cf3d196089d9721258b003d117436e06cb7d0224"
+    },
+    {
+      "path": "local_cli/application/memory.py",
+      "sha256": "79ff9a170905db5a28e1f8d9b17d92421cd8260a10aa3bf5402c6d34a9551d68"
+    },
+    {
+      "path": "local_cli/application/session.py",
+      "sha256": "919acbef02dcc5d78a8719b5d99dd35f3df44271738d7cbd2b21e3803bf40d65"
+    },
+    {
+      "path": "local_cli/bootstrap_cli.py",
+      "sha256": "e640f5561557af6fbf19879ac868786b95e31dc46566f0c667dec1c020d01ce9"
+    },
+    {
+      "path": "local_cli/bootstrap_server.py",
+      "sha256": "62c046fa8d7675a4eebcadb274add7f9e422b5ff6c2e641a431f8e7bff854179"
+    },
+    {
+      "path": "local_cli/config.py",
+      "sha256": "4098a119241cec9d310b54c6747b912f9f37ff5f9e0f74b8435ba5c337e08674"
+    },
+    {
+      "path": "local_cli/core/context.py",
+      "sha256": "64b7765a7ab9672a808e412dd465a9cd3235c449e975b694e62f5d9a727d5dcc"
+    },
+    {
+      "path": "local_cli/core/memory.py",
+      "sha256": "b6bf6897de53205b946976db1ed960ac37941b6ddf319c73a1d88c1fb4b14581"
+    },
+    {
+      "path": "local_cli/infrastructure/memory_sqlite.py",
+      "sha256": "051af4ce84c146a9fb359950a2490e8923bfefcf4cb9d038cccf6a01a8510b6d"
+    },
+    {
+      "path": "local_cli/interfaces/cli_application.py",
+      "sha256": "deeb526f391392da71dd51411c8037314a93a52df79b16822e4480414b31d490"
+    },
+    {
+      "path": "tests/memory_v1/run_m4_metrics.py",
+      "sha256": "f2354277da62754f45fb7e5bded133f25e595ff818742ccf9f38a5874e92f55f"
+    },
+    {
+      "path": "tests/memory_v1/run_regression.py",
+      "sha256": "7431524836d1ae53d4fc57c7718ffa79eb79cfc08577534935c0ee56a0fe8f41"
+    },
+    {
+      "path": "tests/memory_v1/test_m3_service.py",
+      "sha256": "2e3caa4788f36ca387c382591910401f192ecfea425e51d04f77df1207fe050e"
+    },
+    {
+      "path": "tests/memory_v1/test_m4_application.py",
+      "sha256": "adece470b88ffcce08fe0c06f8b3bfc2d3b97de58034b15968cf84f53bcb6c9e"
+    },
+    {
+      "path": "tests/memory_v1/test_m4_context.py",
+      "sha256": "376bc507f84649a5e857280ff4b792fcbbfbee1743bb0f5fc54f56e1fdb6369e"
+    },
+    {
+      "path": "tests/memory_v1/test_m4_recall.py",
+      "sha256": "8084d0a6229ba21960855e7284a0e1a72ce68bf7d316213cfeada16f3bfec148"
+    },
+    {
+      "path": "tests/test_nova_core_phase0_characterization.py",
+      "sha256": "b38450b73e119384c70c20507634735f027ab1306c6dc4c7ae0d6130cd3c1c68"
+    }
+  ],
+  "hashPolicy": "Final M4 source/reference/evidence/closure hashes, manifest itself excluded; original ignored .log is duplicated byte-identically as committable .txt. Historical manifests untouched."
+}

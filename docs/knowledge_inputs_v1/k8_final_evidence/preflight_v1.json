@@ -1,0 +1,3813 @@
+{
+  "schemaVersion": 1,
+  "phase": "K8_FINAL",
+  "purpose": "Read-only certification preflight; no E2E execution",
+  "baseline": {
+    "capturedAt": "2026-10-08T16:08:42.8982440Z",
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "workingTree": [
+      " M desktop/electron/application_client.ts",
+      " M desktop/electron/main.ts",
+      " M desktop/electron/preload.ts",
+      " M desktop/shared/application.ts",
+      " M desktop/src/App.tsx",
+      " M desktop/src/components/MessageBlock.tsx",
+      " M desktop/src/types.ts",
+      " M local_cli/agent.py",
+      " M local_cli/application/commands.py",
+      " M local_cli/application/context.py",
+      " M local_cli/application/network.py",
+      " M local_cli/application/policy.py",
+      " M local_cli/application/providers.py",
+      " M local_cli/application/security_audit.py",
+      " M local_cli/application/session.py",
+      " M local_cli/application/tool_runtime.py",
+      " M local_cli/bootstrap_cli.py",
+      " M local_cli/bootstrap_server.py",
+      " M local_cli/cli.py",
+      " M local_cli/config.py",
+      " M local_cli/core/context.py",
+      " M local_cli/core/network.py",
+      " M local_cli/infrastructure/http_fetch.py",
+      " M local_cli/interfaces/cli_application.py",
+      " M local_cli/interfaces/jsonl_application.py",
+      " M local_cli/server.py",
+      " M local_cli/sub_agent.py",
+      " M local_cli/tools/agent_tool.py",
+      " M pyproject.toml",
+      " M tests/memory_v1/run_m8_qwen4_chat7b.py",
+      " M tests/memory_v1/test_m8_metadata_admission.py",
+      " M tests/memory_v1/test_m8_ps_operational.py",
+      " M tests/memory_v1/test_m8_qwen4_chat7b.py",
+      " M tests/test_nova_core_phase0_characterization.py",
+      " M tests/test_nova_core_phase10_services.py",
+      " M tests/test_nova_core_phase11_characterization.py",
+      "?? desktop/electron/knowledge_control.cjs",
+      "?? desktop/electron/knowledge_control.d.cts",
+      "?? desktop/tests/knowledge_control.test.cjs",
+      "?? desktop/tests/knowledge_k7.test.cjs",
+      "?? docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "?? docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "?? docs/knowledge_inputs_v1/k0_ci_reconciliation.json",
+      "?? docs/knowledge_inputs_v1/k0_corpus_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/memory.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k0_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_manifest.json",
+      "?? docs/knowledge_inputs_v1/k0_resultados.md",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-authority.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-store.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/desktop.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final_integrity.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/head_final.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k1_freeze.json",
+      "?? docs/knowledge_inputs_v1/k1_manifest.json",
+      "?? docs/knowledge_inputs_v1/k1_resultados.md",
+      "?? docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/compatibility.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/desktop.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-memory.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-py312.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final_integrity.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/integrity.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k2_freeze.json",
+      "?? docs/knowledge_inputs_v1/k2_manifest.json",
+      "?? docs/knowledge_inputs_v1/k2_preflight.md",
+      "?? docs/knowledge_inputs_v1/k2_product_freeze.json",
+      "?? docs/knowledge_inputs_v1/k2_product_freeze_v2.json",
+      "?? docs/knowledge_inputs_v1/k2_resultados.md",
+      "?? docs/knowledge_inputs_v1/k3_manifest.json",
+      "?? docs/knowledge_inputs_v1/k3_pdf_repair_manifest.json",
+      "?? docs/knowledge_inputs_v1/k3_pdf_repair_resultados.md",
+      "?? docs/knowledge_inputs_v1/k3_resultados.md",
+      "?? docs/knowledge_inputs_v1/k4_manifest.json",
+      "?? docs/knowledge_inputs_v1/k4_resultados.md",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/performance_final.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/quality_final.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_manifest.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_resultados.md",
+      "?? docs/knowledge_inputs_v1/k5_evidence/budget_matrix.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/closure_freeze.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/persisted_citations.json",
+      "?? docs/knowledge_inputs_v1/k5_manifest.json",
+      "?? docs/knowledge_inputs_v1/k5_resultados.md",
+      "?? docs/knowledge_inputs_v1/k6_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k6_evidence/protocol_v1.json",
+      "?? docs/knowledge_inputs_v1/k6_manifest.json",
+      "?? docs/knowledge_inputs_v1/k6_resultados.md",
+      "?? docs/knowledge_inputs_v1/k7_evidence/closure_freeze.json",
+      "?? docs/knowledge_inputs_v1/k7_evidence/final_freeze.json",
+      "?? docs/knowledge_inputs_v1/k7_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k7_manifest.json",
+      "?? docs/knowledge_inputs_v1/k7_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_evidence/e2e_freeze_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_evidence/e2e_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_evidence/standalone_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/compliance_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/forensic_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/product_freeze_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/product_freeze_v2.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_evidence/retrieval_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair2_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_repair3_evidence/compliance_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair3_evidence/diagnosis_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair3_evidence/product_freeze_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair3_evidence/retrieval_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair3_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair3_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_repair4_evidence/compliance_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair4_evidence/diagnosis_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair4_evidence/preflight_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair4_evidence/product_freeze_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair4_evidence/regression_freeze_v2.json",
+      "?? docs/knowledge_inputs_v1/k8_repair4_evidence/test_portability_reconciliation_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair4_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair4_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_repair5_evidence/compliance_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair5_evidence/diagnosis_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair5_evidence/pre_fix_failure_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair5_evidence/preflight_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair5_evidence/product_freeze_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair5_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair5_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_repair6_evidence/final_regression_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair6_evidence/integrity_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair6_evidence/preflight_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair6_evidence/quality_harness_first_freeze.py",
+      "?? docs/knowledge_inputs_v1/k8_repair6_evidence/regression_diagnosis_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair6_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair6_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/compliance_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/forensic_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/product_freeze_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/product_freeze_v2.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_evidence/retrieval_result_v1.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_manifest.json",
+      "?? docs/knowledge_inputs_v1/k8_repair_resultados.md",
+      "?? docs/knowledge_inputs_v1/k8_resultados.md",
+      "?? local_cli/application/knowledge.py",
+      "?? local_cli/application/knowledge_children.py",
+      "?? local_cli/application/knowledge_context.py",
+      "?? local_cli/application/knowledge_host.py",
+      "?? local_cli/application/knowledge_legacy.py",
+      "?? local_cli/application/knowledge_output.py",
+      "?? local_cli/application/knowledge_retrieval.py",
+      "?? local_cli/application/knowledge_web.py",
+      "?? local_cli/application/passive_web.py",
+      "?? local_cli/application/turn_effects.py",
+      "?? local_cli/bootstrap_knowledge.py",
+      "?? local_cli/bootstrap_passive_web.py",
+      "?? local_cli/core/attachments.py",
+      "?? local_cli/core/knowledge.py",
+      "?? local_cli/core/knowledge_chunking.py",
+      "?? local_cli/core/knowledge_context.py",
+      "?? local_cli/core/knowledge_delegation.py",
+      "?? local_cli/core/knowledge_legacy.py",
+      "?? local_cli/core/knowledge_retrieval.py",
+      "?? local_cli/core/knowledge_store.py",
+      "?? local_cli/core/knowledge_views.py",
+      "?? local_cli/core/passive_web.py",
+      "?? local_cli/guard_intent.py",
+      "?? local_cli/infrastructure/knowledge_acquisition.py",
+      "?? local_cli/infrastructure/knowledge_embeddings.py",
+      "?? local_cli/infrastructure/knowledge_export.py",
+      "?? local_cli/infrastructure/knowledge_extraction.py",
+      "?? local_cli/infrastructure/knowledge_files.py",
+      "?? local_cli/infrastructure/knowledge_lexical.py",
+      "?? local_cli/infrastructure/knowledge_migrations.py",
+      "?? local_cli/infrastructure/knowledge_query.py",
+      "?? local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+      "?? local_cli/infrastructure/knowledge_sqlite.py",
+      "?? local_cli/infrastructure/knowledge_web_extraction.py",
+      "?? local_cli/infrastructure/web_search.py",
+      "?? local_cli/interfaces/knowledge_cli.py",
+      "?? local_cli/tools/web_search_tool.py",
+      "?? tests/knowledge_inputs_v1/__init__.py",
+      "?? tests/knowledge_inputs_v1/collect_k8_repair6_evidence.py",
+      "?? tests/knowledge_inputs_v1/fixtures/k4_core_frozen_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k4_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_core_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair2_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair2_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair2_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair3_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair3_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair3_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair4_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair4_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair4_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair5_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair5_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair5_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair6_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair6_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair6_freeze_v2.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair6_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair_freeze_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k8_repair_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_docx_payload_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_fixtures.py",
+      "?? tests/knowledge_inputs_v1/k1_helpers.py",
+      "?? tests/knowledge_inputs_v1/k2_helpers.py",
+      "?? tests/knowledge_inputs_v1/k4_helpers.py",
+      "?? tests/knowledge_inputs_v1/k8_fixtures.py",
+      "?? tests/knowledge_inputs_v1/k8_repair2_helpers.py",
+      "?? tests/knowledge_inputs_v1/k8_repair3_helpers.py",
+      "?? tests/knowledge_inputs_v1/k8_repair4_helpers.py",
+      "?? tests/knowledge_inputs_v1/k8_repair5_helpers.py",
+      "?? tests/knowledge_inputs_v1/k8_repair_helpers.py",
+      "?? tests/knowledge_inputs_v1/pdf_fixtures.py",
+      "?? tests/knowledge_inputs_v1/run_k0.py",
+      "?? tests/knowledge_inputs_v1/run_k2.py",
+      "?? tests/knowledge_inputs_v1/run_k3_pdf_repair.py",
+      "?? tests/knowledge_inputs_v1/run_k4.py",
+      "?? tests/knowledge_inputs_v1/run_k5.py",
+      "?? tests/knowledge_inputs_v1/run_k6.py",
+      "?? tests/knowledge_inputs_v1/run_k6_host.py",
+      "?? tests/knowledge_inputs_v1/run_k7.py",
+      "?? tests/knowledge_inputs_v1/run_k7_desktop.py",
+      "?? tests/knowledge_inputs_v1/run_k8.py",
+      "?? tests/knowledge_inputs_v1/run_k8_e2e.py",
+      "?? tests/knowledge_inputs_v1/run_k8_forensic.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair2.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair2_model.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair3.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair3_model.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair4.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair4_model.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair5.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair5_model.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair6.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair_model.py",
+      "?? tests/knowledge_inputs_v1/run_k8_repair_model_v2.py",
+      "?? tests/knowledge_inputs_v1/test_k0_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k0_corpus.py",
+      "?? tests/knowledge_inputs_v1/test_k1_application.py",
+      "?? tests/knowledge_inputs_v1/test_k1_containment.py",
+      "?? tests/knowledge_inputs_v1/test_k1_recovery.py",
+      "?? tests/knowledge_inputs_v1/test_k1_store.py",
+      "?? tests/knowledge_inputs_v1/test_k2_acquisition.py",
+      "?? tests/knowledge_inputs_v1/test_k2_application.py",
+      "?? tests/knowledge_inputs_v1/test_k2_composition.py",
+      "?? tests/knowledge_inputs_v1/test_k2_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k2_interfaces.py",
+      "?? tests/knowledge_inputs_v1/test_k3_extraction.py",
+      "?? tests/knowledge_inputs_v1/test_k3_pdf_repair.py",
+      "?? tests/knowledge_inputs_v1/test_k4_chunking.py",
+      "?? tests/knowledge_inputs_v1/test_k4_legacy.py",
+      "?? tests/knowledge_inputs_v1/test_k4_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k4_retrieval.py",
+      "?? tests/knowledge_inputs_v1/test_k4_semantic.py",
+      "?? tests/knowledge_inputs_v1/test_k5_context.py",
+      "?? tests/knowledge_inputs_v1/test_k5_integration.py",
+      "?? tests/knowledge_inputs_v1/test_k6_passive_web.py",
+      "?? tests/knowledge_inputs_v1/test_k7_children.py",
+      "?? tests/knowledge_inputs_v1/test_k7_host.py",
+      "?? tests/knowledge_inputs_v1/test_k8_harness.py",
+      "?? tests/knowledge_inputs_v1/test_k8_parser_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k8_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair2_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair2_control_regression.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair2_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair3_harness.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair3_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair3_regressions.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair4_harness.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair5_guard.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair5_harness.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair6_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair6_query.py",
+      "?? tests/knowledge_inputs_v1/test_k8_repair_contracts.py"
+    ],
+    "staged": [],
+    "tags": [
+      "nova-core-v1-stable 97f41c6dab89ee59332875bb8d89c29620b52156 158b60effa484cd34a58b991f3ee4ca3f808d924",
+      "nova-memory-v1-ready fa6b2f7898692ddc6cec77a4d971dbc395b764a6 9911ad4ca0fc13edfef49e84441a759d35cbefda",
+      "nova-memory-v1.1-ready 6a48c5252e40986ecf4180138d9d56bc519b3e49 3678d5b597a888b743e90d26efda6219943d58df",
+      "nova-security-v1.2-ready e5bea6a4c2c559a1f5a2f8824316a83b548b2533 26dc87786d8ad1c1d879255a068c7fb50a25e6f2"
+    ],
+    "platform": "Microsoft Windows NT 10.0.26200.0",
+    "volume": {
+      "DriveLetter": "C",
+      "FileSystem": "NTFS",
+      "DriveType": "Fixed"
+    }
+  },
+  "originalPins": [
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_freeze_v1.json",
+      "expected": "84512b3fe5042afd2cc46fcd74fc0f1385ba7156b8f04d048f5126b0592d97ba",
+      "actual": "84512b3fe5042afd2cc46fcd74fc0f1385ba7156b8f04d048f5126b0592d97ba",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_core_v1.json",
+      "expected": "832be39fa3efa475cd74b89c8f5d1632e445f5a6a67cecb72833d4f12814cd1a",
+      "actual": "832be39fa3efa475cd74b89c8f5d1632e445f5a6a67cecb72833d4f12814cd1a",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_protocol_v1.json",
+      "expected": "c0eb231bb2cbc812e49524cd295dc237c29265d4b4671cf7c2d97c285e11c092",
+      "actual": "c0eb231bb2cbc812e49524cd295dc237c29265d4b4671cf7c2d97c285e11c092",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_fixtures.py",
+      "expected": "259f6079908160c4be1ee90b25bb548089749150168307fe9f873ad7254b7e75",
+      "actual": "259f6079908160c4be1ee90b25bb548089749150168307fe9f873ad7254b7e75",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_quality.py",
+      "expected": "12fc9b7e0e7d93e69a8998b2fa296d47f2cd284bfc7489b3cf31f1ac11b634e0",
+      "actual": "12fc9b7e0e7d93e69a8998b2fa296d47f2cd284bfc7489b3cf31f1ac11b634e0",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8.py",
+      "expected": "6ad697a69844f0d07d7e1076f5857e4149a03ac90918ef6ea3333177b3a32515",
+      "actual": "6ad697a69844f0d07d7e1076f5857e4149a03ac90918ef6ea3333177b3a32515",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "expected": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "actual": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_evidence/e2e_freeze_v1.json",
+      "expected": "2c95d25b26d90e11e1333a5d5f1db6ae45fe09813b06a094b9d1649e9a6009e9",
+      "actual": "2c95d25b26d90e11e1333a5d5f1db6ae45fe09813b06a094b9d1649e9a6009e9",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/AUDITORIA_ARQUITECTONICA_NOVA_CORE.md",
+      "expected": "754205064c543aecf19da1c5162c03d1a8e1e3fbe4f3895262fd3b811b51c213",
+      "actual": "754205064c543aecf19da1c5162c03d1a8e1e3fbe4f3895262fd3b811b51c213",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "expected": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888",
+      "actual": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md",
+      "expected": "3fb67df88dae2428217e937fc8d890a3bcdf5c80524f16c207a2d8ef8c10cc80",
+      "actual": "3fb67df88dae2428217e937fc8d890a3bcdf5c80524f16c207a2d8ef8c10cc80",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/AUDITORIA_SEGURIDAD_NOVA_V1.md",
+      "expected": "7ff49506d7077d60a8165badf0ad8ccfe00592eb871439ce0e642122d3e28ee1",
+      "actual": "7ff49506d7077d60a8165badf0ad8ccfe00592eb871439ce0e642122d3e28ee1",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/historical_deprecated/INFORME_NOVA_SECURITY_v1_a_v1_1.md",
+      "expected": "8c8bb50f3bc12bf1f690c0b6dc647b25cfac1775f9e46de964332001e663fd1c",
+      "actual": "8c8bb50f3bc12bf1f690c0b6dc647b25cfac1775f9e46de964332001e663fd1c",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/historical_deprecated/NOVA_SECURITY_ARQUITECTURA_V1_1.md",
+      "expected": "55f5170ef1fbd80188197c11dd2c66bc76c2477f5101fe24a25763f5256ccd11",
+      "actual": "55f5170ef1fbd80188197c11dd2c66bc76c2477f5101fe24a25763f5256ccd11",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/historical_deprecated/NOVA_SECURITY_ARQUITECTURA_V1.md",
+      "expected": "96924c222e78d8080de03e4c259e1e8ab36e1e15edb749910aad5c2b3abf1975",
+      "actual": "96924c222e78d8080de03e4c259e1e8ab36e1e15edb749910aad5c2b3abf1975",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+      "expected": "a5711f372cd9ac9bee5ac800e638665e2e06cdb4405974c2cd12c14587715792",
+      "actual": "a5711f372cd9ac9bee5ac800e638665e2e06cdb4405974c2cd12c14587715792",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "expected": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "actual": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+      "expected": "886a4788d55282aefbbc776344ec507b779519e15ea940dcad62ea24ef57e9cd",
+      "actual": "886a4788d55282aefbbc776344ec507b779519e15ea940dcad62ea24ef57e9cd",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md",
+      "expected": "b13814a0f1c99528ab4f4d2f5c874dacdc1017c8f3f13b1053c90c67eb848147",
+      "actual": "b13814a0f1c99528ab4f4d2f5c874dacdc1017c8f3f13b1053c90c67eb848147",
+      "matches": true
+    },
+    {
+      "path": "local_cli/__init__.py",
+      "expected": "243cacc54f72d25537c3d69ef0aeecbfb3271f0bae5bcd6c1b6155996ab6083f",
+      "actual": "243cacc54f72d25537c3d69ef0aeecbfb3271f0bae5bcd6c1b6155996ab6083f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/__main__.py",
+      "expected": "ca993385476e50149b8da98944d60261eaa2ca0dcefe81b613728f5b58f5fa29",
+      "actual": "ca993385476e50149b8da98944d60261eaa2ca0dcefe81b613728f5b58f5fa29",
+      "matches": true
+    },
+    {
+      "path": "local_cli/agent.py",
+      "expected": "b543971d8585656143e262219f08db9d5b91fac79c99f35077017f3bfc42459c",
+      "actual": "4c78e1b440cca43ca638f215c3aa30d8616421b8260e65f70510d3459e876e9b",
+      "matches": false
+    },
+    {
+      "path": "local_cli/application/__init__.py",
+      "expected": "3c67332ff83ae99e5e598b0973a2aad507c09b24dd8000c290c4e247c4065c17",
+      "actual": "3c67332ff83ae99e5e598b0973a2aad507c09b24dd8000c290c4e247c4065c17",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/auxiliary.py",
+      "expected": "b386ce18c0ce1a93f15a980d8e9fc15f40f5756811518d765b4bda497bf1a93c",
+      "actual": "b386ce18c0ce1a93f15a980d8e9fc15f40f5756811518d765b4bda497bf1a93c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/cancellation.py",
+      "expected": "4f9334d92e2d7051470bc936744a167ba405314d2af4cfa3297f15e947a3c7a2",
+      "actual": "4f9334d92e2d7051470bc936744a167ba405314d2af4cfa3297f15e947a3c7a2",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/commands.py",
+      "expected": "2884a95ac9c4e1f144f6118151cfe6180cbebd540bb4d310bda8ead34b0a4db9",
+      "actual": "2884a95ac9c4e1f144f6118151cfe6180cbebd540bb4d310bda8ead34b0a4db9",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/context.py",
+      "expected": "ae8c04bc26207ee70816ba3fd656e375f194b68d04f2a3ec79aa371c43ade4a5",
+      "actual": "9e0fd67ae02f76032fb221ca127dd6752c6850df67fbaab5c6151ffa79b06076",
+      "matches": false
+    },
+    {
+      "path": "local_cli/application/environment.py",
+      "expected": "4213757409bda6a298ea6a7c4cbc8e9f526330d8da487e79c8cc6dc932f124d8",
+      "actual": "4213757409bda6a298ea6a7c4cbc8e9f526330d8da487e79c8cc6dc932f124d8",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/events.py",
+      "expected": "ddb396dcba4ec88ba6cf5502636472ffe47b4a657b6639bd66b9c577cb5a7d20",
+      "actual": "ddb396dcba4ec88ba6cf5502636472ffe47b4a657b6639bd66b9c577cb5a7d20",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/filesystem.py",
+      "expected": "6ca98c67b5aae53cc0aba8a34d9f58e8f10dcb6c8c80ef66ea9b94c611ef629f",
+      "actual": "6ca98c67b5aae53cc0aba8a34d9f58e8f10dcb6c8c80ef66ea9b94c611ef629f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/grants.py",
+      "expected": "67245ceb425588b6d2f5bfb83fe157a0d063f6d9d7faca1775be1b0e79467abe",
+      "actual": "67245ceb425588b6d2f5bfb83fe157a0d063f6d9d7faca1775be1b0e79467abe",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/interactions.py",
+      "expected": "67fc56621dcef0590a9e742f32c36ef8f8d04c5942aad6e83bf971e860f5a009",
+      "actual": "67fc56621dcef0590a9e742f32c36ef8f8d04c5942aad6e83bf971e860f5a009",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_children.py",
+      "expected": "de06ef1bd5e97380f667406642a47ee85eaf32322da33db12ebc6609358f7ec3",
+      "actual": "de06ef1bd5e97380f667406642a47ee85eaf32322da33db12ebc6609358f7ec3",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_context.py",
+      "expected": "cd0c2a4e53b7300bcde24c17d888cc739a1f8be7e80bd87aa159d68578d0c3ba",
+      "actual": "63ca31f88973fea4a4071c573b00afce0688df7c1bab2c056811f737af1c7b18",
+      "matches": false
+    },
+    {
+      "path": "local_cli/application/knowledge_host.py",
+      "expected": "cb30c0d5c37d5b9f5e3f99015bf4ac2e9dc1ffa33b7a20ea96a3db80d6cd084c",
+      "actual": "cb30c0d5c37d5b9f5e3f99015bf4ac2e9dc1ffa33b7a20ea96a3db80d6cd084c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_legacy.py",
+      "expected": "7940c6bc8fda83488fb9a087c90becad3296fec800109edb4067a67833e94dc9",
+      "actual": "7940c6bc8fda83488fb9a087c90becad3296fec800109edb4067a67833e94dc9",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_retrieval.py",
+      "expected": "1d075a8112f49c9795ed812ef83958e492b911f9f59b98420b00da3140b87154",
+      "actual": "b6f75c75ebadb92563adf24c44dd0b2d99c4367334e3d456dadf1f1a8a06b9a0",
+      "matches": false
+    },
+    {
+      "path": "local_cli/application/knowledge_web.py",
+      "expected": "076f555e5bc22ebe10097c2309b8693cff43e54af109551748b7b545c9177f91",
+      "actual": "076f555e5bc22ebe10097c2309b8693cff43e54af109551748b7b545c9177f91",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge.py",
+      "expected": "bd54e53a9adafa3d6c6b379cd1ed81927f58ecc7cf03ba20bef2a701c6a17a94",
+      "actual": "bd54e53a9adafa3d6c6b379cd1ed81927f58ecc7cf03ba20bef2a701c6a17a94",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/legacy_event_bridge.py",
+      "expected": "d00a033aa3ebe962bd20ccb298324a0ceb73ac531a27af402e2be80edcb427ff",
+      "actual": "d00a033aa3ebe962bd20ccb298324a0ceb73ac531a27af402e2be80edcb427ff",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/legacy_interactions.py",
+      "expected": "e752a07bea9813fbf18e2151c315a10847cdb0c8cbcb31a7f98ba42f8a61734f",
+      "actual": "e752a07bea9813fbf18e2151c315a10847cdb0c8cbcb31a7f98ba42f8a61734f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/legacy_runtime.py",
+      "expected": "4b152e40f8440d948bf3fdd119abdea571d0c43c729c71621e79c8102bbd0d16",
+      "actual": "4b152e40f8440d948bf3fdd119abdea571d0c43c729c71621e79c8102bbd0d16",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/memory_admission.py",
+      "expected": "e0da26ae338a2a02b5dee1982dbded355ffc2d4c059609ef7d8694dc3ea71915",
+      "actual": "e0da26ae338a2a02b5dee1982dbded355ffc2d4c059609ef7d8694dc3ea71915",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/memory_children.py",
+      "expected": "6d6e1b701d7f84cf74786f9ea1737749f2406f2371472a17d3c556af0150d3bc",
+      "actual": "6d6e1b701d7f84cf74786f9ea1737749f2406f2371472a17d3c556af0150d3bc",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/memory_extraction.py",
+      "expected": "a9b6cfdb7299086e2173e2848f502e94e3707e45c65c7c08887e4a2fa8cc35b0",
+      "actual": "a9b6cfdb7299086e2173e2848f502e94e3707e45c65c7c08887e4a2fa8cc35b0",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/memory_maintenance.py",
+      "expected": "8c6772554f1b539a652792af9c257650db63e1f86dc7872c3706c84722e1131e",
+      "actual": "8c6772554f1b539a652792af9c257650db63e1f86dc7872c3706c84722e1131e",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/memory_policy.py",
+      "expected": "14ef39c4f34eee43edfb1e2f14b6133c6cc224b925782c68e523ff540ec3d343",
+      "actual": "14ef39c4f34eee43edfb1e2f14b6133c6cc224b925782c68e523ff540ec3d343",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/memory_recall.py",
+      "expected": "8356c0a4a955761787ecc9a60a34334127dbb36a808035c43e666ab1c4e4b953",
+      "actual": "8356c0a4a955761787ecc9a60a34334127dbb36a808035c43e666ab1c4e4b953",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/memory_semantic.py",
+      "expected": "23ed54e289d54ce16681f45f5c3362541979d9c34c08c3d3a5c49aa12de95ef3",
+      "actual": "23ed54e289d54ce16681f45f5c3362541979d9c34c08c3d3a5c49aa12de95ef3",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/memory.py",
+      "expected": "e3004559892e61570830782439b80ffa448c3f203612ae004eda2d622f8496f5",
+      "actual": "e3004559892e61570830782439b80ffa448c3f203612ae004eda2d622f8496f5",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/network.py",
+      "expected": "2bdda05c23e71efdc6c19259e2fa9e7923f32c9c12a745e6ed38bba8def93dfc",
+      "actual": "2bdda05c23e71efdc6c19259e2fa9e7923f32c9c12a745e6ed38bba8def93dfc",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/passive_web.py",
+      "expected": "40d15e0a5b9cb3fb82c7a31a4d3da29661f92f165af2530a1c290a910be442ee",
+      "actual": "40d15e0a5b9cb3fb82c7a31a4d3da29661f92f165af2530a1c290a910be442ee",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/persistence.py",
+      "expected": "4555022dc4e11248e43f5d600a0b51d59432a31a0341b5ca5e2c6dcf4708152b",
+      "actual": "4555022dc4e11248e43f5d600a0b51d59432a31a0341b5ca5e2c6dcf4708152b",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/policy.py",
+      "expected": "a0f6e00a00ec3d9fcc932ad3bdf706594330f180d1193edf62f1d8080362d6fa",
+      "actual": "a0f6e00a00ec3d9fcc932ad3bdf706594330f180d1193edf62f1d8080362d6fa",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/process.py",
+      "expected": "dada345f6cda0dd2bebb823454ed62f7ef5bb79e2c5f9634bcc16280eae1ddef",
+      "actual": "dada345f6cda0dd2bebb823454ed62f7ef5bb79e2c5f9634bcc16280eae1ddef",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/providers.py",
+      "expected": "177da41f9a4bf9473c7e27851c291f4c3e80d1be6cf74d7b0800487010d4e6d4",
+      "actual": "9be106eb8065c2fb82475f737b0bde20d927bdc94f0e2662294e10fc17e1331e",
+      "matches": false
+    },
+    {
+      "path": "local_cli/application/rag.py",
+      "expected": "f7814dffa9d39465f02a4b2e8ea2f3e51262c746dc382cb5384d3fc49508eb68",
+      "actual": "f7814dffa9d39465f02a4b2e8ea2f3e51262c746dc382cb5384d3fc49508eb68",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/retrieval_context.py",
+      "expected": "43e3462e78cdb33019dfb2c8b0278116634b83a25f71856e8b7af6fad7ea16dc",
+      "actual": "43e3462e78cdb33019dfb2c8b0278116634b83a25f71856e8b7af6fad7ea16dc",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/secrets.py",
+      "expected": "d6b15a37bc95ab23a9208d1c008b40fd053555dd6ba34989a184b9349083ee57",
+      "actual": "d6b15a37bc95ab23a9208d1c008b40fd053555dd6ba34989a184b9349083ee57",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/security_audit.py",
+      "expected": "165f5976348ba120f8d7b4f408da177d130d03a1f19b5e3534e5fdacc1b59005",
+      "actual": "165f5976348ba120f8d7b4f408da177d130d03a1f19b5e3534e5fdacc1b59005",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/session.py",
+      "expected": "850a7357d2a6e79e8f35250059d02297b4f55b5e7587e8f5482bcb088e2aabfb",
+      "actual": "5eefa260d43efb493fd16b34bc6958c68d3a7e47e21af5f04b6224986f1fa83f",
+      "matches": false
+    },
+    {
+      "path": "local_cli/application/tool_runtime.py",
+      "expected": "ef7d08e3107264d6a2871375d76fdc59bdf367f0997cb116e9fcd290c66b03ef",
+      "actual": "2301f307b6cd8e87ab6868313c4ab07efb8f1cee9b24bb451aa6ffe3b3e97df6",
+      "matches": false
+    },
+    {
+      "path": "local_cli/audit_config.py",
+      "expected": "06f073a5501977fd577ec9bf3d1bb04a7c7245460a241c0d5df379452f82b60c",
+      "actual": "06f073a5501977fd577ec9bf3d1bb04a7c7245460a241c0d5df379452f82b60c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/bench.py",
+      "expected": "ab168a00fd468f47ca1d1aa7788aabc16bfdb0739e3a1545c153824fe0910e48",
+      "actual": "ab168a00fd468f47ca1d1aa7788aabc16bfdb0739e3a1545c153824fe0910e48",
+      "matches": true
+    },
+    {
+      "path": "local_cli/bootstrap_cli.py",
+      "expected": "eabd3c7b9c62e481e0b94268ec6f45120a5f7fa213f5a0cc29b9216dce17aecd",
+      "actual": "eabd3c7b9c62e481e0b94268ec6f45120a5f7fa213f5a0cc29b9216dce17aecd",
+      "matches": true
+    },
+    {
+      "path": "local_cli/bootstrap_knowledge.py",
+      "expected": "f1578976cb0582a74fcbc1a2e846b790421bd1ebbcc39d37aa78fc8ad3144275",
+      "actual": "f1578976cb0582a74fcbc1a2e846b790421bd1ebbcc39d37aa78fc8ad3144275",
+      "matches": true
+    },
+    {
+      "path": "local_cli/bootstrap_passive_web.py",
+      "expected": "61861c902c3c26709cca2075925b54d21ff80ff2bddbfe9cc975d3c9ff0bba3f",
+      "actual": "61861c902c3c26709cca2075925b54d21ff80ff2bddbfe9cc975d3c9ff0bba3f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/bootstrap_server.py",
+      "expected": "24d1a0dcd25fbbf2ab8069ab3fe28439a3cb7b2da77b0101cee2af923c956dd3",
+      "actual": "24d1a0dcd25fbbf2ab8069ab3fe28439a3cb7b2da77b0101cee2af923c956dd3",
+      "matches": true
+    },
+    {
+      "path": "local_cli/cli.py",
+      "expected": "b36ec3bc14b102c9dbc6f1cf938efb8bc3a509f270c5eefb3945e6f14a9e9eea",
+      "actual": "b36ec3bc14b102c9dbc6f1cf938efb8bc3a509f270c5eefb3945e6f14a9e9eea",
+      "matches": true
+    },
+    {
+      "path": "local_cli/clipboard.py",
+      "expected": "5743122715b96b1933103c0da6dd845cbd9fa33685ace3befb66563c4d3ccf58",
+      "actual": "5743122715b96b1933103c0da6dd845cbd9fa33685ace3befb66563c4d3ccf58",
+      "matches": true
+    },
+    {
+      "path": "local_cli/config.py",
+      "expected": "ac0573d38c37f2dff1f5c8fabbfbedca5f89dfa406e165b41d4584f407726522",
+      "actual": "ac0573d38c37f2dff1f5c8fabbfbedca5f89dfa406e165b41d4584f407726522",
+      "matches": true
+    },
+    {
+      "path": "local_cli/context_sizing.py",
+      "expected": "899bf70cfa17a8e6558e0ac1d07cb8af9e57aa232f6ec82348b8513b3903ad59",
+      "actual": "899bf70cfa17a8e6558e0ac1d07cb8af9e57aa232f6ec82348b8513b3903ad59",
+      "matches": true
+    },
+    {
+      "path": "local_cli/conversation_store.py",
+      "expected": "3fc8c833c452e49ecc3b61eb083caffe92681b6eef87af9a99e42d7cb8324979",
+      "actual": "3fc8c833c452e49ecc3b61eb083caffe92681b6eef87af9a99e42d7cb8324979",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/__init__.py",
+      "expected": "d9463ade9a6b2314aefabc690cdad0fc5349adfc8df5d762c117143481bb1b93",
+      "actual": "d9463ade9a6b2314aefabc690cdad0fc5349adfc8df5d762c117143481bb1b93",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/attachments.py",
+      "expected": "4e75a52dcffeaeaa21d9425a9ef243098b3c6d35d8767ef686cc8e740d1462ba",
+      "actual": "4e75a52dcffeaeaa21d9425a9ef243098b3c6d35d8767ef686cc8e740d1462ba",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/context.py",
+      "expected": "d47f1d44ea8a8855af3b06c3e471ebffa04aeea2365a6976051ffd8b023fc193",
+      "actual": "d47f1d44ea8a8855af3b06c3e471ebffa04aeea2365a6976051ffd8b023fc193",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/contracts.py",
+      "expected": "1f965e9e9b69235a33c394e4d710490e28ddb4ab10338e457a0044600b707354",
+      "actual": "1f965e9e9b69235a33c394e4d710490e28ddb4ab10338e457a0044600b707354",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/environment.py",
+      "expected": "6c10f2c4f36210a36580cdd39d13be0d3f41a4d9d32e0195747bf079d52738fa",
+      "actual": "6c10f2c4f36210a36580cdd39d13be0d3f41a4d9d32e0195747bf079d52738fa",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/event_limits.py",
+      "expected": "afa4500a459a3cdd6466c374c3ec46a6ff8149b02750e78faac62b19bbcdeabe",
+      "actual": "afa4500a459a3cdd6466c374c3ec46a6ff8149b02750e78faac62b19bbcdeabe",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/filesystem.py",
+      "expected": "1e35ef221b8561962cf572c331d12fecb4193effed94a6157a55749e07671928",
+      "actual": "1e35ef221b8561962cf572c331d12fecb4193effed94a6157a55749e07671928",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_chunking.py",
+      "expected": "673d831dc1f5c956852fa38613ac5eb0e5e9b99fea31b04e4ffdfff064a7c629",
+      "actual": "673d831dc1f5c956852fa38613ac5eb0e5e9b99fea31b04e4ffdfff064a7c629",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_context.py",
+      "expected": "36285e89036e787bc92653125d5e1b21937cc18082f67e0fa52a8d902d5696ee",
+      "actual": "36285e89036e787bc92653125d5e1b21937cc18082f67e0fa52a8d902d5696ee",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_delegation.py",
+      "expected": "d72fdcda000ee6adcdc97d0c6f23d22609df87a871b1102ee974376d5ffd31e4",
+      "actual": "d72fdcda000ee6adcdc97d0c6f23d22609df87a871b1102ee974376d5ffd31e4",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_legacy.py",
+      "expected": "8291775869bc36ab7a780b615fb3db924cb6e0947846ce5e49b16ca416030eda",
+      "actual": "8291775869bc36ab7a780b615fb3db924cb6e0947846ce5e49b16ca416030eda",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_retrieval.py",
+      "expected": "1a340dce49f222ff69dd8b02d7a5525b8a535f07a552d916443655bf4351b583",
+      "actual": "1a340dce49f222ff69dd8b02d7a5525b8a535f07a552d916443655bf4351b583",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_store.py",
+      "expected": "7f4d7c75393a0eab9a71dd79ff186c719ff01fe5ab73434b6aec3fc34a460652",
+      "actual": "7f4d7c75393a0eab9a71dd79ff186c719ff01fe5ab73434b6aec3fc34a460652",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_views.py",
+      "expected": "df757d5966a845b3038f16ac193e0eabacafdb20adcd0a6c309f627dd60c508c",
+      "actual": "df757d5966a845b3038f16ac193e0eabacafdb20adcd0a6c309f627dd60c508c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge.py",
+      "expected": "3515305ae6eb1e03b458f43c631d77d47739dee888a547088dac3650824edb47",
+      "actual": "3515305ae6eb1e03b458f43c631d77d47739dee888a547088dac3650824edb47",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/memory_maintenance.py",
+      "expected": "3c34689dea6393c39aa61758f436d63ad8eeb45e97c2ba89b4c5b7a80f569e44",
+      "actual": "3c34689dea6393c39aa61758f436d63ad8eeb45e97c2ba89b4c5b7a80f569e44",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/memory.py",
+      "expected": "eeaf289061da7cf19ec34e5e4d64aad68f7ee0ccd853cda4440720c0ddf5d482",
+      "actual": "eeaf289061da7cf19ec34e5e4d64aad68f7ee0ccd853cda4440720c0ddf5d482",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/models.py",
+      "expected": "b377c7f8c2eec6af56f31081329077573b1ccaacfde32caf8dd506013d7fa043",
+      "actual": "b377c7f8c2eec6af56f31081329077573b1ccaacfde32caf8dd506013d7fa043",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/network.py",
+      "expected": "d614cb9af7b9cc745d4232b797dec71b9b282c679d08909443e4d1717e3d276e",
+      "actual": "d614cb9af7b9cc745d4232b797dec71b9b282c679d08909443e4d1717e3d276e",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/passive_web.py",
+      "expected": "b81a31bbd4e0846f6c5932b8093a2fc0ac2438c8030052617af8ec100c3d2836",
+      "actual": "b81a31bbd4e0846f6c5932b8093a2fc0ac2438c8030052617af8ec100c3d2836",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/persistence.py",
+      "expected": "53d54367d278f02d3d951bf2a102b638e075a55711fe5ab0e7784e6942d54135",
+      "actual": "53d54367d278f02d3d951bf2a102b638e075a55711fe5ab0e7784e6942d54135",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/process.py",
+      "expected": "9736a3dacb6f5a358b4fa310a022c19172907ddd74849117841173f48949e055",
+      "actual": "9736a3dacb6f5a358b4fa310a022c19172907ddd74849117841173f48949e055",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/rag.py",
+      "expected": "fc0a1c896623e83cb2eaa62884b5676052866d012feee7817cd4eaa845260de1",
+      "actual": "fc0a1c896623e83cb2eaa62884b5676052866d012feee7817cd4eaa845260de1",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/runtime.py",
+      "expected": "c878857f1dc51c1d5369265a18b64a2654bf2cd017fe3f535dd42a06eac70f0c",
+      "actual": "c878857f1dc51c1d5369265a18b64a2654bf2cd017fe3f535dd42a06eac70f0c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/security_audit.py",
+      "expected": "4fe3666ef00abed9e3df4c5aca85eef29da26637e62a386734bb151bf61427e7",
+      "actual": "4fe3666ef00abed9e3df4c5aca85eef29da26637e62a386734bb151bf61427e7",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/security.py",
+      "expected": "f5b2a50277a6eb69bd5b0626bc91a535fc77d6a27e95e729939b1eb912e1fcde",
+      "actual": "f5b2a50277a6eb69bd5b0626bc91a535fc77d6a27e95e729939b1eb912e1fcde",
+      "matches": true
+    },
+    {
+      "path": "local_cli/diff_preview.py",
+      "expected": "b61ba3c577ada3e0cc7052c608bb3c9ee88b956af6317d7169b29676e0a82ed7",
+      "actual": "b61ba3c577ada3e0cc7052c608bb3c9ee88b956af6317d7169b29676e0a82ed7",
+      "matches": true
+    },
+    {
+      "path": "local_cli/execution_paths.py",
+      "expected": "b72c57179a02ef53db67228c970dce5b027c2c87e8939b7e695126f353e0260c",
+      "actual": "b72c57179a02ef53db67228c970dce5b027c2c87e8939b7e695126f353e0260c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/git_capability.py",
+      "expected": "e57af8f69565b59ae5524289cfb9e3ff7e351f82881379a52bbdbbb22a91c937",
+      "actual": "e57af8f69565b59ae5524289cfb9e3ff7e351f82881379a52bbdbbb22a91c937",
+      "matches": true
+    },
+    {
+      "path": "local_cli/git_ops.py",
+      "expected": "70d17d4890b38dc165010b682cfb3c3a484fe5ee3f3304bef2c194652188725f",
+      "actual": "70d17d4890b38dc165010b682cfb3c3a484fe5ee3f3304bef2c194652188725f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/harness.py",
+      "expected": "404a1f2a1dfc54e86ea445ce8e44b517f9ef3fe9c4766dd3641cb9596d8db860",
+      "actual": "404a1f2a1dfc54e86ea445ce8e44b517f9ef3fe9c4766dd3641cb9596d8db860",
+      "matches": true
+    },
+    {
+      "path": "local_cli/health_check.py",
+      "expected": "6a3bbf18a6d1453d21ddd35646706607c7619b9e8abc2f3bb346d29240f9c682",
+      "actual": "6a3bbf18a6d1453d21ddd35646706607c7619b9e8abc2f3bb346d29240f9c682",
+      "matches": true
+    },
+    {
+      "path": "local_cli/ideation.py",
+      "expected": "743cb106c2ec59ce86cb9d6bf94eef9708e827d4f3c3187467d0810104166bde",
+      "actual": "743cb106c2ec59ce86cb9d6bf94eef9708e827d4f3c3187467d0810104166bde",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/__init__.py",
+      "expected": "89779d3859251ca20ff44c1a18af76301396a8be846c18be4107078ff89ce211",
+      "actual": "89779d3859251ca20ff44c1a18af76301396a8be846c18be4107078ff89ce211",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/capabilities.py",
+      "expected": "8a86854a82d40a92831e47dffb0eeeeb82f93bf1760e110d2a005a6f74c92a7c",
+      "actual": "8a86854a82d40a92831e47dffb0eeeeb82f93bf1760e110d2a005a6f74c92a7c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/filesystem_plan.py",
+      "expected": "7b2aef0266a2ed0a81d6a0527ecafaeb7fdccb9ac880af045e8c9b62d5f96132",
+      "actual": "7b2aef0266a2ed0a81d6a0527ecafaeb7fdccb9ac880af045e8c9b62d5f96132",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/filesystem_tools.py",
+      "expected": "74516fbaa6e9c61e4e61ce30b957bba59e52ed36545fcb7243ae572f2abdef21",
+      "actual": "74516fbaa6e9c61e4e61ce30b957bba59e52ed36545fcb7243ae572f2abdef21",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/host_process.py",
+      "expected": "4e73ffc98255439e540aa22348837693ba2307e744fbb5d35261ce2a5adca14f",
+      "actual": "4e73ffc98255439e540aa22348837693ba2307e744fbb5d35261ce2a5adca14f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/http_fetch.py",
+      "expected": "bd228be5c1530a3d7983965ca1a495789709e4644696a6a84f6791f352af1986",
+      "actual": "bd228be5c1530a3d7983965ca1a495789709e4644696a6a84f6791f352af1986",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_acquisition.py",
+      "expected": "fa42c83a75a5af3bf22de940143e0f48b7aae86b7f2fec71b6309e4adfc5351f",
+      "actual": "fa42c83a75a5af3bf22de940143e0f48b7aae86b7f2fec71b6309e4adfc5351f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_embeddings.py",
+      "expected": "00e51eb0a4a29133591bfdd12befdc1dac3f655e0fbb5f878b336f5d843ba50a",
+      "actual": "00e51eb0a4a29133591bfdd12befdc1dac3f655e0fbb5f878b336f5d843ba50a",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_export.py",
+      "expected": "eb76c3e673d4ef95eef5ef634a031e9b9679fc734345579ed144b4678da5974d",
+      "actual": "eb76c3e673d4ef95eef5ef634a031e9b9679fc734345579ed144b4678da5974d",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_extraction.py",
+      "expected": "a00d1f626c8e99ed91f39c1c57423e14aa9c8d262a3c7144c3f70acfd5065664",
+      "actual": "1c15dfd1f767385a0fd8a581387c4059d1d6e5195579644316f18d129fb0d8b9",
+      "matches": false
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_files.py",
+      "expected": "acded39f72774cff9346f30a62115301499a7d819ba51a5d227db0299263491f",
+      "actual": "acded39f72774cff9346f30a62115301499a7d819ba51a5d227db0299263491f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_migrations.py",
+      "expected": "cf0b2b1b27bc7e6b07ad9a0db6af42c2686f82dfdd7d5b41f66e5be358479161",
+      "actual": "cf0b2b1b27bc7e6b07ad9a0db6af42c2686f82dfdd7d5b41f66e5be358479161",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+      "expected": "41500f62c10669eba19c4aa40f7799ebb8ecc89191ae395a63ce81468f6e8350",
+      "actual": "f8b499ed545c6ed1e12d3f5ca9dc47b3b7b3b7103bd65c6b4d1c55a655b25412",
+      "matches": false
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_sqlite.py",
+      "expected": "ce89145f772f12929307566bce3092b3a6a61f6a8c8bc90a6ac06afd8bac0307",
+      "actual": "ce89145f772f12929307566bce3092b3a6a61f6a8c8bc90a6ac06afd8bac0307",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_web_extraction.py",
+      "expected": "556b47faf415166fbffc346eae7e9b58d0eda254298abf757fa6236e544e8d37",
+      "actual": "556b47faf415166fbffc346eae7e9b58d0eda254298abf757fa6236e544e8d37",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/legacy_ideation.py",
+      "expected": "87b9cab79c8b816ae8c86d23271bd879af10662234d54d462cb75029b8ad32fd",
+      "actual": "87b9cab79c8b816ae8c86d23271bd879af10662234d54d462cb75029b8ad32fd",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/memory_codec.py",
+      "expected": "e1591ac060e76a55a90b35ef39a4c2f495aa744e368332940bef5fe911457780",
+      "actual": "e1591ac060e76a55a90b35ef39a4c2f495aa744e368332940bef5fe911457780",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/memory_embeddings.py",
+      "expected": "c6284bca43e47a4bd606a77f4ec62350ac09936178318b253731abb9f726e611",
+      "actual": "c6284bca43e47a4bd606a77f4ec62350ac09936178318b253731abb9f726e611",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/memory_extractor.py",
+      "expected": "2e063f94ef827027a4f2e963a45742a5c88d8a00be8b13bcc730531e6d1f7435",
+      "actual": "2e063f94ef827027a4f2e963a45742a5c88d8a00be8b13bcc730531e6d1f7435",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/memory_maintenance.py",
+      "expected": "b10d66d6790173a8702cbbf50e97a306c9369759530f50739ba0847c6f438266",
+      "actual": "b10d66d6790173a8702cbbf50e97a306c9369759530f50739ba0847c6f438266",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/memory_migrations.py",
+      "expected": "5e00f9554d1076295327d06edc185773e71d0edec664bddde4d1b3f1daea8a54",
+      "actual": "5e00f9554d1076295327d06edc185773e71d0edec664bddde4d1b3f1daea8a54",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/memory_semantic.py",
+      "expected": "3254bd664a2b06a43e602f3be8f698c0c1aa6b5502fc7a6e3b5bfbbd6e74aa57",
+      "actual": "3254bd664a2b06a43e602f3be8f698c0c1aa6b5502fc7a6e3b5bfbbd6e74aa57",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/memory_sqlite.py",
+      "expected": "b04ce5111e7391bd202a41c6f1f12e83710302ae773c3e61c1efd3af42417e27",
+      "actual": "b04ce5111e7391bd202a41c6f1f12e83710302ae773c3e61c1efd3af42417e27",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/persistence.py",
+      "expected": "d010deb947d5330ff3beeaf64e3d0858df60c5b9e61cecda6a80e77d43b06c65",
+      "actual": "d010deb947d5330ff3beeaf64e3d0858df60c5b9e61cecda6a80e77d43b06c65",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/process_environment.py",
+      "expected": "29c17ae78bdd6dedfd349d825e8747372bbb08ba4724cc307b2fd025bdbc89a7",
+      "actual": "29c17ae78bdd6dedfd349d825e8747372bbb08ba4724cc307b2fd025bdbc89a7",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/process_lifecycle.py",
+      "expected": "88bc2c4ac661c95116a3aee04dc0babee1721d10de2a308c7f4ab4e402071aa7",
+      "actual": "88bc2c4ac661c95116a3aee04dc0babee1721d10de2a308c7f4ab4e402071aa7",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/rag.py",
+      "expected": "03e0c94a5b301186bc26c16b29c3bb1f1c78947824437a1620c6cb09c4afb37f",
+      "actual": "03e0c94a5b301186bc26c16b29c3bb1f1c78947824437a1620c6cb09c4afb37f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/security_audit_jsonl.py",
+      "expected": "7058fe8702ca294361d35d80c2249ccac5807273de7fccb31981fa17fa642ea4",
+      "actual": "7058fe8702ca294361d35d80c2249ccac5807273de7fccb31981fa17fa642ea4",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/web_search.py",
+      "expected": "cbf6bb1b83774e00862a122aaa681eb202e4c62bd2a95c96fc4e7466f38a1c1d",
+      "actual": "cbf6bb1b83774e00862a122aaa681eb202e4c62bd2a95c96fc4e7466f38a1c1d",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/windows_filesystem.py",
+      "expected": "8da7d10c111a199923c4a90beff7864b86391eba97c1d491ca9e861ecb1b7ae1",
+      "actual": "8da7d10c111a199923c4a90beff7864b86391eba97c1d491ca9e861ecb1b7ae1",
+      "matches": true
+    },
+    {
+      "path": "local_cli/interfaces/__init__.py",
+      "expected": "429ca145eee86a9aff8f3ad43a71654a9413c2dec9456d638252f2ca71d757be",
+      "actual": "429ca145eee86a9aff8f3ad43a71654a9413c2dec9456d638252f2ca71d757be",
+      "matches": true
+    },
+    {
+      "path": "local_cli/interfaces/approval_proof.py",
+      "expected": "38f33c049c93cd59af9993f79d4248a83d037a762103d84fd3398e11e606d422",
+      "actual": "38f33c049c93cd59af9993f79d4248a83d037a762103d84fd3398e11e606d422",
+      "matches": true
+    },
+    {
+      "path": "local_cli/interfaces/cli_application.py",
+      "expected": "efa9302121c9f1f07885d229f491f59f0e4eb628d41c235a1f017d04698847df",
+      "actual": "efa9302121c9f1f07885d229f491f59f0e4eb628d41c235a1f017d04698847df",
+      "matches": true
+    },
+    {
+      "path": "local_cli/interfaces/jsonl_application.py",
+      "expected": "0cc20d0312395ba0bad3bd3357fd0271111dbfe6efcfcbc109bbe30da7091587",
+      "actual": "0cc20d0312395ba0bad3bd3357fd0271111dbfe6efcfcbc109bbe30da7091587",
+      "matches": true
+    },
+    {
+      "path": "local_cli/interfaces/knowledge_cli.py",
+      "expected": "1fcafd1834cc24c532fd5cd751f80f5405a30aa869868cbf53717f8f81fc07b8",
+      "actual": "1fcafd1834cc24c532fd5cd751f80f5405a30aa869868cbf53717f8f81fc07b8",
+      "matches": true
+    },
+    {
+      "path": "local_cli/interfaces/memory_cli.py",
+      "expected": "911d110077e6e55e8bcf8172695cc759123d9c60abb43e76e3dcbe3c9f72e33a",
+      "actual": "911d110077e6e55e8bcf8172695cc759123d9c60abb43e76e3dcbe3c9f72e33a",
+      "matches": true
+    },
+    {
+      "path": "local_cli/knowledge.py",
+      "expected": "821c819251d3519d88082ac775ef4cb9080f45ebf09f231df8ad9ba82935a910",
+      "actual": "821c819251d3519d88082ac775ef4cb9080f45ebf09f231df8ad9ba82935a910",
+      "matches": true
+    },
+    {
+      "path": "local_cli/legacy_contracts.py",
+      "expected": "d1d19d5dca709dc5220da58891006aaf940e56c55c9e5230c56019166651dc02",
+      "actual": "d1d19d5dca709dc5220da58891006aaf940e56c55c9e5230c56019166651dc02",
+      "matches": true
+    },
+    {
+      "path": "local_cli/memory_config.py",
+      "expected": "e36f69b896a879eda2eb65d3f76b8c3641ad5260c5b7e248cd593bdbb7f30d05",
+      "actual": "e36f69b896a879eda2eb65d3f76b8c3641ad5260c5b7e248cd593bdbb7f30d05",
+      "matches": true
+    },
+    {
+      "path": "local_cli/model_catalog.py",
+      "expected": "83d0ebe5e11a31f448623904b17542924fd6e96f31c9c3aa7d2dc8c166cf2207",
+      "actual": "83d0ebe5e11a31f448623904b17542924fd6e96f31c9c3aa7d2dc8c166cf2207",
+      "matches": true
+    },
+    {
+      "path": "local_cli/model_manager.py",
+      "expected": "1b31115b981a4e98b45a4df9303fd97839ba54360b3fb319b94e9e3d1fb5acaa",
+      "actual": "1b31115b981a4e98b45a4df9303fd97839ba54360b3fb319b94e9e3d1fb5acaa",
+      "matches": true
+    },
+    {
+      "path": "local_cli/model_presets.py",
+      "expected": "c9e67a8b12c65aa3009ed1bb2c17b0d685cb1a9a2a199e06ccc9d992eba85324",
+      "actual": "c9e67a8b12c65aa3009ed1bb2c17b0d685cb1a9a2a199e06ccc9d992eba85324",
+      "matches": true
+    },
+    {
+      "path": "local_cli/model_registry.py",
+      "expected": "0acc012ae30b55c7f21893f48c8a952912b35c0b6d75ceed53669020dedce710",
+      "actual": "0acc012ae30b55c7f21893f48c8a952912b35c0b6d75ceed53669020dedce710",
+      "matches": true
+    },
+    {
+      "path": "local_cli/model_search.py",
+      "expected": "05c2f08b77430156cd7e7c08cf2ae5d2b2a11313a4c4ed6170d0c9817c0afdf9",
+      "actual": "05c2f08b77430156cd7e7c08cf2ae5d2b2a11313a4c4ed6170d0c9817c0afdf9",
+      "matches": true
+    },
+    {
+      "path": "local_cli/model_selector.py",
+      "expected": "f900bd3238ceaad750458470ab5298b0105c84a3d07e993aec6870d8b914280e",
+      "actual": "f900bd3238ceaad750458470ab5298b0105c84a3d07e993aec6870d8b914280e",
+      "matches": true
+    },
+    {
+      "path": "local_cli/network_config.py",
+      "expected": "6653f00c2de2cc9a452453a6391c91c944652760bcd368d508794eb1777676da",
+      "actual": "6653f00c2de2cc9a452453a6391c91c944652760bcd368d508794eb1777676da",
+      "matches": true
+    },
+    {
+      "path": "local_cli/ollama_client.py",
+      "expected": "6aee7b10cfc834f117204c1c5c447adb01fac95c0c03ed68b55f1ee741d9bf80",
+      "actual": "6aee7b10cfc834f117204c1c5c447adb01fac95c0c03ed68b55f1ee741d9bf80",
+      "matches": true
+    },
+    {
+      "path": "local_cli/orchestrator.py",
+      "expected": "338b5a58f94849c49a47d4b33c3f6a5167cf4bb849ae9851b07767235764e6e2",
+      "actual": "338b5a58f94849c49a47d4b33c3f6a5167cf4bb849ae9851b07767235764e6e2",
+      "matches": true
+    },
+    {
+      "path": "local_cli/plan_manager.py",
+      "expected": "74ccec51de53ff45d819c9838e5612ee9eb34f66cb38a3c8104bbcbee7d2d1f1",
+      "actual": "74ccec51de53ff45d819c9838e5612ee9eb34f66cb38a3c8104bbcbee7d2d1f1",
+      "matches": true
+    },
+    {
+      "path": "local_cli/process_config.py",
+      "expected": "0d3149cab20d70dbb4b0a8ad58882faa118a3028c056543c88cab4ffd14b8dbf",
+      "actual": "0d3149cab20d70dbb4b0a8ad58882faa118a3028c056543c88cab4ffd14b8dbf",
+      "matches": true
+    },
+    {
+      "path": "local_cli/project_instructions.py",
+      "expected": "d2918bcdbebc782d6c7b3e17db5e351921eb5dad6a8bc67cfbe677c6d8064b07",
+      "actual": "d2918bcdbebc782d6c7b3e17db5e351921eb5dad6a8bc67cfbe677c6d8064b07",
+      "matches": true
+    },
+    {
+      "path": "local_cli/project_map.py",
+      "expected": "35d559aa32e5ab1121506be6910fa1ce91e76f338dd0085497d6744685cf2f2a",
+      "actual": "35d559aa32e5ab1121506be6910fa1ce91e76f338dd0085497d6744685cf2f2a",
+      "matches": true
+    },
+    {
+      "path": "local_cli/prompts.py",
+      "expected": "d397358e8c268d083c8f6f5630ee8b0722c1944916d1554016ec04b05d9c88dc",
+      "actual": "d397358e8c268d083c8f6f5630ee8b0722c1944916d1554016ec04b05d9c88dc",
+      "matches": true
+    },
+    {
+      "path": "local_cli/providers/__init__.py",
+      "expected": "02710c587f73c3256808488c14958e64a2fe1ca166e72807ddbc646f3f6caac2",
+      "actual": "02710c587f73c3256808488c14958e64a2fe1ca166e72807ddbc646f3f6caac2",
+      "matches": true
+    },
+    {
+      "path": "local_cli/providers/base.py",
+      "expected": "ec64b0c354cedce54923c5c2780a532e792e5766a85320adc30cac7f5a1e2393",
+      "actual": "ec64b0c354cedce54923c5c2780a532e792e5766a85320adc30cac7f5a1e2393",
+      "matches": true
+    },
+    {
+      "path": "local_cli/providers/claude_provider.py",
+      "expected": "c2457c233f37bf04297e9edafe136ae8b710479fdb48a8f1fb224e50f34d5b92",
+      "actual": "c2457c233f37bf04297e9edafe136ae8b710479fdb48a8f1fb224e50f34d5b92",
+      "matches": true
+    },
+    {
+      "path": "local_cli/providers/llama_server_provider.py",
+      "expected": "705192e6473bba0f44fdf13866db44c4397e15fbd03d7c2a6bdacee7e0496c95",
+      "actual": "705192e6473bba0f44fdf13866db44c4397e15fbd03d7c2a6bdacee7e0496c95",
+      "matches": true
+    },
+    {
+      "path": "local_cli/providers/message_converter.py",
+      "expected": "0d422c098dddb7c2ed196a07ae23f741afdb0df7f58dbd64b34b1ff4e1012ea8",
+      "actual": "0d422c098dddb7c2ed196a07ae23f741afdb0df7f58dbd64b34b1ff4e1012ea8",
+      "matches": true
+    },
+    {
+      "path": "local_cli/providers/ollama_provider.py",
+      "expected": "740377e89cfba5cd2b919a0e5a6284b6cf9fd0ebb7831691326984aedaa57d7a",
+      "actual": "740377e89cfba5cd2b919a0e5a6284b6cf9fd0ebb7831691326984aedaa57d7a",
+      "matches": true
+    },
+    {
+      "path": "local_cli/providers/sse_parser.py",
+      "expected": "853eed99a61788f66a9badfe3973e189cc2e5f36148ce0035ebe010f3d5ce261",
+      "actual": "853eed99a61788f66a9badfe3973e189cc2e5f36148ce0035ebe010f3d5ce261",
+      "matches": true
+    },
+    {
+      "path": "local_cli/rag.py",
+      "expected": "3f6964f444361641f1c55bafad818d5543fbe9f84bf764245d85f52a74910407",
+      "actual": "3f6964f444361641f1c55bafad818d5543fbe9f84bf764245d85f52a74910407",
+      "matches": true
+    },
+    {
+      "path": "local_cli/security.py",
+      "expected": "22aba5c5bc876d6082db170bb91433bf85423be2d073637f6eeefc50714d0f1d",
+      "actual": "22aba5c5bc876d6082db170bb91433bf85423be2d073637f6eeefc50714d0f1d",
+      "matches": true
+    },
+    {
+      "path": "local_cli/server.py",
+      "expected": "44899c0e7df4decc14801a1ad8446ec10479f1d25586d5bd4c0eb9004bae5560",
+      "actual": "44899c0e7df4decc14801a1ad8446ec10479f1d25586d5bd4c0eb9004bae5560",
+      "matches": true
+    },
+    {
+      "path": "local_cli/session_log.py",
+      "expected": "30ae8745af748a55b62c62ce3a97c8adcdcdc464eff3c7cf92482671994ebc0b",
+      "actual": "30ae8745af748a55b62c62ce3a97c8adcdcdc464eff3c7cf92482671994ebc0b",
+      "matches": true
+    },
+    {
+      "path": "local_cli/session.py",
+      "expected": "84f94da3ebdca6ae5629c9b3a756c8c7bb83b59208b42981d30da1155e149c1b",
+      "actual": "84f94da3ebdca6ae5629c9b3a756c8c7bb83b59208b42981d30da1155e149c1b",
+      "matches": true
+    },
+    {
+      "path": "local_cli/shell_executor.py",
+      "expected": "30eec5d2a8c76e20a858bf818a4563e0c2d94626e26b25f8079be2ecc9772a1a",
+      "actual": "30eec5d2a8c76e20a858bf818a4563e0c2d94626e26b25f8079be2ecc9772a1a",
+      "matches": true
+    },
+    {
+      "path": "local_cli/shell_policy.py",
+      "expected": "9bc686182a291cd6ea2e4b8a6876fa82e1b08df3b57345e5db62ceb408a58dc4",
+      "actual": "9bc686182a291cd6ea2e4b8a6876fa82e1b08df3b57345e5db62ceb408a58dc4",
+      "matches": true
+    },
+    {
+      "path": "local_cli/skills.py",
+      "expected": "25177f96a5ba6fd0ef123fbe66cd13832088a9995ea63134c5e633c179fb03c6",
+      "actual": "25177f96a5ba6fd0ef123fbe66cd13832088a9995ea63134c5e633c179fb03c6",
+      "matches": true
+    },
+    {
+      "path": "local_cli/spinner.py",
+      "expected": "01a2138dadd0459174ffa7d8ece166a6908ac045bc5ad20736c32aceae77b5f2",
+      "actual": "01a2138dadd0459174ffa7d8ece166a6908ac045bc5ad20736c32aceae77b5f2",
+      "matches": true
+    },
+    {
+      "path": "local_cli/sub_agent.py",
+      "expected": "6894a20a95a60418b9065e2725b6f642f828b9347272187223edcce32462e786",
+      "actual": "2f2c34f25d32918a37b0a7b5d57fb831ad49c0ba5d02d0b9a4f2a1accd7fd266",
+      "matches": false
+    },
+    {
+      "path": "local_cli/system_info.py",
+      "expected": "caaada3527d9c9329963bc850814631e23c2e05076f4129dff9a74b484138991",
+      "actual": "caaada3527d9c9329963bc850814631e23c2e05076f4129dff9a74b484138991",
+      "matches": true
+    },
+    {
+      "path": "local_cli/token_tracker.py",
+      "expected": "2229b2cb05e1a5628715fc55b0bc1cdb7840491cd7d66aa1db53009ad21c2099",
+      "actual": "2229b2cb05e1a5628715fc55b0bc1cdb7840491cd7d66aa1db53009ad21c2099",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tool_cache.py",
+      "expected": "d73efd4cc68e6c65d8e66fd3b66d8d6ee3e61e5426e8f6d3d29b1e3f6b153ae4",
+      "actual": "d73efd4cc68e6c65d8e66fd3b66d8d6ee3e61e5426e8f6d3d29b1e3f6b153ae4",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/__init__.py",
+      "expected": "69c9f5d7f6aa661e3559bd60c27ea70cbe2f27cfa6ccc85f3b1563ffd7b67408",
+      "actual": "69c9f5d7f6aa661e3559bd60c27ea70cbe2f27cfa6ccc85f3b1563ffd7b67408",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/_fileio.py",
+      "expected": "732d21286d87219bfb7459bf1421d5ee357bcf3d36f550943ff0435fe50f8bc7",
+      "actual": "732d21286d87219bfb7459bf1421d5ee357bcf3d36f550943ff0435fe50f8bc7",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/_paths.py",
+      "expected": "4ce982d9eea99873ac92030f99bb2e268e7b683b6adb5d54751d8544e4f10cbf",
+      "actual": "4ce982d9eea99873ac92030f99bb2e268e7b683b6adb5d54751d8544e4f10cbf",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/agent_tool.py",
+      "expected": "c3c2e1e89a85d37aa2fe444594833229f40435f27bd12f8002058c4e5175a1c8",
+      "actual": "36b1f1483e4b9d5a1ef1792147edee103462629538247ab00b3e2b8fe5eca172",
+      "matches": false
+    },
+    {
+      "path": "local_cli/tools/ask_user_tool.py",
+      "expected": "74f677fd6b3f3d6ed9a6299580b5bd743e34e22e302029bf1053a3a22e5b225c",
+      "actual": "74f677fd6b3f3d6ed9a6299580b5bd743e34e22e302029bf1053a3a22e5b225c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/base.py",
+      "expected": "df29b52e7ff3ba4da988e620486b77a617d27c2ee0a1d145b78a7b95895b025c",
+      "actual": "df29b52e7ff3ba4da988e620486b77a617d27c2ee0a1d145b78a7b95895b025c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/bash_tool.py",
+      "expected": "8933cdee293bd418e134dd06b539d9e7fa403fe5559b25b57a5e09484f89b4db",
+      "actual": "8933cdee293bd418e134dd06b539d9e7fa403fe5559b25b57a5e09484f89b4db",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/edit_tool.py",
+      "expected": "c45513362e2182804afcbad526ff2e03affa9391a8836cd49347c6683fd19f22",
+      "actual": "c45513362e2182804afcbad526ff2e03affa9391a8836cd49347c6683fd19f22",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/glob_tool.py",
+      "expected": "7dd7e25733df2e9b57ce50fcdd0ed49f800bf54ed2d72fec4a07e4db2e3b905f",
+      "actual": "7dd7e25733df2e9b57ce50fcdd0ed49f800bf54ed2d72fec4a07e4db2e3b905f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/grep_tool.py",
+      "expected": "707bd7706e54b1c0d84645cb0aecdc5ef6c4ecc00b8b962a6b48ed84c7de4a93",
+      "actual": "707bd7706e54b1c0d84645cb0aecdc5ef6c4ecc00b8b962a6b48ed84c7de4a93",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/read_tool.py",
+      "expected": "1a2d7c0cd73f108e52fadf4d21044fae1a3c253e1cea9a6d4b5077a32b4f4774",
+      "actual": "1a2d7c0cd73f108e52fadf4d21044fae1a3c253e1cea9a6d4b5077a32b4f4774",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/shell_tool.py",
+      "expected": "33fa40f9bd60f360a90d995b6fc4dd3fb17fa27c79b2df4f347bec8d54e5bc12",
+      "actual": "33fa40f9bd60f360a90d995b6fc4dd3fb17fa27c79b2df4f347bec8d54e5bc12",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/todo_tool.py",
+      "expected": "ddf5540d92499a1109663b9ee6377e6b2cd6c94ac0d491ae7bc55e170bb4af8d",
+      "actual": "ddf5540d92499a1109663b9ee6377e6b2cd6c94ac0d491ae7bc55e170bb4af8d",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/web_fetch_tool.py",
+      "expected": "0e35d286e0988824e979784df090628d5b9f66affc4b2fa431fbdbb0ba6797fd",
+      "actual": "0e35d286e0988824e979784df090628d5b9f66affc4b2fa431fbdbb0ba6797fd",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/web_search_tool.py",
+      "expected": "a286c29b8200d8d0f99e5ba643b222472c81967a4e363d7acd2897237a7945d6",
+      "actual": "a286c29b8200d8d0f99e5ba643b222472c81967a4e363d7acd2897237a7945d6",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/write_tool.py",
+      "expected": "5cee9744884ec34e9e909a7a3ef2fc323c1577083cd47bd75e13fa71ad81d42a",
+      "actual": "5cee9744884ec34e9e909a7a3ef2fc323c1577083cd47bd75e13fa71ad81d42a",
+      "matches": true
+    },
+    {
+      "path": "local_cli/updater.py",
+      "expected": "084a6dc6f3034fbba2ed45b7733a6b66b3266b738f616d770f4fdf47a917d50b",
+      "actual": "084a6dc6f3034fbba2ed45b7733a6b66b3266b738f616d770f4fdf47a917d50b",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_core_v1.json",
+      "expected": "832be39fa3efa475cd74b89c8f5d1632e445f5a6a67cecb72833d4f12814cd1a",
+      "actual": "832be39fa3efa475cd74b89c8f5d1632e445f5a6a67cecb72833d4f12814cd1a",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_protocol_v1.json",
+      "expected": "c0eb231bb2cbc812e49524cd295dc237c29265d4b4671cf7c2d97c285e11c092",
+      "actual": "c0eb231bb2cbc812e49524cd295dc237c29265d4b4671cf7c2d97c285e11c092",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_fixtures.py",
+      "expected": "259f6079908160c4be1ee90b25bb548089749150168307fe9f873ad7254b7e75",
+      "actual": "259f6079908160c4be1ee90b25bb548089749150168307fe9f873ad7254b7e75",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_e2e.py",
+      "expected": "27b745dc3a6a087c61156c10ed47ed03bd6f7df0c4cc5f787fdfda5645d46c4b",
+      "actual": "27b745dc3a6a087c61156c10ed47ed03bd6f7df0c4cc5f787fdfda5645d46c4b",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_harness.py",
+      "expected": "acf0e4470725a27d938e76305bb994f60c624ebef4ff0b4d8c7ddbf5854a4c56",
+      "actual": "acf0e4470725a27d938e76305bb994f60c624ebef4ff0b4d8c7ddbf5854a4c56",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_quality.py",
+      "expected": "12fc9b7e0e7d93e69a8998b2fa296d47f2cd284bfc7489b3cf31f1ac11b634e0",
+      "actual": "12fc9b7e0e7d93e69a8998b2fa296d47f2cd284bfc7489b3cf31f1ac11b634e0",
+      "matches": true
+    }
+  ],
+  "v6Pins": [
+    {
+      "path": "desktop/electron/application_client.ts",
+      "expected": "2e7a02f89fb96fbf6932674eb7e8369396278eccac98549adeb98d7be0b5d21e",
+      "actual": "2e7a02f89fb96fbf6932674eb7e8369396278eccac98549adeb98d7be0b5d21e",
+      "matches": true
+    },
+    {
+      "path": "desktop/electron/knowledge_control.cjs",
+      "expected": "febb7a07342b75db40f79b81bd8daea6a094fce7d51d0899107abd3ab925c184",
+      "actual": "febb7a07342b75db40f79b81bd8daea6a094fce7d51d0899107abd3ab925c184",
+      "matches": true
+    },
+    {
+      "path": "desktop/electron/knowledge_control.d.cts",
+      "expected": "4a17a102897af4fe7cb8cb1c7edaf0ecda231e1b7e349ecc71bc3730498cb993",
+      "actual": "4a17a102897af4fe7cb8cb1c7edaf0ecda231e1b7e349ecc71bc3730498cb993",
+      "matches": true
+    },
+    {
+      "path": "desktop/electron/main.ts",
+      "expected": "723821a44b449e37caeb2fc1cf682c66fd22d66b63d81f0f884a5571c83a99d7",
+      "actual": "723821a44b449e37caeb2fc1cf682c66fd22d66b63d81f0f884a5571c83a99d7",
+      "matches": true
+    },
+    {
+      "path": "desktop/electron/preload.ts",
+      "expected": "e40f4319574bff35af31ad108132a538a1d70593a039057fa2bcba7e6e2f5abb",
+      "actual": "e40f4319574bff35af31ad108132a538a1d70593a039057fa2bcba7e6e2f5abb",
+      "matches": true
+    },
+    {
+      "path": "desktop/shared/application.ts",
+      "expected": "9c8271a1efd8f98b4d810b4c269f450e832186f35ac857889320c78952786d00",
+      "actual": "9c8271a1efd8f98b4d810b4c269f450e832186f35ac857889320c78952786d00",
+      "matches": true
+    },
+    {
+      "path": "desktop/src/App.tsx",
+      "expected": "5bf59ef715c8cdc9b1d1e19dabcd5293930d940c4e8791208211df41d25992d3",
+      "actual": "5bf59ef715c8cdc9b1d1e19dabcd5293930d940c4e8791208211df41d25992d3",
+      "matches": true
+    },
+    {
+      "path": "desktop/src/components/MessageBlock.tsx",
+      "expected": "b251f582049dad9fd6147e451a7167539b898c9fde77d603a5c9ac104d94cdc4",
+      "actual": "b251f582049dad9fd6147e451a7167539b898c9fde77d603a5c9ac104d94cdc4",
+      "matches": true
+    },
+    {
+      "path": "desktop/src/types.ts",
+      "expected": "7c7130072ee74ece804a78663218e6000f3eb6757d5de0347d6a9007324dda49",
+      "actual": "7c7130072ee74ece804a78663218e6000f3eb6757d5de0347d6a9007324dda49",
+      "matches": true
+    },
+    {
+      "path": "desktop/tests/knowledge_control.test.cjs",
+      "expected": "b810659a8454e2c007fc27137bc0c69ad85908d2b0b462518ced88d6f8de9e9c",
+      "actual": "b810659a8454e2c007fc27137bc0c69ad85908d2b0b462518ced88d6f8de9e9c",
+      "matches": true
+    },
+    {
+      "path": "desktop/tests/knowledge_k7.test.cjs",
+      "expected": "acad55574fcd9a25a1a482597d73edcd566c38145ff9d0a0c75a349e07c426ce",
+      "actual": "acad55574fcd9a25a1a482597d73edcd566c38145ff9d0a0c75a349e07c426ce",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "expected": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888",
+      "actual": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "expected": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "actual": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_ci_reconciliation.json",
+      "expected": "ce6eec19976d6e7bc173e459a347356943b413781338ace46ce8be96bdeb9e5b",
+      "actual": "ce6eec19976d6e7bc173e459a347356943b413781338ace46ce8be96bdeb9e5b",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_corpus_freeze.json",
+      "expected": "4533fc33dcfa49f5480546f3ce8ed9d54832ae40b8b9d4910145c6dc19c7ebe2",
+      "actual": "4533fc33dcfa49f5480546f3ce8ed9d54832ae40b8b9d4910145c6dc19c7ebe2",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt",
+      "expected": "7a288bf7b5da69cce83733072812cbc72853ea85be5ca29183d5ebc6fa1363a4",
+      "actual": "7a288bf7b5da69cce83733072812cbc72853ea85be5ca29183d5ebc6fa1363a4",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/boundaries.txt",
+      "expected": "05bdd663435c60bac55bee336b1421d468cd3867337c0ea2bc21a10642688529",
+      "actual": "05bdd663435c60bac55bee336b1421d468cd3867337c0ea2bc21a10642688529",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt",
+      "expected": "42fa8098c2d7886e19bde984c8719abfe2aef6d4a3e7a2f8171837f251098d74",
+      "actual": "42fa8098c2d7886e19bde984c8719abfe2aef6d4a3e7a2f8171837f251098d74",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt",
+      "expected": "2a2a3ea671dc9e87e084f7ab118c3ab65aa9de8f184758adc674415cf263a79e",
+      "actual": "2a2a3ea671dc9e87e084f7ab118c3ab65aa9de8f184758adc674415cf263a79e",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt",
+      "expected": "748765df3378a19f68dcc3f1191f5e4fa79c881d8cb5c47519dd53633ce6ac7e",
+      "actual": "748765df3378a19f68dcc3f1191f5e4fa79c881d8cb5c47519dd53633ce6ac7e",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/contracts.txt",
+      "expected": "c71e1f17301a494fd69526599f0fd1b9c15d1596efb427ad7bdff5c25a0ef1ec",
+      "actual": "c71e1f17301a494fd69526599f0fd1b9c15d1596efb427ad7bdff5c25a0ef1ec",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt",
+      "expected": "775c55d64163e9c6c718c6d3f287c316017fbe6cefabda2b7559b4714c090791",
+      "actual": "775c55d64163e9c6c718c6d3f287c316017fbe6cefabda2b7559b4714c090791",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/head_final.txt",
+      "expected": "c49ee19a526eb2b0f4d81059d0f9bab357f0e0dcfa68241d2e00fa467c4e5bc0",
+      "actual": "c49ee19a526eb2b0f4d81059d0f9bab357f0e0dcfa68241d2e00fa467c4e5bc0",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt",
+      "expected": "3716cade30ce772d8a406840a24d78d7eaf990e2c60c0dc0ea077b2377efe3bd",
+      "actual": "3716cade30ce772d8a406840a24d78d7eaf990e2c60c0dc0ea077b2377efe3bd",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/memory.txt",
+      "expected": "f87c498417ce4b02a57a10fec6baa83861092bf8ae4f6be2de4a86fcb798f9ce",
+      "actual": "f87c498417ce4b02a57a10fec6baa83861092bf8ae4f6be2de4a86fcb798f9ce",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_evidence/test_runs.json",
+      "expected": "800de80c1ae4516b74ba820a595813f0257f1b373901091ad7634e6fedac4a05",
+      "actual": "800de80c1ae4516b74ba820a595813f0257f1b373901091ad7634e6fedac4a05",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_freeze.json",
+      "expected": "6ae1fdd18f68d46ec102f06edba20c377833e51a979ef75752b308eae8a8a25e",
+      "actual": "6ae1fdd18f68d46ec102f06edba20c377833e51a979ef75752b308eae8a8a25e",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_manifest.json",
+      "expected": "60e419b2b453f36fe251cfee64803848cb8d38780a1a8df624e7ec1b1c718dfe",
+      "actual": "60e419b2b453f36fe251cfee64803848cb8d38780a1a8df624e7ec1b1c718dfe",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k0_resultados.md",
+      "expected": "dd28561fc5e6e3ebff4ba95c622ab1dee03e00c4b2f5d77f4d161afae118392c",
+      "actual": "dd28561fc5e6e3ebff4ba95c622ab1dee03e00c4b2f5d77f4d161afae118392c",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt",
+      "expected": "5c1a9e72b9a33d76e2cadb28d33beb9207b5aff98992e0ab3025157ccd39eead",
+      "actual": "5c1a9e72b9a33d76e2cadb28d33beb9207b5aff98992e0ab3025157ccd39eead",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt",
+      "expected": "4bc230bc383363a6515b4025cfcf0bc7f1722ed6227e71fb3da9b78f670eecf1",
+      "actual": "4bc230bc383363a6515b4025cfcf0bc7f1722ed6227e71fb3da9b78f670eecf1",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt",
+      "expected": "3f47d282ae9aae08fbf67b2752e15015e78b4b7d22d36a425d6f8827b38b56db",
+      "actual": "3f47d282ae9aae08fbf67b2752e15015e78b4b7d22d36a425d6f8827b38b56db",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/block-authority.txt",
+      "expected": "c21fd456d1d0a1b8ac5cacac7801b71c464db327ce3f0b448186aeb3ca6654a7",
+      "actual": "c21fd456d1d0a1b8ac5cacac7801b71c464db327ce3f0b448186aeb3ca6654a7",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt",
+      "expected": "3634e1d2f54b6788f93927c5c8d4107f6c76b512386ab8cb42fb1e524d2429dd",
+      "actual": "3634e1d2f54b6788f93927c5c8d4107f6c76b512386ab8cb42fb1e524d2429dd",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/block-store.txt",
+      "expected": "05ec028525c9c94b65d22d26436c38d2d63ae73fb82cec4dcd61641f8fe84e9a",
+      "actual": "05ec028525c9c94b65d22d26436c38d2d63ae73fb82cec4dcd61641f8fe84e9a",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/desktop.json",
+      "expected": "33fc4818117fe10d0ed63e0f239335fe6254e4557a2327354c07e897639bca2b",
+      "actual": "33fc4818117fe10d0ed63e0f239335fe6254e4557a2327354c07e897639bca2b",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/final_integrity.json",
+      "expected": "8d2ad75c33c13164cec67bc708e13be4d4167c8761bb2bba884083091b3fc863",
+      "actual": "8d2ad75c33c13164cec67bc708e13be4d4167c8761bb2bba884083091b3fc863",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt",
+      "expected": "f012c7f0dbdf615b028b0f2a249c0dea58871ef19a8a9424b081153aa5d2e247",
+      "actual": "f012c7f0dbdf615b028b0f2a249c0dea58871ef19a8a9424b081153aa5d2e247",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt",
+      "expected": "990f009e79ce9a150e8c09e5e84c323cc07f63fad71f16e1b6151caefa469625",
+      "actual": "990f009e79ce9a150e8c09e5e84c323cc07f63fad71f16e1b6151caefa469625",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/head_final.json",
+      "expected": "eb228e19bac8597fdec5aaf7e26f6e9524f8e68cf34f4987b9062741bd714eb0",
+      "actual": "eb228e19bac8597fdec5aaf7e26f6e9524f8e68cf34f4987b9062741bd714eb0",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/head_final.txt",
+      "expected": "d621323c8a6a9ed357c21047189ca0053248ebd4a9d3f231b4362909b8d3d438",
+      "actual": "d621323c8a6a9ed357c21047189ca0053248ebd4a9d3f231b4362909b8d3d438",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_evidence/test_runs.json",
+      "expected": "fc84635e87c1c7357a0f07827c1ffe888e6719accfd2be34077460f0075192d6",
+      "actual": "fc84635e87c1c7357a0f07827c1ffe888e6719accfd2be34077460f0075192d6",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_freeze.json",
+      "expected": "7d1c69d08515b704d139e296ce050d8508d74b13dd90957f66be9c2325a7cdfd",
+      "actual": "7d1c69d08515b704d139e296ce050d8508d74b13dd90957f66be9c2325a7cdfd",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_manifest.json",
+      "expected": "ee5b588635ae262f71f7e5ec596bf8ed69e6ccc22fa9d02d1a06bd4c086a2c94",
+      "actual": "ee5b588635ae262f71f7e5ec596bf8ed69e6ccc22fa9d02d1a06bd4c086a2c94",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k1_resultados.md",
+      "expected": "357cd60ad1fc363b47e5745d4c9c421710b826ad906d3b984a69179e6e699761",
+      "actual": "357cd60ad1fc363b47e5745d4c9c421710b826ad906d3b984a69179e6e699761",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt",
+      "expected": "6faa80fd68d3b8868444ed4cad89c34fc8c8387c76b1f59c058926b0ccd2fa7d",
+      "actual": "6faa80fd68d3b8868444ed4cad89c34fc8c8387c76b1f59c058926b0ccd2fa7d",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt",
+      "expected": "f29f7133c1ff96b095f2de0c65fef6f463e7117adc77e2b677a1234ce4805bf4",
+      "actual": "f29f7133c1ff96b095f2de0c65fef6f463e7117adc77e2b677a1234ce4805bf4",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt",
+      "expected": "2031951d63b4e67af74f6defa4dbb5324aa098fce4ab0756db43dab7bbeba154",
+      "actual": "2031951d63b4e67af74f6defa4dbb5324aa098fce4ab0756db43dab7bbeba154",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt",
+      "expected": "d44be98e76bd517342a5c594d96e2efe0744f6e7578a24a3f57595c40e15e6aa",
+      "actual": "d44be98e76bd517342a5c594d96e2efe0744f6e7578a24a3f57595c40e15e6aa",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt",
+      "expected": "f432d0071437104b1a2bb514f06bf7ec4795ef91bbfb3e2b81030f4463c12d1a",
+      "actual": "f432d0071437104b1a2bb514f06bf7ec4795ef91bbfb3e2b81030f4463c12d1a",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt",
+      "expected": "aa3723ce7b1e61bac9c418f955b7185f4d72af2273349332c0f3b7f67359308f",
+      "actual": "aa3723ce7b1e61bac9c418f955b7185f4d72af2273349332c0f3b7f67359308f",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt",
+      "expected": "00cda2d52deb7427de0b5cd63f7bd00a8fdc8c8d3f441d2704dbdf6a7dff480a",
+      "actual": "00cda2d52deb7427de0b5cd63f7bd00a8fdc8c8d3f441d2704dbdf6a7dff480a",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/compatibility.txt",
+      "expected": "c49ce51e239ed8eb7f5f87ce2e404d344ef57dcccca09e6888382253ea7fd233",
+      "actual": "c49ce51e239ed8eb7f5f87ce2e404d344ef57dcccca09e6888382253ea7fd233",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt",
+      "expected": "42986692857666d8223b1b462bff7811f0f343ba27da8f2ca6623375a6fde9de",
+      "actual": "42986692857666d8223b1b462bff7811f0f343ba27da8f2ca6623375a6fde9de",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/desktop.json",
+      "expected": "c474220fffa54d3be30cbdc290009be76cae545835135ea50c9f3ea92889eab9",
+      "actual": "c474220fffa54d3be30cbdc290009be76cae545835135ea50c9f3ea92889eab9",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/final_integrity.json",
+      "expected": "9b33d7e9116c067621d83e7d8d65b31f352d2eaae31b93bd11bedef05679aca6",
+      "actual": "9b33d7e9116c067621d83e7d8d65b31f352d2eaae31b93bd11bedef05679aca6",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt",
+      "expected": "a7e504c829d40041874cc540910eb668678d6ae2ad58060bc0be41ba6dbc3443",
+      "actual": "a7e504c829d40041874cc540910eb668678d6ae2ad58060bc0be41ba6dbc3443",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt",
+      "expected": "d6e49b1d4f37762cdf38a7e927624e917191491a0f4cf3a3c5ad468dfbc31706",
+      "actual": "d6e49b1d4f37762cdf38a7e927624e917191491a0f4cf3a3c5ad468dfbc31706",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt",
+      "expected": "57c83140a6026933cd55f4f2ae833cf43c9209d7734ec3917283ed0488c7dab0",
+      "actual": "57c83140a6026933cd55f4f2ae833cf43c9209d7734ec3917283ed0488c7dab0",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/final-memory.txt",
+      "expected": "31dd0e20ed8c5d6217f71a95e80a1f34e386a848671435ec745f5bb7529a73fe",
+      "actual": "31dd0e20ed8c5d6217f71a95e80a1f34e386a848671435ec745f5bb7529a73fe",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt",
+      "expected": "767d351178ce0a74405486c1a8f475bcb308ae2ff948ed6d78d7d8d6162dd99c",
+      "actual": "767d351178ce0a74405486c1a8f475bcb308ae2ff948ed6d78d7d8d6162dd99c",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/final-py312.txt",
+      "expected": "31bbe4672b10b3ac242f78265f96e55e519cf08a15b4e75bd8c44fc32840b900",
+      "actual": "31bbe4672b10b3ac242f78265f96e55e519cf08a15b4e75bd8c44fc32840b900",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/head_final.txt",
+      "expected": "3693c593627335e91b12d443dff57ad9a705cca7339441e6848dde123ed9ec3a",
+      "actual": "3693c593627335e91b12d443dff57ad9a705cca7339441e6848dde123ed9ec3a",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/integrity.json",
+      "expected": "2d959bad3e8e3ff18139de3d531faa9c239520af127a19486f6e3085ce3a4824",
+      "actual": "2d959bad3e8e3ff18139de3d531faa9c239520af127a19486f6e3085ce3a4824",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_evidence/test_runs.json",
+      "expected": "e6f18208b87d389c0e2f0a0b404772fdc577ca1dbfd7154d52aca84a4f30ca49",
+      "actual": "e6f18208b87d389c0e2f0a0b404772fdc577ca1dbfd7154d52aca84a4f30ca49",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_freeze.json",
+      "expected": "023654676666b8ef1c99ffa0fe85eb765d405b42adc29cb187d6b31325d38585",
+      "actual": "023654676666b8ef1c99ffa0fe85eb765d405b42adc29cb187d6b31325d38585",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_manifest.json",
+      "expected": "94d704982ea83f76cff6c97c7e967225d7d9f9db854a2a9d56dfab821eef6450",
+      "actual": "94d704982ea83f76cff6c97c7e967225d7d9f9db854a2a9d56dfab821eef6450",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_preflight.md",
+      "expected": "a9f18a49cc9d2f31dfafbc4f36d046699903953976c1b57783feb22fe8280b9e",
+      "actual": "a9f18a49cc9d2f31dfafbc4f36d046699903953976c1b57783feb22fe8280b9e",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_product_freeze_v2.json",
+      "expected": "51fa4ebfcdb34dcfcc8efa39a597e4b2d3af49cdcf7e4e629df8b3dc3d8c6999",
+      "actual": "51fa4ebfcdb34dcfcc8efa39a597e4b2d3af49cdcf7e4e629df8b3dc3d8c6999",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_product_freeze.json",
+      "expected": "1ffe4d67d9a21a553406759fd8d21830550a7931efc4cb903698521fa4d21d91",
+      "actual": "1ffe4d67d9a21a553406759fd8d21830550a7931efc4cb903698521fa4d21d91",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k2_resultados.md",
+      "expected": "a7e0d54a96ea392b4cc4f866bed984e7fbaf69e77f42d9a5d902b16fbfd87b6e",
+      "actual": "a7e0d54a96ea392b4cc4f866bed984e7fbaf69e77f42d9a5d902b16fbfd87b6e",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k3_manifest.json",
+      "expected": "1e9ba6554cdfff4c2c3e2d4bea00df2b475c1affebd2298df0f38315e2d70911",
+      "actual": "1e9ba6554cdfff4c2c3e2d4bea00df2b475c1affebd2298df0f38315e2d70911",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k3_pdf_repair_manifest.json",
+      "expected": "47caef5c46dadf52601ac42a73ac560b2007da5cab2c4e1e875965d9750d898a",
+      "actual": "47caef5c46dadf52601ac42a73ac560b2007da5cab2c4e1e875965d9750d898a",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k3_pdf_repair_resultados.md",
+      "expected": "329b1c779a1d12bebf164395c6c7050b31a989c7f239e032b13050c41db2fda7",
+      "actual": "329b1c779a1d12bebf164395c6c7050b31a989c7f239e032b13050c41db2fda7",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k3_resultados.md",
+      "expected": "1974132a506faf034ad93b4f45f9f993b72e4e2438f3a740412eee774f5777cd",
+      "actual": "1974132a506faf034ad93b4f45f9f993b72e4e2438f3a740412eee774f5777cd",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k4_manifest.json",
+      "expected": "bf9aebaa8517e5a7c5822dada6539fb25c1d027241755383f37b15e307ae4552",
+      "actual": "bf9aebaa8517e5a7c5822dada6539fb25c1d027241755383f37b15e307ae4552",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k4_resultados.md",
+      "expected": "2aefa6badcdc7fcf5498d3453428b219f1aaaac3b417894c426fa720b3d5d87b",
+      "actual": "2aefa6badcdc7fcf5498d3453428b219f1aaaac3b417894c426fa720b3d5d87b",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k4_resume_evidence/implementation_freeze.json",
+      "expected": "c514ceab4ea002cc33bd7395560ddd76ce8f0799f565899eb09636bf38be1f38",
+      "actual": "c514ceab4ea002cc33bd7395560ddd76ce8f0799f565899eb09636bf38be1f38",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k4_resume_evidence/performance_final.json",
+      "expected": "0821b78a5d9cc543f1d624aa25980f8115240aef92c78b099edb13d19cc30bd5",
+      "actual": "0821b78a5d9cc543f1d624aa25980f8115240aef92c78b099edb13d19cc30bd5",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k4_resume_evidence/quality_final.json",
+      "expected": "13f603486283246ddedb1dd81bf85e3aff93633be84feaa341e2ea42897ac464",
+      "actual": "13f603486283246ddedb1dd81bf85e3aff93633be84feaa341e2ea42897ac464",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k4_resume_manifest.json",
+      "expected": "a6526d79d6c972a13c9c5e46a4d2e6e9ffb951865b65404620317a8a34908d33",
+      "actual": "a6526d79d6c972a13c9c5e46a4d2e6e9ffb951865b65404620317a8a34908d33",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k4_resume_resultados.md",
+      "expected": "485b44cd03600187bef84d93f52d3f2ab43c8699545b99b24541ccf831b9226c",
+      "actual": "485b44cd03600187bef84d93f52d3f2ab43c8699545b99b24541ccf831b9226c",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k5_evidence/budget_matrix.json",
+      "expected": "d331262fc96d6ba61e69a22cf17a585764aeacf020db9c3e11b783d6e2ea7377",
+      "actual": "d331262fc96d6ba61e69a22cf17a585764aeacf020db9c3e11b783d6e2ea7377",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k5_evidence/closure_freeze.json",
+      "expected": "83a40d3ec0536c8f1ab0853c7c8b878b20103f08ce2715c9a399295ef8a000a6",
+      "actual": "83a40d3ec0536c8f1ab0853c7c8b878b20103f08ce2715c9a399295ef8a000a6",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k5_evidence/implementation_freeze.json",
+      "expected": "8d6a75910751c737a7d34f98fabfffbb3d8c6402feafbfc610601c2a50a30314",
+      "actual": "8d6a75910751c737a7d34f98fabfffbb3d8c6402feafbfc610601c2a50a30314",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k5_evidence/persisted_citations.json",
+      "expected": "e700c3a1cefbb506421de2d431d514ed99fe159e216e691e13539f1d0464e224",
+      "actual": "e700c3a1cefbb506421de2d431d514ed99fe159e216e691e13539f1d0464e224",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k5_manifest.json",
+      "expected": "9d31b7812fcf3ec9012a9c5ca3dc4e976c5e74c647afcc2e0824e25eda9e857c",
+      "actual": "9d31b7812fcf3ec9012a9c5ca3dc4e976c5e74c647afcc2e0824e25eda9e857c",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k5_resultados.md",
+      "expected": "437293252cf016ab8e3c769a1b946eb39a48460cd1b0907ad0ddadb3a6a4fc0d",
+      "actual": "437293252cf016ab8e3c769a1b946eb39a48460cd1b0907ad0ddadb3a6a4fc0d",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k6_evidence/implementation_freeze.json",
+      "expected": "4e53b0ee4281db2d1f4dbbdbb8049a348e9f125c344e8da09b357de07db3521a",
+      "actual": "4e53b0ee4281db2d1f4dbbdbb8049a348e9f125c344e8da09b357de07db3521a",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k6_evidence/protocol_v1.json",
+      "expected": "1771c8df533814275caba408e6275158413aa3c30ad793e99a959e57386babc1",
+      "actual": "1771c8df533814275caba408e6275158413aa3c30ad793e99a959e57386babc1",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k6_manifest.json",
+      "expected": "48f81bc6dd1d12f28748eb60b8b38a78dc728d4b64b50b60554df06c59df274c",
+      "actual": "48f81bc6dd1d12f28748eb60b8b38a78dc728d4b64b50b60554df06c59df274c",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k6_resultados.md",
+      "expected": "364c2523e82261b8913c927a729bab988c2412995a09bab5edfc107ad5539527",
+      "actual": "364c2523e82261b8913c927a729bab988c2412995a09bab5edfc107ad5539527",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k7_evidence/closure_freeze.json",
+      "expected": "084b5a3a6860060d376c33f6c2bd9be9071feb6345e95a5e82d950fd05b72478",
+      "actual": "084b5a3a6860060d376c33f6c2bd9be9071feb6345e95a5e82d950fd05b72478",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k7_evidence/final_freeze.json",
+      "expected": "a6411a786e435d54cc328403e8782f27aff277e10022a3f2ba19a2466f9f49e1",
+      "actual": "a6411a786e435d54cc328403e8782f27aff277e10022a3f2ba19a2466f9f49e1",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k7_evidence/implementation_freeze.json",
+      "expected": "e9730ac1aab59b724b6fa59b84198f30d329b1741dd6ff4860e3f8cb2b92c029",
+      "actual": "e9730ac1aab59b724b6fa59b84198f30d329b1741dd6ff4860e3f8cb2b92c029",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k7_manifest.json",
+      "expected": "2de495d157ab12ebdd6f266a2f2742ec08705dca532def338d67bc8ffef0c1ae",
+      "actual": "2de495d157ab12ebdd6f266a2f2742ec08705dca532def338d67bc8ffef0c1ae",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k7_resultados.md",
+      "expected": "136afd6daaf2647277c2b2896aaa0e65aa0b723cf27a65a1de077e4aa6f709a7",
+      "actual": "136afd6daaf2647277c2b2896aaa0e65aa0b723cf27a65a1de077e4aa6f709a7",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_evidence/e2e_freeze_v1.json",
+      "expected": "2c95d25b26d90e11e1333a5d5f1db6ae45fe09813b06a094b9d1649e9a6009e9",
+      "actual": "2c95d25b26d90e11e1333a5d5f1db6ae45fe09813b06a094b9d1649e9a6009e9",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_evidence/e2e_result_v1.json",
+      "expected": "ce719c8e4d0164b90f0d462a67c791ed0185e2c660c67bdf60b94df32db5f10e",
+      "actual": "ce719c8e4d0164b90f0d462a67c791ed0185e2c660c67bdf60b94df32db5f10e",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_evidence/standalone_result_v1.json",
+      "expected": "f8858c33f2c496eec6927b47d81c8364882cbcbcafe8bf9d32cd3e520533874d",
+      "actual": "f8858c33f2c496eec6927b47d81c8364882cbcbcafe8bf9d32cd3e520533874d",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_manifest.json",
+      "expected": "69672b37947ea6aaaa84f53d003f3a753301da8a68d8125a8189d77812f477fe",
+      "actual": "69672b37947ea6aaaa84f53d003f3a753301da8a68d8125a8189d77812f477fe",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair_evidence/compliance_result_v1.json",
+      "expected": "d70d3149ef2a62944637e58930abae9dea187019cfbce0fa1d70b1313923632c",
+      "actual": "d70d3149ef2a62944637e58930abae9dea187019cfbce0fa1d70b1313923632c",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair_evidence/forensic_result_v1.json",
+      "expected": "745d6eb51d7e6cadc68f080c29bc1e70a763a12b50adb28436891f3f5b3f0eb2",
+      "actual": "745d6eb51d7e6cadc68f080c29bc1e70a763a12b50adb28436891f3f5b3f0eb2",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair_evidence/product_freeze_v1.json",
+      "expected": "b72aae438216cfa80c652505d416a98a501e5e0cd6d342a106d44e92e8d6bb72",
+      "actual": "b72aae438216cfa80c652505d416a98a501e5e0cd6d342a106d44e92e8d6bb72",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair_evidence/product_freeze_v2.json",
+      "expected": "ee073e3688124187fb519411c06645c1a2d10cbd8dd80d437c790b78cd0917ee",
+      "actual": "ee073e3688124187fb519411c06645c1a2d10cbd8dd80d437c790b78cd0917ee",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair_evidence/retrieval_result_v1.json",
+      "expected": "851d056d4d3030fa636d59f2c7ede0310fd4ad61d10a3e909c936325f31d8cb5",
+      "actual": "851d056d4d3030fa636d59f2c7ede0310fd4ad61d10a3e909c936325f31d8cb5",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair_manifest.json",
+      "expected": "da16b5e4d894a2755565c0a26420e3ac85b8dbbcd1e1288efc08afeeaa63a7b2",
+      "actual": "da16b5e4d894a2755565c0a26420e3ac85b8dbbcd1e1288efc08afeeaa63a7b2",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair_resultados.md",
+      "expected": "dc7c2bddfef897a25596b4fd5b9ac363dcd2a4551018293bc5ffc62f82a03489",
+      "actual": "dc7c2bddfef897a25596b4fd5b9ac363dcd2a4551018293bc5ffc62f82a03489",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/compliance_result_v1.json",
+      "expected": "2a0c23fc6e25707b023a0b096fe39a0d65fe22419d5f068b64ce9dfdd18fe103",
+      "actual": "2a0c23fc6e25707b023a0b096fe39a0d65fe22419d5f068b64ce9dfdd18fe103",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/forensic_result_v1.json",
+      "expected": "ca35884d729fcdc6cae2963f9e2ac604a50e5cc4f1ba694edf0142326e2bd6a3",
+      "actual": "ca35884d729fcdc6cae2963f9e2ac604a50e5cc4f1ba694edf0142326e2bd6a3",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/product_freeze_v1.json",
+      "expected": "7bd52586da9a8be1965fca79969ef124cea1cdc3e0271d89a08c0266f27f8e52",
+      "actual": "7bd52586da9a8be1965fca79969ef124cea1cdc3e0271d89a08c0266f27f8e52",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/product_freeze_v2.json",
+      "expected": "02164af35f8ca3ccaa77dc7bb8a5f0a88bd5ab0bb89cd95f96328dd82d6931e8",
+      "actual": "02164af35f8ca3ccaa77dc7bb8a5f0a88bd5ab0bb89cd95f96328dd82d6931e8",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair2_evidence/retrieval_result_v1.json",
+      "expected": "ea7d76c30f8b65a5fdac71174b461226bade60eb551c01b3e121b59c6e79b466",
+      "actual": "ea7d76c30f8b65a5fdac71174b461226bade60eb551c01b3e121b59c6e79b466",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair2_manifest.json",
+      "expected": "ddf23bbc2a871ff41cc0193c308d0411eb62327ce696e30628543b1eccfbee11",
+      "actual": "ddf23bbc2a871ff41cc0193c308d0411eb62327ce696e30628543b1eccfbee11",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair2_resultados.md",
+      "expected": "e8dbea946ddf69ada6f1e530bab8eaf30143b0dc63b818fd69a9eb66e87333d1",
+      "actual": "e8dbea946ddf69ada6f1e530bab8eaf30143b0dc63b818fd69a9eb66e87333d1",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_evidence/compliance_result_v1.json",
+      "expected": "70f4059dc4ad222fe4498c1bb79780a99ee68ca4781d975d2028fe07eca01af4",
+      "actual": "70f4059dc4ad222fe4498c1bb79780a99ee68ca4781d975d2028fe07eca01af4",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_evidence/diagnosis_v1.json",
+      "expected": "ce3b9365ce64f19963b426717df415dcebde9ad1df93b4dd876f5ca2e100b415",
+      "actual": "ce3b9365ce64f19963b426717df415dcebde9ad1df93b4dd876f5ca2e100b415",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_evidence/product_freeze_v1.json",
+      "expected": "0b2d34cf10a5e47def73c63707861610730b9163b35a13280d806ba00af0820f",
+      "actual": "0b2d34cf10a5e47def73c63707861610730b9163b35a13280d806ba00af0820f",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_evidence/retrieval_result_v1.json",
+      "expected": "d12a6cddb43b762089e648e69278cf8ec4a8a98bd3825ad0513a882f81616101",
+      "actual": "d12a6cddb43b762089e648e69278cf8ec4a8a98bd3825ad0513a882f81616101",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_manifest.json",
+      "expected": "f91c883894522543f192e7de697c1817f8224ea1f3b1df56cfc7cf5998ed80a5",
+      "actual": "f91c883894522543f192e7de697c1817f8224ea1f3b1df56cfc7cf5998ed80a5",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair3_resultados.md",
+      "expected": "6b80c60bab1f0dfcb6c6152cd8e40bf910469e2f749330a3eab683e0e3a2b6a3",
+      "actual": "6b80c60bab1f0dfcb6c6152cd8e40bf910469e2f749330a3eab683e0e3a2b6a3",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/compliance_result_v1.json",
+      "expected": "fe4418a232d42c549f3d66c5684d7df9643141d92ebde0fac102ba27e281985f",
+      "actual": "fe4418a232d42c549f3d66c5684d7df9643141d92ebde0fac102ba27e281985f",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/diagnosis_v1.json",
+      "expected": "c600ab4f28cb4e16db0b866e90a05eb051dbc0f0cc1aa87cff7823ad2aa0bf83",
+      "actual": "c600ab4f28cb4e16db0b866e90a05eb051dbc0f0cc1aa87cff7823ad2aa0bf83",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/preflight_v1.json",
+      "expected": "e392736473c0ff43a21fb95fc7f3286995897da08cee683f24e7a7abba108963",
+      "actual": "e392736473c0ff43a21fb95fc7f3286995897da08cee683f24e7a7abba108963",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/product_freeze_v1.json",
+      "expected": "759d99aaecdd1fd5304e85394d7d706e300dff6131355cc64545c5851a8e0c8d",
+      "actual": "759d99aaecdd1fd5304e85394d7d706e300dff6131355cc64545c5851a8e0c8d",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/regression_freeze_v2.json",
+      "expected": "1e620fad6218178ae2dba04569d18913e139f44ae916f28d42aa50a597d5c80d",
+      "actual": "1e620fad6218178ae2dba04569d18913e139f44ae916f28d42aa50a597d5c80d",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/test_portability_reconciliation_v1.json",
+      "expected": "976e1f571249777296000dcf04bb682fdb909ea20736c964b87b94c29207e064",
+      "actual": "976e1f571249777296000dcf04bb682fdb909ea20736c964b87b94c29207e064",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_manifest.json",
+      "expected": "73e7870dbecb4243a2cd4732cf9d8f22198af025bd37b9e9134025ba3ce33f3d",
+      "actual": "73e7870dbecb4243a2cd4732cf9d8f22198af025bd37b9e9134025ba3ce33f3d",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_resultados.md",
+      "expected": "4722df27e425a81fe847a37b56ad6cc6200213f71974993c2cfe513bf6d68190",
+      "actual": "4722df27e425a81fe847a37b56ad6cc6200213f71974993c2cfe513bf6d68190",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair5_evidence/compliance_result_v1.json",
+      "expected": "123016924676c000662d78d36e648bfd20c5d69a43a0b2faf0125f07e420adc9",
+      "actual": "123016924676c000662d78d36e648bfd20c5d69a43a0b2faf0125f07e420adc9",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair5_evidence/diagnosis_v1.json",
+      "expected": "e60ff3f94b1e11e35a1f8dc786662f917d458ee25d1b91583890173f8216e3d3",
+      "actual": "e60ff3f94b1e11e35a1f8dc786662f917d458ee25d1b91583890173f8216e3d3",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair5_evidence/pre_fix_failure_v1.json",
+      "expected": "b42c2a6a1dc64c622d5c8a77022fda40d47a8bcf112e4419f60151bb8f63c691",
+      "actual": "b42c2a6a1dc64c622d5c8a77022fda40d47a8bcf112e4419f60151bb8f63c691",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair5_evidence/preflight_v1.json",
+      "expected": "b538c6920e70ac626e729a560690cd37ca8580e8834806e61fe211e56450936f",
+      "actual": "b538c6920e70ac626e729a560690cd37ca8580e8834806e61fe211e56450936f",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair5_evidence/product_freeze_v1.json",
+      "expected": "5a917552bb9cf9c2a7f1e1a9750300c05d9e1fdf9626abce70ced5d804782782",
+      "actual": "5a917552bb9cf9c2a7f1e1a9750300c05d9e1fdf9626abce70ced5d804782782",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair5_manifest.json",
+      "expected": "ccad626df76cd949e3077f704dccd930850acd05723dff401f448ccbcfc8a26f",
+      "actual": "ccad626df76cd949e3077f704dccd930850acd05723dff401f448ccbcfc8a26f",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair5_resultados.md",
+      "expected": "c1a2f2e6b2d1d488b9a7118b552fd50e87bc2d47e1b92a43001da1ea4369b212",
+      "actual": "c1a2f2e6b2d1d488b9a7118b552fd50e87bc2d47e1b92a43001da1ea4369b212",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_resultados.md",
+      "expected": "9a9b06c48f50f993073da832536f0e65e7233c2d17eeb9da118ac7f32f0ac840",
+      "actual": "9a9b06c48f50f993073da832536f0e65e7233c2d17eeb9da118ac7f32f0ac840",
+      "matches": true
+    },
+    {
+      "path": "local_cli/agent.py",
+      "expected": "4c78e1b440cca43ca638f215c3aa30d8616421b8260e65f70510d3459e876e9b",
+      "actual": "4c78e1b440cca43ca638f215c3aa30d8616421b8260e65f70510d3459e876e9b",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/commands.py",
+      "expected": "2884a95ac9c4e1f144f6118151cfe6180cbebd540bb4d310bda8ead34b0a4db9",
+      "actual": "2884a95ac9c4e1f144f6118151cfe6180cbebd540bb4d310bda8ead34b0a4db9",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/context.py",
+      "expected": "9e0fd67ae02f76032fb221ca127dd6752c6850df67fbaab5c6151ffa79b06076",
+      "actual": "9e0fd67ae02f76032fb221ca127dd6752c6850df67fbaab5c6151ffa79b06076",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_children.py",
+      "expected": "de06ef1bd5e97380f667406642a47ee85eaf32322da33db12ebc6609358f7ec3",
+      "actual": "de06ef1bd5e97380f667406642a47ee85eaf32322da33db12ebc6609358f7ec3",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_context.py",
+      "expected": "63ca31f88973fea4a4071c573b00afce0688df7c1bab2c056811f737af1c7b18",
+      "actual": "63ca31f88973fea4a4071c573b00afce0688df7c1bab2c056811f737af1c7b18",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_host.py",
+      "expected": "cb30c0d5c37d5b9f5e3f99015bf4ac2e9dc1ffa33b7a20ea96a3db80d6cd084c",
+      "actual": "cb30c0d5c37d5b9f5e3f99015bf4ac2e9dc1ffa33b7a20ea96a3db80d6cd084c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_legacy.py",
+      "expected": "7940c6bc8fda83488fb9a087c90becad3296fec800109edb4067a67833e94dc9",
+      "actual": "7940c6bc8fda83488fb9a087c90becad3296fec800109edb4067a67833e94dc9",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_output.py",
+      "expected": "207b5133a6230ebdd789375d5ab20c6a17b7f0823e5fff768e2826b393535d0f",
+      "actual": "207b5133a6230ebdd789375d5ab20c6a17b7f0823e5fff768e2826b393535d0f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_retrieval.py",
+      "expected": "b6f75c75ebadb92563adf24c44dd0b2d99c4367334e3d456dadf1f1a8a06b9a0",
+      "actual": "b6f75c75ebadb92563adf24c44dd0b2d99c4367334e3d456dadf1f1a8a06b9a0",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_web.py",
+      "expected": "076f555e5bc22ebe10097c2309b8693cff43e54af109551748b7b545c9177f91",
+      "actual": "076f555e5bc22ebe10097c2309b8693cff43e54af109551748b7b545c9177f91",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge.py",
+      "expected": "bd54e53a9adafa3d6c6b379cd1ed81927f58ecc7cf03ba20bef2a701c6a17a94",
+      "actual": "bd54e53a9adafa3d6c6b379cd1ed81927f58ecc7cf03ba20bef2a701c6a17a94",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/network.py",
+      "expected": "2bdda05c23e71efdc6c19259e2fa9e7923f32c9c12a745e6ed38bba8def93dfc",
+      "actual": "2bdda05c23e71efdc6c19259e2fa9e7923f32c9c12a745e6ed38bba8def93dfc",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/passive_web.py",
+      "expected": "40d15e0a5b9cb3fb82c7a31a4d3da29661f92f165af2530a1c290a910be442ee",
+      "actual": "40d15e0a5b9cb3fb82c7a31a4d3da29661f92f165af2530a1c290a910be442ee",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/policy.py",
+      "expected": "a0f6e00a00ec3d9fcc932ad3bdf706594330f180d1193edf62f1d8080362d6fa",
+      "actual": "a0f6e00a00ec3d9fcc932ad3bdf706594330f180d1193edf62f1d8080362d6fa",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/providers.py",
+      "expected": "9be106eb8065c2fb82475f737b0bde20d927bdc94f0e2662294e10fc17e1331e",
+      "actual": "9be106eb8065c2fb82475f737b0bde20d927bdc94f0e2662294e10fc17e1331e",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/security_audit.py",
+      "expected": "165f5976348ba120f8d7b4f408da177d130d03a1f19b5e3534e5fdacc1b59005",
+      "actual": "165f5976348ba120f8d7b4f408da177d130d03a1f19b5e3534e5fdacc1b59005",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/session.py",
+      "expected": "5eefa260d43efb493fd16b34bc6958c68d3a7e47e21af5f04b6224986f1fa83f",
+      "actual": "5eefa260d43efb493fd16b34bc6958c68d3a7e47e21af5f04b6224986f1fa83f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/tool_runtime.py",
+      "expected": "2301f307b6cd8e87ab6868313c4ab07efb8f1cee9b24bb451aa6ffe3b3e97df6",
+      "actual": "2301f307b6cd8e87ab6868313c4ab07efb8f1cee9b24bb451aa6ffe3b3e97df6",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/turn_effects.py",
+      "expected": "acaefa176b244b3c50d8a1abfb719881cae74a22335f18bf72712162c3de62b4",
+      "actual": "acaefa176b244b3c50d8a1abfb719881cae74a22335f18bf72712162c3de62b4",
+      "matches": true
+    },
+    {
+      "path": "local_cli/bootstrap_cli.py",
+      "expected": "eabd3c7b9c62e481e0b94268ec6f45120a5f7fa213f5a0cc29b9216dce17aecd",
+      "actual": "eabd3c7b9c62e481e0b94268ec6f45120a5f7fa213f5a0cc29b9216dce17aecd",
+      "matches": true
+    },
+    {
+      "path": "local_cli/bootstrap_knowledge.py",
+      "expected": "f1578976cb0582a74fcbc1a2e846b790421bd1ebbcc39d37aa78fc8ad3144275",
+      "actual": "f1578976cb0582a74fcbc1a2e846b790421bd1ebbcc39d37aa78fc8ad3144275",
+      "matches": true
+    },
+    {
+      "path": "local_cli/bootstrap_passive_web.py",
+      "expected": "61861c902c3c26709cca2075925b54d21ff80ff2bddbfe9cc975d3c9ff0bba3f",
+      "actual": "61861c902c3c26709cca2075925b54d21ff80ff2bddbfe9cc975d3c9ff0bba3f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/bootstrap_server.py",
+      "expected": "24d1a0dcd25fbbf2ab8069ab3fe28439a3cb7b2da77b0101cee2af923c956dd3",
+      "actual": "24d1a0dcd25fbbf2ab8069ab3fe28439a3cb7b2da77b0101cee2af923c956dd3",
+      "matches": true
+    },
+    {
+      "path": "local_cli/cli.py",
+      "expected": "b36ec3bc14b102c9dbc6f1cf938efb8bc3a509f270c5eefb3945e6f14a9e9eea",
+      "actual": "b36ec3bc14b102c9dbc6f1cf938efb8bc3a509f270c5eefb3945e6f14a9e9eea",
+      "matches": true
+    },
+    {
+      "path": "local_cli/config.py",
+      "expected": "ac0573d38c37f2dff1f5c8fabbfbedca5f89dfa406e165b41d4584f407726522",
+      "actual": "ac0573d38c37f2dff1f5c8fabbfbedca5f89dfa406e165b41d4584f407726522",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/attachments.py",
+      "expected": "4e75a52dcffeaeaa21d9425a9ef243098b3c6d35d8767ef686cc8e740d1462ba",
+      "actual": "4e75a52dcffeaeaa21d9425a9ef243098b3c6d35d8767ef686cc8e740d1462ba",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/context.py",
+      "expected": "d47f1d44ea8a8855af3b06c3e471ebffa04aeea2365a6976051ffd8b023fc193",
+      "actual": "d47f1d44ea8a8855af3b06c3e471ebffa04aeea2365a6976051ffd8b023fc193",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_chunking.py",
+      "expected": "673d831dc1f5c956852fa38613ac5eb0e5e9b99fea31b04e4ffdfff064a7c629",
+      "actual": "673d831dc1f5c956852fa38613ac5eb0e5e9b99fea31b04e4ffdfff064a7c629",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_context.py",
+      "expected": "36285e89036e787bc92653125d5e1b21937cc18082f67e0fa52a8d902d5696ee",
+      "actual": "36285e89036e787bc92653125d5e1b21937cc18082f67e0fa52a8d902d5696ee",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_delegation.py",
+      "expected": "d72fdcda000ee6adcdc97d0c6f23d22609df87a871b1102ee974376d5ffd31e4",
+      "actual": "d72fdcda000ee6adcdc97d0c6f23d22609df87a871b1102ee974376d5ffd31e4",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_legacy.py",
+      "expected": "8291775869bc36ab7a780b615fb3db924cb6e0947846ce5e49b16ca416030eda",
+      "actual": "8291775869bc36ab7a780b615fb3db924cb6e0947846ce5e49b16ca416030eda",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_retrieval.py",
+      "expected": "1a340dce49f222ff69dd8b02d7a5525b8a535f07a552d916443655bf4351b583",
+      "actual": "1a340dce49f222ff69dd8b02d7a5525b8a535f07a552d916443655bf4351b583",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_store.py",
+      "expected": "7f4d7c75393a0eab9a71dd79ff186c719ff01fe5ab73434b6aec3fc34a460652",
+      "actual": "7f4d7c75393a0eab9a71dd79ff186c719ff01fe5ab73434b6aec3fc34a460652",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_views.py",
+      "expected": "df757d5966a845b3038f16ac193e0eabacafdb20adcd0a6c309f627dd60c508c",
+      "actual": "df757d5966a845b3038f16ac193e0eabacafdb20adcd0a6c309f627dd60c508c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge.py",
+      "expected": "3515305ae6eb1e03b458f43c631d77d47739dee888a547088dac3650824edb47",
+      "actual": "3515305ae6eb1e03b458f43c631d77d47739dee888a547088dac3650824edb47",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/network.py",
+      "expected": "d614cb9af7b9cc745d4232b797dec71b9b282c679d08909443e4d1717e3d276e",
+      "actual": "d614cb9af7b9cc745d4232b797dec71b9b282c679d08909443e4d1717e3d276e",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/passive_web.py",
+      "expected": "b81a31bbd4e0846f6c5932b8093a2fc0ac2438c8030052617af8ec100c3d2836",
+      "actual": "b81a31bbd4e0846f6c5932b8093a2fc0ac2438c8030052617af8ec100c3d2836",
+      "matches": true
+    },
+    {
+      "path": "local_cli/guard_intent.py",
+      "expected": "e0f907d0f90650825b4b5fa7cc629a5b249fedd6f7cfd85b88b119b79627b2e9",
+      "actual": "e0f907d0f90650825b4b5fa7cc629a5b249fedd6f7cfd85b88b119b79627b2e9",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/http_fetch.py",
+      "expected": "bd228be5c1530a3d7983965ca1a495789709e4644696a6a84f6791f352af1986",
+      "actual": "bd228be5c1530a3d7983965ca1a495789709e4644696a6a84f6791f352af1986",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_acquisition.py",
+      "expected": "fa42c83a75a5af3bf22de940143e0f48b7aae86b7f2fec71b6309e4adfc5351f",
+      "actual": "fa42c83a75a5af3bf22de940143e0f48b7aae86b7f2fec71b6309e4adfc5351f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_embeddings.py",
+      "expected": "00e51eb0a4a29133591bfdd12befdc1dac3f655e0fbb5f878b336f5d843ba50a",
+      "actual": "00e51eb0a4a29133591bfdd12befdc1dac3f655e0fbb5f878b336f5d843ba50a",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_export.py",
+      "expected": "eb76c3e673d4ef95eef5ef634a031e9b9679fc734345579ed144b4678da5974d",
+      "actual": "eb76c3e673d4ef95eef5ef634a031e9b9679fc734345579ed144b4678da5974d",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_extraction.py",
+      "expected": "1c15dfd1f767385a0fd8a581387c4059d1d6e5195579644316f18d129fb0d8b9",
+      "actual": "1c15dfd1f767385a0fd8a581387c4059d1d6e5195579644316f18d129fb0d8b9",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_files.py",
+      "expected": "acded39f72774cff9346f30a62115301499a7d819ba51a5d227db0299263491f",
+      "actual": "acded39f72774cff9346f30a62115301499a7d819ba51a5d227db0299263491f",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_lexical.py",
+      "expected": "8644bed970d6931e5979b81bda574b133c24e304c7fa91ed1ce8303c412b8d62",
+      "actual": "8644bed970d6931e5979b81bda574b133c24e304c7fa91ed1ce8303c412b8d62",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_migrations.py",
+      "expected": "cf0b2b1b27bc7e6b07ad9a0db6af42c2686f82dfdd7d5b41f66e5be358479161",
+      "actual": "cf0b2b1b27bc7e6b07ad9a0db6af42c2686f82dfdd7d5b41f66e5be358479161",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_query.py",
+      "expected": "6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c",
+      "actual": "6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+      "expected": "f8b499ed545c6ed1e12d3f5ca9dc47b3b7b3b7103bd65c6b4d1c55a655b25412",
+      "actual": "f8b499ed545c6ed1e12d3f5ca9dc47b3b7b3b7103bd65c6b4d1c55a655b25412",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_sqlite.py",
+      "expected": "ce89145f772f12929307566bce3092b3a6a61f6a8c8bc90a6ac06afd8bac0307",
+      "actual": "ce89145f772f12929307566bce3092b3a6a61f6a8c8bc90a6ac06afd8bac0307",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_web_extraction.py",
+      "expected": "556b47faf415166fbffc346eae7e9b58d0eda254298abf757fa6236e544e8d37",
+      "actual": "556b47faf415166fbffc346eae7e9b58d0eda254298abf757fa6236e544e8d37",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/web_search.py",
+      "expected": "cbf6bb1b83774e00862a122aaa681eb202e4c62bd2a95c96fc4e7466f38a1c1d",
+      "actual": "cbf6bb1b83774e00862a122aaa681eb202e4c62bd2a95c96fc4e7466f38a1c1d",
+      "matches": true
+    },
+    {
+      "path": "local_cli/interfaces/cli_application.py",
+      "expected": "efa9302121c9f1f07885d229f491f59f0e4eb628d41c235a1f017d04698847df",
+      "actual": "efa9302121c9f1f07885d229f491f59f0e4eb628d41c235a1f017d04698847df",
+      "matches": true
+    },
+    {
+      "path": "local_cli/interfaces/jsonl_application.py",
+      "expected": "0cc20d0312395ba0bad3bd3357fd0271111dbfe6efcfcbc109bbe30da7091587",
+      "actual": "0cc20d0312395ba0bad3bd3357fd0271111dbfe6efcfcbc109bbe30da7091587",
+      "matches": true
+    },
+    {
+      "path": "local_cli/interfaces/knowledge_cli.py",
+      "expected": "1fcafd1834cc24c532fd5cd751f80f5405a30aa869868cbf53717f8f81fc07b8",
+      "actual": "1fcafd1834cc24c532fd5cd751f80f5405a30aa869868cbf53717f8f81fc07b8",
+      "matches": true
+    },
+    {
+      "path": "local_cli/server.py",
+      "expected": "44899c0e7df4decc14801a1ad8446ec10479f1d25586d5bd4c0eb9004bae5560",
+      "actual": "44899c0e7df4decc14801a1ad8446ec10479f1d25586d5bd4c0eb9004bae5560",
+      "matches": true
+    },
+    {
+      "path": "local_cli/sub_agent.py",
+      "expected": "2f2c34f25d32918a37b0a7b5d57fb831ad49c0ba5d02d0b9a4f2a1accd7fd266",
+      "actual": "2f2c34f25d32918a37b0a7b5d57fb831ad49c0ba5d02d0b9a4f2a1accd7fd266",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/agent_tool.py",
+      "expected": "36b1f1483e4b9d5a1ef1792147edee103462629538247ab00b3e2b8fe5eca172",
+      "actual": "36b1f1483e4b9d5a1ef1792147edee103462629538247ab00b3e2b8fe5eca172",
+      "matches": true
+    },
+    {
+      "path": "local_cli/tools/web_search_tool.py",
+      "expected": "a286c29b8200d8d0f99e5ba643b222472c81967a4e363d7acd2897237a7945d6",
+      "actual": "a286c29b8200d8d0f99e5ba643b222472c81967a4e363d7acd2897237a7945d6",
+      "matches": true
+    },
+    {
+      "path": "pyproject.toml",
+      "expected": "637051910b644bdb15b17cc02531fc41a27bea9c1b73d3b1ae6f3bf6bc39e7d7",
+      "actual": "637051910b644bdb15b17cc02531fc41a27bea9c1b73d3b1ae6f3bf6bc39e7d7",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/__init__.py",
+      "expected": "84e9306b4e668d6cc34dff95ff5fc50b225c6ac9a62deddd25beba14c48c1b1f",
+      "actual": "84e9306b4e668d6cc34dff95ff5fc50b225c6ac9a62deddd25beba14c48c1b1f",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k4_core_frozen_v1.json",
+      "expected": "72fabd4b1c43a33438ee3f67e29693e2c1299f93d19eb932ef6958eb4a8e2b65",
+      "actual": "72fabd4b1c43a33438ee3f67e29693e2c1299f93d19eb932ef6958eb4a8e2b65",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k4_protocol_v1.json",
+      "expected": "31045a14ae3a50a3cbd4d4990c9fb6966394597748437758b108ac7bc6aa0586",
+      "actual": "31045a14ae3a50a3cbd4d4990c9fb6966394597748437758b108ac7bc6aa0586",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_core_v1.json",
+      "expected": "832be39fa3efa475cd74b89c8f5d1632e445f5a6a67cecb72833d4f12814cd1a",
+      "actual": "832be39fa3efa475cd74b89c8f5d1632e445f5a6a67cecb72833d4f12814cd1a",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_freeze_v1.json",
+      "expected": "84512b3fe5042afd2cc46fcd74fc0f1385ba7156b8f04d048f5126b0592d97ba",
+      "actual": "84512b3fe5042afd2cc46fcd74fc0f1385ba7156b8f04d048f5126b0592d97ba",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_protocol_v1.json",
+      "expected": "c0eb231bb2cbc812e49524cd295dc237c29265d4b4671cf7c2d97c285e11c092",
+      "actual": "c0eb231bb2cbc812e49524cd295dc237c29265d4b4671cf7c2d97c285e11c092",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair_corpus_v1.json",
+      "expected": "f2f23ab24058396e6c42dded8753d0aa7aab1925603c9ff05f5ba3483f42849c",
+      "actual": "f2f23ab24058396e6c42dded8753d0aa7aab1925603c9ff05f5ba3483f42849c",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair_freeze_v1.json",
+      "expected": "0c9e78026d6f91c4cda05e1df5ba6952cbd31b4d7018b50e54b4de4b5369e925",
+      "actual": "0c9e78026d6f91c4cda05e1df5ba6952cbd31b4d7018b50e54b4de4b5369e925",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair_protocol_v1.json",
+      "expected": "e67234eea50fc20cc06587fe7fd029749a5d66412d4dca931ed969ecbcce6ae6",
+      "actual": "e67234eea50fc20cc06587fe7fd029749a5d66412d4dca931ed969ecbcce6ae6",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair2_corpus_v1.json",
+      "expected": "bf40a7136ef0e6618ce11fcf2295aec9d2943800dd5e07133b70d27de92c5fd8",
+      "actual": "bf40a7136ef0e6618ce11fcf2295aec9d2943800dd5e07133b70d27de92c5fd8",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair2_freeze_v1.json",
+      "expected": "1cec185c4eca7632b7c0e92fc2abede8b9a48e688e20d50aed4486d102070be0",
+      "actual": "1cec185c4eca7632b7c0e92fc2abede8b9a48e688e20d50aed4486d102070be0",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair2_protocol_v1.json",
+      "expected": "ff7fc1596d07bca890f544a31c5242c60f582ff1818ef106678c8c8e7309ae34",
+      "actual": "ff7fc1596d07bca890f544a31c5242c60f582ff1818ef106678c8c8e7309ae34",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair3_corpus_v1.json",
+      "expected": "830a8d90d2afd37cfc60dacd279b0aceb129ec5441cf4a1ccd99ac9f52863044",
+      "actual": "830a8d90d2afd37cfc60dacd279b0aceb129ec5441cf4a1ccd99ac9f52863044",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair3_freeze_v1.json",
+      "expected": "1d627724b8741657d8c290b49e35d32e784b63308e07736f3e41f0bcd8ce097c",
+      "actual": "1d627724b8741657d8c290b49e35d32e784b63308e07736f3e41f0bcd8ce097c",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair3_protocol_v1.json",
+      "expected": "0d147f7298aed86a2f0779ec8379be0b6cd672f01ceef3227a5daab64c764494",
+      "actual": "0d147f7298aed86a2f0779ec8379be0b6cd672f01ceef3227a5daab64c764494",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair4_corpus_v1.json",
+      "expected": "89e803046d503b4863dd4e97cc508c21bb0a41182fa5a3c7b420f8c253418141",
+      "actual": "89e803046d503b4863dd4e97cc508c21bb0a41182fa5a3c7b420f8c253418141",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair4_freeze_v1.json",
+      "expected": "3620626084d5433d1c7ca1f62f189992e6ca8eb2740cb09194c0aaa04cf5aa23",
+      "actual": "3620626084d5433d1c7ca1f62f189992e6ca8eb2740cb09194c0aaa04cf5aa23",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair4_protocol_v1.json",
+      "expected": "b5c2080ffda37c43e24689196f2e929cb09d326f284371f7ef33f0e11522b4d5",
+      "actual": "b5c2080ffda37c43e24689196f2e929cb09d326f284371f7ef33f0e11522b4d5",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair5_corpus_v1.json",
+      "expected": "76151b702515fd2bc44c9450c29d56c1cb7b31bbe75a4ad0f90738c0ac9e045b",
+      "actual": "76151b702515fd2bc44c9450c29d56c1cb7b31bbe75a4ad0f90738c0ac9e045b",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair5_freeze_v1.json",
+      "expected": "de3ed916cf492b13782101e56a8ab8c2da0ff21c435a61b86b26aac7bdf50d38",
+      "actual": "de3ed916cf492b13782101e56a8ab8c2da0ff21c435a61b86b26aac7bdf50d38",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair5_protocol_v1.json",
+      "expected": "5491a57076891d7b1b21f5cbdac1e7edcb2cc91784d727aa5dd084228d199f10",
+      "actual": "5491a57076891d7b1b21f5cbdac1e7edcb2cc91784d727aa5dd084228d199f10",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k0_corpus_v1.json",
+      "expected": "b5edffa72833d49df358ce8da143ef123da6df818dab4fb3647241ceb98efac2",
+      "actual": "b5edffa72833d49df358ce8da143ef123da6df818dab4fb3647241ceb98efac2",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k0_docx_payload_v1.json",
+      "expected": "ace3015609ff5af3bd48fd87d76544c373b372bf6130670dce4449f68fb8a1c8",
+      "actual": "ace3015609ff5af3bd48fd87d76544c373b372bf6130670dce4449f68fb8a1c8",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k0_fixtures.py",
+      "expected": "6b97e4378b2bc13d76a6b156077f1f190b63fcd23a928d2d76b2dfb8ed914077",
+      "actual": "6b97e4378b2bc13d76a6b156077f1f190b63fcd23a928d2d76b2dfb8ed914077",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k1_helpers.py",
+      "expected": "89b0ba74d04cfbafc1e5a0a61992499bcf28851a358cf297fd48517894795136",
+      "actual": "89b0ba74d04cfbafc1e5a0a61992499bcf28851a358cf297fd48517894795136",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k2_helpers.py",
+      "expected": "aa0c01020d07431937e861a2003214c6887598d271c0fb094f18a7974879189b",
+      "actual": "aa0c01020d07431937e861a2003214c6887598d271c0fb094f18a7974879189b",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k4_helpers.py",
+      "expected": "15f5b72bfe4677ceb5a3b97cd5efce04d23f67351ed381c4a074c5400feadc82",
+      "actual": "15f5b72bfe4677ceb5a3b97cd5efce04d23f67351ed381c4a074c5400feadc82",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_fixtures.py",
+      "expected": "259f6079908160c4be1ee90b25bb548089749150168307fe9f873ad7254b7e75",
+      "actual": "259f6079908160c4be1ee90b25bb548089749150168307fe9f873ad7254b7e75",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair_helpers.py",
+      "expected": "4548772215d43589338cc848c44dc37d63a472611064baecca8bd5c9584d3521",
+      "actual": "4548772215d43589338cc848c44dc37d63a472611064baecca8bd5c9584d3521",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair2_helpers.py",
+      "expected": "63336d025abd32fd430e80fc21b3dabb3863b129584cf0c13a2c80bcb6ce3ac9",
+      "actual": "63336d025abd32fd430e80fc21b3dabb3863b129584cf0c13a2c80bcb6ce3ac9",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair3_helpers.py",
+      "expected": "765602ef260dfea0d38295d44a6619e4395daf2cc2ca55b3cf2ede4a3882a9b2",
+      "actual": "765602ef260dfea0d38295d44a6619e4395daf2cc2ca55b3cf2ede4a3882a9b2",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair4_helpers.py",
+      "expected": "6bd2274c2e2f2d48eef9d8a03ecbce2e37d4d001f95f3608feca0d2435161793",
+      "actual": "6bd2274c2e2f2d48eef9d8a03ecbce2e37d4d001f95f3608feca0d2435161793",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair5_helpers.py",
+      "expected": "b260dbb8a7c84378dc4ac086a655cee0fc090944f58445f51aa480098197447f",
+      "actual": "b260dbb8a7c84378dc4ac086a655cee0fc090944f58445f51aa480098197447f",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/pdf_fixtures.py",
+      "expected": "9eff7aef95b2a176736dfb7473a9b7231579e554ec9a3c24f78008f51b1abaaa",
+      "actual": "9eff7aef95b2a176736dfb7473a9b7231579e554ec9a3c24f78008f51b1abaaa",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k0.py",
+      "expected": "3a93c6d334b81fe387409a48abe6624ccd0512cb456571987b6eb825af1d21ec",
+      "actual": "3a93c6d334b81fe387409a48abe6624ccd0512cb456571987b6eb825af1d21ec",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k2.py",
+      "expected": "81d1592b15df185a481d4ce13ba9de0091d1467a4cd8ae6cf36708a193ee4202",
+      "actual": "81d1592b15df185a481d4ce13ba9de0091d1467a4cd8ae6cf36708a193ee4202",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k3_pdf_repair.py",
+      "expected": "de6eddb400a1d096be57b8cd0f75a8e5e1c7e725c5391eddbe82868fd631001f",
+      "actual": "de6eddb400a1d096be57b8cd0f75a8e5e1c7e725c5391eddbe82868fd631001f",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k4.py",
+      "expected": "07f6c2701a8d0e98deda3f89d214a0e111d58955f454aa769ffe4f20fd4b335f",
+      "actual": "07f6c2701a8d0e98deda3f89d214a0e111d58955f454aa769ffe4f20fd4b335f",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k5.py",
+      "expected": "e39c4e826e26b817d75bdb57730f47e3cfeb6224011a97d641e8f84960f47c8e",
+      "actual": "e39c4e826e26b817d75bdb57730f47e3cfeb6224011a97d641e8f84960f47c8e",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k6_host.py",
+      "expected": "c54f967791cbe3fe41c6fd85d4aa0fe0b902ea3f17853920eb12e45eab50cbce",
+      "actual": "c54f967791cbe3fe41c6fd85d4aa0fe0b902ea3f17853920eb12e45eab50cbce",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k6.py",
+      "expected": "47db863b82152632729e840198d688591984c4057c2367b870c2ab400cd502f9",
+      "actual": "47db863b82152632729e840198d688591984c4057c2367b870c2ab400cd502f9",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k7_desktop.py",
+      "expected": "5092af9c18ad8d5fad9d0d2b36509f5c215ea11210c9a62bbef841b0fae08ea6",
+      "actual": "5092af9c18ad8d5fad9d0d2b36509f5c215ea11210c9a62bbef841b0fae08ea6",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k7.py",
+      "expected": "25d1a0368960abdd03370becdddf8b344d44fd6950616c4c17a3da28a9ce1a03",
+      "actual": "25d1a0368960abdd03370becdddf8b344d44fd6950616c4c17a3da28a9ce1a03",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_e2e.py",
+      "expected": "27b745dc3a6a087c61156c10ed47ed03bd6f7df0c4cc5f787fdfda5645d46c4b",
+      "actual": "27b745dc3a6a087c61156c10ed47ed03bd6f7df0c4cc5f787fdfda5645d46c4b",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_forensic.py",
+      "expected": "80363f56c14c36abe2c40a14df6269731417d2b71547a2f29b93b97b7add26f8",
+      "actual": "80363f56c14c36abe2c40a14df6269731417d2b71547a2f29b93b97b7add26f8",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair_model_v2.py",
+      "expected": "f1be376dad9651f704ca5b20fb32380b1c184eb882553c03452ac8760776c729",
+      "actual": "f1be376dad9651f704ca5b20fb32380b1c184eb882553c03452ac8760776c729",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair_model.py",
+      "expected": "2ed5e6c389f4a3c5dc1ecf261e1821dfcb032ec9437d9a7d487d73ade89a3c3e",
+      "actual": "2ed5e6c389f4a3c5dc1ecf261e1821dfcb032ec9437d9a7d487d73ade89a3c3e",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair.py",
+      "expected": "234fc5d35779e37d3cdd4361b966b2c5f06a77ce2f52e023b24dd9e5f182e350",
+      "actual": "234fc5d35779e37d3cdd4361b966b2c5f06a77ce2f52e023b24dd9e5f182e350",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair2_model.py",
+      "expected": "469696a51a9a7e06d7d7e86418d267eb15b31282b19015f9eba26fc5fa3956a0",
+      "actual": "469696a51a9a7e06d7d7e86418d267eb15b31282b19015f9eba26fc5fa3956a0",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair2.py",
+      "expected": "ce425ca29c62586ef653cdc2f82512001173253f9e44ba2119cfb7dcedaf699c",
+      "actual": "ce425ca29c62586ef653cdc2f82512001173253f9e44ba2119cfb7dcedaf699c",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair3_model.py",
+      "expected": "8d1379d8507457f55c415f308a00f90caa13155157c35176b2b0ecceadbafec6",
+      "actual": "8d1379d8507457f55c415f308a00f90caa13155157c35176b2b0ecceadbafec6",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair3.py",
+      "expected": "53c891ab9764106de43f65de723c92e3d1c723a381159eac89dddbc91f220105",
+      "actual": "53c891ab9764106de43f65de723c92e3d1c723a381159eac89dddbc91f220105",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair4_model.py",
+      "expected": "93003fa69d629195dc6d23734060a2ec0931e9c13db35074ec325d6f63c8199c",
+      "actual": "93003fa69d629195dc6d23734060a2ec0931e9c13db35074ec325d6f63c8199c",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair4.py",
+      "expected": "8f5f4d31025bb5a185154a1e8e46cb5aa81d4cbc1c9ca3162cdeb8b4e2b51387",
+      "actual": "8f5f4d31025bb5a185154a1e8e46cb5aa81d4cbc1c9ca3162cdeb8b4e2b51387",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair5_model.py",
+      "expected": "d198942904bac8690086bce75ca4aded217d51a7a00a5a7ffad43c23b981c005",
+      "actual": "d198942904bac8690086bce75ca4aded217d51a7a00a5a7ffad43c23b981c005",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair5.py",
+      "expected": "942be84bfe19afb5d453e398046f6990c99ee40616e110e5e5840f3937ddaac3",
+      "actual": "942be84bfe19afb5d453e398046f6990c99ee40616e110e5e5840f3937ddaac3",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8.py",
+      "expected": "6ad697a69844f0d07d7e1076f5857e4149a03ac90918ef6ea3333177b3a32515",
+      "actual": "6ad697a69844f0d07d7e1076f5857e4149a03ac90918ef6ea3333177b3a32515",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k0_contracts.py",
+      "expected": "9ae8f6e08c4132df867771f52619842da8cad3f4ed679efc43177e89a04d4616",
+      "actual": "9ae8f6e08c4132df867771f52619842da8cad3f4ed679efc43177e89a04d4616",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k0_corpus.py",
+      "expected": "c012a941ac92a07b3e1b7127cc9ad7a4ec2a277100326fdf009f41b6706e1ae2",
+      "actual": "c012a941ac92a07b3e1b7127cc9ad7a4ec2a277100326fdf009f41b6706e1ae2",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k1_application.py",
+      "expected": "ae4d21e357ee43d0f0e8c50e40a195961a6c3624d5e5bdc7868ab98e03d1d1c4",
+      "actual": "ae4d21e357ee43d0f0e8c50e40a195961a6c3624d5e5bdc7868ab98e03d1d1c4",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k1_containment.py",
+      "expected": "6e03620859fe24cae0ff2ea6abea8d97c36d11bec8afb27a1046bc797814636f",
+      "actual": "6e03620859fe24cae0ff2ea6abea8d97c36d11bec8afb27a1046bc797814636f",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k1_recovery.py",
+      "expected": "b9938927ba84e7fc95c20f175f77aff96811837b22ac29cff85b6d0124e9e1f3",
+      "actual": "b9938927ba84e7fc95c20f175f77aff96811837b22ac29cff85b6d0124e9e1f3",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k1_store.py",
+      "expected": "8ca64bbd0cb381cb2cd0c838a3649f296a7b5e9710ff51c103034281c0aaeab3",
+      "actual": "8ca64bbd0cb381cb2cd0c838a3649f296a7b5e9710ff51c103034281c0aaeab3",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k2_acquisition.py",
+      "expected": "6ec85f0352354b00eb25abd040313016dc619bc2e2f19a88a5c8135b61ea2a97",
+      "actual": "6ec85f0352354b00eb25abd040313016dc619bc2e2f19a88a5c8135b61ea2a97",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k2_application.py",
+      "expected": "d8d97d4af1d2d5cdbd27c9cfecfe9a67227d8efd6531631bccb8cf41a89339ef",
+      "actual": "d8d97d4af1d2d5cdbd27c9cfecfe9a67227d8efd6531631bccb8cf41a89339ef",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k2_composition.py",
+      "expected": "da57d9ab80a5a5194733d6d5f8a2a981ef5337a39106dcb9603e00dbab28f21a",
+      "actual": "da57d9ab80a5a5194733d6d5f8a2a981ef5337a39106dcb9603e00dbab28f21a",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k2_contracts.py",
+      "expected": "0401e98c2a96e8f3b0a062a3cd078df22d4fe48848d2ed795b50aa2aac12994b",
+      "actual": "0401e98c2a96e8f3b0a062a3cd078df22d4fe48848d2ed795b50aa2aac12994b",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k2_interfaces.py",
+      "expected": "a2f6c27ab4dcf1423d6569070570944267a18c2662b172a1a917c2609aeae53d",
+      "actual": "a2f6c27ab4dcf1423d6569070570944267a18c2662b172a1a917c2609aeae53d",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k3_extraction.py",
+      "expected": "9dea383d3df4d3b4c3ba99a8cf02b8d2aead6922e9d1f265ab056edaaf76cc04",
+      "actual": "9dea383d3df4d3b4c3ba99a8cf02b8d2aead6922e9d1f265ab056edaaf76cc04",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k3_pdf_repair.py",
+      "expected": "bdda59b8c5e0f5eb1d694bead11a7ae4aacbd8a399d50893a85c40cd06e5b7a9",
+      "actual": "bdda59b8c5e0f5eb1d694bead11a7ae4aacbd8a399d50893a85c40cd06e5b7a9",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k4_chunking.py",
+      "expected": "907caacea691a1323a2e69b8ac625d5fac14dc69c70c130aad2c3dd8ba5665ba",
+      "actual": "907caacea691a1323a2e69b8ac625d5fac14dc69c70c130aad2c3dd8ba5665ba",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k4_legacy.py",
+      "expected": "0d86c72ff4c2b1b44c3596c68261ebd10fa108ae005d8e9b092323d003885759",
+      "actual": "0d86c72ff4c2b1b44c3596c68261ebd10fa108ae005d8e9b092323d003885759",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k4_quality.py",
+      "expected": "e1243c18d009918ba79d155eef3c78d264e0c8d8a2977bdcba16cf8c7f90e2b4",
+      "actual": "e1243c18d009918ba79d155eef3c78d264e0c8d8a2977bdcba16cf8c7f90e2b4",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k4_retrieval.py",
+      "expected": "ad033cffc90abcc588540bb5e0649c514bfd116a6f04e5e8801130dfe6048258",
+      "actual": "ad033cffc90abcc588540bb5e0649c514bfd116a6f04e5e8801130dfe6048258",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k4_semantic.py",
+      "expected": "ec925bccc59e66a1bbefe5d6084b0662b1e4d789b32dc389f3708e4e3b0ed3bf",
+      "actual": "ec925bccc59e66a1bbefe5d6084b0662b1e4d789b32dc389f3708e4e3b0ed3bf",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k5_context.py",
+      "expected": "a49f76a672cd49d071fd1d7051f14a65bebe97b8d7fa375e2d8229917033a168",
+      "actual": "a49f76a672cd49d071fd1d7051f14a65bebe97b8d7fa375e2d8229917033a168",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k5_integration.py",
+      "expected": "e489d76cf4aa9ad6089f67fbd5754c161b6331ad2bf436a96b716dc0d7765957",
+      "actual": "e489d76cf4aa9ad6089f67fbd5754c161b6331ad2bf436a96b716dc0d7765957",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k6_passive_web.py",
+      "expected": "c4333b311c9f6db899bdb4e6a56fa1194e137ecd6eccd0f5c24f8340146124c7",
+      "actual": "c4333b311c9f6db899bdb4e6a56fa1194e137ecd6eccd0f5c24f8340146124c7",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k7_children.py",
+      "expected": "9cee391265df3e42cf791b33097bba9f732960d6f4b8420b4f8ef29c287228bd",
+      "actual": "9cee391265df3e42cf791b33097bba9f732960d6f4b8420b4f8ef29c287228bd",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k7_host.py",
+      "expected": "5841b36af93027220f284dcba27b65e6238e625bfa318d0ed2544fa2aa276884",
+      "actual": "5841b36af93027220f284dcba27b65e6238e625bfa318d0ed2544fa2aa276884",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_harness.py",
+      "expected": "acf0e4470725a27d938e76305bb994f60c624ebef4ff0b4d8c7ddbf5854a4c56",
+      "actual": "acf0e4470725a27d938e76305bb994f60c624ebef4ff0b4d8c7ddbf5854a4c56",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_parser_contracts.py",
+      "expected": "317a1bdf1c875b0c729006c32746912fae2dff0cf50959d72b7145be9f33c90f",
+      "actual": "317a1bdf1c875b0c729006c32746912fae2dff0cf50959d72b7145be9f33c90f",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_quality.py",
+      "expected": "12fc9b7e0e7d93e69a8998b2fa296d47f2cd284bfc7489b3cf31f1ac11b634e0",
+      "actual": "12fc9b7e0e7d93e69a8998b2fa296d47f2cd284bfc7489b3cf31f1ac11b634e0",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair_contracts.py",
+      "expected": "35d2eb150eb7342d556bf87e8684975b9b161723fa4ac31cf434ed478bbc88f5",
+      "actual": "35d2eb150eb7342d556bf87e8684975b9b161723fa4ac31cf434ed478bbc88f5",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair.py",
+      "expected": "2c248d88ef395f0a2a8e18833ce0a5537774352e2c1b758b830e85e8c25a4d00",
+      "actual": "2c248d88ef395f0a2a8e18833ce0a5537774352e2c1b758b830e85e8c25a4d00",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair2_contracts.py",
+      "expected": "299e2c1c1245b5b1f513690cd739563aaf23d2c705c81fc70febfd12a14098f6",
+      "actual": "299e2c1c1245b5b1f513690cd739563aaf23d2c705c81fc70febfd12a14098f6",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair2_control_regression.py",
+      "expected": "db133bcdc7b73011dc1df9ad2c74ba4a4a339b153df278778efb210777890f22",
+      "actual": "db133bcdc7b73011dc1df9ad2c74ba4a4a339b153df278778efb210777890f22",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair2_quality.py",
+      "expected": "5b85ad44998348ac15d650c049c345fcdba40e88d77437bdfc5aa7fa4b6e2d39",
+      "actual": "5b85ad44998348ac15d650c049c345fcdba40e88d77437bdfc5aa7fa4b6e2d39",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair3_harness.py",
+      "expected": "860d8e3e7fc5d0904d44c34a2c10538746173193d1a46de0f5c05090e0088471",
+      "actual": "860d8e3e7fc5d0904d44c34a2c10538746173193d1a46de0f5c05090e0088471",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair3_quality.py",
+      "expected": "55d6481643c56566d252de3f9ff81dbeae3b8c275c2a2632e863dac3375a7d87",
+      "actual": "55d6481643c56566d252de3f9ff81dbeae3b8c275c2a2632e863dac3375a7d87",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair3_regressions.py",
+      "expected": "c6e49a8bd1c802ef6d087634f4ee4c5d7659a847082277ae9963e56ca2c5694c",
+      "actual": "c6e49a8bd1c802ef6d087634f4ee4c5d7659a847082277ae9963e56ca2c5694c",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+      "expected": "cd4679c4cd33610e9cfbb7a326f758fb11db37940475886589c8a9f9744e7187",
+      "actual": "cd4679c4cd33610e9cfbb7a326f758fb11db37940475886589c8a9f9744e7187",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair4_harness.py",
+      "expected": "4c0a774fc9c1fc6981a2b721be585d181a0ffe8cb503a7ce2f617117d76a4539",
+      "actual": "4c0a774fc9c1fc6981a2b721be585d181a0ffe8cb503a7ce2f617117d76a4539",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+      "expected": "c45e544a575d1825699496bd3f91e2e0d9c65b8ec10ce72831cffca4948f7477",
+      "actual": "c45e544a575d1825699496bd3f91e2e0d9c65b8ec10ce72831cffca4948f7477",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair5_guard.py",
+      "expected": "7d89f52c2d2226c6637220a0ba0fb5fca78d8bcafd2d2d9a5f2a36b63ac5158b",
+      "actual": "7d89f52c2d2226c6637220a0ba0fb5fca78d8bcafd2d2d9a5f2a36b63ac5158b",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair5_harness.py",
+      "expected": "d07b763044e08bae5280a0d5299643884877e3e63c5a928ef3a99741ee51c288",
+      "actual": "d07b763044e08bae5280a0d5299643884877e3e63c5a928ef3a99741ee51c288",
+      "matches": true
+    },
+    {
+      "path": "tests/memory_v1/run_m8_qwen4_chat7b.py",
+      "expected": "cb53d7bb3b16ddb7b3d36e8e15f3143b2b2c53ed6c43bf52a9a694676d88c018",
+      "actual": "cb53d7bb3b16ddb7b3d36e8e15f3143b2b2c53ed6c43bf52a9a694676d88c018",
+      "matches": true
+    },
+    {
+      "path": "tests/memory_v1/test_m8_metadata_admission.py",
+      "expected": "40a9b16ed22b19648e830c9951a924c69bf5d11e144c528f692bb77851d421f1",
+      "actual": "40a9b16ed22b19648e830c9951a924c69bf5d11e144c528f692bb77851d421f1",
+      "matches": true
+    },
+    {
+      "path": "tests/memory_v1/test_m8_ps_operational.py",
+      "expected": "ec976607769cb6f31157bba53dda1576e0e81fc9590995d555f14cbf5c8ffdf9",
+      "actual": "ec976607769cb6f31157bba53dda1576e0e81fc9590995d555f14cbf5c8ffdf9",
+      "matches": true
+    },
+    {
+      "path": "tests/memory_v1/test_m8_qwen4_chat7b.py",
+      "expected": "0d3535c65c624d19fe791911c46a472e1a94e2caed4b9247c17e9ee4b235b412",
+      "actual": "0d3535c65c624d19fe791911c46a472e1a94e2caed4b9247c17e9ee4b235b412",
+      "matches": true
+    },
+    {
+      "path": "tests/test_nova_core_phase0_characterization.py",
+      "expected": "9dacdac6374d1b93283d0683acf7bfe3fca554ecee5f5f195dd9ebda5e57fa8c",
+      "actual": "9dacdac6374d1b93283d0683acf7bfe3fca554ecee5f5f195dd9ebda5e57fa8c",
+      "matches": true
+    },
+    {
+      "path": "tests/test_nova_core_phase10_services.py",
+      "expected": "f124bb32aaf8e67118fb52a4f5163ff71e4cfe9f0f0c49f92c321220f7c93e35",
+      "actual": "f124bb32aaf8e67118fb52a4f5163ff71e4cfe9f0f0c49f92c321220f7c93e35",
+      "matches": true
+    },
+    {
+      "path": "tests/test_nova_core_phase11_characterization.py",
+      "expected": "36407b4ceac27b0c63de7911f1094bdebb64b4cbf426b4b8a2752eeb3d32ada4",
+      "actual": "36407b4ceac27b0c63de7911f1094bdebb64b4cbf426b4b8a2752eeb3d32ada4",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair6_evidence/preflight_v1.json",
+      "expected": "f616ba5ca2029a12fceb42b3e25c01691d2cf14e907d6b2ca8fd1da9f9d5396b",
+      "actual": "f616ba5ca2029a12fceb42b3e25c01691d2cf14e907d6b2ca8fd1da9f9d5396b",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair6_evidence/integrity_v1.json",
+      "expected": "ff9f38df978e3e38e63c2025ae696c34790abe0c1cabc47fe6a92fea72ae4a43",
+      "actual": "ff9f38df978e3e38e63c2025ae696c34790abe0c1cabc47fe6a92fea72ae4a43",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair6_evidence/regression_diagnosis_v1.json",
+      "expected": "49e573984ee89c27d6ed596821d2aaa985bc1c7eb8ab2cecd808ad0b14cb398c",
+      "actual": "49e573984ee89c27d6ed596821d2aaa985bc1c7eb8ab2cecd808ad0b14cb398c",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair6_evidence/final_regression_v1.json",
+      "expected": "264547b9e52f003daa69be27762f5e50dba9f004bf09f7bcc8ad8ac7687c8d20",
+      "actual": "264547b9e52f003daa69be27762f5e50dba9f004bf09f7bcc8ad8ac7687c8d20",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair6_evidence/quality_harness_first_freeze.py",
+      "expected": "ed2560e4a238d078bec557ee8a12c3a5236bd269b3596ab5d7c80295ecedac78",
+      "actual": "ed2560e4a238d078bec557ee8a12c3a5236bd269b3596ab5d7c80295ecedac78",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair6_resultados.md",
+      "expected": "7c65f4054d750f6f74a77031faefb163486d352ce7536e3b52b61e0cc54a9827",
+      "actual": "7c65f4054d750f6f74a77031faefb163486d352ce7536e3b52b61e0cc54a9827",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair6_freeze_v1.json",
+      "expected": "233009827b84020c513dc36ad443c1322e3a153da2841380a399a22ef1325ec9",
+      "actual": "233009827b84020c513dc36ad443c1322e3a153da2841380a399a22ef1325ec9",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair6_freeze_v2.json",
+      "expected": "cdbe771621f93c1c98b5268a7e2c1f232f399977c8eca45ba0f6eb15467b71b1",
+      "actual": "cdbe771621f93c1c98b5268a7e2c1f232f399977c8eca45ba0f6eb15467b71b1",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/collect_k8_repair6_evidence.py",
+      "expected": "cca6582b83edaf9e0dd6083f660494e4f69bbe156550fb94a7da202f9923c7cf",
+      "actual": "cca6582b83edaf9e0dd6083f660494e4f69bbe156550fb94a7da202f9923c7cf",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_query.py",
+      "expected": "6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c",
+      "actual": "6590bab13e77718d9aa9c3de75779fc5683a502fec83c623f0709dffb302df2c",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_lexical.py",
+      "expected": "8644bed970d6931e5979b81bda574b133c24e304c7fa91ed1ce8303c412b8d62",
+      "actual": "8644bed970d6931e5979b81bda574b133c24e304c7fa91ed1ce8303c412b8d62",
+      "matches": true
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+      "expected": "f8b499ed545c6ed1e12d3f5ca9dc47b3b7b3b7103bd65c6b4d1c55a655b25412",
+      "actual": "f8b499ed545c6ed1e12d3f5ca9dc47b3b7b3b7103bd65c6b4d1c55a655b25412",
+      "matches": true
+    },
+    {
+      "path": "local_cli/application/knowledge_retrieval.py",
+      "expected": "b6f75c75ebadb92563adf24c44dd0b2d99c4367334e3d456dadf1f1a8a06b9a0",
+      "actual": "b6f75c75ebadb92563adf24c44dd0b2d99c4367334e3d456dadf1f1a8a06b9a0",
+      "matches": true
+    },
+    {
+      "path": "local_cli/core/knowledge_retrieval.py",
+      "expected": "1a340dce49f222ff69dd8b02d7a5525b8a535f07a552d916443655bf4351b583",
+      "actual": "1a340dce49f222ff69dd8b02d7a5525b8a535f07a552d916443655bf4351b583",
+      "matches": true
+    },
+    {
+      "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "expected": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "actual": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair6_corpus_v1.json",
+      "expected": "cd2b282ab28d74875c0cafd6f8b8416cbc4a559b73f31a06fbaeb7945db5edad",
+      "actual": "cd2b282ab28d74875c0cafd6f8b8416cbc4a559b73f31a06fbaeb7945db5edad",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair6_protocol_v1.json",
+      "expected": "365bba01def85685ff97843f21a22bd469203c2af634ea82efcab15fe450906e",
+      "actual": "365bba01def85685ff97843f21a22bd469203c2af634ea82efcab15fe450906e",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair6_quality.py",
+      "expected": "e8032aee9b02b271688add7b640f404c46efcf08c81f0c0185349f5028d2fb12",
+      "actual": "e8032aee9b02b271688add7b640f404c46efcf08c81f0c0185349f5028d2fb12",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair6_query.py",
+      "expected": "612e9918bc96e327b56d79b48f8270630764b27efeeeca07af17901b002cfdd6",
+      "actual": "612e9918bc96e327b56d79b48f8270630764b27efeeeca07af17901b002cfdd6",
+      "matches": true
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair6.py",
+      "expected": "f7df5f07c3c410fac7498d24def82ea4282d5082f893798799d5f087f43649f9",
+      "actual": "f7df5f07c3c410fac7498d24def82ea4282d5082f893798799d5f087f43649f9",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v6-20261008\\quality-final-frozen\\pytest-private\\test_frozen_v6_quality0\\retrieval-v6.json",
+      "expected": "c5bc8dde49850879e61897deb9600d92c04438d8f59599066359282d6f70a930",
+      "actual": "c5bc8dde49850879e61897deb9600d92c04438d8f59599066359282d6f70a930",
+      "matches": true
+    }
+  ],
+  "historyManifestPins": [
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k0_manifest.json",
+      "expected": "60e419b2b453f36fe251cfee64803848cb8d38780a1a8df624e7ec1b1c718dfe",
+      "actual": "60e419b2b453f36fe251cfee64803848cb8d38780a1a8df624e7ec1b1c718dfe",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k1_manifest.json",
+      "expected": "ee5b588635ae262f71f7e5ec596bf8ed69e6ccc22fa9d02d1a06bd4c086a2c94",
+      "actual": "ee5b588635ae262f71f7e5ec596bf8ed69e6ccc22fa9d02d1a06bd4c086a2c94",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k2_manifest.json",
+      "expected": "94d704982ea83f76cff6c97c7e967225d7d9f9db854a2a9d56dfab821eef6450",
+      "actual": "94d704982ea83f76cff6c97c7e967225d7d9f9db854a2a9d56dfab821eef6450",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k3_manifest.json",
+      "expected": "1e9ba6554cdfff4c2c3e2d4bea00df2b475c1affebd2298df0f38315e2d70911",
+      "actual": "1e9ba6554cdfff4c2c3e2d4bea00df2b475c1affebd2298df0f38315e2d70911",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k3_pdf_repair_manifest.json",
+      "expected": "47caef5c46dadf52601ac42a73ac560b2007da5cab2c4e1e875965d9750d898a",
+      "actual": "47caef5c46dadf52601ac42a73ac560b2007da5cab2c4e1e875965d9750d898a",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k4_manifest.json",
+      "expected": "bf9aebaa8517e5a7c5822dada6539fb25c1d027241755383f37b15e307ae4552",
+      "actual": "bf9aebaa8517e5a7c5822dada6539fb25c1d027241755383f37b15e307ae4552",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k4_resume_manifest.json",
+      "expected": "a6526d79d6c972a13c9c5e46a4d2e6e9ffb951865b65404620317a8a34908d33",
+      "actual": "a6526d79d6c972a13c9c5e46a4d2e6e9ffb951865b65404620317a8a34908d33",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k5_manifest.json",
+      "expected": "9d31b7812fcf3ec9012a9c5ca3dc4e976c5e74c647afcc2e0824e25eda9e857c",
+      "actual": "9d31b7812fcf3ec9012a9c5ca3dc4e976c5e74c647afcc2e0824e25eda9e857c",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k6_manifest.json",
+      "expected": "48f81bc6dd1d12f28748eb60b8b38a78dc728d4b64b50b60554df06c59df274c",
+      "actual": "48f81bc6dd1d12f28748eb60b8b38a78dc728d4b64b50b60554df06c59df274c",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k7_manifest.json",
+      "expected": "2de495d157ab12ebdd6f266a2f2742ec08705dca532def338d67bc8ffef0c1ae",
+      "actual": "2de495d157ab12ebdd6f266a2f2742ec08705dca532def338d67bc8ffef0c1ae",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k8_manifest.json",
+      "expected": "69672b37947ea6aaaa84f53d003f3a753301da8a68d8125a8189d77812f477fe",
+      "actual": "69672b37947ea6aaaa84f53d003f3a753301da8a68d8125a8189d77812f477fe",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k8_repair2_manifest.json",
+      "expected": "ddf23bbc2a871ff41cc0193c308d0411eb62327ce696e30628543b1eccfbee11",
+      "actual": "ddf23bbc2a871ff41cc0193c308d0411eb62327ce696e30628543b1eccfbee11",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k8_repair3_manifest.json",
+      "expected": "f91c883894522543f192e7de697c1817f8224ea1f3b1df56cfc7cf5998ed80a5",
+      "actual": "f91c883894522543f192e7de697c1817f8224ea1f3b1df56cfc7cf5998ed80a5",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k8_repair4_manifest.json",
+      "expected": "73e7870dbecb4243a2cd4732cf9d8f22198af025bd37b9e9134025ba3ce33f3d",
+      "actual": "73e7870dbecb4243a2cd4732cf9d8f22198af025bd37b9e9134025ba3ce33f3d",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k8_repair5_manifest.json",
+      "expected": "ccad626df76cd949e3077f704dccd930850acd05723dff401f448ccbcfc8a26f",
+      "actual": "ccad626df76cd949e3077f704dccd930850acd05723dff401f448ccbcfc8a26f",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\docs\\knowledge_inputs_v1\\k8_repair_manifest.json",
+      "expected": "da16b5e4d894a2755565c0a26420e3ac85b8dbbcd1e1288efc08afeeaa63a7b2",
+      "actual": "da16b5e4d894a2755565c0a26420e3ac85b8dbbcd1e1288efc08afeeaa63a7b2",
+      "matches": true
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair6_manifest.json",
+      "expected": "facc970921ec1cc5f21ebd3c52f5a4487a4d7870089e31ac6e3443b160a2217a",
+      "actual": "facc970921ec1cc5f21ebd3c52f5a4487a4d7870089e31ac6e3443b160a2217a",
+      "matches": true
+    }
+  ],
+  "historicalFirstCampaignPins": [
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\attempt.json",
+      "expected": "fed614a7775a8a2d8de0a5a0c67ee145af2d2cd4133fa171478f7e53fc1e9e50",
+      "actual": "fed614a7775a8a2d8de0a5a0c67ee145af2d2cd4133fa171478f7e53fc1e9e50",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\report.json",
+      "expected": "baa01cd0412d33c54064f257c8cf0d90b0d3fa9aad9455b619b9ad0e2897ac7f",
+      "actual": "baa01cd0412d33c54064f257c8cf0d90b0d3fa9aad9455b619b9ad0e2897ac7f",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\attachment-txt\\requests.json",
+      "expected": "4d79f27d073a6cabd2d477676870e1c5c836cbd389c7b83c7233a4502e8460f7",
+      "actual": "4d79f27d073a6cabd2d477676870e1c5c836cbd389c7b83c7233a4502e8460f7",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\attachment-txt\\result.json",
+      "expected": "48d1f2a62e87cae5fdbacfb34cb635aff825a36474b5dd963343948b68839f1f",
+      "actual": "48d1f2a62e87cae5fdbacfb34cb635aff825a36474b5dd963343948b68839f1f",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\code-answer\\requests.json",
+      "expected": "01680343f0d8a0dbf268c3b4ec53d6afdbd74f8688110c161e474d52af0e5dce",
+      "actual": "01680343f0d8a0dbf268c3b4ec53d6afdbd74f8688110c161e474d52af0e5dce",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\code-answer\\result.json",
+      "expected": "4c1b339af21c626e148feb238355d5626f60e06648fe47688f1ab04c3ea6fe6e",
+      "actual": "4c1b339af21c626e148feb238355d5626f60e06648fe47688f1ab04c3ea6fe6e",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\deleted-abstain\\requests.json",
+      "expected": "3fd683a9aaffa7753b495ff2688dc7bf795299540ee87c8be5a5d9322bc8408b",
+      "actual": "3fd683a9aaffa7753b495ff2688dc7bf795299540ee87c8be5a5d9322bc8408b",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\deleted-abstain\\result.json",
+      "expected": "e680f909366990ef9476e43c3596cdd9df8284f68195411ed0cde3d476679e15",
+      "actual": "e680f909366990ef9476e43c3596cdd9df8284f68195411ed0cde3d476679e15",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\document-injection\\requests.json",
+      "expected": "8c101ad6d71b2df31dd412752437d56f695e7343f2884008b7c7703e7c21a169",
+      "actual": "8c101ad6d71b2df31dd412752437d56f695e7343f2884008b7c7703e7c21a169",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\document-injection\\result.json",
+      "expected": "5843fd78e699214518d846eb11fd9d1277ed6aca96de1b01dc9158b63596d499",
+      "actual": "5843fd78e699214518d846eb11fd9d1277ed6aca96de1b01dc9158b63596d499",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\docx-citation\\requests.json",
+      "expected": "c94e967f949042ca8460de3167536a2767f3f2e52993ad0a2eb7dbdb6971ce41",
+      "actual": "c94e967f949042ca8460de3167536a2767f3f2e52993ad0a2eb7dbdb6971ce41",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\docx-citation\\result.json",
+      "expected": "af7a49e0ac00fb1bdf226c9c6642e30619df7b098e29bee51c5bf2dc9c5cd54d",
+      "actual": "af7a49e0ac00fb1bdf226c9c6642e30619df7b098e29bee51c5bf2dc9c5cd54d",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\json-answer\\requests.json",
+      "expected": "e03a3fc7bce3c1252c4e428bfdd167740ab714b901377beef53917d6af6e27a8",
+      "actual": "e03a3fc7bce3c1252c4e428bfdd167740ab714b901377beef53917d6af6e27a8",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\json-answer\\result.json",
+      "expected": "aa15f1657443536cd60932edb6a38e135208c302098dd6a396ca26cc6eb6b79c",
+      "actual": "aa15f1657443536cd60932edb6a38e135208c302098dd6a396ca26cc6eb6b79c",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\library-restart\\requests.json",
+      "expected": "cc424e0b1f135df90985dcfe7b11bca39fa3158230baa394cd23c72c1eadf7f2",
+      "actual": "cc424e0b1f135df90985dcfe7b11bca39fa3158230baa394cd23c72c1eadf7f2",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\library-restart\\result.json",
+      "expected": "a667a906e880cb8e7b9f9b5d8e652a0c291e0c6d06fa5f55c329608be93e5062",
+      "actual": "a667a906e880cb8e7b9f9b5d8e652a0c291e0c6d06fa5f55c329608be93e5062",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\memory-plus-knowledge\\requests.json",
+      "expected": "9c01b1f89b1e914623aeb342ee9ebb74c6995a5380b84d4633e280c24c30e223",
+      "actual": "9c01b1f89b1e914623aeb342ee9ebb74c6995a5380b84d4633e280c24c30e223",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\memory-plus-knowledge\\result.json",
+      "expected": "1faefc0427648e6960938a8e1a998d554c9772e641344e851d5d0ebb6888ff72",
+      "actual": "1faefc0427648e6960938a8e1a998d554c9772e641344e851d5d0ebb6888ff72",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\no-evidence\\requests.json",
+      "expected": "f955ecb242bef31ab1014d400a89fa5fa0d011297617e062794d5ca2359a04b4",
+      "actual": "f955ecb242bef31ab1014d400a89fa5fa0d011297617e062794d5ca2359a04b4",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\no-evidence\\result.json",
+      "expected": "3dbd46a144ad90e80fc225bf8ed5e19995c3aada4eb2c949240516259774fa86",
+      "actual": "3dbd46a144ad90e80fc225bf8ed5e19995c3aada4eb2c949240516259774fa86",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\pdf-citation\\requests.json",
+      "expected": "ac4357ec3bfcbc01f6f3155b6880e090d594a29226fd75da659ea184c310023b",
+      "actual": "ac4357ec3bfcbc01f6f3155b6880e090d594a29226fd75da659ea184c310023b",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\pdf-citation\\result.json",
+      "expected": "6ea1c6617d2475756b9c3a9a36428b35b2b24aa6dfddd6e14e41995bc852d7e4",
+      "actual": "6ea1c6617d2475756b9c3a9a36428b35b2b24aa6dfddd6e14e41995bc852d7e4",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\source-conflict\\requests.json",
+      "expected": "38c788f96572bc1a7af4df6d030865ea83d191e534ee3b4152d7a2ca312605c9",
+      "actual": "38c788f96572bc1a7af4df6d030865ea83d191e534ee3b4152d7a2ca312605c9",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\source-conflict\\result.json",
+      "expected": "7fd102ebb8cec3e17e5a7a0369e7a8a0936d5f04e2ef36806cdb3e196fe2d0b5",
+      "actual": "7fd102ebb8cec3e17e5a7a0369e7a8a0936d5f04e2ef36806cdb3e196fe2d0b5",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\update-current\\requests.json",
+      "expected": "2f1bf03b5d725d2ec2db2c125271130d92a766cad64056350d1c81a67f21201b",
+      "actual": "2f1bf03b5d725d2ec2db2c125271130d92a766cad64056350d1c81a67f21201b",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\update-current\\result.json",
+      "expected": "7635ea03e89fa0696d0df94de030fe10e3f728014a27a179042c57e8829f856e",
+      "actual": "7635ea03e89fa0696d0df94de030fe10e3f728014a27a179042c57e8829f856e",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\url-fetch\\requests.json",
+      "expected": "0c44515f84e75bcf1dc25c9f8b043c1c365f3e517eb3c0aa9d7cf109914302b7",
+      "actual": "0c44515f84e75bcf1dc25c9f8b043c1c365f3e517eb3c0aa9d7cf109914302b7",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\url-fetch\\result.json",
+      "expected": "90a5a5dbe7e5fc1e15fd398e6145b11622fd926ae439911fd042e82cfe336d7b",
+      "actual": "90a5a5dbe7e5fc1e15fd398e6145b11622fd926ae439911fd042e82cfe336d7b",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\wrong-workspace\\requests.json",
+      "expected": "2374b54e8a4c544c53693e93094303e1edf80fdaa9b7bae798e4c17e1c4da5de",
+      "actual": "2374b54e8a4c544c53693e93094303e1edf80fdaa9b7bae798e4c17e1c4da5de",
+      "matches": true
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-20261008\\e2e-first\\wrong-workspace\\result.json",
+      "expected": "b0e04d81bd9144d87f5049fae316e56f51120211ae2d7a8df093a2932a7f7be4",
+      "actual": "b0e04d81bd9144d87f5049fae316e56f51120211ae2d7a8df093a2932a7f7be4",
+      "matches": true
+    }
+  ],
+  "e2eIds": [
+    "attachment-txt",
+    "pdf-citation",
+    "docx-citation",
+    "json-answer",
+    "code-answer",
+    "library-restart",
+    "memory-plus-knowledge",
+    "update-current",
+    "deleted-abstain",
+    "document-injection",
+    "source-conflict",
+    "no-evidence",
+    "wrong-workspace",
+    "url-fetch"
+  ],
+  "historicalCampaign": {
+    "passed": 5,
+    "total": 14,
+    "status": "FAIL"
+  },
+  "v6Status": "K8 REPAIR V6 PASS",
+  "newEvidenceAlreadyExists": [],
+  "originalVerifierDiagnostic": {
+    "startUtc": "2026-10-08T16:09:26.5941916Z",
+    "endUtc": "2026-10-08T16:09:27.9399688Z",
+    "runtime": {
+      "executable": "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+      "python": "3.14.6",
+      "platform": "Windows-11-10.0.26200-SP0"
+    },
+    "exitCode": 1,
+    "output": [
+      "Traceback (most recent call last):",
+      "  File \"<string>\", line 1, in <module>",
+      "    import json;from pathlib import Path;from tests.knowledge_inputs_v1.run_k8_e2e import verify;verify(json.loads(Path(\"docs/knowledge_inputs_v1/k8_evidence/e2e_freeze_v1.json\").read_text()))",
+      "                                                                                                 ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+      "  File \"C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\knowledge_inputs_v1\\run_k8_e2e.py\", line 50, in verify",
+      "    if hashlib.sha256((ROOT/row['path']).read_bytes()).hexdigest()!=row['sha256']:raise ValueError('FROZEN_FILE_CHANGED: '+row['path'])",
+      "                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+      "ValueError: FROZEN_FILE_CHANGED: local_cli/agent.py"
+    ],
+    "campaignInvoked": false,
+    "inferenceCalls": 0
+  },
+  "classification": "HARNESS_CONTRACT_CONFLICT",
+  "secondCampaignInvoked": false,
+  "casesExecuted": 0,
+  "localInferenceCalls": 0,
+  "productOrExistingTestsChanged": false,
+  "qualityRepeatConsumed": false
+}
+

@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "date": "2026-10-06",
+  "characterization": "COMPLETE",
+  "m8Status": "PARTIAL",
+  "memoryReadyDeclared": false,
+  "rawReport": "docs/memory_v1/m8_bge_ops_evidence/operational_report.json",
+  "rawReportSha256": "11c33c3e78a714cf9faedea402de1c26394d8d5d844c7d7ea79cbd8f63f266ec",
+  "qualityEvaluated": false,
+  "goldUsed": false,
+  "heldoutRerun": false,
+  "historicalHeldoutStatus": "FAIL_UNCHANGED",
+  "endpoint": {
+    "classification": "OPERATIONALLY_ADEQUATE",
+    "stats": {
+      "count": 40,
+      "p50Ms": 114.52384999984133,
+      "p95Ms": 155.39940000007846,
+      "maxMs": 229.82439999987037
+    },
+    "realQueries": 40,
+    "errors": 0,
+    "distinctInputs": 40,
+    "distinctVectorHashes": 40
+  },
+  "fullPipeline": {
+    "classificationBySameLatencyBands": "OPTIONAL_DEGRADED_PERFORMANCE_ONLY",
+    "stats": {
+      "count": 40,
+      "p50Ms": 504.74649999999997,
+      "p95Ms": 583.337,
+      "maxMs": 615.433
+    },
+    "warm39Stats": {
+      "count": 39,
+      "p50Ms": 503.993,
+      "p95Ms": 583.337,
+      "maxMs": 584.713
+    },
+    "embeddingStatusCounts": {
+      "WARM": 39,
+      "DEGRADED_TIMEOUT": 1
+    },
+    "measuredBusyCount": 0,
+    "hardDeadlineStrictlySatisfied": false,
+    "overshootTotalMs": 15.433,
+    "overshootSemanticMs": 13.197,
+    "timeoutCode": "MEMORY_RETRIEVAL_TIMEOUT",
+    "sourceOfOvershoot": "UNKNOWN_NOT_FIXED",
+    "endpointAdequacyIsNotFullPipeline350msPass": true
+  },
+  "perQueryRequests": {
+    "embed": 1,
+    "tags": 3,
+    "ps": 2,
+    "queryShow": 0,
+    "pathStats": {
+      "/api/tags": {
+        "count": 120,
+        "p50Ms": 115.854000000013,
+        "p95Ms": 143.15420000002632,
+        "maxMs": 171.54590000018288
+      },
+      "/api/ps": {
+        "count": 80,
+        "p50Ms": 25.389949999976125,
+        "p95Ms": 32.56210000017745,
+        "maxMs": 36.18349999987913
+      }
+    },
+    "interpretation": "Repeated existing capability/revision checks contribute observable cost; no cache/config/product adjustment was made."
+  },
+  "naturalRecovery": {
+    "demonstrated": true,
+    "timeoutCase": "ops-18",
+    "laterCase": "ops-19",
+    "firstMode": "lexical",
+    "firstStatus": "DEGRADED_TIMEOUT",
+    "firstTotalMs": 615.433,
+    "workerPendingAtFallback": true,
+    "recoveredAfterReturnMs": 29.942599999913,
+    "workerIdleAfterCompletion": true,
+    "laterMode": "hybrid",
+    "laterStatus": "WARM",
+    "laterTotalMs": 503.993,
+    "nextStartedIdle": true,
+    "noBlindRetry": true,
+    "lateModelResultWasNotInjectedIntoReturnedLexicalSnapshot": true,
+    "futureOutcomeForNaturalCase": "NOT_SEPARATELY_RECORDED"
+  },
+  "controlledRecovery": {
+    "demonstrated": true,
+    "realHttp": true,
+    "fakeVectors": false,
+    "forcedCompletionDelay": true,
+    "naturalModelLatencyEvidence": false,
+    "includedInP95": false,
+    "busyObserved": true,
+    "lateFutureOutcome": "EMPTY_ABANDONED_RESULT",
+    "idleAfterCompletion": true,
+    "subsequentRealQueryMode": "hybrid",
+    "subsequentRealQueryStatus": "WARM"
+  },
+  "residency": {
+    "initialModels": [],
+    "bgePreparedOutsideTurn": true,
+    "preparationMs": 21313.36229999988,
+    "ollamaPreparationLoadDurationNs": 15295862200,
+    "bgeResidentBeforeAndAfterMeasurement": true,
+    "otherModelsResident": false,
+    "ollamaReportedSizeVramBytes": 664000265,
+    "physicalVramPeak": "NOT_MEASURED",
+    "modelRunnerPeakRSS": "NOT_MEASURED",
+    "chatCoexistence": "NOT_EVALUATED",
+    "productionTurnColdLoadingIntroduced": false
+  },
+  "preservation": {
+    "initialIndexedFiles": 684,
+    "existingFilesChanged": 0,
+    "freezeFiles": 687,
+    "existingProductChanged": false,
+    "datasetsOrGoldChanged": false,
+    "thresholdsChanged": false,
+    "deadlinesChanged": false,
+    "rrfChanged": false,
+    "similarityFloorChanged": false,
+    "heldoutEvidenceChanged": false,
+    "otherModelTested": false,
+    "download": false,
+    "globalConfigChanged": false,
+    "commit": false,
+    "push": false
+  },
+  "baseline": {
+    "restricted": {
+      "passed": 546,
+      "failed": 125,
+      "seconds": 61.23,
+      "exitCode": 1,
+      "preserved": true,
+      "class": "EXECUTION_CONTEXT_PERMISSION_FAILURE",
+      "proof": "Same fixture Path.resolve(strict=True) fails with WinError5 restricted and succeeds native."
+    },
+    "native": {
+      "passed": 671,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 64.74,
+      "exitCode": 0
+    },
+    "afterHarnessNative": {
+      "passed": 679,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 58.88,
+      "exitCode": 0
+    }
+  },
+  "boundary": "Characterization alone cannot close M8, reinterpret HELD-OUT or authorize quality/E2E reruns."
+}

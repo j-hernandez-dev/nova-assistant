@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="21" time="4.719" timestamp="2026-10-03T06:12:15.985225-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s2_runtime" name="test_required_approval_and_grant_share_the_full_digest_and_execute_once" file="tests\security_v12\test_s2_runtime.py" line="51" time="0.064" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_changes_while_approval_pending_cannot_start_executor[arguments]" file="tests\security_v12\test_s2_runtime.py" line="69" time="0.036"><failure message="TypeError: 'mappingproxy' object does not support item assignment">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block2/s2_private_xe6a7l9s/selected/test_changes_while_approval_pe0')
+mutation = 'arguments'
+
+    @pytest.mark.parametrize('mutation', ['arguments', 'cwd', 'environment', 'policy', 'ceiling', 'cancel'])
+    def test_changes_while_approval_pending_cannot_start_executor(tmp_path, mutation):
+        rt, gate, actor, inv, req, exe, events, results, worker = pending_runtime(tmp_path)
+        if mutation == 'arguments':
+&gt;           inv.arguments['command'] = 'echo changed'
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: 'mappingproxy' object does not support item assignment
+
+tests\security_v12\test_s2_runtime.py:74: TypeError</failure></testcase><testcase classname="tests.security_v12.test_s2_runtime" name="test_changes_while_approval_pending_cannot_start_executor[cwd]" file="tests\security_v12\test_s2_runtime.py" line="69" time="0.039" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_changes_while_approval_pending_cannot_start_executor[environment]" file="tests\security_v12\test_s2_runtime.py" line="69" time="0.035" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_changes_while_approval_pending_cannot_start_executor[policy]" file="tests\security_v12\test_s2_runtime.py" line="69" time="0.037" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_changes_while_approval_pending_cannot_start_executor[ceiling]" file="tests\security_v12\test_s2_runtime.py" line="69" time="0.039" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_changes_while_approval_pending_cannot_start_executor[cancel]" file="tests\security_v12\test_s2_runtime.py" line="69" time="0.037" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_renderer_marker_and_json_cannot_create_human_authority" file="tests\security_v12\test_s2_runtime.py" line="97" time="0.047" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_yes_never_supplies_human_confirmation" file="tests\security_v12\test_s2_runtime.py" line="107" time="0.023" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_yes_never_overrides_a_deny[Format-Volume D:]" file="tests\security_v12\test_s2_runtime.py" line="115" time="0.027" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_yes_never_overrides_a_deny[sudo echo ok]" file="tests\security_v12\test_s2_runtime.py" line="115" time="0.024" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_deadline_before_launch_has_no_effect" file="tests\security_v12\test_s2_runtime.py" line="123" time="0.021" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_all_fs_and_fetch_tools_pass_policy_and_claim_before_adapter" file="tests\security_v12\test_s2_runtime.py" line="130" time="0.005"><failure message="ValueError: server requires a command approval callback">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block2/s2_private_xe6a7l9s/selected/test_all_fs_and_fetch_tools_pa0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x0000020D9DF2EC40&gt;
+
+    def test_all_fs_and_fetch_tools_pass_policy_and_claim_before_adapter(tmp_path, monkeypatch):
+&gt;       tools = create_tools('server', cwd=tmp_path, environment={})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s2_runtime.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+frontend = 'server', auto_approve = False, confirm = None, ask_user = None
+preference = 'native'
+cwd = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block2/s2_private_xe6a7l9s/selected/test_all_fs_and_fetch_tools_pa0')
+environment = {}
+
+    def create_tools(frontend: str, *, auto_approve: bool = False,
+                     confirm: Callable[[str], bool] | None = None,
+                     ask_user: Callable[[str], str] | None = None,
+                     preference: str = "native", cwd: str | Path | None = None,
+                     environment: Mapping[str, str] | None = None) -&gt; list[Tool]:
+        """Single approval policy for every command-tool entry point."""
+        if frontend == "sub_agent":
+            return get_sub_agent_tools(preference=preference, cwd=cwd,
+                                       environment=environment)
+        if frontend not in ("cli", "server"):
+            raise ValueError(f"Unknown tool frontend: {frontend}")
+        if auto_approve:
+            gate = None
+        else:
+            if confirm is None:
+&gt;               raise ValueError(f"{frontend} requires a command approval callback")
+E               ValueError: server requires a command approval callback
+
+local_cli\tools\__init__.py:34: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s2_runtime" name="test_child_attenuates_delegation_and_cannot_reuse_parent_approval" file="tests\security_v12\test_s2_runtime.py" line="154" time="0.076" /><testcase classname="tests.security_v12.test_s2_runtime" name="test_logical_external_fs_deny_never_calls_adapter" file="tests\security_v12\test_s2_runtime.py" line="181" time="0.027" /><testcase classname="tests.test_nova_core_phase14_architecture" name="test_inner_dependency_direction[core-forbidden0]" file="tests\test_nova_core_phase14_architecture.py" line="20" time="0.021" /><testcase classname="tests.test_nova_core_phase14_architecture" name="test_inner_dependency_direction[application-forbidden1]" file="tests\test_nova_core_phase14_architecture.py" line="20" time="0.050" /><testcase classname="tests.test_nova_core_phase14_architecture" name="test_frontends_have_no_agentic_composer_or_direct_engine_calls" file="tests\test_nova_core_phase14_architecture.py" line="31" time="0.047" /><testcase classname="tests.test_nova_core_phase14_architecture" name="test_execution_never_changes_global_cwd_or_reads_domain_stdin" file="tests\test_nova_core_phase14_architecture.py" line="49" time="0.238" /><testcase classname="tests.test_nova_core_phase14_architecture" name="test_jsonl_reader_has_no_worker_join_fallback" file="tests\test_nova_core_phase14_architecture.py" line="60" time="0.001" /><testcase classname="tests.test_nova_core_phase14_architecture" name="test_public_tools_and_desktop_boundary_remain_compatible" file="tests\test_nova_core_phase14_architecture.py" line="69" time="0.936" /></testsuite></testsuites>

@@ -1,0 +1,32 @@
+"""S8 test-only entry: real composition, GPU probe/update checks excluded.
+
+No security adapter is substituted in --server/--cli. --fixture substitutes
+only inference/embeddings using the existing Core Desktop regression fixture.
+"""
+import runpy
+import sys
+import os
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from local_cli.core.contracts import Observation
+import local_cli.infrastructure.capabilities as capabilities
+import local_cli.updater as updater
+
+capabilities.probe_gpu = lambda: tuple(
+    Observation.unknown('S8: user excluded GPU inspection') for _ in range(3))
+updater.check_for_updates = lambda: (False, '')
+if os.environ.get('NOVA_S8_STACK')=='1':
+    import faulthandler
+    trace_path=Path(os.environ['NOVA_S8_EVIDENCE_DIR'])/('backend_stack_'+str(os.getpid())+'.log')
+    trace_file=trace_path.open('w',encoding='utf-8')
+    faulthandler.dump_traceback_later(30,repeat=True,file=trace_file)
+mode = sys.argv.pop(1)
+if mode == '--fixture':
+    runpy.run_path(str(Path(__file__).resolve().parents[1]/'desktop_backend_fixture.py'),
+                   run_name='__main__')
+elif mode in ('--server', '--cli'):
+    sys.argv = ['local_cli', *(['--server'] if mode == '--server' else []), *sys.argv[1:]]
+    runpy.run_module('local_cli', run_name='__main__')
+else:
+    raise SystemExit('explicit S8 backend mode required')

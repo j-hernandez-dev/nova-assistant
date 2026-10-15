@@ -1,0 +1,56 @@
+{
+  "phase": "S2",
+  "canonicalFinal": "final_complete/run.json",
+  "rawArtifactsRewritten": false,
+  "incidents": [
+    {
+      "id": "block2",
+      "state": "FAILED_CORRECTED",
+      "files": {
+        "block2/selected.log": "2D506F12F99A69FF507EB04CE8DF5E6E3363734ADA04DB6582B3FA33CDD2C9DE",
+        "block2/selected.xml": "F61D0607643AB9A2AF583352EBA2EEB8FC186AB384AF759B7C76DE02C5316CC6",
+        "block2/run.json": "0EFF8DD88B52D3CA89FF83D4563AA7FFF52EA749086B7EEF000DD3517600DAD2",
+        "block2_recheck/run.json": "6608D166B6AFC9F1D0CA8B3909D7829C14FDE4A801E7D3BCF5F3856EC5D7B5CF"
+      },
+      "description": "2 test fixture failures: mutation attempted on an immutable MappingProxyType and missing create_tools confirmation callback. Inputs/assertions were corrected; 21 runtime/architecture cases passed on recheck."
+    },
+    {
+      "id": "block3",
+      "state": "FAILED_CORRECTED",
+      "files": {
+        "block3/selected.log": "710F40AA58739C4694B66C37736D821C43D6B4165F06FCFD5C8313E2FFC33C86",
+        "block3/selected.xml": "FE912749B26A34F7F21E54C13D05D9366C0C981D33F29C0BC3D10D21A15411E2",
+        "block3/run.json": "0498E0CF9C3E27005FD373FE7ACBFF616DF5DE7462DDF1DA336CB3C2D36EAFB6",
+        "block3_recheck/run.json": "5A3EE415A2432629F677812E1D786E7B5EB0364BC3F52B09ED01D86F7E4FB4DD"
+      },
+      "description": "4 adapter fixture setup failures: AgentSessionCoordinator needed EventBufferConfig. Fixed fixture only; all 8 tests passed on recheck."
+    },
+    {
+      "id": "integration_initial",
+      "state": "FAILED_CORRECTED",
+      "files": {
+        "integration_initial/s1_core.log": "05A333A86182DEF0D478402AF70BBECB28627FCA0ECB22FDD267B87CA6B46526",
+        "integration_initial/s1_core.xml": "F4D2BE3FF5DEDDAF25751ACDD477FC179456A77F56EEE50EF82992079F557C3B",
+        "integration_initial/run.json": "30183B860F401C59D7B9FEF098990A4C93A44DC1DF31EFD02C7F8555882D7426",
+        "integration_recheck/run.json": "AEA4462D6C2E8BC5D3AFA6E90226D33D85134D9F7C0172349080B08C7387D188"
+      },
+      "description": "9 regression failures. Corrected invalid/missing-tool FAILED classification, stable session binding in fixtures, and expectations explicitly changed by S2 (required actor/proof, no --yes approval, auto-elevation DENY, expired approval CANCELLED). Sensitive approval fixtures use mocked git reset --hard instead of sudo. No criterion was removed; full regression later passed."
+    },
+    {
+      "id": "final_frontends",
+      "state": "INCOMPLETE_INSTRUMENTATION",
+      "files": {
+        "final_frontends/selected.log": "C338D3CBCFADDC6758361CA36ADD3DB5E5BE8A90418E3CD6640FE263D9B9658D",
+        "final_frontends/selected.xml": "36521B9B580DBD26A2DFA1DCE7F2A659BB4C0C2BFE403400C6D5AFF792045E01",
+        "final_frontends/desktop_host.log": "B2B6C563CC75D1C1B0BBE6C3A59119B3D8BD752AD98FF5D173FC3AB87F186E4B",
+        "final_frontends/run.json": "1B30BAF42D242057B5BDDDA53B61A0BC7694494D5E494AD3AB2B30C7D0945786"
+      },
+      "description": "78 Python cases and 10 Node cases passed, but runner stopped while printing Node checkmarks through cp1252. Original run.json lacks completed final status; no global PASS is assigned. Runner stdout changed to UTF-8; final_s2 and final_complete subsequently completed with exit 0."
+    }
+  ],
+  "instrumentalWarnings": [
+    "WindowsApps python alias unavailable; used the installed Python executable without installing packages.",
+    "Some successful pytest runs print Python location or pyreadline Console.__del__ shutdown warnings. Final process/test exit codes are 0; warnings are retained in raw logs.",
+    "Git warns of potential LF-to-CRLF normalization on future operations. git diff --check exited 0; no staging or normalization operation was performed."
+  ]
+}

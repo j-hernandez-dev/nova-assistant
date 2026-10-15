@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "status": "M8 CORE PASS",
+  "gate": "MEMORY_CORE_QUALITY under human-approved MEM1-OD-08",
+  "semanticProfile": "NOT_CERTIFIED",
+  "semanticQualityThisCampaign": "NOT_EVALUATED",
+  "readyEvaluation": "NOT_PERFORMED",
+  "readyDeclared": false,
+  "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+  "branch": "main",
+  "initialWorkingTree": "Dirty inherited Core/context64/M0-M8 changes; initially no staged changes",
+  "scope": {
+    "os": "Windows 11 build 26200",
+    "filesystem": "local NTFS",
+    "processModel": "HOST_UNISOLATED",
+    "sandboxOrProcessIsolation": false,
+    "python": "3.12.14, auxiliary offline runtime with NumPy 2.3.5",
+    "ollama": "0.40.0",
+    "chatModel": "qwen3.5:9b",
+    "chatDigest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+    "runner": "llamacpp",
+    "temperature": 0,
+    "think": false,
+    "numPredict": 128,
+    "cpu": "Intel Core Ultra 7 155H",
+    "physicalMemoryGiB": 15.48,
+    "activeInferenceGpu": "UNKNOWN; adapter enumeration is not offload proof",
+    "linuxMacosRecertified": false,
+    "universalModelOrMinimumHardwareGuarantee": false
+  },
+  "freeze": {
+    "path": "m8_core_evidence/core_freeze_v1.json",
+    "sha256": "07c6f2afbf1fb0afa99034c8b2c16fac8c71ba561ff7ef544165bb4858135113",
+    "sourceProtocolFiles": 442,
+    "protectedHistoricalFiles": 556,
+    "annotation": "m8_core_evidence/protocol_v1/annotation_v1.json",
+    "annotationSha256": "f3dc6db746f45bdfe83221e017187b230ea6db15f858b41cfaa7c0ae1b0812aa",
+    "protocol": "m8_core_evidence/protocol_v1/core_protocol_v1.json",
+    "protocolSha256": "ba5775be2925772d557db278c65116d7ff381ea2951834d7c98fd232103317c5",
+    "outcomeIndependence": "m8_core_evidence/protocol_v1/outcome_independence.json"
+  },
+  "denominators": {
+    "allCasesPerWindow": 110,
+    "corePerWindow": 75,
+    "corePositives": 57,
+    "ordinaryNegatives": 18,
+    "uniqueSourceFacts": 53,
+    "semanticCasesPreserved": 35,
+    "criticalPerWindow": 10
+  },
+  "standalone": {
+    "path": "m8_core_evidence/standalone_v1/report.json",
+    "sha256": "ebe20da5362c1b7088978601e33f917c199c15a3fe71406b3e5e2f3e4d226f72",
+    "recall3": {"correct": 56, "denominator": 57, "value": 0.9824561403508771, "threshold": 0.85},
+    "precision1": {"correct": 55, "denominator": 57, "value": 0.9649122807017544, "threshold": 0.90},
+    "exactContract": {"correct": 18, "denominator": 18, "required": 1.0},
+    "lexicalP95Ms": 3.312,
+    "lexicalP95ThresholdMs": 50,
+    "passed": true
+  },
+  "e2e": {
+    "path": "m8_core_evidence/e2e_v1/report.json",
+    "sha256": "39fd61631ee6b636db357a25c75d186a630dbb6f6fe2225540934113376187b2",
+    "actualMemoryCapsuleAndSelectedGoldRequired": true,
+    "scriptedInference": false,
+    "cloud": false,
+    "retries": 0,
+    "windows": [
+      {"tokens": 4096, "correct": 74, "denominator": 75, "accuracy": 0.9866666666666667, "threshold": 0.85, "positivesCorrect": 56, "positiveDenominator": 57, "ordinaryNegativesCorrect": 18, "ordinaryNegativeDenominator": 18, "passed": true},
+      {"tokens": 8192, "correct": 75, "denominator": 75, "accuracy": 1.0, "threshold": 0.90, "positivesCorrect": 57, "positiveDenominator": 57, "ordinaryNegativesCorrect": 18, "ordinaryNegativeDenominator": 18, "passed": true},
+      {"tokens": 16384, "correct": 74, "denominator": 75, "accuracy": 0.9866666666666667, "threshold": 0.90, "positivesCorrect": 56, "positiveDenominator": 57, "ordinaryNegativesCorrect": 18, "ordinaryNegativeDenominator": 18, "passed": true}
+    ],
+    "failedObservationsPreserved": [
+      {"window": 4096, "case": "heldout-parcel", "answer": "UNKNOWN", "goldPresentInCapsule": true, "classification": "MODEL_BEHAVIOR"},
+      {"window": 16384, "case": "heldout-parcel", "answer": "UNKNOWN", "goldPresentInCapsule": true, "classification": "MODEL_BEHAVIOR"}
+    ],
+    "effectiveModesPerCoreWindow": {"exact": 18, "lexical": 46, "none": 11},
+    "embeddingStatusPerCoreWindow": {"DISABLED": 75},
+    "maxMemoryTokens": 304,
+    "retrievalP95Ms": {"4096": 3.397, "8192": 3.922, "16384": 5.305},
+    "budgetEstimator": "utf8_bytes_div_3; not an exact model tokenizer",
+    "contextLifecyclePassed": true,
+    "semanticSubsetObservations": "Lexical information only; not SEMANTIC_PROFILE_QUALITY PASS"
+  },
+  "critical": {
+    "report": "m8_core_evidence/critical_v1/report.json",
+    "assessment": "m8_core_evidence/critical_gate_v1.json",
+    "assessmentSha256": "b8927edff999e1bfc163935cfbc31fd813cea4bbf2143ceb21960898f2e1d7a4",
+    "correct": 30,
+    "denominator": 30,
+    "required": 1.0,
+    "passed": true,
+    "additionalMandatoryContracts": "All MEMORY regression; scope/subject/correction/conflict/delete/secrets/sensitivity/authority/injection assertions pass with real stores and test doubles where declared, not real semantic quality"
+  },
+  "regression": {
+    "memory": {"path": "m8_core_evidence/final_memory_20261007", "passed": 782, "failed": 0, "skipped": 0, "seconds": 63.40},
+    "head": {"path": "m8_core_evidence/final_head_isolated_20261007", "passed": 4138, "failed": 0, "skipped": 11, "subtestsPassed": 53, "seconds": 272.22},
+    "desktop": {"path": "m8_core_evidence/desktop_regression.json", "passed": 40, "failed": 0, "skipped": 0},
+    "skips": "m8_core_evidence/unchanged_skips.json",
+    "historicalExclusionsUnchanged": true,
+    "failedHeadPreserved": "m8_core_evidence/final_head_20261007",
+    "failedHeadClassification": "HARNESS_BUG; output/TEMP/profile inside audited Git workspace; same gate passes with private state outside repo",
+    "isolationDiagnostic": "m8_core_evidence/head_isolation_diagnostic.json"
+  },
+  "invariants": {
+    "classificationOutcomeIndependent": true,
+    "ambiguousStaysCore": true,
+    "discriminativeAnchorRequired": true,
+    "originalRecordsQuestionsGoldUnchanged": true,
+    "critical100Percent": true,
+    "scopeDeleteSecretsSensitivityAuthorityInjection": true,
+    "numericBudget4k8k16k32k64k": true,
+    "currentUserPriorityAndZeroOptionalMemory": true,
+    "typedSemanticToLexicalDegradation": true,
+    "noLateOrIncompatibleVectorUsed": true,
+    "deadlines350_600_guard50Unchanged": true,
+    "coreSecurityArchitecturePreserved": true,
+    "noProductChanged": true
+  },
+  "historical": {
+    "lexicalGeneralAccuracy": 0.5714285714285714,
+    "lexicalGeneralOutcome": "FAIL preserved in 4K/8K/16K",
+    "qwen06": "Quality FAIL preserved",
+    "bge": "VALIDITY_REPAIR hybrid quality FAIL preserved; forensic attribution PARTIAL preserved",
+    "qwen4": "Operational FAIL preserved",
+    "qwen8": "Historical evidence preserved",
+    "priorReportsOrOutcomesReinterpreted": false
+  },
+  "limitations": [
+    "Semantic and cross-language profile not certified; no new semantic campaign executed.",
+    "Known normal E2E misses remain failed observations, not retries or false recall.",
+    "Advanced 32K/64K are budgeting contracts, not a new high-capacity LLM inference certification.",
+    "No universal quality, GPU isolation or minimum-hardware guarantee.",
+    "Physical EPISODE retention policy and optional at-rest encryption remain deferred.",
+    "The in-repo HEAD fixture mistake is preserved; future full regression must use isolated private state outside the Git/audited workspace."
+  ],
+  "git": {"headUnchanged": true, "tagsUnchanged": true, "indexRestoredToInitialUnstagedState": true, "commit": false, "push": false},
+  "next": "Separate human-authorized normative §38 READY evaluation; not performed"
+}

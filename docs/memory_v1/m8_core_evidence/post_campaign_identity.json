@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "source": "Read-only /api/tags, /api/show and /api/ps after E2E and critical scenarios; no inference",
+  "selectedChatUnchanged": true,
+  "frozenSourceHashesVerified": 442,
+  "historicalEvidenceHashesVerified": 556,
+  "residentModels": [
+    {
+      "name": "qwen3.5:9b",
+      "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+      "runner": "llamacpp",
+      "contextLength": 16384,
+      "reportedSizeBytes": 6554365456,
+      "reportedSizeVramBytes": 5498543798
+    }
+  ],
+  "exactRetrievalStandalone": {"correct": 18, "denominator": 18},
+  "exactAnswerAttributableE2E": {
+    "4096": {"correct": 17, "denominator": 18},
+    "8192": {"correct": 18, "denominator": 18},
+    "16384": {"correct": 17, "denominator": 18}
+  },
+  "limitation": "Contractual exact retrieval is not a claim of infallible model answers. heldout-parcel returned UNKNOWN in 4K/16K with the correct original memory present; those answers remain failed observations, evaluated under the frozen general E2E thresholds. No retry or reclassification.",
+  "semanticProfile": "NOT_CERTIFIED",
+  "embeddingInferenceExecuted": false,
+  "activeInferenceGpu": "UNKNOWN: /api/ps size_vram does not identify the adapter",
+  "globalConfigurationChanged": false
+}

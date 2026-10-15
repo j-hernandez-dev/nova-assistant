@@ -1,0 +1,313 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "iteration": "Installed BGE-M3 / frozen HELD-OUT once",
+  "date": "2026-10-06",
+  "status": "PARTIAL",
+  "standaloneStatus": "FAIL",
+  "classification": "OPERATIONAL_SEMANTIC_UNAVAILABILITY_DURING_MEASUREMENT",
+  "memoryReadyDeclared": false,
+  "baseline": {
+    "branch": "main",
+    "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "workingTree": "PREEXISTING_DIRTY_NO_STAGING",
+    "platform": "Windows 11 build 26200 / local NTFS / HOST_UNISOLATED",
+    "processIsolation": false,
+    "runtime": "Python 3.12.14 / SQLite 3.53.1 / NumPy 2.3.5 / Ollama 0.35.1",
+    "initialIndexedFiles": 794,
+    "unchangedIndexedFiles": 794,
+    "initialIndex": "docs/memory_v1/m8_bge_evidence/initial_hashes.json",
+    "existingProductFilesChanged": [],
+    "existingEvidenceChanged": false
+  },
+  "model": {
+    "name": "BGE-M3:latest",
+    "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+    "capabilities": [
+      "embedding"
+    ],
+    "format": "gguf",
+    "architecture": "bert",
+    "parameterSize": "566.70M",
+    "quantization": "F16",
+    "installedBytes": 1157672605,
+    "dimension": 1024,
+    "modelContextTokens": 8192,
+    "dimensionVerifiedByRealEmbeddings": true,
+    "embeddingSpace": "ollama-810a779df15ccf6b50ccd4e4da669cd99ae7da990e5585a42393640cc4e9fcd9",
+    "normalization": "l2",
+    "projectionFormat": "nova-f32le-revision-v1",
+    "newPrivateVectors": 16,
+    "spaces": 1,
+    "qwenVectorsReused": false,
+    "queryInstructionProfile": null,
+    "queryFormat": "Plain unchanged QueryComposer output",
+    "documentFormat": "Plain unchanged MemoryRecord canonical_text",
+    "documentsVerified": 16,
+    "queriesSent": 1,
+    "queriesPlainVerified": 1,
+    "queriesRequested": 24,
+    "learnedSparseOrColbertAdded": false,
+    "officialSources": [
+      "https://huggingface.co/BAAI/bge-m3",
+      "https://github.com/FlagOpen/FlagEmbedding/tree/master/research/BGE_M3"
+    ]
+  },
+  "protocol": {
+    "freeze": "docs/memory_v1/m8_bge_evidence/freeze.json",
+    "frozenFiles": 14,
+    "frozenFilesUnchanged": 14,
+    "datasetVersion": "m8-query-document-heldout-v1",
+    "datasetSha256": "8ab1f9cb69c46eab68657938efa55a75cc405e7e442c3b75dacb99b4cc159718",
+    "heldoutMeasurements": 1,
+    "records": 16,
+    "queries": 24,
+    "positiveQueries": 20,
+    "negativeQueries": 4,
+    "historyNoiseMessages": 1000,
+    "originalDataset": "m8-fixed-synthetic-v1",
+    "originalDatasetUnchanged": true,
+    "originalDatasetRerun": false,
+    "thresholdsUnchanged": true,
+    "goldUnchanged": true,
+    "rrfUnchanged": true,
+    "capsUnchanged": true,
+    "similarityFloorUnchanged": true,
+    "queryComposerUnchanged": true,
+    "softMs": 350,
+    "hardMs": 600,
+    "noQueryRetries": true,
+    "noPerQueryWarmup": true,
+    "coldPreparation": "One explicit synthetic embed outside Turn; no product deadline extension",
+    "e2eProtocol": "Unchanged independent-source-history-v2; correct capsule in actual prompt required"
+  },
+  "standalone": {
+    "exitCode": 1,
+    "rawReport": "docs/memory_v1/m8_bge_evidence/heldout_report.json",
+    "assessment": "docs/memory_v1/m8_bge_evidence/assessment.json",
+    "realWarmQueries": 0,
+    "statusCounts": {
+      "DEGRADED_TIMEOUT": 1,
+      "DEGRADED_BUSY": 23
+    },
+    "effectiveModes": {
+      "exact": 4,
+      "lexical": 18,
+      "none": 2
+    },
+    "fallbackQuality": {
+      "recall3": 0.85,
+      "precision1": 0.85,
+      "paraphraseRecall3": 0.75,
+      "paraphrasePrecision1": 0.75,
+      "paraphraseGainPP": 0,
+      "materialAggregateRegressionFromLexical": false
+    },
+    "semanticQuality": "NOT_EVALUATED_NO_WARM_RESULTS",
+    "rawGateFailures": [
+      "precision1",
+      "paraphrase_gain",
+      "not_all_real_warm",
+      "hard_deadline",
+      "query_payload_not_verified"
+    ],
+    "qualityGateSatisfied": false,
+    "fallbackCannotSatisfySemanticGate": true,
+    "qualityUnsuitabilityOfBgeProven": false,
+    "productBugDemonstrated": false
+  },
+  "latency": {
+    "coldOutsideTurnMs": 7470.619500003522,
+    "coldOllamaLoadDurationNs": 6402909900,
+    "projectionOutsideTurnMs": 2192.6880000028177,
+    "firstSemanticMs": 602.433,
+    "firstTotalMs": 605.052,
+    "firstQueryError": "MEMORY_RETRIEVAL_TIMEOUT",
+    "lexicalP95Ms": 4.26,
+    "degradedPipelineP95Ms": 2.414,
+    "warmSemanticP95Ms": null,
+    "warmSemanticP95Status": "NOT_EVALUATED",
+    "warmTargetMs": 350,
+    "warmTargetSatisfied": null,
+    "hardGateSatisfied": false,
+    "rawHelperWarmLabelNotAcceptedAsEvidence": true
+  },
+  "residency": {
+    "bgeInitiallyResident": false,
+    "bgeResidentAfterColdAndStandalone": true,
+    "chatName": "qwen3.5:9b",
+    "chatCoResidentInSnapshots": true,
+    "previouslyClosedQwenEmbeddingCoResident": true,
+    "qwenEmbeddingInferences": 0,
+    "unloadOrKeepAliveChanges": false,
+    "bgeOllamaSizeVramBytes": 664000265,
+    "chatOllamaSizeVramBytes": 5490081790,
+    "previousQwenOllamaSizeVramBytes": 2857191341,
+    "hostPhysicalBytes": 16619384832,
+    "availablePhysicalAfterColdBytes": 2501107712,
+    "availablePhysicalAfterStandaloneBytes": 2418491392,
+    "physicalVramPeak": "NOT_MEASURED",
+    "modelRunnerPeakRSS": "NOT_MEASURED",
+    "sizeVramMeaning": "Ollama accounting, not independent physical VRAM/peak",
+    "betweenChatTurns": "NOT_EVALUATED",
+    "timeoutRootCause": "UNKNOWN"
+  },
+  "stableSyntheticFootprint": {
+    "activeRecords": 16,
+    "filesBytes": 253952,
+    "allocatedBytes": 221184,
+    "checkpointAttempted": true,
+    "footprintStable": true,
+    "checkpointBusy": false,
+    "semanticMatrixBytes": 65536,
+    "new20kCapacityBenchmark": false
+  },
+  "tests": {
+    "baseline": {
+      "suite": "tests/memory_v1",
+      "passed": 669,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 54.2,
+      "exitCode": 0
+    },
+    "afterHarness": {
+      "suite": "tests/memory_v1",
+      "passed": 671,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 56.02,
+      "exitCode": 0
+    },
+    "newContracts": [
+      "BGE plain query/document and digest-bound independent space",
+      "Frozen data change denied before inference"
+    ],
+    "newContractTransport": "FIXTURE_ONLY_NOT_SEMANTIC_QUALITY",
+    "realBackend": "LOCAL_OLLAMA_REAL_EMBEDDINGS_STANDALONE",
+    "scriptedChatInference": false,
+    "e2e": {
+      "4096": "NOT_RUN_STANDALONE_FAILED",
+      "8192": "NOT_RUN_STANDALONE_FAILED",
+      "16384": "NOT_RUN_STANDALONE_FAILED"
+    },
+    "capsulePromptAttribution": "NOT_EVALUATED",
+    "newCriticalCampaign": "NOT_RUN_STANDALONE_FAILED",
+    "newFullCoreSecurityRegression": "NOT_RUN_CONDITIONAL_STANDALONE_GATE_FAILED",
+    "historicalEvidenceReinterpreted": false
+  },
+  "gate": {
+    "realInstalledCapability": "PASS",
+    "familyPreprocessing": "PASS_DOCUMENTS_AND_SINGLE_ACTUAL_QUERY",
+    "independentEmbeddingSpace": "PASS",
+    "frozenDataGoldThresholds": "PASS",
+    "fullQueryPayloadCoverage": "NOT_DEMONSTRATED",
+    "realSemanticQuality": "NOT_EVALUATED",
+    "effectivePrecisionThreshold": "FAIL_FALLBACK_ONLY_85_PERCENT",
+    "effectiveParaphraseGain": "FAIL_FALLBACK_ONLY_ZERO_PP",
+    "warmAvailability": "FAIL",
+    "hardDeadlineObservation": "FAIL_602_433_MS_SEMANTIC",
+    "warmP95Target": "NOT_EVALUATED",
+    "independentE2E4k8k16k": "NOT_RUN",
+    "result": "M8_PARTIAL_STOP"
+  },
+  "openDecisions": {
+    "newlyResolved": [],
+    "preserved": [
+      "MEM1-OD-04",
+      "MEM1-OD-07"
+    ],
+    "remaining": "Final usable semantic backend selection; no automatic selection or scope expansion"
+  },
+  "constraints": {
+    "productChanged": false,
+    "coreChanged": false,
+    "securityChanged": false,
+    "ciChanged": false,
+    "schemasChanged": false,
+    "migrationsIntroduced": false,
+    "modelsDownloaded": false,
+    "globalConfigChanged": false,
+    "gpuChanged": false,
+    "cloud": false,
+    "personalDataUsed": false,
+    "commit": false,
+    "push": false,
+    "tagsChanged": false,
+    "qwenCandidateReopened": false,
+    "ready": false
+  },
+  "changes": [
+    "tests/memory_v1/run_m8_bge.py",
+    "tests/memory_v1/test_m8_bge.py",
+    "docs/memory_v1/m8_bge_resultados.md",
+    "docs/memory_v1/m8_bge_manifest.json",
+    "docs/memory_v1/m8_bge_evidence/*"
+  ],
+  "commands": {
+    "runtime": "C:/Users/joseh/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe",
+    "existingPytestSite": "C:/Users/joseh/AppData/Roaming/Python/Python314/site-packages",
+    "baseline": "-B -m tests.memory_v1.run_regression --mode m0 --extra-test-site <existingPytestSite> --output <private>/m8_bge_baseline_20261006",
+    "afterHarness": "-B -m tests.memory_v1.run_regression --mode m0 --extra-test-site <existingPytestSite> --output <private>/m8_bge_contracts_20261006",
+    "standalone": "-B -m tests.memory_v1.run_m8_bge --freeze docs/memory_v1/m8_bge_evidence/freeze.json --output <private>/m8_bge_heldout_once_20261006",
+    "rerunAuthorized": false,
+    "exactPytestArgumentsIn": [
+      "docs/memory_v1/m8_bge_evidence/baseline_run.json",
+      "docs/memory_v1/m8_bge_evidence/contracts_run.json"
+    ]
+  },
+  "artifactHashes": [
+    {
+      "path": "tests/memory_v1/run_m8_bge.py",
+      "sha256": "ab1239bd63d04a43afe79c8809f80fa5c5d86cd79f949bc968889ce7d458075a"
+    },
+    {
+      "path": "tests/memory_v1/test_m8_bge.py",
+      "sha256": "54ce7bd77b288f34d97784d5b1df05b2c1e9a19a2296c4e1afe25ef7af273d92"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_resultados.md",
+      "sha256": "c3e208eef81c112a92957fd9b2b01e5a104a975526a3e31b77593d423b88dc1b"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/assessment.json",
+      "sha256": "f3961da1dfb1b75aad67dc6f0ee3fbc242cc0028f42fe3fea8ee3fa41e42d40c"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/baseline_run.json",
+      "sha256": "cae38b06e842fe37c9aa954ae32d35eecd0539977cafd3f6c4ef8dcc2e365240"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/baseline_run.log",
+      "sha256": "c8dd9fb4251de60de44f848de2ec0d47e4c1ef020e5381ec4754a36646cae26b"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/baseline_tests.xml",
+      "sha256": "4c5d21737c419e3e6fc70c72ed8553a5edc4108d6f580b68263281d4c12d33a7"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/contracts_run.json",
+      "sha256": "e80f22dea7dcc92f741e48b8658945174a05b72d616d9414e9a3014bfec0376e"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/contracts_run.log",
+      "sha256": "908177ecdd8f88f5bd20e209e2ba1e047547ebc0194e2110910bcfa27355d0f6"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/contracts_tests.xml",
+      "sha256": "7396c442d333a8cb7c3bc246e0929ff5b4d810d25f2b2c1fd2afd8bff562bd4b"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/freeze.json",
+      "sha256": "68eceedecba0700658f67f17299c3cc814823c872dbf02d049422756a3db3d32"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/heldout_report.json",
+      "sha256": "a5ebfa50e2db2b7add9776bc04f285550b713fbf8d413570d26168129df0ff20"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/initial_hashes.json",
+      "sha256": "0f54b60a2517c1cd7a7f533ae75c27a9b2f7b3b81ecd44613e46ed845f0ec62d"
+    }
+  ]
+}

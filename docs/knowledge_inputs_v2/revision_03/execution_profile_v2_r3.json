@@ -1,0 +1,31 @@
+{
+  "schema": "k8-v2-execution-profile-3",
+  "revision": "V2-R3",
+  "status": "FROZEN_PENDING_HUMAN_REVIEW",
+  "llm": {
+    "model": "qwen3.5:9b",
+    "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+    "backend": "Ollama",
+    "endpoint": "http://127.0.0.1:11434",
+    "runner": "llamacpp",
+    "temperature": 0,
+    "think": false,
+    "maxIterations": 6,
+    "seed": "NOT_SUPPORTED",
+    "seed_basis": "K8 historical protocol pins no seed; no runtime capability query performed"
+  },
+  "profiles": {
+    "4K": {
+      "contextWindow": 4096
+    },
+    "8K": {
+      "contextWindow": 8192
+    }
+  },
+  "campaigns_per_profile": 1,
+  "tuning": false,
+  "between_campaign_mutation": false,
+  "network": "LOOPBACK_OLLAMA_ONLY_AFTER_AUTHORIZATION",
+  "seed_evidence_limit": "NOT_SUPPORTED inherited byte-equivalent from R2 llm config; absence of historical seed does not prove backend lack of support. No runtime capability query made.",
+  "source_evidence": "tests/knowledge_inputs_v1/fixtures/k8_protocol_v1.json and docs/memory_v1/memory_v1_ready_resultados.md; exact K8 protocol digest is c97...425a"
+}

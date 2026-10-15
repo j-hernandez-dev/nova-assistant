@@ -1,0 +1,110 @@
+{
+  "status": "FAIL",
+  "startedAt": "2026-10-14T20:04:39.450179+00:00",
+  "checks": {
+    "search_with_fetch_off": true,
+    "javascript_results_snippets_bounded": true,
+    "open_redirect_query_fragment_rendered": true,
+    "no_results_truthful": true,
+    "captcha_bounded": true,
+    "blocked_bounded": true,
+    "layout_bounded": true,
+    "model_application_started": true,
+    "model_search_first_1": true,
+    "model_opens_and_reads_1": true,
+    "model_source_cited_1": false
+  },
+  "realModel": true,
+  "live": false,
+  "negativeResults": {
+    "captcha": "{\"status\": \"unknown\", \"code\": \"SEARCH_HUMAN_REQUIRED\", \"message\": \"The search site requires human verification or consent. No results were accepted. Select another search engine or open the site manually.\", \"effect\": \"unknown\"}",
+    "blocked": "{\"status\": \"unknown\", \"code\": \"SEARCH_SITE_BLOCKED\", \"message\": \"The search site rejected the request. You can select another search engine with /search engine.\", \"effect\": \"unknown\"}",
+    "layout": "{\"status\": \"unknown\", \"code\": \"SEARCH_RESULTS_UNAVAILABLE\", \"message\": \"The search page did not expose readable results before the deadline. Its layout may have changed or the site may be blocking automation.\", \"effect\": \"unknown\"}"
+  },
+  "nativeCleanup": {
+    "host_exited": true,
+    "job_empty": true,
+    "profile_removed": true,
+    "graceful": true,
+    "forced": false,
+    "errors": []
+  },
+  "model": {
+    "name": "qwen3.5:9b",
+    "model": "qwen3.5:9b",
+    "modified_at": "2026-10-06T23:47:46.3529159-06:00",
+    "size": 6603314868,
+    "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35",
+        "clip"
+      ],
+      "parameter_size": "9.7B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 262144,
+      "embedding_length": 4096,
+      "runner": "llamacpp"
+    },
+    "capabilities": [
+      "completion",
+      "vision",
+      "tools",
+      "thinking"
+    ]
+  },
+  "inferenceProfile": {
+    "options": {
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "top_k": 20,
+      "num_ctx": 8192
+    },
+    "think": false
+  },
+  "modelCases": [
+    {
+      "prompt": "Busca una noticia relevante hoy en México y resúmela con la fuente.",
+      "tools": [
+        "web_search",
+        "browser_navigate"
+      ],
+      "answer": "He encontrado una noticia de prueba en el sistema. Aquí está el resumen:\n\n**Noticia:** El observatorio mexicano publicó el marcador AMBAR-73.\n\n**Fuente:** Observatorio owned de México\n\nEsta es una noticia sintética generada para probar el sistema Nova, no un artículo real sobre eventos actuales en México.",
+      "status": "completed"
+    }
+  ],
+  "failure": "model_source_cited_1",
+  "modelCleanup": {
+    "host_exited": true,
+    "job_empty": true,
+    "profile_removed": true,
+    "graceful": true,
+    "forced": false,
+    "errors": []
+  },
+  "ownedWorkRemoved": true,
+  "ownedHttpStopped": true,
+  "hits": {
+    "search": 14,
+    "article": 2,
+    "queries": [
+      "México ayer & ciencia",
+      "",
+      "",
+      "empty",
+      "",
+      "captcha",
+      "",
+      "blocked",
+      "",
+      "layout",
+      "",
+      "noticia México hoy 14 de octubre 2026",
+      "",
+      ""
+    ]
+  }
+}

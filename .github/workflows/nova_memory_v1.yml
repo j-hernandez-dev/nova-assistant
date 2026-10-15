@@ -1,0 +1,48 @@
+name: Nova Memory V1 contracts
+permissions:
+  contents: read
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  NOVA_MEMORY_SEMANTIC_PROFILE: NOT_CERTIFIED
+
+jobs:
+  memory-contracts:
+    name: Memory (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      # NumPy enables synthetic vectors only; no embedding model is loaded.
+      - run: python -m pip install -e ".[memory-semantic]" pytest pytest-subtests
+      - name: Memory positive current regression
+        run: >-
+          python -B ci/run_contracts.py --job memory
+          --output "${{ runner.temp }}/nova-memory-contracts"
+      - name: Preserve current CI diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: memory-contracts-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/nova-memory-contracts/run.json
+            ${{ runner.temp }}/nova-memory-contracts/selection.json
+            ${{ runner.temp }}/nova-memory-contracts/collected_nodeids.json
+            ${{ runner.temp }}/nova-memory-contracts/tests.xml
+            ${{ runner.temp }}/nova-memory-contracts/pytest.log
+          if-no-files-found: error

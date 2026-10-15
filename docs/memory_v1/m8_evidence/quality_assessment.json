@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "status": "PARTIAL",
+  "memoryReadyDeclared": false,
+  "mandatoryUnsatisfied": [
+    "E2E_4096",
+    "E2E_8192",
+    "E2E_16384"
+  ],
+  "semanticQuality": {
+    "status": "PASS",
+    "scope": "Standalone warm real backend only, not normal hybrid chat co-residency",
+    "recall3": 0.9166666666666666,
+    "precision1": 0.9166666666666666,
+    "paraphraseGainPP": 62.5
+  },
+  "e2eQuality": {
+    "4096": {
+      "status": "FAIL",
+      "threshold": 0.85,
+      "rawAccuracy": 0.6428571428571429,
+      "attributableAccuracy": 0.5714285714285714,
+      "cases": 14,
+      "attributableMeasured": 14,
+      "lifecycle": true,
+      "budget": true,
+      "ordinaryAbstention": 1.0
+    },
+    "8192": {
+      "status": "FAIL",
+      "threshold": 0.9,
+      "rawAccuracy": 0.5714285714285714,
+      "attributableAccuracy": 0.5714285714285714,
+      "cases": 14,
+      "attributableMeasured": 14,
+      "lifecycle": true,
+      "budget": true,
+      "ordinaryAbstention": 1.0
+    },
+    "16384": {
+      "status": "FAIL",
+      "threshold": 0.9,
+      "rawAccuracy": 0.5714285714285714,
+      "attributableAccuracy": 0.5714285714285714,
+      "cases": 14,
+      "attributableMeasured": 14,
+      "lifecycle": true,
+      "budget": true,
+      "ordinaryAbstention": 1.0
+    }
+  },
+  "scenarios": {
+    "4096": {
+      "cases": 10,
+      "passed": 10,
+      "criticalCases": 6,
+      "criticalPassed": 6
+    },
+    "8192": {
+      "cases": 10,
+      "passed": 10,
+      "criticalCases": 6,
+      "criticalPassed": 6
+    },
+    "16384": {
+      "cases": 10,
+      "passed": 10,
+      "criticalCases": 6,
+      "criticalPassed": 6
+    }
+  },
+  "latency": {
+    "lexicalP95Ms": 6.239,
+    "lexicalPass": true,
+    "warmHybridP95Ms": 343.359,
+    "warmTargetMs": 350,
+    "warmTargetMet": true,
+    "hardDeadlineContract": true
+  },
+  "note": "Green unit/contract regression and a real warm retrieval score alone cannot close M8.",
+  "datasetSha256": "9412e7d40a34d4ea0b26fa4a665860bc381ac28c8472cba36c3cda5157ba1d2f",
+  "datasetVersion": "m8-fixed-synthetic-v1",
+  "model": "qwen3.5:9b"
+}

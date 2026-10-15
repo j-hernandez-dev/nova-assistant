@@ -1,0 +1,382 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "date": "2026-10-06",
+  "status": "PARTIAL",
+  "memoryReadyDeclared": false,
+  "gate": {
+    "normative": "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md §37 M8 + human MEM1-OD-04/07",
+    "literal": "todos los invariantes anunciados pasan, la calidad supera baseline lexical/full-history definido y los límites de hardware/contexto están publicados.",
+    "satisfied": false,
+    "mandatoryUnsatisfied": [
+      "E2E_4096 quality >=85% NOT satisfied",
+      "E2E_8192 quality >=90% NOT satisfied",
+      "E2E_16384 quality >=90% NOT satisfied"
+    ],
+    "assessment": "m8_evidence/quality_assessment.json",
+    "allApplicableMechanicalInvariantsObserved": true,
+    "hardwareLimitsPublished": true,
+    "noLaterPhaseImplemented": true,
+    "fullHistory": "Informative only, per human decision; no arbitrary new obligation",
+    "optionalEmbeddings": "Missing real capability alone is NOT a product failure; standalone real warm capability measured here, independent normal E2E quality still fails."
+  },
+  "baseline": {
+    "branch": "main",
+    "initialHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "finalHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "initialWorkingTree": "Dirty unstaged M0-M7/64K/audit/architectures, no staged changes; preserved",
+    "finalWorkingTree": "Dirty additive M8, no staging/commit/push",
+    "tags": [
+      "nova-core-v1-stable",
+      "nova-security-v1.2-ready"
+    ],
+    "version": "0.12.6",
+    "platform": "Windows 11 build 26200 / local C: NTFS",
+    "primaryRuntime": "Python 3.14.6 / SQLite 3.50.4 / NumPy absent",
+    "auxiliaryExistingRuntime": "Python 3.12.14 / SQLite 3.53.1 / NumPy 2.3.5",
+    "node": "24.16.0",
+    "ollama": "0.35.1, /api/version read-only at closure",
+    "beforeProduct": {
+      "passed": 987,
+      "failed": 0,
+      "preexistingSkips": 3,
+      "seconds": 83.14,
+      "evidence": "m8_evidence/m8_baseline_20261006"
+    }
+  },
+  "decisions": {
+    "MEM1-OD-04": {
+      "status": "RESOLVED_HUMAN",
+      "activeRecordsSoft": 20000,
+      "softFootprintBytes": 536870912,
+      "independent": true,
+      "stableFootprintAfterSafeCheckpoint": true,
+      "noTransientWalCapacityClaim": true,
+      "autoSafePause": true,
+      "correctForgetPreserved": true,
+      "automaticStableFactPurge": false,
+      "osQuota": false,
+      "light128MiB": "Future manual option, never default V1"
+    },
+    "MEM1-OD-07": {
+      "status": "RESOLVED_HUMAN_BEFORE_MEASUREMENT",
+      "datasetThresholds": "tests/memory_v1/fixtures/m8_quality_v1.json",
+      "critical100Percent": true,
+      "noMockSemanticQuality": true,
+      "fullHistoryInformative": true
+    },
+    "MEM1-OD-01": {
+      "status": "INHERITED_M5",
+      "adapter": "numpy-exact-v1"
+    },
+    "MEM1-OD-03": {
+      "status": "INHERITED_HUMAN_CONSERVATIVE_M6",
+      "noAutoCaptureExpansion": true
+    },
+    "MEM1-OD-02": {
+      "status": "SELECTED_MODEL_NOT_UNIVERSAL_RECOMMENDATION",
+      "selectedByHuman": "qwen3-embedding:8b",
+      "coResidentNormalChat": "NOT_DEMONSTRATED: actual probes list one model only"
+    },
+    "MEM1-OD-05": {
+      "status": "OPEN_FUTURE",
+      "topic": "Physical episode retention"
+    },
+    "MEM1-OD-06": {
+      "status": "OPEN_FUTURE",
+      "topic": "General at-rest encryption, not claimed"
+    }
+  },
+  "implementation": {
+    "scope": "Fixtures/evaluation, approved final soft limits, demonstrated child optional-hint budget repair only",
+    "newProductFiles": [],
+    "newDurableSchemas": [],
+    "migrations": [],
+    "durableMemorySchemaVersion": 1,
+    "additiveCorePort": "MemoryMaintenancePort.usage(*,stabilize=False)",
+    "additiveObservableState": [
+      "checkpointAttempted",
+      "observedFootprintBytes",
+      "stableFootprintBytes",
+      "maintenanceDeferred",
+      "recordLimitReached",
+      "sizeLimitReached"
+    ],
+    "newPublicTools": [],
+    "newAuthority": false,
+    "globalConfigChanged": false,
+    "processModel": "HOST_UNISOLATED",
+    "physicalIsolation": false,
+    "onlyMainAgentSession": true
+  },
+  "files": {
+    "modifiedRelativeToM8Preflight": [
+      "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+      "local_cli/application/memory_maintenance.py",
+      "local_cli/application/memory.py",
+      "local_cli/core/memory_maintenance.py",
+      "local_cli/infrastructure/memory_maintenance.py",
+      "local_cli/memory_config.py",
+      "local_cli/sub_agent.py"
+    ],
+    "createdTestsAndHarness": [
+      "tests/memory_v1/m8_assessment.py",
+      "tests/memory_v1/m8_evaluation.py",
+      "tests/memory_v1/run_m8_agent.py",
+      "tests/memory_v1/run_m8_parity_rag.py",
+      "tests/memory_v1/run_m8_quality.py",
+      "tests/memory_v1/run_m8_residency_probe.py",
+      "tests/memory_v1/run_m8_scenarios.py",
+      "tests/memory_v1/test_m8_assessment.py",
+      "tests/memory_v1/test_m8_capacity.py",
+      "tests/memory_v1/test_m8_child_budget.py",
+      "tests/memory_v1/test_m8_contracts.py",
+      "tests/memory_v1/fixtures/m8_quality_v1.json",
+      "tests/memory_v1/fixtures/m8_scenarios_v1.json"
+    ],
+    "closure": [
+      "docs/memory_v1/m8_preflight.md",
+      "docs/memory_v1/m8_resultados.md",
+      "docs/memory_v1/m8_manifest.json",
+      "docs/memory_v1/m8_invariants.json",
+      "docs/memory_v1/m8_evidence/"
+    ]
+  },
+  "verification": {
+    "newPythonCases": 18,
+    "newSkipsOrXfail": 0,
+    "head": {
+      "passed": 4008,
+      "failed": 0,
+      "preexistingSkips": 11,
+      "subtestsPassed": 53,
+      "seconds": 273.88,
+      "evidence": "m8_evidence/m8_head_closure_20261006"
+    },
+    "directed": {
+      "passed": 1003,
+      "failed": 0,
+      "preexistingSkips": 3,
+      "seconds": 93.61,
+      "evidence": "m8_evidence/m8_directed_final_20261006",
+      "note": "Before only two new assessment tests; both included in final HEAD/auxiliary"
+    },
+    "auxiliaryNumpy": {
+      "passed": 652,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 60.9,
+      "evidence": "m8_evidence/m8_aux_closure_20261006"
+    },
+    "desktop": {
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "nodeMs": 771.4174,
+      "typecheckExitCode": 0,
+      "evidence": "m8_evidence/m8_desktop_20261006",
+      "electronUI": "NOT_LAUNCHED_BACKEND_PARITY_ONLY"
+    },
+    "categories": {
+      "unitContract": "Synthetic doubles where applicable; no claim of model quality",
+      "realSQLiteFTS": true,
+      "walReaderCheckpoint": true,
+      "nativeProcessCrashRecovery": "Inherited M2/M6 tests executed unchanged",
+      "migration": "Inherited M2 fixtures unchanged, no new migration",
+      "realNumpy": "Existing auxiliary runtime, synthetic vectors separate from quality",
+      "realEmbeddingQuality": "Installed actual qwen3-embedding:8b, standalone warm only",
+      "realLocalChat": "qwen3.5:9b normal Application 4K/8K/16K, independent gold evidence inspected",
+      "realToolResultsAndEffect": "read/new generation/write/read verified in private NTFS fixtures",
+      "realChild": "delegated capsule, actual response COBALT_UI, no durable auto commit",
+      "cliDesktop": "Shared backend controls/JSONL authentication, fixture TTY observation, not real UI clicks",
+      "rag": "Real SQLite FTS5 test document adapter plus real RAGService and local chat; not legacy semantic RAG quality",
+      "providerSwitch": "Actual installed qwen2.5:7b, same subject/main session and correct answer",
+      "securityRegression": "HEAD contract gate + actual FsBroker/ToolRuntime/audit in M8 agent, not a repeat of all historical SECURITY host-real certification",
+      "linuxMacos": "NOT_RUN_HERE_NO_NEW_CERTIFICATION"
+    }
+  },
+  "quality": {
+    "dataset": {
+      "version": "m8-fixed-synthetic-v1",
+      "sha256": "9412e7d40a34d4ea0b26fa4a665860bc381ac28c8472cba36c3cda5157ba1d2f",
+      "records": 12,
+      "queries": 14,
+      "noiseMessages": 1000,
+      "frozenBeforeMeasurement": true
+    },
+    "scenarioDataset": {
+      "version": "m8-scenarios-fixed-v1",
+      "sha256": "f9eec6b9888014e0dcc97b85ebcfe7020386966c02626a2459e9bc9d8b283cfb",
+      "casesPerWindow": 10
+    },
+    "chatModel": "qwen3.5:9b",
+    "chatModelRevision": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+    "chatOptions": {
+      "temperature": 0,
+      "think": false,
+      "num_predict": 128,
+      "num_ctx": "N",
+      "format": "JSON answer schema"
+    },
+    "embeddingModel": "qwen3-embedding:8b",
+    "embeddingRevision": "64b933495768fbd3b87c20583d379728a07471e0c66733a9df87cd1901b3c44b",
+    "dimension": 4096,
+    "semanticStandalone": {
+      "status": "PASS",
+      "recall3": 0.9166666666666666,
+      "precision1": 0.9166666666666666,
+      "paraphrase": 0.875,
+      "lexicalParaphrase": 0.25,
+      "gainPP": 62.5,
+      "lexicalAggregate": 0.5,
+      "evidence": "m8_evidence/m8_retrieval_initial_20261006"
+    },
+    "normalE2E": {
+      "4096": {
+        "rawAccuracy": 0.6428571428571429,
+        "attributableAccuracy": 0.5714285714285714,
+        "threshold": 0.85
+      },
+      "8192": {
+        "rawAccuracy": 0.5714285714285714,
+        "attributableAccuracy": 0.5714285714285714,
+        "threshold": 0.9
+      },
+      "16384": {
+        "rawAccuracy": 0.5714285714285714,
+        "attributableAccuracy": 0.5714285714285714,
+        "threshold": 0.9
+      },
+      "status": "FAIL",
+      "protocol": "Independent same source history before each question, unchanged locked dataset; actual provider prompts observed",
+      "ordinaryNegatives": {
+        "correct": 6,
+        "total": 6
+      },
+      "evidence": "m8_evidence/m8_e2e_independent_20261006",
+      "lifecycleAndBudgetPass": true
+    },
+    "criticalScenarios": {
+      "correct": 30,
+      "total": 30,
+      "criticalCorrect": 18,
+      "criticalTotal": 18,
+      "evidence": [
+        "m8_evidence/m8_scenarios_4k_20261006",
+        "m8_evidence/m8_scenarios_8k16k_20261006"
+      ]
+    },
+    "fullHistoryInformative": {
+      "window": 4096,
+      "rawAccuracy": 0.21428571428571427,
+      "attributableAccuracy": 0.14285714285714285,
+      "evidence": "m8_evidence/m8_full_history_independent_20261006"
+    },
+    "firstSequentialScores": "Retained, NOT accepted as independent persistent recall quality; actual prompt attribution and earlier-answer contamination diagnosed",
+    "noUniversalQualityClaim": true,
+    "scriptedInference": false,
+    "fakeEmbeddingQuality": false
+  },
+  "metrics": {
+    "lexicalP95Ms": 6.239,
+    "warmHybridP95Ms": 343.359,
+    "softMs": 350,
+    "hardMs": 600,
+    "contextWindows": [
+      4096,
+      8192,
+      16384,
+      32768,
+      65536
+    ],
+    "memoryCeilings": [
+      327,
+      655,
+      1024,
+      1024,
+      1024
+    ],
+    "contextCounting": "Estimated UTF8/3+overhead; not observed exact model tokenization",
+    "realHighCapacityInference": "NOT_RUN_NO_CERTIFICATION",
+    "scale": "m8_evidence/m8_semantic_scale_20261006/benchmark.json",
+    "context": "m8_evidence/m8_scale_lexical_20261006/metrics.json",
+    "footprint": "m8_evidence/host_observations.json",
+    "syntheticVectorOnlyScale": true,
+    "hardware": "16,619,384,832 bytes RAM sample, NOT peak; real Ollama reported residency, no independent peak physical VRAM/RSS"
+  },
+  "failuresPreserved": [
+    {
+      "run": "m8_agent_real_20261006",
+      "classification": "HARNESS_BUG",
+      "reason": "report task wording triggered deliverable heuristic; read/write effect passed, child criterion failed"
+    },
+    {
+      "run": "m8_agent_dependency_child_20261006",
+      "classification": "PRODUCT_BUG",
+      "reason": "Optional child proposal hint appended to mandatory system displaced 4K memory capsule; actual child UNKNOWN/no delegated memory",
+      "resolution": "Minimal optional hint priority repair, real repeat PASS in m8_agent_4k_repair_20261006"
+    },
+    {
+      "run": "m8_aux_capacity_final_20261006",
+      "classification": "HARNESS_BUG",
+      "failed": 1,
+      "reason": "New fixture submitted 19,999-vector batch despite valid 32 batch cap",
+      "resolution": "Fixture uses bounded batches; no adapter guarantee reduced; repeat650/final652 pass"
+    },
+    {
+      "run": "m8_e2e_4k_initial_20261006 + m8_e2e_8k16k_20261006",
+      "classification": "HARNESS_BUG_AND_MODEL_BEHAVIOR",
+      "reason": "Sequential source contamination and raw alias score not evidence of recall; diet none wrong, unsupported guesses, all preserved",
+      "resolution": "Same dataset/thresholds, isolated questions and attributable score; true E2E result FAIL"
+    },
+    {
+      "run": "m8_e2e_independent_20261006",
+      "classification": "LEXICAL_LIMITATION_AND_MODEL_BEHAVIOR",
+      "reason": "Lexical misses six non-overlap paraphrases; one 4K unsupported Concise guess. Normal E2E quality not satisfied, not hidden"
+    },
+    {
+      "run": "m8_residency_7b_20261006",
+      "classification": "HOST_PROFILE_LIMITATION_OBSERVED",
+      "reason": "Both models installed; co-residency not observed under existing profile; does not prove universal hardware insufficiency"
+    }
+  ],
+  "preservation": {
+    "initialUniqueSampleFiles": 1719,
+    "unchangedSampleFiles": 1712,
+    "requiredOverlaps": 7,
+    "missingSampleFiles": 0,
+    "priorMemoryFilesChecked": 345,
+    "securityFilesChecked": 949,
+    "context64FilesChecked": 19,
+    "priorMemorySecurityContextEvidenceChanged": 0,
+    "coreSecurityArchitectureChangedByM8": false,
+    "securityProductChangedByM8": false,
+    "ciChanged": false,
+    "allFailuresRetained": true,
+    "initialHashes": "m8_evidence/initial_hashes.json",
+    "finalHashIndex": "m8_evidence/final_hashes.json",
+    "rawLogCopies": "Byte-identical .txt copies; no .gitignore modification",
+    "scope": "Selected source/docs/test/CI/Desktop preflight sample, not universal ignored state hash coverage"
+  },
+  "unknownOrDebt": [
+    "Normal hybrid warm E2E at all required windows",
+    "Observed E2E 4K/8K/16K quality below approved thresholds",
+    "Model runner peak RSS/physical VRAM not measured",
+    "Inference32/64 not certified",
+    "Linux/macOS MEMORY native run not performed",
+    "Universal embedding recommendation/co-residency not established",
+    "Physical episode retention and general at-rest encryption remain future OPEN DECISIONS"
+  ],
+  "regressionsRemaining": "No demonstrated remaining Core/SECURITY regression in this evidence; M8 quality requirement fails, not masked",
+  "operations": {
+    "commit": false,
+    "push": false,
+    "tagsChanged": false,
+    "ciChanged": false,
+    "globalConfigChanged": false,
+    "modelsDownloaded": false,
+    "gpuChanged": false,
+    "cloudUsed": false
+  },
+  "next": "Continue M8 only. After actual PASS, separate §38 READY evaluation is a reference, not implemented or declared."
+}

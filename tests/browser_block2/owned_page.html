@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><title>Nova Browser Playground</title>
+<h1>Prueba de navegación Nova</h1>
+<p id="ready">Esperando JavaScript</p>
+<label>Nombre <input aria-label="Nombre" id="name"></label>
+<p id="greeting">Sin saludo</p>
+<button id="increment">Aumentar</button><p id="counter">Clicks: 0</p>
+<a href="/redirect">Página siguiente</a>
+<a href="/second?source=popup#detail" target="_blank">Abrir otra ventana</a>
+<script>
+ document.querySelector('#ready').textContent = 'JavaScript activo';
+ let n = 0;
+ document.querySelector('#increment').onclick = () => {
+   document.querySelector('#counter').textContent = `Clicks: ${++n}`;
+   fetch('/effect', {method: 'POST'});
+ };
+ document.querySelector('#name').onkeydown = e => {
+   if(e.key === 'Enter') document.querySelector('#greeting').textContent = `Hola ${e.target.value}`;
+ };
+</script></html>

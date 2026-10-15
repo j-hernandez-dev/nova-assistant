@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="4" time="7.248" timestamp="2026-10-04T14:22:57.621297-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.test_nova_core_phase14_platform" name="test_real_native_unicode_quoting_cwd_env_stdout_stderr_exit" file="tests\test_nova_core_phase14_platform.py" line="38" time="1.191"><failure message="assert 1 == 7&#10; +  where 1 = CompletedProcess(args=['C:\\Users\\joseh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powersh...~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\r\n  File &quot;&lt;frozen os&gt;&quot;, line 709, in __getitem__\r\nKeyError: \'NOVA_NATIVE_TEST\'\r\n').returncode">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_vuzyv2ne/core_native/test_real_native_unicode_quoti0')
+
+    def test_real_native_unicode_quoting_cwd_env_stdout_stderr_exit(tmp_path):
+        descriptor, executor = native()
+        folder = tmp_path / "á space ' quote"
+        folder.mkdir()
+        script = folder / "script.py"
+        script.write_text("import os,sys\nfrom pathlib import Path\n"
+            "print('ñ🧠|' + str(Path.cwd()) + '|' + os.environ['NOVA_NATIVE_TEST'])\n"
+            "print('NATIVE_ERR', file=sys.stderr)\nsys.exit(7)\n", encoding="utf-8")
+        environment = {**get_sanitized_env(), "PYTHONIOENCODING": "utf-8", "NOVA_NATIVE_TEST": "native"}
+        before = Path.cwd()
+        result = executor.run(python_command(descriptor, script), 10, str(folder), environment)
+        # python_command explicitly propagates $LASTEXITCODE in PowerShell.
+&gt;       assert result.returncode == 7
+E       assert 1 == 7
+E        +  where 1 = CompletedProcess(args=['C:\\Users\\joseh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\powersh...~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\r\n  File "&lt;frozen os&gt;", line 709, in __getitem__\r\nKeyError: \'NOVA_NATIVE_TEST\'\r\n').returncode
+
+tests\test_nova_core_phase14_platform.py:51: AssertionError</failure></testcase><testcase classname="tests.test_nova_core_phase14_platform" name="test_real_windows_powershell_fallback_without_pwsh_or_git_bash" file="tests\test_nova_core_phase14_platform.py" line="56" time="1.498" /><testcase classname="tests.test_nova_core_phase14_platform" name="test_real_native_timeout_cancel_terminates_child_tree[False]" file="tests\test_nova_core_phase14_platform.py" line="102" time="3.544" /><testcase classname="tests.test_nova_core_phase14_platform" name="test_real_native_timeout_cancel_terminates_child_tree[True]" file="tests\test_nova_core_phase14_platform.py" line="102" time="0.865" /></testsuite></testsuites>

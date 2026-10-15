@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="2.394" timestamp="2026-10-03T07:12:20.052522-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s3_windows" name="test_native_relative_read_and_atomic_replace" file="tests\security_v12\test_s3_windows.py" line="14" time="0.018"><failure message="local_cli.core.filesystem.FilesystemError: FILESYSTEM_ALIAS_UNSUPPORTED">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native/s3_private_gtjnp6o7/s3_windows_host_real/test_native_relative_read_and_0')
+
+    def test_native_relative_read_and_atomic_replace(tmp_path):
+        broker = WindowsFilesystemBroker()
+        try:
+&gt;           root = broker.bind_root(tmp_path)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s3_windows.py:18: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:291: in bind_root
+    root = self.api.chain(logical, stack)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\windows_filesystem.py:217: in chain
+    h = stack.enter_context(self.open(h, name, directory=True))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\windows_filesystem.py:168: in open
+    if PureWindowsPath(self.final_path(result)).name.casefold() != name.casefold():
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.infrastructure.windows_filesystem.WindowsApi object at 0x0000029E65BD1BE0&gt;
+handle = &lt;local_cli.infrastructure.windows_filesystem.Handle object at 0x0000029E65BD4550&gt;
+
+    def final_path(self, handle):
+        buf = c.create_unicode_buffer(32768)
+        length = self.kernel.GetFinalPathNameByHandleW(handle.value, buf, len(buf), 0)
+        if not length or length &gt;= len(buf) or not buf.value.startswith('\\\\?\\'):
+&gt;           raise FilesystemError('FILESYSTEM_ALIAS_UNSUPPORTED')
+E           local_cli.core.filesystem.FilesystemError: FILESYSTEM_ALIAS_UNSUPPORTED
+
+local_cli\infrastructure\windows_filesystem.py:210: FilesystemError</failure></testcase><testcase classname="tests.security_v12.test_s3_windows" name="test_native_active_parent_cannot_be_renamed" file="tests\security_v12\test_s3_windows.py" line="33" time="0.007"><failure message="local_cli.core.filesystem.FilesystemError: FILESYSTEM_ALIAS_UNSUPPORTED">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native/s3_private_gtjnp6o7/s3_windows_host_real/test_native_active_parent_cann0')
+
+    def test_native_active_parent_cannot_be_renamed(tmp_path):
+        directory = tmp_path/'pinned'; directory.mkdir()
+        broker = WindowsFilesystemBroker()
+        try:
+            with ExitStack() as stack:
+&gt;               broker.api.chain(str(directory), stack)
+
+tests\security_v12\test_s3_windows.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:217: in chain
+    h = stack.enter_context(self.open(h, name, directory=True))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\windows_filesystem.py:168: in open
+    if PureWindowsPath(self.final_path(result)).name.casefold() != name.casefold():
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.infrastructure.windows_filesystem.WindowsApi object at 0x0000029E65BD7750&gt;
+handle = &lt;local_cli.infrastructure.windows_filesystem.Handle object at 0x0000029E65CA8C30&gt;
+
+    def final_path(self, handle):
+        buf = c.create_unicode_buffer(32768)
+        length = self.kernel.GetFinalPathNameByHandleW(handle.value, buf, len(buf), 0)
+        if not length or length &gt;= len(buf) or not buf.value.startswith('\\\\?\\'):
+&gt;           raise FilesystemError('FILESYSTEM_ALIAS_UNSUPPORTED')
+E           local_cli.core.filesystem.FilesystemError: FILESYSTEM_ALIAS_UNSUPPORTED
+
+local_cli\infrastructure\windows_filesystem.py:210: FilesystemError</failure></testcase><testcase classname="tests.security_v12.test_s3_windows" name="test_native_create_parent_directory_and_hardlink_deny" file="tests\security_v12\test_s3_windows.py" line="46" time="0.006"><failure message="local_cli.core.filesystem.FilesystemError: FILESYSTEM_ALIAS_UNSUPPORTED">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native/s3_private_gtjnp6o7/s3_windows_host_real/test_native_create_parent_dire0')
+
+    def test_native_create_parent_directory_and_hardlink_deny(tmp_path):
+        broker = WindowsFilesystemBroker()
+        try:
+            with ExitStack() as stack:
+&gt;               parent = broker.api.chain(str(tmp_path), stack)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s3_windows.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:217: in chain
+    h = stack.enter_context(self.open(h, name, directory=True))
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+local_cli\infrastructure\windows_filesystem.py:168: in open
+    if PureWindowsPath(self.final_path(result)).name.casefold() != name.casefold():
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.infrastructure.windows_filesystem.WindowsApi object at 0x0000029E65DB4410&gt;
+handle = &lt;local_cli.infrastructure.windows_filesystem.Handle object at 0x0000029E65B4E450&gt;
+
+    def final_path(self, handle):
+        buf = c.create_unicode_buffer(32768)
+        length = self.kernel.GetFinalPathNameByHandleW(handle.value, buf, len(buf), 0)
+        if not length or length &gt;= len(buf) or not buf.value.startswith('\\\\?\\'):
+&gt;           raise FilesystemError('FILESYSTEM_ALIAS_UNSUPPORTED')
+E           local_cli.core.filesystem.FilesystemError: FILESYSTEM_ALIAS_UNSUPPORTED
+
+local_cli\infrastructure\windows_filesystem.py:210: FilesystemError</failure></testcase></testsuite></testsuites>

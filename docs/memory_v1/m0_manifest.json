@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 1,
+  "phase": "M0",
+  "status": "PASS",
+  "date": "2026-10-06",
+  "baseline": {
+    "branch": "main",
+    "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "version": "0.12.6",
+    "python": "3.14.6",
+    "platform": "Windows 11 build 26200 / local NTFS",
+    "tags": {
+      "nova-core-v1-stable": {
+        "tagObject": "97f41c6dab89ee59332875bb8d89c29620b52156",
+        "commit": "158b60effa484cd34a58b991f3ee4ca3f808d924"
+      },
+      "nova-security-v1.2-ready": {
+        "tagObject": "e5bea6a4c2c559a1f5a2f8824316a83b548b2533",
+        "commit": "26dc87786d8ad1c1d879255a068c7fb50a25e6f2"
+      }
+    },
+    "preexistingUntracked": [
+      "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md",
+      "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md"
+    ],
+    "trackedFilesChanged": [],
+    "normativeDocumentsSha256": {
+      "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md": "293E29C8EC956707AB0F3403235CE21F29EC472E99AA83E52B03428CF6B38273",
+      "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md": "B13814A0F1C99528AB4F4D2F5C874DACDC1017C8F3F13B1053C90C67EB848147",
+      "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md": "3FB67DF88DAE2428217E937FC8D890A3BCDF5C80524F16C207A2D8EF8C10CC80",
+      "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md": "2C70D0635CD7D15BA1CA851379CBCE7017A67E44F0848A69852515B8D407BDBF"
+    }
+  },
+  "gate": {
+    "source": "NOVA_MEMORY_ARQUITECTURA_V1.md §37 M0",
+    "definition": "baseline reproducible y dataset suficientemente definido para probar M1–M8",
+    "criteria": [
+      {
+        "id": "versioned_synthetic_fixtures",
+        "status": "PASS",
+        "evidence": "tests/memory_v1/fixtures/corpus_v1.json",
+        "detail": "34 source examples, 26 labeled cases, 4 timelines; no private data"
+      },
+      {
+        "id": "taxonomy_scope_provenance",
+        "status": "PASS",
+        "evidence": "tests/memory_v1/test_m0_evaluation.py",
+        "detail": "five kinds, seven source classes, non-MEMORY classes, two subjects/two workspaces independent from sessions"
+      },
+      {
+        "id": "context_4k_8k_16k",
+        "status": "PASS",
+        "evidence": "docs/memory_v1/evidence/m0_characterization_final.json",
+        "detail": "also 32K requested; 16 measurements at 20/200/2000/10000 messages; user priority/overflow/tool continuity"
+      },
+      {
+        "id": "fixture_identity_definition",
+        "status": "PASS",
+        "evidence": "tests/memory_v1/fixtures/corpus_v1.json",
+        "detail": "fixed UUID subjects and fixed 64-hex workspace IDs, no production identity implementation"
+      },
+      {
+        "id": "preserve_legacy_inventory",
+        "status": "PASS",
+        "evidence": "docs/memory_v1/m0_legacy_stores.json",
+        "detail": "24 physical/in-memory/auxiliary store entries; no migration/modification"
+      },
+      {
+        "id": "metrics_contract",
+        "status": "PASS",
+        "evidence": "tests/memory_v1/fixtures/metrics_contract_v1.json",
+        "detail": "quality/performance contracts, explicit unknowns; no arbitrary READY threshold"
+      },
+      {
+        "id": "initial_invariant_matrix",
+        "status": "PASS",
+        "evidence": "docs/memory_v1/m0_invariants.json",
+        "detail": "40 traced invariants; production enforcement DEFERRED_NOT_IMPLEMENTED"
+      },
+      {
+        "id": "relevant_core_security_regression",
+        "status": "PASS",
+        "evidence": "docs/memory_v1/evidence/baseline_final.json",
+        "detail": "3359 passed, 11 existing skips, 53 subtests; no new skips/xfail"
+      }
+    ]
+  },
+  "tests": {
+    "before": {
+      "passed": 3314,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "seconds": 207.94
+    },
+    "after": {
+      "passed": 3359,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "seconds": 214.66,
+      "evidence": "docs/memory_v1/evidence/baseline_final.json"
+    },
+    "m0": {
+      "passed": 45,
+      "unit": 21,
+      "contextContract": 18,
+      "syntheticIntegration": 6,
+      "seconds": 0.63,
+      "evidence": "docs/memory_v1/evidence/m0_tests_final.json"
+    },
+    "metricsRuns": 3,
+    "externalModelInference": false,
+    "securityHostGateRepeated": false,
+    "intermediateAfter": {
+      "passed": 3359,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "seconds": 210.53,
+      "evidence": "docs/memory_v1/evidence/baseline_after.json"
+    }
+  },
+  "preservedFailedRuns": {
+    "restricted": {
+      "passed": 3307,
+      "failed": 7,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "seconds": 288.53,
+      "classification": [
+        {
+          "test": "tests/security_v12/test_s7_persistence.py::test_unowned_hardlinked_segment_never_purged",
+          "failure": "PermissionError WinError 5 creating synthetic hardlink",
+          "classification": "RESTRICTED_HOST_NOT_REPRODUCED_NATIVELY"
+        },
+        {
+          "test": "tests/test_nova_core_phase12_client.py::test_cli_tool_preview_and_session_log_survive_application_migration",
+          "failure": "FILESYSTEM_ALIAS_UNSUPPORTED",
+          "classification": "RESTRICTED_HOST_NOT_REPRODUCED_NATIVELY"
+        },
+        {
+          "test": "tests/test_nova_core_phase14_platform.py::test_real_windows_powershell_fallback_without_pwsh_or_git_bash",
+          "failure": "PROCESS_LAUNCH_FAILED / OSError, not timeout",
+          "classification": "RESTRICTED_HOST_NOT_REPRODUCED_NATIVELY"
+        },
+        {
+          "test": "tests/test_nova_core_phase3_cwd.py::test_two_worktree_agents_never_change_process_cwd",
+          "failure": "failed child tool execution",
+          "classification": "RESTRICTED_HOST_NOT_REPRODUCED_NATIVELY"
+        },
+        {
+          "test": "tests/test_nova_core_phase6_runtime.py::test_runtime_normalizes_call_revalidates_brokered_read_and_write",
+          "failure": "FILESYSTEM_ALIAS_UNSUPPORTED",
+          "classification": "RESTRICTED_HOST_NOT_REPRODUCED_NATIVELY"
+        },
+        {
+          "test": "tests/test_nova_core_phase7_session.py::test_brokered_read_keeps_one_terminal_per_tool_operation",
+          "failure": "missing ToolCompleted after broker rejection",
+          "classification": "RESTRICTED_HOST_NOT_REPRODUCED_NATIVELY"
+        },
+        {
+          "test": "tests/test_tools/test_bash_tool.py::TestBashToolEnvSanitization::test_non_sensitive_env_vars_available",
+          "failure": "HOME differed from USERPROFILE in the first private harness",
+          "classification": "HARNESS_BUG_PRIVATE_PROFILE_MISMATCH"
+        }
+      ],
+      "evidence": "docs/memory_v1/evidence/initial_restricted.log",
+      "causalityNote": "Native repeat changed permissions plus corrected private profile; six failures did not reproduce. Exact isolated OS cause was not individually demonstrated."
+    },
+    "m0Harness": {
+      "failed": 1,
+      "passed": 44,
+      "reason": "Assumed CloseSession handler for cleanup; HEAD exposes DTO but rejects UnsupportedCommand. Removed unsupported cleanup assumption, not any normative assertion.",
+      "evidence": "docs/memory_v1/evidence/harness_cleanup_failure.log"
+    },
+    "initialConsole": {
+      "reason": "cp1252 Unicode print failure in temporary runner and pyreadline teardown warning in direct restricted invocation; child outcomes preserved, UTF-8 used for later native evidence."
+    }
+  },
+  "unknowns": [
+    "real local model recall/conflict/correction quality",
+    "actual embedding model/dimension/latency/VRAM",
+    "real provider verified 4K/8K/16K/32K capacity",
+    "Linux/macOS M0 execution not run in this host",
+    "future memory domain/store/retrieval/deletion/consolidation enforcement",
+    "isolated root cause of each of six restricted-host failures"
+  ],
+  "openDecisions": [
+    {
+      "id": "MEM1-OD-01",
+      "status": "OPEN",
+      "phase": "M5",
+      "topic": "semantic backend"
+    },
+    {
+      "id": "MEM1-OD-02",
+      "status": "OPEN",
+      "phase": "M5/M8",
+      "topic": "embedding model"
+    },
+    {
+      "id": "MEM1-OD-03",
+      "status": "OPEN",
+      "phase": "M6/M8",
+      "topic": "AUTO_SAFE thresholds"
+    },
+    {
+      "id": "MEM1-OD-04",
+      "status": "OPEN",
+      "phase": "M8",
+      "topic": "final quotas"
+    },
+    {
+      "id": "MEM1-OD-05",
+      "status": "OPEN",
+      "phase": "future retention evaluation",
+      "topic": "EPISODE physical retention"
+    },
+    {
+      "id": "MEM1-OD-06",
+      "status": "OPEN",
+      "phase": "product decision",
+      "topic": "optional at-rest encryption"
+    },
+    {
+      "id": "MEM1-OD-07",
+      "status": "OPEN",
+      "phase": "M8",
+      "topic": "READY quality thresholds"
+    }
+  ],
+  "memoryImplemented": false,
+  "memoryReady": false,
+  "coreSecurityProductModified": false,
+  "onlyProcessModel": "HOST_UNISOLATED",
+  "sandboxOrProcessIsolation": false,
+  "noModelsDownloaded": true,
+  "noGpuOrGlobalConfigChanged": true,
+  "nextPhase": "M1 NOT_IMPLEMENTED",
+  "commit": false,
+  "push": false,
+  "dataset": {
+    "version": "m0-synthetic-v1",
+    "sha256": "a9aea59927e77d60541244f5afe609ab50ee80609e9985a6d30ba954f8ad4e17",
+    "evidence": "docs/memory_v1/evidence/m0_characterization_final.json",
+    "preliminaryReportsPreserved": true
+  },
+  "createdFiles": [
+    "docs/memory_v1/evidence/baseline_after.json",
+    "docs/memory_v1/evidence/baseline_after.log",
+    "docs/memory_v1/evidence/baseline_before.json",
+    "docs/memory_v1/evidence/baseline_before.log",
+    "docs/memory_v1/evidence/baseline_final.json",
+    "docs/memory_v1/evidence/baseline_final.log",
+    "docs/memory_v1/evidence/harness_cleanup_failure.log",
+    "docs/memory_v1/evidence/initial_restricted.log",
+    "docs/memory_v1/evidence/m0_characterization.json",
+    "docs/memory_v1/evidence/m0_characterization_final.json",
+    "docs/memory_v1/evidence/m0_characterization_repeat.json",
+    "docs/memory_v1/evidence/m0_tests.json",
+    "docs/memory_v1/evidence/m0_tests.log",
+    "docs/memory_v1/evidence/m0_tests_final.json",
+    "docs/memory_v1/evidence/m0_tests_final.log",
+    "docs/memory_v1/m0_invariants.json",
+    "docs/memory_v1/m0_legacy_stores.json",
+    "docs/memory_v1/m0_manifest.json",
+    "docs/memory_v1/m0_resultados.md",
+    "tests/memory_v1/__init__.py",
+    "tests/memory_v1/context_baseline.py",
+    "tests/memory_v1/evaluation.py",
+    "tests/memory_v1/fixtures/corpus_v1.json",
+    "tests/memory_v1/fixtures/metrics_contract_v1.json",
+    "tests/memory_v1/legacy_baseline.py",
+    "tests/memory_v1/run_m0.py",
+    "tests/memory_v1/run_regression.py",
+    "tests/memory_v1/test_m0_context.py",
+    "tests/memory_v1/test_m0_evaluation.py",
+    "tests/memory_v1/test_m0_legacy.py"
+  ]
+}

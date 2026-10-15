@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "runtime": "Node v24.16.0",
+  "files": [
+    "desktop/tests/application_client.test.cjs",
+    "desktop/tests/approval_host.test.cjs",
+    "desktop/tests/security_audit.test.cjs",
+    "desktop/tests/memory_control.test.cjs",
+    "desktop/tests/memory_maintenance.test.cjs"
+  ],
+  "initialInvocation": {
+    "command": "node --test <files>",
+    "passed": 38,
+    "failed": 2,
+    "error": "ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX: parameter property not supported in strip-only mode",
+    "classification": "HARNESS_INVOCATION_ERROR",
+    "failedTests": ["audit gap warns without changing transcript/lifecycle or retrying an effect", "reconnect snapshot discloses audit delivery loss without inventing a failed Turn"]
+  },
+  "correctInvocation": {
+    "command": "node --experimental-transform-types --test <files>",
+    "passed": 40,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 735.6708
+  },
+  "testOrProductModified": false,
+  "inference": false,
+  "scope": "Native Node contract tests, not graphical Electron E2E"
+}

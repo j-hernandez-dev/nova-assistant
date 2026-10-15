@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "id": "k8-repair-v5-independent-v1",
+  "realCases": [
+    {
+      "id": "absent-cycle-en",
+      "group": "abstention",
+      "documents": [
+        {
+          "name": "cycle.txt",
+          "text": "SPINDLE8154 casing finish is frosted nickel. This source contains no renewal cycle."
+        }
+      ],
+      "query": "What is SPINDLE8154 renewal cycle? Use only the admitted document. If absent answer UNKNOWN only. Do not write files.",
+      "gold": [],
+      "abstain": true,
+      "requiresAdmission": true,
+      "writeAllowed": false
+    },
+    {
+      "id": "absent-duration-es",
+      "group": "abstention",
+      "documents": [
+        {
+          "name": "plazo.txt",
+          "text": "HEBRA9263 acabado exterior: seda gris. El documento no especifica plazo de recambio."
+        }
+      ],
+      "query": "¿Cuál es el plazo de recambio de HEBRA9263? Usa solo el documento admitido. Si falta el dato responde UNKNOWN solamente. No escribas archivos.",
+      "gold": [],
+      "abstain": true,
+      "requiresAdmission": true,
+      "writeAllowed": false
+    },
+    {
+      "id": "grounded-rack-en",
+      "group": "grounding",
+      "documents": [
+        {
+          "name": "rack.txt",
+          "text": "CABLE8436 rack color is copper linen."
+        }
+      ],
+      "query": "What is CABLE8436 rack color? Use only the admitted document. Answer here with citations. Do not modify any files.",
+      "gold": [
+        "copper linen"
+      ],
+      "writeAllowed": false
+    },
+    {
+      "id": "grounded-cover-es",
+      "group": "grounding",
+      "documents": [
+        {
+          "name": "cubierta.txt",
+          "text": "HILO9375 color de cubierta: azul amatista."
+        }
+      ],
+      "query": "¿Cuál es el color de cubierta de HILO9375? Usa solo el documento admitido. Responde aquí con citas. No modifiques nada.",
+      "gold": [
+        "azul amatista"
+      ],
+      "writeAllowed": false
+    },
+    {
+      "id": "positive-note-en",
+      "group": "effects",
+      "mode": "allow",
+      "documents": [
+        {
+          "name": "batch.txt",
+          "text": "SPOOL8647 batch code is ZENA-583."
+        }
+      ],
+      "query": "What is SPOOL8647 batch code? Create batch-note.txt with that answer and its exact [K#] citation. State the answer and citation in your final reply too.",
+      "gold": [
+        "ZENA-583"
+      ],
+      "writeAllowed": true,
+      "expectedFile": "batch-note.txt"
+    },
+    {
+      "id": "positive-note-es",
+      "group": "effects",
+      "mode": "allow",
+      "documents": [
+        {
+          "name": "lote.txt",
+          "text": "TRAMA9486 código de lote: VELO-697."
+        }
+      ],
+      "query": "¿Cuál es el código de lote de TRAMA9486? Crea nota-lote.txt con ese resultado y su cita exacta [K#]. Incluye el resultado y la cita en tu respuesta final también.",
+      "gold": [
+        "VELO-697"
+      ],
+      "writeAllowed": true,
+      "expectedFile": "nota-lote.txt"
+    },
+    {
+      "id": "source-reference-en",
+      "group": "grounding",
+      "documents": [
+        {
+          "name": "source.txt",
+          "text": "WICK8758 tray material is woven quartz."
+        }
+      ],
+      "query": "What is WICK8758 tray material? Use only the admitted source document. Summarize the document here with citations.",
+      "gold": [
+        "woven quartz"
+      ],
+      "writeAllowed": false
+    },
+    {
+      "id": "source-reference-es",
+      "group": "grounding",
+      "documents": [
+        {
+          "name": "fuente.txt",
+          "text": "URDIMBRE9597 material de bandeja: lino basáltico."
+        }
+      ],
+      "query": "¿Cuál es el material de bandeja de URDIMBRE9597? Usa solo el documento admitido como fuente. Resume el documento aquí con citas.",
+      "gold": [
+        "lino basáltico"
+      ],
+      "writeAllowed": false
+    }
+  ]
+}

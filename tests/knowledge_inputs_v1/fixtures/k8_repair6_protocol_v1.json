@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "k8-repair-v6-deterministic-protocol-v1",
+  "noInference": true,
+  "retries": 0,
+  "denominators": {
+    "positive": 62,
+    "negative": 40,
+    "total": 102,
+    "plan": 102
+  },
+  "metrics": {
+    "recallAt5": 1,
+    "precisionAt1": 1,
+    "abstention": 0.95,
+    "critical": 1,
+    "identifiers": 1,
+    "factualPreservation": 1,
+    "controlSeparation": 1,
+    "falseStripping": 0
+  },
+  "rules": {
+    "recall": "Every gold source must appear in top5; conflicts preserve both provenances.",
+    "precision": "Top1 must belong to gold.",
+    "abstention": "Empty candidate snapshot for negative.",
+    "plan": "Independent Core normalization of annotated factual text equals actual signal; every annotated control fragment belongs to the corresponding typed span. Identifier offsets address only factual spans.",
+    "scope": "Existing host filters only; source hints cannot expand authority.",
+    "floor": "Strict coverage >0.5; FTS/BM25/RRF/caps unchanged."
+  }
+}

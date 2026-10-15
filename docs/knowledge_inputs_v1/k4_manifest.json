@@ -1,0 +1,384 @@
+{
+  "schemaVersion": 1,
+  "phase": "K4",
+  "normativeSection": "NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md §59",
+  "status": "BLOCKED",
+  "verdict": "K4 BLOCKED",
+  "evaluatedAtUtc": "2026-10-08T03:37:08Z",
+  "scope": "Preflight only; implementation stopped at demonstrated normative input-contract failure",
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+    "initialWorkingTree": [
+      " M desktop/electron/application_client.ts",
+      " M desktop/electron/main.ts",
+      " M desktop/electron/preload.ts",
+      " M desktop/shared/application.ts",
+      " M desktop/src/App.tsx",
+      " M desktop/src/types.ts",
+      " M local_cli/application/commands.py",
+      " M local_cli/application/session.py",
+      " M local_cli/bootstrap_cli.py",
+      " M local_cli/bootstrap_server.py",
+      " M local_cli/cli.py",
+      " M local_cli/interfaces/cli_application.py",
+      " M local_cli/interfaces/jsonl_application.py",
+      " M local_cli/server.py",
+      " M tests/memory_v1/run_m8_qwen4_chat7b.py",
+      " M tests/memory_v1/test_m8_metadata_admission.py",
+      " M tests/memory_v1/test_m8_ps_operational.py",
+      " M tests/memory_v1/test_m8_qwen4_chat7b.py",
+      " M tests/test_nova_core_phase11_characterization.py",
+      "?? desktop/electron/knowledge_control.cjs",
+      "?? desktop/electron/knowledge_control.d.cts",
+      "?? desktop/tests/knowledge_control.test.cjs",
+      "?? docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "?? docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "?? docs/knowledge_inputs_v1/",
+      "?? local_cli/application/knowledge.py",
+      "?? local_cli/application/knowledge_host.py",
+      "?? local_cli/bootstrap_knowledge.py",
+      "?? local_cli/core/attachments.py",
+      "?? local_cli/core/knowledge.py",
+      "?? local_cli/core/knowledge_store.py",
+      "?? local_cli/infrastructure/knowledge_acquisition.py",
+      "?? local_cli/infrastructure/knowledge_extraction.py",
+      "?? local_cli/infrastructure/knowledge_files.py",
+      "?? local_cli/infrastructure/knowledge_migrations.py",
+      "?? local_cli/infrastructure/knowledge_sqlite.py",
+      "?? local_cli/interfaces/knowledge_cli.py",
+      "?? tests/knowledge_inputs_v1/"
+    ],
+    "staged": [],
+    "tags": [
+      "nova-core-v1-stable 97f41c6dab89ee59332875bb8d89c29620b52156 158b60effa484cd34a58b991f3ee4ca3f808d924",
+      "nova-memory-v1-ready fa6b2f7898692ddc6cec77a4d971dbc395b764a6 9911ad4ca0fc13edfef49e84441a759d35cbefda",
+      "nova-memory-v1.1-ready 6a48c5252e40986ecf4180138d9d56bc519b3e49 3678d5b597a888b743e90d26efda6219943d58df",
+      "nova-security-v1.2-ready e5bea6a4c2c559a1f5a2f8824316a83b548b2533 26dc87786d8ad1c1d879255a068c7fb50a25e6f2"
+    ],
+    "architectureSha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "productSourceSha256": "1e82c08472774ee6b11af6702fd64aae899353a666efe1b1f7ead6b13b81823e",
+    "previousK3ManifestSha256": "1e9ba6554cdfff4c2c3e2d4bea00df2b475c1affebd2298df0f38315e2d70911",
+    "previousK3ReportSha256": "1974132a506faf034ad93b4f45f9f993b72e4e2438f3a740412eee774f5777cd",
+    "k3ReportedVerdict": "K3 PASS",
+    "k3EvidencePreserved": true,
+    "k3HeadXmlVerified": true,
+    "freezePath": "C:/Users/joseh/AppData/Local/Temp/nova-k4-preflight-20261007/preflight.json"
+  },
+  "normativeScope": {
+    "required": [
+      "structure-aware chunking",
+      "FTS5/exact",
+      "metadata filters",
+      "relevance floor/abstention",
+      "optional semantic spaces",
+      "deterministic hybrid fusion",
+      "legacy rebuild"
+    ],
+    "gate": "Core lexical passes quality; semantic degrades safely; no mixed spaces",
+    "lexicalThresholds": {
+      "recallAt5": 0.9,
+      "precisionAt1": 0.85,
+      "abstention": 0.95
+    },
+    "changedThresholds": false,
+    "laterPhaseExcluded": [
+      "K5 context/capsule/citations",
+      "K6 passive web",
+      "K7 UX/delegation expansion",
+      "K8 full certification"
+    ]
+  },
+  "applicableDecisions": [
+    "KI-OD-01",
+    "KI-OD-02",
+    "KI-OD-03",
+    "KI-OD-08",
+    "KI-OD-09",
+    "KI-OD-10",
+    "KI-OD-11",
+    "KI-OD-12",
+    "KI-OD-16",
+    "KI-OD-19",
+    "KI-OD-23",
+    "KI-OD-24",
+    "KI-OD-25",
+    "KI-OD-26",
+    "KI-OD-27",
+    "KI-OD-28"
+  ],
+  "inventory": [
+    {
+      "component": "local_cli/core/knowledge.py + knowledge_store.py",
+      "state": "EXISTS",
+      "reuse": "Versioned Source/Revision/Locator/Document/Chunk/errors, host-bound scope and store port; no K4 query/space contracts"
+    },
+    {
+      "component": "local_cli/infrastructure/knowledge_sqlite.py + knowledge_migrations.py",
+      "state": "PARTIAL_FOR_K4",
+      "reuse": "Versioned SQLite/FTS5/projection tables, transaction publication, scope, tombstones, recovery; no retrieval API"
+    },
+    {
+      "component": "local_cli/infrastructure/knowledge_extraction.py",
+      "state": "PARTIAL_NORMATIVE_K3",
+      "reuse": "Document blocks available; block-per-chunk projection not K4 structure-aware chunking; demonstrated PDF defects"
+    },
+    {
+      "component": "local_cli/application/knowledge.py + bootstrap_knowledge.py",
+      "state": "EXISTS",
+      "reuse": "Shared import/publish/promotion coordination and host composition; no query pipeline"
+    },
+    {
+      "component": "local_cli/rag.py + infrastructure/rag.py + application/rag.py",
+      "state": "LEGACY_SEPARATE",
+      "reuse": "Separate compatibility path; vectors cannot be reinterpreted as V1 Source/Revision/DocumentEmbeddingSpace"
+    },
+    {
+      "component": "local_cli/core/context.py",
+      "state": "EXISTS",
+      "reuse": "Core token estimator for future bounded chunking; context admission remains K5"
+    }
+  ],
+  "blocker": {
+    "id": "K4-PREFLIGHT-01",
+    "classification": "HISTORICAL/PREEXISTING",
+    "nature": "DEMONSTRATED_PRODUCT_BUG_IN_EXISTING_K3",
+    "requiredContract": "Real PDF parser, no false READY, page locators reflect source content; §12/§15/§58, KI-INV-014/015 and the locator-bearing input to K4",
+    "observation": "_pdf_blocks uses regex over literal strings, counts /Type /Page substrings (including /Pages), and assigns pages by string ordinal.",
+    "tests": [
+      {
+        "id": "corrupt-header-is-not-pdf-support",
+        "expected": "typed rejection; never READY",
+        "inputSha256": "4cc2d5ce41de8f3bfcbd70999e8b405372474e5b048ee1c64bad451034ad6a69",
+        "inputBytes": 73,
+        "actual": {
+          "status": "READY",
+          "blocks": [
+            {
+              "text": "Synthetic non-document literal",
+              "locator": {
+                "kind": "PDF_PAGE",
+                "coordinates": {
+                  "page": 1
+                },
+                "schemaVersion": 1
+              }
+            }
+          ]
+        },
+        "normativeConforms": false
+      },
+      {
+        "id": "two-page-locator-mapping",
+        "expectedPages": [
+          1,
+          1,
+          2
+        ],
+        "fixturePageCount": 2,
+        "inputSha256": "30eb094dd5a42dd80753d5f25e82403dec30eab4db496814bd42d7ee014ea5ed",
+        "inputBytes": 886,
+        "actual": {
+          "status": "READY",
+          "pages": [
+            1,
+            2,
+            3
+          ],
+          "blocks": [
+            {
+              "text": "Synthetic first-page A",
+              "locator": {
+                "kind": "PDF_PAGE",
+                "coordinates": {
+                  "page": 1
+                },
+                "schemaVersion": 1
+              }
+            },
+            {
+              "text": "Synthetic first-page B",
+              "locator": {
+                "kind": "PDF_PAGE",
+                "coordinates": {
+                  "page": 2
+                },
+                "schemaVersion": 1
+              }
+            },
+            {
+              "text": "Synthetic second-page C",
+              "locator": {
+                "kind": "PDF_PAGE",
+                "coordinates": {
+                  "page": 3
+                },
+                "schemaVersion": 1
+              }
+            }
+          ]
+        },
+        "normativeConforms": false
+      }
+    ],
+    "passed": 0,
+    "failed": 2,
+    "exitCode": 1,
+    "consequence": "K4 cannot treat these input projections as normatively completed extraction. Correcting a PDF parser and K3 contracts is not a minimal K4 retrieval dependency/refactor and needs separate scope authorization.",
+    "notAnArchitectureContradiction": true,
+    "notAThresholdIssue": true,
+    "causedByK4": false
+  },
+  "tests": {
+    "existingKnowledgeBaseline": {
+      "state": "PASS",
+      "passed": 437,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exitCode": 0,
+      "durationSeconds": 23.07,
+      "command": [
+        "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k4-baseline-knowledge-20261007\\pytest-private",
+        "--junitxml",
+        "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k4-baseline-knowledge-20261007\\tests.xml",
+        "tests/knowledge_inputs_v1"
+      ],
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-k4-baseline-knowledge-20261007",
+      "xmlSha256": "a141452043f0954d7212d80d4d761e488e1fcbf68f814d116595c81a76305073"
+    },
+    "independentNativePreflight": {
+      "state": "FAIL",
+      "denominator": 2,
+      "passed": 0,
+      "failed": 2,
+      "fixtureType": "Real synthetic bytes passed to real product extractor; no parser double or model",
+      "command": "& 'C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe' -B 'C:/Users/joseh/AppData/Local/Temp/nova-k4-preflight-20261007/pdf_probe.py'",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-k4-preflight-20261007/pdf_probe_result.json",
+      "startUtc": "2026-10-08T03:36:01.915074+00:00",
+      "endUtc": "2026-10-08T03:36:01.915657+00:00",
+      "exitCode": 1
+    },
+    "priorHead": {
+      "state": "REUSED_VERIFIED",
+      "passed": 4583,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-k3-head-evidence-close-20261007/tests.xml",
+      "xmlSha256": "6a77d15c2d88405d983ac214ffe8b3479e31c3d030daee3f19aef54693b9c2fa",
+      "note": "No new product/test changes. This passing historical regression is not proof of the newly characterized PDF contract."
+    },
+    "k4Quality": {
+      "state": "NOT_EVALUATED",
+      "reason": "Stopped during preflight; no K4 product or dataset changes"
+    },
+    "semanticQuality": {
+      "state": "NOT_EVALUATED",
+      "reason": "Not required to diagnose extraction input contract; no real models called"
+    },
+    "finalHeadRerun": {
+      "state": "NOT_RUN",
+      "reason": "No implementation changes; stop at demonstrated prerequisite failure rather than run an unnecessary post-change campaign"
+    }
+  },
+  "gate": [
+    {
+      "criterion": "structure-aware chunking",
+      "status": "BLOCKED",
+      "evidence": "K4 not implemented; input locators fail preflight"
+    },
+    {
+      "criterion": "exact/FTS5 and metadata filters",
+      "status": "NOT_EVALUATED",
+      "evidence": "FTS storage exists, no K4 retrieval producer/query"
+    },
+    {
+      "criterion": "Core lexical quality/abstention",
+      "status": "NOT_EVALUATED",
+      "evidence": "No ranking/corpus run"
+    },
+    {
+      "criterion": "semantic safe degradation/no mixed spaces",
+      "status": "NOT_EVALUATED",
+      "evidence": "Optional space contracts/fusion not implemented"
+    },
+    {
+      "criterion": "legacy rebuild without vector reinterpretation",
+      "status": "NOT_EVALUATED",
+      "evidence": "Legacy isolated but K4 rebuild not implemented"
+    }
+  ],
+  "preservation": {
+    "existingFilesFrozen": 1745,
+    "productModified": false,
+    "architectureModified": false,
+    "testsModified": false,
+    "previousEvidenceModified": false,
+    "noNewSkips": true,
+    "noNewXfail": true,
+    "noNewExclusions": true,
+    "noConfigurationChange": true,
+    "noModelDownload": true,
+    "noInference": true,
+    "noCommit": true,
+    "noPush": true,
+    "noTag": true
+  },
+  "evidence": {
+    "types": [
+      "code observation",
+      "native Windows/NTFS baseline tests",
+      "controlled synthetic in-memory PDF characterization"
+    ],
+    "artifacts": {
+      "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k4-baseline-knowledge-20261007\\run.json": "c59b65fad249d5b3667157bad8608a322cca8cacb39597426d2a71d29f370142",
+      "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k4-baseline-knowledge-20261007\\run.log": "a13e253a73c2ac368393a2bc665b4cba0ca41c7cc0b702bde440e7a84414aa70",
+      "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k4-baseline-knowledge-20261007\\tests.xml": "a141452043f0954d7212d80d4d761e488e1fcbf68f814d116595c81a76305073",
+      "C:/Users/joseh/AppData/Local/Temp/nova-k4-preflight-20261007/preflight.json": "f00b3d8f24f48cb0f4452b40dfd409826c1c6278a093219653382afce19b9270",
+      "C:/Users/joseh/AppData/Local/Temp/nova-k4-preflight-20261007/pdf_probe.py": "584fb1e56ac24e99158b533bd6a47ffb2cd70a7699b082b2ec670a107d612d62",
+      "C:/Users/joseh/AppData/Local/Temp/nova-k4-preflight-20261007/pdf_probe_result.json": "4699780c555e75282c57e7aae36e1a198ddc7ccceadbcbcb9286b15e844d7f7a"
+    },
+    "firstSandboxProbeAttempt": {
+      "startUtc": "2026-10-08T03:35:33.388571+00:00",
+      "endUtc": "2026-10-08T03:35:33.388963+00:00",
+      "interpreterWarning": "Failed to find real location of C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+      "exitCode": 1,
+      "normativePassed": 0,
+      "normativeFailed": 2,
+      "characterizationCasesSame": true,
+      "outputParserError": "JSON output included interpreter warning prefix; native read-only repetition performed without changing fixtures or assertions",
+      "classification": "ENVIRONMENT/HARNESS output framing, separate from reproduced product defects"
+    }
+  },
+  "filesCreated": [
+    "docs/knowledge_inputs_v1/k4_resultados.md",
+    "docs/knowledge_inputs_v1/k4_manifest.json"
+  ],
+  "productFilesModified": [],
+  "openDecisions": [
+    {
+      "id": "K4-PREFLIGHT-01",
+      "type": "Operational authorization, not a new normative architectural decision",
+      "question": "Authorize a separate K3 repair and validation of the real PDF parser/page mapping before resuming K4?",
+      "recommendation": "Repair/revalidate K3 without changing the approved architecture or weakening K4 gates"
+    }
+  ],
+  "limitations": [
+    "K4 has not been implemented or certified",
+    "Existing green suites do not prove real PDF parsing or page mapping",
+    "No semantic/OCR/platform certification added"
+  ],
+  "nextPhase": "K5 reference only; not implemented; K4 must first be unblocked"
+}

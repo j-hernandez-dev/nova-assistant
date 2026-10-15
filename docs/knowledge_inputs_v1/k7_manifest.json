@@ -1,0 +1,1685 @@
+{
+  "schemaVersion": 1,
+  "phase": "K7",
+  "status": "PASS",
+  "verdict": "K7 PASS",
+  "scope": "Interfaces, subagents y hardening only; no K8/READY",
+  "profile": "Windows 11 + local NTFS + HOST_UNISOLATED",
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "workingTree": [
+      " M desktop/electron/application_client.ts",
+      " M desktop/electron/main.ts",
+      " M desktop/electron/preload.ts",
+      " M desktop/shared/application.ts",
+      " M desktop/src/App.tsx",
+      " M desktop/src/types.ts",
+      " M local_cli/application/commands.py",
+      " M local_cli/application/context.py",
+      " M local_cli/application/network.py",
+      " M local_cli/application/policy.py",
+      " M local_cli/application/providers.py",
+      " M local_cli/application/security_audit.py",
+      " M local_cli/application/session.py",
+      " M local_cli/application/tool_runtime.py",
+      " M local_cli/bootstrap_cli.py",
+      " M local_cli/bootstrap_server.py",
+      " M local_cli/cli.py",
+      " M local_cli/config.py",
+      " M local_cli/core/context.py",
+      " M local_cli/core/network.py",
+      " M local_cli/infrastructure/http_fetch.py",
+      " M local_cli/interfaces/cli_application.py",
+      " M local_cli/interfaces/jsonl_application.py",
+      " M local_cli/server.py",
+      " M pyproject.toml",
+      " M tests/memory_v1/run_m8_qwen4_chat7b.py",
+      " M tests/memory_v1/test_m8_metadata_admission.py",
+      " M tests/memory_v1/test_m8_ps_operational.py",
+      " M tests/memory_v1/test_m8_qwen4_chat7b.py",
+      " M tests/test_nova_core_phase0_characterization.py",
+      " M tests/test_nova_core_phase10_services.py",
+      " M tests/test_nova_core_phase11_characterization.py",
+      "?? desktop/electron/knowledge_control.cjs",
+      "?? desktop/electron/knowledge_control.d.cts",
+      "?? desktop/tests/knowledge_control.test.cjs",
+      "?? docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "?? docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "?? docs/knowledge_inputs_v1/k0_ci_reconciliation.json",
+      "?? docs/knowledge_inputs_v1/k0_corpus_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/memory.txt",
+      "?? docs/knowledge_inputs_v1/k0_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k0_freeze.json",
+      "?? docs/knowledge_inputs_v1/k0_manifest.json",
+      "?? docs/knowledge_inputs_v1/k0_resultados.md",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-authority.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/block-store.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/desktop.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/final_integrity.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/head_final.json",
+      "?? docs/knowledge_inputs_v1/k1_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k1_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k1_freeze.json",
+      "?? docs/knowledge_inputs_v1/k1_manifest.json",
+      "?? docs/knowledge_inputs_v1/k1_resultados.md",
+      "?? docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/compatibility.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/desktop.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-memory.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final-py312.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/final_integrity.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/head_final.txt",
+      "?? docs/knowledge_inputs_v1/k2_evidence/integrity.json",
+      "?? docs/knowledge_inputs_v1/k2_evidence/test_runs.json",
+      "?? docs/knowledge_inputs_v1/k2_freeze.json",
+      "?? docs/knowledge_inputs_v1/k2_manifest.json",
+      "?? docs/knowledge_inputs_v1/k2_preflight.md",
+      "?? docs/knowledge_inputs_v1/k2_product_freeze.json",
+      "?? docs/knowledge_inputs_v1/k2_product_freeze_v2.json",
+      "?? docs/knowledge_inputs_v1/k2_resultados.md",
+      "?? docs/knowledge_inputs_v1/k3_manifest.json",
+      "?? docs/knowledge_inputs_v1/k3_pdf_repair_manifest.json",
+      "?? docs/knowledge_inputs_v1/k3_pdf_repair_resultados.md",
+      "?? docs/knowledge_inputs_v1/k3_resultados.md",
+      "?? docs/knowledge_inputs_v1/k4_manifest.json",
+      "?? docs/knowledge_inputs_v1/k4_resultados.md",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/performance_final.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_evidence/quality_final.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_manifest.json",
+      "?? docs/knowledge_inputs_v1/k4_resume_resultados.md",
+      "?? docs/knowledge_inputs_v1/k5_evidence/budget_matrix.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/closure_freeze.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k5_evidence/persisted_citations.json",
+      "?? docs/knowledge_inputs_v1/k5_manifest.json",
+      "?? docs/knowledge_inputs_v1/k5_resultados.md",
+      "?? docs/knowledge_inputs_v1/k6_evidence/implementation_freeze.json",
+      "?? docs/knowledge_inputs_v1/k6_evidence/protocol_v1.json",
+      "?? docs/knowledge_inputs_v1/k6_manifest.json",
+      "?? docs/knowledge_inputs_v1/k6_resultados.md",
+      "?? local_cli/application/knowledge.py",
+      "?? local_cli/application/knowledge_context.py",
+      "?? local_cli/application/knowledge_host.py",
+      "?? local_cli/application/knowledge_legacy.py",
+      "?? local_cli/application/knowledge_retrieval.py",
+      "?? local_cli/application/knowledge_web.py",
+      "?? local_cli/application/passive_web.py",
+      "?? local_cli/bootstrap_knowledge.py",
+      "?? local_cli/bootstrap_passive_web.py",
+      "?? local_cli/core/attachments.py",
+      "?? local_cli/core/knowledge.py",
+      "?? local_cli/core/knowledge_chunking.py",
+      "?? local_cli/core/knowledge_context.py",
+      "?? local_cli/core/knowledge_legacy.py",
+      "?? local_cli/core/knowledge_retrieval.py",
+      "?? local_cli/core/knowledge_store.py",
+      "?? local_cli/core/passive_web.py",
+      "?? local_cli/infrastructure/knowledge_acquisition.py",
+      "?? local_cli/infrastructure/knowledge_embeddings.py",
+      "?? local_cli/infrastructure/knowledge_extraction.py",
+      "?? local_cli/infrastructure/knowledge_files.py",
+      "?? local_cli/infrastructure/knowledge_migrations.py",
+      "?? local_cli/infrastructure/knowledge_retrieval_sqlite.py",
+      "?? local_cli/infrastructure/knowledge_sqlite.py",
+      "?? local_cli/infrastructure/knowledge_web_extraction.py",
+      "?? local_cli/infrastructure/web_search.py",
+      "?? local_cli/interfaces/knowledge_cli.py",
+      "?? local_cli/tools/web_search_tool.py",
+      "?? tests/knowledge_inputs_v1/__init__.py",
+      "?? tests/knowledge_inputs_v1/fixtures/k4_core_frozen_v1.json",
+      "?? tests/knowledge_inputs_v1/fixtures/k4_protocol_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_corpus_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_docx_payload_v1.json",
+      "?? tests/knowledge_inputs_v1/k0_fixtures.py",
+      "?? tests/knowledge_inputs_v1/k1_helpers.py",
+      "?? tests/knowledge_inputs_v1/k2_helpers.py",
+      "?? tests/knowledge_inputs_v1/k4_helpers.py",
+      "?? tests/knowledge_inputs_v1/pdf_fixtures.py",
+      "?? tests/knowledge_inputs_v1/run_k0.py",
+      "?? tests/knowledge_inputs_v1/run_k2.py",
+      "?? tests/knowledge_inputs_v1/run_k3_pdf_repair.py",
+      "?? tests/knowledge_inputs_v1/run_k4.py",
+      "?? tests/knowledge_inputs_v1/run_k5.py",
+      "?? tests/knowledge_inputs_v1/run_k6.py",
+      "?? tests/knowledge_inputs_v1/run_k6_host.py",
+      "?? tests/knowledge_inputs_v1/test_k0_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k0_corpus.py",
+      "?? tests/knowledge_inputs_v1/test_k1_application.py",
+      "?? tests/knowledge_inputs_v1/test_k1_containment.py",
+      "?? tests/knowledge_inputs_v1/test_k1_recovery.py",
+      "?? tests/knowledge_inputs_v1/test_k1_store.py",
+      "?? tests/knowledge_inputs_v1/test_k2_acquisition.py",
+      "?? tests/knowledge_inputs_v1/test_k2_application.py",
+      "?? tests/knowledge_inputs_v1/test_k2_composition.py",
+      "?? tests/knowledge_inputs_v1/test_k2_contracts.py",
+      "?? tests/knowledge_inputs_v1/test_k2_interfaces.py",
+      "?? tests/knowledge_inputs_v1/test_k3_extraction.py",
+      "?? tests/knowledge_inputs_v1/test_k3_pdf_repair.py",
+      "?? tests/knowledge_inputs_v1/test_k4_chunking.py",
+      "?? tests/knowledge_inputs_v1/test_k4_legacy.py",
+      "?? tests/knowledge_inputs_v1/test_k4_quality.py",
+      "?? tests/knowledge_inputs_v1/test_k4_retrieval.py",
+      "?? tests/knowledge_inputs_v1/test_k4_semantic.py",
+      "?? tests/knowledge_inputs_v1/test_k5_context.py",
+      "?? tests/knowledge_inputs_v1/test_k5_integration.py",
+      "?? tests/knowledge_inputs_v1/test_k6_passive_web.py"
+    ],
+    "versionableFileCount": 1798,
+    "tags": [
+      "nova-core-v1-stable 97f41c6dab89ee59332875bb8d89c29620b52156 158b60effa484cd34a58b991f3ee4ca3f808d924",
+      "nova-memory-v1-ready fa6b2f7898692ddc6cec77a4d971dbc395b764a6 9911ad4ca0fc13edfef49e84441a759d35cbefda",
+      "nova-memory-v1.1-ready 6a48c5252e40986ecf4180138d9d56bc519b3e49 3678d5b597a888b743e90d26efda6219943d58df",
+      "nova-security-v1.2-ready e5bea6a4c2c559a1f5a2f8824316a83b548b2533 26dc87786d8ad1c1d879255a068c7fb50a25e6f2"
+    ],
+    "k6ArtifactsMismatch": [],
+    "python": "CPython 3.14.6 AMD64",
+    "node": "v24.16.0",
+    "volume": "C: NTFS Fixed local"
+  },
+  "architectures": {
+    "docs/architecture/AUDITORIA_SEGURIDAD_NOVA_V1.md": "7ff49506d7077d60a8165badf0ad8ccfe00592eb871439ce0e642122d3e28ee1",
+    "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md": "886a4788d55282aefbbc776344ec507b779519e15ea940dcad62ea24ef57e9cd",
+    "docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888",
+    "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md": "3fb67df88dae2428217e937fc8d890a3bcdf5c80524f16c207a2d8ef8c10cc80",
+    "docs/architecture/historical_deprecated/NOVA_SECURITY_ARQUITECTURA_V1.md": "96924c222e78d8080de03e4c259e1e8ab36e1e15edb749910aad5c2b3abf1975",
+    "docs/architecture/historical_deprecated/INFORME_NOVA_SECURITY_v1_a_v1_1.md": "8c8bb50f3bc12bf1f690c0b6dc647b25cfac1775f9e46de964332001e663fd1c",
+    "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md": "b13814a0f1c99528ab4f4d2f5c874dacdc1017c8f3f13b1053c90c67eb848147",
+    "docs/architecture/historical_deprecated/NOVA_SECURITY_ARQUITECTURA_V1_1.md": "55f5170ef1fbd80188197c11dd2c66bc76c2477f5101fe24a25763f5256ccd11",
+    "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md": "a5711f372cd9ac9bee5ac800e638665e2e06cdb4405974c2cd12c14587715792",
+    "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "docs/architecture/AUDITORIA_ARQUITECTONICA_NOVA_CORE.md": "754205064c543aecf19da1c5162c03d1a8e1e3fbe4f3895262fd3b811b51c213"
+  },
+  "normative": {
+    "phaseSection": "§62",
+    "applicableSections": [
+      "§3",
+      "§6",
+      "§8",
+      "§19",
+      "§25–29",
+      "§32–38",
+      "§40–46",
+      "§53–54"
+    ],
+    "decisions": [
+      "KI-OD-03",
+      "KI-OD-04",
+      "KI-OD-12",
+      "KI-OD-13",
+      "KI-OD-16",
+      "KI-OD-17",
+      "KI-OD-18",
+      "KI-OD-20",
+      "KI-OD-21",
+      "KI-OD-23",
+      "KI-OD-24",
+      "KI-OD-27",
+      "KI-OD-28"
+    ],
+    "precedence": "Core lifecycle/context, SECURITY authority/ToolRuntime/S5/audit, MEMORY domain, then Knowledge; no normative edit or unresolved contradiction."
+  },
+  "inventory": {
+    "existing": [
+      "K1 store/scopes/quotas/recovery",
+      "K2 authenticated host API + picker/CLI/JSONL",
+      "K3 real extractors/PDF repair",
+      "K4 FTS/chunking and semantic fallback",
+      "K5 caps/citations/remote default deny",
+      "K6 passive search and URL snapshot/refresh"
+    ],
+    "gapsImplemented": [
+      "Versioned Source inspection DTOs/detail",
+      "CLI/JSONL controls + minimal Desktop status/detail/refresh/export/consent/citations",
+      "Delegated document evidence with bounded callback",
+      "Mutable trusted SourceRemotePolicy",
+      "Capacity diagnostics/observability/adversarial coverage"
+    ],
+    "legacy": "Legacy notes/vectors/Memory/audit/transcripts remain independent. No direct vector migration; no reopening metadata paths."
+  },
+  "changes": {
+    "changed": [
+      "local_cli/sub_agent.py",
+      "tests/memory_v1/test_m8_ps_operational.py",
+      "desktop/electron/preload.ts",
+      "desktop/electron/knowledge_control.d.cts",
+      "local_cli/interfaces/knowledge_cli.py",
+      "desktop/src/components/MessageBlock.tsx",
+      "local_cli/application/knowledge.py",
+      "local_cli/application/knowledge_host.py",
+      "local_cli/application/session.py",
+      "desktop/electron/application_client.ts",
+      "desktop/src/types.ts",
+      "local_cli/bootstrap_knowledge.py",
+      "desktop/shared/application.ts",
+      "desktop/electron/main.ts",
+      "local_cli/infrastructure/knowledge_sqlite.py",
+      "desktop/src/App.tsx",
+      "local_cli/application/knowledge_web.py",
+      "desktop/electron/knowledge_control.cjs",
+      "local_cli/application/knowledge_context.py"
+    ],
+    "added": [
+      "tests/knowledge_inputs_v1/test_k7_children.py",
+      "local_cli/application/knowledge_children.py",
+      "local_cli/infrastructure/knowledge_export.py",
+      "local_cli/core/knowledge_views.py",
+      "tests/knowledge_inputs_v1/run_k7.py",
+      "desktop/tests/knowledge_k7.test.cjs",
+      "local_cli/core/knowledge_delegation.py",
+      "tests/knowledge_inputs_v1/run_k7_desktop.py",
+      "tests/knowledge_inputs_v1/test_k7_host.py"
+    ],
+    "evidenceAdded": [
+      "docs/knowledge_inputs_v1/k7_evidence/implementation_freeze.json",
+      "docs/knowledge_inputs_v1/k7_evidence/closure_freeze.json",
+      "docs/knowledge_inputs_v1/k7_evidence/final_freeze.json",
+      "docs/knowledge_inputs_v1/k7_resultados.md",
+      "docs/knowledge_inputs_v1/k7_manifest.json"
+    ]
+  },
+  "contracts": {
+    "newCore": [
+      "SourceSummary/SourceDetail schema 1",
+      "KnowledgeInspectionPort separate additive port",
+      "DelegatedKnowledgeCapsule schema 1"
+    ],
+    "hostActions": [
+      "source_detail (+ optional revisionId)",
+      "source_refresh (fresh selected path)",
+      "source_export (fresh selected destination)",
+      "source_remote (explicit bool consent)"
+    ],
+    "coreCommands": "StartSubAgent optional knowledgeCitationIds restricts to parent-admitted IDs; existing agent tool schema unchanged.",
+    "privacy": "Source remotePolicy persisted through validated Source row only; no grants, search/MEMORY opt-in or global config change.",
+    "sqliteSchemaChanged": false,
+    "migrations": [],
+    "dependenciesChanged": false,
+    "contextCapsChanged": false,
+    "privateGuard": "_context_knowledge_guard marks Application-owned guard only; Core strips private metadata. Literal user/system text never selects cleanup.",
+    "subagent": "Parent-admitted data refs, revisions and token budget; no corpus port; stable child admission may only shrink. Existing ToolRuntime/security ceiling still governs child acquisitions.",
+    "export": "Explicit host-selected exclusive local file, bounded units/fsync; no overwrite/managed-root target, partial failure OUTCOME_UNKNOWN/no fictitious rollback; no S3/process confinement claim.",
+    "quotaAccounting": "Existing acquired body bytes + staged pending bytes; index/metadata/DB/WAL excluded. Operational soft limits, not OS/physical-footprint quota.",
+    "refresh": "Fresh host selection read once; byte digest + MIME/extractor/extracted digest/completeness comparison; unchanged or immutable new revision, correlated refresh event; no origin reopen."
+  },
+  "gate": [
+    {
+      "criterion": "source list/status/detail DTOs (§62,§§6,19,29,45)",
+      "status": "PASS",
+      "evidence": "Core SourceSummary/Detail version 1 + separate inspection port; scope-bound metadata only, bounded 20 revisions or exact revision ID; history/deleted/source mismatch contracts."
+    },
+    {
+      "criterion": "CLI/JSONL parity (§62/33)",
+      "status": "PASS",
+      "evidence": "Authenticated KnowledgeCommand same Application; detail/status/refresh/export/remote actions, exact HMAC, no second Turn, path/metadata/actor adversarial contracts."
+    },
+    {
+      "criterion": "Desktop mínimo (§62/33/40)",
+      "status": "PASS",
+      "evidence": "68 Node contracts + real React rendering + TypeScript/frontend build. Main-owned refresh/export picker and remote native-consent seam (dialog double); data projections only, no renderer DB/parser/grants."
+    },
+    {
+      "criterion": "delegated knowledge capsule (§62/35)",
+      "status": "PASS",
+      "evidence": "Parent-admitted refs/revisions/token budget only; no store/retriever exposed to child; scope/eligibility/forwarding shrink-only per Generation; real SubAgent/coordinator + scripted provider; shared caps 4K–64K and truthful zero admission."
+    },
+    {
+      "criterion": "privacy/remote forwarding (§62/38)",
+      "status": "PASS",
+      "evidence": "Default off, trusted host policy setter; human native confirmation with frozen/stale fields; revoke revalidated between remote Generations. Search and MEMORY consent remain independent. Metadata inspection omits body/fingerprint."
+    },
+    {
+      "criterion": "quotas/observability (§62/41/42/46)",
+      "status": "PASS",
+      "evidence": "Existing 256MiB session/2GiB workspace/2000 sources/100k chunks, no OS quota claim. Stable raw-body+pending accounting; typed rejection/usage state/capacity.hit, export/delete preserved. Counts/types/timings only, no full docs."
+    },
+    {
+      "criterion": "adversarial tests (§62/53)",
+      "status": "PASS",
+      "evidence": "Wrong scope/forged paths/actor/citation refs, metadata-only reads, guard-literal user/system preservation, consent races/prototype keys, no overwrite/managed export, stale/deleted/no refill/no auto-MEMORY."
+    },
+    {
+      "criterion": "cierre no business logic renderer",
+      "status": "PASS",
+      "evidence": "Backend owns extraction/store/scopes/metadata/policy/lifecycle. Main owns user selections/dialogs; React displays DTOs and dispatches controls only."
+    },
+    {
+      "criterion": "cierre no child global access",
+      "status": "PASS",
+      "evidence": "Bound callback over ≤10 parent-admitted rows, no new global query/catalog/blob reads, existing ToolRuntime/ceiling inheritance for acquisitions; unknown/unadmitted IDs denied."
+    },
+    {
+      "criterion": "cierre capacity states honestos",
+      "status": "PASS",
+      "evidence": "Full state derived from counts/bytes; oversized request can be denied while stable state is still AVAILABLE. No purge; existing content export/delete remain."
+    },
+    {
+      "criterion": "regresión Core/Security/Memory/HEAD",
+      "status": "PASS",
+      "evidence": "671 Knowledge, 37 K7, 791 MEMORY, 401 Core/S5/subagents, 26 PDF, 68 Desktop + TypeScript/frontend. HEAD 4818 PASS + 53 subtests, 0 FAIL/ERROR, same11 historical skips and12 excludes."
+    }
+  ],
+  "tests": [
+    {
+      "name": "baseline-boundaries",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\baseline-boundaries",
+      "run": {
+        "mode": "boundaries",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\baseline-boundaries\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\baseline-boundaries\\tests.xml",
+          "tests/test_nova_core_phase14_architecture.py",
+          "tests/test_nova_core_phase9_context.py",
+          "tests/test_nova_core_phase9_integration.py",
+          "tests/test_context_64k.py",
+          "tests/test_nova_core_phase10_rag.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 131,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "4.442",
+      "timestamp": "2026-10-08T02:11:53.861553-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "5c3944319fcf20c31d010a61f695689f893d4a63087213946fd2a49df1020b97",
+        "run.json": "d4f8d837832fc58f6f223d42c570208fd86af3a2f21d56e09e511471bbf4d5f1",
+        "tests.xml": "4e445beca64a5037d1e29f16e0ae37f74d82cc0e453768375833fc69553c927a"
+      },
+      "passed": 131
+    },
+    {
+      "name": "baseline-knowledge",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\baseline-knowledge",
+      "run": {
+        "mode": "contracts",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\baseline-knowledge\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\baseline-knowledge\\tests.xml",
+          "tests/knowledge_inputs_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 634,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "64.870",
+      "timestamp": "2026-10-08T02:07:53.483828-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "3d87542fe1736efa00329225d85177e69dcd0f9792a9aef744b387680ca5f368",
+        "run.json": "2c944a39e478d6fe2122c420dd2c3ecadf3f20ecd01aefa0685fc519a75a9a5f",
+        "tests.xml": "a2f3656b999da8097ed5559c75336bd8473787a28aa8a28995650c7a08a5d1a9"
+      },
+      "passed": 634
+    },
+    {
+      "name": "block1",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block1",
+      "run": {
+        "mode": "k7",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block1\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block1\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py",
+          "tests/knowledge_inputs_v1/test_k7_children.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 8,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "5.666",
+      "timestamp": "2026-10-08T02:15:41.771485-06:00",
+      "failures": [
+        "tests.knowledge_inputs_v1.test_k7_host::test_capacity_state_rejects_new_import_but_export_and_delete_remain[workspace_bytes-35]"
+      ],
+      "artifacts": {
+        "run.log": "21a3a9999494f0612fd5fce17f65439798b9745b57386ef03dff2698bcccb17f",
+        "run.json": "6258e9086d08ca61bc61ebbeb3b92e5dcc688ac7c92b62b9e8d32cda236d86d8",
+        "tests.xml": "bd1bb71fbd0b891bb703a1d66f8cc6c01e4394597eff50e10594b43cc1989424"
+      },
+      "passed": 7
+    },
+    {
+      "name": "block2",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block2",
+      "run": {
+        "mode": "k7",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block2\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block2\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py",
+          "tests/knowledge_inputs_v1/test_k7_children.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 15,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "9.419",
+      "timestamp": "2026-10-08T02:21:22.616878-06:00",
+      "failures": [
+        "tests.knowledge_inputs_v1.test_k7_host::test_capacity_state_rejects_new_import_but_export_and_delete_remain[workspace_bytes-35]"
+      ],
+      "artifacts": {
+        "run.log": "eb751c5b60d2e85ec4290e6a4a59b461e599361ad24cd2c194e671ff0a5ae492",
+        "run.json": "8eb66b5833797683b5dd0586529799b8011c9fec9026a6e8782c93998282bf6f",
+        "tests.xml": "ac96d81adbad449b323626d47ed9c23e1c6c853280e5fe4dc72e2147ef3228cd"
+      },
+      "passed": 14
+    },
+    {
+      "name": "block3",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block3",
+      "run": {
+        "mode": "k7",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block3\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block3\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py",
+          "tests/knowledge_inputs_v1/test_k7_children.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 15,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "9.196",
+      "timestamp": "2026-10-08T02:24:03.771672-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "48a2514a426f77a51eb5eda525111b18f8d9d7e4e7ba1ba51abe1fbae6a5d178",
+        "run.json": "7e19dca1d4df8b5d34506c9c591fb794785a3a71183b6482e1b14a322f42bb0a",
+        "tests.xml": "e10590ad1e384fba02b5cd57053176a925751e83f9ac3da71329324be6c98da1"
+      },
+      "passed": 15
+    },
+    {
+      "name": "block4",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block4",
+      "run": {
+        "mode": "k7",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block4\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block4\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py",
+          "tests/knowledge_inputs_v1/test_k7_children.py"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 31,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "22.402",
+      "timestamp": "2026-10-08T02:29:15.938678-06:00",
+      "failures": [
+        "tests.knowledge_inputs_v1.test_k7_host::test_url_body_above_1mib_uses_bounded_staging_units_no_s5_limit_relaxation",
+        "tests.knowledge_inputs_v1.test_k7_children::test_real_subagent_loop_with_memory_and_knowledge_callbacks_not_scripted_quality[4096]"
+      ],
+      "artifacts": {
+        "run.log": "a4e1b641e5f48f22df345cccd680b1f3e72e4ca88c351a7aa314e2aaa6f7dc00",
+        "run.json": "e32dc8fa1615edfbcd997aea45cd0f94938a38f61c35426d10f644baaf505404",
+        "tests.xml": "fbbdf7021532e2caf0549f7afaae25934a42a94d43b6c8ccc046e54d3b665a86"
+      },
+      "passed": 29
+    },
+    {
+      "name": "block4-corrected",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block4-corrected",
+      "run": {
+        "mode": "k7",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block4-corrected\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block4-corrected\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py",
+          "tests/knowledge_inputs_v1/test_k7_children.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 31,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "31.714",
+      "timestamp": "2026-10-08T02:33:21.240246-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "a8f919c4ad981819bb070668f36c4402fd07614d9a843a53609b4843dd839aac",
+        "run.json": "ea5540d594b00021e9c4a4bc33d274a7e3a774b3e37ba61abd7b9eb4983c1fd1",
+        "tests.xml": "3d777ab7824953c5a11b11c39b9c9a338b0d6b61d3a1e81f55bb5282172527ae"
+      },
+      "passed": 31
+    },
+    {
+      "name": "block5-retry",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block5-retry",
+      "run": {
+        "mode": "k7",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block5-retry\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block5-retry\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py",
+          "tests/knowledge_inputs_v1/test_k7_children.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 32,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "33.160",
+      "timestamp": "2026-10-08T02:41:49.468367-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "9502f6a918e3986f0d16249a9593db764b8c7e3990119bfed66708976f64652b",
+        "run.json": "ec0ed386f3ebbcf1342dc115194f2dbdaa951657eeeffe57b96ea560097e2fdc",
+        "tests.xml": "083b90ccab9ca6b12cd39b0c5f8e1f3beed5d89b47e1a2a0dea8a770a8b73de1"
+      },
+      "passed": 32
+    },
+    {
+      "name": "block6",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block6",
+      "run": {
+        "mode": "k7",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block6\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\block6\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py",
+          "tests/knowledge_inputs_v1/test_k7_children.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 35,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "34.505",
+      "timestamp": "2026-10-08T02:45:25.329795-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "4407129a6ad13c7bc12b4626b1c5197f74214961fa7f9be095356916782c51bb",
+        "run.json": "a55c9a7f8b1c2cfc5de2c126c2fc1deb8fa303705ddbbfa56719f9fa80aec087",
+        "tests.xml": "31fe3b010be71b192ec3c3aa9de432e33b46db092258d401dfb4f9a1bd83423f"
+      },
+      "passed": 35
+    },
+    {
+      "name": "core-security-subagents-closure",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\core-security-subagents-closure",
+      "run": {
+        "mode": "boundaries",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\core-security-subagents-closure\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\core-security-subagents-closure\\tests.xml",
+          "tests/test_nova_core_phase14_architecture.py",
+          "tests/test_nova_core_phase9_context.py",
+          "tests/test_nova_core_phase9_integration.py",
+          "tests/test_context_64k.py",
+          "tests/test_nova_core_phase10_rag.py",
+          "tests/test_sub_agent.py",
+          "tests/test_nova_core_phase7_subagent.py",
+          "tests/security_v12/test_s5_contracts.py",
+          "tests/security_v12/test_s5_runtime.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 401,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "29.694",
+      "timestamp": "2026-10-08T03:03:41.123973-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "63de8e5bc3a2b4279dc309e546028a74f2add0933bbaae738d7acfe58904c0aa",
+        "run.json": "c742f1a863705268126f141c67bfadee7e166fb561b29b169f62a7237dc99571",
+        "tests.xml": "11218f88be0e83b24f9a830f2edb00e38330b223670ed21bdce3b37c3988b070"
+      },
+      "passed": 401
+    },
+    {
+      "name": "core-security-subagents-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\core-security-subagents-final",
+      "run": {
+        "mode": "boundaries",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\core-security-subagents-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\core-security-subagents-final\\tests.xml",
+          "tests/test_nova_core_phase14_architecture.py",
+          "tests/test_nova_core_phase9_context.py",
+          "tests/test_nova_core_phase9_integration.py",
+          "tests/test_context_64k.py",
+          "tests/test_nova_core_phase10_rag.py",
+          "tests/test_sub_agent.py",
+          "tests/test_nova_core_phase7_subagent.py",
+          "tests/security_v12/test_s5_contracts.py",
+          "tests/security_v12/test_s5_runtime.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 401,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "28.299",
+      "timestamp": "2026-10-08T02:53:51.648205-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "27115a4c9fba71375e683d0deffab328b62d3637ccafa708dfee06a759552cf6",
+        "run.json": "eadee7bab7f3beecb0f65e2eff468f752319f2a64960250c8ec647147f5ca0b8",
+        "tests.xml": "acc7641061cbea7033d028d5a046e132afd76b05012c054a20629dd1f09600f4"
+      },
+      "passed": 401
+    },
+    {
+      "name": "focused-closure",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\focused-closure",
+      "run": {
+        "mode": "k7",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\focused-closure\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\focused-closure\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py",
+          "tests/knowledge_inputs_v1/test_k7_children.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 37,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "38.120",
+      "timestamp": "2026-10-08T03:02:57.874393-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "f0d0c36c06afc76b0eba02083571731e2d96911e10ec39b26f709fae66f3bf9a",
+        "run.json": "5d89304ebc2f59b9f2fe10b8a50f884f8ab9a6ea07b4b00b8f6309efa12ff8ec",
+        "tests.xml": "21d9acec9327de04c74ac4fc3586cf26172185561af0335b91a9c89f857b43e7"
+      },
+      "passed": 37
+    },
+    {
+      "name": "focused-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\focused-final",
+      "run": {
+        "mode": "k7",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\focused-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\focused-final\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py",
+          "tests/knowledge_inputs_v1/test_k7_children.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 36,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "36.524",
+      "timestamp": "2026-10-08T02:49:43.983446-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "641f641eb19b8f2c92ff4136ddf251f8860a4a54135c806818abfc8413b0e5c3",
+        "run.json": "6fcabd5eb3cb7bde9f8c140caa0b5d0b2c8eb2ab5aeadccc4f7f11ac21e15191",
+        "tests.xml": "b67a32315bfcb86f1617885312ca06a75436edf1fc4b4e1aa9f50085dd02eba1"
+      },
+      "passed": 36
+    },
+    {
+      "name": "historical-harness-check",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\historical-harness-check",
+      "run": {
+        "mode": "ci-harness",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\historical-harness-check\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\historical-harness-check\\tests.xml",
+          "tests/memory_v1/test_m8_ps_operational.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 7,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "0.237",
+      "timestamp": "2026-10-08T02:56:26.539568-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "329ed2185adaf9c8b092dca263076f89d828287b0e5bc184384ff91deef7423a",
+        "run.json": "77a02c2ee1b2b98a544aba146274802e8272aa4c872a602f9e49dd074344d13e",
+        "tests.xml": "43bcad9396c9ff88f28f4332a7609e3a808e86062ea8c6fa6a847174113d3d53"
+      },
+      "passed": 7
+    },
+    {
+      "name": "knowledge-closure",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\knowledge-closure",
+      "run": {
+        "mode": "contracts",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\knowledge-closure\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\knowledge-closure\\tests.xml",
+          "tests/knowledge_inputs_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 671,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "121.919",
+      "timestamp": "2026-10-08T03:03:10.639673-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "108af7cfcc5c05c0cad1c54739e37ceb6ecc891ba2ea685f7bbd2c380ec9f783",
+        "run.json": "723e8c2a938a8dd4615977b8a3d2e6250a0dd181b240e31de258185ef2e128e5",
+        "tests.xml": "46113571c4bbd338e9379fd5473488219925f974748afcc77bff550c175c55bf"
+      },
+      "passed": 671
+    },
+    {
+      "name": "knowledge-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\knowledge-final",
+      "run": {
+        "mode": "contracts",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\knowledge-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\knowledge-final\\tests.xml",
+          "tests/knowledge_inputs_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 670,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "107.014",
+      "timestamp": "2026-10-08T02:49:58.399428-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "ee91a203abcb568956ee8592a1b4e6328a3e36cb9a9de3884bf61c92cb94994f",
+        "run.json": "f132c21927e91623a38fd88f116b861f07e2925331d9f1ff03d231e4bf5eabbf",
+        "tests.xml": "90c2339b92122c86c657f85b0a95ca14c95b69a16c6b9796d6d85cd35ae13ebf"
+      },
+      "passed": 670
+    },
+    {
+      "name": "memory-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\memory-final",
+      "run": {
+        "mode": "m0",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\memory-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\memory-final\\tests.xml",
+          "tests/memory_v1"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 790,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "65.452",
+      "timestamp": "2026-10-08T02:52:25.111969-06:00",
+      "failures": [
+        "tests.memory_v1.test_m8_ps_operational::test_historical_guard_preserves_product_and_only_explicit_qwen_and_k0_harness_deltas"
+      ],
+      "artifacts": {
+        "run.log": "bc89d48714bfe6e0675e0ecdb7b751fe56cdd6d9a0acbfbba5304cdcc1e1bd4e",
+        "run.json": "eca21d50ef0d92084a093818d3bd389b9de67e4ed983300541deb9c7f2972d4d",
+        "tests.xml": "5aa01f70f99433367b3e24cb95d4aa6187f43d0c501fb1a0b3d480f9d614565f"
+      },
+      "passed": 789
+    },
+    {
+      "name": "memory-final-reconciled",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\memory-final-reconciled",
+      "run": {
+        "mode": "m0",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\memory-final-reconciled\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\memory-final-reconciled\\tests.xml",
+          "tests/memory_v1"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 791,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "62.840",
+      "timestamp": "2026-10-08T02:57:20.923929-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "d9a76c813cb9cda6a205977eaf70bc8383da1ad6482c150b42149bf5aad794bd",
+        "run.json": "a1e36c5b064f24af634a14189f6642b9485ffa56f0f0d3322d4fa15dcc0d9006",
+        "tests.xml": "ed755a070636a829db52c2ab8496e13da742591ea86a1a40deb383b5cb567433"
+      },
+      "passed": 791
+    },
+    {
+      "name": "pdf-final",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\pdf-final",
+      "run": {
+        "mode": "pdf",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\pdf-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\pdf-final\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k3_pdf_repair.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 26,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "3.390",
+      "timestamp": "2026-10-08T02:54:05.311420-06:00",
+      "failures": [],
+      "artifacts": {
+        "run.log": "5f188ef06470789b9aa3d3516b68b02b36724db711fb433ada44f83c1710c97a",
+        "run.json": "419d52926d11ecf5c4eaeabe3f1035319efbe7b456351e1deb0234d59090035b",
+        "tests.xml": "f61463d8392823191fae7e8e9effb412959eae5dc4169342999fa9d0f35ef48c"
+      },
+      "passed": 26
+    },
+    {
+      "name": "refresh-contract-before",
+      "root": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\refresh-contract-before",
+      "run": {
+        "mode": "ci-harness",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\refresh-contract-before\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\refresh-contract-before\\tests.xml",
+          "tests/knowledge_inputs_v1/test_k7_host.py::test_local_refresh_same_content_is_unchanged_with_refresh_event"
+        ],
+        "exitCode": 1,
+        "privateState": true,
+        "externalInference": false
+      },
+      "count": 1,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "duration": "1.301",
+      "timestamp": "2026-10-08T03:01:30.369454-06:00",
+      "failures": [
+        "tests.knowledge_inputs_v1.test_k7_host::test_local_refresh_same_content_is_unchanged_with_refresh_event"
+      ],
+      "artifacts": {
+        "run.log": "6719dbf91297b820a3a54660ab58da8bc9e1a4ddc6ae8a2a821cc7fbf906e2da",
+        "run.json": "4313609cacea2cf34eced7e936a4126d187158d1673ef90d1b55c34a4ce9507c",
+        "tests.xml": "2eae32c1d6caed55776ed9bd40335c1f8a7ad536a7f96a88e640af6b0bc1f629"
+      },
+      "passed": 0
+    }
+  ],
+  "head": {
+    "duration": "413.165",
+    "artifacts": {
+      "tests.xml": "930d17dbebbc494b416b2327331603a5e5546c8d8cfc10b3e49912eb9338f119",
+      "run.json": "12c1b0f208a1dc8d6485525664ddf3a4706c0173ddbc3c69c9a058090a55cf1e",
+      "run.log": "7f13ab3ed3cf84024d7e62ee9fc5b66e24ebed80c8684ecd87a4e643513ed2c8"
+    },
+    "skips": [
+      "::tests.test_model_selector",
+      "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+      "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+      "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+      "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+      "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+      "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+      "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+      "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+      "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent"
+    ],
+    "headerTests": "4882",
+    "errors": 0,
+    "endUtc": "2026-10-08T09:11:34.7409306Z",
+    "skipped": 11,
+    "run": {
+      "mode": "head",
+      "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "command": [
+        "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\head-final\\pytest-private",
+        "--junitxml",
+        "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k7-20261008\\head-final\\tests.xml",
+        "tests",
+        "--ignore=tests/security_v12/test_s0_frontends.py",
+        "--ignore=tests/security_v12/test_s0_process.py",
+        "--ignore=tests/security_v12/test_s0_surfaces.py",
+        "--ignore=tests/security_v12/test_s3_windows.py",
+        "--ignore=tests/security_v12/test_s4_host.py",
+        "--ignore=tests/security_v12/test_s5_network.py",
+        "--ignore=tests/security_v12/test_s6_host.py",
+        "--ignore=tests/security_v12/test_s8_host.py",
+        "--ignore=tests/security_v12/test_s8_e2e.py",
+        "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+        "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+        "--ignore=tests/test_security_gates.py"
+      ],
+      "exitCode": 0,
+      "privateState": true,
+      "externalInference": false
+    },
+    "exclusionsUnchanged": true,
+    "failed": 0,
+    "skipDifference": [],
+    "count": 4829,
+    "timestamp": "2026-10-08T03:04:40.246886-06:00",
+    "root": "C:/Users/joseh/AppData/Local/Temp/nova-k7-20261008/head-final",
+    "passed": 4818,
+    "subtestsPassed": 53,
+    "startRecordedUtc": "2026-10-08 09:04:35 UTC"
+  },
+  "historicalIntegrity": {
+    "protectedHashes": {
+      "docs/architecture/AUDITORIA_SEGURIDAD_NOVA_V1.md": "7ff49506d7077d60a8165badf0ad8ccfe00592eb871439ce0e642122d3e28ee1",
+      "docs/knowledge_inputs_v1/k2_evidence/compatibility.txt": "c49ce51e239ed8eb7f5f87ce2e404d344ef57dcccca09e6888382253ea7fd233",
+      "docs/knowledge_inputs_v1/k0_evidence/test_runs.json": "800de80c1ae4516b74ba820a595813f0257f1b373901091ad7634e6fedac4a05",
+      "docs/knowledge_inputs_v1/k1_evidence/head_final.txt": "d621323c8a6a9ed357c21047189ca0053248ebd4a9d3f231b4362909b8d3d438",
+      "docs/knowledge_inputs_v1/k1_evidence/final-contracts-py312.txt": "f012c7f0dbdf615b028b0f2a249c0dea58871ef19a8a9424b081153aa5d2e247",
+      "docs/knowledge_inputs_v1/k3_resultados.md": "1974132a506faf034ad93b4f45f9f993b72e4e2438f3a740412eee774f5777cd",
+      "docs/knowledge_inputs_v1/k1_evidence/head_final.json": "eb228e19bac8597fdec5aaf7e26f6e9524f8e68cf34f4987b9062741bd714eb0",
+      "docs/knowledge_inputs_v1/k5_evidence/closure_freeze.json": "83a40d3ec0536c8f1ab0853c7c8b878b20103f08ce2715c9a399295ef8a000a6",
+      "docs/knowledge_inputs_v1/k6_evidence/implementation_freeze.json": "4e53b0ee4281db2d1f4dbbdbb8049a348e9f125c344e8da09b357de07db3521a",
+      "docs/knowledge_inputs_v1/k1_evidence/baseline-boundaries.txt": "5c1a9e72b9a33d76e2cadb28d33beb9207b5aff98992e0ab3025157ccd39eead",
+      "docs/knowledge_inputs_v1/k2_evidence/block2_failure.txt": "d44be98e76bd517342a5c594d96e2efe0744f6e7578a24a3f57595c40e15e6aa",
+      "docs/knowledge_inputs_v1/k2_evidence/final-boundaries.txt": "a7e504c829d40041874cc540910eb668678d6ae2ad58060bc0be41ba6dbc3443",
+      "docs/knowledge_inputs_v1/k2_product_freeze.json": "1ffe4d67d9a21a553406759fd8d21830550a7931efc4cb903698521fa4d21d91",
+      "docs/knowledge_inputs_v1/k6_evidence/protocol_v1.json": "1771c8df533814275caba408e6275158413aa3c30ad793e99a959e57386babc1",
+      "docs/security_v12/nova_security_v12_ready_manifest.json": "4240fb8f5774159f58e3644048b016772547af2d268a42bf7deb6bef4393b08c",
+      "docs/knowledge_inputs_v1/k2_evidence/final_integrity.json": "9b33d7e9116c067621d83e7d8d65b31f352d2eaae31b93bd11bedef05679aca6",
+      "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md": "886a4788d55282aefbbc776344ec507b779519e15ea940dcad62ea24ef57e9cd",
+      "docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md": "16671029e7584a37f0609b60825e7f7b3bd28d5cc0c421ba0c5bfe45f25b9888",
+      "docs/knowledge_inputs_v1/k4_resume_resultados.md": "485b44cd03600187bef84d93f52d3f2ab43c8699545b99b24541ccf831b9226c",
+      "docs/knowledge_inputs_v1/k1_evidence/block-recovery.txt": "3634e1d2f54b6788f93927c5c8d4107f6c76b512386ab8cb42fb1e524d2429dd",
+      "docs/knowledge_inputs_v1/k0_evidence/head_first_failure.txt": "3716cade30ce772d8a406840a24d78d7eaf990e2c60c0dc0ea077b2377efe3bd",
+      "docs/knowledge_inputs_v1/k4_resume_manifest.json": "a6526d79d6c972a13c9c5e46a4d2e6e9ffb951865b65404620317a8a34908d33",
+      "docs/knowledge_inputs_v1/k5_evidence/implementation_freeze.json": "8d6a75910751c737a7d34f98fabfffbb3d8c6402feafbfc610601c2a50a30314",
+      "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py312.txt": "2a2a3ea671dc9e87e084f7ab118c3ab65aa9de8f184758adc674415cf263a79e",
+      "docs/knowledge_inputs_v1/k0_evidence/baseline_head.txt": "7a288bf7b5da69cce83733072812cbc72853ea85be5ca29183d5ebc6fa1363a4",
+      "docs/knowledge_inputs_v1/k2_evidence/baseline-boundaries.txt": "6faa80fd68d3b8868444ed4cad89c34fc8c8387c76b1f59c058926b0ccd2fa7d",
+      "docs/knowledge_inputs_v1/k1_evidence/baseline-memory.txt": "3f47d282ae9aae08fbf67b2752e15015e78b4b7d22d36a425d6f8827b38b56db",
+      "docs/knowledge_inputs_v1/k1_evidence/test_runs.json": "fc84635e87c1c7357a0f07827c1ffe888e6719accfd2be34077460f0075192d6",
+      "docs/knowledge_inputs_v1/k2_evidence/test_runs.json": "e6f18208b87d389c0e2f0a0b404772fdc577ca1dbfd7154d52aca84a4f30ca49",
+      "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md": "3fb67df88dae2428217e937fc8d890a3bcdf5c80524f16c207a2d8ef8c10cc80",
+      "docs/knowledge_inputs_v1/k2_evidence/desktop.json": "c474220fffa54d3be30cbdc290009be76cae545835135ea50c9f3ea92889eab9",
+      "docs/knowledge_inputs_v1/k1_evidence/final_integrity.json": "8d2ad75c33c13164cec67bc708e13be4d4167c8761bb2bba884083091b3fc863",
+      "docs/knowledge_inputs_v1/k2_evidence/final-knowledge-v3.txt": "57c83140a6026933cd55f4f2ae833cf43c9209d7734ec3917283ed0488c7dab0",
+      "docs/knowledge_inputs_v1/k2_evidence/block1_failure.txt": "2031951d63b4e67af74f6defa4dbb5324aa098fce4ab0756db43dab7bbeba154",
+      "docs/architecture/historical_deprecated/NOVA_SECURITY_ARQUITECTURA_V1.md": "96924c222e78d8080de03e4c259e1e8ab36e1e15edb749910aad5c2b3abf1975",
+      "docs/memory_v1/memory_v1_ready_manifest.json": "ff1185bab2c45d0f1e33e67a80997e20d0281792dc01684fdf3214cc9a6e4c3c",
+      "docs/knowledge_inputs_v1/k4_resume_evidence/performance_final.json": "0821b78a5d9cc543f1d624aa25980f8115240aef92c78b099edb13d19cc30bd5",
+      "docs/memory_v1/m8_ps_evidence/implementation_freeze.json": "722a31b1fd2db2fd66440e09e9bfccdd6b872546815b46559a715325cc2bb518",
+      "docs/knowledge_inputs_v1/k2_resultados.md": "a7e0d54a96ea392b4cc4f866bed984e7fbaf69e77f42d9a5d902b16fbfd87b6e",
+      "docs/knowledge_inputs_v1/k0_manifest.json": "60e419b2b453f36fe251cfee64803848cb8d38780a1a8df624e7ec1b1c718dfe",
+      "docs/knowledge_inputs_v1/k5_evidence/persisted_citations.json": "e700c3a1cefbb506421de2d431d514ed99fe159e216e691e13539f1d0464e224",
+      "docs/knowledge_inputs_v1/k0_evidence/memory.txt": "f87c498417ce4b02a57a10fec6baa83861092bf8ae4f6be2de4a86fcb798f9ce",
+      "tests/knowledge_inputs_v1/fixtures/k4_protocol_v1.json": "31045a14ae3a50a3cbd4d4990c9fb6966394597748437758b108ac7bc6aa0586",
+      "docs/knowledge_inputs_v1/k0_evidence/contracts.txt": "c71e1f17301a494fd69526599f0fd1b9c15d1596efb427ad7bdff5c25a0ef1ec",
+      "docs/knowledge_inputs_v1/k2_evidence/head_final.txt": "3693c593627335e91b12d443dff57ad9a705cca7339441e6848dde123ed9ec3a",
+      "docs/knowledge_inputs_v1/k0_ci_reconciliation.json": "ce6eec19976d6e7bc173e459a347356943b413781338ace46ce8be96bdeb9e5b",
+      "docs/knowledge_inputs_v1/k0_evidence/head_final.txt": "c49ee19a526eb2b0f4d81059d0f9bab357f0e0dcfa68241d2e00fa467c4e5bc0",
+      "docs/knowledge_inputs_v1/k3_manifest.json": "1e9ba6554cdfff4c2c3e2d4bea00df2b475c1affebd2298df0f38315e2d70911",
+      "docs/knowledge_inputs_v1/k0_evidence/head_after_guard.txt": "775c55d64163e9c6c718c6d3f287c316017fbe6cefabda2b7559b4714c090791",
+      "docs/knowledge_inputs_v1/k5_evidence/budget_matrix.json": "d331262fc96d6ba61e69a22cf17a585764aeacf020db9c3e11b783d6e2ea7377",
+      "docs/knowledge_inputs_v1/k2_evidence/final-head_failure.txt": "d6e49b1d4f37762cdf38a7e927624e917191491a0f4cf3a3c5ad468dfbc31706",
+      "docs/knowledge_inputs_v1/k2_evidence/desktop_final.txt": "42986692857666d8223b1b462bff7811f0f343ba27da8f2ca6623375a6fde9de",
+      "docs/knowledge_inputs_v1/k2_evidence/block5_failure.txt": "00cda2d52deb7427de0b5cd63f7bd00a8fdc8c8d3f441d2704dbdf6a7dff480a",
+      "docs/knowledge_inputs_v1/k5_manifest.json": "9d31b7812fcf3ec9012a9c5ca3dc4e976c5e74c647afcc2e0824e25eda9e857c",
+      "docs/knowledge_inputs_v1/k1_evidence/block-store.txt": "05ec028525c9c94b65d22d26436c38d2d63ae73fb82cec4dcd61641f8fe84e9a",
+      "docs/knowledge_inputs_v1/k1_manifest.json": "ee5b588635ae262f71f7e5ec596bf8ed69e6ccc22fa9d02d1a06bd4c086a2c94",
+      "docs/knowledge_inputs_v1/k2_evidence/baseline-knowledge.txt": "f29f7133c1ff96b095f2de0c65fef6f463e7117adc77e2b677a1234ce4805bf4",
+      "docs/knowledge_inputs_v1/k5_resultados.md": "437293252cf016ab8e3c769a1b946eb39a48460cd1b0907ad0ddadb3a6a4fc0d",
+      "tests/knowledge_inputs_v1/fixtures/k4_core_frozen_v1.json": "72fabd4b1c43a33438ee3f67e29693e2c1299f93d19eb932ef6958eb4a8e2b65",
+      "docs/knowledge_inputs_v1/k0_corpus_freeze.json": "4533fc33dcfa49f5480546f3ce8ed9d54832ae40b8b9d4910145c6dc19c7ebe2",
+      "docs/knowledge_inputs_v1/k0_resultados.md": "dd28561fc5e6e3ebff4ba95c622ab1dee03e00c4b2f5d77f4d161afae118392c",
+      "docs/knowledge_inputs_v1/k2_manifest.json": "94d704982ea83f76cff6c97c7e967225d7d9f9db854a2a9d56dfab821eef6450",
+      "docs/knowledge_inputs_v1/k1_evidence/block-authority.txt": "c21fd456d1d0a1b8ac5cacac7801b71c464db327ce3f0b448186aeb3ca6654a7",
+      "docs/knowledge_inputs_v1/k6_resultados.md": "364c2523e82261b8913c927a729bab988c2412995a09bab5edfc107ad5539527",
+      "docs/knowledge_inputs_v1/k2_evidence/final-py312-v2.txt": "767d351178ce0a74405486c1a8f475bcb308ae2ff948ed6d78d7d8d6162dd99c",
+      "docs/knowledge_inputs_v1/k1_resultados.md": "357cd60ad1fc363b47e5745d4c9c421710b826ad906d3b984a69179e6e699761",
+      "docs/knowledge_inputs_v1/k4_resultados.md": "2aefa6badcdc7fcf5498d3453428b219f1aaaac3b417894c426fa720b3d5d87b",
+      "docs/knowledge_inputs_v1/k1_freeze.json": "7d1c69d08515b704d139e296ce050d8508d74b13dd90957f66be9c2325a7cdfd",
+      "docs/knowledge_inputs_v1/k1_evidence/final-contracts.txt": "990f009e79ce9a150e8c09e5e84c323cc07f63fad71f16e1b6151caefa469625",
+      "docs/knowledge_inputs_v1/k1_evidence/desktop.json": "33fc4818117fe10d0ed63e0f239335fe6254e4557a2327354c07e897639bca2b",
+      "docs/knowledge_inputs_v1/k2_freeze.json": "023654676666b8ef1c99ffa0fe85eb765d405b42adc29cb187d6b31325d38585",
+      "docs/architecture/historical_deprecated/INFORME_NOVA_SECURITY_v1_a_v1_1.md": "8c8bb50f3bc12bf1f690c0b6dc647b25cfac1775f9e46de964332001e663fd1c",
+      "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md": "b13814a0f1c99528ab4f4d2f5c874dacdc1017c8f3f13b1053c90c67eb848147",
+      "docs/knowledge_inputs_v1/k4_resume_evidence/quality_final.json": "13f603486283246ddedb1dd81bf85e3aff93633be84feaa341e2ea42897ac464",
+      "docs/knowledge_inputs_v1/k3_pdf_repair_resultados.md": "329b1c779a1d12bebf164395c6c7050b31a989c7f239e032b13050c41db2fda7",
+      "docs/knowledge_inputs_v1/k0_evidence/ci_harness.txt": "42fa8098c2d7886e19bde984c8719abfe2aef6d4a3e7a2f8171837f251098d74",
+      "docs/knowledge_inputs_v1/k4_manifest.json": "bf9aebaa8517e5a7c5822dada6539fb25c1d027241755383f37b15e307ae4552",
+      "docs/architecture/historical_deprecated/NOVA_SECURITY_ARQUITECTURA_V1_1.md": "55f5170ef1fbd80188197c11dd2c66bc76c2477f5101fe24a25763f5256ccd11",
+      "docs/knowledge_inputs_v1/k0_freeze.json": "6ae1fdd18f68d46ec102f06edba20c377833e51a979ef75752b308eae8a8a25e",
+      "docs/knowledge_inputs_v1/k4_resume_evidence/implementation_freeze.json": "c514ceab4ea002cc33bd7395560ddd76ce8f0799f565899eb09636bf38be1f38",
+      "docs/knowledge_inputs_v1/k0_evidence/boundaries.txt": "05bdd663435c60bac55bee336b1421d468cd3867337c0ea2bc21a10642688529",
+      "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md": "a5711f372cd9ac9bee5ac800e638665e2e06cdb4405974c2cd12c14587715792",
+      "docs/knowledge_inputs_v1/k2_evidence/final-memory.txt": "31dd0e20ed8c5d6217f71a95e80a1f34e386a848671435ec745f5bb7529a73fe",
+      "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+      "docs/knowledge_inputs_v1/k2_evidence/final-py312.txt": "31bbe4672b10b3ac242f78265f96e55e519cf08a15b4e75bd8c44fc32840b900",
+      "docs/knowledge_inputs_v1/k3_pdf_repair_manifest.json": "47caef5c46dadf52601ac42a73ac560b2007da5cab2c4e1e875965d9750d898a",
+      "docs/knowledge_inputs_v1/k1_evidence/baseline-contracts.txt": "4bc230bc383363a6515b4025cfcf0bc7f1722ed6227e71fb3da9b78f670eecf1",
+      "docs/knowledge_inputs_v1/k2_evidence/block3_failure.txt": "f432d0071437104b1a2bb514f06bf7ec4795ef91bbfb3e2b81030f4463c12d1a",
+      "docs/knowledge_inputs_v1/k2_preflight.md": "a9f18a49cc9d2f31dfafbc4f36d046699903953976c1b57783feb22fe8280b9e",
+      "docs/knowledge_inputs_v1/k0_evidence/contracts_final_py314.txt": "748765df3378a19f68dcc3f1191f5e4fa79c881d8cb5c47519dd53633ce6ac7e",
+      "docs/knowledge_inputs_v1/k2_product_freeze_v2.json": "51fa4ebfcdb34dcfcc8efa39a597e4b2d3af49cdcf7e4e629df8b3dc3d8c6999",
+      "docs/knowledge_inputs_v1/k2_evidence/block4_failure.txt": "aa3723ce7b1e61bac9c418f955b7185f4d72af2273349332c0f3b7f67359308f",
+      "docs/knowledge_inputs_v1/k6_manifest.json": "48f81bc6dd1d12f28748eb60b8b38a78dc728d4b64b50b60554df06c59df274c",
+      "docs/architecture/AUDITORIA_ARQUITECTONICA_NOVA_CORE.md": "754205064c543aecf19da1c5162c03d1a8e1e3fbe4f3895262fd3b811b51c213",
+      "docs/knowledge_inputs_v1/k2_evidence/integrity.json": "2d959bad3e8e3ff18139de3d531faa9c239520af127a19486f6e3085ce3a4824"
+    },
+    "historicalEvidenceRewritten": false,
+    "tagsChanged": false,
+    "memoryHistoricalGuard": "Only exact K7 delta reversed; hash aec584fb687e771cc99af9f29d1fa7b8794336f80fbb699aa6344e5b1e18d69d re-proved. Semantic campaigns not rerun/reinterpreted."
+  },
+  "observedFailures": [
+    {
+      "run": "block1",
+      "classification": "HARNESS_BUG",
+      "cause": "Synthetic cap35 bytes was below actual source byte length, and first publication success was not asserted. Oversized request rejection while stable usage below cap was honest.",
+      "repair": "Derive fixture byte cap from unchanged source bytes, assert first publication before capacity/existing-source export; product defaults unchanged."
+    },
+    {
+      "run": "block2",
+      "classification": "HARNESS_BUG",
+      "cause": "Continuation of invalid initial capacity fixture precondition; export had no published current revision.",
+      "repair": "Same bounded fixture precondition correction, not corpus/gold change."
+    },
+    {
+      "run": "block4",
+      "classification": "HARNESS_BUG",
+      "cause": "5s helper applied to 1.1MiB/50k-block import; no total import SLA normative.",
+      "repair": "Bounded 45s test-only join; same body, one attempt, HTTP30 unchanged."
+    },
+    {
+      "run": "block4",
+      "classification": "HARNESS_BUG",
+      "cause": "Demanded MEMORY + optional Knowledge always fit actual child 4K system prompt.",
+      "repair": "Verify actual admission. Unadmitted scripted K1 remains invalid, current user/caps protected; no guesses counted as quality."
+    },
+    {
+      "run": "memory-final",
+      "classification": "HISTORICAL/PREEXISTING (harness expectation)",
+      "cause": "M8 freeze guard pinned sub_agent.py at historic bytes despite normative new K7 delegation.",
+      "repair": "Explicit exact reversible authorized delta; all other bytes/historical hashes/deadlines/memory preserved. Negative tamper regression."
+    },
+    {
+      "run": "refresh-contract-before",
+      "classification": "PRODUCT_BUG",
+      "cause": "New K7 local refresh always published revision and lacked refreshed event even when unchanged.",
+      "repair": "Acquire exactly fresh host selection once; compare digest + extraction representation; unchanged or immutable new revision, event correlated."
+    },
+    {
+      "source": "K7 adversarial/source inspection",
+      "classification": "PRODUCT_BUG",
+      "cause": "Shared K5 cleanup matched guard by text alone; a literal current user/mandatory system copy could be removed.",
+      "repair": "Private Application guard marker; regression for user/system preservation and metadata stripping."
+    },
+    {
+      "source": "K7 large-body staging inspection",
+      "classification": "PRODUCT_BUG",
+      "cause": "K6 snapshot body up to 2MiB supplied one stage unit, but K1 unit bound is 1MiB.",
+      "repair": "Yield 256KiB units under unchanged S5/K1 caps; real 1.1MiB parser/store proof."
+    },
+    {
+      "source": "K7 child integration inspection",
+      "classification": "PRODUCT_BUG (development)",
+      "cause": "Duplicating WorkingMessages for memory would detach document revalidation callback.",
+      "repair": "Shared private WorkingMessages object for both delegates; no MEMORY policy change."
+    },
+    {
+      "source": "K7 Desktop adversarial inspection",
+      "classification": "PRODUCT_BUG (development)",
+      "cause": "Plain JS lookup could accept prototype-key paths before typed rejection.",
+      "repair": "Own-key lookup; no renderer authority; node regressions."
+    },
+    {
+      "source": "block5 command approval",
+      "classification": "ENVIRONMENT",
+      "cause": "Automatic permission review timed out before process start.",
+      "repair": "One allowed retry; block5-retry ran. No test retry or product effect."
+    }
+  ],
+  "evidenceKinds": {
+    "focused": "Real Application/SQLite/K3/K4/Context/ToolRuntime/SubAgent; scripted providers/HTTP port for integration are doubles.",
+    "desktop": "68 node contracts + React static rendering, native-dialog doubles, TypeScript + frontend build only; native Electron NOT_EVALUATED.",
+    "localFilesystem": "Native Windows synthetic acquisition/export/store in private Temp. No confidential user documents.",
+    "llmQuality": "NOT_EVALUATED; K8 only",
+    "realSemanticCalls": false,
+    "publicInternet": false
+  },
+  "regression": {
+    "newSkips": 0,
+    "newXfails": 0,
+    "newExclusions": 0,
+    "remainingFailures": [],
+    "skipDifference": [],
+    "exclusionsUnchanged": true
+  },
+  "limitations": [
+    "No universal DLP/secret/injection/entailment guarantee; document data is not authority.",
+    "No sandbox/process isolation; HOST_UNISOLATED unchanged.",
+    "Unknown/remote child gets only consented parent-admitted sources; no global corpus. Optional evidence may be zero at4K.",
+    "Inspection bounded to20 revision rows or exact requested revision; no document/body/fingerprint access by inspection.",
+    "Export requires new destination; no overwrite and no automatic cleanup of uncertain partial output.",
+    "Capacity counts raw acquired/staged bytes, not DB/WAL/index physical size.",
+    "No native Electron/model/search-provider/semantic quality certification in K7.",
+    "No K8/READY; semantic documentary and MEMORY NOT_CERTIFIED; OCR optional."
+  ],
+  "semantic": {
+    "document": "NOT_CERTIFIED",
+    "memory": "NOT_CERTIFIED",
+    "recertified": false
+  },
+  "openDecisions": [],
+  "nextPhase": {
+    "phase": "K8",
+    "implemented": false
+  },
+  "git": {
+    "commit": false,
+    "push": false,
+    "tag": false
+  },
+  "artifacts": {
+    "docs/knowledge_inputs_v1/k7_evidence/implementation_freeze.json": {
+      "sha256": "e9730ac1aab59b724b6fa59b84198f30d329b1741dd6ff4860e3f8cb2b92c029"
+    },
+    "docs/knowledge_inputs_v1/k7_evidence/closure_freeze.json": {
+      "sha256": "084b5a3a6860060d376c33f6c2bd9be9071feb6345e95a5e82d950fd05b72478"
+    },
+    "docs/knowledge_inputs_v1/k7_evidence/final_freeze.json": {
+      "sha256": "a6411a786e435d54cc328403e8782f27aff277e10022a3f2ba19a2466f9f49e1"
+    },
+    "docs/knowledge_inputs_v1/k7_resultados.md": {
+      "sha256": "136afd6daaf2647277c2b2896aaa0e65aa0b723cf27a65a1de077e4aa6f709a7"
+    },
+    "local_cli/sub_agent.py": {
+      "sha256": "6894a20a95a60418b9065e2725b6f642f828b9347272187223edcce32462e786"
+    },
+    "tests/memory_v1/test_m8_ps_operational.py": {
+      "sha256": "1ae0a1b7e395db730432aa1f764be09f438131d570c0a4a4ba75bf82d02648b2"
+    },
+    "desktop/electron/preload.ts": {
+      "sha256": "e40f4319574bff35af31ad108132a538a1d70593a039057fa2bcba7e6e2f5abb"
+    },
+    "desktop/electron/knowledge_control.d.cts": {
+      "sha256": "4a17a102897af4fe7cb8cb1c7edaf0ecda231e1b7e349ecc71bc3730498cb993"
+    },
+    "local_cli/interfaces/knowledge_cli.py": {
+      "sha256": "1fcafd1834cc24c532fd5cd751f80f5405a30aa869868cbf53717f8f81fc07b8"
+    },
+    "desktop/src/components/MessageBlock.tsx": {
+      "sha256": "b251f582049dad9fd6147e451a7167539b898c9fde77d603a5c9ac104d94cdc4"
+    },
+    "local_cli/application/knowledge.py": {
+      "sha256": "bd54e53a9adafa3d6c6b379cd1ed81927f58ecc7cf03ba20bef2a701c6a17a94"
+    },
+    "local_cli/application/knowledge_host.py": {
+      "sha256": "cb30c0d5c37d5b9f5e3f99015bf4ac2e9dc1ffa33b7a20ea96a3db80d6cd084c"
+    },
+    "local_cli/application/session.py": {
+      "sha256": "850a7357d2a6e79e8f35250059d02297b4f55b5e7587e8f5482bcb088e2aabfb"
+    },
+    "desktop/electron/application_client.ts": {
+      "sha256": "2e7a02f89fb96fbf6932674eb7e8369396278eccac98549adeb98d7be0b5d21e"
+    },
+    "desktop/src/types.ts": {
+      "sha256": "7c7130072ee74ece804a78663218e6000f3eb6757d5de0347d6a9007324dda49"
+    },
+    "local_cli/bootstrap_knowledge.py": {
+      "sha256": "f1578976cb0582a74fcbc1a2e846b790421bd1ebbcc39d37aa78fc8ad3144275"
+    },
+    "desktop/shared/application.ts": {
+      "sha256": "9c8271a1efd8f98b4d810b4c269f450e832186f35ac857889320c78952786d00"
+    },
+    "desktop/electron/main.ts": {
+      "sha256": "723821a44b449e37caeb2fc1cf682c66fd22d66b63d81f0f884a5571c83a99d7"
+    },
+    "local_cli/infrastructure/knowledge_sqlite.py": {
+      "sha256": "ce89145f772f12929307566bce3092b3a6a61f6a8c8bc90a6ac06afd8bac0307"
+    },
+    "desktop/src/App.tsx": {
+      "sha256": "5bf59ef715c8cdc9b1d1e19dabcd5293930d940c4e8791208211df41d25992d3"
+    },
+    "local_cli/application/knowledge_web.py": {
+      "sha256": "076f555e5bc22ebe10097c2309b8693cff43e54af109551748b7b545c9177f91"
+    },
+    "desktop/electron/knowledge_control.cjs": {
+      "sha256": "febb7a07342b75db40f79b81bd8daea6a094fce7d51d0899107abd3ab925c184"
+    },
+    "local_cli/application/knowledge_context.py": {
+      "sha256": "cd0c2a4e53b7300bcde24c17d888cc739a1f8be7e80bd87aa159d68578d0c3ba"
+    },
+    "tests/knowledge_inputs_v1/test_k7_children.py": {
+      "sha256": "9cee391265df3e42cf791b33097bba9f732960d6f4b8420b4f8ef29c287228bd"
+    },
+    "local_cli/application/knowledge_children.py": {
+      "sha256": "de06ef1bd5e97380f667406642a47ee85eaf32322da33db12ebc6609358f7ec3"
+    },
+    "local_cli/infrastructure/knowledge_export.py": {
+      "sha256": "eb76c3e673d4ef95eef5ef634a031e9b9679fc734345579ed144b4678da5974d"
+    },
+    "local_cli/core/knowledge_views.py": {
+      "sha256": "df757d5966a845b3038f16ac193e0eabacafdb20adcd0a6c309f627dd60c508c"
+    },
+    "tests/knowledge_inputs_v1/run_k7.py": {
+      "sha256": "25d1a0368960abdd03370becdddf8b344d44fd6950616c4c17a3da28a9ce1a03"
+    },
+    "desktop/tests/knowledge_k7.test.cjs": {
+      "sha256": "acad55574fcd9a25a1a482597d73edcd566c38145ff9d0a0c75a349e07c426ce"
+    },
+    "local_cli/core/knowledge_delegation.py": {
+      "sha256": "d72fdcda000ee6adcdc97d0c6f23d22609df87a871b1102ee974376d5ffd31e4"
+    },
+    "tests/knowledge_inputs_v1/run_k7_desktop.py": {
+      "sha256": "5092af9c18ad8d5fad9d0d2b36509f5c215ea11210c9a62bbef841b0fae08ea6"
+    },
+    "tests/knowledge_inputs_v1/test_k7_host.py": {
+      "sha256": "5841b36af93027220f284dcba27b65e6238e625bfa318d0ed2544fa2aa276884"
+    }
+  },
+  "integrity": {
+    "verifiedAtUtc": "2026-10-08 09:17:12 UTC",
+    "architectureAndHistoricalHashesIntact": true,
+    "protectedHashCount": 95,
+    "finalImplementationPinsMatch": true,
+    "preexistingFilesRemoved": [],
+    "unexpectedChanges": [],
+    "headBranchAndTagsUnchanged": true,
+    "workingTreeInitialPreservedExceptDeclaredK7Files": true,
+    "runtimeOutsideGit": true,
+    "ciArchitectureDependenciesUnchanged": true,
+    "noNewSkipsXfailsExclusions": true,
+    "reportSha256": "136afd6daaf2647277c2b2896aaa0e65aa0b723cf27a65a1de077e4aa6f709a7",
+    "selfHashExcluded": true
+  },
+  "desktop": {
+    "root": "C:/Users/joseh/AppData/Local/Temp/nova-k7-20261008/desktop-final",
+    "artifacts": {
+      "typescript.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "run.json": "ccb965e4a3b67e3161e964427ca0ea906beddad26e123467120b736f3295fd08",
+      "contracts.log": "6e86efa5d634150d2a29e4f6e73ab87be4873f60953f04394f37cb1ab18a023b",
+      "frontend.log": "372d5ce2a3644d28317a5283ac90fd87541185b7c5f5cb68838cc339c157dc55"
+    },
+    "run": {
+      "phase": "K7",
+      "groups": [
+        {
+          "name": "contracts",
+          "command": [
+            "C:\\Program Files\\nodejs\\node.EXE",
+            "--experimental-transform-types",
+            "--test",
+            "tests/knowledge_k7.test.cjs",
+            "tests/knowledge_control.test.cjs",
+            "tests/application_client.test.cjs",
+            "tests/approval_host.test.cjs",
+            "tests/security_audit.test.cjs",
+            "tests/memory_control.test.cjs",
+            "tests/memory_maintenance.test.cjs"
+          ],
+          "exitCode": 0
+        },
+        {
+          "name": "typescript",
+          "command": [
+            "C:\\Program Files\\nodejs\\node.EXE",
+            "node_modules/typescript/bin/tsc",
+            "--project",
+            "tsconfig.json",
+            "--noEmit"
+          ],
+          "exitCode": 0
+        },
+        {
+          "name": "frontend",
+          "command": [
+            "C:\\Program Files\\nodejs\\node.EXE",
+            "--input-type=module",
+            "-e",
+            "import {build} from 'vite';import react from '@vitejs/plugin-react';await build({configFile:false,plugins:[react()],build:{outDir:\"C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k7-20261008\\\\desktop-final\\\\frontend\",emptyOutDir:false}})"
+          ],
+          "exitCode": 0
+        }
+      ],
+      "packaged": false,
+      "installed": false,
+      "externalInference": false,
+      "nativeElectron": false,
+      "outputOutsideGit": true
+    }
+  },
+  "metrics": {
+    "k7": 37,
+    "knowledge": 671,
+    "memory": 791,
+    "coreSecuritySubagents": 401,
+    "pdf": 26,
+    "desktop": 68,
+    "head": 4818,
+    "headSubtests": 53,
+    "headSkipped": 11,
+    "performanceBenchmarkRequired": false,
+    "qualityCampaign": false,
+    "childWindows": [
+      4096,
+      8192,
+      16384,
+      32768,
+      65536
+    ],
+    "largeUrlSyntheticBytes": 1100000
+  },
+  "finalFreeze": {
+    "path": "docs/knowledge_inputs_v1/k7_evidence/final_freeze.json",
+    "olderFreezesPreserved": true,
+    "reason": "Scoped normative refresh repair after demonstrated failure."
+  }
+}

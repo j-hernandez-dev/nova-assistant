@@ -1,0 +1,126 @@
+name: Nova Core V1 contracts
+permissions:
+  contents: read
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      native_security:
+        description: Explicit private Windows/NTFS Security host contracts (no model)
+        required: false
+        type: boolean
+        default: false
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  core-contracts:
+    name: Core (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - name: Require complete contract classification
+        run: python -B ci/contract_inventory.py
+      - name: Core positive current regression
+        run: >-
+          python -B ci/run_contracts.py --job core
+          --output "${{ runner.temp }}/nova-core-contracts"
+      - name: Preserve current CI diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-contracts-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/nova-core-contracts/run.json
+            ${{ runner.temp }}/nova-core-contracts/selection.json
+            ${{ runner.temp }}/nova-core-contracts/collected_nodeids.json
+            ${{ runner.temp }}/nova-core-contracts/tests.xml
+            ${{ runner.temp }}/nova-core-contracts/pytest.log
+          if-no-files-found: error
+
+  security-contracts:
+    name: Security contracts (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - uses: actions/setup-node@v4
+        # The existing Python/Node proof contract needs Node, not Desktop/GUI.
+        with:
+          node-version: '24.19.0'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - name: Security positive current regression
+        run: >-
+          python -B ci/run_contracts.py --job security
+          --output "${{ runner.temp }}/nova-security-contracts"
+      - name: Preserve current CI diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-contracts-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/nova-security-contracts/run.json
+            ${{ runner.temp }}/nova-security-contracts/selection.json
+            ${{ runner.temp }}/nova-security-contracts/collected_nodeids.json
+            ${{ runner.temp }}/nova-security-contracts/tests.xml
+            ${{ runner.temp }}/nova-security-contracts/pytest.log
+          if-no-files-found: error
+
+  security-native-manual:
+    name: Manual private Windows/NTFS Security host contracts
+    # The original native scope is explicit and manual, never an ordinary skip.
+    if: github.event_name == 'workflow_dispatch' && inputs.native_security
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          GIT_CONFIG_COUNT: '1'
+          GIT_CONFIG_KEY_0: core.autocrlf
+          GIT_CONFIG_VALUE_0: 'false'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -e . pytest pytest-subtests
+      - name: Explicit positive native Security contracts
+        run: >-
+          python -B ci/run_contracts.py --job security-native --special
+          --output "${{ runner.temp }}/nova-security-native"
+      - name: Preserve native CI diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-native-windows
+          path: |
+            ${{ runner.temp }}/nova-security-native/run.json
+            ${{ runner.temp }}/nova-security-native/selection.json
+            ${{ runner.temp }}/nova-security-native/collected_nodeids.json
+            ${{ runner.temp }}/nova-security-native/tests.xml
+            ${{ runner.temp }}/nova-security-native/pytest.log
+          if-no-files-found: error

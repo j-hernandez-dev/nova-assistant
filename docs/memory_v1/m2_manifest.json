@@ -1,0 +1,822 @@
+{
+  "manifestVersion": 1,
+  "phase": "M2",
+  "status": "PASS",
+  "generatedAtUtc": "2026-10-06T09:25:48Z",
+  "normativeDefinition": "NOVA_MEMORY_ARQUITECTURA_V1.md §37: M2 — Durable MemoryStore + FTS5 + migrations",
+  "precedence": [
+    "Core V1 lifecycle/context/public schemas/dependency direction",
+    "SECURITY V1.2 authority/tools/secrets/host model",
+    "MEMORY V1 extension",
+    "Audit as baseline evidence only"
+  ],
+  "referenceDocuments": [
+    {
+      "path": "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md",
+      "sha256": "3FB67DF88DAE2428217E937FC8D890A3BCDF5C80524F16C207A2D8EF8C10CC80"
+    },
+    {
+      "path": "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+      "sha256": "A5711F372CD9AC9BEE5AC800E638665E2E06CDB4405974C2CD12C14587715792"
+    },
+    {
+      "path": "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+      "sha256": "AEC8E75EB346A48995EDC91A7384D7E838F9057FA230AB2C8971450A4FAED817"
+    },
+    {
+      "path": "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md",
+      "sha256": "B13814A0F1C99528AB4F4D2F5C874DACDC1017C8F3F13B1053C90C67EB848147"
+    }
+  ],
+  "baseline": {
+    "branch": "main",
+    "initialHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "finalHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "subject": "ci: align unsupported filesystem gates across platforms",
+    "relevantTags": [
+      "nova-core-v1-stable",
+      "nova-security-v1.2-ready"
+    ],
+    "workingTreeInitiallyDirty": true,
+    "preexistingTrackedModifications": [
+      "desktop/tests/application_client.test.cjs",
+      "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+      "docs/nova_core_od_05_contexto_v1.md",
+      "local_cli/cli.py",
+      "local_cli/config.py",
+      "local_cli/core/context.py",
+      "tests/test_nova_core_phase9_context.py",
+      "tests/test_nova_core_phase9_integration.py"
+    ],
+    "preexistingUntrackedGroups": [
+      "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md",
+      "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+      "docs/context64/",
+      "docs/memory_v1/",
+      "local_cli/core/memory.py",
+      "local_cli/application/memory_admission.py",
+      "tests/memory_v1/",
+      "tests/test_context_64k.py"
+    ],
+    "novaVersion": "0.12.6",
+    "pythonVersion": "3.14.6",
+    "sqliteVersion": "3.50.4",
+    "nodeVersion": "24.16.0",
+    "platform": "Windows 11 build 26200 / local NTFS",
+    "prerequisites": "M0/M1 and context64 present and passing in actual uncommitted checkout, not presumed from HEAD alone"
+  },
+  "scope": {
+    "productiveInfrastructureAdapterExists": true,
+    "normalApplicationRuntimeActivated": false,
+    "memoryReadyDeclared": false,
+    "implemented": [
+      "SQLite store/identity adapter",
+      "strict codec",
+      "schema v1",
+      "explicit fixture v0 migration",
+      "atomic transactions",
+      "single-writer adapter and typed multi-process contention",
+      "exact/FTS5 index projection",
+      "tombstones and scoped fixture export",
+      "bounded/redacted evidence",
+      "synthetic crash/recovery/performance harness"
+    ],
+    "notImplemented": [
+      "M3 MemoryService/user commands/UI",
+      "M4 recall/MemoryCapsule/context changes",
+      "M5 semantic adapter/embedding model",
+      "M6 extraction/consolidation/maintenance runtime",
+      "later-phase user/privacy/quality policies"
+    ],
+    "coreDomainModified": false,
+    "applicationRuntimeModified": false,
+    "securityProductModified": false,
+    "contextSizingModified": false,
+    "ciModified": false,
+    "dependenciesAdded": false,
+    "modelsDownloaded": false,
+    "cloudEnabled": false,
+    "globalConfigChanged": false,
+    "gpuChanged": false,
+    "legacyStoresMigrated": false,
+    "processModel": "HOST_UNISOLATED",
+    "sandboxOrProcessIsolation": false
+  },
+  "contracts": {
+    "storePort": "Core/M1 MemoryStorePort",
+    "lexicalPort": "Core/M1 MemoryLexicalIndexPort",
+    "identityPort": "Core/M1 MemoryIdentityPort",
+    "location": "<trusted-state-dir>/memory/v1/memory.db",
+    "schemaVersion": 1,
+    "userVersion": 1,
+    "applicationId": 1314278705,
+    "formatMarker": "nova-memory-v1",
+    "codecVersion": 1,
+    "exportFormat": "nova-memory-export",
+    "exportVersion": 1,
+    "tables": [
+      "memory_meta",
+      "subjects",
+      "workspaces",
+      "memories",
+      "memory_sources",
+      "memory_relations",
+      "memory_tombstones",
+      "embedding_spaces",
+      "memory_embeddings",
+      "maintenance_jobs",
+      "memory_fts"
+    ],
+    "reservedTablesDoNotImplementLaterCapabilities": [
+      "embedding_spaces",
+      "memory_embeddings",
+      "maintenance_jobs"
+    ],
+    "foreignKeys": 1,
+    "journalMode": "wal",
+    "synchronous": 2,
+    "synchronousName": "FULL",
+    "singleWriter": "One connection/RLock per adapter, intended Application owner; BEGIN IMMEDIATE arbitrates other connections/processes with no automatic retry.",
+    "casRevisions": true,
+    "uncommittedRecoveryInvented": false,
+    "uncertainOutcome": {
+      "error": "MemoryStorageError",
+      "coreError": "MEMORY_WRITE_FAILED",
+      "outcomeUnknown": true,
+      "retryable": false,
+      "failedRollbackRequiresReopen": true
+    },
+    "secretGuard": "Explicitly supplied S6 known-value registry; denies canonical/metadata known secrets, redacts excerpts. No secret discovery from real user state in tests.",
+    "sensitiveGuard": "Explicit-user-origin is a necessary storage precondition, not completed M3 consent/WritePolicy.",
+    "contentLimits": "Mandatory trusted caller bounds; fixture uses canonical=4096/excerpt=512 chars, not final global defaults or OD-04.",
+    "queryBounds": "4096 text chars / 64 literal terms are local SQL-input operational bounds, not database growth quotas.",
+    "migration": {
+      "fromVersion": 0,
+      "toVersion": 1,
+      "explicitOptIn": true,
+      "idempotent": true,
+      "originalCopiedFixtureUnchanged": true,
+      "v0Meaning": "Synthetic identified pre-v1 fixture, never claimed to have been shipped to users.",
+      "atomicFailurePreserves": "Copied database records/schema/user_version v0; no promise of identical physical bytes after WAL header change.",
+      "unknownFutureOrForeign": "Typed failure without reinitializing/importing/discarding data.",
+      "importsCoreRagAudit": false
+    },
+    "deleteSemantics": "Atomic owned rows/projections removal + payload-free tombstone; no stale-index resurrection/reinsert of deleted ID. No secure erase, audit/backups/transcript deletion or new public forget command."
+  },
+  "deliverables": [
+    {
+      "requirement": "SQLite schema v1",
+      "status": "PASS",
+      "component": "memory_migrations.py",
+      "tests": "test_native_sqlite_version_pragmas_owned_tables_and_ports"
+    },
+    {
+      "requirement": "migrations",
+      "status": "PASS",
+      "component": "memory_sqlite.py:_migrate_v0",
+      "tests": "copied v0/idempotent + 7 failed migration fixtures"
+    },
+    {
+      "requirement": "transactions",
+      "status": "PASS",
+      "component": "memory_sqlite.py:_transaction",
+      "tests": "record/source/FTS rollback + mutation snapshots"
+    },
+    {
+      "requirement": "locking/single-writer",
+      "status": "PASS",
+      "component": "memory_sqlite.py:RLock/BEGIN IMMEDIATE",
+      "tests": "thread serialization + real external process contention"
+    },
+    {
+      "requirement": "FTS5 projection",
+      "status": "PASS",
+      "component": "SQLiteMemoryLexicalIndex",
+      "tests": "exact/Unicode/SQL scope/status/update/delete/rebuild"
+    },
+    {
+      "requirement": "tombstones",
+      "status": "PASS",
+      "component": "memory_sqlite.py:delete/rebuild",
+      "tests": "owned projection purge + stale ID/reinsert/reopen denial"
+    },
+    {
+      "requirement": "export fixture",
+      "status": "PASS",
+      "component": "memory_sqlite.py:export_fixture",
+      "tests": "consistent scoped versioned DTO, sensitive excluded by default"
+    },
+    {
+      "requirement": "crash/reopen behavior",
+      "status": "PASS",
+      "component": "memory_sqlite.py:transactions",
+      "tests": "8 native os._exit pre-commit/post-ACK cases"
+    },
+    {
+      "requirement": "bounded evidence excerpts",
+      "status": "PASS",
+      "component": "memory_sqlite.py:_prepare",
+      "tests": "caller limits/S6 known synthetic secret redaction"
+    }
+  ],
+  "gate": {
+    "literal": "source of truth consistente; lexical search rápido y rebuildable; no pérdida silenciosa en writes reconocidos.",
+    "result": "PASS",
+    "mandatoryRequirementsUndemonstrated": [],
+    "criteria": [
+      {
+        "criterion": "source of truth consistente",
+        "status": "PASS",
+        "evidence": [
+          "commit/reopen exact fields and source order",
+          "rollback aggregate/migrations",
+          "CAS/supersession lineage",
+          "scope/subject/validity/status SQL filtering",
+          "consistent concurrent read snapshot"
+        ]
+      },
+      {
+        "criterion": "lexical search rápido y rebuildable",
+        "status": "PASS",
+        "evidence": [
+          "real 10k/20k database benchmarks",
+          "exact indexed/FTS bounded IDs",
+          "missing/wrong/stale/orphan index rebuild",
+          "native FTS corruption -> MEMORY_STORE_CORRUPT -> authoritative rebuild"
+        ]
+      },
+      {
+        "criterion": "no pérdida silenciosa en writes reconocidos",
+        "status": "PASS",
+        "evidence": [
+          "ACK only after commit",
+          "insert/update/supersede/delete native process crash before commit and after ACK",
+          "typed contention/commit uncertainty, no silent ACK or retry"
+        ],
+        "claimBoundary": "Real process crash evidence, not power-loss or failing-hardware certification."
+      }
+    ]
+  },
+  "tests": {
+    "runs": [
+      {
+        "name": "m2_before",
+        "passed": 3639,
+        "subtestsPassed": 53,
+        "skipped": 11,
+        "seconds": 235.08,
+        "final": false,
+        "failures": 0,
+        "errors": 0,
+        "exitCode": 0,
+        "mode": "head",
+        "privateState": true,
+        "runRecord": "docs/memory_v1/m2_evidence/m2_before_run.json",
+        "stdout": "docs/memory_v1/m2_evidence/m2_before.txt",
+        "exactCommand": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_before\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_before\\tests.xml",
+          "tests",
+          "--ignore=tests/security_v12/test_s0_frontends.py",
+          "--ignore=tests/security_v12/test_s0_process.py",
+          "--ignore=tests/security_v12/test_s0_surfaces.py",
+          "--ignore=tests/security_v12/test_s3_windows.py",
+          "--ignore=tests/security_v12/test_s4_host.py",
+          "--ignore=tests/security_v12/test_s5_network.py",
+          "--ignore=tests/security_v12/test_s6_host.py",
+          "--ignore=tests/security_v12/test_s8_host.py",
+          "--ignore=tests/security_v12/test_s8_e2e.py",
+          "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+          "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+          "--ignore=tests/test_security_gates.py"
+        ],
+        "realModelInference": false
+      },
+      {
+        "name": "m2_block1",
+        "passed": 243,
+        "subtestsPassed": 0,
+        "skipped": 0,
+        "seconds": 7.55,
+        "final": false,
+        "failures": 0,
+        "errors": 0,
+        "exitCode": 0,
+        "mode": "m2",
+        "privateState": true,
+        "runRecord": "docs/memory_v1/m2_evidence/m2_block1_run.json",
+        "stdout": "docs/memory_v1/m2_evidence/m2_block1.txt",
+        "exactCommand": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_block1\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_block1\\tests.xml",
+          "tests/memory_v1/test_m2_store.py",
+          "tests/memory_v1/test_m2_recovery.py",
+          "tests/memory_v1/test_m2_performance.py",
+          "tests/memory_v1/test_m1_identity_scope.py",
+          "tests/memory_v1/test_m1_domain.py",
+          "tests/memory_v1/test_m1_admission_ports.py",
+          "tests/test_nova_core_phase14_architecture.py"
+        ],
+        "realModelInference": false
+      },
+      {
+        "name": "m2_block2",
+        "passed": 252,
+        "subtestsPassed": 0,
+        "skipped": 0,
+        "seconds": 8.9,
+        "final": false,
+        "failures": 0,
+        "errors": 0,
+        "exitCode": 0,
+        "mode": "m2",
+        "privateState": true,
+        "runRecord": "docs/memory_v1/m2_evidence/m2_block2_run.json",
+        "stdout": "docs/memory_v1/m2_evidence/m2_block2.txt",
+        "exactCommand": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_block2\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_block2\\tests.xml",
+          "tests/memory_v1/test_m2_store.py",
+          "tests/memory_v1/test_m2_recovery.py",
+          "tests/memory_v1/test_m2_performance.py",
+          "tests/memory_v1/test_m1_identity_scope.py",
+          "tests/memory_v1/test_m1_domain.py",
+          "tests/memory_v1/test_m1_admission_ports.py",
+          "tests/test_nova_core_phase14_architecture.py"
+        ],
+        "realModelInference": false
+      },
+      {
+        "name": "m2_domain_final",
+        "passed": 258,
+        "subtestsPassed": 0,
+        "skipped": 0,
+        "seconds": 9.33,
+        "final": false,
+        "failures": 0,
+        "errors": 0,
+        "exitCode": 0,
+        "mode": "m2",
+        "privateState": true,
+        "runRecord": "docs/memory_v1/m2_evidence/m2_domain_final_run.json",
+        "stdout": "docs/memory_v1/m2_evidence/m2_domain_final.txt",
+        "exactCommand": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_domain_final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_domain_final\\tests.xml",
+          "tests/memory_v1/test_m2_store.py",
+          "tests/memory_v1/test_m2_recovery.py",
+          "tests/memory_v1/test_m2_performance.py",
+          "tests/memory_v1/test_m1_identity_scope.py",
+          "tests/memory_v1/test_m1_domain.py",
+          "tests/memory_v1/test_m1_admission_ports.py",
+          "tests/test_nova_core_phase14_architecture.py"
+        ],
+        "realModelInference": false
+      },
+      {
+        "name": "m2_after",
+        "passed": 3704,
+        "subtestsPassed": 53,
+        "skipped": 11,
+        "seconds": 218.4,
+        "final": false,
+        "failures": 0,
+        "errors": 0,
+        "exitCode": 0,
+        "mode": "head",
+        "privateState": true,
+        "runRecord": "docs/memory_v1/m2_evidence/m2_after_run.json",
+        "stdout": "docs/memory_v1/m2_evidence/m2_after.txt",
+        "exactCommand": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_after\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_after\\tests.xml",
+          "tests",
+          "--ignore=tests/security_v12/test_s0_frontends.py",
+          "--ignore=tests/security_v12/test_s0_process.py",
+          "--ignore=tests/security_v12/test_s0_surfaces.py",
+          "--ignore=tests/security_v12/test_s3_windows.py",
+          "--ignore=tests/security_v12/test_s4_host.py",
+          "--ignore=tests/security_v12/test_s5_network.py",
+          "--ignore=tests/security_v12/test_s6_host.py",
+          "--ignore=tests/security_v12/test_s8_host.py",
+          "--ignore=tests/security_v12/test_s8_e2e.py",
+          "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+          "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+          "--ignore=tests/test_security_gates.py"
+        ],
+        "realModelInference": false
+      },
+      {
+        "name": "m2_gate_final",
+        "passed": 259,
+        "subtestsPassed": 0,
+        "skipped": 0,
+        "seconds": 9.55,
+        "final": true,
+        "failures": 0,
+        "errors": 0,
+        "exitCode": 0,
+        "mode": "m2",
+        "privateState": true,
+        "runRecord": "docs/memory_v1/m2_evidence/m2_gate_final_run.json",
+        "stdout": "docs/memory_v1/m2_evidence/m2_gate_final.txt",
+        "exactCommand": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_gate_final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_gate_final\\tests.xml",
+          "tests/memory_v1/test_m2_store.py",
+          "tests/memory_v1/test_m2_recovery.py",
+          "tests/memory_v1/test_m2_performance.py",
+          "tests/memory_v1/test_m1_identity_scope.py",
+          "tests/memory_v1/test_m1_domain.py",
+          "tests/memory_v1/test_m1_admission_ports.py",
+          "tests/test_nova_core_phase14_architecture.py"
+        ],
+        "realModelInference": false
+      },
+      {
+        "name": "m2_after_final",
+        "passed": 3705,
+        "subtestsPassed": 53,
+        "skipped": 11,
+        "seconds": 224.99,
+        "final": true,
+        "failures": 0,
+        "errors": 0,
+        "exitCode": 0,
+        "mode": "head",
+        "privateState": true,
+        "runRecord": "docs/memory_v1/m2_evidence/m2_after_final_run.json",
+        "stdout": "docs/memory_v1/m2_evidence/m2_after_final.txt",
+        "exactCommand": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_after_final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\.codex\\visualizations\\2026\\10\\03\\01a10197-de3b-77b3-b73d-045d080c7561\\m2_after_final\\tests.xml",
+          "tests",
+          "--ignore=tests/security_v12/test_s0_frontends.py",
+          "--ignore=tests/security_v12/test_s0_process.py",
+          "--ignore=tests/security_v12/test_s0_surfaces.py",
+          "--ignore=tests/security_v12/test_s3_windows.py",
+          "--ignore=tests/security_v12/test_s4_host.py",
+          "--ignore=tests/security_v12/test_s5_network.py",
+          "--ignore=tests/security_v12/test_s6_host.py",
+          "--ignore=tests/security_v12/test_s8_host.py",
+          "--ignore=tests/security_v12/test_s8_e2e.py",
+          "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+          "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+          "--ignore=tests/test_security_gates.py"
+        ],
+        "realModelInference": false
+      }
+    ],
+    "newM2Cases": 66,
+    "m2StoreCases": 31,
+    "m2RecoveryCases": 34,
+    "m2PerformanceCases": 1,
+    "directedFinalBreakdown": {
+      "m2": 66,
+      "m1": 187,
+      "coreArchitecture": 6,
+      "total": 259
+    },
+    "fullFinal": {
+      "passed": 3705,
+      "subtestsPassed": 53,
+      "skipped": 11,
+      "failures": 0,
+      "errors": 0,
+      "xfail": 0
+    },
+    "sameSkipTestSet": true,
+    "newSkips": 0,
+    "newXfails": 0,
+    "skipEvidence": "docs/memory_v1/m2_evidence/unchanged_skips.json",
+    "levels": {
+      "unitAndFaultInjection": "Typed validation/bounds/missing capability and uncertain I/O branches. Fault injection is not real disk failure.",
+      "integrationPersistenceMigration": "Real SQLite/FTS5 in synthetic private directories.",
+      "hostReal": "Real child Python processes: multi-process SQLite writer lock plus eight os._exit insert/update/supersede/delete recovery cases.",
+      "adversarial": "Corrupt native FTS shadow data, wrong/foreign schemas, stale indexes, cross-scope/lineage/injection/known synthetic secrets.",
+      "performance": "Actual 10k/20k records, 5 samples after warmup; no arbitrary M8 thresholds.",
+      "llmE2E": "Not required by M2 and not performed; no scripted-provider quality claim.",
+      "securityDedicatedHostReal": "Not rerun as full recertification; current reconciled HEAD selection retained."
+    }
+  },
+  "performance": {
+    "primaryEvidence": "docs/memory_v1/m2_evidence/gate_benchmark.json",
+    "independentRepeat": "docs/memory_v1/m2_evidence/after_benchmark.json",
+    "rows": [
+      {
+        "records": 10000,
+        "databaseBytes": 10661888,
+        "openDatabaseWalShmBytes": 21480848,
+        "insertBatchMs": 1125.89,
+        "rebuildMs": 48.724,
+        "reopenAndVerifyMs": 80.722,
+        "medianQueryMs": {
+          "exact_key": 0.759,
+          "exact_text": 1.56,
+          "selective_fts": 0.396,
+          "broad_fts": 21.326,
+          "no_match": 0.261
+        },
+        "maximumReturnedIds": 8
+      },
+      {
+        "records": 20000,
+        "databaseBytes": 21499904,
+        "openDatabaseWalShmBytes": 42793056,
+        "insertBatchMs": 2243.045,
+        "rebuildMs": 108.742,
+        "reopenAndVerifyMs": 135.954,
+        "medianQueryMs": {
+          "exact_key": 1.807,
+          "exact_text": 1.455,
+          "selective_fts": 0.282,
+          "broad_fts": 45.491,
+          "no_match": 0.27
+        },
+        "maximumReturnedIds": 8
+      }
+    ],
+    "embeddingCalls": 0,
+    "modelCalls": 0,
+    "measurementsDescriptive": true,
+    "m8ThresholdsResolved": false,
+    "tracemallocMeaning": "Python traced allocations during query, not total RSS/RAM or native SQLite cache.",
+    "growthLimits": "20k/128 MiB remain proposed SHOULD starting points, not finalized quotas or eviction policy.",
+    "complexity": "SQL indexes / bounded result hydration; broad native FTS may rank O(matches), reopen/rebuild/migration/export can be O(N). No Turn recall runtime added."
+  },
+  "invariants": {
+    "matrix": "docs/memory_v1/m2_invariants.json",
+    "all40Reviewed": true,
+    "storeOrDomainScopeEvidence": [
+      "MEM1-INV-001",
+      "MEM1-INV-002",
+      "MEM1-INV-003",
+      "MEM1-INV-004",
+      "MEM1-INV-012",
+      "MEM1-INV-013",
+      "MEM1-INV-014",
+      "MEM1-INV-017",
+      "MEM1-INV-018",
+      "MEM1-INV-021",
+      "MEM1-INV-025",
+      "MEM1-INV-026",
+      "MEM1-INV-027",
+      "MEM1-INV-028",
+      "MEM1-INV-029",
+      "MEM1-INV-031",
+      "MEM1-INV-035",
+      "MEM1-INV-038"
+    ],
+    "fullRuntimeOrReadyClaim": false,
+    "laterPhaseInvariantsNotImplemented": true
+  },
+  "preservation": {
+    "preexistingUniqueFiles": 85,
+    "unchangedPreexistingFiles": 84,
+    "onlyChangedPreexisting": "tests/memory_v1/run_regression.py",
+    "reason": "Additive M2 harness mode, existing modes/CI exclusions unchanged.",
+    "evidence": "docs/memory_v1/m2_evidence/preservation.json",
+    "historicalDocumentsAndEvidenceReinterpreted": false
+  },
+  "unknownOrOutOfScope": [
+    "Power loss, failed hardware/fsync and real storage I/O failure not tested.",
+    "Native execution tested only on Windows/Python 3.14.6; Python 3.10 legacy exception fallback unit-tested, other platforms not recertified.",
+    "No universal unknown-secret detector, physical host tamper resistance, at-rest encryption or secure erase.",
+    "M3 commands/consent policy/runtime wiring and M4 context injection not implemented.",
+    "Semantic quality/embeddings/extraction/maintenance/RAM total/p95/READY quotas remain later-phase evidence."
+  ],
+  "openDecisions": {
+    "neededForM2": [],
+    "resolvedByThisWork": [],
+    "remainOpen": [
+      "MEM1-OD-01 semantic backend",
+      "MEM1-OD-02 embedding model",
+      "MEM1-OD-03 AUTO_SAFE thresholds",
+      "MEM1-OD-04 final quotas",
+      "MEM1-OD-05 EPISODE retention",
+      "MEM1-OD-06 at-rest encryption",
+      "MEM1-OD-07 READY quality/performance thresholds"
+    ]
+  },
+  "compatibility": {
+    "regressionsObserved": [],
+    "existingHeadExclusionsUnchanged": true,
+    "legacyStoresUntouched": true,
+    "currentContextPresets": [
+      "AUTO",
+      "4K",
+      "8K",
+      "16K",
+      "32K",
+      "64K"
+    ],
+    "contextProductChanged": false,
+    "newPublicToolOrApiSchemas": false,
+    "runtimeDependenciesUnchanged": true,
+    "securityClaimsNotExpanded": true
+  },
+  "sourceFiles": [
+    {
+      "path": "local_cli/infrastructure/memory_codec.py",
+      "sha256": "E1591AC060E76A55A90B35EF39A4C2F495AA744E368332940BEF5FE911457780",
+      "change": "new"
+    },
+    {
+      "path": "local_cli/infrastructure/memory_migrations.py",
+      "sha256": "5E00F9554D1076295327D06EDC185773E71D0EDEC664BDDDE4D1B3F1DAEA8A54",
+      "change": "new"
+    },
+    {
+      "path": "local_cli/infrastructure/memory_sqlite.py",
+      "sha256": "C6E68DE3022BE3E97BF7972EFACB993F5DF388AD2B87D8D580212A2E6EA6831E",
+      "change": "new"
+    },
+    {
+      "path": "tests/memory_v1/m2_fixtures.py",
+      "sha256": "C68511B8A951658E2738002B62181901E14B84533B8298E07A3AE16A5F10724E",
+      "change": "new"
+    },
+    {
+      "path": "tests/memory_v1/m2_benchmark.py",
+      "sha256": "A89B60399FCA8A96188EA117F20C3527F3F00E09FE85556438DEA186C54950DA",
+      "change": "new"
+    },
+    {
+      "path": "tests/memory_v1/test_m2_store.py",
+      "sha256": "79498B90F1C4B277A086830B0475C47E84CFF924BC42AF7C9142398A7AB88CA7",
+      "change": "new"
+    },
+    {
+      "path": "tests/memory_v1/test_m2_recovery.py",
+      "sha256": "266A65E9568DEDBC7873E9BFBC646BC8B5C4C3775C36CEA12FD08DE98D4BAD50",
+      "change": "new"
+    },
+    {
+      "path": "tests/memory_v1/test_m2_performance.py",
+      "sha256": "7116991E4AB14FC8C08C3187B21344F3C180E6D76EF71E53DF3D18FC7914F1D9",
+      "change": "new"
+    },
+    {
+      "path": "tests/memory_v1/run_regression.py",
+      "sha256": "704F55505C86D8A4BDC15A4A058111C12F4B9826668C2D7B002E06BB0717A367",
+      "change": "modified additive"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_before_run.json",
+      "sha256": "0184A0237BA14151D60FF9D0F0AA584428D6996E1373ABAF7A00ED6034145FDC"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_before.txt",
+      "sha256": "28740E502FFA72138057456912BC63EB496EB6244BD89AF1B9F65D1C47A70BCF"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_block1_run.json",
+      "sha256": "937CC7E2784B4FD1B5B03E424D5D51F3B6A9A3EAA0B641D7A821CC7D93CE3DAD"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_block1.txt",
+      "sha256": "46867A27715C165C4E6F22D39AEB84A2241812A9B919BE44CC24AE190FEC1FE1"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_block2_run.json",
+      "sha256": "97E68B7BBD17255DEEE725354116884E2421396F3C4B0CDC0DE8621B3118C457"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_block2.txt",
+      "sha256": "40E8E5DB3EB17C00A7D83CAF07E030A067D22A6DCDD88C9403A84A274296C5F8"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_domain_final_run.json",
+      "sha256": "3AB7467C2A2AA42216052E2B3F7DB710E569982A7EA26B076C4B55C124979B9B"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_domain_final.txt",
+      "sha256": "6E5452BAA0F9D26B9C2BC5721A93260BDFCB12F8493E99045AD1CA790AB80A5B"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_gate_final_run.json",
+      "sha256": "4414682B034D815D2F961FD291CA4B84E7DB4987B5AA3CB4C16402968C897868"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_gate_final.txt",
+      "sha256": "FABD8703D28F550C173394B0EDC9AAB7CB30468E9FD4A809EEF4709D4BD43069"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_after_run.json",
+      "sha256": "12932D7ECFEAC598241A59867E0F17ABD50916E542C80C04CA0A83E1AFB0B302"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_after.txt",
+      "sha256": "63B7DF8E23512007A1A514684CEAF006A7E7DEBF36B4421B59A0341779A8695C"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/gate_benchmark.json",
+      "sha256": "BE372E9AFDF9387EF66F33F7FFEA01B2092E6CF3360163FE67304948A7038780"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/preservation.json",
+      "sha256": "7FD2C51A1BEC77E49DB9ABB3020329D60E88F9195F04003AA510FC67C7C60BAA"
+    },
+    {
+      "path": "docs/memory_v1/m2_invariants.json",
+      "sha256": "A51A2D18F4C63BB13D3D16BBB5CD6A413172388260BD0D18AFE82EF912C7EAFA"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_after_final_run.json",
+      "sha256": "07D5B78EABACE477617EB1485C193F296DE02E29B63A693E4C2502835A997055"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/m2_after_final.txt",
+      "sha256": "7FF2494429DB5C3F0154085DB5592D69CBB37E47DD2C0676FB29BBA7AE2C6E64"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/after_benchmark.json",
+      "sha256": "7FC9041CFFDFE8F67285444B3373BF1C2F658D7007B6869A6FBA8FEDDE0F1FCE"
+    },
+    {
+      "path": "docs/memory_v1/m2_evidence/unchanged_skips.json",
+      "sha256": "EC71C0D82D35FEABFFCAB605F09B2C4D278A208E4CA131108D4415D7D0CE4007"
+    },
+    {
+      "path": "docs/memory_v1/m2_resultados.md",
+      "sha256": "893542FE51140E247006B7FDF178FC3020C0167BA5E4408A107996D554D48C9F"
+    }
+  ],
+  "hashPolicy": "SHA256 of source/artifacts excluding this manifest itself; historical evidence is not rewritten.",
+  "nextPhase": {
+    "id": "M3",
+    "name": "User control + explicit remember/correct/forget",
+    "implemented": false
+  },
+  "operational": {
+    "commit": false,
+    "push": false,
+    "tagsCreatedOrMoved": false,
+    "advancedToNextPhase": false
+  }
+}

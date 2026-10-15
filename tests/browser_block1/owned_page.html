@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Nova Block 1 owned page</title>
+  </head>
+  <body>
+    <h1>Nova Block 1 owned page</h1>
+    <p id="rendered" data-testid="rendered">JavaScript has not run.</p>
+    <button id="increment" type="button" onclick="increment()">Update owned page</button>
+    <p id="result" data-testid="result" aria-live="polite">Clicks: 0</p>
+    <script>
+      let clicks = 0;
+      function increment() {
+        clicks += 1;
+        document.getElementById("result").textContent = `Clicks: ${clicks}`;
+      }
+      setTimeout(() => {
+        document.getElementById("rendered").textContent = "Rendered by JavaScript: ready";
+      }, 120);
+    </script>
+  </body>
+</html>

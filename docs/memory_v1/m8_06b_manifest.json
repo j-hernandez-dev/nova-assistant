@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "iteration": "qwen3-embedding-0.6b-fixed-protocol",
+  "date": "2026-10-06",
+  "status": "PARTIAL",
+  "candidateStandalone": "FAIL",
+  "memoryReadyDeclared": false,
+  "baseline": {
+    "branch": "main",
+    "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "workingTree": "DIRTY_PREEXISTING_NO_STAGING",
+    "tags": [
+      "nova-core-v1-stable",
+      "nova-security-v1.2-ready"
+    ],
+    "platform": "Windows 11 build 26200 / local NTFS / HOST_UNISOLATED",
+    "runtime": "Python 3.12.14 / SQLite 3.53.1 / NumPy 2.3.5 / Ollama 0.35.1",
+    "initialFilesVerified": 634,
+    "initialFilesChanged": 0,
+    "productChanged": false,
+    "ciChanged": false,
+    "previousM8ClosureChanged": false
+  },
+  "scope": {
+    "syntheticOnly": true,
+    "newPrivateStore": true,
+    "old4096DVectorsReused": false,
+    "datasetChanged": false,
+    "goldChanged": false,
+    "scoringChanged": false,
+    "thresholdsChanged": false,
+    "independentV2ProtocolChanged": false,
+    "globalConfigurationChanged": false,
+    "gpuChanged": false,
+    "modelsDownloaded": false,
+    "cloudUsed": false,
+    "nextPhaseImplemented": false,
+    "commit": false,
+    "push": false,
+    "tagsMoved": false
+  },
+  "dataset": {
+    "version": "m8-fixed-synthetic-v1",
+    "sha256": "9412e7d40a34d4ea0b26fa4a665860bc381ac28c8472cba36c3cda5157ba1d2f",
+    "records": 12,
+    "queries": 14,
+    "positiveRankingCases": 12,
+    "negativeCases": 2,
+    "frozenProtocolHashes": {
+      "fixtures/m8_scenarios_v1.json": "f9eec6b9888014e0dcc97b85ebcfe7020386966c02626a2459e9bc9d8b283cfb",
+      "run_m8_quality.py": "5288258d369dffbf134f10a7f4a54dcf2cf5f7ba2f5ed1c28c14efed3309461f",
+      "m8_evaluation.py": "f34de1318c248b40c368a4ee9b071676cef583ffbd7284a5c0fc9a3eee29a906"
+    }
+  },
+  "candidate": {
+    "model": "qwen3-embedding:0.6b",
+    "digest": "ac6da0dfba84a81fdbfbaf330198c33cd77c4cdfc53e8bc50eb581914a15621d",
+    "capability": "REAL_EMBEDDING_VERIFIED",
+    "format": "GGUF",
+    "quantization": "Q8_0",
+    "parameterSize": "595.78M",
+    "advertisedContext": 32768,
+    "dimension": 1024,
+    "normalization": "l2",
+    "embeddingSpaceId": "ollama-38f5b9c7ea85b93f5acceb7cb1d519e7ccfd088263f87716edfce9b8935c6fa9",
+    "onlyNewSpacePresent": true,
+    "vectors": 12,
+    "matrixBytes": 49152,
+    "projectionMs": 20409.680600001593,
+    "stableFootprintBytes": 237568,
+    "allocatedBytes": 204800
+  },
+  "standalone": {
+    "status": "FAIL",
+    "mandatoryUnsatisfied": [
+      "precision1"
+    ],
+    "realBackendMeasured": true,
+    "lexical": {
+      "recall3": 0.5,
+      "precision1": 0.5,
+      "p95Ms": 3.061,
+      "paraphraseRecall3": 0.25,
+      "paraphrasePrecision1": 0.25
+    },
+    "hybrid": {
+      "recall3": 1,
+      "precision1": 0.5833333333333334,
+      "recallHits": 12,
+      "top1Hits": 7,
+      "positiveCases": 12,
+      "paraphraseRecall3": 1,
+      "paraphrasePrecision1": 0.375,
+      "paraphraseCases": 8,
+      "paraphraseRecallGainPP": 75,
+      "paraphrasePrecisionGainPP": 12.5,
+      "p95Ms": 318.636,
+      "minMs": 155.154,
+      "medianMs": 206.2185,
+      "maxMs": 318.636,
+      "warmQueries": 14,
+      "fallbackQueries": 0,
+      "errorQueries": 0,
+      "effectiveQueryModes": {
+        "exact": 2,
+        "hybrid": 4,
+        "semantic": 8
+      },
+      "top1FailureCases": [
+        "paraphrase-dark",
+        "paraphrase-metric",
+        "paraphrase-diet",
+        "paraphrase-offline",
+        "paraphrase-morning"
+      ]
+    },
+    "thresholds": {
+      "recall3": 0.85,
+      "precision1": 0.9,
+      "paraphraseGainMin": 0.05,
+      "paraphraseGainPreferred": 0.1,
+      "lexicalP95Ms": 50,
+      "warmHybridP95TargetMs": 350,
+      "softMs": 350,
+      "hardMs": 600
+    },
+    "abstentionLLM": "NOT_EVALUATED_NO_CHAT_INFERENCE",
+    "temporalAndConflict": "PRIOR_EVIDENCE_PRESERVED_NOT_REMEASURED",
+    "processExitCode": 0,
+    "exitCodeMeaning": "Original harness completed measurement; standaloneGate.pass=false. Subsequent harness returns exit1 for gate failure; raw report unchanged."
+  },
+  "e2e": {
+    "status": "NOT_RUN_STANDALONE_PREREQUISITE_FAILED",
+    "windows": {
+      "4096": "NOT_EVALUATED",
+      "8192": "NOT_EVALUATED",
+      "16384": "NOT_EVALUATED"
+    },
+    "memoryCapsulePromptEvidence": "NOT_EVALUATED",
+    "retrievalModePerTurn": "NOT_EVALUATED",
+    "criticalRerun": "NOT_RUN_E2E_SUCCESS_CONDITION_UNSATISFIED",
+    "previousIndependentE2E": "PARTIAL_HISTORY_UNCHANGED_NOT_REINTERPRETED"
+  },
+  "residency": {
+    "standalone": "BOTH_MODELS_OBSERVED_BEFORE_AND_AFTER",
+    "betweenChatTurns": "UNKNOWN",
+    "coldLoad": "NOT_MEASURED_ALREADY_RESIDENT",
+    "coldAndTimeoutRealFallback": "NOT_EVALUATED_FOR_CANDIDATE",
+    "fallbackContracts": "REGRESSION_PASSED_FIXTURES_NOT_HOST_REAL",
+    "ollamaReportedEmbeddingSizeVramBytes": 2857191341,
+    "ollamaReportedChatSizeVramBytes": 5490081790,
+    "vramQualification": "Ollama accounting, not independently measured physical/shared VRAM or peak RSS",
+    "hostPhysicalRamBytes": 16619384832,
+    "availablePhysicalRamSamples": [
+      2270609408,
+      2267582464,
+      2184847360
+    ],
+    "modelRunnerPeakRSS": "NOT_MEASURED",
+    "physicalVramPeak": "NOT_MEASURED"
+  },
+  "regression": {
+    "baseline": {
+      "passed": 652,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 55.8
+    },
+    "finalMemory": {
+      "passed": 661,
+      "failed": 0,
+      "skipped": 0,
+      "seconds": 56
+    },
+    "newHarnessContractTests": 9,
+    "fullCoreSecurity": "NOT_RERUN_PRODUCT_UNCHANGED_PRIOR_EVIDENCE_PRESERVED",
+    "newSkips": 0,
+    "newXfail": 0,
+    "realLLMQualityFromFixtures": false
+  },
+  "openDecisions": {
+    "embeddingRecommendation": "MEM1-OD-02_REMAINS_OPEN_CANDIDATE_FAILED",
+    "thresholds": "MEM1-OD-07_UNCHANGED",
+    "capacity": "MEM1-OD-04_UNCHANGED",
+    "laterDecisions": "NOT_RESOLVED"
+  },
+  "filesCreated": [
+    "tests/memory_v1/run_m8_candidate.py",
+    "tests/memory_v1/test_m8_candidate.py",
+    "docs/memory_v1/m8_06b_resultados.md",
+    "docs/memory_v1/m8_06b_evidence/baseline_run.json",
+    "docs/memory_v1/m8_06b_evidence/baseline_tests.xml",
+    "docs/memory_v1/m8_06b_evidence/baseline.log",
+    "docs/memory_v1/m8_06b_evidence/executed_candidate_harness.py.txt",
+    "docs/memory_v1/m8_06b_evidence/final_run.json",
+    "docs/memory_v1/m8_06b_evidence/final_tests.xml",
+    "docs/memory_v1/m8_06b_evidence/final.log",
+    "docs/memory_v1/m8_06b_evidence/initial_hashes.json",
+    "docs/memory_v1/m8_06b_evidence/standalone_report.json",
+    "docs/memory_v1/m8_06b_manifest.json"
+  ],
+  "artifacts": [
+    {
+      "path": "tests/memory_v1/run_m8_candidate.py",
+      "sha256": "466662bce559b8644b08d7366d220f8e4217213a0516c296ab8269dcf66aefab"
+    },
+    {
+      "path": "tests/memory_v1/test_m8_candidate.py",
+      "sha256": "489c5c70e879e0a73b7a72b8c967807411002320255781ea934fb99681c87734"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_resultados.md",
+      "sha256": "09cbc81142f560a99760dcf6e514938add3930458379ed1545cd56b5bc318bfa"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_evidence/baseline_run.json",
+      "sha256": "a2de8b69809e5b44e549ce97fcfe4b30a440b596ed2078967d6909661fa76c9a"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_evidence/baseline_tests.xml",
+      "sha256": "6ec921375163955de085637c1a24ab7d4d9d7b9e6ec911716d842c4119823cd6"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_evidence/baseline.log",
+      "sha256": "723a4c9f1d2b93cbb12038e4a23f054af4b3ce551c9b6ea8c508c69b24563620"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_evidence/executed_candidate_harness.py.txt",
+      "sha256": "c87d24f62539f5d842444662b870c8e6c7aa53da49a4d73e41fab94232fb1af9"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_evidence/final_run.json",
+      "sha256": "b023bf93763987d851465eb25e8da725c1f435c68f7c5a9be1800ea3a882ae5a"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_evidence/final_tests.xml",
+      "sha256": "ed681a18ef873cc186c5fa01c38eea3771689423072375b0bbaffc3818e3ddeb"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_evidence/final.log",
+      "sha256": "2bf7cfc2f778dbe3fbfba36867f355f214623ef736fc113d568f6e41236c713b"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_evidence/initial_hashes.json",
+      "sha256": "01f92188d871e3b9495766bc992b89c0fdf27da9283c1411a338a04226d37b98"
+    },
+    {
+      "path": "docs/memory_v1/m8_06b_evidence/standalone_report.json",
+      "sha256": "434509fb6bd090c4dfdb2cec10e7cc5f105056dc06f5d4a8bdd49d8f98c2d907"
+    }
+  ]
+}

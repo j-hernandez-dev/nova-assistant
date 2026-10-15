@@ -1,0 +1,285 @@
+Failed to find real location of C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\python.exe
+........................................................................ [ 21%]
+........................................................................ [ 43%]
+........................................................................ [ 65%]
+...FFFFFFFFFF........................................................... [ 87%]
+.........................................                                [100%]
+================================== FAILURES ===================================
+_ test_native_directory_reparse_escape_denied_no_external_read_write_delete[blobs] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_directory_reparse_0')
+area = 'blobs'
+
+    @pytest.mark.parametrize('area', ['blobs','staging','cache'])
+    def test_native_directory_reparse_escape_denied_no_external_read_write_delete(tmp_path,area):
+        outside=tmp_path/'outside';outside.mkdir()
+        sentinel=outside/'sentinel.txt';sentinel.write_bytes(b'synthetic outside data')
+        files=KnowledgeFiles(tmp_path/'state')
+        link=files.root/area
+        link.rmdir()  # Empty owned directory only, replace with synthetic escape.
+>       link_directory(link,outside)
+
+tests\knowledge_inputs_v1\test_k1_containment.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+link = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_directory_reparse_0/state/knowledge/v1/blobs')
+target = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_directory_reparse_0/outside')
+
+    def link_directory(link,target):
+        if os.name=='nt':
+            # Directory junction requires no symlink privilege; this is a real
+            # NTFS reparse escape fixture. No recursive deletion through cmd.
+            result=subprocess.run(['cmd','/d','/c','mklink','/J',str(link),str(target)],
+                                  capture_output=True,text=True,timeout=15)
+>           assert result.returncode==0,result.stdout+result.stderr
+E           AssertionError: Acceso denegado.
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-2026...1007\\pytest-private\\test_native_directory_reparse_0\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\n').returncode
+
+tests\knowledge_inputs_v1\test_k1_containment.py:71: AssertionError
+_ test_native_directory_reparse_escape_denied_no_external_read_write_delete[staging] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_directory_reparse_1')
+area = 'staging'
+
+    @pytest.mark.parametrize('area', ['blobs','staging','cache'])
+    def test_native_directory_reparse_escape_denied_no_external_read_write_delete(tmp_path,area):
+        outside=tmp_path/'outside';outside.mkdir()
+        sentinel=outside/'sentinel.txt';sentinel.write_bytes(b'synthetic outside data')
+        files=KnowledgeFiles(tmp_path/'state')
+        link=files.root/area
+        link.rmdir()  # Empty owned directory only, replace with synthetic escape.
+>       link_directory(link,outside)
+
+tests\knowledge_inputs_v1\test_k1_containment.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+link = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_directory_reparse_1/state/knowledge/v1/staging')
+target = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_directory_reparse_1/outside')
+
+    def link_directory(link,target):
+        if os.name=='nt':
+            # Directory junction requires no symlink privilege; this is a real
+            # NTFS reparse escape fixture. No recursive deletion through cmd.
+            result=subprocess.run(['cmd','/d','/c','mklink','/J',str(link),str(target)],
+                                  capture_output=True,text=True,timeout=15)
+>           assert result.returncode==0,result.stdout+result.stderr
+E           AssertionError: Acceso denegado.
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-2026...1007\\pytest-private\\test_native_directory_reparse_1\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\n').returncode
+
+tests\knowledge_inputs_v1\test_k1_containment.py:71: AssertionError
+_ test_native_directory_reparse_escape_denied_no_external_read_write_delete[cache] _
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_directory_reparse_2')
+area = 'cache'
+
+    @pytest.mark.parametrize('area', ['blobs','staging','cache'])
+    def test_native_directory_reparse_escape_denied_no_external_read_write_delete(tmp_path,area):
+        outside=tmp_path/'outside';outside.mkdir()
+        sentinel=outside/'sentinel.txt';sentinel.write_bytes(b'synthetic outside data')
+        files=KnowledgeFiles(tmp_path/'state')
+        link=files.root/area
+        link.rmdir()  # Empty owned directory only, replace with synthetic escape.
+>       link_directory(link,outside)
+
+tests\knowledge_inputs_v1\test_k1_containment.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+link = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_directory_reparse_2/state/knowledge/v1/cache')
+target = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_directory_reparse_2/outside')
+
+    def link_directory(link,target):
+        if os.name=='nt':
+            # Directory junction requires no symlink privilege; this is a real
+            # NTFS reparse escape fixture. No recursive deletion through cmd.
+            result=subprocess.run(['cmd','/d','/c','mklink','/J',str(link),str(target)],
+                                  capture_output=True,text=True,timeout=15)
+>           assert result.returncode==0,result.stdout+result.stderr
+E           AssertionError: Acceso denegado.
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-2026...1007\\pytest-private\\test_native_directory_reparse_2\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\n').returncode
+
+tests\knowledge_inputs_v1\test_k1_containment.py:71: AssertionError
+______ test_constructor_rejects_redirected_managed_components[knowledge] ______
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_constructor_rejects_redir0')
+component = 'knowledge'
+
+    @pytest.mark.parametrize('component', ['knowledge','v1','database','wal','lock'])
+    def test_constructor_rejects_redirected_managed_components(tmp_path,component):
+        state=tmp_path/'state';state.mkdir()
+        outside=tmp_path/'outside';outside.mkdir()
+        if component=='knowledge':
+>           link=state/'knowledge';link_directory(link,outside)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k1_containment.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+link = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_constructor_rejects_redir0/state/knowledge')
+target = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_constructor_rejects_redir0/outside')
+
+    def link_directory(link,target):
+        if os.name=='nt':
+            # Directory junction requires no symlink privilege; this is a real
+            # NTFS reparse escape fixture. No recursive deletion through cmd.
+            result=subprocess.run(['cmd','/d','/c','mklink','/J',str(link),str(target)],
+                                  capture_output=True,text=True,timeout=15)
+>           assert result.returncode==0,result.stdout+result.stderr
+E           AssertionError: Acceso denegado.
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-2026...1007\\pytest-private\\test_constructor_rejects_redir0\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\n').returncode
+
+tests\knowledge_inputs_v1\test_k1_containment.py:71: AssertionError
+_________ test_constructor_rejects_redirected_managed_components[v1] __________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_constructor_rejects_redir1')
+component = 'v1'
+
+    @pytest.mark.parametrize('component', ['knowledge','v1','database','wal','lock'])
+    def test_constructor_rejects_redirected_managed_components(tmp_path,component):
+        state=tmp_path/'state';state.mkdir()
+        outside=tmp_path/'outside';outside.mkdir()
+        if component=='knowledge':
+            link=state/'knowledge';link_directory(link,outside)
+        elif component=='v1':
+>           (state/'knowledge').mkdir();link=state/'knowledge/v1';link_directory(link,outside)
+                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k1_containment.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+link = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_constructor_rejects_redir1/state/knowledge/v1')
+target = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_constructor_rejects_redir1/outside')
+
+    def link_directory(link,target):
+        if os.name=='nt':
+            # Directory junction requires no symlink privilege; this is a real
+            # NTFS reparse escape fixture. No recursive deletion through cmd.
+            result=subprocess.run(['cmd','/d','/c','mklink','/J',str(link),str(target)],
+                                  capture_output=True,text=True,timeout=15)
+>           assert result.returncode==0,result.stdout+result.stderr
+E           AssertionError: Acceso denegado.
+E             
+E           assert 1 == 0
+E            +  where 1 = CompletedProcess(args=['cmd', '/d', '/c', 'mklink', '/J', 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-2026...1007\\pytest-private\\test_constructor_rejects_redir1\\outside'], returncode=1, stdout='', stderr='Acceso denegado.\n').returncode
+
+tests\knowledge_inputs_v1\test_k1_containment.py:71: AssertionError
+______ test_constructor_rejects_redirected_managed_components[database] _______
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_constructor_rejects_redir2')
+component = 'database'
+
+    @pytest.mark.parametrize('component', ['knowledge','v1','database','wal','lock'])
+    def test_constructor_rejects_redirected_managed_components(tmp_path,component):
+        state=tmp_path/'state';state.mkdir()
+        outside=tmp_path/'outside';outside.mkdir()
+        if component=='knowledge':
+            link=state/'knowledge';link_directory(link,outside)
+        elif component=='v1':
+            (state/'knowledge').mkdir();link=state/'knowledge/v1';link_directory(link,outside)
+        else:
+            folder=state/'knowledge/v1';folder.mkdir(parents=True)
+            external=outside/'synthetic.bin';external.write_bytes(b'untouched')
+            name={'database':'knowledge.db','wal':'knowledge.db-wal','lock':'writer.lock'}[component]
+            link=folder/name
+>           os.link(external,link)  # Real file hard-link, nlink >1, denied before open.
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [WinError 5] Acceso denegado: 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_constructor_rejects_redir2\\outside\\synthetic.bin' -> 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_constructor_rejects_redir2\\state\\knowledge\\v1\\knowledge.db'
+
+tests\knowledge_inputs_v1\test_k1_containment.py:114: PermissionError
+_________ test_constructor_rejects_redirected_managed_components[wal] _________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_constructor_rejects_redir3')
+component = 'wal'
+
+    @pytest.mark.parametrize('component', ['knowledge','v1','database','wal','lock'])
+    def test_constructor_rejects_redirected_managed_components(tmp_path,component):
+        state=tmp_path/'state';state.mkdir()
+        outside=tmp_path/'outside';outside.mkdir()
+        if component=='knowledge':
+            link=state/'knowledge';link_directory(link,outside)
+        elif component=='v1':
+            (state/'knowledge').mkdir();link=state/'knowledge/v1';link_directory(link,outside)
+        else:
+            folder=state/'knowledge/v1';folder.mkdir(parents=True)
+            external=outside/'synthetic.bin';external.write_bytes(b'untouched')
+            name={'database':'knowledge.db','wal':'knowledge.db-wal','lock':'writer.lock'}[component]
+            link=folder/name
+>           os.link(external,link)  # Real file hard-link, nlink >1, denied before open.
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [WinError 5] Acceso denegado: 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_constructor_rejects_redir3\\outside\\synthetic.bin' -> 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_constructor_rejects_redir3\\state\\knowledge\\v1\\knowledge.db-wal'
+
+tests\knowledge_inputs_v1\test_k1_containment.py:114: PermissionError
+________ test_constructor_rejects_redirected_managed_components[lock] _________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_constructor_rejects_redir4')
+component = 'lock'
+
+    @pytest.mark.parametrize('component', ['knowledge','v1','database','wal','lock'])
+    def test_constructor_rejects_redirected_managed_components(tmp_path,component):
+        state=tmp_path/'state';state.mkdir()
+        outside=tmp_path/'outside';outside.mkdir()
+        if component=='knowledge':
+            link=state/'knowledge';link_directory(link,outside)
+        elif component=='v1':
+            (state/'knowledge').mkdir();link=state/'knowledge/v1';link_directory(link,outside)
+        else:
+            folder=state/'knowledge/v1';folder.mkdir(parents=True)
+            external=outside/'synthetic.bin';external.write_bytes(b'untouched')
+            name={'database':'knowledge.db','wal':'knowledge.db-wal','lock':'writer.lock'}[component]
+            link=folder/name
+>           os.link(external,link)  # Real file hard-link, nlink >1, denied before open.
+            ^^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [WinError 5] Acceso denegado: 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_constructor_rejects_redir4\\outside\\synthetic.bin' -> 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_constructor_rejects_redir4\\state\\knowledge\\v1\\writer.lock'
+
+tests\knowledge_inputs_v1\test_k1_containment.py:114: PermissionError
+_______ test_native_blob_hardlink_rejected_and_external_bytes_preserved _______
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_native_blob_hardlink_reje0')
+
+    def test_native_blob_hardlink_rejected_and_external_bytes_preserved(tmp_path):
+        external=tmp_path/'external';external.write_bytes(b'synthetic not imported')
+        with SQLiteKnowledgeStore(tmp_path/'state') as store:
+            src,p,_=published(store)
+            blob=store.files.path('blobs',p.revision.revision_id+'.bin')
+>           blob.unlink();os.link(external,blob)
+                          ^^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [WinError 5] Acceso denegado: 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_native_blob_hardlink_reje0\\external' -> 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_native_blob_hardlink_reje0\\state\\knowledge\\v1\\blobs\\32511352-410d-4f9f-8797-5f4a18b5f3aa.bin'
+
+tests\knowledge_inputs_v1\test_k1_containment.py:130: PermissionError
+____________ test_recovery_cannot_delete_linked_staging_or_escape _____________
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block1-20261007/pytest-private/test_recovery_cannot_delete_li0')
+
+    def test_recovery_cannot_delete_linked_staging_or_escape(tmp_path):
+        from tests.knowledge_inputs_v1.k1_helpers import begin
+        external=tmp_path/'external';external.write_bytes(b'preserve')
+        with SQLiteKnowledgeStore(tmp_path/'state') as store:
+            op=begin(store)
+>           key=store.files.path('staging',op.operation_id+'.part');os.link(external,key)
+                                                                    ^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [WinError 5] Acceso denegado: 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_recovery_cannot_delete_li0\\external' -> 'C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k2-block1-20261007\\pytest-private\\test_recovery_cannot_delete_li0\\state\\knowledge\\v1\\staging\\op_5d9a9ae6f1bf43d2b35b8a893333e3e7.part'
+
+tests\knowledge_inputs_v1\test_k1_containment.py:141: PermissionError
+=========================== short test summary info ===========================
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_native_directory_reparse_escape_denied_no_external_read_write_delete[blobs]
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_native_directory_reparse_escape_denied_no_external_read_write_delete[staging]
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_native_directory_reparse_escape_denied_no_external_read_write_delete[cache]
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_constructor_rejects_redirected_managed_components[knowledge]
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_constructor_rejects_redirected_managed_components[v1]
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_constructor_rejects_redirected_managed_components[database]
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_constructor_rejects_redirected_managed_components[wal]
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_constructor_rejects_redirected_managed_components[lock]
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_native_blob_hardlink_rejected_and_external_bytes_preserved
+FAILED tests/knowledge_inputs_v1/test_k1_containment.py::test_recovery_cannot_delete_linked_staging_or_escape
+10 failed, 319 passed in 29.38s
+Exception ignored while calling deallocator <function Console.__del__ at 0x0000023B6C7B9170>:
+Traceback (most recent call last):
+  File "C:\Users\joseh\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pyreadline3\console\console.py", line 255, in __del__
+OSError: [WinError -1073741816] Windows Error 0xc0000008

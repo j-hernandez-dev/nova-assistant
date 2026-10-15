@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="11" time="54.768" timestamp="2026-10-04T14:50:19.435897-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s8_git" name="test_git_probe_closes_control_stdin_and_unnecessary_handles" file="tests\security_v12\test_s8_git.py" line="6" time="0.003" /><testcase classname="tests.security_v12.test_s8_git" name="test_git_timeout_is_unavailable_not_an_agent_failure" file="tests\security_v12\test_s8_git.py" line="18" time="0.002" /><testcase classname="tests.test_git_capability.TestGitCapability" name="test_cli_explains_missing_git_without_attempting_checkpoint" file="tests\test_git_capability.py" line="59" time="0.095" /><testcase classname="tests.test_git_capability.TestGitCapability" name="test_command_execution_is_independent_of_git" file="tests\test_git_capability.py" line="50" time="0.001" /><testcase classname="tests.test_git_capability.TestGitCapability" name="test_git_present_in_repository" file="tests\test_git_capability.py" line="31" time="0.000" /><testcase classname="tests.test_git_capability.TestGitCapability" name="test_git_present_outside_repository" file="tests\test_git_capability.py" line="25" time="0.001" /><testcase classname="tests.test_git_capability.TestGitCapability" name="test_missing_git_is_distinct_from_non_repository" file="tests\test_git_capability.py" line="20" time="0.001" /><testcase classname="tests.test_git_capability.TestGitCapability" name="test_project_map_falls_back_without_git" file="tests\test_git_capability.py" line="37" time="0.003" /><testcase classname="tests.test_git_capability.TestGitCapability" name="test_server_undo_explains_missing_git" file="tests\test_git_capability.py" line="67" time="0.084" /><testcase classname="tests.test_git_capability.TestGitCapability" name="test_updater_degrades_without_git" file="tests\test_git_capability.py" line="44" time="0.000" /><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_ollama_normal_backend_multitool_and_durable_audit" file="tests\security_v12\test_s8_e2e.py" line="118" time="54.164"><failure message="AssertionError: assert 'seed.txt content:' == 'NOVA_S8_f736...c1f7fb0a76bd5'&#10;  &#10;  - NOVA_S8_f73692d95b5b402b814c1f7fb0a76bd5&#10;  + seed.txt content:">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_ebodwq47/selected/test_real_ollama_normal_backen0')
+
+    def test_real_ollama_normal_backend_multitool_and_durable_audit(tmp_path):
+        model=require_model(os.environ['NOVA_S8_MODEL'])
+        marker='NOVA_S8_'+uuid.uuid4().hex
+        (tmp_path/'seed.txt').write_text(marker+'\n',encoding='utf-8')
+        peer=Peer(tmp_path)
+        try:
+            command_id,_=peer.command('SubmitUserInput',{'content':
+                'Use read to read seed.txt. Use write to copy its literal content into result.txt. '
+                'Then use read on result.txt to verify. Call read, write, read in that order, '
+                'wait for each result, never batch dependent calls. Do not use bash. '
+                'Paths are relative to this workspace. Finish after verification.'})
+            receipt=peer.wait(lambda f:f.get('type') in ('application_result','error') and f.get('id')==command_id,10)
+            assert receipt.get('data',{}).get('accepted'),receipt
+            terminal=peer.terminal();state=peer.snapshot()
+            assert terminal['kind']=='TurnCompleted',terminal
+            tools=[e for e in peer.events if e['kind'] in ('ToolCompleted','ToolFailed')]
+            names=[e['payload']['name'] for e in tools if e['kind']=='ToolCompleted']
+            assert names.count('read')&gt;=2 and 'write' in names,names
+            w=names.index('write');assert 'read' in names[:w] and 'read' in names[w+1:]
+            assert len({e['operationId'] for e in tools})==len(tools)
+            assert not any(e['kind']=='ApprovalRequired' for e in peer.events)
+&gt;           assert (tmp_path/'result.txt').read_text(encoding='utf-8').strip()==marker
+E           AssertionError: assert 'seed.txt content:' == 'NOVA_S8_f736...c1f7fb0a76bd5'
+E             
+E             - NOVA_S8_f73692d95b5b402b814c1f7fb0a76bd5
+E             + seed.txt content:
+
+tests\security_v12\test_s8_e2e.py:140: AssertionError</failure></testcase></testsuite></testsuites>

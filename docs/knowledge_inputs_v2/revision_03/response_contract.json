@@ -1,0 +1,18 @@
+{
+  "schema": "k8-v2-model-response-3",
+  "format": "single JSON object; no code fence; no leading/trailing prose",
+  "fields": {
+    "facts": "array of {key:string,value:string,citations:array of exact [K#] markers}; MEMORY facts use no document marker",
+    "relation": [
+      "SINGLE",
+      "CONFLICT",
+      "CONCORDANT",
+      "HETEROGENEOUS",
+      "NO_EVIDENCE"
+    ],
+    "abstain": "boolean",
+    "natural_response": "string containing documentary markers as appropriate"
+  },
+  "parser": "strict types, exact fields, no duplicate JSON keys; never infer relation/abstention from substrings",
+  "no_evidence_exception": "exact UNKNOWN permitted by normative absence guard; maps to facts=[],relation=NO_EVIDENCE,abstain=true,citations=[],natural_response=UNKNOWN"
+}

@@ -1,0 +1,89 @@
+{
+  "status": "PASS",
+  "startedAt": "2026-10-14T22:42:32.397072+00:00",
+  "publicInternetDependency": false,
+  "checks": {
+    "real_model_application_started": true,
+    "real_model_turn_started": true,
+    "real_model_upload_download_tools": true,
+    "real_model_transfer_approvals": true,
+    "real_model_retained_download": true,
+    "real_model_answer_actual_path": true
+  },
+  "browsers": {},
+  "model": {
+    "profile": {
+      "model": "qwen3.5:9b",
+      "options": {
+        "temperature": 0.6,
+        "top_p": 0.95,
+        "top_k": 20,
+        "num_ctx": 8192
+      },
+      "think": false
+    },
+    "tools": [
+      "browser_navigate",
+      "browser_upload",
+      "browser_click",
+      "browser_navigate",
+      "browser_download"
+    ],
+    "approvals": [
+      "browser_upload",
+      "browser_download"
+    ],
+    "toolReceipts": [
+      {
+        "role": "tool",
+        "tool_name": "browser_navigate",
+        "content": "{\"page\": \"page_288fe2413ab245d69cce880a0760c7c7\", \"url\": \"http://127.0.0.1:56867/\", \"title\": \"Owned transfers\", \"adapter\": \"WEBVIEW2\", \"text\": \"Owned test\\n Harmless\\nNextDrive-by\", \"truncated\": false, \"elements\": [{\"ref\": \"el_f22f24514540404da7931e559cf61bda\", \"tag\": \"input\", \"name\": \"Synthetic password\", \"type\": \"password\", \"disabled\": false}, {\"ref\": \"el_ffd908f080404f7f885f6b82668d07e9\", \"tag\": \"input\", \"name\": \"Declared\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_360ded82e72c4f27b9f0c528b344961d\", \"tag\": \"input\", \"name\": \"Upload\", \"type\": \"file\", \"disabled\": false}, {\"ref\": \"el_4f849f6922a74b5db717ed6fca7bedda\", \"tag\": \"button\", \"name\": \"Harmless\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_8eeef760c3ae42db973d64a2011560fa\", \"tag\": \"a\", \"name\": \"Next\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_e568d384a8d24167aa1808ddbb902422\", \"tag\": \"a\", \"name\": \"Drive-by\", \"type\": \"\", \"disabled\": false}], \"elementOffset\": 0, \"nextElementOffset\": null, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\"}",
+        "tool_call_id": "call_uavwy4qp"
+      },
+      {
+        "role": "tool",
+        "tool_name": "browser_upload",
+        "content": "{\"page\": \"page_288fe2413ab245d69cce880a0760c7c7\", \"url\": \"http://127.0.0.1:56867/\", \"title\": \"Owned transfers\", \"adapter\": \"WEBVIEW2\", \"text\": \"Owned test\\n Harmless\\nNextDrive-by\", \"truncated\": false, \"elements\": [{\"ref\": \"el_81e6989e61444d76b4243b3dbca67700\", \"tag\": \"input\", \"name\": \"Synthetic password\", \"type\": \"password\", \"disabled\": false}, {\"ref\": \"el_37f08103ffa24b9c9f3f9ea854c788c8\", \"tag\": \"input\", \"name\": \"Declared\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_4dcaabdd3d4b4bf3a19ba0bfd5288291\", \"tag\": \"input\", \"name\": \"Upload\", \"type\": \"file\", \"disabled\": false}, {\"ref\": \"el_9bdc1b23ca7548028c6247549bb30dca\", \"tag\": \"button\", \"name\": \"Harmless\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_70607257894d450389671d69f7ea4745\", \"tag\": \"a\", \"name\": \"Next\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_ddaa3ad95cb94593af2b83c8395f5813\", \"tag\": \"a\", \"name\": \"Drive-by\", \"type\": \"\", \"disabled\": false}], \"elementOffset\": 0, \"nextElementOffset\": null, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\", \"localFileAttached\": true, \"remoteOutcome\": \"UNKNOWN\", \"sourceDigest\": \"b0ecb14d9fda4cc0b11ec4ff555773faeecebe88401982f04a65b73a1804b133\"}",
+        "tool_call_id": "call_fnbj64a5"
+      },
+      {
+        "role": "tool",
+        "tool_name": "browser_click",
+        "content": "{\"status\": \"denied\", \"code\": \"BROWSER_SENSITIVE_INPUT_UNAVAILABLE\", \"message\": \"Use human takeover for passwords, or browser_upload for file inputs.\", \"effect\": \"none\"}",
+        "tool_call_id": "call_zocokd0d"
+      },
+      {
+        "role": "tool",
+        "tool_name": "browser_navigate",
+        "content": "{\"status\": \"unknown\", \"code\": \"NAVIGATION_FAILED\", \"message\": \"The browser could not finish navigation before its deadline.\", \"effect\": \"unknown\"}",
+        "tool_call_id": "call_de3q9y8x"
+      },
+      {
+        "role": "tool",
+        "tool_name": "browser_download",
+        "content": "{\"downloadId\": \"fdaecc08e1fb46139314dbfdb4c4e9b1\", \"state\": \"COMPLETE\", \"owner\": \"C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-browser-block5-work-2x5zdpt_\", \"session\": \"ses_bc731ff489ea4bdd942636c4d5f64775\", \"url\": \"http://127.0.0.1:56867/download\", \"size\": 5120, \"digest\": \"0d41c0e9bdf99abcdd94b0ed2ba210d91490807b9e12201fe63f7372a6d1873c\", \"mime\": \"application/octet-stream\", \"path\": \"C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-browser-block5-work-2x5zdpt_\\\\model-staging\\\\download_fdaecc08e1fb46139314dbfdb4c4e9b1\\\\payload.bin\", \"retained\": true, \"createdAt\": \"2026-10-14T22:43:13.949300+00:00\", \"expiresAt\": \"2026-10-28T22:43:13.949316+00:00\"}",
+        "tool_call_id": "call_yulb3wqs"
+      }
+    ],
+    "answer": "El archivo ha sido descargado con éxito. La ruta del archivo descargado es:\n\n**`C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-browser-block5-work-2x5zdpt_\\model-staging\\download_fdaecc08e1fb46139314dbfdb4c4e9b1\\payload.bin`**",
+    "status": "completed"
+  },
+  "modelCleanup": {
+    "host_exited": true,
+    "job_empty": true,
+    "profile_removed": true,
+    "graceful": true,
+    "forced": false,
+    "errors": []
+  },
+  "ownedWorkRemoved": true,
+  "ownedHttpStopped": true,
+  "hits": {
+    "upload": [
+      "b0ecb14d9fda4cc0b11ec4ff555773faeecebe88401982f04a65b73a1804b133"
+    ],
+    "effect": 0,
+    "download": 2,
+    "interrupted": 0
+  }
+}

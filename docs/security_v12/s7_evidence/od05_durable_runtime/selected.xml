@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="10" time="3.634" timestamp="2026-10-04T13:21:49.825116-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_durable_process_fixture_reconstructed_after_reopen[completed-states0]" file="tests\security_v12\test_s7_durable_runtime.py" line="28" time="0.098" /><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_durable_process_fixture_reconstructed_after_reopen[timeout-states1]" file="tests\security_v12\test_s7_durable_runtime.py" line="28" time="0.107" /><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_durable_process_fixture_reconstructed_after_reopen[cancelled-states2]" file="tests\security_v12\test_s7_durable_runtime.py" line="28" time="0.115" /><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_durable_process_fixture_reconstructed_after_reopen[outcome_unknown-states3]" file="tests\security_v12\test_s7_durable_runtime.py" line="28" time="0.111" /><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_durable_deny_and_exact_human_approval" file="tests\security_v12\test_s7_durable_runtime.py" line="68" time="2.057"><failure message="assert False&#10; +  where False = wait(2)&#10; +    where wait = &lt;threading.Event at 0x172ac5be690: unset&gt;.wait">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s7_private_ozyn86gz/selected/test_durable_deny_and_exact_hu0')
+
+    def test_durable_deny_and_exact_human_approval(tmp_path):
+        work, disk, audit = disk_audit(tmp_path)
+        pending, ready = [], Event()
+        gate = ApprovalGate(on_required=lambda r: (pending.append(r),ready.set()))
+        actor = gate.register_actor('desktop_host',lambda:True)
+        rt, exe, _ = runtime(work, gate=gate, security_audit=audit)
+        denied = invocation(work,arguments={'command':'Format-Volume D:'})
+        assert rt.execute(denied).status is ToolStatus.DENIED
+        assert reconstruct_operation(disk.read_operation('session','operation'))['outcome'] == 'denied'
+        inv = replace(invocation(work,arguments={'command':'Remove-Item build -Recurse'}),
+                      operation_id='approved-operation')
+        output = []
+        worker = Thread(target=lambda:output.append(rt.execute(inv)),daemon=True)
+        worker.start()
+        try:
+&gt;           assert ready.wait(2)
+E           assert False
+E            +  where False = wait(2)
+E            +    where wait = &lt;threading.Event at 0x172ac5be690: unset&gt;.wait
+
+tests\security_v12\test_s7_durable_runtime.py:84: AssertionError</failure></testcase><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_fs_effect_known_even_if_terminal_audit_lost[none]" file="tests\security_v12\test_s7_durable_runtime.py" line="102" time="0.089" /><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_fs_effect_known_even_if_terminal_audit_lost[before]" file="tests\security_v12\test_s7_durable_runtime.py" line="102" time="0.008" /><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_fs_effect_known_even_if_terminal_audit_lost[after]" file="tests\security_v12\test_s7_durable_runtime.py" line="102" time="0.070" /><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_normal_cli_composition_activates_jsonl_outside_workspace" file="tests\security_v12\test_s7_durable_runtime.py" line="150" time="0.356" /><testcase classname="tests.security_v12.test_s7_durable_runtime" name="test_normal_desktop_backend_composition_uses_same_durable_backend" file="tests\security_v12\test_s7_durable_runtime.py" line="179" time="0.320" /></testsuite></testsuites>

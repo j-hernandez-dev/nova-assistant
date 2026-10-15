@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Selected read-only post-campaign metadata and accounting observations; no inference",
+  "source": "GET /api/tags + GET /api/ps and nvidia-smi after operational campaign",
+  "rawCampaignSource": "operational_report.json",
+  "chatAliasMetadataAfterCampaign": [
+    {
+      "name": "qwen3.5:9b",
+      "digest": "2e16a80fe3d77d431d295466415848403c8c266667ee5d7d8991ee445b4e1311",
+      "runner": "ggml",
+      "sizeBytes": 6594474711,
+      "modifiedAt": "2026-10-06T23:47:46.3529159-06:00"
+    },
+    {
+      "name": "qwen3.5:9b",
+      "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+      "runner": "llamacpp",
+      "sizeBytes": 6603314868,
+      "modifiedAt": "2026-10-06T23:47:46.3529159-06:00"
+    }
+  ],
+  "psAfterCampaign": [
+    {
+      "name": "qwen3.5:9b",
+      "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+      "sizeBytes": 5490081790,
+      "sizeVramBytes": 5490081790,
+      "contextLength": 4096,
+      "runner": "llamacpp"
+    }
+  ],
+  "embeddingInstalledDigestAfterCampaign": "df5bd2e3c74cd8d069d21dc038f1b359fcdc9458fce1c99bd43c9eb1518ff907",
+  "embeddingResidentAfterCampaign": false,
+  "chatInitialTagDigest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+  "aliasRevisionChangeCause": "UNKNOWN; not attributed to MEMORY or a user action",
+  "nvidiaSmiSamples": {
+    "gpu": "NVIDIA GeForce RTX 4060",
+    "totalMiB": 8188,
+    "usedMiB": {
+      "beforeCampaign": 998,
+      "duringPreparation": 5859,
+      "duringChatLoading": 246,
+      "afterCampaign": 6478
+    },
+    "peakClaim": false,
+    "gpuChangedByTask": false
+  },
+  "windowsPhysicalMemorySource": "GlobalMemoryStatusEx in raw campaign residency snapshots",
+  "totalPhysicalBytes": 16619384832,
+  "availablePhysicalBytesBefore": 3965440000,
+  "availablePhysicalBytesAfter": 4200017920,
+  "runnerPeakRSS": "NOT_MEASURED",
+  "physicalVramPeak": "NOT_MEASURED",
+  "ollamaSizeVramIsPhysicalMeasurement": false
+}

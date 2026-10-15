@@ -1,0 +1,12 @@
+{
+  "scope": "S5 private loopback fixture, no external network",
+  "command": "Python stdlib nonblocking connect_ex + select(read,write,exception,5) + SO_ERROR",
+  "host": "Windows",
+  "connectEx": 10035,
+  "elapsedSeconds": 2.037193500000285,
+  "readReady": false,
+  "writeReady": false,
+  "exceptionReady": true,
+  "socketError": 10061,
+  "conclusion": "A 0.5s fixture deadline correctly expires before the OS refusal signal. The typed refusal test uses 3s; the product's 30s total budget is unchanged. select must monitor the exception set as well."
+}

@@ -1,0 +1,385 @@
+{
+  "schemaVersion": 1,
+  "phase": "S6",
+  "status": "PASS",
+  "hostPlatform": "Windows",
+  "userContextDate": "2026-10-04",
+  "processModel": "HOST_UNISOLATED",
+  "scope": {
+    "environmentAndSecretsOnly": true,
+    "nextPhase": "S7",
+    "nextPhaseImplemented": false,
+    "noCommit": true,
+    "noPush": true,
+    "deprecatedSecurityCodeReused": false
+  },
+  "baseline": {
+    "head": "158b60effa484cd34a58b991f3ee4ca3f808d924",
+    "branch": "main",
+    "staged": [],
+    "s5Status": "PASS",
+    "s5PinsVerified": 138,
+    "s5Mismatches": [],
+    "pertinentTests": {
+      "passed": 538,
+      "skipped": 1,
+      "evidence": "docs/security_v12/s6_evidence/baseline/run.json"
+    },
+    "snapshot": "docs/security_v12/s6_evidence/before/snapshot.json",
+    "existingFiles": 746,
+    "historicalDocsHashIdentical": 429,
+    "missingExistingFiles": [],
+    "changedExistingFiles": [
+      "desktop/electron/main.ts",
+      "local_cli/application/events.py",
+      "local_cli/application/network.py",
+      "local_cli/application/persistence.py",
+      "local_cli/application/policy.py",
+      "local_cli/application/process.py",
+      "local_cli/application/providers.py",
+      "local_cli/application/session.py",
+      "local_cli/application/tool_runtime.py",
+      "local_cli/bootstrap_server.py",
+      "local_cli/infrastructure/process_environment.py",
+      "local_cli/interfaces/cli_application.py",
+      "local_cli/interfaces/jsonl_application.py",
+      "local_cli/security.py",
+      "local_cli/session_log.py",
+      "local_cli/sub_agent.py",
+      "local_cli/tools/agent_tool.py"
+    ]
+  },
+  "decision": {
+    "id": "SEC12-OD-03",
+    "status": "CLOSED",
+    "authorization": "Usuario: Compatible minimo + pass por operacion; mantener semantica normal de herencia OS a hijos HOST_UNISOLATED.",
+    "document": "docs/security_v12/SEC12_OD_03_S6.md",
+    "pendingS6Decisions": []
+  },
+  "implementation": {
+    "base": "EnvironmentBuilder explicito compatible minimo S4",
+    "additionalSelection": "host/config confiable; inmutable; nombres/capabilities/scopes exactos; approval humana vigente por pass; consumo terminal sin replay automatico",
+    "publicBashSchemaUnchanged": true,
+    "dotEnvAutoLoad": false,
+    "providerAndNovaCredentialsInChildEnvironment": false,
+    "redaction": "valores conocidos antes de streams, resultados, prompts, transcript, events, journal, audit, logs, traces, snapshots y persistencia",
+    "subagentFreshEnvironment": true,
+    "sharedApplicationToolRuntime": true,
+    "noGeneralSecretsScreen": true
+  },
+  "gate": {
+    "status": "PASS",
+    "definitiveRun": "docs/security_v12/s6_evidence/release_gate/run.json",
+    "sourcePinsVerified": 677,
+    "sourcePinMismatches": [],
+    "groups": [
+      {
+        "name": "s6",
+        "exitCode": 0
+      },
+      {
+        "name": "prior_regression",
+        "exitCode": 0
+      },
+      {
+        "name": "s6_host_real",
+        "exitCode": 0
+      },
+      {
+        "name": "desktop_approval",
+        "exitCode": 0
+      },
+      {
+        "name": "desktop_main_syntax",
+        "exitCode": 0
+      }
+    ],
+    "criteria": [
+      {
+        "name": "EnvironmentBuilder y base explicita",
+        "status": "PASS",
+        "evidence": [
+          "unit Windows/POSIX",
+          "host-real environment/path fixture"
+        ]
+      },
+      {
+        "name": "Variables dummy sensibles y no usadas excluidas; valores conocidos redactados",
+        "status": "PASS",
+        "evidence": [
+          "unit",
+          "contract",
+          "host-real"
+        ]
+      },
+      {
+        "name": "PATH, HOME/USERPROFILE, TEMP/TMP utiles segun policy",
+        "status": "PASS",
+        "evidence": [
+          "unit",
+          "host-real"
+        ]
+      },
+      {
+        "name": "Proxy/SSH/Git hooks/NODE_OPTIONS/PYTHONPATH sin herencia implicita",
+        "status": "PASS",
+        "evidence": [
+          "unit deny/scopes",
+          "host-real"
+        ]
+      },
+      {
+        "name": "Provider mantiene auth privada sin secretos en prompts ni launcher",
+        "status": "PASS",
+        "evidence": [
+          "adapter clone/bind unit",
+          "Claude HTTP local con auth dummy"
+        ]
+      },
+      {
+        "name": "Logs, excepciones, transcript, streams/events, snapshots/persistencia redactados",
+        "status": "PASS",
+        "evidence": [
+          "unit",
+          "contract",
+          "Application integration",
+          "host-real stdout/stderr"
+        ]
+      },
+      {
+        "name": "Read/pass exactos con approval vigente y no replay/ampliacion en subagentes",
+        "status": "PASS",
+        "evidence": [
+          "policy/grant/digest contract",
+          "CLI integration",
+          "host-real con actor humano simulado"
+        ]
+      },
+      {
+        "name": "No persistencia o reutilizacion automatica del pass gestionado por Nova",
+        "status": "PASS",
+        "evidence": [
+          "cleanup/replay tests",
+          "fresh subagent environment"
+        ]
+      },
+      {
+        "name": "Compatibilidad, fronteras y regresion",
+        "status": "PASS",
+        "evidence": [
+          "Core/S0-S5 extended regression",
+          "Node approval",
+          "Node main.ts syntax"
+        ]
+      }
+    ],
+    "unmetCriteria": [],
+    "criterionSilentlyReduced": false
+  },
+  "tests": {
+    "baselineNotIncludedInFinalTotal": true,
+    "incrementalRepeatsNotIncludedInFinalTotal": true,
+    "groups": [
+      {
+        "name": "s6",
+        "passed": 65,
+        "failed": 0,
+        "skipped": 0,
+        "type": "unit/contract/mock + Application/CLI integration",
+        "xml": "docs/security_v12/s6_evidence/release_gate/s6.xml"
+      },
+      {
+        "name": "prior_regression",
+        "passed": 1105,
+        "subtestsPassed": 10,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "type": "Core/S0-S5 unit/contract/integration/regression; optional real Ollama smoke skipped",
+        "xml": "docs/security_v12/s6_evidence/release_gate/prior_regression.xml"
+      },
+      {
+        "name": "s6_host_real",
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "type": "Windows real launcher/shell/OS child + real provider adapter against local HTTP fixture with dummy auth",
+        "humanActor": "simulado; no consentimiento humano externo en el test",
+        "xml": "docs/security_v12/s6_evidence/release_gate/s6_host_real.xml"
+      },
+      {
+        "name": "desktop_approval",
+        "passed": 10,
+        "failed": 0,
+        "type": "Node approval contract with simulated adapters",
+        "log": "docs/security_v12/s6_evidence/release_gate/desktop_approval.log"
+      },
+      {
+        "name": "desktop_main_syntax",
+        "exitCode": 0,
+        "type": "Node experimental-transform-types syntax check only; not tsc/Electron GUI",
+        "log": "docs/security_v12/s6_evidence/release_gate/desktop_main_syntax.log"
+      }
+    ],
+    "pythonPassed": 1174,
+    "pythonSubtestsPassed": 10,
+    "nodePassed": 10,
+    "optionalSkipped": [
+      "tests.test_nova_core_phase14_smoke.test_real_ollama_completes_file_task_with_multiple_tools"
+    ],
+    "deselection": {
+      "count": 3,
+      "expression": "not gpu and not nvidia and not vram",
+      "reason": "GPU fuera de alcance por instruccion del usuario; no requisito del gate S6"
+    },
+    "actualCloudModelSmoke": false,
+    "dependenciesInstalled": false,
+    "gpuChecks": false
+  },
+  "preservation": {
+    "existingFilesRemoved": [],
+    "historicalEvidenceModified": [],
+    "previousS3WinError1314Preserved": true,
+    "previousS3ManualClosurePreserved": true,
+    "intermediateS6FailedAttemptsPreserved": true,
+    "preexistingDeletionsUntouched": [
+      "README.easy-ja.md",
+      "README.ja.md",
+      "hello.py"
+    ]
+  },
+  "regressions": {
+    "observedInDefinitiveRun": [],
+    "blockingDebt": []
+  },
+  "limitations": [
+    "HOST_UNISOLATED: no aislamiento fisico, cuotas OS, firewall ni bloqueo de acceso a archivos/perfil.",
+    "El environment del proceso raiz puede heredarse normalmente a hijos OS; no se afirma impedirlo.",
+    "Redaccion de valores conocidos, no detector universal, defensa contra ofuscacion ni migracion historica.",
+    "Host-real Windows; POSIX cubierto por unit, no host-real Linux/macOS.",
+    "Provider smoke real contra HTTP local y credenciales dummy; sin cuenta cloud/modelo real.",
+    "Desktop probado por contratos Node y sintaxis; sin tsc/bundle/Electron GUI completa.",
+    "Durabilidad/retencion de Security Audit y SEC12-OD-05 quedan para S7, no implementado."
+  ],
+  "results": "docs/security_v12/s6_resultados.md",
+  "integrity": {
+    "algorithm": "SHA256",
+    "fileCount": 111,
+    "evidenceFileCount": 83,
+    "includesIgnoredEvidenceLogs": true,
+    "manifestSelfHashExcluded": true
+  },
+  "files": {
+    "desktop/electron/main.ts": "25D84C1F0DD26A0D9591A10A752657BFFA4964F28F4984697AEA13C4E04DBFBD",
+    "docs/security_v12/s6_environment_secrets.md": "7501BD333241309D67686C1FB984910875110820612513B5FFFCBC2F5B505A77",
+    "docs/security_v12/s6_evidence/baseline/run.json": "38C3CD910CAAF2CFA5C5914EB28D9A14B9F38CFCAF370A3DF89129D375661C27",
+    "docs/security_v12/s6_evidence/baseline/selected.log": "D9F5796986A07FA6583CBDD1C15C46F4B74CA1DBC760BED09E5C589864D87203",
+    "docs/security_v12/s6_evidence/baseline/selected.xml": "7F8C136F0ABDA427115F41BBE88868061A161313CA661612598E9FA4DFF90990",
+    "docs/security_v12/s6_evidence/before/snapshot.json": "C83CC42B2DA7495E79E2A9BAE687E3A8A74B99392CA8230D64B201F41191B20B",
+    "docs/security_v12/s6_evidence/block1/run.json": "366B08720CF397466E03C46D4AD3111A434B9A67B006DE03FCF8F01F38186DA5",
+    "docs/security_v12/s6_evidence/block1/selected.log": "CF19BD1504E2A0873740D0FB4D748189E0944F1F1BBA467362C702B4F0DE1261",
+    "docs/security_v12/s6_evidence/block1/selected.xml": "11DC57F1DF9A03E51CEF57330B2F69DB470764C4B433ABF833BFB9400CAA7891",
+    "docs/security_v12/s6_evidence/block2_diagnostic/run.json": "05BDE6D6D1713E556DB71137D4678620DCB15C0DF2DBC83F9EA9AAF09A44764D",
+    "docs/security_v12/s6_evidence/block2_diagnostic/selected.log": "D451ECB9C15AFB279AB19451783556F637F5BBBC92A86FF84F644FC5A43F0704",
+    "docs/security_v12/s6_evidence/block2_diagnostic/selected.xml": "2DC77427F9CD4B4B5E074A1329F353A35A04202B1B175BF088BE7CA75F218748",
+    "docs/security_v12/s6_evidence/block2_repaired/run.json": "71E8AD43D76B1F50F094E095503AA7B51E4438432A9B38219DD76C8B26AD58B6",
+    "docs/security_v12/s6_evidence/block2_repaired/selected.log": "0E0B5FFECC047A63D87245D871ACB48BA5A1B5D8D08C3A2C3A0CED61EBF8108A",
+    "docs/security_v12/s6_evidence/block2_repaired/selected.xml": "9E4513FEA5E44263C871B2CF32E01D6530FCDDB0CF8621CCA86D499E02F39E20",
+    "docs/security_v12/s6_evidence/block2/run.json": "55C701CBB00329E4133F72C9716D37C322B93349B2ABB245713468BBF463F650",
+    "docs/security_v12/s6_evidence/block2/selected.log": "33FDFBF44FBF796A71091BC29427ED85F5BCEB727EF4CCE0A70687F8E13F94FD",
+    "docs/security_v12/s6_evidence/block3/run.json": "58001F927849FD94A21B8418245D4613CFE6609167E18768E9F07AE51CB98CE9",
+    "docs/security_v12/s6_evidence/block3/selected.log": "50591EB7B470F1EFB2B8658C41A69703093ECDAFDC9D4B28E839BAF20C5469B4",
+    "docs/security_v12/s6_evidence/block3/selected.xml": "86B5BB7B01D28DC1BF6B944AEC59363EA6253FE3FEEA381BF718DAC3F7E1D433",
+    "docs/security_v12/s6_evidence/closure/desktop_approval.log": "5436F17D124EE15598511EC9153D6717CBB56A57F07C9EF41F71A8C1F09C8052",
+    "docs/security_v12/s6_evidence/closure/desktop_main_syntax.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s6_evidence/closure/prior_regression.log": "9EFB6400628D4188A8AB88D45CF00DBE4C65C5B7181F5BE40918FE3B9EC82DB5",
+    "docs/security_v12/s6_evidence/closure/prior_regression.xml": "011BF326B8C79A74C289D282FDD03C1B0A745B511DD7EFFD54C8FEE98971D6D7",
+    "docs/security_v12/s6_evidence/closure/run.json": "C48436EA491CEF6DF368B735786625902FE8724BD970BC51D54637BB8D5277CA",
+    "docs/security_v12/s6_evidence/closure/s6_host_real.log": "BCEEA88245E22F0130EA54101FDA7B44088AC4209F14F914412FB44F114DFE92",
+    "docs/security_v12/s6_evidence/closure/s6_host_real.xml": "C8D52930D128B06F1C81B0D61A13BF1F3B51B58DD9893045082D97A6961F0D68",
+    "docs/security_v12/s6_evidence/closure/s6.log": "EF3DD6426BEA1B38731D9D74C3D931A8D6D85462C6B96065DA93BD8C61AED6E7",
+    "docs/security_v12/s6_evidence/closure/s6.xml": "8005D469F8BFCDCEDE62E4C64F95813785360684691708B466BCFF640752DB55",
+    "docs/security_v12/s6_evidence/final_verification.json": "C77259C32CCFCCD956EBA187E5DEDB3A527EFFA1976C7CB6D6FDD61D0F87F5AE",
+    "docs/security_v12/s6_evidence/final/prior_regression.log": "4DD2C5413FEBE6A17043FA7648031B8BC871F44454E524E21E7D857CC8C6D80A",
+    "docs/security_v12/s6_evidence/final/prior_regression.xml": "188300917AF6C44916882584121F5C16E2906843746566617896EE6EF248FFAE",
+    "docs/security_v12/s6_evidence/final/run.json": "D52F1DC55F7C74E352454A8D277369D8608F5E8F93CBE6A5A77951350B016D6B",
+    "docs/security_v12/s6_evidence/final/s6_host_real.log": "1AB4FF5B3FEB6D0E3E432DB3AAFCFC487D375AA642D212038B70F9F07657B3F6",
+    "docs/security_v12/s6_evidence/final/s6_host_real.xml": "BCF5771B218B2620A40F74221494A4D48C51C850E09A8393AE371B9A35DE74A4",
+    "docs/security_v12/s6_evidence/final/s6.log": "0BC1C9794EF3CEDDDA03819BAA4F230C194D21928529A19B73D28222A3F1E706",
+    "docs/security_v12/s6_evidence/final/s6.xml": "2B77BBFEB247C8EAD2582AC0A2BBA3EBE17B181E64EB56F7997BDBA5B077B712",
+    "docs/security_v12/s6_evidence/full_regression/prior_regression.log": "5062BD5FD01EC3889D7888D49AA75DB1ABFAE215D32F2D3DB176D8DDF88EAB44",
+    "docs/security_v12/s6_evidence/full_regression/prior_regression.xml": "62E7257F58F5C6DDB63966EA83D180189540AECCBE2268ACD6E9AD876BF0649B",
+    "docs/security_v12/s6_evidence/full_regression/run.json": "4E0832DE602FDC19A9EFDC3CC1D39BBE5457A5D1BF8C357255522DA269EEB0B6",
+    "docs/security_v12/s6_evidence/full_regression/s6_host_real.log": "2FC9063D28A6A75A730E6F5F34F3C1991E447241210E847652B90FA4DF9960C7",
+    "docs/security_v12/s6_evidence/full_regression/s6_host_real.xml": "0522C2E2DB03E5826577AFEAF1C2B2EBB9C3F790156B4F11908CE4A43AEAE3A0",
+    "docs/security_v12/s6_evidence/full_regression/s6.log": "1EE470F81B288CF70F9A39AD266C0643FEEC83F841AD7EBF709F793BA36B9FE4",
+    "docs/security_v12/s6_evidence/full_regression/s6.xml": "AB7C5159A5AD84ED9214B0786FF3BCEE841B2FCDFA87CD03832FD2BEAA073590",
+    "docs/security_v12/s6_evidence/integration_host/run.json": "10FFC12DC67CEA2F45FA037755483D1A8AD1E811AC386DE517DD995FD1F1FFD8",
+    "docs/security_v12/s6_evidence/integration_host/s6_host_real.log": "5C16EC059E93C9DEF8D4FF8F0CFFA2EF64F1ABC25CF3F8D3953C6CFC9BADC11C",
+    "docs/security_v12/s6_evidence/integration_host/s6_host_real.xml": "1F9D97514A1342B10A67B3A398ECC391A81614F86CBF3E03F7AD3594CF0170EA",
+    "docs/security_v12/s6_evidence/integration_host/selected.log": "8AC17D5094622DD0FC68E7794EC5C2A7FB97173E32DA17F14F64845F8A1B25D5",
+    "docs/security_v12/s6_evidence/integration_host/selected.xml": "F44DE2809B2702708BE692A7ABB57374DFA1EE0092C6D17427ABDCAEF43ABD88",
+    "docs/security_v12/s6_evidence/native_diagnostic/run.json": "ADE7052E90BE09F50159FDA77366537402C35925B7A21B117E29E17FF4E80463",
+    "docs/security_v12/s6_evidence/native_diagnostic/s6_host_real.log": "5AAA682E2C71E290084473ABF75E3D9A9E49BEDC3A23FC642F234E53CD4ADF11",
+    "docs/security_v12/s6_evidence/native_diagnostic/s6_host_real.xml": "297D577295F62A3C5955F7EA0033CA55FFF60914032DF5C8E16A46D5EF48063B",
+    "docs/security_v12/s6_evidence/native_diagnostic/selected.log": "8DCEB75BEA1CEEB1A567D583FF32FDE2CB9FDFC2E0C9B2019CA4575B4C313D7D",
+    "docs/security_v12/s6_evidence/native_diagnostic/selected.xml": "DE4DA154952B3E765FEDEF20832BEFD60D674EC3192D6563716C133219D2681C",
+    "docs/security_v12/s6_evidence/native_gate/run.json": "BA22A5A0D4D6B821CC7A898CC1F9D56C16472F103DDB62A97E77F92F5C8C20A0",
+    "docs/security_v12/s6_evidence/native_gate/s6_host_real.log": "404719742DF67A2BBB0A7C6894FC0E35DF3601136B854B10AEF337BB9202F295",
+    "docs/security_v12/s6_evidence/native_gate/s6_host_real.xml": "281073FEF0E6915B3B88F2DD7116EB2E16B851FA694AA916C2A69E0AF66BC80A",
+    "docs/security_v12/s6_evidence/native_gate/selected.log": "A109CD63D99D64609F2EC11A62837B5CF1032085F2267605DAC4F9237A5630EF",
+    "docs/security_v12/s6_evidence/native_gate/selected.xml": "175F6DCE0162918273E3369064BF26AA21E66831AD1E9D812CD42ED2ECA4EAD4",
+    "docs/security_v12/s6_evidence/native_repaired/run.json": "FA87C4E3542ECBD09BDF8FC17855379E0CC26EE29F5BD44B04167CB6C83F8282",
+    "docs/security_v12/s6_evidence/native_repaired/s6_host_real.log": "043418406198B4FEDCF5557E2535D50EDD8AB8BA0BC8FDD7CC4A14E64A6FC01B",
+    "docs/security_v12/s6_evidence/native_repaired/s6_host_real.xml": "265CD36186E7D96082A0A2EC63999E8CF392E07DBB7303E3E98D590C19C3C76B",
+    "docs/security_v12/s6_evidence/native_repaired/selected.log": "6AA214D4F2EF54B5CAF27B6CD315D2735B6BA752287C11E9B9495C183EF62D59",
+    "docs/security_v12/s6_evidence/native_repaired/selected.xml": "362E31CAE2566CCC9CFFC15AF5E158ABE593C447418B5086C37066118C10358F",
+    "docs/security_v12/s6_evidence/pipeline_complete/run.json": "50181F8F65B1339987A3231544B81A7955F36EA6BD397330B3438B6DA4B3A6DB",
+    "docs/security_v12/s6_evidence/pipeline_complete/selected.log": "804A613986D5E11E4D9B50EFC39CB7AB730AFF76FB5FAD68C5E6B135932890B9",
+    "docs/security_v12/s6_evidence/pipeline_complete/selected.xml": "DE7935E50345DB90165517EAED3760E80CFF95324231B0D596BC5CFBAE73AFB8",
+    "docs/security_v12/s6_evidence/release_gate/desktop_approval.log": "30C87C9AC4F2CD98B9EBB82ACFF67E185052A323F647672414268817D0DCD591",
+    "docs/security_v12/s6_evidence/release_gate/desktop_main_syntax.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s6_evidence/release_gate/prior_regression.log": "0CE57D3C2BBD9D957212A1EC466C80EFB631CE6647A7D82B30DE9F319766287B",
+    "docs/security_v12/s6_evidence/release_gate/prior_regression.xml": "2E5BA910B6496CE933E3B9F8BAD6772F7241C800E6C57BC7EDCD26832978DCC9",
+    "docs/security_v12/s6_evidence/release_gate/run.json": "1E16F5DBAB173E705745981B3067E6A97851E8DA798E322B419BCB0389C6E3F7",
+    "docs/security_v12/s6_evidence/release_gate/s6_host_real.log": "147B9EDC7FB1812506960563118C2D6468E5CEFE5FA5648B26D6ED1429E13B48",
+    "docs/security_v12/s6_evidence/release_gate/s6_host_real.xml": "A6A5DBA6DD57B79561842A827F61E5DA396F4B7793F790488BCB9DC6AAD5056E",
+    "docs/security_v12/s6_evidence/release_gate/s6.log": "A8156D3AF397644F8D181FE4825E03D1799DDC2F2B804E90601F7E645AFEEA84",
+    "docs/security_v12/s6_evidence/release_gate/s6.xml": "98001248B539E276CA6CD85EEC0CC8133EF584161ED0ABA3EB8FCD3564F132B2",
+    "docs/security_v12/s6_evidence/verified/desktop_approval.log": "2B42B08D961BBE608DC7E44E97B20698F455293534B1260D09FE6F8DC8C8417A",
+    "docs/security_v12/s6_evidence/verified/desktop_main_syntax.log": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    "docs/security_v12/s6_evidence/verified/prior_regression.log": "F5ABE34129B127F5E17F1DF1DD391AF6E5EEA03EFA7301658147FDAABAE37128",
+    "docs/security_v12/s6_evidence/verified/prior_regression.xml": "EC0B1E7595C206E9E2C659FD2CB92FE415084F4AF68D9A0CB0D1D2F1DD00D287",
+    "docs/security_v12/s6_evidence/verified/run.json": "5D1FBFF957F414E6C91D5477C4D1F58EE2DFB0D266EA79509FBAAEC67763AA46",
+    "docs/security_v12/s6_evidence/verified/s6_host_real.log": "CD20A6657648209F52F8AACAA474CCEBA9CDFB3E033ED5DFD99EB6FB57A2EEE9",
+    "docs/security_v12/s6_evidence/verified/s6_host_real.xml": "0BAFA86807C0413F2EAA5D6C2D27325E93B0BE5DBFE837EDE0A863E42D4BF53E",
+    "docs/security_v12/s6_evidence/verified/s6.log": "2C2514A63B460EAA87E056E186630C7C3818C47CD40F9D8406A50544C81AEA6C",
+    "docs/security_v12/s6_evidence/verified/s6.xml": "6DE60391358AB66BE50C8B0717C85B9F9906668E11ED0FCD52747130B2ECD40B",
+    "docs/security_v12/s6_resultados.md": "2A83D8F44782AA4EA7737F35239B2893A8CE1BC9350E3B8DA8F1E00C827E7F4D",
+    "docs/security_v12/SEC12_OD_03_S6.md": "36C7A528A2BACFA37FCE739363FAD6A22581ED7A2018F235F9E99B5126F61BF5",
+    "local_cli/application/environment.py": "4213757409BDA6A298EA6A7C4CBC8E9F526330D8DA487E79C8CC6DC932F124D8",
+    "local_cli/application/events.py": "DDB396DCBA4EC88BA6CF5502636472FFE47B4A657B6639BD66B9C577CB5A7D20",
+    "local_cli/application/network.py": "9E26E7A2798A9A49B8C077FFEDC5AF6C5993F522683EB248E8987757745233F0",
+    "local_cli/application/persistence.py": "4555022DC4E11248E43F5D600A0B51D59432A31A0341B5CA5E2C6DCF4708152B",
+    "local_cli/application/policy.py": "02667D8CCE261A7B0E216CBEE779AD18D3254E8F681F90DA9F36C0C6073A6AA4",
+    "local_cli/application/process.py": "DADA345F6CDA0DD2BEBB823454ED62F7EF5BB79E2C5F9634BCC16280EAE1DDEF",
+    "local_cli/application/providers.py": "AFF3327E1BF4063350F70F1F946DAE5B900CD42568680E50F0AA405D1B7E410E",
+    "local_cli/application/secrets.py": "D6B15A37BC95AB23A9208D1C008B40FD053555DD6BA34989A184B9349083EE57",
+    "local_cli/application/session.py": "A3924BFF6B935B9BE3FAB2C8E0C776F2CBD2966D39D928E8421F12ADE7EB70BA",
+    "local_cli/application/tool_runtime.py": "99BE3270BEF5BA19F379BD55BEBD01BB20D7F51C990037710609E1638D71EA58",
+    "local_cli/bootstrap_server.py": "9B80EF338CC0DBA1A83AFC28D65FB4E90A89DD6BDC2011525B88862A25E68CD0",
+    "local_cli/core/environment.py": "6C10F2C4F36210A36580CDD39D13BE0D3F41A4D9D32E0195747BF079D52738FA",
+    "local_cli/infrastructure/process_environment.py": "29C17AE78BDD6DEDFD349D825E8747372BBB08BA4724CC307B2FD025BDBC89A7",
+    "local_cli/interfaces/cli_application.py": "D30984307617A296EBFA6507AFC6DCE79E112B5A4AD06E384C0C521A6B55B435",
+    "local_cli/interfaces/jsonl_application.py": "48742CC561872AA5DAC9CD1BB85A5A327F2362565292EB78D03AE8B315D0B3FA",
+    "local_cli/security.py": "22ABA5C5BC876D6082DB170BB91433BF85423BE2D073637F6EEEFC50714D0F1D",
+    "local_cli/session_log.py": "30AE8745AF748A55B62C62CE3A97C8ADCDCDC464EFF3C7CF92482671994EBC0B",
+    "local_cli/sub_agent.py": "AB10DD26363DDB9B1C3DE7ECA59296D7DD599C64C40AAD7B84665D58C2566A7A",
+    "local_cli/tools/agent_tool.py": "AC0200B1F049F113F65FEA0F32040BB3C06EFA934484A51B6656B37FCF204070",
+    "tests/security_v12/run_s6.py": "8A9602C37BB8F80FCFD95F20C4EADE63E9386CFDB202DC70F9264A7714D7F933",
+    "tests/security_v12/test_s6_environment.py": "85DED8EF9F0BC65FE43BAC7574CAFF6F14F987ADC3026A1801AE0DB327CB7825",
+    "tests/security_v12/test_s6_host.py": "794154E684220D09E655FE55388885C89B8F3414FB33D087269105DD5F2B0A07",
+    "tests/security_v12/test_s6_redaction.py": "F75E778423802ECD21FF5F5D7A201B270EF845F772AC5E9A97592C86A9854ECE",
+    "tests/security_v12/test_s6_runtime.py": "4A30084304DB9C273D610102C7D07CD3BB5E978BF7916AF39C697F683C512A38"
+  }
+}

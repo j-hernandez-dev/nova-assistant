@@ -1,0 +1,835 @@
+........................................................................ [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 50%]
+........................................................................ [ 67%]
+........................................................................ [ 84%]
+.FFFFFFFFF......................................................         [100%]
+================================== FAILURES ===================================
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[source] _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF32217F0>
+command = ApplicationCommand(command_id='command_40548e1ad6234bf5ba621debdb485c3a', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_0e5cffacec054fda83dd16ccc28e7744', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+>           refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+local_cli\application\session.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.knowledge_host.KnowledgeHostControls object at 0x0000020AF326D250>
+raw = [{'schemaVersion': 1, 'attachmentId': 'cab83992-8f47-4a62-be75-69a925fcb1c0', 'sourceId': '13493ec6-22e3-4e42-8197-94387687b0e1', 'revisionId': '78bfe8a3-2b30-4d59-93b0-7f927d409e28', ...}]
+
+    def validate(self,raw):
+        refs=attachment_refs(raw)
+        for ref in refs:
+            current=self.catalog.get(ref.source_id)
+            if current is None or AttachmentRef.from_dict(self.owner.redactor.value(current.to_dict()))!=ref:
+>               raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+E               local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\application\knowledge_host.py:84: KnowledgeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block3-20261007/pytest-private/test_attachment_identity_state0')
+tamper = 'source'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+            invoke(c);ref=refs(c)[0]
+            if tamper=='deleted':invoke(c,'source_delete',{'sourceId':ref['sourceId']})
+            elif tamper in ('wrong-session','wrong-workspace'):
+                svc=c.app._knowledge.service
+                other=KnowledgeAccess(svc.access.workspace_id,'ses_foreign') if tamper=='wrong-session' else KnowledgeAccess('foreign-workspace',c.sid)
+                with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+                c.app._knowledge.catalog.clear()
+            else:
+                from local_cli.core.knowledge import new_source_id
+                key={'source':'sourceId','revision':'revisionId','attachment':'attachmentId','display':'displayName','state':'state'}[tamper]
+                ref[key]='changed' if tamper=='display' else 'PARTIAL' if tamper=='state' else new_source_id()
+>           receipt=submit(c,[ref])
+                    ^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:50: in submit
+    return case.app.handle(ApplicationCommand(new_command_id(),CommandKind.SUBMIT_USER_INPUT,
+local_cli\application\session.py:300: in handle
+    receipt = self._start_turn(command)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF32217F0>
+command = ApplicationCommand(command_id='command_40548e1ad6234bf5ba621debdb485c3a', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_0e5cffacec054fda83dd16ccc28e7744', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+>           return self._reject(command, exc.code, 'Attachment reference is unavailable or stale.', ErrorCategory.CAPABILITY)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: AgentSessionCoordinator._reject() takes 4 positional arguments but 5 were given
+
+local_cli\application\session.py:513: TypeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[revision] _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF32223C0>
+command = ApplicationCommand(command_id='command_a4066b1c72314495b1dc7efea2977880', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_7147f2183ae44a489f7a4cc835fc838c', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+>           refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+local_cli\application\session.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.knowledge_host.KnowledgeHostControls object at 0x0000020AF329A150>
+raw = [{'schemaVersion': 1, 'attachmentId': 'e48b0132-5633-4b4f-aae8-a2be72f7c736', 'sourceId': '7ad3ae41-7da9-4b67-bd39-6e21b89281a7', 'revisionId': 'a426030f-420e-49a6-b0fe-df88b726727e', ...}]
+
+    def validate(self,raw):
+        refs=attachment_refs(raw)
+        for ref in refs:
+            current=self.catalog.get(ref.source_id)
+            if current is None or AttachmentRef.from_dict(self.owner.redactor.value(current.to_dict()))!=ref:
+>               raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+E               local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\application\knowledge_host.py:84: KnowledgeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block3-20261007/pytest-private/test_attachment_identity_state1')
+tamper = 'revision'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+            invoke(c);ref=refs(c)[0]
+            if tamper=='deleted':invoke(c,'source_delete',{'sourceId':ref['sourceId']})
+            elif tamper in ('wrong-session','wrong-workspace'):
+                svc=c.app._knowledge.service
+                other=KnowledgeAccess(svc.access.workspace_id,'ses_foreign') if tamper=='wrong-session' else KnowledgeAccess('foreign-workspace',c.sid)
+                with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+                c.app._knowledge.catalog.clear()
+            else:
+                from local_cli.core.knowledge import new_source_id
+                key={'source':'sourceId','revision':'revisionId','attachment':'attachmentId','display':'displayName','state':'state'}[tamper]
+                ref[key]='changed' if tamper=='display' else 'PARTIAL' if tamper=='state' else new_source_id()
+>           receipt=submit(c,[ref])
+                    ^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:50: in submit
+    return case.app.handle(ApplicationCommand(new_command_id(),CommandKind.SUBMIT_USER_INPUT,
+local_cli\application\session.py:300: in handle
+    receipt = self._start_turn(command)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF32223C0>
+command = ApplicationCommand(command_id='command_a4066b1c72314495b1dc7efea2977880', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_7147f2183ae44a489f7a4cc835fc838c', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+>           return self._reject(command, exc.code, 'Attachment reference is unavailable or stale.', ErrorCategory.CAPABILITY)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: AgentSessionCoordinator._reject() takes 4 positional arguments but 5 were given
+
+local_cli\application\session.py:513: TypeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[display] _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF32227B0>
+command = ApplicationCommand(command_id='command_29e668a8ea46465a9f4ede032b21c214', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...ed', 'state': 'READY'}]}), session_id='ses_e6d9fe2c0bc54315b33d32750e6b2add', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+>           refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+local_cli\application\session.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.knowledge_host.KnowledgeHostControls object at 0x0000020AF32CC050>
+raw = [{'schemaVersion': 1, 'attachmentId': 'be80fa74-f068-4340-ba48-357a166f6395', 'sourceId': '6cdb83bd-fae2-4b83-bb91-ae2aec5427fd', 'revisionId': '1bfa857f-bbb8-4770-9d7d-f4f5d846f019', ...}]
+
+    def validate(self,raw):
+        refs=attachment_refs(raw)
+        for ref in refs:
+            current=self.catalog.get(ref.source_id)
+            if current is None or AttachmentRef.from_dict(self.owner.redactor.value(current.to_dict()))!=ref:
+>               raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+E               local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\application\knowledge_host.py:84: KnowledgeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block3-20261007/pytest-private/test_attachment_identity_state2')
+tamper = 'display'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+            invoke(c);ref=refs(c)[0]
+            if tamper=='deleted':invoke(c,'source_delete',{'sourceId':ref['sourceId']})
+            elif tamper in ('wrong-session','wrong-workspace'):
+                svc=c.app._knowledge.service
+                other=KnowledgeAccess(svc.access.workspace_id,'ses_foreign') if tamper=='wrong-session' else KnowledgeAccess('foreign-workspace',c.sid)
+                with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+                c.app._knowledge.catalog.clear()
+            else:
+                from local_cli.core.knowledge import new_source_id
+                key={'source':'sourceId','revision':'revisionId','attachment':'attachmentId','display':'displayName','state':'state'}[tamper]
+                ref[key]='changed' if tamper=='display' else 'PARTIAL' if tamper=='state' else new_source_id()
+>           receipt=submit(c,[ref])
+                    ^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:50: in submit
+    return case.app.handle(ApplicationCommand(new_command_id(),CommandKind.SUBMIT_USER_INPUT,
+local_cli\application\session.py:300: in handle
+    receipt = self._start_turn(command)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF32227B0>
+command = ApplicationCommand(command_id='command_29e668a8ea46465a9f4ede032b21c214', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...ed', 'state': 'READY'}]}), session_id='ses_e6d9fe2c0bc54315b33d32750e6b2add', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+>           return self._reject(command, exc.code, 'Attachment reference is unavailable or stale.', ErrorCategory.CAPABILITY)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: AgentSessionCoordinator._reject() takes 4 positional arguments but 5 were given
+
+local_cli\application\session.py:513: TypeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[attachment] _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF30674D0>
+command = ApplicationCommand(command_id='command_7b5c5568b0f54e47bd22ee812961a3b9', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_ea2d4ec53ccb41feacb7bae1efa23ced', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+>           refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+local_cli\application\session.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.knowledge_host.KnowledgeHostControls object at 0x0000020AF3237070>
+raw = [{'schemaVersion': 1, 'attachmentId': '1b0ab84e-acdd-4d57-9e38-1986639b2b31', 'sourceId': 'a6247a2c-3cd6-42af-b239-3af33d819b26', 'revisionId': '7e6a3e7c-f075-4b71-9daf-d77f89770af7', ...}]
+
+    def validate(self,raw):
+        refs=attachment_refs(raw)
+        for ref in refs:
+            current=self.catalog.get(ref.source_id)
+            if current is None or AttachmentRef.from_dict(self.owner.redactor.value(current.to_dict()))!=ref:
+>               raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+E               local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\application\knowledge_host.py:84: KnowledgeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block3-20261007/pytest-private/test_attachment_identity_state3')
+tamper = 'attachment'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+            invoke(c);ref=refs(c)[0]
+            if tamper=='deleted':invoke(c,'source_delete',{'sourceId':ref['sourceId']})
+            elif tamper in ('wrong-session','wrong-workspace'):
+                svc=c.app._knowledge.service
+                other=KnowledgeAccess(svc.access.workspace_id,'ses_foreign') if tamper=='wrong-session' else KnowledgeAccess('foreign-workspace',c.sid)
+                with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+                c.app._knowledge.catalog.clear()
+            else:
+                from local_cli.core.knowledge import new_source_id
+                key={'source':'sourceId','revision':'revisionId','attachment':'attachmentId','display':'displayName','state':'state'}[tamper]
+                ref[key]='changed' if tamper=='display' else 'PARTIAL' if tamper=='state' else new_source_id()
+>           receipt=submit(c,[ref])
+                    ^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:50: in submit
+    return case.app.handle(ApplicationCommand(new_command_id(),CommandKind.SUBMIT_USER_INPUT,
+local_cli\application\session.py:300: in handle
+    receipt = self._start_turn(command)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF30674D0>
+command = ApplicationCommand(command_id='command_7b5c5568b0f54e47bd22ee812961a3b9', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_ea2d4ec53ccb41feacb7bae1efa23ced', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+>           return self._reject(command, exc.code, 'Attachment reference is unavailable or stale.', ErrorCategory.CAPABILITY)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: AgentSessionCoordinator._reject() takes 4 positional arguments but 5 were given
+
+local_cli\application\session.py:513: TypeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[state] _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF3066A50>
+command = ApplicationCommand(command_id='command_55f7d1a4428646d4a60ad7852fc1256c', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...', 'state': 'PARTIAL'}]}), session_id='ses_72d064cd664149c09f35648cdb48da3a', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+>           refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+local_cli\application\session.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.knowledge_host.KnowledgeHostControls object at 0x0000020AF32D1F90>
+raw = [{'schemaVersion': 1, 'attachmentId': '0e0b2957-276a-40e3-b678-3d568a8a86db', 'sourceId': '77d48717-14fe-4ccb-93a0-b3e3684eb8c8', 'revisionId': '5127b30e-dedc-408d-8989-ddcadbe2d591', ...}]
+
+    def validate(self,raw):
+        refs=attachment_refs(raw)
+        for ref in refs:
+            current=self.catalog.get(ref.source_id)
+            if current is None or AttachmentRef.from_dict(self.owner.redactor.value(current.to_dict()))!=ref:
+>               raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+E               local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\application\knowledge_host.py:84: KnowledgeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block3-20261007/pytest-private/test_attachment_identity_state4')
+tamper = 'state'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+            invoke(c);ref=refs(c)[0]
+            if tamper=='deleted':invoke(c,'source_delete',{'sourceId':ref['sourceId']})
+            elif tamper in ('wrong-session','wrong-workspace'):
+                svc=c.app._knowledge.service
+                other=KnowledgeAccess(svc.access.workspace_id,'ses_foreign') if tamper=='wrong-session' else KnowledgeAccess('foreign-workspace',c.sid)
+                with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+                c.app._knowledge.catalog.clear()
+            else:
+                from local_cli.core.knowledge import new_source_id
+                key={'source':'sourceId','revision':'revisionId','attachment':'attachmentId','display':'displayName','state':'state'}[tamper]
+                ref[key]='changed' if tamper=='display' else 'PARTIAL' if tamper=='state' else new_source_id()
+>           receipt=submit(c,[ref])
+                    ^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:50: in submit
+    return case.app.handle(ApplicationCommand(new_command_id(),CommandKind.SUBMIT_USER_INPUT,
+local_cli\application\session.py:300: in handle
+    receipt = self._start_turn(command)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF3066A50>
+command = ApplicationCommand(command_id='command_55f7d1a4428646d4a60ad7852fc1256c', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...', 'state': 'PARTIAL'}]}), session_id='ses_72d064cd664149c09f35648cdb48da3a', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+>           return self._reject(command, exc.code, 'Attachment reference is unavailable or stale.', ErrorCategory.CAPABILITY)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: AgentSessionCoordinator._reject() takes 4 positional arguments but 5 were given
+
+local_cli\application\session.py:513: TypeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[deleted] _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF3066660>
+command = ApplicationCommand(command_id='command_c0d7e2aca7dd43adb9053898aae5d772', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_49c1ed13b45d48e78ebede31bb5a62e1', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+>           refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+local_cli\application\session.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.knowledge_host.KnowledgeHostControls object at 0x0000020AF32D3250>
+raw = [{'schemaVersion': 1, 'attachmentId': '37c66397-b049-41f4-a76a-b8ef8a07b9a8', 'sourceId': 'adef1a1d-38f7-4a5f-9515-69af92ed6e5c', 'revisionId': '59749947-cd2f-4b8c-9429-b3e8cd35172c', ...}]
+
+    def validate(self,raw):
+        refs=attachment_refs(raw)
+        for ref in refs:
+            current=self.catalog.get(ref.source_id)
+            if current is None or AttachmentRef.from_dict(self.owner.redactor.value(current.to_dict()))!=ref:
+>               raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+E               local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\application\knowledge_host.py:84: KnowledgeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block3-20261007/pytest-private/test_attachment_identity_state5')
+tamper = 'deleted'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+            invoke(c);ref=refs(c)[0]
+            if tamper=='deleted':invoke(c,'source_delete',{'sourceId':ref['sourceId']})
+            elif tamper in ('wrong-session','wrong-workspace'):
+                svc=c.app._knowledge.service
+                other=KnowledgeAccess(svc.access.workspace_id,'ses_foreign') if tamper=='wrong-session' else KnowledgeAccess('foreign-workspace',c.sid)
+                with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+                c.app._knowledge.catalog.clear()
+            else:
+                from local_cli.core.knowledge import new_source_id
+                key={'source':'sourceId','revision':'revisionId','attachment':'attachmentId','display':'displayName','state':'state'}[tamper]
+                ref[key]='changed' if tamper=='display' else 'PARTIAL' if tamper=='state' else new_source_id()
+>           receipt=submit(c,[ref])
+                    ^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:50: in submit
+    return case.app.handle(ApplicationCommand(new_command_id(),CommandKind.SUBMIT_USER_INPUT,
+local_cli\application\session.py:300: in handle
+    receipt = self._start_turn(command)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF3066660>
+command = ApplicationCommand(command_id='command_c0d7e2aca7dd43adb9053898aae5d772', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_49c1ed13b45d48e78ebede31bb5a62e1', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+>           return self._reject(command, exc.code, 'Attachment reference is unavailable or stale.', ErrorCategory.CAPABILITY)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: AgentSessionCoordinator._reject() takes 4 positional arguments but 5 were given
+
+local_cli\application\session.py:513: TypeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[wrong-session] _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF3066E40>
+command = ApplicationCommand(command_id='command_129baeb223ec4dabb40ea0b5c5697c69', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_b39117420ed74abeac4d372a9cd7c411', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+>           refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+local_cli\application\session.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.knowledge_host.KnowledgeHostControls object at 0x0000020AF32D3BB0>
+raw = [{'schemaVersion': 1, 'attachmentId': '95a4285f-aa47-4c59-9c0a-3e0e0f0cfff5', 'sourceId': '8b32cadc-8a33-4c8e-8b9e-6b5024456125', 'revisionId': '93ac6c6c-76b0-4606-89bf-e79cc4309d52', ...}]
+
+    def validate(self,raw):
+        refs=attachment_refs(raw)
+        for ref in refs:
+            current=self.catalog.get(ref.source_id)
+            if current is None or AttachmentRef.from_dict(self.owner.redactor.value(current.to_dict()))!=ref:
+>               raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+E               local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\application\knowledge_host.py:84: KnowledgeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block3-20261007/pytest-private/test_attachment_identity_state6')
+tamper = 'wrong-session'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+            invoke(c);ref=refs(c)[0]
+            if tamper=='deleted':invoke(c,'source_delete',{'sourceId':ref['sourceId']})
+            elif tamper in ('wrong-session','wrong-workspace'):
+                svc=c.app._knowledge.service
+                other=KnowledgeAccess(svc.access.workspace_id,'ses_foreign') if tamper=='wrong-session' else KnowledgeAccess('foreign-workspace',c.sid)
+                with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+                c.app._knowledge.catalog.clear()
+            else:
+                from local_cli.core.knowledge import new_source_id
+                key={'source':'sourceId','revision':'revisionId','attachment':'attachmentId','display':'displayName','state':'state'}[tamper]
+                ref[key]='changed' if tamper=='display' else 'PARTIAL' if tamper=='state' else new_source_id()
+>           receipt=submit(c,[ref])
+                    ^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:50: in submit
+    return case.app.handle(ApplicationCommand(new_command_id(),CommandKind.SUBMIT_USER_INPUT,
+local_cli\application\session.py:300: in handle
+    receipt = self._start_turn(command)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF3066E40>
+command = ApplicationCommand(command_id='command_129baeb223ec4dabb40ea0b5c5697c69', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_b39117420ed74abeac4d372a9cd7c411', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+>           return self._reject(command, exc.code, 'Attachment reference is unavailable or stale.', ErrorCategory.CAPABILITY)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: AgentSessionCoordinator._reject() takes 4 positional arguments but 5 were given
+
+local_cli\application\session.py:513: TypeError
+_ test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[wrong-workspace] _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF195CC20>
+command = ApplicationCommand(command_id='command_c58121f525e14ed78add64be511fa27f', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_74d9c29cc38640f2aaf753c3798ef30d', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+>           refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+local_cli\application\session.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.knowledge_host.KnowledgeHostControls object at 0x0000020AF1919B30>
+raw = [{'schemaVersion': 1, 'attachmentId': '3f3fe2ef-2d8c-4d16-b1c8-43141732bba4', 'sourceId': '40530fca-c3df-4747-943c-9117834c98e2', 'revisionId': '27ffdd18-8055-4341-b9e7-2b3745bbbf56', ...}]
+
+    def validate(self,raw):
+        refs=attachment_refs(raw)
+        for ref in refs:
+            current=self.catalog.get(ref.source_id)
+            if current is None or AttachmentRef.from_dict(self.owner.redactor.value(current.to_dict()))!=ref:
+>               raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+E               local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\application\knowledge_host.py:84: KnowledgeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block3-20261007/pytest-private/test_attachment_identity_state7')
+tamper = 'wrong-workspace'
+
+    @pytest.mark.parametrize('tamper',['source','revision','display','attachment','state','deleted','wrong-session','wrong-workspace'])
+    def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref(tmp_path,tamper):
+        c=setup(tmp_path)
+        try:
+            invoke(c);ref=refs(c)[0]
+            if tamper=='deleted':invoke(c,'source_delete',{'sourceId':ref['sourceId']})
+            elif tamper in ('wrong-session','wrong-workspace'):
+                svc=c.app._knowledge.service
+                other=KnowledgeAccess(svc.access.workspace_id,'ses_foreign') if tamper=='wrong-session' else KnowledgeAccess('foreign-workspace',c.sid)
+                with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+                c.app._knowledge.catalog.clear()
+            else:
+                from local_cli.core.knowledge import new_source_id
+                key={'source':'sourceId','revision':'revisionId','attachment':'attachmentId','display':'displayName','state':'state'}[tamper]
+                ref[key]='changed' if tamper=='display' else 'PARTIAL' if tamper=='state' else new_source_id()
+>           receipt=submit(c,[ref])
+                    ^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:50: in submit
+    return case.app.handle(ApplicationCommand(new_command_id(),CommandKind.SUBMIT_USER_INPUT,
+local_cli\application\session.py:300: in handle
+    receipt = self._start_turn(command)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF195CC20>
+command = ApplicationCommand(command_id='command_c58121f525e14ed78add64be511fa27f', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_74d9c29cc38640f2aaf753c3798ef30d', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+>           return self._reject(command, exc.code, 'Attachment reference is unavailable or stale.', ErrorCategory.CAPABILITY)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: AgentSessionCoordinator._reject() takes 4 positional arguments but 5 were given
+
+local_cli\application\session.py:513: TypeError
+_________ test_delete_no_resurrection_and_no_memory_or_audit_erasure __________
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF3066660>
+command = ApplicationCommand(command_id='command_c878e305035f48e7a89c73802da1a416', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_f11d7323ba2c4b0ba781c56beb09aad2', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+>           refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+local_cli\application\session.py:511: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.knowledge_host.KnowledgeHostControls object at 0x0000020AF191A990>
+raw = [{'schemaVersion': 1, 'attachmentId': '4e2b96d1-281c-456d-a3a0-f86e140f02a0', 'sourceId': '526cea24-8ad6-485c-b8bc-d2891176a9fd', 'revisionId': '596d79e9-e848-4be3-8378-e792d3fc2c1e', ...}]
+
+    def validate(self,raw):
+        refs=attachment_refs(raw)
+        for ref in refs:
+            current=self.catalog.get(ref.source_id)
+            if current is None or AttachmentRef.from_dict(self.owner.redactor.value(current.to_dict()))!=ref:
+>               raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+E               local_cli.core.knowledge.KnowledgeError: Knowledge contract validation failed.
+
+local_cli\application\knowledge_host.py:84: KnowledgeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/nova-k2-block3-20261007/pytest-private/test_delete_no_resurrection_an0')
+
+    def test_delete_no_resurrection_and_no_memory_or_audit_erasure(tmp_path):
+        c=setup(tmp_path)
+        try:
+            invoke(c);ref=refs(c)[0];svc=c.app._knowledge.service
+            invoke(c,'source_delete',{'sourceId':ref['sourceId']})
+>           assert refs(c)==[] and not submit(c,[ref]).accepted
+                                       ^^^^^^^^^^^^^^^
+
+tests\knowledge_inputs_v1\test_k2_application.py:195: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\knowledge_inputs_v1\k2_helpers.py:50: in submit
+    return case.app.handle(ApplicationCommand(new_command_id(),CommandKind.SUBMIT_USER_INPUT,
+local_cli\application\session.py:300: in handle
+    receipt = self._start_turn(command)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <local_cli.application.session.AgentSessionCoordinator object at 0x0000020AF3066660>
+command = ApplicationCommand(command_id='command_c878e305035f48e7a89c73802da1a416', kind=<CommandKind.SUBMIT_USER_INPUT: 'Submit...xt', 'state': 'READY'}]}), session_id='ses_f11d7323ba2c4b0ba781c56beb09aad2', expected_revision=None, schema_version=1)
+
+    def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._session
+        if session is None or command.session_id != session.session_id:
+            return self._reject(command, "INVALID_SESSION",
+                                "No matching active AgentSession")
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, "REVISION_CONFLICT",
+                                "Session revision changed")
+        if any(not turn.done.is_set() for turn in session.turns):
+            return self._reject(command, "CONFLICT_ACTIVE_TURN",
+                                "The main AgentSession already has an active Turn")
+        from local_cli.core.knowledge import KnowledgeError
+        try:
+            refs = self._knowledge.validate(command.payload.get('attachmentRefs', []))
+        except KnowledgeError as exc:
+>           return self._reject(command, exc.code, 'Attachment reference is unavailable or stale.', ErrorCategory.CAPABILITY)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: AgentSessionCoordinator._reject() takes 4 positional arguments but 5 were given
+
+local_cli\application\session.py:513: TypeError
+=========================== short test summary info ===========================
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[source]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[revision]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[display]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[attachment]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[state]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[deleted]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[wrong-session]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_ref[wrong-workspace]
+FAILED tests/knowledge_inputs_v1/test_k2_application.py::test_delete_no_resurrection_and_no_memory_or_audit_erasure
+9 failed, 415 passed in 22.63s

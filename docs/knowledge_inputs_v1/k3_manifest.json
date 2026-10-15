@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "phase": "K3",
+  "normativeSection": "NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md §58",
+  "status": "PASS",
+  "verdict": "K3 PASS",
+  "evaluatedDate": "2026-10-07",
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "architectureSha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "platform": "Windows 11 / local NTFS / HOST_UNISOLATED",
+    "workingTreePreserved": true
+  },
+  "scope": {
+    "parsers": [
+      "TXT",
+      "MD",
+      "code",
+      "JSON",
+      "CSV",
+      "HTML",
+      "PDF textual",
+      "DOCX"
+    ],
+    "mimeSniff": true,
+    "encoding": true,
+    "locators": true,
+    "bounds": true,
+    "excluded": [
+      "OCR",
+      "retrieval",
+      "FTS",
+      "citations",
+      "Memory",
+      "embeddings",
+      "Active Web"
+    ]
+  },
+  "implementation": {
+    "files": [
+      "local_cli/infrastructure/knowledge_extraction.py",
+      "local_cli/application/knowledge.py",
+      "local_cli/application/knowledge_host.py",
+      "local_cli/bootstrap_knowledge.py",
+      "tests/knowledge_inputs_v1/test_k3_extraction.py",
+      "tests/knowledge_inputs_v1/test_k2_composition.py"
+    ],
+    "schemaVersion": 1,
+    "storeSchemaChanged": false,
+    "migrations": [],
+    "applicationPipelineReused": true
+  },
+  "decisions": [
+    "KI-OD-05",
+    "KI-OD-06",
+    "KI-OD-07",
+    "KI-OD-08",
+    "KI-OD-11",
+    "KI-OD-16",
+    "KI-OD-17",
+    "KI-OD-23",
+    "KI-OD-24",
+    "KI-OD-27",
+    "KI-OD-28"
+  ],
+  "gate": [
+    {
+      "criterion": "Mandatory formats",
+      "status": "PASS",
+      "evidence": "437 native Knowledge tests; 5 focused K3 tests"
+    },
+    {
+      "criterion": "Typed errors, locators and bounds",
+      "status": "PASS",
+      "evidence": "K3 contract tests"
+    },
+    {
+      "criterion": "No false READY",
+      "status": "PASS",
+      "evidence": "unsupported/corrupt/encoding tests"
+    },
+    {
+      "criterion": "Core/Security/Memory boundaries",
+      "status": "PASS",
+      "evidence": "790 MEMORY and prior 432 Knowledge"
+    },
+    {
+      "criterion": "HEAD regression complete",
+      "status": "PASS",
+      "evidence": "New complete native Windows HEAD regression: 4583 PASS / 0 FAIL / 0 ERROR / 11 unchanged historical SKIP; 53 subtests PASS; exit 0; verified JUnit XML",
+      "xmlSha256": "6a77d15c2d88405d983ac214ffe8b3479e31c3d030daee3f19aef54693b9c2fa"
+    },
+    {
+      "criterion": "K4/K5/Active Web not implemented",
+      "status": "PASS",
+      "evidence": "scope review"
+    }
+  ],
+  "tests": {
+    "k3Focused": {
+      "passed": 5,
+      "failed": 0
+    },
+    "knowledgeNative": {
+      "passed": 437,
+      "failed": 0
+    },
+    "memory": {
+      "passed": 790,
+      "failed": 0
+    },
+    "k2Prior": {
+      "passed": 432,
+      "failed": 0
+    },
+    "head": {
+      "status": "PASS",
+      "output": "C:/Users/joseh/AppData/Local/Temp/nova-k3-head-evidence-close-20261007",
+      "command": "& 'C:/Users/joseh/AppData/Local/Python/pythoncore-3.14-64/python.exe' -B -m tests.memory_v1.run_regression --mode head --output 'C:/Users/joseh/AppData/Local/Temp/nova-k3-head-evidence-close-20261007' --extra-test-site 'C:/Users/joseh/AppData/Local/Temp/nova-memory-ci-0b333e9f1a8a48e8833849d343b756a8/python314-test-deps'",
+      "pytestCommand": [
+        "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k3-head-evidence-close-20261007\\pytest-private",
+        "--junitxml",
+        "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k3-head-evidence-close-20261007\\tests.xml",
+        "tests",
+        "--ignore=tests/security_v12/test_s0_frontends.py",
+        "--ignore=tests/security_v12/test_s0_process.py",
+        "--ignore=tests/security_v12/test_s0_surfaces.py",
+        "--ignore=tests/security_v12/test_s3_windows.py",
+        "--ignore=tests/security_v12/test_s4_host.py",
+        "--ignore=tests/security_v12/test_s5_network.py",
+        "--ignore=tests/security_v12/test_s6_host.py",
+        "--ignore=tests/security_v12/test_s8_host.py",
+        "--ignore=tests/security_v12/test_s8_e2e.py",
+        "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+        "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+        "--ignore=tests/test_security_gates.py"
+      ],
+      "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+      "platform": "Windows-11-10.0.26200-SP0",
+      "startUtc": "2026-10-08T03:18:45.2925270+00:00",
+      "endUtc": "2026-10-08T03:24:00.6839330+00:00",
+      "exitCode": 0,
+      "passed": 4583,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 11,
+      "subtestsPassed": 53,
+      "xfailed": 0,
+      "xpassed": 0,
+      "xmlTestcases": 4594,
+      "junitReportedOutcomes": 4647,
+      "denominatorExplanation": "4594 testcases = 4583 passed + 11 skipped; 53 passing subtests additionally included in the 4647 JUnit suite outcomes",
+      "durationSeconds": 313.19,
+      "junitDurationSeconds": 313.135,
+      "wallClockSeconds": 315.391,
+      "xml": "C:/Users/joseh/AppData/Local/Temp/nova-k3-head-evidence-close-20261007/tests.xml",
+      "xmlSha256": "6a77d15c2d88405d983ac214ffe8b3479e31c3d030daee3f19aef54693b9c2fa",
+      "logSummary": "4583 passed, 11 skipped, 53 subtests passed in 313.19s (0:05:13)",
+      "privateState": true,
+      "pluginAutoloadDisabled": true,
+      "pytestCacheDisabled": true,
+      "basetemp": "C:/Users/joseh/AppData/Local/Temp/nova-k3-head-evidence-close-20261007/pytest-private",
+      "profileOutput": "C:/Users/joseh/AppData/Local/Temp/nova-k3-head-evidence-close-20261007/private",
+      "skippedIds": [
+        "::tests.test_model_selector",
+        "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+        "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+        "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+        "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+        "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+        "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+        "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+        "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+        "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+        "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent"
+      ],
+      "skipDetails": [
+        {
+          "id": "::tests.test_model_selector",
+          "type": "",
+          "message": "collection skipped",
+          "detail": "('C:\\\\Users\\\\joseh\\\\Downloads\\\\nova-local-cli\\\\nova-assistant\\\\tests\\\\test_model_selector.py', 7, 'unittest.case.SkipTest: curses is unavailable on this Windows Python')"
+        },
+        {
+          "id": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "type": "pytest.skip",
+          "message": "Creating symlinks requires Developer Mode on Windows",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_config.py:124: Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "type": "pytest.skip",
+          "message": "Creating symlinks requires Developer Mode on Windows",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_model_registry.py:618: Creating symlinks requires Developer Mode on Windows"
+        },
+        {
+          "id": "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+          "type": "pytest.skip",
+          "message": "Explicit real Electron E2E gate; run NOVA_ELECTRON_E2E=1",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_nova_core_phase13_desktop.py:26: Explicit real Electron E2E gate; run NOVA_ELECTRON_E2E=1"
+        },
+        {
+          "id": "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+          "type": "pytest.skip",
+          "message": "Explicit local Ollama/Electron smoke; no model is downloaded",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_nova_core_phase13_desktop.py:60: Explicit local Ollama/Electron smoke; no model is downloaded"
+        },
+        {
+          "id": "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+          "type": "pytest.skip",
+          "message": "Explicit native Ollama 7B-9B multi-tool smoke; no model download",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_nova_core_phase14_smoke.py:19: Explicit native Ollama 7B-9B multi-tool smoke; no model download"
+        },
+        {
+          "id": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "type": "pytest.skip",
+          "message": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k3-head-evidence-close-20261007\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k3-head-evidence-close-20261007\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_nova_core_phase3_cwd.py:75: symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k3-head-evidence-close-20261007\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k3-head-evidence-close-20261007\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'"
+        },
+        {
+          "id": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "type": "pytest.skip",
+          "message": "Windows does not preserve POSIX executable bits",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_tools\\test_edit_tool.py:328: Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "type": "pytest.skip",
+          "message": "Windows does not preserve POSIX executable bits",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_tools\\test_fileio.py:30: Windows does not preserve POSIX executable bits"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "type": "pytest.skip",
+          "message": "legacy monitor removed in phase 1",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_web_monitor_containment.py:32: legacy monitor removed in phase 1"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "type": "pytest.skip",
+          "message": "legacy monitor removed in phase 1",
+          "detail": "C:\\Users\\joseh\\Downloads\\nova-local-cli\\nova-assistant\\tests\\test_web_monitor_containment.py:46: legacy monitor removed in phase 1"
+        }
+      ],
+      "skipsComparison": {
+        "approvedCount": 11,
+        "observedCount": 11,
+        "added": [],
+        "removed": [],
+        "sameIds": true,
+        "baselineEvidence": "docs/knowledge_inputs_v1/k2_evidence/test_runs.json#runs.final-head-v2"
+      },
+      "exclusions": [
+        "--ignore=tests/security_v12/test_s0_frontends.py",
+        "--ignore=tests/security_v12/test_s0_process.py",
+        "--ignore=tests/security_v12/test_s0_surfaces.py",
+        "--ignore=tests/security_v12/test_s3_windows.py",
+        "--ignore=tests/security_v12/test_s4_host.py",
+        "--ignore=tests/security_v12/test_s5_network.py",
+        "--ignore=tests/security_v12/test_s6_host.py",
+        "--ignore=tests/security_v12/test_s8_host.py",
+        "--ignore=tests/security_v12/test_s8_e2e.py",
+        "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+        "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+        "--ignore=tests/test_security_gates.py"
+      ],
+      "exclusionsUnchanged": true,
+      "failureClassification": [],
+      "evidenceFile": "C:/Users/joseh/AppData/Local/Temp/nova-k3-head-evidence-close-20261007/head_evidence.json",
+      "evidenceSha256": "d2d25ea6db8c7ee94a6dc416946b53ad10c7f25f4398ce6b95ca5c5b477e7c72",
+      "artifacts": {
+        "tests.xml": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k3-head-evidence-close-20261007\\tests.xml",
+          "sha256": "6a77d15c2d88405d983ac214ffe8b3479e31c3d030daee3f19aef54693b9c2fa",
+          "bytes": 629075
+        },
+        "run.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k3-head-evidence-close-20261007\\run.json",
+          "sha256": "d35a3c1554c777a135da07696b70cc8cb938062dd5043d0afca38755ecd1a24c",
+          "bytes": 1327
+        },
+        "run.log": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k3-head-evidence-close-20261007\\run.log",
+          "sha256": "bd374ce3b6e76f4548245ab0072b1119e13b6c465ace665634054fcf1648b4c5",
+          "bytes": 5269
+        },
+        "preflight.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k3-head-evidence-close-20261007\\preflight.json",
+          "sha256": "67ee2fce4ce4c7730bca66c700abc1b267b479e8aa2358b8f3c6f61025f374ef",
+          "bytes": 228202
+        },
+        "k3_resultados.before.md": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k3-head-evidence-close-20261007\\k3_resultados.before.md",
+          "sha256": "d210c6310d6a6f76e4aa6b9eef9eba9b877d8959d1018d942f124b4df4572047",
+          "bytes": 3168
+        },
+        "k3_manifest.before.json": {
+          "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k3-head-evidence-close-20261007\\k3_manifest.before.json",
+          "sha256": "63101b239e6a99d487c8685db43d7b3f132cc7e570f12093af617fa1b5b75892",
+          "bytes": 3459
+        }
+      }
+    }
+  },
+  "evidence": {
+    "types": [
+      "unit",
+      "contract",
+      "integration",
+      "host-real filesystem",
+      "synthetic DOCX/PDF"
+    ],
+    "models": false,
+    "network": false,
+    "realElectron": false
+  },
+  "limitations": [
+    "PDF OCR absent by scope",
+    "no retrieval/context/citations",
+    "Linux/macOS not certified"
+  ],
+  "openDecisions": {
+    "blockingK3": [],
+    "future": [
+      "K4 retrieval",
+      "K5 context/provenance/citations"
+    ]
+  },
+  "noNewSkips": true,
+  "noXfail": true,
+  "noCommit": true,
+  "noPush": true,
+  "noTag": true,
+  "nextPhase": "K4 (reference only; not implemented)",
+  "historicalHeadRuns": [
+    {
+      "originallyReported": {
+        "status": "INCOMPLETE",
+        "output": "C:/Users/joseh/AppData/Local/Temp/nova-k3-head-20261007",
+        "xml": "NOT_PRODUCED"
+      },
+      "classificationForClosure": "HISTORICAL / NON_CONCLUSIVE",
+      "usedForClosure": false,
+      "observedAtPreflight": {
+        "completeArtifactsPresent": true,
+        "exitCode": 0,
+        "artifacts": {
+          "run.json": {
+            "sha256": "1ed52f21a9f756f056b6b030ac34fd138e69b754e3d508788b271ab35ac6b93c",
+            "modifiedUtc": "2026-10-08T03:00:43.2511294Z",
+            "bytes": 1297,
+            "createdUtc": "2026-10-08T03:00:43.1276074Z"
+          },
+          "run.log": {
+            "sha256": "5901488c17a40f3657654de0d02da1e46a3c5f0a4785196b4dfd33dfe9bbda62",
+            "modifiedUtc": "2026-10-08T03:00:42.1932775Z",
+            "bytes": 5269,
+            "createdUtc": "2026-10-08T02:53:44.5820684Z"
+          },
+          "tests.xml": {
+            "sha256": "19b749aad2234f22f3fda7c74b2cd5954225892f5540e1e2695a5468727048e3",
+            "modifiedUtc": "2026-10-08T03:00:41.7263876Z",
+            "bytes": 629015,
+            "createdUtc": "2026-10-08T03:00:41.6868428Z"
+          }
+        }
+      },
+      "note": "Prior reported incompleteness and artifacts are preserved; no historical run used to declare this PASS."
+    }
+  ],
+  "evidenceClosure": {
+    "scope": "HEAD regression evidence only",
+    "filesUpdated": [
+      "docs/knowledge_inputs_v1/k3_resultados.md",
+      "docs/knowledge_inputs_v1/k3_manifest.json"
+    ],
+    "productModified": false,
+    "architectureModified": false,
+    "testsModified": false,
+    "initialWorkingTree": [
+      " M desktop/electron/application_client.ts",
+      " M desktop/electron/main.ts",
+      " M desktop/electron/preload.ts",
+      " M desktop/shared/application.ts",
+      " M desktop/src/App.tsx",
+      " M desktop/src/types.ts",
+      " M local_cli/application/commands.py",
+      " M local_cli/application/session.py",
+      " M local_cli/bootstrap_cli.py",
+      " M local_cli/bootstrap_server.py",
+      " M local_cli/cli.py",
+      " M local_cli/interfaces/cli_application.py",
+      " M local_cli/interfaces/jsonl_application.py",
+      " M local_cli/server.py",
+      " M tests/memory_v1/run_m8_qwen4_chat7b.py",
+      " M tests/memory_v1/test_m8_metadata_admission.py",
+      " M tests/memory_v1/test_m8_ps_operational.py",
+      " M tests/memory_v1/test_m8_qwen4_chat7b.py",
+      " M tests/test_nova_core_phase11_characterization.py",
+      "?? desktop/electron/knowledge_control.cjs",
+      "?? desktop/electron/knowledge_control.d.cts",
+      "?? desktop/tests/knowledge_control.test.cjs",
+      "?? docs/architecture/AUDITORIA_KNOWLEDGE_INPUTS_NOVA_V1.md",
+      "?? docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "?? docs/knowledge_inputs_v1/",
+      "?? local_cli/application/knowledge.py",
+      "?? local_cli/application/knowledge_host.py",
+      "?? local_cli/bootstrap_knowledge.py",
+      "?? local_cli/core/attachments.py",
+      "?? local_cli/core/knowledge.py",
+      "?? local_cli/core/knowledge_store.py",
+      "?? local_cli/infrastructure/knowledge_acquisition.py",
+      "?? local_cli/infrastructure/knowledge_extraction.py",
+      "?? local_cli/infrastructure/knowledge_files.py",
+      "?? local_cli/infrastructure/knowledge_migrations.py",
+      "?? local_cli/infrastructure/knowledge_sqlite.py",
+      "?? local_cli/interfaces/knowledge_cli.py",
+      "?? tests/knowledge_inputs_v1/"
+    ],
+    "initialReportSha256": "d210c6310d6a6f76e4aa6b9eef9eba9b877d8959d1018d942f124b4df4572047",
+    "initialManifestSha256": "63101b239e6a99d487c8685db43d7b3f132cc7e570f12093af617fa1b5b75892",
+    "preflight": "C:/Users/joseh/AppData/Local/Temp/nova-k3-head-evidence-close-20261007/preflight.json",
+    "preflightSha256": "67ee2fce4ce4c7730bca66c700abc1b267b479e8aa2358b8f3c6f61025f374ef",
+    "checkedFilesDuringRegression": 1745,
+    "filesChangedDuringRegression": [],
+    "allPreviousChangesPreserved": true,
+    "historicalArtifactsUnchanged": true,
+    "stagedFiles": [],
+    "volume": {
+      "DriveLetter": "C",
+      "FileSystemType": "NTFS",
+      "DriveType": "Fixed"
+    }
+  }
+}

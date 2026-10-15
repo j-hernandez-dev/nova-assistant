@@ -1,0 +1,127 @@
+............................FF                                           [100%]
+================================== FAILURES ===================================
+________ test_host_real_executor_child_reads_inherited_synthetic_stdin ________
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmp99j624m5/pytest/test_host_real_executor_child_0')
+
+    def test_host_real_executor_child_reads_inherited_synthetic_stdin(tmp_path):
+        fixture_source = (
+            "import json,sys\n"
+            "payload = sys.stdin.buffer.read(128)\n"
+            f"print(json.dumps({{'inherited_canary': payload == {STDIN_CANARY.encode('ascii')!r}}}))\n"
+        )
+    
+>       observed = _run_host_fixture(
+            tmp_path, fixture_source, mode="executor", input_text=STDIN_CANARY
+        )
+
+..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py:317: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py:307: in _run_host_fixture
+    return json.loads(result["stdout"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\json\__init__.py:352: in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\json\decoder.py:345: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <json.decoder.JSONDecoder object at 0x0000022E98B77770>, s = '', idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+            obj, end = self.scan_once(s, idx)
+        except StopIteration as err:
+>           raise JSONDecodeError("Expecting value", s, err.value) from None
+E           json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+..\..\..\AppData\Local\Python\pythoncore-3.14-64\Lib\json\decoder.py:363: JSONDecodeError
+______ test_host_real_shelltool_filters_env_and_reads_sibling_dummy_file ______
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmp99j624m5/pytest/test_host_real_shelltool_filte0')
+
+    def test_host_real_shelltool_filters_env_and_reads_sibling_dummy_file(tmp_path):
+        private_fixture = tmp_path / "private_fixture"
+        private_fixture.mkdir()
+        dummy = private_fixture / "dummy_canary.txt"
+        dummy.write_text(FILE_CANARY, encoding="utf-8")
+        fixture_source = (
+            "import json,os\nfrom pathlib import Path\n"
+            "keys = {key.casefold() for key in os.environ}\n"
+            "observed = {\n"
+            " 'blocked_keys_present': bool(keys & {'openai_api_key','github_token','bash_env'}),\n"
+            f" 'unlisted_canary_retained': os.environ.get('NOVA_FIXTURE_SECRET') == {UNLISTED_CANARY!r},\n"
+            f" 'sibling_dummy_readable': Path({str(dummy)!r}).read_text(encoding='utf-8') == {FILE_CANARY!r},\n"
+            "}\nprint(json.dumps(observed))\n"
+        )
+    
+>       observed = _run_host_fixture(
+            tmp_path,
+            fixture_source,
+            mode="tool",
+            extra_env={
+                "OPENAI_API_KEY": BLOCKED_CANARY,
+                "gItHuB_tOkEn": BLOCKED_CANARY,
+                "BASH_ENV": "NOVA_S0_DUMMY_STARTUP_HOOK",
+                "NOVA_FIXTURE_SECRET": UNLISTED_CANARY,
+            },
+        )
+
+..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/09/27/01a0e362-af58-7370-a968-dd875568cd1d/nova_security_v12_s0/tmp99j624m5/pytest/test_host_real_shelltool_filte0')
+fixture_source = "import json,os\nfrom pathlib import Path\nkeys = {key.casefold() for key in os.environ}\nobserved = {\n 'blocked_keys...\\\\dummy_canary.txt').read_text(encoding='utf-8') == 'NOVA_S0_SIBLING_FILE_CANARY',\n}\nprint(json.dumps(observed))\n"
+mode = 'tool', input_text = ''
+extra_env = {'OPENAI_API_KEY': 'NOVA_S0_BLOCKED_CANARY', 'gItHuB_tOkEn': 'NOVA_S0_BLOCKED_CANARY', 'BASH_ENV': 'NOVA_S0_DUMMY_STARTUP_HOOK', 'NOVA_FIXTURE_SECRET': 'NOVA_S0_UNLISTED_CANARY'}
+
+    def _run_host_fixture(tmp_path, fixture_source, *, mode, input_text="", extra_env=None):
+        descriptor = _native_descriptor()
+        workspace = tmp_path / "workspace ' spaces"
+        workspace.mkdir()
+        fixture = workspace / "fixture ' child.py"
+        fixture.write_text(fixture_source, encoding="utf-8")
+        driver = tmp_path / "isolated_driver.py"
+        driver.write_text(DRIVER_SOURCE, encoding="utf-8")
+        repository = Path(shell_executor.__file__).resolve().parent.parent
+        environment = _fixture_environment(tmp_path, extra_env)
+        environment["PYTHONPATH"] = str(repository)
+        completed = subprocess.run(
+            [
+                sys.executable, "-I", str(driver), str(repository),
+                descriptor.os_name, descriptor.kind, descriptor.executable,
+                str(fixture), str(workspace), mode,
+            ],
+            cwd=workspace,
+            env=environment,
+            input=input_text,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=20,
+            creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0,
+        )
+        assert completed.returncode == 0, "The isolated S0 fixture driver failed"
+        result = json.loads(completed.stdout)
+>       assert result["status"] == "completed"
+E       AssertionError: assert 'denied' == 'completed'
+E         
+E         - completed
+E         + denied
+
+..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py:304: AssertionError
+=========================== short test summary info ===========================
+FAILED ..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py::test_host_real_executor_child_reads_inherited_synthetic_stdin
+FAILED ..\..\..\.codex\visualizations\2026\09\27\01a0e362-af58-7370-a968-dd875568cd1d\nova_security_v12_s0\staged\tests\security_v12\test_s0_process.py::test_host_real_shelltool_filters_env_and_reads_sibling_dummy_file
+2 failed, 28 passed in 2.37s

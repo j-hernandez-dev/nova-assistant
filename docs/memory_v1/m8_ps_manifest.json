@@ -1,0 +1,479 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "iteration": "cached-PS-preflight-final",
+  "date": "2026-10-06",
+  "status": "PARTIAL",
+  "operationalGateStatus": "PASS",
+  "semanticQualityThisIteration": "NOT_EVALUATED",
+  "e2eThisIteration": "NOT_EVALUATED",
+  "newIndependentQualityEvaluationEnabled": true,
+  "newHeldoutCreated": false,
+  "newHeldoutExecuted": false,
+  "novaMemoryV1ReadyDeclared": false,
+  "reason": "Operational target passed; new independent quality HELD-OUT and normal E2E 4K/8K/16K remain pending. Opening request forbids running quality yet.",
+  "baseline": {
+    "branch": "main",
+    "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "workingTreeInitiallyDirty": true,
+    "preexistingChangesPreserved": true,
+    "headUnchanged": true,
+    "platform": "Windows-11-10.0.26200-SP0",
+    "filesystemScope": "local NTFS",
+    "processModel": "HOST_UNISOLATED",
+    "processIsolation": false,
+    "python": "3.12.14",
+    "ollamaServer": "0.40.0",
+    "userConfigModified": false,
+    "ciModified": false
+  },
+  "contracts": {
+    "normalPath": "compatible cached metadata -> fresh PS(expected resident digest) -> embed -> fresh TAGS(post installed alias/revision proof) -> validate vector/selection -> admit",
+    "softMs": 350,
+    "hardMs": 600,
+    "fallbackReserveMs": 50,
+    "semanticCutoffMs": 550,
+    "guardFrozenBeforeWorkload": true,
+    "deadlineInterpretation": "Recall critical-path semantic blocking budget, not universal OS scheduling/full Turn realtime. Shared recall start; fixed guard reserves fallback time; controlled and all measured full returns <=600ms.",
+    "postRevisionProofRequired": true,
+    "lateVectorAdmitted": false,
+    "incompatibleVectorAdmitted": false,
+    "coldAutoLoadAllowed": false,
+    "residencyTtlAdded": false,
+    "pollingAdded": false,
+    "globalKeepAliveAdded": false,
+    "scoringChanged": false,
+    "rrfChanged": false,
+    "queryComposerChanged": false,
+    "similarityFloorChanged": false,
+    "candidateCapsChanged": false,
+    "qualityThresholdsChanged": false,
+    "historicalDatasetsOrGoldChanged": false,
+    "newSchemas": [],
+    "newMigrations": [],
+    "corePortChange": "Optional admission port docstring clarification only.",
+    "subagentZeroTimeout": "Immediate timeout before inference; elapsed >= timeout; cancellation precedence preserved."
+  },
+  "fixedRegressions": [
+    {
+      "classification": "REAL_REGRESSION",
+      "test": "tests.test_sub_agent.TestSubAgentTimeout.test_timeout_error_message",
+      "observedAfterFix": "PASS",
+      "originalTestModified": false
+    },
+    {
+      "classification": "REAL_REGRESSION",
+      "test": "tests.test_sub_agent.TestSubAgentTimeoutPartialResults.test_timeout_with_zero_content_returns_empty",
+      "observedAfterFix": "PASS",
+      "originalTestModified": false
+    }
+  ],
+  "staleHarnessExpectations": [
+    {
+      "classification": "STALE_EXPECTATION",
+      "path": "tests/memory_v1/test_m8_metadata_admission.py",
+      "reason": "Cached path now one post-TAGS, not pre+post; PS readiness failure replaces removed pre-TAGS fixture."
+    },
+    {
+      "classification": "STALE_EXPECTATION",
+      "path": "tests/memory_v1/test_m8_metadata_operational.py",
+      "reason": "Historical implementation freeze is an archived identity, not equality against future authorized HEAD. New freeze verifies all current source hashes; historical reports unchanged."
+    }
+  ],
+  "changes": {
+    "product": [
+      "local_cli/infrastructure/memory_embeddings.py",
+      "local_cli/application/memory_semantic.py",
+      "local_cli/core/memory.py",
+      "local_cli/sub_agent.py"
+    ],
+    "updatedTests": [
+      "tests/memory_v1/test_m8_metadata_admission.py",
+      "tests/memory_v1/test_m8_metadata_operational.py"
+    ],
+    "newTests": [
+      "tests/memory_v1/test_m8_ps_admission.py",
+      "tests/memory_v1/test_m8_subagent_zero_timeout.py",
+      "tests/memory_v1/test_m8_ps_operational.py"
+    ],
+    "newHarness": "tests/memory_v1/run_m8_ps_operational.py",
+    "newWorkload": "tests/memory_v1/fixtures/m8_ps_operational_v1.json",
+    "closureReport": "docs/memory_v1/m8_ps_resultados.md"
+  },
+  "implementationFreeze": {
+    "path": "docs/memory_v1/m8_ps_evidence/implementation_freeze.json",
+    "files": [
+      {
+        "path": "local_cli/core/memory.py",
+        "sha256": "eeaf289061da7cf19ec34e5e4d64aad68f7ee0ccd853cda4440720c0ddf5d482"
+      },
+      {
+        "path": "local_cli/infrastructure/memory_embeddings.py",
+        "sha256": "bad28e28756af3d81de20a9758422c7de0b38c798d2b43cadbfda0818ada5360"
+      },
+      {
+        "path": "local_cli/application/memory_semantic.py",
+        "sha256": "23ed54e289d54ce16681f45f5c3362541979d9c34c08c3d3a5c49aa12de95ef3"
+      },
+      {
+        "path": "local_cli/sub_agent.py",
+        "sha256": "aec584fb687e771cc99af9f29d1fa7b8794336f80fbb699aa6344e5b1e18d69d"
+      },
+      {
+        "path": "tests/test_sub_agent.py",
+        "sha256": "b28516d7a7492beda3466f9590fae3e944c162ec51d7ace3242aa2a0917ce9ec"
+      },
+      {
+        "path": "tests/memory_v1/test_m8_metadata_admission.py",
+        "sha256": "baf9c6f75077b3af4f59633546aa1533b4156850bac05382ad53b0b2821b9692"
+      },
+      {
+        "path": "tests/memory_v1/test_m8_metadata_operational.py",
+        "sha256": "1d2c1eea14cb487ed845c3cf5669b6f6dc8f85e3af498baad15c9e366ba9eb4e"
+      },
+      {
+        "path": "tests/memory_v1/test_m8_ps_admission.py",
+        "sha256": "c446785812d535ebc5994bc2af312cfa0fe4b82ab3f5f8a6d393641e7e4dc32c"
+      },
+      {
+        "path": "tests/memory_v1/test_m8_subagent_zero_timeout.py",
+        "sha256": "5140da90637aa1882f1c85b302eb1790d9cd57f3be0ace0745cee37505e321e5"
+      }
+    ]
+  },
+  "benchmark": {
+    "workloadVersion": "m8-ps-admission-operational-independent-v1",
+    "workloadSha256": "972ba95cece1b67d65890ac636f5de27de7ea07ca6c1f9be7ae05912788d3b52",
+    "measuredAt": "2026-10-06T22:11:48.186995-06:00",
+    "attempts": 1,
+    "sampleCount": 40,
+    "syntheticOnly": true,
+    "goldUsed": false,
+    "qualityEvaluated": false,
+    "chatInference": false,
+    "fixtureCapsuleTokenBudget": 0,
+    "workerIdleBeforeEachQuery": true,
+    "modelAlreadyResident": true,
+    "preparationAutoLoadRequested": false,
+    "projectionSetupOutsideMeasurements": true,
+    "model": {
+      "name": "BGE-M3:latest",
+      "revision": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+      "dimension": 1024,
+      "family": "bert",
+      "parameterSize": "566.70M",
+      "quantization": "F16",
+      "capability": [
+        "embedding"
+      ],
+      "queryDocumentProfile": "plain",
+      "space": {
+        "embedding_space_id": "ollama-810a779df15ccf6b50ccd4e4da669cd99ae7da990e5585a42393640cc4e9fcd9",
+        "provider_kind": "ollama-local",
+        "model_id": "BGE-M3:latest",
+        "dimension": 1024,
+        "normalization": "l2",
+        "storage_format": "nova-f32le-revision-v1",
+        "created_at": "2026-10-07 04:11:48.575224+00:00",
+        "model_revision": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab"
+      }
+    },
+    "httpCounts": {
+      "/api/ps": 40,
+      "/api/embed": 40,
+      "/api/tags": 40
+    },
+    "perQueryNormalCounts": {
+      "/api/ps": 1,
+      "/api/embed": 1,
+      "/api/tags": 1,
+      "/api/show": 0
+    },
+    "endpoint": {
+      "attempts": 40,
+      "errors": 0,
+      "attemptsLatency": {
+        "count": 40,
+        "p50Ms": 72.66039999967688,
+        "p95Ms": 113.81179999989399,
+        "maxMs": 127.335199999834
+      },
+      "completedLatency": {
+        "count": 40,
+        "p50Ms": 72.66039999967688,
+        "p95Ms": 113.81179999989399,
+        "maxMs": 127.335199999834
+      },
+      "distinctInputs": 40,
+      "distinctVectorHashes": 40
+    },
+    "pipeline": {
+      "count": 40,
+      "p50Ms": 229.2095,
+      "p95Ms": 267.444,
+      "maxMs": 290.873
+    },
+    "semanticAdmission": {
+      "count": 40,
+      "p50Ms": 226.63,
+      "p95Ms": 263.861,
+      "maxMs": 287.711
+    },
+    "httpStats": {
+      "/api/ps": {
+        "count": 40,
+        "p50Ms": 17.218599999978323,
+        "p95Ms": 29.161299999941548,
+        "maxMs": 51.33130000012898
+      },
+      "/api/embed": {
+        "count": 40,
+        "p50Ms": 72.66039999967688,
+        "p95Ms": 113.81179999989399,
+        "maxMs": 127.335199999834
+      },
+      "/api/tags": {
+        "count": 40,
+        "p50Ms": 124.89075000030425,
+        "p95Ms": 165.2979000000414,
+        "maxMs": 190.00489999962156
+      }
+    },
+    "embeddingStatusCounts": {
+      "WARM": 40
+    },
+    "retrievalModeCounts": {
+      "hybrid": 40
+    },
+    "cacheBefore": {
+      "refreshes": 1,
+      "reuses": 2,
+      "coalesced": 0,
+      "invalidations": {}
+    },
+    "cacheAfter": {
+      "refreshes": 1,
+      "reuses": 44,
+      "coalesced": 0,
+      "invalidations": {}
+    },
+    "observedInvalidations": 0,
+    "realTimeoutCount": 0,
+    "realBusyCount": 0,
+    "normalFallbackCount": 0,
+    "statistics": "p50 median; p95 nearest-rank; tails retained; HTTP/JSON/instrumentation included, no overhead subtraction.",
+    "operationalGate": {
+      "p95PipelineTargetMet": true,
+      "hardFullPipelineBoundMet": true,
+      "noLateResultAdmitted": true,
+      "recoveryDemonstrated": true,
+      "fortyDistinctRealEmbeddings": true
+    },
+    "raw": "docs/memory_v1/m8_ps_evidence/operational_report.json",
+    "frozenFileCount": 732,
+    "unchangedHistoricalFiles": 702,
+    "frozenFilesUnchanged": true
+  },
+  "controlledRecovery": {
+    "fixture": "REAL_OPTIMIZED_HTTP_WITH_CONTROLLED_COMPLETION_DELAY",
+    "naturalBgeTimeoutClaim": false,
+    "excludedFromLatencyStats": true,
+    "timeoutSemanticMs": 554.112,
+    "timeoutPipelineMs": 558.188,
+    "busyPipelineMs": 4.856,
+    "releaseMs": 563.1739999998899,
+    "workerAvailableMs": 563.4719999998197,
+    "abandonedFutureResult": "EMPTY_ABANDONED_RESULT",
+    "laterPipelineMs": 199.308,
+    "laterMode": "hybrid",
+    "laterStatus": "WARM",
+    "fallbackSnapshotUnchanged": true,
+    "strict600MsControlledCase": true,
+    "demonstrated": true
+  },
+  "residency": {
+    "before": {
+      "observedAt": "2026-10-06T22:11:48.328139-06:00",
+      "ps": {
+        "models": [
+          {
+            "name": "BGE-M3:latest",
+            "model": "BGE-M3:latest",
+            "size": 664000265,
+            "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "bert",
+              "families": [
+                "bert"
+              ],
+              "parameter_size": "566.70M",
+              "quantization_level": "F16"
+            },
+            "expires_at": "2319-01-16T21:37:06.837471007-06:00",
+            "size_vram": 664000265,
+            "context_length": 8192,
+            "runner": "llamacpp"
+          }
+        ]
+      }
+    },
+    "after": {
+      "observedAt": "2026-10-06T22:11:59.238698-06:00",
+      "ps": {
+        "models": [
+          {
+            "name": "BGE-M3:latest",
+            "model": "BGE-M3:latest",
+            "size": 664000265,
+            "digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "bert",
+              "families": [
+                "bert"
+              ],
+              "parameter_size": "566.70M",
+              "quantization_level": "F16"
+            },
+            "expires_at": "2319-01-16T21:59:15.984961607-06:00",
+            "size_vram": 664000265,
+            "context_length": 8192,
+            "runner": "llamacpp"
+          }
+        ]
+      }
+    },
+    "unchangedDigest": true,
+    "ollamaReportedSizeBytes": 664000265,
+    "ollamaReportedSizeVramBytes": 664000265,
+    "independentPhysicalPeakRamOrVram": "NOT_EVALUATED",
+    "coldLatency": "NOT_EVALUATED",
+    "chatEmbeddingCoexistence": "NOT_EVALUATED",
+    "futureResidencyGuarantee": false
+  },
+  "tests": [
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/baseline_run.json",
+      "kind": "MEMORY unit/contract/integration/persistence baseline",
+      "passed": 698,
+      "failed": 0,
+      "skipped": 0,
+      "xfail": 0,
+      "seconds": 54.9,
+      "externalInference": false
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/contracts_run.json",
+      "kind": "MEMORY regression after implementation",
+      "passed": 718,
+      "failed": 0,
+      "skipped": 0,
+      "xfail": 0,
+      "seconds": 56.32,
+      "externalInference": false
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/head_run.json",
+      "kind": "Reconciled HEAD/Core/Security/native regression",
+      "passed": 4076,
+      "subtestsPassed": 53,
+      "failed": 0,
+      "skipped": 11,
+      "xfail": 0,
+      "seconds": 271.23,
+      "externalInference": false,
+      "newSkipsAdded": 0,
+      "note": "Preexisting skips/exclusions; not a new host-real S3/S8/LLM certification. Three final wrapper tests covered separately by final MEMORY suite."
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/final_contracts_run.json",
+      "kind": "Final full tests/memory_v1 with new harness tests",
+      "passed": 723,
+      "failed": 0,
+      "skipped": 0,
+      "xfail": 0,
+      "seconds": 60.04,
+      "externalInference": false
+    }
+  ],
+  "evidence": [
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/operational_report.json",
+      "sha256": "5ee9cf898dcd1e7d4684631a798917ce17ed1d463adde744d910ffe31e4dc642"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/implementation_freeze.json",
+      "sha256": "722a31b1fd2db2fd66440e09e9bfccdd6b872546815b46559a715325cc2bb518"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/head_run.log",
+      "sha256": "26bf106ae4b3a5a1c96b3412a506f401b210f291171633ba72085ec4333db95d"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/head_run.json",
+      "sha256": "1fa58bcf2b0df1b5b5cfbeeb44bbeea16fd56d52fab6a86e4dbd60883be8867f"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/final_contracts_run.log",
+      "sha256": "e4b33379466c749e12a30183b6eac9456ea6e218195f41ce06b44aec76e6ddde"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/final_contracts_run.json",
+      "sha256": "0b63ec26fefa9b9bfd01e8468f2bde2fdf347d9ff12c3e7e977897d5747c3af6"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/contracts_run.log",
+      "sha256": "bd44e019d4db6336d70318adf50eb2c91788a2155cea7442007da453c840da78"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/contracts_run.json",
+      "sha256": "3a968fbc16d58dc555b09ce8933f684d9d2356fd4f2be17418b0e0a167bbd53b"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/benchmark_freeze.json",
+      "sha256": "6aea6aba995934ee2ba0f62aae65bdfdaaeceec0f284eb1f1edc23669c61b5fa"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/baseline_run.log",
+      "sha256": "48aedada1561c15469055ca6df87961a73b41499406f414d4df2c74caaf26865"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_evidence/baseline_run.json",
+      "sha256": "acdf34aba29f706e0e0abb5bebd17e85770830105462080b72c2fe231728b8cd"
+    },
+    {
+      "path": "docs/memory_v1/m8_ps_resultados.md",
+      "sha256": "07d1222399446b3c3dca8cc121342d03d0d368f0472b69217f729998afc0edc5"
+    }
+  ],
+  "historicalEvidencePreserved": [
+    {
+      "path": "docs/memory_v1/m8_metadata_evidence/operational_report.json",
+      "sha256": "b192a31b097b7a458f03ca79d8f0a45b96a0430c1bc0e86c0c72c624395bf8c4"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_evidence/heldout_report.json",
+      "sha256": "a5ebfa50e2db2b7add9776bc04f285550b713fbf8d413570d26168129df0ff20"
+    },
+    {
+      "path": "docs/memory_v1/m8_bge_ops_evidence/operational_report.json",
+      "sha256": "11c33c3e78a714cf9faedea402de1c26394d8d5d844c7d7ea79cbd8f63f266ec"
+    }
+  ],
+  "historicalOutcomesReinterpreted": false,
+  "operationalQualitySeparation": true,
+  "pending": [
+    "New independent frozen BGE quality HELD-OUT, one evaluation under unchanged thresholds",
+    "Only if quality passes: normal independent local E2E 4K/8K/16K, correct capsule source evidence, residency between chat Turns, critical scenarios"
+  ],
+  "openDecisionsChanged": [],
+  "commitMade": false,
+  "pushMade": false,
+  "tagsModified": false,
+  "modelsDownloaded": false,
+  "readyDeclared": false,
+  "nextPhaseImplemented": false
+}

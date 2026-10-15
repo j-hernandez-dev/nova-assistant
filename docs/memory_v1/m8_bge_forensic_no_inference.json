@@ -1,0 +1,1196 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "stage": "FORENSIC_NO_NEW_INFERENCE",
+  "status": "PARTIAL",
+  "causalAttribution": "BLOCKED_BY_MISSING_PRESERVED_PRE_FUSION_EVIDENCE",
+  "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+  "branch": "main",
+  "priorEvidenceUnchanged": true,
+  "productChanged": false,
+  "harnessChanged": false,
+  "datasetChanged": false,
+  "scoringChanged": false,
+  "newInference": false,
+  "ollamaRequests": 0,
+  "embeddingsRecomputed": false,
+  "rankingsReexecuted": false,
+  "inputs": {
+    "warmReport": {
+      "path": "docs/memory_v1/m8_bge_validity_evidence/validity_report.json",
+      "sha256": "a79de961efdcbbd6646d54b040f964d2c3fd0d1b8b14e0dadf1048f6298ff53b"
+    },
+    "dataset": {
+      "path": "tests/memory_v1/fixtures/m8_bge_final_heldout_v1.json",
+      "sha256": "97b8d9e98ac74ad4b54efb31f35977eb4fe758ecef45d7e75bf044b2aafc7dfe"
+    },
+    "syntheticSqlite": {
+      "path": "C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m8_validity_repair_standalone_20261007/state/memory/v1/memory.db",
+      "sha256": "b6f9f414d3c256fd547e7d4f9b12ccb024035465c9a9c5616b620dc34b8dcc53",
+      "readOnly": true,
+      "records": 90,
+      "recordClasses": [
+        {
+          "status": "ACTIVE",
+          "sensitivity": "NORMAL",
+          "count": 90
+        }
+      ],
+      "documentEmbeddings": 90,
+      "queryEmbeddingStoreExists": false
+    }
+  },
+  "summary": {
+    "warmRecalls": 72,
+    "positives": 60,
+    "precision1Correct": 41,
+    "precision1Failures": 19,
+    "failureSubsets": {
+      "paraphrase": 19
+    },
+    "failureQueryLanguages": {
+      "ES": 11,
+      "EN": 8
+    },
+    "failureLanguagePairs": {
+      "EN_to_EN": 5,
+      "ES_to_ES": 6,
+      "ES_to_EN": 5,
+      "EN_to_ES": 3
+    },
+    "finalGoldRanks": {
+      "rank2": 7,
+      "rank3": 5,
+      "rank4": 2,
+      "rank5": 1,
+      "rank6": 1,
+      "notInPreservedTop8": 3
+    },
+    "classification": {
+      "SEMANTIC_TOP1_DEMOTED_BY_FUSION": {
+        "demonstrated": 0,
+        "actualCount": "UNKNOWN_NOT_ZERO_CLAIM"
+      },
+      "SEMANTIC_RANK_2_OR_3": {
+        "demonstrated": 0,
+        "actualCount": "UNKNOWN_NOT_ZERO_CLAIM"
+      },
+      "SEMANTIC_OUTSIDE_TOP3": {
+        "demonstrated": 1,
+        "actualCount": "AT_LEAST_1"
+      },
+      "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED": 17,
+      "SEMANTIC_NOT_TOP1_EXACT_RANK_UNRESOLVED": 1
+    },
+    "confirmedNotTop1InSemanticPure": 2,
+    "boundsAreNotObservedRankings": true,
+    "materialFusionDemotionFraction": "UNKNOWN",
+    "majorityFailuresAlreadyInSemanticPure": "UNKNOWN",
+    "candidateDisposition": "BGE_CLOSED_NOT_SUITABLE_UNDER_PUBLISHED_VALIDITY_REPAIR_HYBRID_EVIDENCE_NOT_REOPENED",
+    "nextRankingOrModelDecision": "UNDETERMINED_DO_NOT_TEST_ANOTHER_MODEL",
+    "scoreCoverage": {
+      "preservedCosines": 0,
+      "preservedBm25": 0,
+      "preservedRrfScores": 0,
+      "derivedRrfScorePairs": 1
+    }
+  },
+  "failures": [
+    {
+      "case": "heldout-silence",
+      "subset": "paraphrase",
+      "queryLanguage": "EN",
+      "recordLanguage": "EN",
+      "gold": "final-silence",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,3],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 2,
+        "preservedSelectedIds": [
+          "final-posture",
+          "distractor-focus_light"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "final-posture",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "distractor-focus_light",
+          "final-posture",
+          "final-silence",
+          "distractor-priority_breaks",
+          "distractor-stage_lights",
+          "final-calendar_notice",
+          "final-alarm",
+          "final-call"
+        ],
+        "goldRank": 3,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "distractor-focus_light",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-message",
+      "subset": "paraphrase",
+      "queryLanguage": "EN",
+      "recordLanguage": "EN",
+      "gold": "final-message",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": null,
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 18,
+        "preservedSelectedIds": [
+          "final-bread",
+          "final-learning",
+          "final-feedback",
+          "final-print",
+          "final-plate",
+          "distractor-sleep_bedding",
+          "final-soup",
+          "distractor-priority_breaks"
+        ],
+        "completePreservedCandidateList": false,
+        "goldRank": null,
+        "goldRankEvidence": "UNKNOWN_NOT_IN_PRESERVED_TOP8",
+        "possibleUnpreservedRankRange": [
+          9,
+          18
+        ],
+        "top1Id": "final-bread",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-soup",
+          "final-feedback",
+          "final-message",
+          "final-curtain",
+          "distractor-priority_breaks",
+          "final-bread",
+          "final-silence",
+          "final-print"
+        ],
+        "goldRank": 3,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-soup",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-fever",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "ES",
+      "gold": "final-fever",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,2],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 3,
+        "preservedSelectedIds": [
+          "final-seed",
+          "final-kite",
+          "final-sieve"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "final-seed",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-seed",
+          "final-fever",
+          "final-kite",
+          "final-calendar_notice",
+          "distractor-priority_breaks",
+          "final-sieve",
+          "final-calendar"
+        ],
+        "goldRank": 2,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-seed",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-deadline",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "ES",
+      "gold": "final-deadline",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,2],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 2,
+        "preservedSelectedIds": [
+          "final-calendar_notice",
+          "final-gift"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "final-calendar_notice",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-calendar_notice",
+          "final-deadline",
+          "final-gift",
+          "final-queue",
+          "final-calendar",
+          "distractor-meeting_reminder",
+          "final-message",
+          "distractor-calendar_colors"
+        ],
+        "goldRank": 2,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-calendar_notice",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-reflection",
+      "subset": "paraphrase",
+      "queryLanguage": "EN",
+      "recordLanguage": "EN",
+      "gold": "final-reflection",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": null,
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 18,
+        "preservedSelectedIds": [
+          "final-learning",
+          "final-print",
+          "final-plate",
+          "final-bread",
+          "distractor-sleep_bedding",
+          "final-soup",
+          "distractor-priority_breaks",
+          "distractor-dessert_kind"
+        ],
+        "completePreservedCandidateList": false,
+        "goldRank": null,
+        "goldRankEvidence": "UNKNOWN_NOT_IN_PRESERVED_TOP8",
+        "possibleUnpreservedRankRange": [
+          9,
+          18
+        ],
+        "top1Id": "final-learning",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-learning",
+          "distractor-priority_breaks",
+          "final-reflection",
+          "final-queue",
+          "distractor-breakfast_drink",
+          "final-curtain",
+          "final-posture",
+          "final-silence"
+        ],
+        "goldRank": 3,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-learning",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-surface",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "ES",
+      "gold": "final-surface",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,2],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 2,
+        "preservedSelectedIds": [
+          "distractor-water_schedule",
+          "final-air"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "distractor-water_schedule",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-air",
+          "final-surface",
+          "distractor-water_schedule",
+          "final-snack",
+          "distractor-lookout_case",
+          "distractor-priority_breaks",
+          "distractor-focus_light",
+          "final-sand"
+        ],
+        "goldRank": 2,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-air",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-crowd",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "ES",
+      "gold": "final-crowd",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,2],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 1,
+        "preservedSelectedIds": [
+          "distractor-museum_room"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "distractor-museum_room",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "distractor-museum_room",
+          "final-crowd",
+          "final-seat",
+          "final-feedback",
+          "final-call",
+          "final-silence",
+          "final-print",
+          "distractor-focus_light"
+        ],
+        "goldRank": 2,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "distractor-museum_room",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-feedback",
+      "subset": "paraphrase",
+      "queryLanguage": "EN",
+      "recordLanguage": "EN",
+      "gold": "final-feedback",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,2],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 4,
+        "preservedSelectedIds": [
+          "final-map",
+          "final-lens",
+          "final-bell",
+          "final-queue"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "final-map",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-lens",
+          "final-feedback",
+          "final-map",
+          "final-posture",
+          "distractor-museum_room",
+          "final-bell",
+          "final-plate",
+          "final-queue"
+        ],
+        "goldRank": 2,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-lens",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-meal",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "ES",
+      "gold": "final-meal",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,2],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 3,
+        "preservedSelectedIds": [
+          "final-surface",
+          "final-snack",
+          "final-call"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "final-surface",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-surface",
+          "final-meal",
+          "final-posture",
+          "final-snack",
+          "final-call",
+          "final-air",
+          "distractor-priority_breaks",
+          "final-plate"
+        ],
+        "goldRank": 2,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-surface",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-queue",
+      "subset": "paraphrase",
+      "queryLanguage": "EN",
+      "recordLanguage": "EN",
+      "gold": "final-queue",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": null,
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 19,
+        "preservedSelectedIds": [
+          "final-calendar",
+          "final-plate",
+          "final-bread",
+          "distractor-sleep_bedding",
+          "final-soup",
+          "distractor-priority_breaks",
+          "distractor-dessert_kind",
+          "final-curtain"
+        ],
+        "completePreservedCandidateList": false,
+        "goldRank": null,
+        "goldRankEvidence": "UNKNOWN_NOT_IN_PRESERVED_TOP8",
+        "possibleUnpreservedRankRange": [
+          9,
+          19
+        ],
+        "top1Id": "final-calendar",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-calendar",
+          "distractor-priority_breaks",
+          "final-curtain",
+          "final-bread",
+          "distractor-sleep_bedding",
+          "final-queue",
+          "final-learning",
+          "final-plate"
+        ],
+        "goldRank": 6,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-calendar",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-seat",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "ES",
+      "gold": "final-seat",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,3],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 3,
+        "preservedSelectedIds": [
+          "distractor-museum_room",
+          "distractor-water_schedule",
+          "final-air"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "distractor-museum_room",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "distractor-museum_room",
+          "final-air",
+          "final-seat",
+          "distractor-cinema_tickets",
+          "distractor-water_schedule",
+          "distractor-focus_light",
+          "final-posture",
+          "final-call"
+        ],
+        "goldRank": 3,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "distractor-museum_room",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-curtain",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "EN",
+      "gold": "final-curtain",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,2],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 2,
+        "preservedSelectedIds": [
+          "final-calendar_notice",
+          "final-gift"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "final-calendar_notice",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-calendar_notice",
+          "final-curtain",
+          "final-gift",
+          "final-alarm",
+          "final-air",
+          "final-silence",
+          "final-deadline",
+          "final-bread"
+        ],
+        "goldRank": 2,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-calendar_notice",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-soup",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "EN",
+      "gold": "final-soup",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,3],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 3,
+        "preservedSelectedIds": [
+          "final-surface",
+          "distractor-water_schedule",
+          "final-air"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "final-surface",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "distractor-water_schedule",
+          "final-air",
+          "final-soup",
+          "final-surface",
+          "final-fever",
+          "distractor-stage_lights",
+          "final-plate",
+          "final-meal"
+        ],
+        "goldRank": 3,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "distractor-water_schedule",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-paper",
+      "subset": "paraphrase",
+      "queryLanguage": "EN",
+      "recordLanguage": "ES",
+      "gold": "final-paper",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": null,
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 18,
+        "preservedSelectedIds": [
+          "final-plate",
+          "final-bread",
+          "distractor-sleep_bedding",
+          "final-soup",
+          "distractor-priority_breaks",
+          "distractor-dessert_kind",
+          "final-curtain",
+          "final-posture"
+        ],
+        "completePreservedCandidateList": false,
+        "goldRank": null,
+        "goldRankEvidence": "UNKNOWN_NOT_IN_PRESERVED_TOP8",
+        "possibleUnpreservedRankRange": [
+          9,
+          18
+        ],
+        "top1Id": "final-plate",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-plate",
+          "distractor-priority_breaks",
+          "final-message",
+          "distractor-diagram_color",
+          "final-posture",
+          "final-reflection",
+          "final-print",
+          "final-silence"
+        ],
+        "goldRank": null,
+        "goldRankEvidence": "UNKNOWN_NOT_IN_PRESERVED_TOP8",
+        "top1Id": "final-plate",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-call",
+      "subset": "paraphrase",
+      "queryLanguage": "EN",
+      "recordLanguage": "ES",
+      "gold": "final-call",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": null,
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 18,
+        "preservedSelectedIds": [
+          "final-learning",
+          "final-print",
+          "final-plate",
+          "final-bread",
+          "distractor-sleep_bedding",
+          "final-soup",
+          "distractor-priority_breaks",
+          "distractor-dessert_kind"
+        ],
+        "completePreservedCandidateList": false,
+        "goldRank": null,
+        "goldRankEvidence": "UNKNOWN_NOT_IN_PRESERVED_TOP8",
+        "possibleUnpreservedRankRange": [
+          9,
+          18
+        ],
+        "top1Id": "final-learning",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-posture",
+          "final-print",
+          "final-message",
+          "final-photobook",
+          "final-feedback",
+          "final-plate",
+          "distractor-priority_breaks",
+          "final-silence"
+        ],
+        "goldRank": null,
+        "goldRankEvidence": "UNKNOWN_NOT_IN_PRESERVED_TOP8",
+        "top1Id": "final-posture",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-fold",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "EN",
+      "gold": "final-fold",
+      "retrievalMode": "semantic",
+      "semanticPure": {
+        "goldRank": 4,
+        "rankEvidence": "DERIVED_ORDER_PRESERVATION_EMPTY_LEXICAL_AND_NO_HYDRATION_DROPS",
+        "goldRankBounds": [4,4],
+        "top1Id": "distractor-laundry_folding",
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 0,
+        "preservedSelectedIds": [],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": null,
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "distractor-laundry_folding",
+          "final-cloth",
+          "distractor-coat_storage",
+          "final-fold",
+          "distractor-shoelaces",
+          "distractor-sleep_bedding",
+          "final-lens",
+          "final-receipt"
+        ],
+        "goldRank": 4,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "distractor-laundry_folding",
+        "top1RrfScore": 0.01639344262295082,
+        "goldRrfScore": 0.015625,
+        "rrfMargin": 0.0007684426229508205,
+        "scoreEvidence": "ALGEBRAIC_DERIVATION_UNCHANGED_RRF_EMPTY_LEXICAL_NOT_A_NEW_RANKING_RUN"
+      },
+      "classification": "SEMANTIC_OUTSIDE_TOP3",
+      "evidence": "metadata retrievalMode=semantic; lexical candidates=0; 8 hydration_get spans=8 final IDs; gold final #4; RRF preserves sole-list order"
+    },
+    {
+      "case": "heldout-plate",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "EN",
+      "gold": "final-plate",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": null,
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 24,
+        "preservedSelectedIds": [
+          "distractor-water_schedule",
+          "final-meal",
+          "final-air",
+          "distractor-bookclub_books",
+          "distractor-stage_lights",
+          "distractor-letter_ink",
+          "distractor-alarm_clock",
+          "distractor-call_audio"
+        ],
+        "completePreservedCandidateList": false,
+        "goldRank": null,
+        "goldRankEvidence": "UNKNOWN_NOT_IN_PRESERVED_TOP8",
+        "possibleUnpreservedRankRange": [
+          9,
+          24
+        ],
+        "top1Id": "distractor-water_schedule",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "distractor-water_schedule",
+          "final-meal",
+          "distractor-dessert_kind",
+          "distractor-priority_breaks",
+          "distractor-stage_lights",
+          "distractor-parcel_packaging",
+          "distractor-letters_delivery",
+          "distractor-broth_bowl"
+        ],
+        "goldRank": null,
+        "goldRankEvidence": "UNKNOWN_NOT_IN_PRESERVED_TOP8",
+        "top1Id": "distractor-water_schedule",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    },
+    {
+      "case": "heldout-path",
+      "subset": "paraphrase",
+      "queryLanguage": "ES",
+      "recordLanguage": "EN",
+      "gold": "final-path",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "DERIVED_BOUNDS_2_TO_5_NOT_AN_OBSERVED_EXACT_RANK",
+        "goldRankBounds": [2,5],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 5,
+        "preservedSelectedIds": [
+          "final-notes",
+          "distractor-notes_tags",
+          "final-marbles",
+          "distractor-calendar_colors",
+          "distractor-meeting_reminder"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "final-notes",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "final-notes",
+          "distractor-meeting_reminder",
+          "distractor-notes_tags",
+          "distractor-bookclub_books",
+          "final-path",
+          "distractor-priority_breaks",
+          "final-marbles",
+          "distractor-calendar_colors"
+        ],
+        "goldRank": 5,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "final-notes",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "SEMANTIC_NOT_TOP1_EXACT_RANK_UNRESOLVED",
+      "evidence": "Gold absent from complete lexical list of 5; non-lexical distractor-bookclub_books precedes gold in final rank; equal RRF preserves order of semantic-only IDs; 8 hydration spans=8 final IDs. Thus semantic rank at least2, at most5; cannot distinguish2/3 from outside3."
+    },
+    {
+      "case": "heldout-drawer",
+      "subset": "paraphrase",
+      "queryLanguage": "EN",
+      "recordLanguage": "ES",
+      "gold": "final-drawer",
+      "retrievalMode": "hybrid",
+      "semanticPure": {
+        "goldRank": null,
+        "rankEvidence": "UNKNOWN_PRE_FUSION_RANKING_NOT_PRESERVED",
+        "goldRankBounds": [1,4],
+        "top1Id": null,
+        "top1Cosine": null,
+        "goldCosine": null,
+        "cosineMargin": null,
+        "scoreEvidence": "NOT_PRESERVED_QUERY_VECTOR_AND_COSINES_ABSENT"
+      },
+      "lexical": {
+        "candidateCount": 4,
+        "preservedSelectedIds": [
+          "final-receipt",
+          "final-lamp",
+          "final-clock",
+          "distractor-receipt_filing"
+        ],
+        "completePreservedCandidateList": true,
+        "goldRank": null,
+        "goldRankEvidence": "NO_LEXICAL_HIT",
+        "possibleUnpreservedRankRange": null,
+        "top1Id": "final-receipt",
+        "top1Bm25": null,
+        "goldBm25": null,
+        "scoreEvidence": "NO_GOLD_HIT_TOP1_BM25_NOT_PRESERVED"
+      },
+      "finalHybrid": {
+        "preservedIds": [
+          "distractor-receipt_filing",
+          "final-receipt",
+          "final-clock",
+          "final-drawer",
+          "distractor-meeting_reminder",
+          "final-lamp",
+          "distractor-badge_colors",
+          "distractor-drawer_handles"
+        ],
+        "goldRank": 4,
+        "goldRankEvidence": "OBSERVED_FINAL_HYDRATED_RANK",
+        "top1Id": "distractor-receipt_filing",
+        "top1RrfScore": null,
+        "goldRrfScore": null,
+        "rrfMargin": null,
+        "scoreEvidence": "UNKNOWN_PRE_FUSION_RANKS_AND_RRF_TOTALS_NOT_PRESERVED"
+      },
+      "classification": "UNKNOWN_PRE_FUSION_EVIDENCE_NOT_PRESERVED",
+      "evidence": "Forwarding tracer saved timing only, not returned lexical/semantic ranks/scores; final ordering cannot uniquely invert two-list RRF"
+    }
+  ],
+  "limitations": [
+    "No semantic pre-fusion ranked lists or query vectors were saved.",
+    "No lexical BM25 or fused RRF score totals were saved.",
+    "Lexical baseline reports preserve at most 8 hydrated IDs, not all 24 candidates.",
+    "Final hybrid ranks do not uniquely determine semantic ranks.",
+    "Security Audit is not used as a conversational/vector store; only the private synthetic artifact was inspected for missing diagnostic fields."
+  ],
+  "readyDeclared": false,
+  "commit": false,
+  "push": false
+}

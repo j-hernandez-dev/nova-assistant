@@ -1,0 +1,104 @@
+
+# Local agent state and credentials
+.auto-claude/
+.auto-claude-security.json
+.auto-claude-status
+.claude_settings.json
+/.claude/settings.local.json
+.worktrees/
+.security-key
+.agents/
+.local-cli-state/
+/logs/
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Python caches, environments and packaging output
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.venv/
+venv/
+ENV/
+/build/
+/dist/
+
+# Native browser compilation output; packaged runtimes live under /dist/.
+/native/**/bin/
+/native/**/obj/
+
+# Local RAG index (project data, not source)
+rag_index.db*
+
+# Local MEMORY fixture state (not certification reports or datasets)
+/docs/memory_v1/**/pytest-private/
+/docs/memory_v1/**/private/
+/docs/memory_v1/**/state/
+/docs/memory_v1/**/*.db
+/docs/memory_v1/**/*.db-wal
+/docs/memory_v1/**/*.db-shm
+/docs/memory_v1/**/*.sqlite
+/docs/memory_v1/**/*.sqlite3
+/docs/memory_v1/**/audit/*.lease
+/docs/memory_v1/**/audit/rotation.lock
+# Standalone seed audits are runtime output, not the certified E2E audits.
+/docs/memory_v1/m8_core_evidence/standalone_v1/**/audit/
+
+# Node and Electron generated files
+node_modules/
+/desktop/dist/
+/desktop/dist-electron/
+/desktop/release/
+/desktop/out/
+*.tsbuildinfo
+# Root/desktop runtime logs; logs in documentation are intentional receipts.
+/*.log
+/desktop/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Frozen Browser/Harness receipts are evidence, never local runtime logs.
+!/docs/active_web_v1/**/*.log
+!/docs/active_web_v1_2/**/*.log
+!/docs/harness_ux_v1/**/*.log
+!/docs/active_web_reimplementation/**/*.log
+
+# Archived Knowledge evidence referenced by frozen manifests, not runtime logs.
+!/docs/knowledge_inputs_v1/knowledge_context_capability_resolution_v1_head_evidence/run.log
+!/docs/knowledge_inputs_v2/revision_03/evidence/checks-attempt-01.log
+!/docs/knowledge_inputs_v2/revision_03/evidence/checks-attempt-02.log
+!/docs/knowledge_inputs_v2/revision_04/evidence/backend-identity-synthetic.log
+!/docs/knowledge_inputs_v2/revision_04/evidence/inherited-r3-synthetic-before-freeze.log
+!/docs/knowledge_inputs_v2/revision_04/evidence/post-freeze/backend-preflight.log
+!/docs/knowledge_inputs_v2/revision_04/evidence/post-freeze/inherited-r4-synthetic.log
+
+# Editor and operating-system files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Keep desktop/package.json, desktop/package-lock.json and desktop/build/
+# (the last directory contains the source icons used by electron-builder).

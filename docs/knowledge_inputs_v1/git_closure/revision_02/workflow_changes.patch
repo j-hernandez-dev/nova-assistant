@@ -1,0 +1,384 @@
+diff --git a/.github/workflows/nova_core_v1.yml b/.github/workflows/nova_core_v1.yml
+index 4bb0eb5..857892f 100644
+--- a/.github/workflows/nova_core_v1.yml
++++ b/.github/workflows/nova_core_v1.yml
+@@ -1,68 +1,124 @@
+-name: Nova Core V1 gates
++name: Nova Core V1 contracts
+ on:
+   push:
+   pull_request:
+   workflow_dispatch:
++    inputs:
++      native_security:
++        description: Explicit private Windows/NTFS Security host contracts (no model)
++        required: false
++        type: boolean
++        default: false
++
++env:
++  PYTHONDONTWRITEBYTECODE: '1'
++
+ jobs:
+-  native-backend:
++  core-contracts:
++    name: Core (${{ matrix.os }})
++    strategy:
++      fail-fast: false
++      matrix:
++        os: [windows-latest, ubuntu-latest, macos-latest]
++    runs-on: ${{ matrix.os }}
++    timeout-minutes: 45
++    steps:
++      - uses: actions/checkout@v4
++        env:
++          GIT_CONFIG_COUNT: '1'
++          GIT_CONFIG_KEY_0: core.autocrlf
++          GIT_CONFIG_VALUE_0: 'false'
++      - uses: actions/setup-python@v5
++        with:
++          python-version: '3.14'
++      - run: python -m pip install -e . pytest pytest-subtests
++      - name: Require complete contract classification
++        run: python -B ci/contract_inventory.py
++      - name: Core positive current regression
++        run: >-
++          python -B ci/run_contracts.py --job core
++          --output "${{ runner.temp }}/nova-core-contracts"
++      - name: Preserve current CI diagnostics
++        if: always()
++        uses: actions/upload-artifact@v4
++        with:
++          name: core-contracts-${{ matrix.os }}
++          path: |
++            ${{ runner.temp }}/nova-core-contracts/run.json
++            ${{ runner.temp }}/nova-core-contracts/selection.json
++            ${{ runner.temp }}/nova-core-contracts/collected_nodeids.json
++            ${{ runner.temp }}/nova-core-contracts/tests.xml
++            ${{ runner.temp }}/nova-core-contracts/pytest.log
++          if-no-files-found: error
++
++  security-contracts:
++    name: Security contracts (${{ matrix.os }})
+     strategy:
+       fail-fast: false
+       matrix:
+         os: [windows-latest, ubuntu-latest, macos-latest]
+     runs-on: ${{ matrix.os }}
++    timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
++        env:
++          GIT_CONFIG_COUNT: '1'
++          GIT_CONFIG_KEY_0: core.autocrlf
++          GIT_CONFIG_VALUE_0: 'false'
+       - uses: actions/setup-python@v5
+         with:
+           python-version: '3.14'
++      - uses: actions/setup-node@v4
++        # The existing Python/Node proof contract needs Node, not Desktop/GUI.
++        with:
++          node-version: '24.19.0'
+       - run: python -m pip install -e . pytest pytest-subtests
+-      - name: Core architecture and native process smoke
+-        run: python -m pytest tests/test_nova_core_phase14_architecture.py tests/test_nova_core_phase14_platform.py -q
+-      - name: Core and Security contract regression (no external LLM required)
+-        shell: bash
+-        run: |
+-          args=(
+-            --ignore=tests/security_v12/test_s0_frontends.py
+-            --ignore=tests/security_v12/test_s0_process.py
+-            --ignore=tests/security_v12/test_s0_surfaces.py
+-            --ignore=tests/security_v12/test_s3_windows.py
+-            --ignore=tests/security_v12/test_s4_host.py
+-            --ignore=tests/security_v12/test_s5_network.py
+-            --ignore=tests/security_v12/test_s6_host.py
+-            --ignore=tests/security_v12/test_s8_host.py
+-            --ignore=tests/security_v12/test_s8_e2e.py
+-            --ignore=tests/test_nova_core_phase7_legacy_bridge.py
+-            --ignore=tests/test_nova_core_phase7_server_legacy.py
+-            --ignore=tests/test_security_gates.py
+-          )
+-          # These four Core-era filesystem characterizations exercise the S3
+-          # Windows/NTFS adapter. On other hosts the normative result is the
+-          # fail-closed FILESYSTEM_PLATFORM_UNSUPPORTED contract, covered by
+-          # the Security suite rather than by a successful filesystem test.
+-          if [ "$RUNNER_OS" != "Windows" ]; then
+-            args+=(
+-              --ignore=tests/test_nova_core_phase12_client.py
+-              --ignore=tests/test_nova_core_phase3_cwd.py
+-              --ignore=tests/test_nova_core_phase6_runtime.py
+-              --ignore=tests/test_nova_core_phase7_session.py
+-            )
+-          fi
+-          python -m pytest -q tests "${args[@]}"
++      - name: Security positive current regression
++        run: >-
++          python -B ci/run_contracts.py --job security
++          --output "${{ runner.temp }}/nova-security-contracts"
++      - name: Preserve current CI diagnostics
++        if: always()
++        uses: actions/upload-artifact@v4
++        with:
++          name: security-contracts-${{ matrix.os }}
++          path: |
++            ${{ runner.temp }}/nova-security-contracts/run.json
++            ${{ runner.temp }}/nova-security-contracts/selection.json
++            ${{ runner.temp }}/nova-security-contracts/collected_nodeids.json
++            ${{ runner.temp }}/nova-security-contracts/tests.xml
++            ${{ runner.temp }}/nova-security-contracts/pytest.log
++          if-no-files-found: error
+ 
+-  security-windows-ntfs:
+-    name: security-windows-ntfs
++  security-native-manual:
++    name: Manual private Windows/NTFS Security host contracts
++    # The original native scope is explicit and manual, never an ordinary skip.
++    if: github.event_name == 'workflow_dispatch' && inputs.native_security
+     runs-on: windows-latest
++    timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
++        env:
++          GIT_CONFIG_COUNT: '1'
++          GIT_CONFIG_KEY_0: core.autocrlf
++          GIT_CONFIG_VALUE_0: 'false'
+       - uses: actions/setup-python@v5
+         with:
+           python-version: '3.14'
+       - run: python -m pip install -e . pytest pytest-subtests
+-      - name: Windows NTFS Security host gate
++      - name: Explicit positive native Security contracts
+         run: >-
+-          python -m pytest -q
+-          tests/security_v12/test_s3_windows.py
+-          tests/security_v12/test_s4_host.py
+-          tests/security_v12/test_s5_network.py
+-          tests/security_v12/test_s6_host.py
+-          tests/security_v12/test_s8_host.py
++          python -B ci/run_contracts.py --job security-native --special
++          --output "${{ runner.temp }}/nova-security-native"
++      - name: Preserve native CI diagnostics
++        if: always()
++        uses: actions/upload-artifact@v4
++        with:
++          name: security-native-windows
++          path: |
++            ${{ runner.temp }}/nova-security-native/run.json
++            ${{ runner.temp }}/nova-security-native/selection.json
++            ${{ runner.temp }}/nova-security-native/collected_nodeids.json
++            ${{ runner.temp }}/nova-security-native/tests.xml
++            ${{ runner.temp }}/nova-security-native/pytest.log
++          if-no-files-found: error
+diff --git a/.github/workflows/nova_memory_v1.yml b/.github/workflows/nova_memory_v1.yml
+index f787d13..971bcb1 100644
+--- a/.github/workflows/nova_memory_v1.yml
++++ b/.github/workflows/nova_memory_v1.yml
+@@ -1,26 +1,24 @@
+-name: Nova Memory V1 gates
++name: Nova Memory V1 contracts
+ on:
+   push:
+   pull_request:
+   workflow_dispatch:
+ 
+-# Regression of the certified Core contracts, not a new READY evaluation.
+-# Hosted CI never runs the real-model E2E campaign or certifies Semantic Profile.
+ env:
+   PYTHONDONTWRITEBYTECODE: '1'
+   NOVA_MEMORY_SEMANTIC_PROFILE: NOT_CERTIFIED
+ 
+ jobs:
+-  memory-core:
+-    name: memory-core (${{ matrix.os }})
++  memory-contracts:
++    name: Memory (${{ matrix.os }})
+     strategy:
+       fail-fast: false
+       matrix:
+-        os: [ubuntu-latest, macos-latest, windows-latest]
++        os: [windows-latest, ubuntu-latest, macos-latest]
+     runs-on: ${{ matrix.os }}
++    timeout-minutes: 45
+     steps:
+       - uses: actions/checkout@v4
+-        # Preserve frozen fixture/source hashes; process-local, not global config.
+         env:
+           GIT_CONFIG_COUNT: '1'
+           GIT_CONFIG_KEY_0: core.autocrlf
+@@ -28,76 +26,21 @@ jobs:
+       - uses: actions/setup-python@v5
+         with:
+           python-version: '3.14'
+-      # NumPy enables synthetic vector contracts, NOT real embedding inference.
++      # NumPy enables synthetic vectors only; no embedding model is loaded.
+       - run: python -m pip install -e ".[memory-semantic]" pytest pytest-subtests
+-      - name: Require temporary state outside any Git workspace
++      - name: Memory positive current regression
+         run: >-
+-          python -B -c "import os,subprocess; from pathlib import Path;
+-          root=Path.cwd().resolve(); temp=Path(os.environ['RUNNER_TEMP']).resolve(strict=True);
+-          assert not temp.is_relative_to(root), 'Temporary state inside checkout';
+-          result=subprocess.run(['git','-C',str(temp),'rev-parse','--show-toplevel'],capture_output=True,text=True);
+-          assert result.returncode!=0, 'Temporary state inside a Git working tree'"
+-      - name: Portable MEMORY contract regression (no real models)
+-        # The historical m0 mode selects ALL of tests/memory_v1, including M1-M8.
+-        # No platform exclusions or skip/xfail additions; native failures fail CI.
+-        run: >-
+-          python -B -m tests.memory_v1.run_regression --mode m0
+-          --output "${{ runner.temp }}/nova-memory-core"
+-      - name: Report gate scope
++          python -B ci/run_contracts.py --job memory
++          --output "${{ runner.temp }}/nova-memory-contracts"
++      - name: Preserve current CI diagnostics
+         if: always()
+-        run: >-
+-          python -B -c "import os; from pathlib import Path;
+-          assert os.environ['NOVA_MEMORY_SEMANTIC_PROFILE']=='NOT_CERTIFIED';
+-          summary='MEMORY Core portable contract regression only.\n\nSEMANTIC_PROFILE=NOT_CERTIFIED. Real Ollama/embedding E2E: NOT_RUN. Linux/macOS host-real certification: NOT_CLAIMED. No sandbox/process isolation.\n';
+-          print(summary); Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(summary,encoding='utf-8')"
+-
+-  memory-windows-ntfs:
+-    name: memory-windows-ntfs
+-    runs-on: windows-latest
+-    steps:
+-      - uses: actions/checkout@v4
+-        env:
+-          GIT_CONFIG_COUNT: '1'
+-          GIT_CONFIG_KEY_0: core.autocrlf
+-          GIT_CONFIG_VALUE_0: 'false'
+-      - uses: actions/setup-python@v5
++        uses: actions/upload-artifact@v4
+         with:
+-          python-version: '3.14'
+-      - run: python -m pip install -e ".[memory-semantic]" pytest pytest-subtests
+-      - name: Require temporary state outside any Git workspace
+-        run: >-
+-          python -B -c "import os,subprocess; from pathlib import Path;
+-          root=Path.cwd().resolve(); temp=Path(os.environ['RUNNER_TEMP']).resolve(strict=True);
+-          assert not temp.is_relative_to(root), 'Temporary state inside checkout';
+-          result=subprocess.run(['git','-C',str(temp),'rev-parse','--show-toplevel'],capture_output=True,text=True);
+-          assert result.returncode!=0, 'Temporary state inside a Git working tree'"
+-      - name: Require native Windows and supported local NTFS roots
+-        shell: python
+-        run: |
+-          import os
+-          import platform
+-          from pathlib import Path
+-          from local_cli.infrastructure.windows_filesystem import WindowsFilesystemBroker
+-
+-          assert os.name == 'nt', 'Windows native host required'
+-          broker = WindowsFilesystemBroker()
+-          try:
+-              for path in (Path.cwd(), Path(os.environ['RUNNER_TEMP'])):
+-                  assert broker.bind_root(path.resolve()).identity
+-              print(platform.platform())
+-              print('Windows + local NTFS + HOST_UNISOLATED; no sandbox/process isolation')
+-          finally:
+-              broker.close()
+-      - name: Windows NTFS MEMORY and Core integration regression (no real models)
+-        # Includes native SQLite WAL/FTS, process crash/locking/recovery, audit,
+-        # common CLI/JSONL Application paths, context and RAG regression.
+-        run: >-
+-          python -B -m tests.memory_v1.run_regression --mode m4
+-          --output "${{ runner.temp }}/nova-memory-windows-ntfs"
+-      - name: Report gate scope
+-        if: always()
+-        run: >-
+-          python -B -c "import os; from pathlib import Path;
+-          assert os.environ['NOVA_MEMORY_SEMANTIC_PROFILE']=='NOT_CERTIFIED';
+-          summary='MEMORY Core regression for Windows + local NTFS + HOST_UNISOLATED.\n\nSEMANTIC_PROFILE=NOT_CERTIFIED. Real Ollama/embedding E2E: NOT_RUN. No sandbox/process isolation. This CI run does not replace the published Windows 11 READY evaluation.\n';
+-          print(summary); Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(summary,encoding='utf-8')"
++          name: memory-contracts-${{ matrix.os }}
++          path: |
++            ${{ runner.temp }}/nova-memory-contracts/run.json
++            ${{ runner.temp }}/nova-memory-contracts/selection.json
++            ${{ runner.temp }}/nova-memory-contracts/collected_nodeids.json
++            ${{ runner.temp }}/nova-memory-contracts/tests.xml
++            ${{ runner.temp }}/nova-memory-contracts/pytest.log
++          if-no-files-found: error
+diff --git a/.github/workflows/nova_knowledge_v1.yml b/.github/workflows/nova_knowledge_v1.yml
+new file mode 100644
+--- /dev/null
++++ b/.github/workflows/nova_knowledge_v1.yml
+@@ -0,0 +1,80 @@
++name: Nova Knowledge V1 and Desktop contracts
++on:
++  push:
++  pull_request:
++  workflow_dispatch:
++
++env:
++  PYTHONDONTWRITEBYTECODE: '1'
++
++jobs:
++  knowledge-contracts:
++    name: Current portable Knowledge contracts (Windows)
++    runs-on: windows-latest
++    timeout-minutes: 45
++    steps:
++      - uses: actions/checkout@v4
++        env:
++          GIT_CONFIG_COUNT: '1'
++          GIT_CONFIG_KEY_0: core.autocrlf
++          GIT_CONFIG_VALUE_0: 'false'
++      - uses: actions/setup-python@v5
++        with:
++          python-version: '3.14'
++      - run: python -m pip install -e . pytest pytest-subtests
++      - name: Reject unclassified or removed contracts
++        run: python -B ci/contract_inventory.py
++      - name: Validate positive collection before test execution
++        run: >-
++          python -B ci/run_contracts.py --job knowledge --collect-only
++          --output "${{ runner.temp }}/nova-knowledge-collection"
++      - name: Knowledge positive current regression (no real model)
++        run: >-
++          python -B ci/run_contracts.py --job knowledge
++          --output "${{ runner.temp }}/nova-knowledge-contracts"
++      - name: Preserve current CI diagnostics
++        if: always()
++        uses: actions/upload-artifact@v4
++        with:
++          name: knowledge-current-contracts-windows
++          path: |
++            ${{ runner.temp }}/nova-knowledge-collection/run.json
++            ${{ runner.temp }}/nova-knowledge-collection/selection.json
++            ${{ runner.temp }}/nova-knowledge-collection/collected_nodeids.json
++            ${{ runner.temp }}/nova-knowledge-collection/pytest.log
++            ${{ runner.temp }}/nova-knowledge-contracts/run.json
++            ${{ runner.temp }}/nova-knowledge-contracts/selection.json
++            ${{ runner.temp }}/nova-knowledge-contracts/collected_nodeids.json
++            ${{ runner.temp }}/nova-knowledge-contracts/tests.xml
++            ${{ runner.temp }}/nova-knowledge-contracts/pytest.log
++          if-no-files-found: error
++
++  desktop-contracts:
++    name: Desktop ordinary contracts (no GUI or packaging)
++    runs-on: windows-latest
++    timeout-minutes: 20
++    defaults:
++      run:
++        working-directory: desktop
++    steps:
++      - uses: actions/checkout@v4
++        env:
++          GIT_CONFIG_COUNT: '1'
++          GIT_CONFIG_KEY_0: core.autocrlf
++          GIT_CONFIG_VALUE_0: 'false'
++      - uses: actions/setup-node@v4
++        with:
++          node-version: '24.19.0'
++      - run: npm ci
++      - name: Seven ordinary Desktop contract suites
++        run: >-
++          node --experimental-transform-types --test
++          tests/application_client.test.cjs
++          tests/approval_host.test.cjs
++          tests/security_audit.test.cjs
++          tests/memory_control.test.cjs
++          tests/memory_maintenance.test.cjs
++          tests/knowledge_control.test.cjs
++          tests/knowledge_k7.test.cjs
++      - name: Desktop static TypeScript contract
++        run: npx --no-install tsc --noEmit

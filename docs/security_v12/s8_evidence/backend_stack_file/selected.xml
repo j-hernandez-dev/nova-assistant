@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="362.235" timestamp="2026-10-04T14:47:42.808619-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_ollama_normal_backend_multitool_and_durable_audit" file="tests\security_v12\test_s8_e2e.py" line="118" time="362.056"><failure message="AssertionError: S8 backend deadline reached; [{&quot;id&quot;: &quot;a0ecd35cfe1d441a824723d25ed8d539&quot;, &quot;type&quot;: &quot;application_result&quot;, &quot;schemaVersion&quot;: 1, &quot;data&quot;: {&quot;schemaVersion&quot;: 1, &quot;commandId&quot;: &quot;a0ecd35cfe1d441a824723d25ed8d539&quot;, &quot;accepted&quot;: true, &quot;sessionId&quot;: &quot;ses_f6fdfc6493084dde80cf0d2ae3036cb8&quot;, &quot;stateRevision&quot;: 2, &quot;createdIds&quot;: {&quot;turnId&quot;: &quot;turn_639e5c4e4c804064b1d6b4257022cbc1&quot;, &quot;operationId&quot;: &quot;op_81ad11697ad545fe8cf87b0b703c2450&quot;}, &quot;error&quot;: null}}]">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_q14xyyqd/selected/test_real_ollama_normal_backen0')
+
+        return rows
+    
+    
+    def test_real_ollama_normal_backend_multitool_and_durable_audit(tmp_path):
+        model=require_model(os.environ['NOVA_S8_MODEL'])
+        marker='NOVA_S8_'+uuid.uuid4().hex
+        (tmp_path/'seed.txt').write_text(marker+'\n',encoding='utf-8')
+        peer=Peer(tmp_path)
+        try:
+            command_id,_=peer.command('SubmitUserInput',{'content':
+                'Read seed.txt with the read tool. Copy its content to result.txt with the write tool: '
+                'content must be the literal text returned by read, not a command, expression or placeholder. '
+                'Then verify result.txt with read. Call read, write, read in that order. Wait for each tool '
+&gt;               'result before issuing the next call; never put these dependent calls in one batch. '
+                     ^^^^^^^^^^^^^^^
+                'Do not use bash. Finish only after verification. All paths are relative to the current workspace.'})
+
+tests\security_v12\test_s8_e2e.py:132: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\security_v12\test_s8_e2e.py:90: in terminal
+    observed=next((e for e in reversed(self.events) if e['kind'] in
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;test_s8_e2e.Peer object at 0x000002153387C440&gt;
+predicate = &lt;function Peer.terminal.&lt;locals&gt;.&lt;lambda&gt; at 0x0000021533863D70&gt;
+timeout = 360
+
+    def wait(self,predicate,timeout=240):
+        deadline=time.monotonic()+timeout
+        while time.monotonic()&lt;deadline:
+            try:f=self.frames.get(timeout=.2)
+            except Empty:
+                assert self.process.poll() is None,self.errors
+                continue
+            if f.get('type')=='event':self.events.append(f['event'])
+            if f.get('type') in ('application_result','error'):self.receipts.append(f)
+            if hasattr(self,'sid') and time.monotonic()-getattr(self,'_last_trace',0)&gt;1:
+                observations('backend_trace_'+self.sid,{'events':[e for e in self.events if e['kind'] not in
+                    ('AssistantDelta','ThinkingDelta','LegacyAgentEvent')],'receipts':self.receipts,'stderr':self.errors})
+                self._last_trace=time.monotonic()
+            if predicate(f):return f
+        observations('backend_failure',{'events':self.events,'receipts':self.receipts,'stderr':self.errors})
+&gt;       raise AssertionError('S8 backend deadline reached; '+json.dumps(self.receipts)[-2000:]+''.join(self.errors)[-1000:])
+E       AssertionError: S8 backend deadline reached; [{"id": "a0ecd35cfe1d441a824723d25ed8d539", "type": "application_result", "schemaVersion": 1, "data": {"schemaVersion": 1, "commandId": "a0ecd35cfe1d441a824723d25ed8d539", "accepted": true, "sessionId": "ses_f6fdfc6493084dde80cf0d2ae3036cb8", "stateRevision": 2, "createdIds": {"turnId": "turn_639e5c4e4c804064b1d6b4257022cbc1", "operationId": "op_81ad11697ad545fe8cf87b0b703c2450"}, "error": null}}]
+
+tests\security_v12\test_s8_e2e.py:83: AssertionError</failure></testcase></testsuite></testsuites>

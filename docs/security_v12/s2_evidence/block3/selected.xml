@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="8" time="4.206" timestamp="2026-10-03T06:15:33.591215-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s2_approvals" name="test_application_command_json_cannot_supply_actor" file="tests\security_v12\test_s2_approvals.py" line="52" time="0.373" /><testcase classname="tests.security_v12.test_s2_approvals" name="test_private_desktop_proof_required_and_exact_positive_response" file="tests\security_v12\test_s2_approvals.py" line="69" time="0.147"><failure message="ValueError: event stream is not configured">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block3/s2_private_4cvsrfc3/selected/test_private_desktop_proof_req0')
+
+    def test_private_desktop_proof_required_and_exact_positive_response(tmp_path):
+        app, sid, exe = setup(tmp_path)
+        sent, key = [], 'ab' * 32
+&gt;       adapter = JsonlApplicationAdapter(app, sid, sent.append, host_approval_key=key)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s2_approvals.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:45: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x000001D37D941550&gt;
+session_id = 'ses_04974060d0074c72a2c3402891d863ac', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -&gt; EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+&gt;               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1413: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s2_approvals" name="test_cli_redirected_yes_is_denied_without_reading_input" file="tests\security_v12\test_s2_approvals.py" line="97" time="0.154"><failure message="ValueError: event stream is not configured">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block3/s2_private_4cvsrfc3/selected/test_cli_redirected_yes_is_den0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001D37DC755B0&gt;
+
+    def test_cli_redirected_yes_is_denied_without_reading_input(tmp_path, monkeypatch):
+        app, sid, exe = setup(tmp_path)
+        monkeypatch.setattr(sys, 'stdin', io.StringIO('yes\n'))
+&gt;       cli = CliApplicationClient(app, sid, read=lambda _: pytest.fail('headless input read'),
+                                    write=lambda _: None, write_error=lambda _: None)
+
+tests\security_v12\test_s2_approvals.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:67: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x000001D37D8FAE40&gt;
+session_id = 'ses_5112c6914bf44d2c864c172b53841ab8', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -&gt; EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+&gt;               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1413: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s2_approvals" name="test_cli_verified_tty_positive_is_bound_to_current_request" file="tests\security_v12\test_s2_approvals.py" line="110" time="0.152"><failure message="ValueError: event stream is not configured">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block3/s2_private_4cvsrfc3/selected/test_cli_verified_tty_positive0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x000001D37DC76060&gt;
+
+    def test_cli_verified_tty_positive_is_bound_to_current_request(tmp_path, monkeypatch):
+        app, sid, exe = setup(tmp_path)
+        monkeypatch.setattr(CliApplicationClient, '_human_tty', staticmethod(lambda: True))
+&gt;       cli = CliApplicationClient(app, sid, read=lambda _: 'yes',
+                                    write=lambda _: None, write_error=lambda _: None)
+
+tests\security_v12\test_s2_approvals.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\cli_application.py:67: in __init__
+    self._cursor = application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x000001D37D8FA900&gt;
+session_id = 'ses_18946a1c1dd449e4a796d4a65c5dde23', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -&gt; EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+&gt;               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1413: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s2_approvals" name="test_legacy_confirm_frame_cannot_authorize" file="tests\security_v12\test_s2_approvals.py" line="122" time="0.150"><failure message="ValueError: event stream is not configured">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s2_evidence/block3/s2_private_4cvsrfc3/selected/test_legacy_confirm_frame_cann0')
+
+    def test_legacy_confirm_frame_cannot_authorize(tmp_path):
+        app, sid, exe = setup(tmp_path)
+        sent = []
+&gt;       adapter = JsonlApplicationAdapter(app, sid, sent.append)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s2_approvals.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\interfaces\jsonl_application.py:45: in __init__
+    self._legacy_cursor = self.application.subscribe_events(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x000001D37D8FA3C0&gt;
+session_id = 'ses_4fe8ae0bef3f4d40b83e6911bf5025aa', after_sequence = 0
+include_internal = True
+
+    def subscribe_events(self, session_id: SessionId | None, *,
+                         after_sequence: int = 0,
+                         include_internal: bool = False) -&gt; EventCursor:
+        """Session-owner interface stream, including its human interactions.
+    
+        General/public journal consumers use SessionEventStream directly;
+        approval/question payloads retain SENSITIVE visibility, not PUBLIC.
+        """
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if self._events is None:
+&gt;               raise ValueError("event stream is not configured")
+E               ValueError: event stream is not configured
+
+local_cli\application\session.py:1413: ValueError</failure></testcase><testcase classname="tests.security_v12.test_s2_approvals" name="test_host_credential_is_excluded_from_child_environment" file="tests\security_v12\test_s2_approvals.py" line="132" time="0.000" /><testcase classname="tests.security_v12.test_s2_approvals" name="test_node_and_python_agree_on_private_proof_without_desktop_dependencies" file="tests\security_v12\test_s2_approvals.py" line="137" time="0.232" /><testcase classname="tests.security_v12.test_s2_approvals" name="test_desktop_sender_and_native_confirmation_are_on_both_ipc_paths" file="tests\security_v12\test_s2_approvals.py" line="152" time="0.004" /></testsuite></testsuites>

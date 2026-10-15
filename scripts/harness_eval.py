@@ -1,0 +1,896 @@
+#!/usr/bin/env python3
+"""Harness evaluation: drive real local models through agentic tasks.
+
+Measures what the deterministic harness actually delivers on small
+models: task success rate, harness intervention counts, iterations,
+tool calls, and wall time.  Each task runs in a fresh temp directory
+with the same tool set, system prompt, and inference options the CLI
+uses (minus interactive tools).
+
+Usage (from the repo root):
+
+    python3 scripts/harness_eval.py --models qwen3:0.6b qwen3.5:4b
+    python3 scripts/harness_eval.py --models qwen3:0.6b --timeout 120 \
+        --out eval_results.json
+
+Requires a running Ollama with the requested models installed.
+"""
+
+import argparse
+import ast
+import contextlib
+import io
+import json
+import os
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+# Allow running as `python3 scripts/harness_eval.py` from the repo root.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from local_cli.agent import run_agent  # noqa: E402
+from local_cli.harness import AgentEvent, HarnessConfig  # noqa: E402
+from local_cli.model_presets import (  # noqa: E402
+    SUPPORTS_THINKING,
+    get_model_family,
+)
+from local_cli.ollama_client import OllamaClient  # noqa: E402
+from local_cli.project_map import project_map_message  # noqa: E402
+from local_cli.prompts import build_system_prompt  # noqa: E402
+from local_cli.tools import get_default_tools  # noqa: E402
+
+# ---------------------------------------------------------------------------
+# Tasks: (setup, prompt, machine check)
+# ---------------------------------------------------------------------------
+
+
+def _check_create(workdir: Path) -> tuple[bool, str]:
+    path = workdir / "greet.py"
+    if not path.is_file():
+        return False, "greet.py not created"
+    try:
+        ast.parse(path.read_text(encoding="utf-8"))
+    except SyntaxError as exc:
+        return False, f"syntax error: {exc}"
+    return True, "ok"
+
+
+def _setup_edit(workdir: Path) -> None:
+    (workdir / "app.py").write_text(
+        "def add(a, b):\n    return a - b\n", encoding="utf-8",
+    )
+
+
+def _check_edit(workdir: Path) -> tuple[bool, str]:
+    namespace: dict = {}
+    try:
+        # Suppress stray prints in case the model rewrote app.py into a
+        # script (observed live).
+        with contextlib.redirect_stdout(io.StringIO()):
+            exec((workdir / "app.py").read_text(encoding="utf-8"), namespace)
+        result = namespace["add"](2, 3)
+    except Exception as exc:
+        return False, f"app.py broken: {exc}"
+    if result != 5:
+        return False, f"add(2, 3) returned {result}, expected 5"
+    return True, "ok"
+
+
+def _setup_syntax(workdir: Path) -> None:
+    (workdir / "broken.py").write_text(
+        "def greet(name:\n"
+        "    print('hi ' + name)\n"
+        "\n"
+        "greet('world')\n",
+        encoding="utf-8",
+    )
+
+
+def _check_syntax(workdir: Path) -> tuple[bool, str]:
+    try:
+        ast.parse((workdir / "broken.py").read_text(encoding="utf-8"))
+    except SyntaxError as exc:
+        return False, f"still broken: {exc}"
+    return True, "ok"
+
+
+def _check_multi(workdir: Path) -> tuple[bool, str]:
+    one = workdir / "one.txt"
+    two = workdir / "two.txt"
+    if not one.is_file():
+        return False, "one.txt missing"
+    if not two.is_file():
+        return False, "two.txt missing"
+    if "first" not in one.read_text(encoding="utf-8"):
+        return False, "one.txt content wrong"
+    if "second" not in two.read_text(encoding="utf-8"):
+        return False, "two.txt content wrong"
+    return True, "ok"
+
+
+def _setup_search_fix(workdir: Path) -> None:
+    """A small project: the bug is in one of several files."""
+    src = workdir / "src"
+    src.mkdir()
+    (src / "utils.py").write_text(
+        "def clamp(value, low, high):\n"
+        "    return max(low, min(high, value))\n"
+        "\n"
+        "\n"
+        "def calc_total(items):\n"
+        "    total = 1\n"
+        "    for item in items:\n"
+        "        total *= item\n"
+        "    return total\n",
+        encoding="utf-8",
+    )
+    (src / "main.py").write_text(
+        "from utils import calc_total\n"
+        "\n"
+        "print(calc_total([1, 2, 3]))\n",
+        encoding="utf-8",
+    )
+    (workdir / "README.md").write_text(
+        "# demo project\n\nutilities live under src/\n", encoding="utf-8",
+    )
+
+
+def _check_search_fix(workdir: Path) -> tuple[bool, str]:
+    namespace: dict = {}
+    path = workdir / "src" / "utils.py"
+    if not path.is_file():
+        return False, "src/utils.py missing"
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            exec(path.read_text(encoding="utf-8"), namespace)
+        result = namespace["calc_total"]([2, 3])
+    except Exception as exc:
+        return False, f"utils.py broken: {exc}"
+    if result != 5:
+        return False, f"calc_total([2, 3]) returned {result}, expected 5"
+    return True, "ok"
+
+
+def _setup_test_fix(workdir: Path) -> None:
+    (workdir / "calc.py").write_text(
+        "def mul(a, b):\n    return a + b\n", encoding="utf-8",
+    )
+    (workdir / "test_calc.py").write_text(
+        "from calc import mul\n"
+        "\n"
+        "assert mul(3, 4) == 12, f'mul(3, 4) = {mul(3, 4)}, expected 12'\n"
+        "print('test passed')\n",
+        encoding="utf-8",
+    )
+
+
+def _check_test_fix(workdir: Path) -> tuple[bool, str]:
+    proc = subprocess.run(
+        [sys.executable, "test_calc.py"],
+        cwd=str(workdir), capture_output=True, text=True, timeout=30,
+    )
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout).strip().splitlines()
+        return False, f"test still failing: {detail[-1] if detail else '?'}"
+    return True, "ok"
+
+
+def _check_todo_multi(workdir: Path) -> tuple[bool, str]:
+    expected = {"a.txt": "alpha", "b.txt": "beta", "c.txt": "gamma"}
+    for name, word in expected.items():
+        path = workdir / name
+        if not path.is_file():
+            return False, f"{name} missing"
+        if word not in path.read_text(encoding="utf-8"):
+            return False, f"{name} content wrong"
+    return True, "ok"
+
+
+def _setup_ja_report(workdir: Path) -> None:
+    """Field-failure shape: a small project to read and summarize.
+
+    Deliberately seeds README.txt (not .md) so the check below can
+    assert the model created a NEW markdown file.
+    """
+    (workdir / "app.py").write_text(
+        "def add(a, b):\n    return a + b\n\nprint(add(2, 3))\n",
+        encoding="utf-8",
+    )
+    (workdir / "utils.py").write_text(
+        "def clamp(v, lo, hi):\n    return max(lo, min(hi, v))\n",
+        encoding="utf-8",
+    )
+    (workdir / "README.txt").write_text(
+        "demo project: small math utilities\n", encoding="utf-8",
+    )
+
+
+def _check_ja_report(workdir: Path) -> tuple[bool, str]:
+    md_files = sorted(workdir.glob("*.md"))
+    if not md_files:
+        return False, "no .md file created (report dumped to chat?)"
+    text = md_files[0].read_text(encoding="utf-8")
+    if len(text.strip()) < 80:
+        return False, f"{md_files[0].name} too short ({len(text)} chars)"
+    return True, "ok"
+
+
+# ---------------------------------------------------------------------------
+# Hard tasks: multi-step, self-verification, refactor.  These push past the
+# base suite's ceiling (tool-trained 4B models pass the base suite with zero
+# interventions) so the harness's marginal value on harder work is visible.
+# ---------------------------------------------------------------------------
+
+
+def _setup_hard_chain(workdir: Path) -> None:
+    (workdir / "seed.txt").write_text("7\n", encoding="utf-8")
+
+
+def _check_hard_chain(workdir: Path) -> tuple[bool, str]:
+    path = workdir / "square.txt"
+    if not path.is_file():
+        return False, "square.txt missing"
+    text = path.read_text(encoding="utf-8").strip()
+    if text != "49":
+        return False, f"square.txt is {text!r}, expected '49'"
+    return True, "ok"
+
+
+def _setup_hard_debug(workdir: Path) -> None:
+    (workdir / "buggy.py").write_text(
+        "def average(nums):\n"
+        "    return sum(nums) / len(nums)\n"
+        "\n"
+        "print(average([]))\n",
+        encoding="utf-8",
+    )
+
+
+def _check_hard_debug(workdir: Path) -> tuple[bool, str]:
+    namespace: dict = {}
+    path = workdir / "buggy.py"
+    if not path.is_file():
+        return False, "buggy.py missing"
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            exec(path.read_text(encoding="utf-8"), namespace)
+        avg = namespace["average"]
+        empty = avg([])
+        normal = avg([2, 4])
+    except Exception as exc:
+        return False, f"buggy.py still crashes: {exc}"
+    if empty != 0:
+        return False, f"average([]) returned {empty}, expected 0"
+    if normal != 3:
+        return False, f"average([2, 4]) returned {normal}, expected 3"
+    return True, "ok"
+
+
+def _setup_hard_refactor(workdir: Path) -> None:
+    (workdir / "mathlib.py").write_text(
+        "def compute(x):\n"
+        "    return x * 2\n"
+        "\n"
+        "print(compute(3))\n"
+        "print(compute(5))\n"
+        "result = compute(10)\n",
+        encoding="utf-8",
+    )
+
+
+def _check_hard_refactor(workdir: Path) -> tuple[bool, str]:
+    path = workdir / "mathlib.py"
+    if not path.is_file():
+        return False, "mathlib.py missing"
+    text = path.read_text(encoding="utf-8")
+    if "compute" in text:
+        return False, "old name 'compute' still present"
+    if "def double(" not in text:
+        return False, "double() not defined"
+    namespace: dict = {}
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            exec(text, namespace)
+    except Exception as exc:
+        return False, f"mathlib.py broken: {exc}"
+    fn = namespace.get("double")
+    if fn is None or fn(4) != 8:
+        return False, "double(4) != 8"
+    return True, "ok"
+
+
+def _check_hard_five(workdir: Path) -> tuple[bool, str]:
+    expected = {
+        "n1.txt": "1", "n2.txt": "1", "n3.txt": "2",
+        "n4.txt": "3", "n5.txt": "5",
+    }
+    for name, word in expected.items():
+        path = workdir / name
+        if not path.is_file():
+            return False, f"{name} missing"
+        if word not in path.read_text(encoding="utf-8"):
+            return False, f"{name} content wrong (want {word})"
+    return True, "ok"
+
+
+def _setup_hard_dependency(workdir: Path) -> None:
+    (workdir / "config.py").write_text("RATE = 5\n", encoding="utf-8")
+    (workdir / "billing.py").write_text(
+        "from config import RATE\n"
+        "\n"
+        "def total(qty):\n"
+        "    return qty + RATE\n"
+        "\n"
+        "print(total(10))\n",
+        encoding="utf-8",
+    )
+
+
+def _check_hard_dependency(workdir: Path) -> tuple[bool, str]:
+    if not (workdir / "billing.py").is_file():
+        return False, "billing.py missing"
+    cfg = (workdir / "config.py").read_text(encoding="utf-8")
+    if "RATE=5" not in cfg.replace(" ", ""):
+        return False, "config.py was altered (RATE must stay 5)"
+    # Run through a fresh importer so total() is exercised for real.
+    (workdir / "_run_dep.py").write_text(
+        "from billing import total\nprint(total(10))\n", encoding="utf-8",
+    )
+    proc = subprocess.run(
+        [sys.executable, "_run_dep.py"],
+        cwd=str(workdir), capture_output=True, text=True, timeout=30,
+    )
+    if proc.returncode != 0:
+        detail = (proc.stderr or "").strip().splitlines()
+        return False, f"billing.py broken: {detail[-1] if detail else '?'}"
+    out = (proc.stdout or "").strip().splitlines()
+    if not out or out[-1].strip() != "50":
+        return False, f"total(10) printed {out[-1] if out else '?'}, want 50"
+    return True, "ok"
+
+
+def _setup_hard_multifile(workdir: Path) -> None:
+    (workdir / "lib.py").write_text(
+        "def transform(x):\n    return x * 3\n", encoding="utf-8",
+    )
+    (workdir / "app_a.py").write_text(
+        "from lib import transform\n\nprint(transform(2))\n",
+        encoding="utf-8",
+    )
+    (workdir / "app_b.py").write_text(
+        "from lib import transform\n\nprint(transform(5))\n",
+        encoding="utf-8",
+    )
+
+
+def _check_hard_multifile(workdir: Path) -> tuple[bool, str]:
+    for name in ("lib.py", "app_a.py", "app_b.py"):
+        path = workdir / name
+        if not path.is_file():
+            return False, f"{name} missing"
+        if "transform" in path.read_text(encoding="utf-8"):
+            return False, f"'transform' still present in {name}"
+    if "def scale(" not in (workdir / "lib.py").read_text(encoding="utf-8"):
+        return False, "scale() not defined in lib.py"
+    for name, want in (("app_a.py", "6"), ("app_b.py", "15")):
+        proc = subprocess.run(
+            [sys.executable, name],
+            cwd=str(workdir), capture_output=True, text=True, timeout=30,
+        )
+        if proc.returncode != 0:
+            detail = (proc.stderr or "").strip().splitlines()
+            return False, f"{name} broken: {detail[-1] if detail else '?'}"
+        out = (proc.stdout or "").strip().splitlines()
+        if not out or out[-1].strip() != want:
+            return False, f"{name} printed {out[-1] if out else '?'}, want {want}"
+    return True, "ok"
+
+
+_HARD_BUGHUNT_TEST = (
+    "from report import build\n"
+    "\n"
+    "assert build([2, 4, 6]) == 'mean=4.0', build([2, 4, 6])\n"
+    "print('ok')\n"
+)
+
+
+def _setup_hard_bughunt(workdir: Path) -> None:
+    """Five files; the bug hides two imports away from the failing test."""
+    (workdir / "config.py").write_text("PRECISION = 2\n", encoding="utf-8")
+    (workdir / "stats.py").write_text(
+        "def mean(nums):\n"
+        "    total = 0\n"
+        "    for n in nums[:-1]:\n"
+        "        total += n\n"
+        "    return total / len(nums)\n",
+        encoding="utf-8",
+    )
+    (workdir / "fmt.py").write_text(
+        "from config import PRECISION\n"
+        "\n"
+        "def fmt(x):\n"
+        "    return round(x, PRECISION)\n",
+        encoding="utf-8",
+    )
+    (workdir / "report.py").write_text(
+        "from stats import mean\n"
+        "from fmt import fmt\n"
+        "\n"
+        "def build(nums):\n"
+        "    return f'mean={fmt(mean(nums))}'\n",
+        encoding="utf-8",
+    )
+    (workdir / "test_report.py").write_text(
+        _HARD_BUGHUNT_TEST, encoding="utf-8",
+    )
+
+
+def _check_hard_bughunt(workdir: Path) -> tuple[bool, str]:
+    test_path = workdir / "test_report.py"
+    if not test_path.is_file():
+        return False, "test_report.py missing"
+    if test_path.read_text(encoding="utf-8") != _HARD_BUGHUNT_TEST:
+        return False, "test_report.py was modified (forbidden)"
+    proc = subprocess.run(
+        [sys.executable, "test_report.py"],
+        cwd=str(workdir), capture_output=True, text=True, timeout=30,
+    )
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout).strip().splitlines()
+        return False, f"test still failing: {detail[-1] if detail else '?'}"
+    return True, "ok"
+
+
+TASKS = [
+    {
+        "name": "create_file",
+        "prompt": "Create a file called greet.py that prints 'hello'.",
+        "setup": None,
+        "check": _check_create,
+    },
+    {
+        "name": "edit_file",
+        "prompt": (
+            "In app.py, the add function is wrong: it subtracts. "
+            "Fix it so add returns a + b."
+        ),
+        "setup": _setup_edit,
+        "check": _check_edit,
+    },
+    {
+        "name": "fix_syntax",
+        "prompt": "broken.py has a syntax error. Find it and fix it.",
+        "setup": _setup_syntax,
+        "check": _check_syntax,
+    },
+    {
+        "name": "multi_file",
+        "prompt": (
+            "Create two files: one.txt containing the word 'first' and "
+            "two.txt containing the word 'second'."
+        ),
+        "setup": None,
+        "check": _check_multi,
+    },
+    {
+        "name": "search_fix",
+        "prompt": (
+            "Somewhere in this project, calc_total is wrong: "
+            "calc_total([2, 3]) should return 5 but returns 6. Find the "
+            "function and fix it."
+        ),
+        "setup": _setup_search_fix,
+        "check": _check_search_fix,
+    },
+    {
+        "name": "test_fix",
+        "prompt": (
+            "Run test_calc.py with python. It fails. Fix calc.py so the "
+            "test passes, and run it again to confirm."
+        ),
+        "setup": _setup_test_fix,
+        "check": _check_test_fix,
+    },
+    {
+        "name": "todo_multi",
+        "prompt": (
+            "Create three files: a.txt containing 'alpha', b.txt "
+            "containing 'beta', and c.txt containing 'gamma'. Use the "
+            "todo_write tool to track your progress through the three "
+            "files."
+        ),
+        "setup": None,
+        "check": _check_todo_multi,
+    },
+    # Japanese-language variants: the harness must work when the user
+    # writes Japanese (the JA build-intent nudge keywords, and models
+    # like LFM2.5-JP, are exercised only on this path).
+    {
+        "name": "ja_create",
+        "prompt": "greet.py というファイルを作って、'hello' と出力するようにしてください。",
+        "setup": None,
+        "check": _check_create,
+    },
+    {
+        "name": "ja_edit",
+        "prompt": (
+            "app.py の add 関数が間違っていて引き算になっています。"
+            "a + b を返すように修正してください。"
+        ),
+        "setup": _setup_edit,
+        "check": _check_edit,
+    },
+    {
+        "name": "ja_multi",
+        "prompt": (
+            "2つのファイルを作成してください: one.txt には 'first'、"
+            "two.txt には 'second' と書いてください。"
+        ),
+        "setup": None,
+        "check": _check_multi,
+    },
+    # Field-failure shape (desktop, 0.12.0): read a folder, write a
+    # report as a .md file.  The model used to print the whole report
+    # into chat and finish without writing anything — the shape the
+    # deliverable guard exists for.  Kept in the base suite so this
+    # blind spot cannot reopen silently.
+    {
+        "name": "ja_report",
+        "prompt": (
+            "このフォルダのファイルを読んで、プロジェクトの内容をまとめた"
+            "報告書を mdファイルで作成してください。"
+        ),
+        "setup": _setup_ja_report,
+        "check": _check_ja_report,
+    },
+]
+
+
+HARD_TASKS = [
+    {
+        "name": "hard_chain",
+        "prompt": (
+            "Read seed.txt, square the number it contains, and write the "
+            "result to square.txt. Then read square.txt back to confirm "
+            "it holds the correct value."
+        ),
+        "setup": _setup_hard_chain,
+        "check": _check_hard_chain,
+    },
+    {
+        "name": "hard_debug",
+        "prompt": (
+            "Running buggy.py crashes. Run it to see the error, then fix "
+            "average() so it returns 0 for an empty list, and run it "
+            "again to confirm it no longer crashes."
+        ),
+        "setup": _setup_hard_debug,
+        "check": _check_hard_debug,
+    },
+    {
+        "name": "hard_refactor",
+        "prompt": (
+            "In mathlib.py, rename the function compute to double. Update "
+            "the definition and every call site, then run it to confirm "
+            "it still works."
+        ),
+        "setup": _setup_hard_refactor,
+        "check": _check_hard_refactor,
+    },
+    {
+        "name": "hard_five",
+        "prompt": (
+            "Create five files n1.txt through n5.txt containing the first "
+            "five Fibonacci numbers: 1, 1, 2, 3, 5 (one number per file, "
+            "in order). Use the todo_write tool to track your progress."
+        ),
+        "setup": None,
+        "check": _check_hard_five,
+    },
+    {
+        "name": "hard_dependency",
+        "prompt": (
+            "Running billing.py prints total(10) as 15, but it should be "
+            "50 (qty * RATE). Find and fix the bug. Do NOT change the "
+            "RATE value in config.py."
+        ),
+        "setup": _setup_hard_dependency,
+        "check": _check_hard_dependency,
+    },
+    # claude-code-shaped work: cross-file rename with verification.
+    {
+        "name": "hard_multifile",
+        "prompt": (
+            "Rename the function transform to scale across this project: "
+            "update the definition in lib.py and every caller, then run "
+            "app_a.py and app_b.py to confirm both still work."
+        ),
+        "setup": _setup_hard_multifile,
+        "check": _check_hard_multifile,
+    },
+    # claude-code-shaped work: ambiguous symptom, bug two imports away.
+    {
+        "name": "hard_bughunt",
+        "prompt": (
+            "Running test_report.py fails. Something in this project is "
+            "broken — find it and fix it. Do not modify test_report.py."
+        ),
+        "setup": _setup_hard_bughunt,
+        "check": _check_hard_bughunt,
+    },
+]
+
+# Harness intervention events worth counting.
+HARNESS_EVENTS = (
+    "rescue",
+    "tools_fallback",
+    "loop_warning",
+    "loop_break",
+    "verify_warning",
+    "nudge",
+    "deliverable_nudge",
+    "error_stop",
+    "write_deferred",
+    "read_gate",
+    "empty_response",
+    "reminder",
+    "limit",
+    "retry",
+)
+
+
+class _TaskTimeout(Exception):
+    pass
+
+
+# Leave-one-out ablation configurations: baseline (all interventions on)
+# plus one config per intervention with just that intervention disabled.
+# Measures each intervention's marginal contribution on real models.
+ABLATIONS: list[tuple[str, dict]] = [
+    ("baseline", {}),
+    ("-text_rescue", {"text_tool_rescue": False}),
+    ("-loop_detection", {"loop_detection": False}),
+    ("-verify_writes", {"verify_writes": False}),
+    ("-error_stop", {"error_stop_guard": False}),
+    ("-defer_writes", {"defer_writes_after_search": False}),
+    ("-empty_guard", {"empty_response_guard": False}),
+    ("-todo_reminders", {"todo_reminders": False}),
+    ("-deliverable_guard", {"deliverable_guard": False}),
+    ("-read_before_edit", {"read_before_edit": False}),
+]
+
+
+def _run_task(
+    client: OllamaClient,
+    model: str,
+    task: dict,
+    timeout_s: int,
+    max_iterations: int,
+    harness_overrides: dict | None = None,
+) -> dict:
+    """Run one task against one model and machine-check the result."""
+    workdir = Path(tempfile.mkdtemp(prefix=f"heval_{task['name']}_"))
+    old_cwd = os.getcwd()
+    os.chdir(workdir)
+
+    counts: dict[str, int] = {}
+    iterations = 0
+    tool_calls = 0
+
+    def emit(event: AgentEvent) -> None:
+        nonlocal iterations, tool_calls
+        if event.kind == "llm_start":
+            iterations = event.data.get("iteration", iterations)
+        elif event.kind == "tool_result":
+            tool_calls += 1
+        if event.kind in HARNESS_EVENTS:
+            counts[event.kind] = counts.get(event.kind, 0) + 1
+
+    # Interactive/spawning tools are excluded (no stdin; keep runs flat).
+    tools = [
+        t for t in get_default_tools() if t.name not in ("ask_user", "agent")
+    ]
+    if task["setup"] is not None:
+        task["setup"](workdir)
+
+    messages = [{"role": "system", "content": build_system_prompt(tools)}]
+    # Mirror the shipped harness: the project map is part of what the
+    # frontends inject, so the eval measures the same configuration.
+    map_message = project_map_message(str(workdir))
+    if map_message is not None:
+        messages.append(map_message)
+    messages.append({"role": "user", "content": task["prompt"]})
+
+    family = get_model_family(model)
+    think = False if family in SUPPORTS_THINKING else None
+
+    def _on_alarm(signum, frame):  # noqa: ANN001
+        raise _TaskTimeout()
+
+    signal.signal(signal.SIGALRM, _on_alarm)
+    signal.alarm(timeout_s)
+    start = time.monotonic()
+    error = ""
+    try:
+        run_agent(
+            client, model, tools, messages,
+            emit=emit,
+            harness=HarnessConfig(
+                max_iterations=max_iterations,
+                **(harness_overrides or {}),
+            ),
+            # Deterministic decoding so intervention changes are A/B
+            # comparable across eval runs.
+            options={"num_ctx": 8192, "temperature": 0, "seed": 42},
+            think=think,
+        )
+    except _TaskTimeout:
+        error = f"timeout after {timeout_s}s"
+    except Exception as exc:  # noqa: BLE001 — record, don't crash the sweep
+        error = f"{type(exc).__name__}: {exc}"
+    finally:
+        signal.alarm(0)
+        os.chdir(old_cwd)
+
+    elapsed = time.monotonic() - start
+    ok, detail = task["check"](workdir)
+
+    return {
+        "task": task["name"],
+        "success": ok,
+        "detail": detail,
+        "error": error,
+        "seconds": round(elapsed, 1),
+        "iterations": iterations,
+        "tool_calls": tool_calls,
+        "interventions": counts,
+        "workdir": str(workdir),
+        # Full conversation (minus the system prompt) for failure analysis.
+        "transcript": messages[1:],
+    }
+
+
+def _run_ablation(client: OllamaClient, args, tasks: list[dict]) -> None:
+    """Leave-one-out ablation: measure each intervention's contribution.
+
+    Runs the full task suite once with everything on (baseline), then
+    once per intervention with only that intervention disabled, and
+    prints a per-config table (score, iterations, tool calls, and the
+    interventions that fired).  Deterministic decoding makes the runs
+    directly comparable.
+    """
+    all_results: dict[str, dict] = {}
+    for model in args.models:
+        print(f"===== ABLATION: {model} ({len(tasks)} tasks) =====")
+        model_rows: dict[str, dict] = {}
+        for config_name, overrides in ABLATIONS:
+            passed = 0
+            iters = 0
+            calls = 0
+            seconds = 0.0
+            fired: dict[str, int] = {}
+            failures: list[str] = []
+            for task in tasks:
+                rec = _run_task(
+                    client, model, task, args.timeout,
+                    args.max_iterations, harness_overrides=overrides,
+                )
+                passed += 1 if rec["success"] else 0
+                iters += rec["iterations"]
+                calls += rec["tool_calls"]
+                seconds += rec["seconds"]
+                for key, count in rec["interventions"].items():
+                    fired[key] = fired.get(key, 0) + count
+                if not rec["success"]:
+                    failures.append(task["name"])
+            fired_str = ", ".join(
+                f"{k}x{v}" for k, v in sorted(fired.items())
+            ) or "-"
+            print(
+                f"{config_name:<18} {passed}/{len(tasks)}  "
+                f"iters={iters:<3} calls={calls:<3} "
+                f"time={seconds:.0f}s  fired: {fired_str}"
+                + (f"  failed: {', '.join(failures)}" if failures else ""),
+                flush=True,
+            )
+            model_rows[config_name] = {
+                "passed": passed,
+                "total": len(tasks),
+                "iterations": iters,
+                "tool_calls": calls,
+                "seconds": round(seconds, 1),
+                "interventions": fired,
+                "failures": failures,
+            }
+        all_results[model] = model_rows
+
+    if args.out:
+        Path(args.out).write_text(
+            json.dumps(all_results, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        print(f"\nFull results: {args.out}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--models", nargs="+", required=True)
+    parser.add_argument("--timeout", type=int, default=120,
+                        help="per-task timeout in seconds")
+    parser.add_argument("--max-iterations", type=int, default=8)
+    parser.add_argument("--out", default="",
+                        help="write full JSON results to this path")
+    parser.add_argument("--tasks", nargs="*", default=[],
+                        help="task names to run (default: all)")
+    parser.add_argument("--ablate", action="store_true",
+                        help="leave-one-out ablation over the harness "
+                             "interventions (baseline + one run per "
+                             "intervention disabled)")
+    parser.add_argument("--hard", action="store_true",
+                        help="run the harder task suite (multi-step, "
+                             "self-verification, refactor) instead of the "
+                             "base suite")
+    args = parser.parse_args()
+
+    tasks = HARD_TASKS if args.hard else TASKS
+    if args.tasks:
+        tasks = [
+            t for t in TASKS + HARD_TASKS if t["name"] in set(args.tasks)
+        ]
+
+    client = OllamaClient()
+
+    if args.ablate:
+        _run_ablation(client, args, tasks)
+        return
+
+    results: dict[str, list[dict]] = {}
+
+    for model in args.models:
+        results[model] = []
+        for task in tasks:
+            print(f"[{model}] {task['name']} ...", flush=True)
+            record = _run_task(
+                client, model, task, args.timeout, args.max_iterations,
+            )
+            status = "PASS" if record["success"] else "FAIL"
+            interventions = ", ".join(
+                f"{k}x{v}" for k, v in sorted(record["interventions"].items())
+            ) or "-"
+            print(
+                f"[{model}] {task['name']}: {status} "
+                f"({record['seconds']}s, {record['iterations']} iters, "
+                f"{record['tool_calls']} calls; {interventions})"
+                + (f" error={record['error']}" if record["error"] else "")
+                + (f" detail={record['detail']}" if not record["success"] else ""),
+                flush=True,
+            )
+            results[model].append(record)
+
+    # Summary table.
+    print("\n=== SUMMARY ===")
+    for model, records in results.items():
+        passed = sum(1 for r in records if r["success"])
+        total_interventions: dict[str, int] = {}
+        for r in records:
+            for k, v in r["interventions"].items():
+                total_interventions[k] = total_interventions.get(k, 0) + v
+        summary = ", ".join(
+            f"{k}x{v}" for k, v in sorted(total_interventions.items())
+        ) or "none"
+        print(f"{model}: {passed}/{len(records)} passed | interventions: {summary}")
+
+    if args.out:
+        Path(args.out).write_text(
+            json.dumps(results, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        print(f"\nFull results: {args.out}")
+
+
+if __name__ == "__main__":
+    main()

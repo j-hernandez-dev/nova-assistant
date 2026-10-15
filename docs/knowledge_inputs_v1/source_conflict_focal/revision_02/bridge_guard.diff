@@ -1,0 +1,60 @@
+--- original/bridge.py
++++ SCF-R2/bridge.py
+@@ -28,14 +28,7 @@
+         def stream(name, messages, **kwargs):
+             if not self.execution or not self.network.allow_chat:
+                 raise StopExecution('PREPARATION_INFERENCE_FORBIDDEN')
+-            self.check()  # Pins/runtime/authorization immediately before every generation.
+-            from .common import runtime_identity
+-            expected = runtime_identity(self.profile)['effective_options']
+-            if name != self.profile['model'] or kwargs.get('options') != expected or kwargs.get('think') is not False:
+-                raise StopExecution('MODEL_REQUEST_PARAMETERS_DRIFT')
+-            if kwargs.get('format') is not None or 'seed' in kwargs.get('options', {}):
+-                raise StopExecution('RESPONSE_FORMAT_OR_SEED_DRIFT')
+-            identity = backend(self.profile)
++            identity = self._verify_model_request(name, kwargs)
+             request = dict(timestamp=now(), model=name, messages=deepcopy(messages),
+                            kwargs=deepcopy(kwargs), identity_before=identity, response=[])
+             self.requests.append(request)
+@@ -79,6 +72,41 @@
+         self.app = self.cli.application
+         self.actor = self.app.register_knowledge_actor('cli_tty', lambda: True)
+         self.host('source_list', {})  # One real owner, no competing application.
++
++    def _verify_model_request(self, name, kwargs):
++        self.check()  # Same pins/runtime/authorization gate before each generation.
++        from .common import runtime_identity
++        expected = runtime_identity(self.profile)['effective_options']
++        options = kwargs.get('options')
++        if (type(options) is not dict or
++                any(type(options.get(key)) not in (int, float) for key in expected) or
++                type(options.get('top_k')) is not int or type(options.get('num_ctx')) is not int):
++            raise StopExecution('MODEL_REQUEST_PARAMETERS_DRIFT')
++        allowed = dict(expected)
++        if isinstance(options, dict) and 'num_predict' in options:
++            # Read the report emitted synchronously by productive _prepare for
++            # this Turn, not the request value, gold, or a caller-supplied flag.
++            # The session owns the Turn before the worker starts; last_turn can
++            # still be unset while submit returns on the runner's thread.
++            turns = self.app._session.turns
++            reports = turns[-1].context_reports if turns else []
++            budgets = [report.get('budget') for report in reports
++                       if report.get('rule') == 'context_budget']
++            budget = budgets[-1] if budgets else None
++            if not isinstance(budget, dict) or 'output_reserve' not in budget:
++                raise StopExecution('PRODUCTIVE_OUTPUT_RESERVE_NOT_OBSERVED')
++            reserve = budget['output_reserve']
++            if (type(reserve) is not int or reserve != 1024 or
++                    budget.get('selected_context_window') != self.profile['context']):
++                raise StopExecution('PRODUCTIVE_OUTPUT_RESERVE_DRIFT')
++            if type(options['num_predict']) is not int or options['num_predict'] != reserve:
++                raise StopExecution('NUM_PREDICT_OUTPUT_RESERVE_MISMATCH')
++            allowed['num_predict'] = reserve
++        if name != self.profile['model'] or options != allowed or kwargs.get('think') is not False:
++            raise StopExecution('MODEL_REQUEST_PARAMETERS_DRIFT')
++        if kwargs.get('format') is not None or 'seed' in options:
++            raise StopExecution('RESPONSE_FORMAT_OR_SEED_DRIFT')
++        return backend(self.profile)  # Unchanged exact name+digest/runner/residency.
+ 
+     def host(self, name, arguments):
+         from local_cli.application.knowledge_host import KnowledgeCommand

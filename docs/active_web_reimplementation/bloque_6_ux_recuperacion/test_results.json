@@ -1,0 +1,62 @@
+{
+  "status": "PASS",
+  "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "portableFinal": {
+    "tests": 604,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "newUxCasesIncludedIn604": 16,
+  "newUxFunctionsIncludedInInventory": 12,
+  "desktop": {
+    "tests": 29,
+    "passed": 29,
+    "failed": 0,
+    "skipped": 0,
+    "command": "node --test desktop/tests/application_client.test.cjs desktop/tests/approval_host.test.cjs",
+    "dependency": "process-local NODE_PATH to the existing TypeScript installation; no Desktop edit/install"
+  },
+  "nativeJobs": [
+    {
+      "job": "block6",
+      "entryPoints": 1,
+      "status": "PASS"
+    },
+    {
+      "job": "navigation",
+      "entryPoints": 1,
+      "status": "PASS"
+    },
+    {
+      "job": "transfers",
+      "entryPoints": 1,
+      "status": "PASS"
+    }
+  ],
+  "realModel": {
+    "status": "PASS",
+    "scope": "one owned browser + local read smoke, not quality benchmark",
+    "model": "qwen3.5:9b",
+    "profile": "production preset, num_ctx=8192, temperature=0.6, top_p=0.95, top_k=20, think=false",
+    "tools": [
+      "browser_navigate",
+      "read"
+    ],
+    "replyLanguage": "Spanish"
+  },
+  "overlappingRunsAddedToDenominator": false,
+  "developmentAttempts": [
+    {
+      "file": "runs/native-development-01.json",
+      "status": "FAIL",
+      "cause": "Fixture returned an empty 403 body, calibrated to an owned HTML denial page."
+    },
+    {
+      "file": "runs/native-development-02.json",
+      "status": "FAIL",
+      "cause": "Fixture queued its trusted window-close behind the human pump; calibrated to WM_CLOSE of the exact owned host PID."
+    }
+  ],
+  "lastDelta": "Cleanup-unknown recovery hint made specific; final 604 cases verify it. Earlier native/model receipts are retained with their original identities."
+}

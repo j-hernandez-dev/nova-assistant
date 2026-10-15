@@ -1,0 +1,359 @@
+{
+  "schemaVersion": 1,
+  "datasetVersion": "m8-query-document-heldout-v1",
+  "syntheticOnly": true,
+  "purpose": "Independent HELD-OUT authored and frozen after DEV contract only, before any held-out measurement. One evaluation, no tuning.",
+  "chatModel": "qwen3.5:9b",
+  "embeddingModel": "qwen3-embedding:0.6b",
+  "realWindows": [
+    4096,
+    8192,
+    16384
+  ],
+  "historyNoiseMessages": 1000,
+  "records": [
+    {
+      "id": "baking",
+      "kind": "PREFERENCE",
+      "scope": "GLOBAL_PROFILE",
+      "text": "Synthetic profile prefers recipes prepared in an oven rather than on a stovetop.",
+      "key": "preference.cooking_method"
+    },
+    {
+      "id": "study",
+      "kind": "PREFERENCE",
+      "scope": "GLOBAL_PROFILE",
+      "text": "I organize study sessions in 25-minute blocks separated by five-minute breaks.",
+      "key": "preference.study_rhythm"
+    },
+    {
+      "id": "spelling",
+      "kind": "PREFERENCE",
+      "scope": "GLOBAL_PROFILE",
+      "text": "Prefiero que el corrector use ortografía británica.",
+      "key": "preference.spelling_region"
+    },
+    {
+      "id": "steps",
+      "kind": "PREFERENCE",
+      "scope": "GLOBAL_PROFILE",
+      "text": "I prefer instructions with numbered steps rather than a single paragraph.",
+      "key": "preference.instruction_layout"
+    },
+    {
+      "id": "terrain",
+      "kind": "PREFERENCE",
+      "scope": "GLOBAL_PROFILE",
+      "text": "Prefiero entrenar en senderos de tierra en vez de calles asfaltadas.",
+      "key": "preference.running_surface"
+    },
+    {
+      "id": "currency",
+      "kind": "PREFERENCE",
+      "scope": "GLOBAL_PROFILE",
+      "text": "En el perfil sintético los presupuestos de viaje se expresan en euros.",
+      "key": "preference.travel_currency"
+    },
+    {
+      "id": "names",
+      "kind": "WORKSPACE_FACT",
+      "scope": "WORKSPACE",
+      "text": "This project uses snake_case for Python function names.",
+      "key": "workspace.function_naming"
+    },
+    {
+      "id": "decisions",
+      "kind": "WORKSPACE_FACT",
+      "scope": "WORKSPACE",
+      "text": "Las actas de decisiones técnicas de este proyecto están en decisions/.",
+      "key": "workspace.decision_archive"
+    },
+    {
+      "id": "missing",
+      "kind": "WORKSPACE_FACT",
+      "scope": "WORKSPACE",
+      "text": "This workspace represents unknown sensor readings with null rather than zero.",
+      "key": "workspace.missing_measurement"
+    },
+    {
+      "id": "clock",
+      "kind": "WORKSPACE_FACT",
+      "scope": "WORKSPACE",
+      "text": "La suite de este proyecto usa un reloj falso para probar temporizadores.",
+      "key": "workspace.test_time"
+    },
+    {
+      "id": "encoding",
+      "kind": "WORKSPACE_FACT",
+      "scope": "WORKSPACE",
+      "text": "This project's fictional export files are encoded as UTF-16LE.",
+      "key": "workspace.export_encoding"
+    },
+    {
+      "id": "zone",
+      "kind": "WORKSPACE_FACT",
+      "scope": "WORKSPACE",
+      "text": "Los registros de este workspace guardan fechas en UTC.",
+      "key": "workspace.log_timezone"
+    },
+    {
+      "id": "refresh",
+      "kind": "WORKSPACE_FACT",
+      "scope": "WORKSPACE",
+      "text": "The synthetic dashboard refreshes every fifteen seconds.",
+      "key": "workspace.dashboard_refresh"
+    },
+    {
+      "id": "inventory",
+      "kind": "SEMANTIC_FACT",
+      "scope": "WORKSPACE",
+      "text": "Synthetic inventory item CERAMIC_BOLT has a mass of eight grams.",
+      "key": "workspace.inventory_item"
+    },
+    {
+      "id": "playlist",
+      "kind": "SEMANTIC_FACT",
+      "scope": "WORKSPACE",
+      "text": "The synthetic audio playlist contains recordings of ocean waves.",
+      "key": "workspace.audio_playlist"
+    },
+    {
+      "id": "drawer",
+      "kind": "SEMANTIC_FACT",
+      "scope": "WORKSPACE",
+      "text": "The synthetic desk drawer contains purple envelopes.",
+      "key": "workspace.desk_contents"
+    }
+  ],
+  "queries": [
+    {
+      "id": "para-baking",
+      "type": "paraphrase",
+      "question": "What source of heat should this profile use when cooking?",
+      "gold": "baking",
+      "accepted": [
+        "oven",
+        "horno"
+      ]
+    },
+    {
+      "id": "para-study",
+      "type": "paraphrase",
+      "question": "How long should this profile focus before pausing, and how long is the pause?",
+      "gold": "study",
+      "accepted": [
+        "25",
+        "twenty-five"
+      ]
+    },
+    {
+      "id": "para-spelling",
+      "type": "paraphrase",
+      "question": "Which country's spelling conventions should proofreading follow?",
+      "gold": "spelling",
+      "accepted": [
+        "brit",
+        "uk"
+      ]
+    },
+    {
+      "id": "para-steps",
+      "type": "paraphrase",
+      "question": "How should a sequence of instructions be laid out for this profile?",
+      "gold": "steps",
+      "accepted": [
+        "numbered",
+        "numerad"
+      ]
+    },
+    {
+      "id": "para-terrain",
+      "type": "paraphrase",
+      "question": "¿Qué suelo elegiría este perfil para salir a correr?",
+      "gold": "terrain",
+      "accepted": [
+        "tierra",
+        "sendero"
+      ]
+    },
+    {
+      "id": "para-currency",
+      "type": "paraphrase",
+      "question": "¿En qué moneda calculo lo que gastaré durante un viaje?",
+      "gold": "currency",
+      "accepted": [
+        "euro"
+      ]
+    },
+    {
+      "id": "para-names",
+      "type": "paraphrase",
+      "question": "How should the names of Python routines be written here?",
+      "gold": "names",
+      "accepted": [
+        "snake",
+        "underscore"
+      ]
+    },
+    {
+      "id": "para-decisions",
+      "type": "paraphrase",
+      "question": "¿Dónde busco las razones de las elecciones técnicas del proyecto?",
+      "gold": "decisions",
+      "accepted": [
+        "decisions/"
+      ]
+    },
+    {
+      "id": "para-missing",
+      "type": "paraphrase",
+      "question": "How do we distinguish an unavailable instrument reading from a measured zero?",
+      "gold": "missing",
+      "accepted": [
+        "null"
+      ]
+    },
+    {
+      "id": "para-clock",
+      "type": "paraphrase",
+      "question": "¿Cómo evita la suite esperar al tiempo real al verificar tareas programadas?",
+      "gold": "clock",
+      "accepted": [
+        "reloj falso",
+        "fake clock"
+      ]
+    },
+    {
+      "id": "para-encoding",
+      "type": "paraphrase",
+      "question": "Which character representation must the generated export use?",
+      "gold": "encoding",
+      "accepted": [
+        "utf-16le"
+      ]
+    },
+    {
+      "id": "para-zone",
+      "type": "paraphrase",
+      "question": "¿Con qué referencia horaria se anotan los sucesos del proyecto?",
+      "gold": "zone",
+      "accepted": [
+        "utc"
+      ]
+    },
+    {
+      "id": "exact-study",
+      "type": "exact",
+      "question": "preference.study_rhythm",
+      "gold": "study",
+      "accepted": [
+        "25",
+        "twenty-five"
+      ]
+    },
+    {
+      "id": "exact-spelling",
+      "type": "exact",
+      "question": "preference.spelling_region",
+      "gold": "spelling",
+      "accepted": [
+        "brit",
+        "uk"
+      ]
+    },
+    {
+      "id": "exact-terrain",
+      "type": "exact",
+      "question": "preference.running_surface",
+      "gold": "terrain",
+      "accepted": [
+        "tierra",
+        "sendero"
+      ]
+    },
+    {
+      "id": "exact-steps",
+      "type": "exact",
+      "question": "preference.instruction_layout",
+      "gold": "steps",
+      "accepted": [
+        "numbered",
+        "numerad"
+      ]
+    },
+    {
+      "id": "lex-names",
+      "type": "lexical",
+      "question": "What convention applies to Python function names in this project?",
+      "gold": "names",
+      "accepted": [
+        "snake"
+      ]
+    },
+    {
+      "id": "lex-missing",
+      "type": "lexical",
+      "question": "What value represents unknown sensor readings?",
+      "gold": "missing",
+      "accepted": [
+        "null"
+      ]
+    },
+    {
+      "id": "lex-encoding",
+      "type": "lexical",
+      "question": "What encoding do the fictional export files use?",
+      "gold": "encoding",
+      "accepted": [
+        "utf-16le"
+      ]
+    },
+    {
+      "id": "lex-zone",
+      "type": "lexical",
+      "question": "¿En qué zona horaria guardan fechas los registros de este workspace?",
+      "gold": "zone",
+      "accepted": [
+        "utc"
+      ]
+    },
+    {
+      "id": "negative-pet",
+      "type": "abstention",
+      "question": "What is the name of my pet?",
+      "gold": null,
+      "accepted": [
+        "UNKNOWN"
+      ]
+    },
+    {
+      "id": "negative-address",
+      "type": "abstention",
+      "question": "¿Cuál es mi domicilio personal?",
+      "gold": null,
+      "accepted": [
+        "UNKNOWN"
+      ]
+    },
+    {
+      "id": "negative-version",
+      "type": "abstention",
+      "question": "What is this project's current release version?",
+      "gold": null,
+      "accepted": [
+        "UNKNOWN"
+      ]
+    },
+    {
+      "id": "negative-license",
+      "type": "abstention",
+      "question": "¿Qué licencia eligió el usuario para este proyecto?",
+      "gold": null,
+      "accepted": [
+        "UNKNOWN"
+      ]
+    }
+  ],
+  "thresholdSource": "Immutable m8-fixed-synthetic-v1 thresholds, not copied/redefined here",
+  "developmentSeparation": "No records/questions shared with DEV or historical dataset. Gold never alters model inputs, scores, RRF or caps."
+}

@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "beforeModifications": true,
+  "baselineHead": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+  "surfaces": [
+    {
+      "surface": "ContextSelection",
+      "paths": [
+        "local_cli/core/context.py"
+      ],
+      "finding": "PRESETS, label map, error message enumerate up to 32K; AUTO shares the manual preset tuple",
+      "change": "Add manual 65536; preserve separate legacy AUTO catalogue"
+    },
+    {
+      "surface": "ContextManager",
+      "paths": [
+        "local_cli/core/context.py"
+      ],
+      "finding": "Already numeric window arithmetic, capped output reserve and dynamic margins; no 32K branch",
+      "change": "None beyond ContextSelection catalogue"
+    },
+    {
+      "surface": "Config",
+      "paths": [
+        "local_cli/config.py"
+      ],
+      "finding": "alias 4k/8k/16k/32k only; numeric int already parsed",
+      "change": "add 64k alias with common Core label mapping"
+    },
+    {
+      "surface": "CLI",
+      "paths": [
+        "local_cli/cli.py",
+        "local_cli/bootstrap_cli.py",
+        "local_cli/interfaces/cli_application.py"
+      ],
+      "finding": "--num-ctx integer; /context numeric budget; composition passes requested num_ctx",
+      "change": "clarify numeric flag help; contract tests; no new CLI syntax/lifecycle"
+    },
+    {
+      "surface": "Application",
+      "paths": [
+        "local_cli/application/context.py",
+        "local_cli/application/session.py",
+        "local_cli/application/providers.py"
+      ],
+      "finding": "constructor context_selection and binding; budget numbers; validation before provider IO; no 32K upper clamp",
+      "change": "tests only"
+    },
+    {
+      "surface": "Desktop/server",
+      "paths": [
+        "local_cli/bootstrap_server.py",
+        "local_cli/server.py",
+        "desktop/shared/application.ts",
+        "desktop/src/components/SettingsPanel.tsx",
+        "desktop/electron/application_client.ts"
+      ],
+      "finding": "shared backend config; records/DTO numbers; no context dropdown/preset parser in renderer",
+      "change": "tests only; no new UI"
+    },
+    {
+      "surface": "Provider/model validation",
+      "paths": [
+        "local_cli/application/providers.py",
+        "local_cli/core/models.py",
+        "local_cli/infrastructure/capabilities.py"
+      ],
+      "finding": "positive integer metadata/minimum; unknown explicit; no max32; Ollama gets actual selected num_ctx",
+      "change": "tests verified acceptance/known smaller rejection/uncertainty; no metadata inventions"
+    },
+    {
+      "surface": "Legacy context sizing",
+      "paths": [
+        "local_cli/context_sizing.py"
+      ],
+      "finding": "AUTO _CEILING/_TIERS/RAM ladder cap32; explicit values unchanged; product uses common Core boundary",
+      "change": "none; preserve auto max32 and explicit64 regression"
+    },
+    {
+      "surface": "Snapshots/DTOs",
+      "paths": [
+        "local_cli/core/context.py",
+        "local_cli/core/contracts.py",
+        "local_cli/core/models.py",
+        "desktop/shared/application.ts",
+        "local_cli/application/session.py"
+      ],
+      "finding": "selected_context_window/model/provider/resource windows already numeric",
+      "change": "tests roundtrip/report; no schema bump"
+    },
+    {
+      "surface": "M0",
+      "paths": [
+        "tests/memory_v1/context_baseline.py",
+        "tests/memory_v1/test_m0_evaluation.py",
+        "tests/memory_v1/run_m0.py"
+      ],
+      "finding": "four-window characterization and ceiling cases; no MEMORY product",
+      "change": "append64 plus companion scenario matrix, preserve closed evidence files"
+    },
+    {
+      "surface": "Tests",
+      "paths": [
+        "tests/test_nova_core_phase9_context.py",
+        "tests/test_nova_core_phase9_integration.py",
+        "tests/test_context_sizing.py"
+      ],
+      "finding": "64K/65536 explicitly invalid in one contract; four-size parameters elsewhere; auto max32 intentional",
+      "change": "update only obsolete manual invalid expectations to128K and add64 contracts"
+    },
+    {
+      "surface": "Normative docs",
+      "paths": [
+        "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+        "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+        "docs/nova_core_od_05_contexto_v1.md"
+      ],
+      "finding": "Core/ADR explicit list up to32; Memory efficiency targets4/8/16 and formula numeric cap1024",
+      "change": "necessary preset references; memory main/advanced/optional targets and effectiveContextWindow=N; retain other phases/gates"
+    },
+    {
+      "surface": "Historical/irrelevant numeric hits",
+      "paths": [
+        "docs/architecture/AUDITORIA_MEMORIA_NOVA_V1.md",
+        "docs/memory_v1/evidence",
+        "docs/nova_core_fase_9_resultados.md",
+        "local_cli/model_catalog.py",
+        "local_cli/infrastructure/windows_filesystem.py",
+        "local_cli/core/security.py"
+      ],
+      "finding": "frozen past evidence, model-native info, I/O buffers/secret/string limits are NOT context preset ceilings",
+      "change": "none"
+    }
+  ]
+}

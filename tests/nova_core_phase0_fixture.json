@@ -1,0 +1,562 @@
+{
+  "cli_and_tools": {
+    "parsed": {
+      "provider": "ollama",
+      "model": "qwen3:8b",
+      "auto_approve": true,
+      "server": false
+    },
+    "tools": [
+      {
+        "name": "bash",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "Command in the selected shell's syntax."
+            },
+            "timeout": {
+              "type": "integer",
+              "description": "Maximum seconds (default 120)."
+            }
+          },
+          "required": [
+            "command"
+          ]
+        }
+      },
+      {
+        "name": "read",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "file_path": {
+              "type": "string",
+              "description": "The path to the file to read."
+            },
+            "offset": {
+              "type": "integer",
+              "description": "Line number to start reading from (1-based). Defaults to 1."
+            },
+            "limit": {
+              "type": "integer",
+              "description": "Maximum number of lines to read. Defaults to reading the entire file."
+            }
+          },
+          "required": [
+            "file_path"
+          ]
+        }
+      },
+      {
+        "name": "write",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "file_path": {
+              "type": "string",
+              "description": "The path to the file to write."
+            },
+            "content": {
+              "type": "string",
+              "description": "The content to write to the file."
+            }
+          },
+          "required": [
+            "file_path",
+            "content"
+          ]
+        }
+      },
+      {
+        "name": "edit",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "file_path": {
+              "type": "string",
+              "description": "The path to the file to edit."
+            },
+            "old_text": {
+              "type": "string",
+              "description": "The exact text to find in the file."
+            },
+            "new_text": {
+              "type": "string",
+              "description": "The text to replace old_text with."
+            },
+            "replace_all": {
+              "type": "boolean",
+              "description": "If true, replace all occurrences. If false (default), replace only the first occurrence."
+            }
+          },
+          "required": [
+            "file_path",
+            "old_text",
+            "new_text"
+          ]
+        }
+      },
+      {
+        "name": "glob",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "The glob pattern to match files against (e.g. '*.py', '**/*.ts')."
+            },
+            "path": {
+              "type": "string",
+              "description": "The directory to search in. Defaults to the current working directory."
+            }
+          },
+          "required": [
+            "pattern"
+          ]
+        }
+      },
+      {
+        "name": "grep",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pattern": {
+              "type": "string",
+              "description": "The regular expression pattern to search for."
+            },
+            "path": {
+              "type": "string",
+              "description": "The file or directory to search in. Defaults to the current working directory."
+            },
+            "include": {
+              "type": "string",
+              "description": "Glob pattern to filter which files to search (e.g. '*.py', '*.ts'). Defaults to all files."
+            },
+            "case_insensitive": {
+              "type": "boolean",
+              "description": "Whether to perform case-insensitive matching. Defaults to false."
+            }
+          },
+          "required": [
+            "pattern"
+          ]
+        }
+      },
+      {
+        "name": "web_fetch",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The URL to fetch."
+            },
+            "max_length": {
+              "type": "integer",
+              "description": "Maximum number of characters to return. Defaults to 50000."
+            }
+          },
+          "required": [
+            "url"
+          ]
+        }
+      },
+      {
+        "name": "todo_write",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "todos": {
+              "type": "array",
+              "description": "The complete updated todo list. Each item must have 'content' (string) and 'status' (one of: pending, in_progress, completed).",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "description": "The task description."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "in_progress",
+                      "completed"
+                    ],
+                    "description": "Current status of this task."
+                  }
+                },
+                "required": [
+                  "content",
+                  "status"
+                ]
+              }
+            }
+          },
+          "required": [
+            "todos"
+          ]
+        }
+      },
+      {
+        "name": "ask_user",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "The question to ask the user."
+            }
+          },
+          "required": [
+            "question"
+          ]
+        }
+      }
+    ]
+  },
+  "agent_and_harness": {
+    "multi_tool": {
+      "result": "complete",
+      "messages": [
+        {
+          "role": "user",
+          "content": "go"
+        },
+        {
+          "role": "assistant",
+          "content": "",
+          "tool_calls": [
+            {
+              "function": {
+                "name": "alpha",
+                "arguments": {
+                  "arg": "one"
+                }
+              }
+            },
+            {
+              "function": {
+                "name": "beta",
+                "arguments": {
+                  "arg": "two"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "tool_name": "alpha",
+          "content": "A"
+        },
+        {
+          "role": "tool",
+          "tool_name": "beta",
+          "content": "B"
+        },
+        {
+          "role": "assistant",
+          "content": "complete"
+        }
+      ],
+      "event_kinds": [
+        "llm_start",
+        "assistant_message",
+        "tool_start",
+        "tool_result",
+        "tool_start",
+        "tool_result",
+        "llm_start",
+        "content_delta",
+        "assistant_message"
+      ],
+      "tool_calls": [
+        [
+          {
+            "arg": "one"
+          }
+        ],
+        [
+          {
+            "arg": "two"
+          }
+        ]
+      ],
+      "provider_message_counts": [
+        1,
+        4
+      ]
+    },
+    "text_rescue": {
+      "result": "rescued final",
+      "messages": [
+        {
+          "role": "user",
+          "content": "run it"
+        },
+        {
+          "role": "assistant",
+          "content": "<tool_call>{\"name\":\"run\",\"arguments\":{\"command\":\"echo hi\"}}</tool_call>",
+          "tool_calls": [
+            {
+              "function": {
+                "name": "run",
+                "arguments": {
+                  "command": "echo hi"
+                }
+              },
+              "id": "text_rescue_0"
+            }
+          ]
+        },
+        {
+          "role": "tool",
+          "tool_name": "bash",
+          "content": "rescued",
+          "tool_call_id": "text_rescue_0"
+        },
+        {
+          "role": "assistant",
+          "content": "rescued final"
+        }
+      ],
+      "event_kinds": [
+        "llm_start",
+        "content_delta",
+        "assistant_message",
+        "rescue",
+        "tool_start",
+        "tool_result",
+        "llm_start",
+        "content_delta",
+        "assistant_message"
+      ],
+      "tool_calls": [
+        {
+          "command": "echo hi"
+        }
+      ]
+    }
+  },
+  "server_and_provider": {
+    "jsonl_events": [
+      {
+        "id": 7,
+        "type": "tool_call",
+        "name": "echo",
+        "args": {
+          "text": "one"
+        }
+      },
+      {
+        "id": 7,
+        "type": "tool_result",
+        "name": "echo",
+        "output": "echoed: one"
+      },
+      {
+        "id": 7,
+        "type": "tool_call",
+        "name": "echo",
+        "args": {
+          "text": "two"
+        }
+      },
+      {
+        "id": 7,
+        "type": "tool_result",
+        "name": "echo",
+        "output": "echoed: two"
+      },
+      {
+        "id": 7,
+        "type": "stream",
+        "content": "done"
+      },
+      {
+        "id": 7,
+        "type": "done"
+      }
+    ],
+    "transcript": [
+      {
+        "role": "system",
+        "content": "sys"
+      },
+      {
+        "role": "user",
+        "content": "go"
+      },
+      {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "function": {
+              "name": "echo",
+              "arguments": {
+                "text": "one"
+              }
+            },
+            "id": "c1"
+          },
+          {
+            "function": {
+              "name": "echo",
+              "arguments": {
+                "text": "two"
+              }
+            },
+            "id": "c2"
+          }
+        ]
+      },
+      {
+        "role": "tool",
+        "tool_name": "echo",
+        "content": "echoed: one",
+        "tool_call_id": "c1"
+      },
+      {
+        "role": "tool",
+        "tool_name": "echo",
+        "content": "echoed: two",
+        "tool_call_id": "c2"
+      },
+      {
+        "role": "assistant",
+        "content": "done"
+      }
+    ],
+    "claude_conversion": {
+      "system": "sys",
+      "messages": [
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "go"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "tool_use",
+              "id": "c1",
+              "name": "echo",
+              "input": {
+                "text": "one"
+              }
+            },
+            {
+              "type": "tool_use",
+              "id": "c2",
+              "name": "echo",
+              "input": {
+                "text": "two"
+              }
+            }
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            {
+              "type": "tool_result",
+              "tool_use_id": "c1",
+              "content": "echoed: one"
+            },
+            {
+              "type": "tool_result",
+              "tool_use_id": "c2",
+              "content": "echoed: two"
+            }
+          ]
+        },
+        {
+          "role": "assistant",
+          "content": [
+            {
+              "type": "text",
+              "text": "done"
+            }
+          ]
+        }
+      ]
+    },
+    "provider_tool_formats": {
+      "ollama": [
+        {
+          "type": "function",
+          "function": {
+            "name": "echo",
+            "description": "Echo the text argument.",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      ],
+      "claude": [
+        {
+          "name": "echo",
+          "description": "Echo the text argument.",
+          "input_schema": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "text"
+            ]
+          }
+        }
+      ],
+      "llama-server": [
+        {
+          "type": "function",
+          "function": {
+            "name": "echo",
+            "description": "Echo the text argument.",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "approval_and_no_git": {
+    "public_tool_name": "bash",
+    "risky_command": "sudo echo ok",
+    "denied_output": "Command declined (not run): sudo echo ok\nThis risky command was not approved. Use a less destructive alternative, or ask the user to run it themselves.",
+    "denied_executor_calls": 0,
+    "approved_output": "approved\n",
+    "approved_executor_calls": 1,
+    "no_git_capability": "UNAVAILABLE"
+  }
+}

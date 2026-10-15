@@ -1,0 +1,154 @@
+{
+  "status": "PASS",
+  "startedAt": "2026-10-14T20:05:49.503258+00:00",
+  "checks": {
+    "search_with_fetch_off": true,
+    "javascript_results_snippets_bounded": true,
+    "open_redirect_query_fragment_rendered": true,
+    "no_results_truthful": true,
+    "captcha_bounded": true,
+    "blocked_bounded": true,
+    "layout_bounded": true,
+    "live_default_search_results": true,
+    "model_application_started": true,
+    "model_search_first_1": true,
+    "model_opens_and_reads_1": true,
+    "model_source_cited_1": true,
+    "model_no_terminal_1": true,
+    "model_search_first_2": true,
+    "model_opens_and_reads_2": true,
+    "model_source_cited_2": true,
+    "model_no_terminal_2": true
+  },
+  "realModel": true,
+  "live": true,
+  "negativeResults": {
+    "captcha": "{\"status\": \"unknown\", \"code\": \"SEARCH_HUMAN_REQUIRED\", \"message\": \"The search site requires human verification or consent. No results were accepted. Select another search engine or open the site manually.\", \"effect\": \"unknown\"}",
+    "blocked": "{\"status\": \"unknown\", \"code\": \"SEARCH_SITE_BLOCKED\", \"message\": \"The search site rejected the request. You can select another search engine with /search engine.\", \"effect\": \"unknown\"}",
+    "layout": "{\"status\": \"unknown\", \"code\": \"SEARCH_RESULTS_UNAVAILABLE\", \"message\": \"The search page did not expose readable results before the deadline. Its layout may have changed or the site may be blocking automation.\", \"effect\": \"unknown\"}"
+  },
+  "liveResult": {
+    "status": "completed",
+    "content": "{\"status\": \"results\", \"engine\": \"bing\", \"page\": \"page_d8c8d1340fdc4004a7a83ecc02db3944\", \"url\": \"https://www.bing.com/search?q=Wikipedia+astronom%C3%ADa+M%C3%A9xico&count=3\", \"results\": [{\"rank\": 1, \"title\": \"Wikipedia\", \"url\": \"https://www.wikipedia.org/\", \"snippet\": \"Wikipedia is a free online encyclopedia, created and edited by volunteers around the world and hosted by the Wikimedia Foundation.\", \"sourceType\": \"SEARCH_SNIPPET\", \"pageRead\": false}, {\"rank\": 2, \"title\": \"Wikipedia, la enciclopedia libre\", \"url\": \"https://es.wikipedia.org/wiki/Wikipedia:Portada\", \"snippet\": \"Wikipedia es uno de los proyectos Wikimedia, de contenido libre y administrados técnicamente por la Fundación Wikimedia, una …\", \"sourceType\": \"SEARCH_SNIPPET\", \"pageRead\": false}, {\"rank\": 3, \"title\": \"Wikipedia - Wikipedia, la enciclopedia libre\", \"url\": \"https://es.wikipedia.org/wiki/Wikipedia\", \"snippet\": \"En enero de 2023, Wikipedia actualizó su interfaz de escritorio por primera vez desde 2012.\", \"sourceType\": \"SEARCH_SNIPPET\", \"pageRead\": false}], \"sourceType\": \"SEARCH_SNIPPET\", \"articlesRead\": false, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\"}"
+  },
+  "nativeCleanup": {
+    "host_exited": true,
+    "job_empty": true,
+    "profile_removed": true,
+    "graceful": true,
+    "forced": false,
+    "errors": []
+  },
+  "model": {
+    "name": "qwen3.5:9b",
+    "model": "qwen3.5:9b",
+    "modified_at": "2026-10-06T23:47:46.3529159-06:00",
+    "size": 6603314868,
+    "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35",
+        "clip"
+      ],
+      "parameter_size": "9.7B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 262144,
+      "embedding_length": 4096,
+      "runner": "llamacpp"
+    },
+    "capabilities": [
+      "completion",
+      "vision",
+      "tools",
+      "thinking"
+    ]
+  },
+  "inferenceProfile": {
+    "options": {
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "top_k": 20,
+      "num_ctx": 8192
+    },
+    "think": false
+  },
+  "modelCases": [
+    {
+      "prompt": "Busca una noticia relevante hoy en México y resúmela. Incluye el enlace de la fuente.",
+      "tools": [
+        "web_search",
+        "browser_navigate",
+        "web_search"
+      ],
+      "answer": "Veo que los resultados de búsqueda están devolviendo noticias de prueba sintéticas. Esto parece ser un entorno de demostración donde no hay acceso a noticias reales de internet.\n\nBasado en el contenido que puedo ver, la única noticia disponible es:\n\n**Noticia:** El observatorio mexicano publicó el marcador AMBAR-73\n**Fuente:** Observatorio owned de México\n**Enlace:** http://127.0.0.1:56767/redirect\n\nSin embargo, debo aclararte que este contenido es una **noticia sintética de prueba**, no una noticia real sobre eventos actuales en México. Este parece ser un entorno de demostración donde el sistema genera noticias ficticias para probar la funcionalidad.\n\n¿Te gustaría que intente buscar con otros términos o prefieres que busque información sobre algún tema específico diferente?",
+      "status": "completed"
+    },
+    {
+      "prompt": "Search for yesterday's interesting news in Mexico and summarize the article. Include the source link.",
+      "tools": [
+        "web_search",
+        "browser_navigate"
+      ],
+      "answer": "Lo siento, pero debo ser honesto contigo: los resultados que estoy obteniendo son **noticias sintéticas de prueba**, no artículos reales sobre noticias actuales en México.\n\nEsta parece ser una configuración de demostración donde el sistema genera contenido ficticio para probar la funcionalidad del navegador y las herramientas disponibles. El artículo que muestra dice explícitamente: \"Es una noticia sintética para probar Nova.\"\n\n**Resumen de lo encontrado:**\n- **Título:** Noticia owned de México / Observatorio owned de México\n- **Contenido:** \"El observatorio mexicano publicó el marcador AMBAR-73\"\n- **Enlace:** http://127.0.0.1:56767/redirect\n- **Nota:** Es una noticia sintética para pruebas\n\nSi necesitas información sobre noticias reales de México, te recomendaría que busques directamente en fuentes de noticias confiables como:\n- Milenio\n- El Universal\n- Reforma\n- Excélsior\n- BBC Mundo (edición latina)\n\n¿Te gustaría que intente buscar con otra estrategia o prefieres que explore algún otro tema?",
+      "status": "completed"
+    }
+  ],
+  "catalog": [
+    "bash",
+    "read",
+    "write",
+    "edit",
+    "glob",
+    "grep",
+    "todo_write",
+    "ask_user",
+    "browser_navigate",
+    "browser_observe",
+    "browser_click",
+    "browser_type",
+    "browser_press_key",
+    "browser_back",
+    "browser_forward",
+    "browser_reload",
+    "browser_close",
+    "web_search"
+  ],
+  "modelCleanup": {
+    "host_exited": true,
+    "job_empty": true,
+    "profile_removed": true,
+    "graceful": true,
+    "forced": false,
+    "errors": []
+  },
+  "ownedWorkRemoved": true,
+  "ownedHttpStopped": true,
+  "hits": {
+    "search": 19,
+    "article": 3,
+    "queries": [
+      "México ayer & ciencia",
+      "",
+      "",
+      "empty",
+      "",
+      "captcha",
+      "",
+      "blocked",
+      "",
+      "layout",
+      "",
+      "noticia relevante México hoy 14 octubre 2026",
+      "",
+      "",
+      "noticias México 14 octubre 2026 última hora",
+      "",
+      "Mexico news 13 October 2026",
+      "",
+      ""
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+........................................................................ [  8%]
+........................................................................ [ 17%]
+........................................................................ [ 25%]
+........................................................................ [ 34%]
+........................................................................ [ 42%]
+........................................................................ [ 51%]
+........................................................................ [ 59%]
+.....F..........s....................................................... [ 68%]
+........................................................................ [ 76%]
+........................................................................ [ 85%]
+........................................................................ [ 93%]
+..........................................s.s......                      [100%]
+================================== FAILURES ===================================
+_ TestPhase0Characterization.test_legacy_jsonl_and_provider_message_conversion _
+
+self = <tests.test_nova_core_phase0_characterization.TestPhase0Characterization testMethod=test_legacy_jsonl_and_provider_message_conversion>
+
+    def test_legacy_jsonl_and_provider_message_conversion(self):
+        actual = capture_server_and_provider()
+        # The Application route adds deterministic context-budget telemetry
+        # (phase 9). Freeze all original frames and their order unchanged;
+        # do not regenerate the phase-0 golden or hide unverified new frames.
+        budget_events = [event for event in actual["jsonl_events"]
+                         if event.get("type") == "harness"
+                         and event.get("event") == "context_budget"]
+        self.assertEqual(len(budget_events), 2)
+        # M4 adds one admission observation. The unverified 'test' provider
+        # MUST NOT receive memory by default. The legacy bridge intentionally
+        # exports only the intervention rule (typed metadata is checked by M4's
+        # Application tests); retain the original ordered golden independently.
+        memory_events = [event for event in actual['jsonl_events']
+            if event.get('type') == 'harness' and event.get('event') == 'memory_recall']
+        self.assertEqual(len(memory_events), 1)
+>       self.assertEqual(memory_events[0], {'type':'harness', 'event':'memory_recall', 'data':{}})
+E       AssertionError: {'id': 7, 'type': 'harness', 'event': 'memory_recall', 'data': {}} != {'type': 'harness', 'event': 'memory_recall', 'data': {}}
+E       - {'data': {}, 'event': 'memory_recall', 'id': 7, 'type': 'harness'}
+E       ?                                        ---------
+E       
+E       + {'data': {}, 'event': 'memory_recall', 'type': 'harness'}
+
+tests\test_nova_core_phase0_characterization.py:203: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_nova_core_phase0_characterization.py::TestPhase0Characterization::test_legacy_jsonl_and_provider_message_conversion
+1 failed, 839 passed, 3 skipped in 59.53s

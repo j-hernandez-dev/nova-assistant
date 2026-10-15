@@ -1,0 +1,76 @@
+{
+  "phase": "S0",
+  "status": "PASS",
+  "baseline": {
+    "passed": 199,
+    "skipped": 1,
+    "subtestsPassed": 33
+  },
+  "characterizationFinal": {
+    "passed": 48,
+    "failed": 0,
+    "artifact": "s0_characterization_final.xml",
+    "lastChange": "fixture-only LF/CRLF framing; all 48 cases revalidated"
+  },
+  "coreRegression": {
+    "passed": 635,
+    "skipped": 8,
+    "subtestsPassed": 45,
+    "failed": 0,
+    "artifact": "core_regression.xml",
+    "productionHashPreservation": "261/261"
+  },
+  "s0Properties": {
+    "s0.stdin.observation": "OBSERVED",
+    "s0.stdin.payload_hex": "4e4f56415f53305f535444494e5f43414e4152590d0a",
+    "s0.stdin.read_completed": "True",
+    "s0.stdin.read_error": "None",
+    "s0.stdin.report_transport": "stdout",
+    "s0.stdin.reader_deadline_seconds": "1.5",
+    "s0.stdin.child_closed": "True",
+    "s0.env.blocked_keys_present": "False",
+    "s0.env.unlisted_canary_retained": "True",
+    "s0.authority.sibling_dummy_readable": "True",
+    "s0.env.report_transport": "stdout",
+    "s0.env.child_closed": "True"
+  },
+  "skips": [
+    {
+      "case": "test_desktop_client_contracts",
+      "reason": "Desktop development dependencies unavailable"
+    },
+    {
+      "case": "test_electron_main_preload_renderer_e2e",
+      "reason": "Explicit real Electron E2E gate; run NOVA_ELECTRON_E2E=1"
+    },
+    {
+      "case": "test_real_electron_ollama_smoke",
+      "reason": "Explicit local Ollama/Electron smoke; no model is downloaded"
+    },
+    {
+      "case": "test_real_ollama_completes_file_task_with_multiple_tools",
+      "reason": "Explicit native Ollama 7B-9B multi-tool smoke; no model download"
+    },
+    {
+      "case": "test_relative_symlink_cannot_escape_explicit_cwd",
+      "reason": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\s0_private_780789s_\\\\core_regression\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\s0_private_780789s_\\\\core_regression\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'"
+    },
+    {
+      "case": "test_bind_address_is_all_interfaces",
+      "reason": "legacy monitor removed in phase 1"
+    },
+    {
+      "case": "test_post_without_credentials_starts_agent",
+      "reason": "legacy monitor removed in phase 1"
+    },
+    {
+      "case": "test_preserves_file_mode",
+      "reason": "Windows does not preserve POSIX executable bits"
+    }
+  ],
+  "productSecurityReady": false,
+  "sourcePhaseAdvanced": false,
+  "guiLive": false,
+  "externalNetworkTested": false,
+  "migrationFromDeprecated": false
+}

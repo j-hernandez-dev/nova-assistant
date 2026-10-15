@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Read-only clock diagnostic for preserved unrelated HEAD zero-timeout failures; not a causal trace of those tests",
+  "runtime": "Python 3.12.14 MSC v.1944 64-bit AMD64",
+  "observedCommand": "python -B -c import time,sys,json; print runtime and vars(time.get_clock_info(...))",
+  "monotonic": {
+    "implementation": "GetTickCount64()",
+    "monotonic": true,
+    "adjustable": false,
+    "resolutionSeconds": 0.015625
+  },
+  "perfCounter": {
+    "implementation": "QueryPerformanceCounter()",
+    "monotonic": true,
+    "adjustable": false,
+    "resolutionSeconds": 0.0000001
+  },
+  "productChangedForClockIssue": false,
+  "zeroTimeoutFailureResolved": false
+}

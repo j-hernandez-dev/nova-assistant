@@ -1,0 +1,191 @@
+{
+  "startedAt": "2026-10-14T19:28:59.807319+00:00",
+  "status": "FAIL",
+  "checks": {
+    "javascript_rendered": true,
+    "input_enter_observed": true,
+    "stale_ref_denied_zero_effect": true,
+    "changed_dom_target_denied_zero_effect": true,
+    "absent_approval_denied_zero_effect": true,
+    "policy_denied_zero_effect": true,
+    "approved_click_observed": true,
+    "real_canary_one_effect": true,
+    "policy_approval_grant": true,
+    "redirect_query_fragment": true,
+    "history_reload": true,
+    "application_started": true,
+    "real_turn_accepted": true,
+    "deictic_turn_accepted": true,
+    "multiple_families_visible": true,
+    "real_browser_sequence": false
+  },
+  "publicInternetDependency": false,
+  "realModel": true,
+  "nativeCleanup": {
+    "host_exited": true,
+    "job_empty": true,
+    "profile_removed": true,
+    "graceful": true,
+    "forced": false,
+    "errors": []
+  },
+  "model": {
+    "name": "qwen3.5:9b",
+    "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35",
+        "clip"
+      ],
+      "parameter_size": "9.7B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 262144,
+      "embedding_length": 4096,
+      "runner": "llamacpp"
+    }
+  },
+  "inferenceProfile": {
+    "options": {
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "top_k": 20,
+      "num_ctx": 8192
+    },
+    "think": false
+  },
+  "modelFirstAnswer": "Perfecto, ahora tengo toda la información. Basándome en lo que he observado:\n\n**Estado actual después de pulsar \"Aumentar\" una vez:**\n\n- **Clics mostrados en el marcador:** 1\n- **Marcador del archivo README.md:** PIEDRA-AZUL\n\n**Resumen:**\n- Inicialmente los clicks estaban en 0\n- Después de pulsar el botón \"Aumentar\" una vez, el contador pasó a mostrar 1 click\n- El archivo README.md contiene el marcador local que es \"PIEDRA-AZUL\"",
+  "modelTools": [
+    "browser_navigate",
+    "browser_click",
+    "read",
+    "browser_type"
+  ],
+  "modelResultSummaries": [
+    {
+      "status": "completed",
+      "name": "browser_navigate",
+      "error": null
+    },
+    {
+      "status": "completed",
+      "name": "browser_click",
+      "error": null
+    },
+    {
+      "status": "completed",
+      "name": "read",
+      "error": null
+    },
+    {
+      "status": "completed",
+      "name": "browser_type",
+      "error": null
+    }
+  ],
+  "modelAnswer": "",
+  "modelProposals": [
+    [
+      {
+        "id": "call_9vwvylbk",
+        "function": {
+          "index": 0,
+          "name": "browser_navigate",
+          "arguments": {
+            "url": "http://127.0.0.1:54709/"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "id": "call_7jhcglhg",
+        "function": {
+          "index": 0,
+          "name": "browser_click",
+          "arguments": {
+            "ref": "el_3261c9ddc84642bba411bc9d4d0a5c36"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "id": "call_mf1kgutf",
+        "function": {
+          "index": 0,
+          "name": "read",
+          "arguments": {
+            "file_path": "README.md"
+          }
+        }
+      }
+    ],
+    [
+      {
+        "id": "call_u5wh1y5f",
+        "function": {
+          "index": 0,
+          "name": "browser_type",
+          "arguments": {
+            "ref": "el_616bb8ab804d4f699a9c723ffa471255",
+            "text": "Nova"
+          }
+        }
+      }
+    ]
+  ],
+  "modelBrowserReceipts": [
+    {
+      "role": "tool",
+      "tool_name": "browser_navigate",
+      "content": "{\"page\": \"page_ca97cc0719fb4995b6f33cafd5463ffa\", \"url\": \"http://127.0.0.1:54709/\", \"title\": \"Nova Browser Playground\", \"text\": \"Prueba de navegación Nova\\n\\nJavaScript activo\\n\\nNombre \\n\\nSin saludo\\n\\nAumentar\\n\\nClicks: 0\\n\\nPágina siguiente Abrir otra ventana\", \"truncated\": false, \"elements\": [{\"ref\": \"el_a2eb4616291a448ba8030f21cf10dc76\", \"tag\": \"input\", \"name\": \"Nombre\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_3261c9ddc84642bba411bc9d4d0a5c36\", \"tag\": \"button\", \"name\": \"Aumentar\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_9e532c5b59ba416686277d1d9a1132be\", \"tag\": \"a\", \"name\": \"Página siguiente\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_2fe91cbce6a0407db4bcc9fd8b3b3161\", \"tag\": \"a\", \"name\": \"Abrir otra ventana\", \"type\": \"\", \"disabled\": false}], \"elementOffset\": 0, \"nextElementOffset\": null, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\"}",
+      "tool_call_id": "call_9vwvylbk"
+    },
+    {
+      "role": "tool",
+      "tool_name": "browser_click",
+      "content": "{\"page\": \"page_ca97cc0719fb4995b6f33cafd5463ffa\", \"url\": \"http://127.0.0.1:54709/\", \"title\": \"Nova Browser Playground\", \"text\": \"Prueba de navegación Nova\\n\\nJavaScript activo\\n\\nNombre \\n\\nSin saludo\\n\\nAumentar\\n\\nClicks: 1\\n\\nPágina siguiente Abrir otra ventana\", \"truncated\": false, \"elements\": [{\"ref\": \"el_616bb8ab804d4f699a9c723ffa471255\", \"tag\": \"input\", \"name\": \"Nombre\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_29057968a95140e98be01f1bd1448a4f\", \"tag\": \"button\", \"name\": \"Aumentar\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_66ebd695c6e041cc9d6dd2ecf5ccc89e\", \"tag\": \"a\", \"name\": \"Página siguiente\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_dd975a4d8a0c4ec08b178e54679543fb\", \"tag\": \"a\", \"name\": \"Abrir otra ventana\", \"type\": \"\", \"disabled\": false}], \"elementOffset\": 0, \"nextElementOffset\": null, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\", \"localActionObserved\": true, \"remoteOutcome\": \"UNKNOWN\", \"outcomeScope\": \"Browser interaction completed locally; remote business effects are not confirmed.\"}",
+      "tool_call_id": "call_7jhcglhg"
+    },
+    {
+      "role": "tool",
+      "tool_name": "browser_type",
+      "content": "{\"page\": \"page_ca97cc0719fb4995b6f33cafd5463ffa\", \"url\": \"http://127.0.0.1:54709/\", \"title\": \"Nova Browser Playground\", \"text\": \"Prueba de navegación Nova\\n\\nJavaScript activo\\n\\nNombre \\n\\nSin saludo\\n\\nAumentar\\n\\nClicks: 1\\n\\nPágina siguiente Abrir otra ventana\", \"truncated\": false, \"elements\": [{\"ref\": \"el_2ecce7f215a547bb9c64a74206c6d823\", \"tag\": \"input\", \"name\": \"Nombre\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_2ea4f88806424fa7b4dd218a4722e49f\", \"tag\": \"button\", \"name\": \"Aumentar\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_b2dabd58af9b46fe9657d43f572b38b7\", \"tag\": \"a\", \"name\": \"Página siguiente\", \"type\": \"\", \"disabled\": false}, {\"ref\": \"el_d2c581b52f4445ae9a4bd42982a135cd\", \"tag\": \"a\", \"name\": \"Abrir otra ventana\", \"type\": \"\", \"disabled\": false}], \"elementOffset\": 0, \"nextElementOffset\": null, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\", \"localActionObserved\": true, \"remoteOutcome\": \"UNKNOWN\", \"outcomeScope\": \"Browser interaction completed locally; remote business effects are not confirmed.\"}",
+      "tool_call_id": "call_u5wh1y5f"
+    }
+  ],
+  "catalog": [
+    "bash",
+    "read",
+    "write",
+    "edit",
+    "glob",
+    "grep",
+    "web_fetch",
+    "todo_write",
+    "ask_user",
+    "browser_navigate",
+    "browser_observe",
+    "browser_click",
+    "browser_type",
+    "browser_press_key",
+    "browser_back",
+    "browser_forward",
+    "browser_reload",
+    "browser_close"
+  ],
+  "failure": "real_browser_sequence",
+  "modelCleanup": {
+    "host_exited": true,
+    "job_empty": true,
+    "profile_removed": true,
+    "graceful": true,
+    "forced": false,
+    "errors": []
+  },
+  "ownedWorkRemoved": true,
+  "ownedHttpStopped": true
+}

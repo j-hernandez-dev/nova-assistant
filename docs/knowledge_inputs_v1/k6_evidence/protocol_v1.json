@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "phase": "K6",
+  "frozenAt": "2026-10-08 07:50:27 UTC",
+  "architectureSha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+  "gate": "§61",
+  "qualityCampaign": false,
+  "thresholdsModified": false,
+  "corpusGoldChanged": false,
+  "publicInternet": false,
+  "realModelInference": false,
+  "scopes": [
+    "SESSION",
+    "WORKSPACE"
+  ],
+  "decisions": [
+    "KI-OD-14",
+    "KI-OD-15",
+    "KI-OD-16",
+    "KI-OD-17",
+    "KI-OD-18",
+    "KI-OD-21",
+    "KI-OD-22",
+    "KI-OD-24",
+    "KI-OD-27",
+    "KI-OD-28"
+  ],
+  "s5Limits": {
+    "publicOnly": true,
+    "httpHttpsOnly": true,
+    "dnsAndEveryRedirect": true,
+    "tlsVerified": true,
+    "ambientProxyNetrcCookies": false,
+    "timeoutSeconds": 30,
+    "bodyBytes": 2097152,
+    "redirects": 5,
+    "publishedChars": 50000
+  },
+  "searchOperationalBounds": {
+    "queryChars": 1024,
+    "resultRows": 10,
+    "titleChars": 512,
+    "snippetChars": 4000,
+    "responseInputRows": 1000,
+    "queryMayNotOverrideEndpoint": true,
+    "oneS5ChainPerOperation": true
+  },
+  "gateCases": [
+    "WebSearchPort with provider identity/query fingerprint/timestamp/result URL/title/snippet/rank",
+    "Provider DISABLED/UNAVAILABLE/AVAILABLE/DEGRADED truthfully exposed",
+    "Explicit trusted host remote opt-in, independent from remoteDocumentForwarding",
+    "web_search via Policy/grant/claim/ToolRuntime/S5/audit, no page autofetch",
+    "URL snapshot K1–K5 path with acquisition metadata, source/revision/digest/MIME/locators",
+    "Explicit refresh unchanged/new revision; failed refresh preserves old projection; deleted source not reactivated",
+    "No browser, click, form, cookies, JavaScript execution or Active Web",
+    "PUBLIC_ONLY and all S5 bounds unchanged"
+  ],
+  "fixtureClassifications": {
+    "focused": "Real Core/Application/policy/grants/SQLite/parsers with scripted HTTP port; one native private socket test and scripted chat integration.",
+    "hostNetwork": "S5 HTTP/TLS native private fixtures plus K6 HTTP real socket; explicit DNS/admission substitutes for positive local fixture only, normal public-only denial verified first."
+  }
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="3" time="55.528" timestamp="2026-10-04T15:01:48.130170-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s8_e2e" name="test_native_jsonl_spoof_rejected_and_exact_host_denial" file="tests\security_v12\test_s8_e2e.py" line="155" time="11.770"><failure message="AssertionError: {'sessionId': 'ses_525aee4854d44ed6b55498b1edd78706', 'workspace': 'C:\\Users\\joseh\\AppData\\Local\\Temp\\s8_private_a83uq2f1\\selected\\test_native_jsonl_spoof_reject0', 'model': 'local:7b', 'status': 'active', ...}&#10;assert None">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_a83uq2f1/selected/test_native_jsonl_spoof_reject0')
+
+    def test_native_jsonl_spoof_rejected_and_exact_host_denial(tmp_path):
+        from local_cli.interfaces.approval_proof import approval_proof
+        key='ab'*32;peer=Peer(tmp_path,'--fixture',key)
+        try:
+            ident,_=peer.command('SubmitUserInput',{'content':'approval'})
+            result=peer.wait(lambda f:f.get('type')=='application_result' and f.get('id')==ident,10)
+            assert result['data']['accepted']
+            # Approval is sensitive; use the authorized session-owner snapshot.
+            deadline=time.monotonic()+10;request=None
+            while time.monotonic()&lt;deadline:
+                state=peer.snapshot()
+                if state.get('approvals'):
+                    request=state['approvals'][0];break
+                time.sleep(.05)
+&gt;           assert request,state
+E           AssertionError: {'sessionId': 'ses_525aee4854d44ed6b55498b1edd78706', 'workspace': 'C:\\Users\\joseh\\AppData\\Local\\Temp\\s8_private_a83uq2f1\\selected\\test_native_jsonl_spoof_reject0', 'model': 'local:7b', 'status': 'active', ...}
+E           assert None
+
+tests\security_v12\test_s8_e2e.py:170: AssertionError</failure></testcase><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_electron_renderer_backend_same_application[scripted_lifecycle]" file="tests\security_v12\test_s8_e2e.py" line="205" time="6.249" /><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_electron_renderer_backend_same_application[local_ollama]" file="tests\security_v12\test_s8_e2e.py" line="205" time="37.330" /></testsuite></testsuites>

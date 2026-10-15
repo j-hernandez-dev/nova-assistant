@@ -1,0 +1,47 @@
+{
+  "phase": "S8",
+  "userAuthorizedDesktopInstallAndBuild": true,
+  "baselineSetup": {
+    "restrictedContext": "WinError 5 creating an owned temporary pytest directory; infrastructure failure, no product outcome inferred",
+    "successfulAuthorizedEvidence": "docs/security_v12/s7_evidence/s8_baseline_authorized_20261004/run.json",
+    "pythonPassed": 1248,
+    "subtestsPassed": 10,
+    "nodePassed": 12,
+    "optionalOllamaSmokeSkipped": 1,
+    "gpuTestsDeselected": 3
+  },
+  "desktop": {
+    "command": "npm ci --no-audit --no-fund",
+    "packagesInstalledFromExistingLock": 471,
+    "packageAndLockModified": false,
+    "postinstallInitiallyBlocked": ["electron", "esbuild"],
+    "officialElectronInstallerAttempts": "Initial exit without a usable install and bounded cached postinstall deadlines; no downgrade or checksum bypass",
+    "electronVersion": "33.4.11",
+    "cachedArchiveSHA256": "F64C8A5A81D9B420B636FDBA13E180F49D69F2198E1D86A8B01F858B17A9483C",
+    "executableSHA256": "1925F358E7F0E9675A5AC4198FB076613F0DB318DA56D388799A97BE74A5B19C",
+    "completion": "Official cached ZIP verified against the installed package checksums.json, extracted to its own node_modules/electron/dist; installed executable hash matched the ZIP entry; finish_electron_s8.cjs generated the normal path.txt metadata and verified require('electron')",
+    "moduleResolved": true,
+    "typescriptAndViteEvidence": "docs/security_v12/s8_evidence/final_regression/run.json",
+    "nativeElectronEvidence": "docs/security_v12/s8_evidence/e2e_control_final/desktop_real.json",
+    "packagedOrPublished": false,
+    "newSecurityDependencies": false
+  },
+  "interruptedAttempt": {
+    "evidence": "docs/security_v12/s8_evidence/backend_recheck/interruption.json",
+    "outcome": "UNKNOWN_INTERRUPTED; no success/rollback inferred",
+    "cleanup": "Only three positively identified owned test Python processes were stopped; no user/Ollama process was stopped"
+  },
+  "gitProbeDiagnosis": {
+    "evidence": "docs/security_v12/s8_evidence/backend_stack_file",
+    "finding": "Native JSONL backend blocked in capture_capabilities -> git --version -> subprocess.communicate reader threads, with inherited control stdin",
+    "change": "Both literal read-only Git capability probes use DEVNULL stdin and close_fds=True",
+    "postFix": "Normal backend reaches actual Ollama/tool calls; native Desktop Ollama passes",
+    "remainingOwnedVersionProbesAtFinalCheck": 0
+  },
+  "gpu": {
+    "inspectedOrConfigured": false,
+    "capabilityProbe": "Test entries report UNKNOWN; GPU/NVIDIA/VRAM tests are explicitly deselected",
+    "modelsDownloaded": false,
+    "cloudUsed": false
+  }
+}

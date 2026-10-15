@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="0.247" timestamp="2026-10-03T07:14:31.379862-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s3_windows" name="test_native_relative_read_and_atomic_replace" file="tests\security_v12\test_s3_windows.py" line="14" time="0.014"><failure message="local_cli.core.filesystem.FilesystemError: FILESYSTEM_ACCESS_CONFLICT">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native_recheck/s3_private_7_0wgtqj/s3_windows_host_real/test_native_relative_read_and_0')
+
+    def test_native_relative_read_and_atomic_replace(tmp_path):
+        broker = WindowsFilesystemBroker()
+        try:
+            root = broker.bind_root(tmp_path)
+            assert root.identity
+            with ExitStack() as stack:
+                parent = broker.api.chain(str(tmp_path), stack)
+&gt;               identity = broker.api.atomic_write(parent, 'fixture.txt', 'native fixture\n')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s3_windows.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:275: in atomic_write
+    self.fail(self.nt.RtlNtStatusToDosError(code))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+error = 32
+
+    @staticmethod
+    def fail(error=None):
+        number = c.get_last_error() if error is None else error
+        if number in (2, 3):
+            raise FileNotFoundError(number, 'filesystem object unavailable')
+        if number in (5, 32, 33):
+&gt;           raise FilesystemError('FILESYSTEM_ACCESS_CONFLICT')
+E           local_cli.core.filesystem.FilesystemError: FILESYSTEM_ACCESS_CONFLICT
+
+local_cli\infrastructure\windows_filesystem.py:131: FilesystemError</failure></testcase><testcase classname="tests.security_v12.test_s3_windows" name="test_native_active_parent_cannot_be_renamed" file="tests\security_v12\test_s3_windows.py" line="33" time="0.007" /><testcase classname="tests.security_v12.test_s3_windows" name="test_native_create_parent_directory_and_hardlink_deny" file="tests\security_v12\test_s3_windows.py" line="46" time="0.006"><failure message="local_cli.core.filesystem.FilesystemError: FILESYSTEM_ACCESS_CONFLICT">tmp_path = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/docs/security_v12/s3_evidence/block1_native_recheck/s3_private_7_0wgtqj/s3_windows_host_real/test_native_create_parent_dire0')
+
+    def test_native_create_parent_directory_and_hardlink_deny(tmp_path):
+        broker = WindowsFilesystemBroker()
+        try:
+            with ExitStack() as stack:
+                parent = broker.api.chain(str(tmp_path), stack)
+                child = stack.enter_context(broker.api.open(parent, 'created', directory=True, create=True))
+&gt;               broker.api.atomic_write(child, 'one.txt', 'private')
+
+tests\security_v12\test_s3_windows.py:53: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+local_cli\infrastructure\windows_filesystem.py:275: in atomic_write
+    self.fail(self.nt.RtlNtStatusToDosError(code))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+error = 32
+
+    @staticmethod
+    def fail(error=None):
+        number = c.get_last_error() if error is None else error
+        if number in (2, 3):
+            raise FileNotFoundError(number, 'filesystem object unavailable')
+        if number in (5, 32, 33):
+&gt;           raise FilesystemError('FILESYSTEM_ACCESS_CONFLICT')
+E           local_cli.core.filesystem.FilesystemError: FILESYSTEM_ACCESS_CONFLICT
+
+local_cli\infrastructure\windows_filesystem.py:131: FilesystemError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "phase": "M8",
+  "campaign": "LAST_AUTHORIZED_CANDIDATE_QWEN4",
+  "measurementDateLocal": "2026-10-06",
+  "measurementDateUTC": "2026-10-07",
+  "status": "PARTIAL",
+  "operationalGate": "FAIL",
+  "semanticQuality": "NOT_EVALUATED",
+  "standaloneExecuted": false,
+  "e2eQualityExecuted": false,
+  "memoryReadyDeclared": false,
+  "baseline": {
+    "branch": "main",
+    "head": "468d213ede2fa52f6b2588ebaa1191b83669ccb8",
+    "workingTree": "Preexisting dirty Core/64K/M0-M8 preserved; no staging",
+    "platform": "Windows 11 build 26200 / local NTFS / HOST_UNISOLATED",
+    "python": "3.12.14",
+    "numpy": "2.3.5",
+    "backendVersionObserved": "0.40.0"
+  },
+  "candidate": {
+    "model": "qwen3-embedding:4b",
+    "digest": "df5bd2e3c74cd8d069d21dc038f1b359fcdc9458fce1c99bd43c9eb1518ff907",
+    "dimension": 2560,
+    "embeddingSpaceId": "ollama-c3bb7cc7288008dca05aa04a3136f2830f38be42678d5c9c3557fb85c6e5160e",
+    "queryProfile": "qwen-memory-query-document-v1",
+    "instruction": "Given a user request, retrieve the most relevant durable user or workspace memory needed to answer it.",
+    "documents": "Canonical text, no query instruction",
+    "oldVectorsReused": false,
+    "classification": "Not suitable to close M8 under measured operational profile; semantic quality not evaluated"
+  },
+  "protocol": {
+    "chatModel": "qwen3.5:9b",
+    "contextWindow": 4096,
+    "softMs": 350,
+    "hardMs": 600,
+    "guardMs": 50,
+    "quiescenceSeconds": 10,
+    "queries": 72,
+    "normalApplicationChatTurns": 3,
+    "goldUsed": false,
+    "qualityEvaluated": false,
+    "perTurnWarming": false,
+    "queryRetry": false,
+    "lateResultUsed": false,
+    "allCasesStartedAndEndedIdle": true,
+    "snapshotsUnchangedAfterQuiescence": true,
+    "deadlinesScoringFloorCapsComposerUnchanged": true,
+    "qualityAuthorized": false
+  },
+  "preservedDataset": {
+    "version": "m8-bge-final-heldout-v1",
+    "sha256": "97b8d9e98ac74ad4b54efb31f35977eb4fe758ecef45d7e75bf044b2aafc7dfe",
+    "executed": false,
+    "recordsQuestionsGoldThresholdsChanged": false,
+    "bgeCandidateRemainsClosed": true,
+    "bgeForensics": "PARTIAL; no retrospective attribution to semantic or RRF"
+  },
+  "metrics": {
+    "statusCounts": {"WARM": 24, "DEGRADED": 46, "DEGRADED_TIMEOUT": 2, "BUSY": 0},
+    "endpoint24IndependentQueries": {"p50Ms": 95.01965, "p95Ms": 125.5916, "maxMs": 169.0818},
+    "endpoint25IncludingChatRecall": {"p50Ms": 96.5113, "p95Ms": 125.5916, "maxMs": 169.0818},
+    "pipeline24Warm": {"p50Ms": 253.1247, "p95Ms": 297.1137, "maxMs": 335.2822},
+    "pipeline72AllIncludingFallback": {"p50Ms": 167.52425, "p95Ms": 297.1137, "maxMs": 367.8933},
+    "hardTotalExceeded": 0,
+    "uniqueObservedQueryVectorHashes": 24,
+    "coldPreparationOutsideTurnsMs": 36664.6509,
+    "coldBackendLoadMs": 22594.8442,
+    "queryHttpPatternsTagsPsEmbed": {"1_1_1": 24, "0_1_0": 1, "1_1_0": 47},
+    "metadataInvalidations": {"admission_validation_failed": 1},
+    "stableFootprintBytes": 1433600,
+    "activeRecords": 90
+  },
+  "failedMandatoryRequirements": [
+    "Semantic availability after chat and between Turns",
+    "Normal independent real warm E2E quality remains unproven; cannot proceed after operational FAIL"
+  ],
+  "notMeasured": {
+    "recall3": null,
+    "precision1": null,
+    "paraphraseGainPP": null,
+    "e2e4096": null,
+    "e2e8192": null,
+    "e2e16384": null,
+    "peakRunnerRSS": null,
+    "peakPhysicalVRAM": null,
+    "chatAliasRevisionChangeCause": "UNKNOWN"
+  },
+  "tests": {
+    "baselineMemory": {"passed": 743, "failed": 0, "seconds": 56.92},
+    "intermediateMemory": {"passed": 759, "failed": 1, "seconds": 59.80, "preserved": true},
+    "finalMemory": {"passed": 761, "failed": 0, "skipped": 0, "xfail": 0, "seconds": 61.12},
+    "focusedCoreAdmissionIsolation": {"passed": 64, "failed": 0, "seconds": 4.86},
+    "headComplete": "Not repeated; conditioned on successful quality E2E",
+    "criticalRealCampaign": "Not repeated; operational gate failed"
+  },
+  "changes": {
+    "authorizedProductDelta": "Qwen verified basename casefold/string guard only",
+    "previousAdapterSHA256": "bad28e28756af3d81de20a9758422c7de0b38c798d2b43cadbfda0818ada5360",
+    "currentAdapterSHA256": "c6284bca43e47a4bd606a77f4ec62350ac09936178318b253731abb9f726e611",
+    "afterMeasurementOnlyTestDelta": "test_m8_ps_operational.py: historical byte equivalence except exact authorized family delta; arbitrary other changes rejected",
+    "intermediateFailureClassification": "STALE_EXPECTATION: historical full-file byte-pin vs authorized later family correction",
+    "productiveConversationLoggingAdded": false,
+    "coreOrSecurityChanged": false,
+    "normativeDocsChanged": false,
+    "historicalEvidenceChanged": false
+  },
+  "evidence": {
+    "preflight": {"path": "m8_qwen4_evidence/preflight.json", "sha256": "b01ca83aa1c266ddce8280c3f0af8933a674379db35ce5bf6b8ca96deb9c471d"},
+    "operationalFreeze": {"path": "m8_qwen4_evidence/operational_freeze.json", "sha256": "0fdea2c63984cb54df6965389f73c24e9bb3a441842f6a362f69acb247c4825a", "files": 664},
+    "operationalReport": {"path": "m8_qwen4_evidence/operational_report.json", "sha256": "cdbde2d10dade3b2cda75a2c7fc60244f1ea7449e837aa09f20eafd24cb508e2"},
+    "baseline": "m8_qwen4_evidence/baseline",
+    "intermediateFailure": "m8_qwen4_evidence/intermediate_failure",
+    "finalMemoryRegression": "m8_qwen4_evidence/final_memory",
+    "postMetadata": "m8_qwen4_evidence/post_metadata_and_accounting.json"
+  },
+  "prohibitedActions": {
+    "otherModelInferred": false,
+    "modelDownloaded": false,
+    "globalConfigChanged": false,
+    "gpuChanged": false,
+    "cloudUsed": false,
+    "readyDeclared": false,
+    "commit": false,
+    "push": false,
+    "tagsChanged": false,
+    "ciChanged": false
+  },
+  "next": "STOP at M8 PARTIAL. No further model or automatic evaluation authorized. No READY."
+}

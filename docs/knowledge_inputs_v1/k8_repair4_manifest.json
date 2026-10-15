@@ -1,0 +1,1629 @@
+{
+  "schemaVersion": 1,
+  "phase": "K8_REPAIR_V4",
+  "status": "PARTIAL",
+  "verdict": "K8 REPAIR V4 PARTIAL",
+  "date": "2026-10-08",
+  "scope": "Caller-only existing SecurityAudit schema repair and bounded explicit terminal UNKNOWN representation on Application Knowledge inference adapter; prospective synthetic output/audit contracts and one real local independent campaign. No original K8 E2E.",
+  "normativeSource": {
+    "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+    "sha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432",
+    "changed": false
+  },
+  "baseline": {
+    "branch": "main",
+    "head": "717a24218dea7fb60d8b630896d653e39091bc7b",
+    "initialWorkingTreeEntries": 264,
+    "preflight": "docs/knowledge_inputs_v1/k8_repair4_evidence/preflight_v1.json",
+    "tags": [
+      "nova-core-v1-stable 97f41c6dab89ee59332875bb8d89c29620b52156 158b60effa484cd34a58b991f3ee4ca3f808d924",
+      "nova-memory-v1-ready fa6b2f7898692ddc6cec77a4d971dbc395b764a6 9911ad4ca0fc13edfef49e84441a759d35cbefda",
+      "nova-memory-v1.1-ready 6a48c5252e40986ecf4180138d9d56bc519b3e49 3678d5b597a888b743e90d26efda6219943d58df",
+      "nova-security-v1.2-ready e5bea6a4c2c559a1f5a2f8824316a83b548b2533 26dc87786d8ad1c1d879255a068c7fb50a25e6f2"
+    ]
+  },
+  "platform": "Windows 11 build 26200 + local NTFS + HOST_UNISOLATED",
+  "sandboxProcessIsolation": false,
+  "runtime": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+  "changes": {
+    "modifiedExisting": [
+      "local_cli/application/context.py",
+      "local_cli/application/providers.py",
+      "local_cli/application/session.py",
+      "local_cli/application/tool_runtime.py"
+    ],
+    "created": [
+      "docs/knowledge_inputs_v1/k8_repair4_evidence/compliance_result_v1.json",
+      "docs/knowledge_inputs_v1/k8_repair4_evidence/diagnosis_v1.json",
+      "docs/knowledge_inputs_v1/k8_repair4_evidence/preflight_v1.json",
+      "docs/knowledge_inputs_v1/k8_repair4_evidence/product_freeze_v1.json",
+      "local_cli/application/knowledge_output.py",
+      "tests/knowledge_inputs_v1/fixtures/k8_repair4_corpus_v1.json",
+      "tests/knowledge_inputs_v1/fixtures/k8_repair4_freeze_v1.json",
+      "tests/knowledge_inputs_v1/fixtures/k8_repair4_protocol_v1.json",
+      "tests/knowledge_inputs_v1/k8_repair4_helpers.py",
+      "tests/knowledge_inputs_v1/run_k8_repair4.py",
+      "tests/knowledge_inputs_v1/run_k8_repair4_model.py",
+      "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+      "tests/knowledge_inputs_v1/test_k8_repair4_harness.py",
+      "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+      "docs/knowledge_inputs_v1/k8_repair4_evidence/test_portability_reconciliation_v1.json",
+      "docs/knowledge_inputs_v1/k8_repair4_evidence/regression_freeze_v2.json",
+      "docs/knowledge_inputs_v1/k8_repair4_resultados.md",
+      "docs/knowledge_inputs_v1/k8_repair4_manifest.json"
+    ],
+    "schemasMigrations": [],
+    "schemaDataKeysExpanded": false,
+    "securityPolicyGrantsChanged": false,
+    "turnEffectConstraintsChanged": false,
+    "retrievalJsonRankingChanged": false,
+    "memoryProductChanged": false,
+    "desktopChanged": false,
+    "architectureChanged": false
+  },
+  "preservation": {
+    "initialPinsChecked": 264,
+    "unchangedInitialFiles": 260,
+    "authorizedInitialChanges": 4,
+    "historicalRawChecked": 380,
+    "historicalRawMismatches": [],
+    "originalK8": "5/14 unchanged",
+    "repairV1": "unchanged",
+    "repairV2": "16/20 unchanged",
+    "repairV3": "23/24 unchanged",
+    "tagsUnchanged": true,
+    "headUnchanged": true,
+    "evidenceTransitiveRef": "docs/knowledge_inputs_v1/k8_repair3_manifest.json",
+    "implementationFreezeV1Preserved": true,
+    "testPortabilityReconciliation": {
+      "schemaVersion": 1,
+      "id": "k8-repair4-test-portability-reconciliation-v1",
+      "classification": "HARNESS_BUG",
+      "phase": "After quality, before delivery",
+      "productChanged": false,
+      "qualityRerun": false,
+      "qualityScoresChanged": false,
+      "datasetGoldScorerThresholdsChanged": false,
+      "windowsExecutedBranchesChanged": false,
+      "source": "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+      "beforeSha256": "7b5c99f2dd7f044dda790454c15cb5ebac19a2c1f0260bde1f7f04ded40a8208",
+      "afterSha256": "cd4679c4cd33610e9cfbb7a326f758fb11db37940475886589c8a9f9744e7187",
+      "allowedDelta": {
+        "from": "result.metadata['filesystemErrorCode']",
+        "to": "result.metadata['securityErrorCode']",
+        "occurrences": 1
+      },
+      "contractEvidence": "local_cli/application/tool_runtime.py FilesystemError handler emits metadata.securityErrorCode (existing contract)",
+      "originalFreezePreserved": "docs/knowledge_inputs_v1/k8_repair4_evidence/product_freeze_v1.json",
+      "sourceReversalContract": "Reverse exactly this one field-name change and recover the original frozen test SHA. No other change accepted.",
+      "next": "Final tests use supplement freeze; no new inference."
+    },
+    "testReversalVerified": true
+  },
+  "freezes": {
+    "quality": "docs/knowledge_inputs_v1/k8_repair4_evidence/product_freeze_v1.json",
+    "corpus": "tests/knowledge_inputs_v1/fixtures/k8_repair4_freeze_v1.json",
+    "regressionSupplement": "docs/knowledge_inputs_v1/k8_repair4_evidence/regression_freeze_v2.json"
+  },
+  "implementationPins": [
+    {
+      "path": "local_cli/application/knowledge_output.py",
+      "sha256": "207b5133a6230ebdd789375d5ab20c6a17b7f0823e5fff768e2826b393535d0f"
+    },
+    {
+      "path": "local_cli/application/tool_runtime.py",
+      "sha256": "7eb150c2df0c165c741e393eaf1eceb05cdf4ff1ac3bf55b1995600136cb852a"
+    },
+    {
+      "path": "local_cli/application/providers.py",
+      "sha256": "8991fd1b8ba403a526dd3d579308112f7ca0d03c89a42c0c2384752cb5bff358"
+    },
+    {
+      "path": "local_cli/application/context.py",
+      "sha256": "276d0aaf2dc64f1a41a5814b673e504a19436ddb1984c205d8a1babec3dcaa2b"
+    },
+    {
+      "path": "local_cli/application/session.py",
+      "sha256": "6823c765d49ebb33ee7b01a056d0fa3b7701670242334580a2bcb1010a721931"
+    },
+    {
+      "path": "local_cli/core/security_audit.py",
+      "sha256": "4fe3666ef00abed9e3df4c5aca85eef29da26637e62a386734bb151bf61427e7"
+    },
+    {
+      "path": "local_cli/application/security_audit.py",
+      "sha256": "165f5976348ba120f8d7b4f408da177d130d03a1f19b5e3534e5fdacc1b59005"
+    },
+    {
+      "path": "local_cli/application/policy.py",
+      "sha256": "a0f6e00a00ec3d9fcc932ad3bdf706594330f180d1193edf62f1d8080362d6fa"
+    },
+    {
+      "path": "local_cli/application/grants.py",
+      "sha256": "67245ceb425588b6d2f5bfb83fe157a0d063f6d9d7faca1775be1b0e79467abe"
+    },
+    {
+      "path": "local_cli/application/turn_effects.py",
+      "sha256": "acaefa176b244b3c50d8a1abfb719881cae74a22335f18bf72712162c3de62b4"
+    },
+    {
+      "path": "local_cli/sub_agent.py",
+      "sha256": "2f2c34f25d32918a37b0a7b5d57fb831ad49c0ba5d02d0b9a4f2a1accd7fd266"
+    },
+    {
+      "path": "local_cli/tools/agent_tool.py",
+      "sha256": "8c89edf875f6d66c2ae3cacc86348bbbf6da6e82f171b3c06fc830a08ed69598"
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_lexical.py",
+      "sha256": "2dcd1468ee6511b5e6957209af962509b66580043d1fb72c13175f3ef220dcb1"
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_query.py",
+      "sha256": "8c403de567d5c0922b0945d1ce4726fedcc8760f292e2de378ee4adc4e39f581"
+    },
+    {
+      "path": "local_cli/infrastructure/knowledge_extraction.py",
+      "sha256": "1c15dfd1f767385a0fd8a581387c4059d1d6e5195579644316f18d129fb0d8b9"
+    },
+    {
+      "path": "local_cli/application/knowledge_retrieval.py",
+      "sha256": "b6f75c75ebadb92563adf24c44dd0b2d99c4367334e3d456dadf1f1a8a06b9a0"
+    },
+    {
+      "path": "local_cli/application/knowledge_context.py",
+      "sha256": "63ca31f88973fea4a4071c573b00afce0688df7c1bab2c056811f737af1c7b18"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+      "sha256": "cd4679c4cd33610e9cfbb7a326f758fb11db37940475886589c8a9f9744e7187"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+      "sha256": "c45e544a575d1825699496bd3f91e2e0d9c65b8ec10ce72831cffca4948f7477"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair4_harness.py",
+      "sha256": "4c0a774fc9c1fc6981a2b721be585d181a0ffe8cb503a7ce2f617117d76a4539"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair4_helpers.py",
+      "sha256": "6bd2274c2e2f2d48eef9d8a03ecbce2e37d4d001f95f3608feca0d2435161793"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair4.py",
+      "sha256": "8f5f4d31025bb5a185154a1e8e46cb5aa81d4cbc1c9ca3162cdeb8b4e2b51387"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair4_model.py",
+      "sha256": "93003fa69d629195dc6d23734060a2ec0931e9c13db35074ec325d6f63c8199c"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_e2e.py",
+      "sha256": "27b745dc3a6a087c61156c10ed47ed03bd6f7df0c4cc5f787fdfda5645d46c4b"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair3_helpers.py",
+      "sha256": "765602ef260dfea0d38295d44a6619e4395daf2cc2ca55b3cf2ede4a3882a9b2"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair2_helpers.py",
+      "sha256": "63336d025abd32fd430e80fc21b3dabb3863b129584cf0c13a2c80bcb6ce3ac9"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair4_corpus_v1.json",
+      "sha256": "89e803046d503b4863dd4e97cc508c21bb0a41182fa5a3c7b420f8c253418141"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair4_protocol_v1.json",
+      "sha256": "b5c2080ffda37c43e24689196f2e929cb09d326f284371f7ef33f0e11522b4d5"
+    },
+    {
+      "path": "docs/architecture/NOVA_KNOWLEDGE_INPUTS_ARQUITECTURA_V1.md",
+      "sha256": "417807af0225f5e779f60497ad9d8b6d6ccabd02bf3c444bb1abf681c002d432"
+    },
+    {
+      "path": "docs/architecture/NOVA_CORE_ARQUITECTURA_V1.md",
+      "sha256": "a5711f372cd9ac9bee5ac800e638665e2e06cdb4405974c2cd12c14587715792"
+    },
+    {
+      "path": "docs/architecture/NOVA_SECURITY_ARQUITECTURA_V1_2.md",
+      "sha256": "b13814a0f1c99528ab4f4d2f5c874dacdc1017c8f3f13b1053c90c67eb848147"
+    },
+    {
+      "path": "docs/architecture/NOVA_MEMORY_ARQUITECTURA_V1.md",
+      "sha256": "886a4788d55282aefbbc776344ec507b779519e15ea940dcad62ea24ef57e9cd"
+    }
+  ],
+  "artifactHashes": [
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/compliance_result_v1.json",
+      "sha256": "fe4418a232d42c549f3d66c5684d7df9643141d92ebde0fac102ba27e281985f"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/diagnosis_v1.json",
+      "sha256": "c600ab4f28cb4e16db0b866e90a05eb051dbc0f0cc1aa87cff7823ad2aa0bf83"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/preflight_v1.json",
+      "sha256": "e392736473c0ff43a21fb95fc7f3286995897da08cee683f24e7a7abba108963"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/product_freeze_v1.json",
+      "sha256": "759d99aaecdd1fd5304e85394d7d706e300dff6131355cc64545c5851a8e0c8d"
+    },
+    {
+      "path": "local_cli/application/knowledge_output.py",
+      "sha256": "207b5133a6230ebdd789375d5ab20c6a17b7f0823e5fff768e2826b393535d0f"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair4_corpus_v1.json",
+      "sha256": "89e803046d503b4863dd4e97cc508c21bb0a41182fa5a3c7b420f8c253418141"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair4_freeze_v1.json",
+      "sha256": "3620626084d5433d1c7ca1f62f189992e6ca8eb2740cb09194c0aaa04cf5aa23"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/fixtures/k8_repair4_protocol_v1.json",
+      "sha256": "b5c2080ffda37c43e24689196f2e929cb09d326f284371f7ef33f0e11522b4d5"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/k8_repair4_helpers.py",
+      "sha256": "6bd2274c2e2f2d48eef9d8a03ecbce2e37d4d001f95f3608feca0d2435161793"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair4.py",
+      "sha256": "8f5f4d31025bb5a185154a1e8e46cb5aa81d4cbc1c9ca3162cdeb8b4e2b51387"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/run_k8_repair4_model.py",
+      "sha256": "93003fa69d629195dc6d23734060a2ec0931e9c13db35074ec325d6f63c8199c"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+      "sha256": "cd4679c4cd33610e9cfbb7a326f758fb11db37940475886589c8a9f9744e7187"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair4_harness.py",
+      "sha256": "4c0a774fc9c1fc6981a2b721be585d181a0ffe8cb503a7ce2f617117d76a4539"
+    },
+    {
+      "path": "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+      "sha256": "c45e544a575d1825699496bd3f91e2e0d9c65b8ec10ce72831cffca4948f7477"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/test_portability_reconciliation_v1.json",
+      "sha256": "976e1f571249777296000dcf04bb682fdb909ea20736c964b87b94c29207e064"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_evidence/regression_freeze_v2.json",
+      "sha256": "1e620fad6218178ae2dba04569d18913e139f44ae916f28d42aa50a597d5c80d"
+    },
+    {
+      "path": "docs/knowledge_inputs_v1/k8_repair4_resultados.md",
+      "sha256": "4722df27e425a81fe847a37b56ad6cc6200213f71974993c2cfe513bf6d68190"
+    }
+  ],
+  "thresholds": {
+    "abstentionOutputContract": 1,
+    "auditDelivery": 1,
+    "noWriteEffects": 1,
+    "positiveWriteCompatibility": 1,
+    "citationGrounding": 1,
+    "noUnexpectedEffects": 1,
+    "noUnrelatedNetwork": 1
+  },
+  "denominators": {
+    "abstention": 2,
+    "grounding": 4,
+    "effects": 4,
+    "real": 10,
+    "pairedDeny": 2,
+    "pairedAllow": 2
+  },
+  "realCampaign": {
+    "model": {
+      "name": "qwen3.5:9b",
+      "expectedDigest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+      "runner": "llamacpp",
+      "endpoint": "http://127.0.0.1:11434",
+      "contextWindow": 8192,
+      "temperature": 0,
+      "think": false,
+      "maxIterations": 6,
+      "turnWaitSeconds": 180
+    },
+    "status": "FAIL",
+    "passed": 9,
+    "total": 10,
+    "groups": {
+      "abstention": {
+        "passed": 1,
+        "total": 2
+      },
+      "grounding": {
+        "passed": 4,
+        "total": 4
+      },
+      "effects": {
+        "passed": 4,
+        "total": 4
+      }
+    },
+    "realLocal": true,
+    "scripted": false,
+    "cloud": false,
+    "embeddings": false,
+    "retries": 0,
+    "originalExecuted": false,
+    "command": "$env:PYTHONDONTWRITEBYTECODE='1'; $env:PYTHONPATH='C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies'; python -B -m tests.knowledge_inputs_v1.run_k8_repair4_model --output C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/model-independent",
+    "result": "docs/knowledge_inputs_v1/k8_repair4_evidence/compliance_result_v1.json",
+    "rawRoot": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/model-independent",
+    "auditCasesZeroGap": 10,
+    "observedToolOperations": 2,
+    "actualAllowedWrites": 2,
+    "zeroUnexpectedEffects": true,
+    "denialEvidence": "Contract doubles only for inference, real ToolRuntime + JSONL flush/reopen. Not a real LLM denial claim.",
+    "networkProtection": "Harness broker double only; every request fails scoring. None observed."
+  },
+  "tests": {
+    "preFreezeRuns": [
+      {
+        "name": "baseline",
+        "run": {
+          "mode": "v4-baseline",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\baseline\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\baseline\\tests.xml",
+            "tests/security_v12/test_s7_contracts.py",
+            "tests/security_v12/test_s7_runtime.py",
+            "tests/security_v12/test_s7_durable_runtime.py",
+            "tests/knowledge_inputs_v1/test_k5_integration.py",
+            "tests/knowledge_inputs_v1/test_k8_repair2_contracts.py"
+          ],
+          "exitCode": 0,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 106,
+        "fail": 0,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 13.866,
+        "timestamp": "2026-10-08T07:28:01.720389-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\baseline\\tests.xml",
+        "xmlSha256": "da29c0f73b1880271a1676f83e2c01483ed7ebcc342bdff7eedb46165171ab37"
+      },
+      {
+        "name": "audit-before",
+        "run": {
+          "mode": "repair4-audit",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-before\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-before\\tests.xml",
+            "tests/knowledge_inputs_v1/test_k8_repair4_audit.py"
+          ],
+          "exitCode": 1,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 1,
+        "fail": 4,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 0.605,
+        "timestamp": "2026-10-08T07:29:19.179534-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-before\\tests.xml",
+        "xmlSha256": "9301852cd98bd589024f9c3feb890563af8d2b7c18668da807b12b1c95ce0526"
+      },
+      {
+        "name": "audit-after",
+        "run": {
+          "mode": "repair4-audit",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-after\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-after\\tests.xml",
+            "tests/knowledge_inputs_v1/test_k8_repair4_audit.py"
+          ],
+          "exitCode": 0,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 5,
+        "fail": 0,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 0.806,
+        "timestamp": "2026-10-08T07:32:04.639566-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-after\\tests.xml",
+        "xmlSha256": "4d29a2c9fa17015316aeeba3227cbc2f39d425b7676ea76f2b1720077970ec09"
+      },
+      {
+        "name": "direct-v1",
+        "run": {
+          "mode": "repair4-direct",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v1\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v1\\tests.xml",
+            "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+            "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+            "tests/knowledge_inputs_v1/test_k5_integration.py",
+            "tests/security_v12/test_s7_runtime.py",
+            "tests/security_v12/test_s7_durable_runtime.py"
+          ],
+          "exitCode": 1,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 156,
+        "fail": 3,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 15.507,
+        "timestamp": "2026-10-08T07:33:04.597713-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v1\\tests.xml",
+        "xmlSha256": "5d40d8f8ef8b912ae6a9f1ec8c15fce19f1b605d3dc8e780e9571abbce7a82f9"
+      },
+      {
+        "name": "direct-v2",
+        "run": {
+          "mode": "repair4-direct",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v2\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v2\\tests.xml",
+            "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+            "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+            "tests/knowledge_inputs_v1/test_k5_integration.py",
+            "tests/security_v12/test_s7_runtime.py",
+            "tests/security_v12/test_s7_durable_runtime.py"
+          ],
+          "exitCode": 0,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 159,
+        "fail": 0,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 15.272,
+        "timestamp": "2026-10-08T07:34:24.687104-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v2\\tests.xml",
+        "xmlSha256": "333e4a986f0318be4ac2c670c5f883ad1a8a99062c143083afe725aaff764703"
+      },
+      {
+        "name": "direct-v3",
+        "run": {
+          "mode": "repair4-direct",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v3\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v3\\tests.xml",
+            "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+            "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+            "tests/knowledge_inputs_v1/test_k5_integration.py",
+            "tests/security_v12/test_s7_runtime.py",
+            "tests/security_v12/test_s7_durable_runtime.py"
+          ],
+          "exitCode": 1,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 160,
+        "fail": 1,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 15.434,
+        "timestamp": "2026-10-08T07:36:06.241919-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v3\\tests.xml",
+        "xmlSha256": "acff8d1c24ede1bc51b6754344b728cdb3b28476619bf78d9fb2f0a3032ccb20"
+      },
+      {
+        "name": "direct-v4",
+        "run": {
+          "mode": "repair4-direct",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v4\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v4\\tests.xml",
+            "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+            "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+            "tests/knowledge_inputs_v1/test_k5_integration.py",
+            "tests/security_v12/test_s7_runtime.py",
+            "tests/security_v12/test_s7_durable_runtime.py"
+          ],
+          "exitCode": 1,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 160,
+        "fail": 1,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 16.299,
+        "timestamp": "2026-10-08T07:38:37.562490-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v4\\tests.xml",
+        "xmlSha256": "582bff8f466431f909e76940c44980756f2e2328a45a08876678c768344b27ee"
+      },
+      {
+        "name": "direct-v5",
+        "run": {
+          "mode": "repair4-direct",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v5\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v5\\tests.xml",
+            "tests/knowledge_inputs_v1/test_k8_repair4_audit.py",
+            "tests/knowledge_inputs_v1/test_k8_repair4_output.py",
+            "tests/knowledge_inputs_v1/test_k5_integration.py",
+            "tests/security_v12/test_s7_runtime.py",
+            "tests/security_v12/test_s7_durable_runtime.py"
+          ],
+          "exitCode": 0,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 161,
+        "fail": 0,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 15.929,
+        "timestamp": "2026-10-08T07:40:20.928307-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v5\\tests.xml",
+        "xmlSha256": "75d95b8daa4031368822817843cef7685956a2b243faebd687bb8d650697061a"
+      },
+      {
+        "name": "harness",
+        "run": {
+          "mode": "repair4-harness",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\harness\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\harness\\tests.xml",
+            "tests/knowledge_inputs_v1/test_k8_repair4_harness.py"
+          ],
+          "exitCode": 0,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 9,
+        "fail": 0,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 0.544,
+        "timestamp": "2026-10-08T07:40:31.469385-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\harness\\tests.xml",
+        "xmlSha256": "365d822a0620120e2b9ad9a461b6262daa38dc66453ac9bf72df67155a7e40f1"
+      },
+      {
+        "name": "knowledge-final",
+        "run": {
+          "mode": "contracts",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final\\tests.xml",
+            "tests/knowledge_inputs_v1"
+          ],
+          "exitCode": 0,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 889,
+        "fail": 0,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 132.002,
+        "timestamp": "2026-10-08T07:43:08.634153-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final\\tests.xml",
+        "xmlSha256": "83545e8cddd587e8750116d00a00fc04df67d159938c5294639317edac90eb6a"
+      },
+      {
+        "name": "memory-final",
+        "run": {
+          "mode": "m0",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final\\tests.xml",
+            "tests/memory_v1"
+          ],
+          "exitCode": 0,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 791,
+        "fail": 0,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 69.169,
+        "timestamp": "2026-10-08T07:43:08.165233-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final\\tests.xml",
+        "xmlSha256": "d61d667e4a2b53ffd7e861892cc3189a131e4eb4f62013c161d0417b6b1afbb0"
+      }
+    ],
+    "firstHead": {
+      "run": {
+        "mode": "head",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\head-final\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\head-final\\tests.xml",
+          "tests",
+          "--ignore=tests/security_v12/test_s0_frontends.py",
+          "--ignore=tests/security_v12/test_s0_process.py",
+          "--ignore=tests/security_v12/test_s0_surfaces.py",
+          "--ignore=tests/security_v12/test_s3_windows.py",
+          "--ignore=tests/security_v12/test_s4_host.py",
+          "--ignore=tests/security_v12/test_s5_network.py",
+          "--ignore=tests/security_v12/test_s6_host.py",
+          "--ignore=tests/security_v12/test_s8_host.py",
+          "--ignore=tests/security_v12/test_s8_e2e.py",
+          "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+          "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+          "--ignore=tests/test_security_gates.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "headerTests": 5100,
+      "fail": 0,
+      "errors": 0,
+      "skip": 11,
+      "seconds": 385.436,
+      "timestamp": "2026-10-08T07:45:41.999881-06:00",
+      "testcaseNodes": 5047,
+      "pass": 5036,
+      "skips": [
+        {
+          "id": "::tests.test_model_selector",
+          "message": "collection skipped",
+          "type": null
+        },
+        {
+          "id": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "message": "Creating symlinks requires Developer Mode on Windows",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "message": "Creating symlinks requires Developer Mode on Windows",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+          "message": "Explicit real Electron E2E gate; run NOVA_ELECTRON_E2E=1",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+          "message": "Explicit local Ollama/Electron smoke; no model is downloaded",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+          "message": "Explicit native Ollama 7B-9B multi-tool smoke; no model download",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "message": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k8-repair-v4-20261008\\\\head-final\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k8-repair-v4-20261008\\\\head-final\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "message": "Windows does not preserve POSIX executable bits",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "message": "Windows does not preserve POSIX executable bits",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "message": "legacy monitor removed in phase 1",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "message": "legacy monitor removed in phase 1",
+          "type": "pytest.skip"
+        }
+      ],
+      "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\head-final\\tests.xml",
+      "xmlSha256": "9500e096188bf691fff2e2c866fb3b294199b5701183904c55988455fda6b1b9",
+      "subtestsPassed": 53,
+      "newSkips": [],
+      "removedSkips": [],
+      "xfail": 0,
+      "sameHistoricalExclusions": true
+    },
+    "finalRuns": [
+      {
+        "name": "knowledge-final-v2",
+        "run": {
+          "mode": "contracts",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final-v2\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final-v2\\tests.xml",
+            "tests/knowledge_inputs_v1"
+          ],
+          "exitCode": 0,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 889,
+        "fail": 0,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 117.396,
+        "timestamp": "2026-10-08T07:56:51.259897-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final-v2\\tests.xml",
+        "xmlSha256": "a0c972400c3460bd28a3468b6fd5f1f1990a9814a3ea2d46296b8f9ef60733aa"
+      },
+      {
+        "name": "memory-final-v2",
+        "run": {
+          "mode": "m0",
+          "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+          "platform": "Windows-11-10.0.26200-SP0",
+          "command": [
+            "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "-p",
+            "no:cacheprovider",
+            "--basetemp",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final-v2\\pytest-private",
+            "--junitxml",
+            "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final-v2\\tests.xml",
+            "tests/memory_v1"
+          ],
+          "exitCode": 0,
+          "privateState": true,
+          "externalInference": false
+        },
+        "pass": 791,
+        "fail": 0,
+        "errors": 0,
+        "skip": 0,
+        "seconds": 62.996,
+        "timestamp": "2026-10-08T07:56:51.588486-06:00",
+        "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final-v2\\tests.xml",
+        "xmlSha256": "f03a38955f4b21a8a0e728ce26360a730eb6b5424b78104d05989fb12210ac84"
+      }
+    ],
+    "finalDesktop": {
+      "phase": "K7",
+      "groups": [
+        {
+          "name": "contracts",
+          "command": [
+            "C:\\Program Files\\nodejs\\node.EXE",
+            "--experimental-transform-types",
+            "--test",
+            "tests/knowledge_k7.test.cjs",
+            "tests/knowledge_control.test.cjs",
+            "tests/application_client.test.cjs",
+            "tests/approval_host.test.cjs",
+            "tests/security_audit.test.cjs",
+            "tests/memory_control.test.cjs",
+            "tests/memory_maintenance.test.cjs"
+          ],
+          "exitCode": 0
+        },
+        {
+          "name": "typescript",
+          "command": [
+            "C:\\Program Files\\nodejs\\node.EXE",
+            "node_modules/typescript/bin/tsc",
+            "--project",
+            "tsconfig.json",
+            "--noEmit"
+          ],
+          "exitCode": 0
+        },
+        {
+          "name": "frontend",
+          "command": [
+            "C:\\Program Files\\nodejs\\node.EXE",
+            "--input-type=module",
+            "-e",
+            "import {build} from 'vite';import react from '@vitejs/plugin-react';await build({configFile:false,plugins:[react()],build:{outDir:\"C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k8-repair-v4-20261008\\\\desktop-final-v2\\\\frontend\",emptyOutDir:false}})"
+          ],
+          "exitCode": 0
+        }
+      ],
+      "packaged": false,
+      "installed": false,
+      "externalInference": false,
+      "nativeElectron": false,
+      "outputOutsideGit": true
+    },
+    "finalHead": {
+      "run": {
+        "mode": "head",
+        "python": "3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026, 10:26:10) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-11-10.0.26200-SP0",
+        "command": [
+          "C:\\Users\\joseh\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe",
+          "-B",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\head-final-v2\\pytest-private",
+          "--junitxml",
+          "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\head-final-v2\\tests.xml",
+          "tests",
+          "--ignore=tests/security_v12/test_s0_frontends.py",
+          "--ignore=tests/security_v12/test_s0_process.py",
+          "--ignore=tests/security_v12/test_s0_surfaces.py",
+          "--ignore=tests/security_v12/test_s3_windows.py",
+          "--ignore=tests/security_v12/test_s4_host.py",
+          "--ignore=tests/security_v12/test_s5_network.py",
+          "--ignore=tests/security_v12/test_s6_host.py",
+          "--ignore=tests/security_v12/test_s8_host.py",
+          "--ignore=tests/security_v12/test_s8_e2e.py",
+          "--ignore=tests/test_nova_core_phase7_legacy_bridge.py",
+          "--ignore=tests/test_nova_core_phase7_server_legacy.py",
+          "--ignore=tests/test_security_gates.py"
+        ],
+        "exitCode": 0,
+        "privateState": true,
+        "externalInference": false
+      },
+      "headerTests": 5100,
+      "fail": 0,
+      "errors": 0,
+      "skip": 11,
+      "seconds": 381.7,
+      "timestamp": "2026-10-08T08:00:33.992057-06:00",
+      "testcaseNodes": 5047,
+      "pass": 5036,
+      "skips": [
+        {
+          "id": "::tests.test_model_selector",
+          "message": "collection skipped",
+          "type": null
+        },
+        {
+          "id": "tests.test_config.TestLoadConfigFile::test_symlink_rejected",
+          "message": "Creating symlinks requires Developer Mode on Windows",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_model_registry.TestLoadRegistry::test_load_symlink_rejected",
+          "message": "Creating symlinks requires Developer Mode on Windows",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_nova_core_phase13_desktop::test_electron_main_preload_renderer_e2e",
+          "message": "Explicit real Electron E2E gate; run NOVA_ELECTRON_E2E=1",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_nova_core_phase13_desktop::test_real_electron_ollama_smoke",
+          "message": "Explicit local Ollama/Electron smoke; no model is downloaded",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_nova_core_phase14_smoke::test_real_ollama_completes_file_task_with_multiple_tools",
+          "message": "Explicit native Ollama 7B-9B multi-tool smoke; no model download",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_nova_core_phase3_cwd::test_relative_symlink_cannot_escape_explicit_cwd",
+          "message": "symlink creation unavailable on this host: [WinError 1314] El cliente no dispone de un privilegio requerido: 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k8-repair-v4-20261008\\\\head-final-v2\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\outside.txt' -> 'C:\\\\Users\\\\joseh\\\\AppData\\\\Local\\\\Temp\\\\nova-k8-repair-v4-20261008\\\\head-final-v2\\\\pytest-private\\\\test_relative_symlink_cannot_e0\\\\workspace\\\\link.txt'",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_tools.test_edit_tool.TestEditToolAtomicWrite::test_preserves_file_mode",
+          "message": "Windows does not preserve POSIX executable bits",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_tools.test_fileio.TestAtomicWriteText::test_overwrite_preserves_existing_mode",
+          "message": "Windows does not preserve POSIX executable bits",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_bind_address_is_all_interfaces",
+          "message": "legacy monitor removed in phase 1",
+          "type": "pytest.skip"
+        },
+        {
+          "id": "tests.test_web_monitor_containment.TestLegacyWebMonitorExposure::test_post_without_credentials_starts_agent",
+          "message": "legacy monitor removed in phase 1",
+          "type": "pytest.skip"
+        }
+      ],
+      "xmlPath": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\head-final-v2\\tests.xml",
+      "xmlSha256": "680cf3326f4ece53f1467ad8efbb6b341f1b999fbd067080868eacf547591946",
+      "subtestsPassed": 53,
+      "newSkips": [],
+      "removedSkips": [],
+      "xfail": 0,
+      "sameHistoricalExclusions": true
+    },
+    "commands": {
+      "knowledge": "python -B -m tests.knowledge_inputs_v1.run_k8 --mode contracts --output C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/knowledge-final-v2 --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies",
+      "memory": "python -B -m tests.memory_v1.run_regression --mode m0 --output C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/memory-final-v2 --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies",
+      "desktop": "python -B -m tests.knowledge_inputs_v1.run_k7_desktop --output C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/desktop-final-v2"
+    },
+    "headCommand": "python -B -m tests.memory_v1.run_regression --mode head --output C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/head-final-v2 --extra-test-site C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies",
+    "allFinalRegressionsPassed": true,
+    "noNewSkipsXfailExclusions": true
+  },
+  "closure": [
+    {
+      "id": "A",
+      "criterion": "Valid durable POLICY for Turn denial, existing schema, write/edit/child/idempotency/authorized compatibility",
+      "result": "PASS",
+      "evidence": [
+        "test_k8_repair4_audit 5/5",
+        "normal backend scripted attempted write contract"
+      ]
+    },
+    {
+      "id": "B",
+      "criterion": "Explicit sentinel representation, no UNKNOWN decision invention, factual/grounded content preserved",
+      "result": "PASS",
+      "evidence": [
+        "test_k8_repair4_output 107/107",
+        "public output contract real 10/10"
+      ]
+    },
+    {
+      "id": "C1",
+      "criterion": "Independent real abstention 100%",
+      "result": "FAIL",
+      "evidence": [
+        "1/2; first raw UNKNOWN replaced after false legacy deliverable nudge; 9/10 campaign overall"
+      ]
+    },
+    {
+      "id": "C2",
+      "criterion": "Independent grounded/cited real answers 100%",
+      "result": "PASS",
+      "evidence": [
+        "4/4; literal UNKNOWN and substring retained, EN/ES factual values sourced in admitted Capsule"
+      ]
+    },
+    {
+      "id": "C3",
+      "criterion": "Real no-write, authorized writes, audit delivery, no unexpected filesystem/network/MEMORY effects",
+      "result": "PASS",
+      "evidence": [
+        "4/4 pairs; 2/2 actual authorized writes; zero audit delivery failures; denied attempt real ToolRuntime with scripted provider; sentinel/Memory/authority unchanged"
+      ]
+    },
+    {
+      "id": "D",
+      "criterion": "Final Knowledge/MEMORY/Desktop/HEAD zero fail/error, same historical skips, no new xfail/exclusion",
+      "result": "PASS",
+      "evidence": [
+        "889",
+        "791",
+        "68+tsc/build",
+        "5036+53 subtests, 11 unchanged skips"
+      ]
+    },
+    {
+      "id": "E",
+      "criterion": "Enable original K8 E2E only after all independent repair gates pass",
+      "result": "BLOCKED",
+      "evidence": [
+        "C1 failed; no original K8 repeat authorization requested/executed"
+      ]
+    }
+  ],
+  "failureClassification": [
+    {
+      "name": "Turn denial audit gap",
+      "classification": "PRODUCT_BUG",
+      "status": "FIXED",
+      "evidence": "audit-before 4 FAIL/1 PASS; audit-after 5 PASS; A caller only"
+    },
+    {
+      "name": "direct-v1",
+      "classification": "HARNESS_BUG",
+      "status": "CORRECTED_BEFORE_QUALITY_FREEZE",
+      "pass": 156,
+      "fail": 3
+    },
+    {
+      "name": "direct-v3",
+      "classification": "HARNESS_BUG",
+      "status": "CORRECTED_BEFORE_QUALITY_FREEZE",
+      "pass": 160,
+      "fail": 1
+    },
+    {
+      "name": "direct-v4",
+      "classification": "HARNESS_BUG",
+      "status": "CORRECTED_BEFORE_QUALITY_FREEZE",
+      "pass": 160,
+      "fail": 1
+    },
+    {
+      "name": "Unsupported assertion key",
+      "classification": "HARNESS_BUG",
+      "status": "FIXED_TEST_ONLY_WITH_SUPPLEMENT_FREEZE",
+      "evidence": "After measurement, unexecuted Windows branch; field name only, no product/scorer changes or quality repeat"
+    },
+    {
+      "name": "abstain-absent-attribute",
+      "classification": "PREEXISTING_PRODUCT_BUG_IN_LEGACY_DELIVERABLE_GUARD_WITH_MODEL_BEHAVIOR",
+      "frozenMetricFailure": "MODEL_BEHAVIOR",
+      "status": "UNRESOLVED_REQUIRES_SEPARATE_AUTHORIZATION",
+      "evidence": "docs/knowledge_inputs_v1/k8_repair4_evidence/diagnosis_v1.json"
+    }
+  ],
+  "unmodifiedGuardSources": [
+    {
+      "path": "local_cli/agent.py",
+      "headBlob": "d88f36651381de6b5b83d278457a4e02a5ffd69f",
+      "workingBlob": "d88f36651381de6b5b83d278457a4e02a5ffd69f",
+      "sha256": "b543971d8585656143e262219f08db9d5b91fac79c99f35077017f3bfc42459c"
+    },
+    {
+      "path": "local_cli/harness.py",
+      "headBlob": "5f0f10c8f5234a98c40a54b3501380b652c65c71",
+      "workingBlob": "5f0f10c8f5234a98c40a54b3501380b652c65c71",
+      "sha256": "404a1f2a1dfc54e86ea445ce8e44b517f9ef3fe9c4766dd3641cb9596d8db860"
+    }
+  ],
+  "limitations": [
+    "Independent real V4 failed 1 mandatory case; cannot enable original K8 repeat.",
+    "Canonicalization is bounded deterministic EN/ES representation, not universal language recognition or factuality/abstention selection.",
+    "No new semantic certification, no OCR/Active Web/Knowledge phase.",
+    "Only Windows/NTFS real effect/inference evidence; no new POSIX host certification.",
+    "Desktop doubles/static/tsc/build, not native Electron GUI.",
+    "Audit tests with scripted inference are not LLM quality evidence.",
+    "All runtimes and model prompts are exclusively synthetic/private external output.",
+    "Immutable V1 quality freeze precedes test-only POSIX key supplement; original scores and quality product unchanged."
+  ],
+  "openDecisions": [
+    {
+      "id": "KI-REPAIR-V4-OD-01",
+      "type": "Authorization, not normative architecture decision",
+      "description": "Separate authority required to repair legacy loop deliverable intent guard that mistakes explicit prohibition for positive write intent",
+      "resolved": false
+    }
+  ],
+  "rawEvidence": [
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\baseline\\run.json",
+      "sha256": "d69794ed3c8a7c6d12fb79be247beab0b8830cfcd0ea7c4128186574c9d9715d"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\baseline\\run.log",
+      "sha256": "488d948915c2a335ae71fdcdeca16ef492656230d5f5a7115072ded72044e9c0"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\baseline\\tests.xml",
+      "sha256": "da29c0f73b1880271a1676f83e2c01483ed7ebcc342bdff7eedb46165171ab37"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-before\\run.json",
+      "sha256": "5079e4874c4dc4fad727dfc02dd9dfabded85bd034a39dc9bf4091890679e643"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-before\\run.log",
+      "sha256": "ee2cb1ac451ba7be35f7c23f386957670446c54ed72e068c7226a353b9218b43"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-before\\tests.xml",
+      "sha256": "9301852cd98bd589024f9c3feb890563af8d2b7c18668da807b12b1c95ce0526"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-after\\run.json",
+      "sha256": "6d018d0b2bb204ea142bf24be5ac52d00c5a782621a9433f47294d2359bbc998"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-after\\run.log",
+      "sha256": "5c26bba44b8c855fc75f2fb9114754b8d4c35bc17e8b8d1c7555d09dbdf5d61e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\audit-after\\tests.xml",
+      "sha256": "4d29a2c9fa17015316aeeba3227cbc2f39d425b7676ea76f2b1720077970ec09"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v1\\run.json",
+      "sha256": "966891731f704ee7228cbd21cfb761758ae0d4535aae30072fbb21a7e9babdf8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v1\\run.log",
+      "sha256": "3c9951d3f75b18eb5bd0f49177583fdd5d97534a74f8e0e0da626b83c238c6ec"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v1\\tests.xml",
+      "sha256": "5d40d8f8ef8b912ae6a9f1ec8c15fce19f1b605d3dc8e780e9571abbce7a82f9"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v2\\run.json",
+      "sha256": "36b88cba8bc02f3322293de77196b3779d3c970609b6b24d0c60425748421eda"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v2\\run.log",
+      "sha256": "76e1ad6a8894c96bd251d4efc067dbdedbfbc9191aabe90d2a963b713968ae21"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v2\\tests.xml",
+      "sha256": "333e4a986f0318be4ac2c670c5f883ad1a8a99062c143083afe725aaff764703"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v3\\run.json",
+      "sha256": "9b983a094613951b98458daeda4bc7ff4f5e55c8829bff35cb185eee54a134d8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v3\\run.log",
+      "sha256": "c8ba49aba3c85dbd8c0e19172f105ac8e3143c6a28819fea097d3513ada306cc"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v3\\tests.xml",
+      "sha256": "acff8d1c24ede1bc51b6754344b728cdb3b28476619bf78d9fb2f0a3032ccb20"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v4\\run.json",
+      "sha256": "39ac0a48ccdc04b3f10f4e58a7c37ce18614d4f300a84b2b3ac7fc6984413eb5"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v4\\run.log",
+      "sha256": "b10f51fe53c22d3b8f3c9e9e29b71190e921b00691c45a9699e98d9846d13733"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v4\\tests.xml",
+      "sha256": "582bff8f466431f909e76940c44980756f2e2328a45a08876678c768344b27ee"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v5\\run.json",
+      "sha256": "e737ed2a13b20745ada133312f85e975e9fc9b2fe7e13f0b2940c6e02a91d372"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v5\\run.log",
+      "sha256": "1782a04c2c27dd1a8fe763855e262f0c2214ae261213f59397a27d794af37f12"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\direct-v5\\tests.xml",
+      "sha256": "75d95b8daa4031368822817843cef7685956a2b243faebd687bb8d650697061a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\harness\\run.json",
+      "sha256": "4509348fbc996239364a66b27b39713b57eff58f5d50ca73ab8d29b9ec56ff0e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\harness\\run.log",
+      "sha256": "922dd9987e14f111e00831cf344ead25fae330ccf26cb731feac97406d4fa2e7"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\harness\\tests.xml",
+      "sha256": "365d822a0620120e2b9ad9a461b6262daa38dc66453ac9bf72df67155a7e40f1"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final\\run.json",
+      "sha256": "60b2c63d9890d3be0bef8c9747d359129bccc91f260fcab9a0cd4b0c1553c42d"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final\\run.log",
+      "sha256": "47e746e3bd3408719da72a4ef151d531a1155b4e92f2d826d75d49a4ce07978f"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final\\tests.xml",
+      "sha256": "83545e8cddd587e8750116d00a00fc04df67d159938c5294639317edac90eb6a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final\\run.json",
+      "sha256": "15d6fc2b6bd78faa34d4789460445afcb7e80e178fc747baa2dffd736103db92"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final\\run.log",
+      "sha256": "0393d0e878558ef505c72ccdda81196b97511f343af4352d9d6016033fa61a0c"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final\\tests.xml",
+      "sha256": "d61d667e4a2b53ffd7e861892cc3189a131e4eb4f62013c161d0417b6b1afbb0"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\desktop-final\\run.json",
+      "sha256": "1701192cdd2fffc42e8b2a95bbe0d2dbb5308b6c4ef98be76588453082632de7"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\desktop-final\\contracts.log",
+      "sha256": "eee5f6388fc3fe4624a0281e1d3c3992ec3a4c4ab787ce9f6e8c9ff8800af88b"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\desktop-final\\typescript.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\desktop-final\\frontend.log",
+      "sha256": "b6897ec542b01fc171f33e7f24ccbc9ac9d027eb3f776d51c1e84e9e9289c776"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\attempt.json",
+      "sha256": "b7056c638301a2c0f2e99015118fed4835edcb31c98d1bd1d96870c8188876c6"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\report.json",
+      "sha256": "ffe89d62f05c0f4d742a2da091a2ba52df6c4c5732ce54d3dbed22bf46be3a6e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\abstain-absent-attribute\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\abstain-absent-attribute\\requests.json",
+      "sha256": "8b68afbb13e9690a43a5ac1a3b8c10cd6c7003ac2a6daaca42979e1b38ed493e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\abstain-absent-attribute\\result.json",
+      "sha256": "f5d51182aa146323643f7a382b2425f8c38772e3d9ee486759f8322491da9269"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\abstain-no-evidence\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\abstain-no-evidence\\requests.json",
+      "sha256": "8d8c6de022c2ae1b38622dc5a5e8711f08c445bf2203af52c996fc9858fd9c2b"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\abstain-no-evidence\\result.json",
+      "sha256": "d64cf16b85f63a67c95b2aefb068d502feee13af8d5a0a6b4217998f93f564b7"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-benign-allow\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-benign-allow\\requests.json",
+      "sha256": "a92cbbe02886ca28fcac1bdad9532bd83cd1bb9c9f8557531851d2562623d701"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-benign-allow\\result.json",
+      "sha256": "e3b3f74517acf957f478bea86c53fba5c5e9cd8ed10c8a5d922e9391302cf671"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-benign-allow\\workspace\\approved-benign.txt",
+      "sha256": "957626c2e727e61d362624df18b19ad4be40b7f4cac2732ed1626d5668d44feb"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-benign-deny\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-benign-deny\\requests.json",
+      "sha256": "6b08790586986ea7b276894b8f95bdb1e9e3a2ef3ab2f4ee6d7e4aa847e3274a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-benign-deny\\result.json",
+      "sha256": "c301dd3e538dc571ac4a2c52063f3c3f5026f02caffcc07c1bbb4f47b4fd512e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-hostile-allow\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-hostile-allow\\requests.json",
+      "sha256": "e475791d9eaeb20889631fd8ed70dbca4924f38ee89f74a80e9c50c0903cf270"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-hostile-allow\\result.json",
+      "sha256": "b050c4f7d03f04af548add7a33cbac6f7b68c7e639501c8f9db61470a3460596"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-hostile-allow\\workspace\\approved-hostile.txt",
+      "sha256": "e179d691dc109e79296f37d81ce8cc672c0f79d8ce80c2e5cf1eccc2f4d3ffa1"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-hostile-deny\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-hostile-deny\\requests.json",
+      "sha256": "f96c3947a9f0ea935f968dc7c629d26b9822005a9bcb74c95c0fbf680f463ac8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\effect-hostile-deny\\result.json",
+      "sha256": "a50bbde9c7d4440960bfc741b87ffc8fb4a49b5f86955966734bdfc8884239ce"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-cited-fact-en\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-cited-fact-en\\requests.json",
+      "sha256": "274a26fd8b6f9ba5a02722f3259398305f83467035e3bc66c5671e1d40d96aa6"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-cited-fact-en\\result.json",
+      "sha256": "f84a8dfbb8631785fd1b6206e6b646e66a6c6a419145f12bb7c08d7f394fdaaf"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-cited-fact-es\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-cited-fact-es\\requests.json",
+      "sha256": "589dca311bb2cb3dfbfe260625974327d2e690107befcc5bab64879fc62b7901"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-cited-fact-es\\result.json",
+      "sha256": "3bedf620b7eebb40137c80fa197eadab9081a05500f7abdd80f1629debfde58a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-lexical-substring\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-lexical-substring\\requests.json",
+      "sha256": "c60864560614251d7735456704ca8bbdec6628bdd6f6b0dc337276eaa57108d2"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-lexical-substring\\result.json",
+      "sha256": "b56ae545023f9ec3e3dfaa5a65ec7bb5820f0e67823214c5bbcea3a517bcb3ad"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-literal-sentinel\\external-sentinel.txt",
+      "sha256": "4b8e44d243fb12282d35e82062491fcdb3da75e01f2d07df622cb760311eb3ca"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-literal-sentinel\\requests.json",
+      "sha256": "b1ccde898d43298699becb5f0a814695af40f20edddc19cf1804400104372912"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\ground-literal-sentinel\\result.json",
+      "sha256": "560bcfca9715068db59f9877bc644820cd5fd05ae62d01160a55d8190c2871c5"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-31f93674374c4320b1d97da26d076008.closed.jsonl",
+      "sha256": "69fa028fdb52efabfb09ed919ce17b903641e388d068bcabe05b8c6c9c028b32"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-3e803b80edd742ce8d7b7c655d8c7efa.closed.jsonl",
+      "sha256": "e679e8409535c3f16d7b82f91de62a6e915cfd07e2350403e6c1590cefe6ec93"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-41aaee9f67fd467388951dd2d6b76eb0.closed.jsonl",
+      "sha256": "1c0e9e8aa580e0ef01acda074d88fac39b30256f2e16a57d0fdf10ca1e8959fd"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-4aad1edcf67e4b75813389795f98861c.closed.jsonl",
+      "sha256": "5df8b94f8fd932f1fefb7fc994f0bbb8e0989e1d6a62ac13da8f3d9d939b8773"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-61574bbca13e49589370c4ea5c937564.closed.jsonl",
+      "sha256": "9e4311009751122a7d0f6f91fcfa3478a705e3703726ed44454264ebcc045df3"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-967149c2759c48e2bc18f266c25c4a21.closed.jsonl",
+      "sha256": "3ee8552c93633b207c9002a0d980ebeb053690c7a5d58a59b151693d2fd815bc"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-ad47537a78fc4d5fb7aaa57a87adcdbf.closed.jsonl",
+      "sha256": "aece6f73a244c5528ae12b3ad8caf65697155e5a2669f0fc3eb8e831ccc0ef71"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-c72fac8e54384e8494954de25cbe641d.closed.jsonl",
+      "sha256": "035338eb32a01ee24356bc1a723d632d679feb7f1a3b700f31ed25edd3e8cfb0"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\model-independent\\private\\localappdata\\Nova\\security_audit\\v1\\nova-audit-ed5a5e7fe9f7446bb5fd0798966f9f4e.closed.jsonl",
+      "sha256": "d4631b2de2e69f3d27c5e22cbc5689e2a23750d3c7586c621289439b01d233d7"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/head-final/run.json",
+      "sha256": "64ff4fc94a26d7f9aede876842d5aa9062b5050b01afd694eff00a22de6dbbba"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/head-final/run.log",
+      "sha256": "d986d6629cfb3f525992e0179758398397753b66b6bc8ae2271475f02b94c4a5"
+    },
+    {
+      "path": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008/head-final/tests.xml",
+      "sha256": "9500e096188bf691fff2e2c866fb3b294199b5701183904c55988455fda6b1b9"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final-v2\\run.json",
+      "sha256": "3dbdb22099dfd3f65cdd78255f46cfd99ce1c2f0b430ac815d1cdad073a67c7a"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final-v2\\run.log",
+      "sha256": "924716ada55a77fcf10b76cf16629a7cfe4d6fca90581cdd6e4194f603a7b3a8"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\knowledge-final-v2\\tests.xml",
+      "sha256": "a0c972400c3460bd28a3468b6fd5f1f1990a9814a3ea2d46296b8f9ef60733aa"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final-v2\\run.json",
+      "sha256": "b00f884e0cee74fdad1dca2595d948dd4a5f630a16741cd87ff233d5cbf85917"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final-v2\\run.log",
+      "sha256": "ff461bcf314c7932864ef2e36f96e0b6ac965560d24cd932797cadf41002474e"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\memory-final-v2\\tests.xml",
+      "sha256": "f03a38955f4b21a8a0e728ce26360a730eb6b5424b78104d05989fb12210ac84"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\head-final-v2\\run.json",
+      "sha256": "5b972ccc4c2429d281f1719ac96ae85934c56f18c257a967c67fb922b88c1563"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\head-final-v2\\run.log",
+      "sha256": "3d15890172f57a46bd6cbb0424d432e54e91c6842b0ca4ae222bb31c7692dda4"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\head-final-v2\\tests.xml",
+      "sha256": "680cf3326f4ece53f1467ad8efbb6b341f1b999fbd067080868eacf547591946"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\desktop-final-v2\\run.json",
+      "sha256": "74c24bb19729d416016c220f873040ff9882bdd8b6b30775a7ff455873b40905"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\desktop-final-v2\\contracts.log",
+      "sha256": "becdcd31890f3438eed25348bc2c8e19043255d82028eb6afd2ac10e56b507b5"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\desktop-final-v2\\typescript.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "C:\\Users\\joseh\\AppData\\Local\\Temp\\nova-k8-repair-v4-20261008\\desktop-final-v2\\frontend.log",
+      "sha256": "c99814cef23665dd36a4c0350ce03a55a26174dba43f79ca820ecb661e375988"
+    }
+  ],
+  "outputRoot": "C:/Users/joseh/AppData/Local/Temp/nova-k8-repair-v4-20261008",
+  "extraTestSite": "C:/Users/joseh/AppData/Local/Temp/nova-k3-pdf-repair-20261007/dependencies",
+  "originalE2EExecuted": false,
+  "readyEvaluated": false,
+  "commitPushTag": false,
+  "nextStep": "Stop for human review. Original K8 E2E not eligible. Separate authorization before certified loop/harness repair."
+}

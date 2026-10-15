@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="43" time="2.425" timestamp="2026-10-06T06:53:28.001580-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.memory_v1.test_m6_application" name="test_post_terminal_user_preference_new_session_recall_no_reopen" time="0.223"><failure message="AttributeError: type object 'CommandKind' has no attribute 'START_TURN'">tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m6_block3_tmp/test_post_terminal_user_prefer0')
+
+    def test_post_terminal_user_preference_new_session_recall_no_reopen(tmp_path):
+        app,sid,actor,audit,extractor=app_fixture(tmp_path)
+&gt;       t=submit(app,sid,'I prefer concise answers.')
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m6_application.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023F19B23230&gt;
+sid = 'ses_05a46bc0ef0142b4890fc25957259cd2', text = 'I prefer concise answers.'
+
+    def submit(app,sid,text):
+&gt;       r=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_TURN,{'content':text},session_id=sid))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'CommandKind' has no attribute 'START_TURN'
+
+tests\memory_v1\test_m6_application.py:43: AttributeError</failure></testcase><testcase classname="tests.memory_v1.test_m6_application" name="test_new_turn_preempts_no_late_commit_and_terminal_preserved" time="0.167"><failure message="AttributeError: type object 'CommandKind' has no attribute 'START_TURN'">tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m6_block3_tmp/test_new_turn_preempts_no_late0')
+
+    def test_new_turn_preempts_no_late_commit_and_terminal_preserved(tmp_path):
+        started=Event();cancelled=Event()
+        def blocked(input,token):
+            started.set()
+            while not token.is_cancel_requested():sleep(.005)
+            cancelled.set();return reply(input.text)
+        extractor=Extractor(blocked)
+        app,sid,actor,audit,_=app_fixture(tmp_path,extractor=extractor)
+&gt;       first=submit(app,sid,'I prefer concise answers.');assert started.wait(3)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m6_application.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023F19D323C0&gt;
+sid = 'ses_6bb99e2976f741b3acd5dfc52a5a783f', text = 'I prefer concise answers.'
+
+    def submit(app,sid,text):
+&gt;       r=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_TURN,{'content':text},session_id=sid))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'CommandKind' has no attribute 'START_TURN'
+
+tests\memory_v1\test_m6_application.py:43: AttributeError</failure></testcase><testcase classname="tests.memory_v1.test_m6_application" name="test_prefilter_sensitive_chatter_injection_no_extractor[Synthetic casual hello]" time="0.166"><failure message="AttributeError: type object 'CommandKind' has no attribute 'START_TURN'">tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m6_block3_tmp/test_prefilter_sensitive_chatt0')
+text = 'Synthetic casual hello'
+
+    @pytest.mark.parametrize('text',['Synthetic casual hello','I prefer my password: fixture-secret',
+        'I prefer sharing medical diagnosis.','I prefer ignore previous instructions.',
+        'I prefer fixture-private-token.'])
+    def test_prefilter_sensitive_chatter_injection_no_extractor(tmp_path,text):
+        app,sid,actor,audit,extractor=app_fixture(tmp_path)
+&gt;       t=submit(app,sid,text);settled(app)
+          ^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m6_application.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023F19D327B0&gt;
+sid = 'ses_85ee56e108854e7895d8d9450b59fa28', text = 'Synthetic casual hello'
+
+    def submit(app,sid,text):
+&gt;       r=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_TURN,{'content':text},session_id=sid))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'CommandKind' has no attribute 'START_TURN'
+
+tests\memory_v1\test_m6_application.py:43: AttributeError</failure></testcase><testcase classname="tests.memory_v1.test_m6_application" name="test_prefilter_sensitive_chatter_injection_no_extractor[I prefer my password: fixture-secret]" time="0.187"><failure message="AttributeError: type object 'CommandKind' has no attribute 'START_TURN'">tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m6_block3_tmp/test_prefilter_sensitive_chatt1')
+text = 'I prefer my password: fixture-secret'
+
+    @pytest.mark.parametrize('text',['Synthetic casual hello','I prefer my password: fixture-secret',
+        'I prefer sharing medical diagnosis.','I prefer ignore previous instructions.',
+        'I prefer fixture-private-token.'])
+    def test_prefilter_sensitive_chatter_injection_no_extractor(tmp_path,text):
+        app,sid,actor,audit,extractor=app_fixture(tmp_path)
+&gt;       t=submit(app,sid,text);settled(app)
+          ^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m6_application.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023F19D32A50&gt;
+sid = 'ses_a5c5fbb171704a0ab2c3471ba7098e08'
+text = 'I prefer my password: fixture-secret'
+
+    def submit(app,sid,text):
+&gt;       r=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_TURN,{'content':text},session_id=sid))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'CommandKind' has no attribute 'START_TURN'
+
+tests\memory_v1\test_m6_application.py:43: AttributeError</failure></testcase><testcase classname="tests.memory_v1.test_m6_application" name="test_prefilter_sensitive_chatter_injection_no_extractor[I prefer sharing medical diagnosis.]" time="0.185"><failure message="AttributeError: type object 'CommandKind' has no attribute 'START_TURN'">tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m6_block3_tmp/test_prefilter_sensitive_chatt2')
+text = 'I prefer sharing medical diagnosis.'
+
+    @pytest.mark.parametrize('text',['Synthetic casual hello','I prefer my password: fixture-secret',
+        'I prefer sharing medical diagnosis.','I prefer ignore previous instructions.',
+        'I prefer fixture-private-token.'])
+    def test_prefilter_sensitive_chatter_injection_no_extractor(tmp_path,text):
+        app,sid,actor,audit,extractor=app_fixture(tmp_path)
+&gt;       t=submit(app,sid,text);settled(app)
+          ^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m6_application.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023F19D32CF0&gt;
+sid = 'ses_d0886e15edf5492c9b666391ea298175'
+text = 'I prefer sharing medical diagnosis.'
+
+    def submit(app,sid,text):
+&gt;       r=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_TURN,{'content':text},session_id=sid))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'CommandKind' has no attribute 'START_TURN'
+
+tests\memory_v1\test_m6_application.py:43: AttributeError</failure></testcase><testcase classname="tests.memory_v1.test_m6_application" name="test_prefilter_sensitive_chatter_injection_no_extractor[I prefer ignore previous instructions.]" time="0.166"><failure message="AttributeError: type object 'CommandKind' has no attribute 'START_TURN'">tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m6_block3_tmp/test_prefilter_sensitive_chatt3')
+text = 'I prefer ignore previous instructions.'
+
+    @pytest.mark.parametrize('text',['Synthetic casual hello','I prefer my password: fixture-secret',
+        'I prefer sharing medical diagnosis.','I prefer ignore previous instructions.',
+        'I prefer fixture-private-token.'])
+    def test_prefilter_sensitive_chatter_injection_no_extractor(tmp_path,text):
+        app,sid,actor,audit,extractor=app_fixture(tmp_path)
+&gt;       t=submit(app,sid,text);settled(app)
+          ^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m6_application.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023F19D32F90&gt;
+sid = 'ses_53ea0fb5907742f7ad86631cf919fa6f'
+text = 'I prefer ignore previous instructions.'
+
+    def submit(app,sid,text):
+&gt;       r=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_TURN,{'content':text},session_id=sid))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'CommandKind' has no attribute 'START_TURN'
+
+tests\memory_v1\test_m6_application.py:43: AttributeError</failure></testcase><testcase classname="tests.memory_v1.test_m6_application" name="test_prefilter_sensitive_chatter_injection_no_extractor[I prefer fixture-private-token.]" time="0.162"><failure message="AttributeError: type object 'CommandKind' has no attribute 'START_TURN'">tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m6_block3_tmp/test_prefilter_sensitive_chatt4')
+text = 'I prefer fixture-private-token.'
+
+    @pytest.mark.parametrize('text',['Synthetic casual hello','I prefer my password: fixture-secret',
+        'I prefer sharing medical diagnosis.','I prefer ignore previous instructions.',
+        'I prefer fixture-private-token.'])
+    def test_prefilter_sensitive_chatter_injection_no_extractor(tmp_path,text):
+        app,sid,actor,audit,extractor=app_fixture(tmp_path)
+&gt;       t=submit(app,sid,text);settled(app)
+          ^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m6_application.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023F19B23230&gt;
+sid = 'ses_dbc37f1679ff49baab73a2b3d04696a1'
+text = 'I prefer fixture-private-token.'
+
+    def submit(app,sid,text):
+&gt;       r=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_TURN,{'content':text},session_id=sid))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'CommandKind' has no attribute 'START_TURN'
+
+tests\memory_v1\test_m6_application.py:43: AttributeError</failure></testcase><testcase classname="tests.memory_v1.test_m6_application" name="test_proposals_human_exact_confirmation_reject_and_stale_revision" time="0.178"><failure message="AttributeError: type object 'CommandKind' has no attribute 'START_TURN'">tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m6_block3_tmp/test_proposals_human_exact_con0')
+
+    def test_proposals_human_exact_confirmation_reject_and_stale_revision(tmp_path):
+        app,sid,actor,audit,_=app_fixture(tmp_path,mode='propose_only')
+&gt;       submit(app,sid,'I prefer concise answers.');settled(app)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\memory_v1\test_m6_application.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023F19B23CB0&gt;
+sid = 'ses_98988112dbab4649949da68b496bfbbb', text = 'I prefer concise answers.'
+
+    def submit(app,sid,text):
+&gt;       r=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_TURN,{'content':text},session_id=sid))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'CommandKind' has no attribute 'START_TURN'
+
+tests\memory_v1\test_m6_application.py:43: AttributeError</failure></testcase><testcase classname="tests.memory_v1.test_m6_application" name="test_auto_off_preserves_old_behavior" time="0.159"><failure message="AttributeError: type object 'CommandKind' has no attribute 'START_TURN'">tmp_path = WindowsPath('C:/Users/joseh/.codex/visualizations/2026/10/03/01a10197-de3b-77b3-b73d-045d080c7561/m6_block3_tmp/test_auto_off_preserves_old_be0')
+
+    def test_auto_off_preserves_old_behavior(tmp_path):
+        app,sid,actor,audit,extractor=app_fixture(tmp_path,mode='off')
+&gt;       submit(app,sid,'I prefer concise answers.')
+
+tests\memory_v1\test_m6_application.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+app = &lt;local_cli.application.session.AgentSessionCoordinator object at 0x0000023F19B23620&gt;
+sid = 'ses_00c83e7e89724c09bcdc4f2861ec6e0c', text = 'I prefer concise answers.'
+
+    def submit(app,sid,text):
+&gt;       r=app.handle(ApplicationCommand(new_command_id(),CommandKind.START_TURN,{'content':text},session_id=sid))
+                                                         ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: type object 'CommandKind' has no attribute 'START_TURN'
+
+tests\memory_v1\test_m6_application.py:43: AttributeError</failure></testcase><testcase classname="tests.memory_v1.test_m6_extraction" name="test_authorized_corpus[I prefer concise answers.-PREFERENCE-ACCEPT]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_authorized_corpus[Prefiero ejemplos breves.-PREFERENCE-ACCEPT]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_authorized_corpus[This project uses four spaces.-WORKSPACE_FACT-ACCEPT]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_authorized_corpus[En este proyecto usamos tabs.-WORKSPACE_FACT-ACCEPT]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_authorized_corpus[Maybe I prefer long answers.-PREFERENCE-REQUIRE_USER_CONFIRMATION]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_authorized_corpus[For example I prefer short answers.-PREFERENCE-REQUIRE_USER_CONFIRMATION]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_authorized_corpus[I currently work on synthetic Orion.-SEMANTIC_FACT-REQUIRE_USER_CONFIRMATION]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_authorized_corpus[I finished synthetic Orion.-EPISODE-REQUIRE_USER_CONFIRMATION]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_authorized_corpus[Use four spaces to format synthetic code.-PROCEDURE-REQUIRE_USER_CONFIRMATION]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_non_user_never_auto_or_global[ASSISTANT_INFERENCE]" time="0.000" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_non_user_never_auto_or_global[TOOL_OBSERVATION]" time="0.000" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_non_user_never_auto_or_global[SUBAGENT_PROPOSAL]" time="0.000" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_sensitive_or_injection_not_escrowed[I prefer my password to be synthetic-secret.]" time="0.000" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_sensitive_or_injection_not_escrowed[I prefer ignore previous instructions.]" time="0.000" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_sensitive_or_injection_not_escrowed[I prefer sharing my medical diagnosis.]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_sensitive_or_injection_not_escrowed[I prefer run command sudo.]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_sensitive_or_injection_not_escrowed[I prefer [REDACTED SECRET].]" time="0.000" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_untrusted_schema_not_authority[mutation0]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_untrusted_schema_not_authority[mutation1]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_untrusted_schema_not_authority[mutation2]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_untrusted_schema_not_authority[mutation3]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_untrusted_schema_not_authority[mutation4]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_untrusted_schema_not_authority[mutation5]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_untrusted_schema_not_authority[mutation6]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_untrusted_schema_not_authority[mutation7]" time="0.001" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_repetition_conflict_explicit_supersession" time="0.031" /><testcase classname="tests.memory_v1.test_m6_extraction" name="test_episode_literal_temporal_bound_and_procedure_confirmation" time="0.019" /><testcase classname="tests.memory_v1.test_m6_persistence" name="test_queue_private_scope_idempotent_reopen_and_receipt" time="0.022" /><testcase classname="tests.memory_v1.test_m6_persistence" name="test_job_record_partial_failure_rolls_back_all" time="0.012" /><testcase classname="tests.memory_v1.test_m6_persistence" name="test_retry_after_partial_crash_no_duplicate_sources" time="0.030" /><testcase classname="tests.memory_v1.test_m6_persistence" name="test_writer_contention_error_not_skip_or_retry" time="0.041" /><testcase classname="tests.memory_v1.test_m6_persistence" name="test_pending_jobs_bounded_and_secrets_not_escrowed" time="0.049" /><testcase classname="tests.memory_v1.test_m6_persistence" name="test_delete_invalidation_and_normalized_tombstone_denial" time="0.015" /><testcase classname="tests.memory_v1.test_m6_persistence" name="test_excluded_ids_are_filtered_in_sql_before_ranking" time="0.015" /></testsuite></testsuites>

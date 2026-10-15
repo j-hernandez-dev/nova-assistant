@@ -1,0 +1,184 @@
+{
+  "status": "PASS",
+  "startedAt": "2026-10-14T20:11:52.193022+00:00",
+  "checks": {
+    "search_with_fetch_off": true,
+    "javascript_results_snippets_bounded": true,
+    "open_redirect_query_fragment_rendered": true,
+    "bing_hidden_dom_metadata": true,
+    "google_fixed_reader": true,
+    "duckduckgo_fixed_reader": true,
+    "no_results_truthful": true,
+    "captcha_bounded": true,
+    "blocked_bounded": true,
+    "layout_bounded": true,
+    "model_application_started": true,
+    "model_search_first_1": true,
+    "model_opens_and_reads_1": true,
+    "model_source_cited_1": true,
+    "model_no_terminal_1": true,
+    "model_search_first_2": true,
+    "model_opens_and_reads_2": true,
+    "model_source_cited_2": true,
+    "model_no_terminal_2": true,
+    "model_cases_all_checks": true
+  },
+  "realModel": true,
+  "live": false,
+  "negativeResults": {
+    "captcha": "{\"status\": \"unknown\", \"code\": \"SEARCH_HUMAN_REQUIRED\", \"message\": \"The search site requires human verification or consent. No results were accepted. Select another search engine or open the site manually.\", \"effect\": \"unknown\"}",
+    "blocked": "{\"status\": \"unknown\", \"code\": \"SEARCH_SITE_BLOCKED\", \"message\": \"The search site rejected the request. You can select another search engine with /search engine.\", \"effect\": \"unknown\"}",
+    "layout": "{\"status\": \"unknown\", \"code\": \"SEARCH_RESULTS_UNAVAILABLE\", \"message\": \"The search page did not expose readable results before the deadline. Its layout may have changed or the site may be blocking automation.\", \"effect\": \"unknown\"}"
+  },
+  "nativeCleanup": {
+    "host_exited": true,
+    "job_empty": true,
+    "profile_removed": true,
+    "graceful": true,
+    "forced": false,
+    "errors": []
+  },
+  "model": {
+    "name": "qwen3.5:9b",
+    "model": "qwen3.5:9b",
+    "modified_at": "2026-10-06T23:47:46.3529159-06:00",
+    "size": 6603314868,
+    "digest": "c97eb11d70b1acdc88af01eef566c1fe4f7fbe93eb1afc06871132f293ff425a",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35",
+        "clip"
+      ],
+      "parameter_size": "9.7B",
+      "quantization_level": "Q4_K_M",
+      "context_length": 262144,
+      "embedding_length": 4096,
+      "runner": "llamacpp"
+    },
+    "capabilities": [
+      "completion",
+      "vision",
+      "tools",
+      "thinking"
+    ]
+  },
+  "inferenceProfile": {
+    "options": {
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "top_k": 20,
+      "num_ctx": 8192
+    },
+    "think": false
+  },
+  "modelCases": [
+    {
+      "prompt": "Busca una noticia relevante hoy en México y resúmela. Incluye el enlace de la fuente.",
+      "tools": [
+        "web_search",
+        "browser_navigate"
+      ],
+      "answer": "He encontrado una noticia de prueba en el sistema. Aquí está el resumen:\n\n**Noticia relevante:** El observatorio mexicano publicó el marcador AMBAR-73.\n\n**Fuente:** http://127.0.0.1:55746/article?source=search#report\n\n*Nota:* Esta es una noticia sintética de prueba generada por el sistema para demostrar la funcionalidad de Nova. No representa información real sobre México.",
+      "status": "completed",
+      "toolReceipts": [
+        {
+          "role": "tool",
+          "tool_name": "web_search",
+          "content": "{\"status\": \"results\", \"engine\": \"bing\", \"page\": \"page_861e5a476af749bdbb2954ba7ec13707\", \"url\": \"http://127.0.0.1:55746/search?q=noticia+M%C3%A9xico+hoy+2026-10-14&count=5\", \"results\": [{\"rank\": 1, \"title\": \"Noticia owned de México\", \"url\": \"http://127.0.0.1:55746/redirect\", \"snippet\": \"Discovery metadata only. Open the article for its actual marker.\", \"sourceType\": \"SEARCH_SNIPPET\", \"pageRead\": false}], \"sourceType\": \"SEARCH_SNIPPET\", \"articlesRead\": false, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\"}",
+          "tool_call_id": "call_qq1t0jmb"
+        },
+        {
+          "role": "tool",
+          "tool_name": "browser_navigate",
+          "content": "{\"page\": \"page_861e5a476af749bdbb2954ba7ec13707\", \"url\": \"http://127.0.0.1:55746/article?source=search#report\", \"title\": \"Observatorio owned de México\", \"text\": \"Noticia de prueba\\n\\nEl observatorio mexicano publicó el marcador AMBAR-73. Es una noticia sintética para probar Nova.\", \"truncated\": false, \"elements\": [], \"elementOffset\": 0, \"nextElementOffset\": null, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\"}",
+          "tool_call_id": "call_jbk0k7we"
+        }
+      ]
+    },
+    {
+      "prompt": "Search for yesterday's interesting news in Mexico and summarize the article. Include the source link.",
+      "tools": [
+        "web_search",
+        "browser_navigate"
+      ],
+      "answer": "**Noticia de ayer (13 de octubre de 2026) en México:**\n\nEl observatorio mexicano publicó el marcador AMBAR-73.\n\n**Fuente:** http://127.0.0.1:55746/redirect\n\n*Nota:* Esta es una noticia sintética de prueba generada por el sistema para demostrar la funcionalidad de Nova. No representa información real sobre México.",
+      "status": "completed",
+      "toolReceipts": [
+        {
+          "role": "tool",
+          "tool_name": "web_search",
+          "content": "{\"status\": \"results\", \"engine\": \"bing\", \"page\": \"page_861e5a476af749bdbb2954ba7ec13707\", \"url\": \"http://127.0.0.1:55746/search?q=noticia+importante+M%C3%A9xico+ayer+2026-10-13&count=5\", \"results\": [{\"rank\": 1, \"title\": \"Noticia owned de México\", \"url\": \"http://127.0.0.1:55746/redirect\", \"snippet\": \"Discovery metadata only. Open the article for its actual marker.\", \"sourceType\": \"SEARCH_SNIPPET\", \"pageRead\": false}], \"sourceType\": \"SEARCH_SNIPPET\", \"articlesRead\": false, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\"}",
+          "tool_call_id": "call_wxkkgrfq"
+        },
+        {
+          "role": "tool",
+          "tool_name": "browser_navigate",
+          "content": "{\"page\": \"page_861e5a476af749bdbb2954ba7ec13707\", \"url\": \"http://127.0.0.1:55746/article?source=search#report\", \"title\": \"Observatorio owned de México\", \"text\": \"Noticia de prueba\\n\\nEl observatorio mexicano publicó el marcador AMBAR-73. Es una noticia sintética para probar Nova.\", \"truncated\": false, \"elements\": [], \"elementOffset\": 0, \"nextElementOffset\": null, \"networkIsolation\": \"NOT_PROVIDED\", \"controlClass\": \"HOST_UNISOLATED\"}",
+          "tool_call_id": "call_q3njtuee"
+        }
+      ]
+    }
+  ],
+  "catalog": [
+    "bash",
+    "read",
+    "write",
+    "edit",
+    "glob",
+    "grep",
+    "todo_write",
+    "ask_user",
+    "browser_navigate",
+    "browser_observe",
+    "browser_click",
+    "browser_type",
+    "browser_press_key",
+    "browser_back",
+    "browser_forward",
+    "browser_reload",
+    "browser_close",
+    "web_search"
+  ],
+  "modelCleanup": {
+    "host_exited": true,
+    "job_empty": true,
+    "profile_removed": true,
+    "graceful": true,
+    "forced": false,
+    "errors": []
+  },
+  "ownedWorkRemoved": true,
+  "ownedHttpStopped": true,
+  "hits": {
+    "search": 23,
+    "article": 3,
+    "queries": [
+      "México ayer & ciencia",
+      "",
+      "",
+      "hidden",
+      "",
+      "owned query",
+      "",
+      "owned query",
+      "",
+      "empty",
+      "",
+      "captcha",
+      "",
+      "blocked",
+      "",
+      "layout",
+      "",
+      "noticia México hoy 2026-10-14",
+      "",
+      "",
+      "noticia importante México ayer 2026-10-13",
+      "",
+      ""
+    ]
+  }
+}

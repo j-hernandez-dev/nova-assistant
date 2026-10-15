@@ -1,0 +1,183 @@
+{
+  "bash": {
+    "type": "object",
+    "properties": {
+      "command": {
+        "type": "string",
+        "description": "Command in the selected shell's syntax."
+      },
+      "timeout": {
+        "type": "integer",
+        "description": "Maximum seconds (default 120)."
+      }
+    },
+    "required": [
+      "command"
+    ]
+  },
+  "read": {
+    "type": "object",
+    "properties": {
+      "file_path": {
+        "type": "string",
+        "description": "The path to the file to read."
+      },
+      "offset": {
+        "type": "integer",
+        "description": "Line number to start reading from (1-based). Defaults to 1."
+      },
+      "limit": {
+        "type": "integer",
+        "description": "Maximum number of lines to read. Defaults to reading the entire file."
+      }
+    },
+    "required": [
+      "file_path"
+    ]
+  },
+  "write": {
+    "type": "object",
+    "properties": {
+      "file_path": {
+        "type": "string",
+        "description": "The path to the file to write."
+      },
+      "content": {
+        "type": "string",
+        "description": "The content to write to the file."
+      }
+    },
+    "required": [
+      "file_path",
+      "content"
+    ]
+  },
+  "edit": {
+    "type": "object",
+    "properties": {
+      "file_path": {
+        "type": "string",
+        "description": "The path to the file to edit."
+      },
+      "old_text": {
+        "type": "string",
+        "description": "The exact text to find in the file."
+      },
+      "new_text": {
+        "type": "string",
+        "description": "The text to replace old_text with."
+      },
+      "replace_all": {
+        "type": "boolean",
+        "description": "If true, replace all occurrences. If false (default), replace only the first occurrence."
+      }
+    },
+    "required": [
+      "file_path",
+      "old_text",
+      "new_text"
+    ]
+  },
+  "glob": {
+    "type": "object",
+    "properties": {
+      "pattern": {
+        "type": "string",
+        "description": "The glob pattern to match files against (e.g. '*.py', '**/*.ts')."
+      },
+      "path": {
+        "type": "string",
+        "description": "The directory to search in. Defaults to the current working directory."
+      }
+    },
+    "required": [
+      "pattern"
+    ]
+  },
+  "grep": {
+    "type": "object",
+    "properties": {
+      "pattern": {
+        "type": "string",
+        "description": "The regular expression pattern to search for."
+      },
+      "path": {
+        "type": "string",
+        "description": "The file or directory to search in. Defaults to the current working directory."
+      },
+      "include": {
+        "type": "string",
+        "description": "Glob pattern to filter which files to search (e.g. '*.py', '*.ts'). Defaults to all files."
+      },
+      "case_insensitive": {
+        "type": "boolean",
+        "description": "Whether to perform case-insensitive matching. Defaults to false."
+      }
+    },
+    "required": [
+      "pattern"
+    ]
+  },
+  "web_fetch": {
+    "type": "object",
+    "properties": {
+      "url": {
+        "type": "string",
+        "description": "The URL to fetch."
+      },
+      "max_length": {
+        "type": "integer",
+        "description": "Maximum number of characters to return. Defaults to 50000."
+      }
+    },
+    "required": [
+      "url"
+    ]
+  },
+  "todo_write": {
+    "type": "object",
+    "properties": {
+      "todos": {
+        "type": "array",
+        "description": "The complete updated todo list. Each item must have 'content' (string) and 'status' (one of: pending, in_progress, completed).",
+        "items": {
+          "type": "object",
+          "properties": {
+            "content": {
+              "type": "string",
+              "description": "The task description."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "in_progress",
+                "completed"
+              ],
+              "description": "Current status of this task."
+            }
+          },
+          "required": [
+            "content",
+            "status"
+          ]
+        }
+      }
+    },
+    "required": [
+      "todos"
+    ]
+  },
+  "ask_user": {
+    "type": "object",
+    "properties": {
+      "question": {
+        "type": "string",
+        "description": "The question to ask the user."
+      }
+    },
+    "required": [
+      "question"
+    ]
+  }
+}

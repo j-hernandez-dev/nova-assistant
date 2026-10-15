@@ -1,0 +1,222 @@
+{
+  "phase": "M2",
+  "syntheticOnly": true,
+  "sqliteAdapterReal": true,
+  "realModelInference": false,
+  "embeddingCalls": 0,
+  "policy": "DESCRIPTIVE_NO_M8_THRESHOLDS_RESOLVED",
+  "runs": [
+    {
+      "records": 10000,
+      "insertBatchMs": 1425.053,
+      "rebuildMs": 49.986,
+      "reopenAndVerifyMs": 94.286,
+      "databaseBytes": 10661888,
+      "stats": {
+        "schemaVersion": 1,
+        "applicationId": 1314278705,
+        "journalMode": "wal",
+        "synchronous": 2,
+        "foreignKeys": 1,
+        "sqliteVersion": "3.50.4",
+        "records": 10000,
+        "activeRecords": 10000,
+        "sources": 10000,
+        "tombstones": 0,
+        "allocatedBytes": 10661888,
+        "filesBytes": 21480848
+      },
+      "queries": [
+        {
+          "query": "exact_key",
+          "medianMs": 0.859,
+          "samplesMs": [
+            0.898,
+            0.866,
+            0.844,
+            0.834,
+            0.859
+          ],
+          "returnedIds": 1,
+          "tracedQueryPeakBytes": 6050
+        },
+        {
+          "query": "exact_text",
+          "medianMs": 1.133,
+          "samplesMs": [
+            1.113,
+            1.13,
+            1.16,
+            1.146,
+            1.133
+          ],
+          "returnedIds": 1,
+          "tracedQueryPeakBytes": 6318
+        },
+        {
+          "query": "selective_fts",
+          "medianMs": 0.375,
+          "samplesMs": [
+            0.392,
+            0.375,
+            0.37,
+            0.367,
+            0.388
+          ],
+          "returnedIds": 1,
+          "tracedQueryPeakBytes": 6162
+        },
+        {
+          "query": "broad_fts",
+          "medianMs": 28.768,
+          "samplesMs": [
+            30.112,
+            26.976,
+            28.768,
+            34.906,
+            28.395
+          ],
+          "returnedIds": 8,
+          "tracedQueryPeakBytes": 6730
+        },
+        {
+          "query": "no_match",
+          "medianMs": 0.432,
+          "samplesMs": [
+            0.483,
+            0.434,
+            0.432,
+            0.408,
+            0.427
+          ],
+          "returnedIds": 0,
+          "tracedQueryPeakBytes": 4746
+        }
+      ],
+      "exactIndexPlans": {
+        "canonical_key": [
+          [
+            3,
+            0,
+            61,
+            "SEARCH memories USING INDEX memory_key_idx (subject_id=? AND canonical_key=?)"
+          ]
+        ],
+        "canonical_text": [
+          [
+            3,
+            0,
+            61,
+            "SEARCH memories USING INDEX memory_text_idx (subject_id=? AND canonical_text=?)"
+          ]
+        ]
+      }
+    },
+    {
+      "records": 20000,
+      "insertBatchMs": 2899.174,
+      "rebuildMs": 110.642,
+      "reopenAndVerifyMs": 163.349,
+      "databaseBytes": 21499904,
+      "stats": {
+        "schemaVersion": 1,
+        "applicationId": 1314278705,
+        "journalMode": "wal",
+        "synchronous": 2,
+        "foreignKeys": 1,
+        "sqliteVersion": "3.50.4",
+        "records": 20000,
+        "activeRecords": 20000,
+        "sources": 20000,
+        "tombstones": 0,
+        "allocatedBytes": 21499904,
+        "filesBytes": 42793056
+      },
+      "queries": [
+        {
+          "query": "exact_key",
+          "medianMs": 1.468,
+          "samplesMs": [
+            2.6,
+            2.003,
+            1.468,
+            1.257,
+            1.232
+          ],
+          "returnedIds": 1,
+          "tracedQueryPeakBytes": 6180
+        },
+        {
+          "query": "exact_text",
+          "medianMs": 1.873,
+          "samplesMs": [
+            1.873,
+            1.73,
+            2.484,
+            1.669,
+            2.317
+          ],
+          "returnedIds": 1,
+          "tracedQueryPeakBytes": 6802
+        },
+        {
+          "query": "selective_fts",
+          "medianMs": 0.467,
+          "samplesMs": [
+            0.539,
+            0.479,
+            0.456,
+            0.461,
+            0.467
+          ],
+          "returnedIds": 1,
+          "tracedQueryPeakBytes": 4769
+        },
+        {
+          "query": "broad_fts",
+          "medianMs": 51.441,
+          "samplesMs": [
+            51.412,
+            65.733,
+            50.842,
+            52.115,
+            51.441
+          ],
+          "returnedIds": 8,
+          "tracedQueryPeakBytes": 7283
+        },
+        {
+          "query": "no_match",
+          "medianMs": 0.383,
+          "samplesMs": [
+            0.594,
+            0.383,
+            0.34,
+            0.325,
+            0.389
+          ],
+          "returnedIds": 0,
+          "tracedQueryPeakBytes": 5162
+        }
+      ],
+      "exactIndexPlans": {
+        "canonical_key": [
+          [
+            3,
+            0,
+            61,
+            "SEARCH memories USING INDEX memory_key_idx (subject_id=? AND canonical_key=?)"
+          ]
+        ],
+        "canonical_text": [
+          [
+            3,
+            0,
+            61,
+            "SEARCH memories USING INDEX memory_text_idx (subject_id=? AND canonical_text=?)"
+          ]
+        ]
+      }
+    }
+  ]
+}

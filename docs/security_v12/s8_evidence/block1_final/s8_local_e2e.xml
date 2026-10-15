@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="413.161" timestamp="2026-10-04T14:23:26.407257-06:00" hostname="WINDEV-SPACE"><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_ollama_normal_backend_multitool_and_durable_audit" file="tests\security_v12\test_s8_e2e.py" line="111" time="361.823"><failure message="AssertionError: S8 backend deadline reached;">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_6f7a56mp/s8_local_e2e/test_real_ollama_normal_backen0')
+
+    def test_real_ollama_normal_backend_multitool_and_durable_audit(tmp_path):
+        model=require_model(os.environ['NOVA_S8_MODEL'])
+        marker='NOVA_S8_'+uuid.uuid4().hex
+        (tmp_path/'seed.txt').write_text(marker+'\n',encoding='utf-8')
+        peer=Peer(tmp_path)
+        try:
+            peer.command('SubmitUserInput',{'content':
+                'Use read to read seed.txt. Use write to copy its literal content into result.txt. '
+                'Then use read on result.txt to verify. Call read, write, read in that order, '
+                'wait for each result, never batch dependent calls. Do not use bash. '
+                'Paths are relative to this workspace. Finish after verification.'})
+&gt;           terminal=peer.terminal();state=peer.snapshot()
+                     ^^^^^^^^^^^^^^^
+
+tests\security_v12\test_s8_e2e.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\security_v12\test_s8_e2e.py:83: in terminal
+    return self.wait(lambda f:f.get('type')=='event' and f['event']['kind'] in
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;test_s8_e2e.Peer object at 0x000001EF9D7DC2F0&gt;
+predicate = &lt;function Peer.terminal.&lt;locals&gt;.&lt;lambda&gt; at 0x000001EF9D763B60&gt;
+timeout = 360
+
+    def wait(self,predicate,timeout=240):
+        deadline=time.monotonic()+timeout
+        while time.monotonic()&lt;deadline:
+            try:f=self.frames.get(timeout=.2)
+            except Empty:
+                assert self.process.poll() is None,self.errors
+                continue
+            if f.get('type')=='event':self.events.append(f['event'])
+            if predicate(f):return f
+&gt;       raise AssertionError('S8 backend deadline reached; '+''.join(self.errors)[-2000:])
+E       AssertionError: S8 backend deadline reached;
+
+tests\security_v12\test_s8_e2e.py:76: AssertionError</failure></testcase><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_cli_local_model_read_and_productive_audit" file="tests\security_v12\test_s8_e2e.py" line="141" time="51.156" /><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_electron_renderer_backend_same_application[scripted_lifecycle]" file="tests\security_v12\test_s8_e2e.py" line="158" time="0.003"><failure message="AssertionError: Authorized build required&#10;assert (False)&#10; +  where False = exists()&#10; +    where exists = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/desktop/node_modules/electron/dist/electron.exe').exists">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_6f7a56mp/s8_local_e2e/test_real_electron_renderer_ba0')
+real = False
+
+    @pytest.mark.parametrize('real',[False,True],ids=['scripted_lifecycle','local_ollama'])
+    def test_real_electron_renderer_backend_same_application(tmp_path,real):
+        desktop=ROOT/'desktop';executable=desktop/'node_modules/electron/dist/electron.exe'
+        assert os.name=='nt','This S8 supports Windows; do not silently skip required E2E'
+&gt;       assert executable.exists() and (desktop/'dist-electron/main.js').exists(),'Authorized build required'
+E       AssertionError: Authorized build required
+E       assert (False)
+E        +  where False = exists()
+E        +    where exists = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/desktop/node_modules/electron/dist/electron.exe').exists
+
+tests\security_v12\test_s8_e2e.py:163: AssertionError</failure></testcase><testcase classname="tests.security_v12.test_s8_e2e" name="test_real_electron_renderer_backend_same_application[local_ollama]" file="tests\security_v12\test_s8_e2e.py" line="158" time="0.001"><failure message="AssertionError: Authorized build required&#10;assert (False)&#10; +  where False = exists()&#10; +    where exists = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/desktop/node_modules/electron/dist/electron.exe').exists">tmp_path = WindowsPath('C:/Users/joseh/AppData/Local/Temp/s8_private_6f7a56mp/s8_local_e2e/test_real_electron_renderer_ba1')
+real = True
+
+    @pytest.mark.parametrize('real',[False,True],ids=['scripted_lifecycle','local_ollama'])
+    def test_real_electron_renderer_backend_same_application(tmp_path,real):
+        desktop=ROOT/'desktop';executable=desktop/'node_modules/electron/dist/electron.exe'
+        assert os.name=='nt','This S8 supports Windows; do not silently skip required E2E'
+&gt;       assert executable.exists() and (desktop/'dist-electron/main.js').exists(),'Authorized build required'
+E       AssertionError: Authorized build required
+E       assert (False)
+E        +  where False = exists()
+E        +    where exists = WindowsPath('C:/Users/joseh/Downloads/nova-local-cli/nova-assistant/desktop/node_modules/electron/dist/electron.exe').exists
+
+tests\security_v12\test_s8_e2e.py:163: AssertionError</failure></testcase></testsuite></testsuites>
