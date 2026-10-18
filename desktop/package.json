@@ -17,7 +17,9 @@
     "build:win": "tsc && vite build && electron-builder --win",
     "build:linux": "tsc && vite build && electron-builder --linux",
     "preview": "vite preview",
-    "electron:dev": "vite build && electron ."
+    "electron:dev": "vite build && electron .",
+    "typecheck": "node ./node_modules/typescript/bin/tsc --noEmit",
+    "build:source": "node ./node_modules/typescript/bin/tsc --noEmit && node ./node_modules/vite/bin/vite.js build"
   },
   "dependencies": {
     "react": "^19.0.0",
@@ -36,7 +38,7 @@
   },
   "build": {
     "appId": "com.local-cli.desktop",
-    "productName": "Local CLI",
+    "productName": "Nova",
     "copyright": "Copyright (c) 2025 lutelute",
     "files": [
       "dist/**/*",
@@ -112,5 +114,9 @@
       "owner": "lutelute",
       "repo": "local-cli"
     }
+  },
+  "allowScripts": {
+    "electron@33.4.11": true,
+    "esbuild@0.25.12": true
   }
 }

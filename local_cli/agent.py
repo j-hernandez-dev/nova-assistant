@@ -919,6 +919,10 @@ def _collect_stream_emitting(
             raise
         # User interrupted streaming.  Keep what we have so far.
         emit(AgentEvent("interrupted", {"where": "stream"}))
+    finally:
+        close = getattr(stream, "close", None)
+        if callable(close):
+            close()
 
     assembled_message: dict[str, Any] = {
         "role": "assistant",
@@ -981,9 +985,21 @@ def _stream_with_retry(
         if attempt > 0:
             delay = _RETRY_BASE_DELAY * (2 ** (attempt - 1))
             emit(AgentEvent("retry", {"attempt": attempt, "delay": delay}))
-            time.sleep(delay)
+            if should_stop is None:
+                time.sleep(delay)
+            else:
+                deadline = time.monotonic() + delay
+                while time.monotonic() < deadline:
+                    if should_stop():
+                        return {"message": {"role": "assistant", "content": ""}}
+                    time.sleep(min(0.05, max(0, deadline - time.monotonic())))
         try:
-            stream = provider.chat_stream(model, messages, **chat_kwargs)
+            if should_stop is not None and should_stop():
+                return {"message": {"role": "assistant", "content": ""}}
+            cancellable = getattr(type(provider), "chat_stream_cancellable", None)
+            stream = (provider.chat_stream_cancellable(model, messages, should_stop=should_stop, **chat_kwargs)
+                      if should_stop is not None and callable(cancellable)
+                      else provider.chat_stream(model, messages, **chat_kwargs))
             return _collect_stream_emitting(
                 stream, emit, tracker=tracker, should_stop=should_stop,
                 reraise_interrupt=reraise_interrupt,
@@ -1368,6 +1384,9 @@ def run_agent(
         #    full_response["thinking"] and must NOT be appended, to avoid
         #    wasting context window space on internal reasoning.
         # ---------------------------------------------------------------
+        if should_stop is not None and should_stop():
+            emit(AgentEvent("stopped", {"where": "stream"}))
+            break
         assistant_message = full_response["message"]
         if "thinking" in assistant_message:
             assistant_message = {

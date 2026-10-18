@@ -264,7 +264,7 @@ def _infer_size_gb(params: str) -> float:
     return round(val * 0.65, 1)
 
 
-def update_catalog() -> dict:
+def update_catalog(*, raise_on_error: bool = False) -> dict:
     """Fetch latest models from ollama.com and merge into catalog cache.
 
     Fetches popular, hot, and tools models, deduplicates, classifies,
@@ -272,21 +272,38 @@ def update_catalog() -> dict:
 
     Returns:
         Dict with 'added', 'updated', 'total' counts.
+
+    When raise_on_error is true, all library requests failing is an error, not
+    a successful synchronization of the old local catalog. A successful empty
+    response is still valid, and partial availability can still refresh data.
     """
-    from local_cli.model_search import search_models
+    from local_cli.model_search import ModelSearchUnavailable, search_models
 
     # Fetch from multiple views.
     all_models: dict[str, dict] = {}
+    completed_requests = 0
+    def fetch(**arguments):
+        nonlocal completed_requests
+        try:
+            models = search_models(**arguments, **({"raise_on_error": True} if raise_on_error else {}))
+        except ModelSearchUnavailable:
+            return []
+        completed_requests += 1
+        return models
+
     for sort in ("popular", "hot"):
-        for m in search_models(sort=sort):
+        for m in fetch(sort=sort):
             if m["name"] not in all_models:
                 all_models[m["name"]] = m
-    for m in search_models(capability="tools"):
+    for m in fetch(capability="tools"):
         if m["name"] not in all_models:
             all_models[m["name"]] = m
-    for m in search_models(capability="code"):
+    for m in fetch(capability="code"):
         if m["name"] not in all_models:
             all_models[m["name"]] = m
+
+    if raise_on_error and completed_requests == 0:
+        raise ModelSearchUnavailable("Model library is unavailable.")
 
     # Load existing cache.
     existing: dict[str, dict] = {}

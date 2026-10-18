@@ -112,6 +112,15 @@ class SessionEventStream:
                     safe[key] = payload[key]
         if kind is EventKind.SESSION_SNAPSHOT:
             safe = self.redactor.snapshot(payload)
+        if kind is EventKind.OPERATION_PROGRESS and payload.get('service') == 'tool':
+            # Tool progress is an owner-private host projection. Preserve only
+            # correlation/lifecycle structure; all presentation text stays scrubbed.
+            for key in ('service', 'operationId', 'toolCallId', 'turnId', 'messageId',
+                        'outputSequence', 'outputTruncated', 'channel'):
+                if key in payload:
+                    safe[key] = payload[key]
+            if isinstance(payload.get('activity'), Mapping):
+                safe['activity'] = self.redactor.tool_activity(payload['activity'])
         event = EventEnvelope(
             schema_version=1, event_id=new_event_id(),
             sequence=self._sequence + 1, session_id=self.session_id,

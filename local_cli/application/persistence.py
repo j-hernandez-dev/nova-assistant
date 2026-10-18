@@ -17,12 +17,16 @@ class PersistenceService:
                  snapshots: SessionSnapshotStore, audit: AuditLog | None = None,
                  config: ConfigRepository | None = None,
                  knowledge: KnowledgeRepository | None = None,
-                 plans: PlanRepository | None = None, redactor=None):
+                 plans: PlanRepository | None = None, redactor=None, history_clear=None,
+                 project_history_info=None, project_history_clear=None):
         if not Path(workspace).is_absolute():
             raise ValueError("persistence requires an explicit absolute workspace")
         self.workspace = Path(workspace).resolve()
         self.conversation, self.snapshots, self.audit = conversation, snapshots, audit
         self.config, self.knowledge, self.plans = config, knowledge, plans
+        self._history_clear = history_clear
+        self._project_history_info = project_history_info
+        self._project_history_clear = project_history_clear
         self.last_error: PersistenceError | None = None
         from local_cli.application.secrets import SecretRedactor
         self.redactor = redactor or SecretRedactor()
@@ -73,12 +77,34 @@ class PersistenceService:
                 raise
             raise self.last_error from None
 
+    def clear_history(self):
+        if self._history_clear is None:
+            raise PersistenceError('CLEAR_HISTORY_UNAVAILABLE', 'Profile history deletion is unavailable.')
+        try:
+            self._history_clear()
+            self.last_error = None
+        except Exception as exc:
+            self._failure(exc, 'CLEAR_HISTORY_FAILED')
+            raise self.last_error from None
+
+    def project_info(self, workspace):
+        if self._project_history_info is None:
+            if Path(workspace).resolve() == self.workspace:
+                return self.info()
+            raise PersistenceError('PROJECT_CHAT_UNAVAILABLE')
+        return self._project_history_info(Path(workspace))
+
+    def clear_project(self, workspace):
+        if self._project_history_clear is None:
+            raise PersistenceError('PROJECT_CHAT_UNAVAILABLE')
+        self._project_history_clear(Path(workspace))
+
     def restore(self, *, workspace: Path, snapshot_key: str | None = None):
         if Path(workspace).resolve() != self.workspace:
             raise PersistenceError("RESTORE_WORKSPACE_CONFLICT", "Snapshot belongs to another workspace")
         try:
             messages = (self.snapshots.load_session(snapshot_key) if snapshot_key is not None
-                        else self.conversation.load())
+                        else getattr(self.conversation, 'load_for_restore', self.conversation.load)())
         except Exception as exc:
             self._failure(exc, "TRANSCRIPT_LOAD_FAILED")
             if isinstance(exc, PersistenceError):
@@ -100,6 +126,7 @@ def create_persistence_service(*, config, workspace: Path, logger=None) -> Persi
     from local_cli.infrastructure.persistence import (
         LegacyAuditLog, LegacyConfigRepository, LegacyConversationRepository,
         LegacyKnowledgeRepository, LegacyPlanRepository, LegacySessionSnapshotStore,
+        clear_project_history,
     )
     if not Path(workspace).is_absolute():
         raise ValueError("persistence requires an explicit absolute workspace")
@@ -107,6 +134,9 @@ def create_persistence_service(*, config, workspace: Path, logger=None) -> Persi
     state_dir = (workspace / Path(config.state_dir).expanduser()).resolve()
     # Paths in project config are anchored to this execution, never process cwd.
     return PersistenceService(workspace=workspace,
+        history_clear=lambda: clear_project_history(state_dir),
+        project_history_info=lambda target: LegacyConversationRepository(state_dir, target).info(),
+        project_history_clear=lambda target: clear_project_history(state_dir, workspace=target),
         conversation=LegacyConversationRepository(state_dir, workspace),
         snapshots=LegacySessionSnapshotStore(state_dir),
         audit=LegacyAuditLog(logger) if logger is not None else None,

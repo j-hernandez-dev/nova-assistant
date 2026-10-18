@@ -1,12 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" data-nova-startup="loading">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Local CLI</title>
+    <meta name="theme-color" content="#090c12" />
+    <link rel="icon" type="image/png" href="./icon.png" />
+    <title>Nova</title>
+    <!-- Critical startup presentation paints independently of the renderer bundle. -->
+    <style>
+      html, body { margin: 0; width: 100%; height: 100%; background: #090c12; }
+      #root[inert] { visibility: hidden; }
+      .nova-startup { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; overflow: auto; box-sizing: border-box; padding: 28px; color: #e9ecf4; background: radial-gradient(ellipse at 50% 43%, #20242e55, transparent 52%), #090c12; font-family: 'Segoe UI', system-ui, sans-serif; text-align: center; }
+      .nova-startup-content { display: flex; flex-direction: column; align-items: center; max-width: 440px; }
+      .nova-startup { opacity: 1; transition: opacity 280ms ease-out; }
+      .nova-startup[data-leaving] { opacity: 0; pointer-events: none; }
+      .nova-startup-mark { display: block; flex-shrink: 0; width: clamp(148px, 22vw, 210px); height: auto; overflow: visible; margin-bottom: 23px; }
+      .nova-startup-star { animation: nova-star-shine 2.8s ease-in-out infinite; transform-origin: center; }
+      .nova-startup-streak { animation: nova-orbit-travel 3.2s linear infinite; filter: drop-shadow(0 0 9px #e5efff); }
+      .nova-startup h1 { margin: 0 0 22px; font-size: 21px; line-height: 1.2; font-weight: 500; letter-spacing: .3em; padding-left: .3em; color: #f2f4fa; }
+      .nova-startup-message { margin: 0; font-size: 14px; line-height: 1.6; color: #d0d5df; }
+      .nova-startup-hint { margin: 8px 0 0; font-size: 12px; line-height: 1.65; color: #838c9e; }
+      .nova-startup-action { margin-top: 24px; padding: 9px 17px; border: 1px solid #5e6678; border-radius: 9px; background: #ffffff08; color: #e9ecf4; font: inherit; font-size: 12px; cursor: pointer; }
+      .nova-startup-action[hidden] { display: none; }
+      .nova-startup-action:hover { background: #ffffff10; border-color: #b2bdcf; }
+      .nova-startup-action:focus-visible { outline: 2px solid #ffc347; outline-offset: 4px; }
+      @keyframes nova-star-shine { 0%, 100% { opacity: .85; filter: brightness(1) drop-shadow(0 0 5px #e2eaff22); } 50% { opacity: 1; filter: brightness(1.18) drop-shadow(0 0 24px #e2eaff99); } }
+      @keyframes nova-orbit-travel { to { stroke-dashoffset: -1000; } }
+      :root[data-nova-reduce-motion="true"] .nova-startup { transition: none; }
+      :root[data-nova-reduce-motion="true"] .nova-startup-star,
+      :root[data-nova-reduce-motion="true"] .nova-startup-streak { animation: none; }
+      :root[data-nova-show-startup="false"] .nova-startup:not([data-startup-recovery]) { display: none; }
+      @media (prefers-reduced-motion: reduce) { .nova-startup { transition: none; } .nova-startup-star, .nova-startup-streak { animation: none; } }
+      @media (max-height: 470px) { .nova-startup-mark { width: 120px; margin-bottom: 12px; } .nova-startup h1 { margin-bottom: 12px; font-size: 18px; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="nova-startup" class="nova-startup" aria-label="Nova" aria-busy="true">
+      <div class="nova-startup-content">
+        <svg class="nova-startup-mark" viewBox="150 180 1000 850" fill="none" aria-hidden="true" focusable="false">
+          <defs>
+            <linearGradient id="nova-startup-metal" x1="500" y1="330" x2="760" y2="880" gradientUnits="userSpaceOnUse">
+              <stop stop-color="white" /><stop offset=".48" stop-color="#f5f6f9" /><stop offset=".73" stop-color="#b5bac4" /><stop offset="1" stop-color="#f9fafc" />
+            </linearGradient>
+            <linearGradient id="nova-startup-orbit" x1="146" y1="584" x2="1146" y2="584" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#f5f6fa" /><stop offset=".35" stop-color="#c6cbd5" /><stop offset=".7" stop-color="#fafbff" /><stop offset="1" stop-color="white" />
+            </linearGradient>
+            <linearGradient id="nova-startup-trail" x1="146" y1="584" x2="1146" y2="584" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#d4e1ff" stop-opacity="0" /><stop offset=".6" stop-color="#e5efff" stop-opacity=".45" /><stop offset="1" stop-color="white" />
+            </linearGradient>
+          </defs>
+          <!-- Transparent vector emblem: rear orbit, luminous star, foreground orbit. -->
+          <path transform="rotate(-28 646 584)" fill="url(#nova-startup-orbit)" fill-rule="evenodd"
+            d="M1146 584C1146 664 922 729 646 729C370 729 146 664 146 584C146 504 370 439 646 439C922 439 1146 504 1146 584ZM1121 576C1121 644 908 699 646 699C384 699 171 644 171 576C171 508 384 453 646 453C908 453 1121 508 1121 576Z" />
+          <path class="nova-startup-star" fill="url(#nova-startup-metal)"
+            d="M629 228C594 449 575 545 278 599C551 630 590 667 629 988C665 735 690 633 860 577C695 551 666 451 629 228Z" />
+          <path transform="rotate(-28 646 584)" fill="url(#nova-startup-orbit)"
+            d="M146 584C146 664 370 729 646 729C922 729 1146 664 1146 584L1121 576C1121 644 908 699 646 699C384 699 171 644 171 576Z" />
+          <ellipse class="nova-startup-streak" cx="646" cy="584" rx="500" ry="145" transform="rotate(-28 646 584)"
+            pathLength="1000" stroke="url(#nova-startup-trail)" stroke-width="12" stroke-linecap="round" stroke-dasharray="190 810" />
+        </svg>
+        <h1>Nova</h1>
+        <p id="nova-startup-message" class="nova-startup-message" role="status" aria-live="polite">Iniciando Nova…</p>
+        <p id="nova-startup-hint" class="nova-startup-hint">Preparando tu espacio de trabajo.</p>
+        <button id="nova-startup-action" class="nova-startup-action" type="button" hidden>Reintentar</button>
+      </div>
+    </div>
+    <div id="root" inert aria-hidden="true"></div>
+    <script type="module" async src="/src/main.tsx"></script>
   </body>
 </html>

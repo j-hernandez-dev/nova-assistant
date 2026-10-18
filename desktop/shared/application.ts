@@ -1,5 +1,5 @@
 // Versioned wire DTOs. These are projections, not domain state machines.
-import type { Message, AppStatus, ResumableInfo } from '../src/types'
+import type { Message, AppStatus, ResumableInfo, ToolActivity } from '../src/types'
 
 export type Approval = {
   approvalId: string; toolCallId: string; turnId: string; operationId: string
@@ -13,6 +13,27 @@ export type RAGStatus = {
   enabled: boolean; availability: string; topK?: number
   error?: { code: string; message?: string } | null
 }
+export type BrowserChoice = 'webview2' | 'chrome' | 'edge'
+export type SearchEngine = 'bing' | 'google' | 'duckduckgo'
+// Read-only projections of Application service snapshots. A selection is not
+// a runtime health check, approval or tool Grant.
+export type ContextStatus = { requestedTokens: number; selectedTokens: number | null; errorCode: string | null }
+export type FetchStatus = { enabled: boolean; available: boolean }
+export type BrowserStatus = {
+  selected: BrowserChoice; available: boolean; unavailableReason: string | null; adapter: string
+  runtimeCheckedOnUse: boolean; networkIsolation: 'NOT_PROVIDED'; controlClass: 'HOST_UNISOLATED'
+  choices: Array<{ browser: BrowserChoice; adapter: string; available: boolean; installed?: boolean; reason: string | null }>
+  controlState?: string; sessionState?: string; hasPage?: boolean; lastErrorCode?: string | null
+}
+export type SearchStatus = {
+  backend: 'browser'; engine: SearchEngine; available: boolean; adapter: string
+  runtimeCheckedOnUse: boolean; unavailableReason: string | null
+  serverRequired: false; networkIsolation: 'NOT_PROVIDED'
+}
+export type MemoryStatus = {
+  lexicalRecall: boolean; semantic: boolean; autoCapture: boolean
+  captureMode?: 'off' | 'propose_only' | 'low_risk'; allowRemoteMemoryInjection: boolean
+}
 export type EventEnvelope = {
   schemaVersion: number; eventId: string; sequence: number; sessionId: string
   kind: string; payload: Record<string, any>; stateRevision: number
@@ -25,24 +46,52 @@ export type SessionSnapshot = {
   modelRuntime: { modelId: string; providerId: string; providerRevision: number }
   services: {
     rag: RAGStatus
+    context?: ContextStatus
+    conversationPresentation?: Array<{ sourceIndex: number; createdAt?: string; completedAt?: string; savedAt?: string }>
     knowledge?: KnowledgeStatus
-    memory?: { lexicalRecall: boolean; semantic: boolean; autoCapture: boolean; allowRemoteMemoryInjection: boolean }
+    memory?: MemoryStatus
+    fetch?: FetchStatus
+    search?: SearchStatus
+    browser?: BrowserStatus
     filesystem?: { revision: number }
     securityAudit?: { deliveryFailures: number; lastError: string | null; storageGapCodes: string[] }
     interactions?: { approvals: Approval[]; inputs: UserInputRequest[] }
     operations?: Array<{ operationId: string; status: string; service?: string; phase?: string; result?: any }>
   }
 }
+export type ChatReadiness = {
+  schemaVersion: 1; sessionId: string | null; providerId: string; modelId: string
+  providerRevision: number; ready: boolean; reason: string | null; observedAt: string | null
+  installedModels: Array<{ name: string; size: number }>
+  requiredAction: 'SELECT_MODEL' | 'CONFIGURE_PROVIDER' | null
+}
+export type ModelDownloadState = {
+  id: number; model: string; phase: 'downloading' | 'waiting' | 'refreshing' | 'refresh-failed' | 'failed' | 'complete'
+  percent: number | null; detail: string
+}
 export type DesktopSessionView = {
+  modelDownload?: ModelDownloadState | null
   sessionId: string | null; sequence: number; stateRevision: number
   status: AppStatus; messages: Message[]; activeTurnId: string | null
   activeGenerationId: string | null
+  toolActivities: ToolActivity[]
+  readiness: ChatReadiness
+  modelPreferenceError: string | null
+  conversation: {
+    hasConversation: boolean; unreadCount: number; historyVisible: boolean; preferenceError: string | null
+  }
   approvals: Approval[]; inputs: UserInputRequest[]; workspace: string | null
   resumable: ResumableInfo | null; rag: RAGStatus; ragProgress: string
   ragResult: { matches?: Array<Record<string, any>> } | null
-  error: { code: string; message: string } | null; gap: boolean
+  error: { code: string; message: string; operationId?: string; toolCallId?: string; turnId?: string } | null; gap: boolean
+  recovering: boolean
   fileRevision: number
+  context?: ContextStatus
   memoryNotice?: string | null
+  memory?: MemoryStatus
+  fetch?: FetchStatus
+  search?: SearchStatus
+  browser?: BrowserStatus
   knowledge?: KnowledgeStatus
   knowledgeOperations?: Array<{operationId:string;status:string;phase?:string;result?:any}>
 }

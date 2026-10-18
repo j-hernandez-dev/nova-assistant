@@ -77,7 +77,8 @@ test('citation projection preserves historical IDs/locator; React renders labels
  const {MessageBlock}=require('../src/components/MessageBlock.tsx')
  const html=renderToStaticMarkup(React.createElement(MessageBlock,{message:rows[0]}))
  assert.ok(html.includes('old') && html.includes('K999') && html.includes('&lt;script&gt;'))
- assert.ok(!html.includes('<script>forged') && html.includes('not guaranteed entailment'))
+ // Desktop defaults to Spanish; keep the structural-only disclaimer intact.
+ assert.ok(!html.includes('<script>forged') && html.includes('sin garantía de respaldo de cada afirmación'))
 })
 
 test('minimal Desktop remains a projection: no DB/parser/authority or direct file ingestion',()=>{
@@ -86,8 +87,12 @@ test('minimal Desktop remains a projection: no DB/parser/authority or direct fil
   const text=main.slice(main.indexOf(`ipcMain.handle('${channel}'`),main.indexOf(`ipcMain.handle('${channel}'`)+550)
   assert.ok(text.includes('validApplicationSender(event)') && text.includes('hostSelection'))
  }
- const app=fs.readFileSync(path.join(root,'src/App.tsx'),'utf8')
+ const app=fs.readFileSync(path.join(root,'src/App.tsx'),'utf8')+fs.readFileSync(path.join(root,'src/components/KnowledgeSettings.tsx'),'utf8')
  assert.ok(app.includes('knowledgeRefresh(ref.sourceId)') && app.includes('knowledgeExport(ref.sourceId)'))
  assert.ok(!app.includes('KnowledgeStore') && !app.includes('sqlite') && !app.includes('SourceRevision.from'))
- assert.ok(main.includes('remoteKnowledge') && main.includes('buttons:[\'Cancel\',\'Allow\']'))
+ assert.ok(main.includes('remoteKnowledge') && main.includes('forwardingDialogOptions(desktopPreferences.get().locale)'))
+ const {forwardingDialogOptions}=require('../electron/desktop_host_locale.cjs')
+ assert.deepEqual(forwardingDialogOptions('en').buttons,['Cancel','Allow'])
+ assert.deepEqual(forwardingDialogOptions('es').buttons,['Cancelar','Permitir'])
+ assert.equal(forwardingDialogOptions('es').cancelId,0)
 })

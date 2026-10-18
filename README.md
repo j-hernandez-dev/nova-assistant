@@ -2,7 +2,7 @@
 
 A local AI assistant for files, code, commands and web browsing. Describe a task naturally: the model chooses tools, and the host checks permissions, requests approval when required and returns the actual result.
 
-The current development focus is the Windows CLI. Desktop consumes the same Python Application backend. The package and command retain `local-cli` / `local_cli` for compatibility.
+Nova provides a Windows CLI and a Nova Desktop interface. Desktop consumes the same Python Application backend. The package and command retain `local-cli` / `local_cli` for compatibility.
 
 ## Current scope
 
@@ -137,15 +137,50 @@ The small manual corpus uses the installed model, existing Browser component, ow
 
 It changes no personal Browser preferences and uses fixture approvals only for its owned actions. This is a functional regression, not a general model/network certification.
 
-### Optional Desktop development
+### Nova Desktop on Windows (source development)
+
+Run from this checkout, using the same Python environment where Nova is installed. Keep Ollama running with an installed chat model such as `qwen3.5:9b`.
 
 ```powershell
-Set-Location desktop
-npm ci
-npm run dev
+$novaPython = "C:\Users\joseh\AppData\Local\Temp\nova-precommit-venv\Scripts\python.exe"
+$novaPaths = @((Split-Path $novaPython), "C:\Program Files\nodejs") + ($env:Path -split ";")
+$env:Path = ($novaPaths | Where-Object { $_ } | Select-Object -Unique) -join ";"
+Set-Location "C:\Users\joseh\Downloads\nova-min\nova-assistant\desktop"
+npm.cmd ci
+npm.cmd run dev
 ```
 
-Desktop's backend must use the intended Python environment. CI runs seven contract suites and `tsc --noEmit`. This phase does not invoke `npm run build` or electron-builder, or change Desktop presentation/language.
+`npm run dev` opens Nova Desktop and starts its Python backend. A terminal running Vite must stay open. `python` on PATH must resolve to the intended environment; check with `python -c "import local_cli; print(local_cli.__file__)"` from the repository root. Node.js must also be on PATH for npm's child processes.
+
+If npm cannot find `node`, `tsc` or `vite` despite their installation, try a short PATH in this development terminal only (a very long inherited PATH can break cmd child processes):
+
+```powershell
+$env:Path = "$(Split-Path $novaPython);C:\Program Files\nodejs;$env:SystemRoot\System32;$env:SystemRoot;$env:SystemRoot\System32\WindowsPowerShell\v1.0;C:\Program Files\Git\cmd"
+npm.cmd run dev
+```
+
+This does not change Windows' saved environment variables. Add other tool installation directories here if your project needs them.
+
+
+If npm reports blocked Electron/esbuild install scripts, explicitly approve the installed dependencies with `npm.cmd install-scripts approve electron esbuild`. If Electron's binary is still missing, run `node .\node_modules\electron\install.js` in `desktop` and then retry `npm.cmd run dev`.
+
+Desktop starts in Spanish. **Settings → General** switches its own interface and dialogs between Spanish and English; it does not translate conversations or change the English CLI. The composer selects only models installed in Ollama; the brain button opens the full model catalog. Model downloads are explicit actions.
+
+**Ready / Not ready** reflects the host's Ollama/model checks, not a guarantee that GPU memory can load a model. If Ollama is stopped, start it and use **Check again**, or wait for the periodic check. If the Python backend closes, **Restart backend** restores the saved transcript and keeps the unsent draft; interrupted tools and approvals are not replayed. Runtime model errors remain errors.
+
+The default project is `<Nova checkout>/workspace/`. The project panel can add, change, remove or open folders. Removing a folder from Nova does not delete its files. Tools and native permission prompts use the current host's Policy/Approval/Grant rules.
+
+Desktop stores its presentation/model/project preferences under `%APPDATA%\nova-desktop`. Python conversations, Memory and Knowledge use their existing state directory (default `~/.local/state/nova`); project-specific metadata may also reside in the selected workspace. These locations are separate from model files managed by Ollama.
+
+Checks without creating an installer or a new executable:
+
+```powershell
+npm.cmd run typecheck
+npm.cmd run build:source
+node --experimental-transform-types --test tests/*.test.cjs
+```
+
+`build:source` bundles renderer/main/preloads using the installed Electron runtime; it does not invoke electron-builder. The legacy `npm run build` and platform build scripts still package the application and are outside the current development stage. Native GUI/model tests are manual, not ordinary CI dependencies. See the [Windows validation report](docs/gui_nova/bloque_8_resultados.md) for the verified scope and remaining limits.
 
 ## Documentation and license
 

@@ -16,6 +16,10 @@ _TIMEOUT = 15
 _BASE_URL = "https://ollama.com/search"
 
 
+class ModelSearchUnavailable(RuntimeError):
+    """The library request failed; this does not mean it returned no models."""
+
+
 def _parse_pull_count(text: str) -> int:
     """Parse pull count strings like '922.1K', '1.2M', '53' into integers."""
     text = text.strip().replace(",", "")
@@ -110,6 +114,8 @@ def search_models(
     query: str = "",
     sort: str = "popular",
     capability: str = "",
+    *,
+    raise_on_error: bool = False,
 ) -> list[dict[str, Any]]:
     """Search Ollama model library.
 
@@ -118,6 +124,8 @@ def search_models(
         sort: Sort order — 'popular', 'newest', or 'hot'.
         capability: Filter by capability — 'tools', 'vision',
             'thinking', 'embedding', 'code', or '' for all.
+        raise_on_error: Distinguish an unavailable library from zero results.
+            Legacy callers keep the empty-list fallback by default.
 
     Returns:
         List of model dicts with name, description, pulls,
@@ -136,6 +144,10 @@ def search_models(
         with urllib.request.urlopen(req, timeout=_TIMEOUT) as resp:
             page_html = resp.read().decode("utf-8", errors="replace")
     except Exception:
+        if raise_on_error:
+            # Provider errors may contain endpoint or response details. The UI
+            # receives a stable message instead of that private exception text.
+            raise ModelSearchUnavailable("Model library is unavailable.") from None
         return []
 
     return _extract_models_from_html(page_html)

@@ -1,355 +1,208 @@
-import { useState, useCallback, useEffect } from 'react'
-import type { FileEntry } from '../types'
-
-const ENTRIES_PER_PAGE = 500
+import { useState, useCallback, useEffect, useRef } from 'react'
+import type { ProjectState, ProjectAction } from '../types'
+import { useI18n, type TranslationKey } from '../i18n'
+import { NovaIcon } from './NovaIcon'
+import { mergeProjectEntries, projectErrorKey, projectPreviewMatches, sameProjectPath } from '../project_presentation'
 
 type TreeNode = {
-  name: string
-  path: string
-  isDirectory: boolean
-  isSymlink: boolean
-  expanded: boolean
-  loading: boolean
-  children: TreeNode[] | null
-  error: string | null
+  name: string; path: string; isDirectory: boolean; isSymlink: boolean
+  expanded: boolean; loading: boolean; children: TreeNode[] | null; error: TranslationKey | null; truncated: boolean; nextOffset: number | null
 }
-
 type Props = {
-  rootDir: string | null
+  projects: ProjectState | null; busy: boolean; errorCode: string | null
   onFileSelect: (path: string) => void
-  onRootChange: (path: string) => void
+  onProjectAction: (action: ProjectAction, path?: string) => Promise<void>
   refreshKey?: number
 }
 
-export function FileExplorer({ rootDir, onFileSelect, onRootChange, refreshKey }: Props) {
+/** Project selection is a host transaction; this component presents only confirmed state. */
+export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjectAction, refreshKey }: Props) {
+  const { t } = useI18n()
+  const rootDir = projects?.activePath || null
   const [nodes, setNodes] = useState<TreeNode[]>([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<TranslationKey | null>(null)
+  const [truncated, setTruncated] = useState(false)
+  const [nextOffset, setNextOffset] = useState<number | null>(null)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const moreLock = useRef(false)
+  const [menuPath, setMenuPath] = useState<string | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const revision = useRef(0)
+  const activeRoot = useRef(rootDir)
+  activeRoot.current = rootDir
+  const nodesRef = useRef(nodes)
+  nodesRef.current = nodes
 
-  const loadDirectory = useCallback(async (dirPath: string): Promise<TreeNode[]> => {
-    const entries: FileEntry[] = await window.api.listDir(dirPath)
-    // Sort: directories first, then files, alphabetical within each group.
-    const sorted = entries.slice().sort((a, b) => {
-      if (a.isDirectory !== b.isDirectory) return a.isDirectory ? -1 : 1
-      return a.name.localeCompare(b.name)
-    })
-    return sorted.map(entry => ({
-      name: entry.name,
-      path: dirPath + '/' + entry.name,
-      isDirectory: entry.isDirectory,
-      isSymlink: entry.isSymlink,
-      expanded: false,
-      loading: false,
-      children: null,
-      error: null,
-    }))
+  useEffect(() => {
+    if (!menuPath) return
+    const outside = (event: PointerEvent) => { if (!menuRef.current?.contains(event.target as Node)) setMenuPath(null) }
+    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') setMenuPath(null) }
+    document.addEventListener('pointerdown', outside)
+    document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) }
+  }, [menuPath])
+  useEffect(() => { setMenuPath(null) }, [rootDir, busy])
+
+  const loadDirectory = useCallback(async (path: string, expectedRoot: string, offset = 0) => {
+    const result = await window.api.listDir(path, offset)
+    if (!sameProjectPath(activeRoot.current, expectedRoot)) throw { code: 'PROJECT_STALE_ROOT' }
+    if (!result.success) throw result.error
+    if (!projectPreviewMatches(result, expectedRoot, path)) throw { code: 'PROJECT_STALE_ROOT' }
+    const sorted = result.entries.slice().sort((a, b) => a.isDirectory === b.isDirectory
+      ? a.name.localeCompare(b.name) : a.isDirectory ? -1 : 1)
+    return { truncated: !!result.limitReached, nextOffset: result.nextOffset, children: sorted.map(entry => ({
+      name: entry.name, path: path.replace(/[\\/]+$/, '') + '/' + entry.name,
+      isDirectory: entry.isDirectory, isSymlink: entry.isSymlink,
+      expanded: false, loading: false, children: null, error: null, truncated: false, nextOffset: null,
+    } as TreeNode)) }
   }, [])
 
-  // Rebuild tree, preserving expanded directories by reloading their contents.
-  const rebuildTree = useCallback(async (dir: string, expandedPaths: Set<string>): Promise<TreeNode[]> => {
-    const children = await loadDirectory(dir)
-    const result: TreeNode[] = []
-    for (const node of children) {
-      if (node.isDirectory && expandedPaths.has(node.path)) {
-        try {
-          const subChildren = await rebuildTree(node.path, expandedPaths)
-          result.push({ ...node, expanded: true, children: subChildren })
-        } catch {
-          result.push({ ...node, expanded: false, children: null })
-        }
-      } else {
-        result.push(node)
-      }
-    }
-    return result
-  }, [loadDirectory])
-
-  // Load root directory when rootDir or refreshKey changes.
   useEffect(() => {
-    if (!rootDir) {
-      setNodes([])
-      return
-    }
-    setLoading(true)
-    setError(null)
-
-    // Collect currently expanded paths before reload.
-    const expandedPaths = new Set<string>()
-    const collectExpanded = (items: TreeNode[]) => {
-      for (const n of items) {
-        if (n.expanded) expandedPaths.add(n.path)
-        if (n.children) collectExpanded(n.children)
+    const request = ++revision.current
+    setError(null); setTruncated(false); setNextOffset(null); setLoadingMore(false); moreLock.current = false; setLoading(!!rootDir)
+    const expanded = new Set<string>()
+    const collect = (items: TreeNode[]) => { for (const node of items) {
+      if (node.expanded && !node.isSymlink) expanded.add(node.path)
+      if (node.children) collect(node.children)
+    } }
+    collect(nodesRef.current)
+    setNodes([])
+    if (!rootDir) return
+    const rebuild = async (path: string): Promise<{ children: TreeNode[]; truncated: boolean; nextOffset: number | null }> => {
+      const loaded = await loadDirectory(path, rootDir)
+      for (const node of loaded.children) if (node.isDirectory && !node.isSymlink && expanded.has(node.path)) {
+        try { const child = await rebuild(node.path); Object.assign(node, { children: child.children, truncated: child.truncated, nextOffset: child.nextOffset, expanded: true }) }
+        catch { /* A removed or inaccessible child remains collapsed. */ }
       }
+      return loaded
     }
-    collectExpanded(nodes)
+    void rebuild(rootDir).then(result => {
+      if (request !== revision.current) return
+      setNodes(result.children); setTruncated(result.truncated); setNextOffset(result.nextOffset); setLoading(false)
+    }).catch(cause => {
+      if (request !== revision.current) return
+      setError(projectErrorKey(cause?.code)); setLoading(false)
+    })
+    return () => { revision.current += 1 }
+  }, [rootDir, refreshKey, loadDirectory])
 
-    rebuildTree(rootDir, expandedPaths)
-      .then(children => {
-        setNodes(children)
-        setLoading(false)
-      })
-      .catch(err => {
-        const msg = err instanceof Error ? err.message : String(err)
-        setError(msg.includes('EACCES') || msg.includes('permission')
-          ? `Access denied: ${rootDir}`
-          : `Failed to read: ${rootDir}`)
-        setLoading(false)
-      })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rootDir, refreshKey, rebuildTree])
-
-  const handleOpenFolder = useCallback(async () => {
-    const result = await window.api.openDirectoryDialog()
-    if (!result.canceled && result.filePaths[0]) {
-      onRootChange(result.filePaths[0])
+  const updateNode = useCallback((path: string, updater: (node: TreeNode) => TreeNode) => {
+    const update = (items: TreeNode[]): TreeNode[] => items.map(node => node.path === path ? updater(node)
+      : node.children ? { ...node, children: update(node.children) } : node)
+    setNodes(current => update(current))
+  }, [])
+  const toggle = useCallback(async (node: TreeNode) => {
+    if (node.loading || node.isSymlink || !rootDir) return
+    if (node.expanded) { updateNode(node.path, current => ({ ...current, expanded: false })); return }
+    if (node.children !== null) { updateNode(node.path, current => ({ ...current, expanded: true })); return }
+    const request = revision.current
+    updateNode(node.path, current => ({ ...current, loading: true, error: null }))
+    try {
+      const result = await loadDirectory(node.path, rootDir)
+      if (request === revision.current) updateNode(node.path, current => ({ ...current,
+        children: result.children, truncated: result.truncated, nextOffset: result.nextOffset, expanded: true, loading: false }))
+    } catch (cause) {
+      if (request === revision.current) updateNode(node.path, current => ({ ...current, loading: false,
+        error: projectErrorKey((cause as { code?: string })?.code) }))
     }
-  }, [onRootChange])
-
-  const updateNodeAtPath = useCallback(
-    (nodePath: string, updater: (node: TreeNode) => TreeNode) => {
-      function updateNodes(items: TreeNode[]): TreeNode[] {
-        return items.map(node => {
-          if (node.path === nodePath) return updater(node)
-          if (node.children && nodePath.startsWith(node.path + '/')) {
-            return { ...node, children: updateNodes(node.children) }
-          }
-          return node
-        })
-      }
-      setNodes(prev => updateNodes(prev))
-    },
-    []
-  )
-
-  const handleToggleFolder = useCallback(async (node: TreeNode) => {
-    if (node.expanded) {
-      // Collapse.
-      updateNodeAtPath(node.path, n => ({ ...n, expanded: false }))
-      return
-    }
-
-    // Don't auto-expand symlink directories.
-    if (node.isSymlink) {
-      return
-    }
-
-    // Expand — load children if not yet loaded.
-    if (node.children === null) {
-      updateNodeAtPath(node.path, n => ({ ...n, loading: true, error: null }))
-      try {
-        const children = await loadDirectory(node.path)
-        updateNodeAtPath(node.path, n => ({
-          ...n,
-          children,
-          expanded: true,
-          loading: false,
-        }))
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err)
-        const errorMsg = msg.includes('EACCES') || msg.includes('permission')
-          ? 'Access denied'
-          : 'Failed to read'
-        updateNodeAtPath(node.path, n => ({
-          ...n,
-          error: errorMsg,
-          loading: false,
-        }))
-      }
-    } else {
-      updateNodeAtPath(node.path, n => ({ ...n, expanded: true }))
-    }
-  }, [loadDirectory, updateNodeAtPath])
-
-  const handleFileClick = useCallback((node: TreeNode) => {
-    onFileSelect(node.path)
-  }, [onFileSelect])
-
-  // No root selected — show open folder prompt.
-  if (!rootDir) {
-    return (
-      <div className="explorer">
-        <div className="explorer-header">
-          <span className="explorer-title">Explorer</span>
-          <button className="explorer-open-btn-small" onClick={handleOpenFolder} title="Open folder">
-            +
-          </button>
-        </div>
-        <div className="explorer-empty">
-          <button className="explorer-open-btn" onClick={handleOpenFolder}>
-            Open Folder
-          </button>
-          <span className="explorer-hint">Select a working directory</span>
-        </div>
-      </div>
-    )
-  }
-
-  const rootName = rootDir.split('/').pop() || rootDir
-
-  return (
-    <div className="explorer">
-      <div className="explorer-header">
-        <span className="explorer-title" title={rootDir}>{rootName}</span>
-        <button className="explorer-open-btn-small" onClick={handleOpenFolder} title="Change working directory">
-          +
-        </button>
-      </div>
-      <div className="explorer-path-bar" title={rootDir} onClick={handleOpenFolder}>
-        {rootDir}
-      </div>
-      <div className="explorer-tree">
-        {loading && <div className="explorer-loading">Loading...</div>}
-        {error && <div className="explorer-error">{error}</div>}
-        {!loading && !error && nodes.length === 0 && (
-          <div className="explorer-empty-dir">Empty directory</div>
-        )}
-        <NodeList
-          nodes={nodes}
-          depth={0}
-          onToggleFolder={handleToggleFolder}
-          onFileClick={handleFileClick}
-        />
-      </div>
+  }, [rootDir, loadDirectory, updateNode])
+  const loadMore = useCallback(async (node?: TreeNode) => {
+    const offset = node ? node.nextOffset : nextOffset
+    if (!rootDir || offset === null || moreLock.current || node?.loading) return
+    const request = revision.current
+    moreLock.current = true
+    if (node) updateNode(node.path, current => ({ ...current, loading: true, error: null }))
+    else { setLoadingMore(true); setError(null) }
+    try {
+      const result = await loadDirectory(node?.path || rootDir, rootDir, offset)
+      if (request !== revision.current) return
+      if (node) updateNode(node.path, current => ({ ...current,
+        children: mergeProjectEntries(current.children || [], result.children),
+        nextOffset: result.nextOffset, truncated: result.truncated, loading: false }))
+      else { setNodes(current => mergeProjectEntries(current, result.children)); setNextOffset(result.nextOffset); setTruncated(result.truncated) }
+    } catch (cause) {
+      if (request !== revision.current) return
+      const key = projectErrorKey((cause as { code?: string })?.code)
+      if (node) updateNode(node.path, current => ({ ...current, loading: false, error: key }))
+      else setError(key)
+    } finally { if (request === revision.current) { moreLock.current = false; setLoadingMore(false) } }
+  }, [rootDir, nextOffset, loadDirectory, updateNode])
+  const action = (kind: ProjectAction, path?: string) => { setMenuPath(null); void onProjectAction(kind, path) }
+  const disabled = busy || !!projects?.busy
+  const visibleError = errorCode || projects?.error?.code
+  return <section className="explorer nova-projects">
+    <div className="explorer-header">
+      <h2 className="explorer-title">{t('projects')}</h2>
+      <button className="project-add-button" disabled={disabled || !projects} onClick={() => action('add')}
+        title={t('projectAdd')} aria-label={t('projectAdd')}><NovaIcon name="plus" size={20} /></button>
     </div>
-  )
-}
-
-function NodeList({ nodes, depth, onToggleFolder, onFileClick }: {
-  nodes: TreeNode[]
-  depth: number
-  onToggleFolder: (node: TreeNode) => void
-  onFileClick: (node: TreeNode) => void
-}) {
-  const [visibleCount, setVisibleCount] = useState(ENTRIES_PER_PAGE)
-
-  // Reset visible count when nodes change (e.g. parent re-expanded).
-  useEffect(() => {
-    setVisibleCount(ENTRIES_PER_PAGE)
-  }, [nodes])
-
-  const visible = nodes.slice(0, visibleCount)
-  const remaining = nodes.length - visibleCount
-
-  return (
-    <>
-      {visible.map(node => (
-        <TreeNodeRow
-          key={node.path}
-          node={node}
-          depth={depth}
-          onToggleFolder={onToggleFolder}
-          onFileClick={onFileClick}
-        />
-      ))}
-      {remaining > 0 && (
-        <div
-          className="explorer-show-more"
-          style={{ paddingLeft: (depth + 1) * 16 + 4 }}
-          onClick={() => setVisibleCount(prev => prev + ENTRIES_PER_PAGE)}
-        >
-          {remaining} more items...
+    {visibleError && <div className="project-action-error" role="alert">{t(projectErrorKey(visibleError))}</div>}
+    {!projects && !visibleError && <p className="explorer-loading" role="status">{t('projectLoading')}</p>}
+    <div className="project-folder-list">
+      {projects?.folders.map(folder => {
+        const selected = sameProjectPath(folder.path, rootDir)
+        return <div className={`project-card ${selected ? 'selected' : ''}`} key={folder.path}>
+          <button className="project-select-button" disabled={disabled || selected} aria-pressed={selected}
+            onClick={() => action('select', folder.path)} title={folder.path}>
+            <span className="project-card-heading"><NovaIcon name="folder" size={21} /><span>{folder.name}</span></span>
+            <span className="project-card-path">{folder.path}</span>
+            {folder.isDefault && <span className="project-default-label">{t('projectDefault')}</span>}
+          </button>
+          <div className="project-options" ref={menuPath === folder.path ? menuRef : undefined}>
+            <button className="project-options-button" disabled={disabled} aria-haspopup="menu"
+              aria-expanded={menuPath === folder.path} aria-label={`${t('projectOptions')}: ${folder.name}`}
+              onClick={() => setMenuPath(current => current === folder.path ? null : folder.path)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />
+              </svg>
+            </button>
+            {menuPath === folder.path && <div className="project-context-menu" role="menu">
+              <button role="menuitem" onClick={() => action('change', folder.path)}>{t('projectChange')}</button>
+              <button role="menuitem" disabled={folder.isDefault} onClick={() => action('remove', folder.path)} title={t(folder.isDefault ? 'projectDefaultRequired' : 'projectRemoveHint')}>{t('projectRemove')}</button>
+              <button role="menuitem" onClick={() => action('open', folder.path)}>{t('projectOpen')}</button>
+            </div>}
+          </div>
         </div>
-      )}
-    </>
-  )
+      })}
+    </div>
+    {projects && !rootDir ? <div className="explorer-empty">
+      <p>{t('projectEmpty')}</p><span className="explorer-hint">{t('projectEmptyHint')}</span>
+      <button className="explorer-open-btn" disabled={disabled} onClick={() => action('select', projects.defaultPath)}>{t('projectUseDefault')}</button>
+    </div> : <div className="explorer-tree" aria-label={t('projects')} aria-busy={loading}>
+      {loading && <div className="explorer-loading" role="status">{t('projectFolderLoading')}</div>}
+      {error && <div className="explorer-error" role="alert">{t(error)}</div>}
+      {!loading && !error && rootDir && nodes.length === 0 && <div className="explorer-empty-dir">{t('projectEmptyDirectory')}</div>}
+      <NodeList nodes={nodes} depth={0} onToggle={toggle} onFileSelect={onFileSelect} onLoadMore={loadMore} />
+      {nextOffset !== null && <button className="explorer-show-more" disabled={loadingMore} onClick={() => void loadMore()}>{t(loadingMore ? 'projectFolderLoading' : 'projectMoreItems')}</button>}
+      {truncated && <p className="project-list-limit">{t('projectListTruncated')}</p>}
+    </div>}
+  </section>
 }
-
-function TreeNodeRow({ node, depth, onToggleFolder, onFileClick }: {
-  node: TreeNode
-  depth: number
-  onToggleFolder: (node: TreeNode) => void
-  onFileClick: (node: TreeNode) => void
-}) {
-  const indent = depth * 16
-
-  const handleClick = () => {
-    if (node.isDirectory) {
-      onToggleFolder(node)
-    } else {
-      onFileClick(node)
-    }
-  }
-
-  const icon = getNodeIcon(node)
-  const arrow = node.isDirectory
-    ? (node.isSymlink ? '\u00B7' : node.expanded ? '\u25BE' : '\u25B8')
-    : ' '
-
-  return (
-    <>
-      <div
-        className={`explorer-node ${node.isDirectory ? 'dir' : 'file'} ${node.isSymlink ? 'symlink' : ''}`}
-        style={{ paddingLeft: indent + 4 }}
-        onClick={handleClick}
-        title={node.isSymlink ? `${node.path} (symlink)` : node.path}
-      >
-        <span className="explorer-arrow">{arrow}</span>
-        <span className="explorer-icon">{icon}</span>
+function NodeList({ nodes, depth, onToggle, onFileSelect, onLoadMore }: { nodes: TreeNode[]; depth: number;
+  onToggle: (node: TreeNode) => void; onFileSelect: (path: string) => void; onLoadMore: (node: TreeNode) => void }) {
+  const { t } = useI18n()
+  return <>
+    {nodes.map(node => <div key={node.path}>
+      <button className={`explorer-node ${node.isDirectory ? 'dir' : 'file'} ${node.isSymlink ? 'symlink' : ''}`}
+        style={{ paddingLeft: depth * 16 + 8 }} disabled={node.isSymlink || node.loading}
+        aria-expanded={node.isDirectory && !node.isSymlink ? node.expanded : undefined}
+        title={node.isSymlink ? `${node.path} — ${t('projectSymlink')}` : node.path}
+        onClick={() => node.isDirectory ? onToggle(node) : onFileSelect(node.path)}>
+        <span className="explorer-arrow">{node.isDirectory ? (node.expanded ? '▾' : '▸') : ''}</span>
+        <span className="explorer-icon">{node.isDirectory ? <NovaIcon name="folder" size={16} /> : <FileIcon />}</span>
         <span className="explorer-name">{node.name}</span>
-        {node.isSymlink && <span className="explorer-symlink-badge">\u2192</span>}
-      </div>
-      {node.loading && (
-        <div className="explorer-loading" style={{ paddingLeft: indent + 20 }}>
-          Loading...
-        </div>
-      )}
-      {node.error && (
-        <div className="explorer-error" style={{ paddingLeft: indent + 20 }}>
-          {node.error}
-        </div>
-      )}
-      {node.expanded && node.children && (
-        <NodeList
-          nodes={node.children}
-          depth={depth + 1}
-          onToggleFolder={onToggleFolder}
-          onFileClick={onFileClick}
-        />
-      )}
-    </>
-  )
-}
+        {node.isSymlink && <span className="explorer-symlink-badge">↗</span>}
+      </button>
+      {node.loading && <div className="explorer-loading" style={{ paddingLeft: depth * 16 + 24 }}>{t('projectFolderLoading')}</div>}
+      {node.error && <div className="explorer-error" role="alert" style={{ paddingLeft: depth * 16 + 24 }}>{t(node.error)}</div>}
+      {node.expanded && node.children && <NodeList nodes={node.children} depth={depth + 1} onToggle={onToggle} onFileSelect={onFileSelect} onLoadMore={onLoadMore} />}
+      {node.expanded && node.children?.length === 0 && <div className="explorer-empty-dir">{t('projectEmptyDirectory')}</div>}
+      {node.expanded && node.nextOffset !== null && <button className="explorer-show-more" disabled={node.loading} onClick={() => onLoadMore(node)}>{t(node.loading ? 'projectFolderLoading' : 'projectMoreItems')}</button>}
+      {node.expanded && node.truncated && <p className="project-list-limit">{t('projectListTruncated')}</p>}
+    </div>)}
 
-function getNodeIcon(node: TreeNode): string {
-  if (node.isDirectory) {
-    return node.expanded ? '\uD83D\uDCC2' : '\uD83D\uDCC1'
-  }
-  const ext = node.name.split('.').pop()?.toLowerCase() || ''
-  switch (ext) {
-    case 'ts':
-    case 'tsx':
-    case 'js':
-    case 'jsx':
-      return '\uD83D\uDFE8' // yellow square
-    case 'py':
-      return '\uD83D\uDFE9' // green square
-    case 'json':
-    case 'yaml':
-    case 'yml':
-    case 'toml':
-      return '\u2699'  // gear
-    case 'md':
-    case 'txt':
-    case 'rst':
-      return '\uD83D\uDCC4' // page
-    case 'css':
-    case 'scss':
-    case 'less':
-      return '\uD83C\uDFA8' // palette
-    case 'html':
-      return '\uD83C\uDF10' // globe
-    case 'sh':
-    case 'bash':
-    case 'zsh':
-      return '\u25B6'  // play
-    case 'png':
-    case 'jpg':
-    case 'jpeg':
-    case 'gif':
-    case 'svg':
-    case 'ico':
-      return '\uD83D\uDDBC' // frame
-    default:
-      return '\uD83D\uDCC4' // page
-  }
+  </>
 }
+function FileIcon() { return <svg width="15" height="17" viewBox="0 0 15 17" fill="none" stroke="currentColor" aria-hidden="true">
+  <path d="M3 1h6l4 4v11H3zM9 1v4h4M5 9h6M5 12h6" strokeWidth="1.2" /></svg> }

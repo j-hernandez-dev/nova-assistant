@@ -136,6 +136,16 @@ class SecretRedactor:
                 item['role'] = original['role']
         return safe
 
+    def tool_activity(self, source):
+        """Preserve only host lifecycle/correlation fields in a private view."""
+        safe = self.value(source)
+        for name in ('operationId', 'toolCallId', 'turnId', 'messageId', 'status',
+                     'operationStatus', 'effectState', 'outputSequence', 'outputTruncated',
+                     'startedAt', 'completedAt', 'exitCode'):
+            if name in source:
+                safe[name] = source[name]
+        return safe
+
     def snapshot(self, source):
         """Redact view text while preserving typed lifecycle/correlation fields."""
         safe = self.value(source)
@@ -148,6 +158,9 @@ class SecretRedactor:
         for original, target in zip(source.get('turns', []), safe.get('turns', [])):
             preserve(original, target, ('turnId','operationId','commandId','status','operationStatus',
                 'activeGenerationId','terminalCount','operationTerminalCount','transcriptStart','transcriptEnd'))
+            if 'toolActivities' in original:
+                target['toolActivities'] = [self.tool_activity(activity)
+                    for activity in original['toolActivities']]
         original_services = source.get('services', {})
         services = safe.get('services', {})
         for kind, ids in [('approvals', ('approvalId','turnId','operationId','toolCallId',

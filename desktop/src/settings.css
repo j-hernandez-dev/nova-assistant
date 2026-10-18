@@ -1,0 +1,156 @@
+/* The settings surface is isolated from the legacy panels and the composer. */
+.nova-modal-backdrop .nova-settings-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(1040px, calc(100vw - 56px));
+  height: min(750px, calc(100dvh - 56px));
+  max-height: calc(100dvh - 56px);
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid rgba(220, 168, 56, .34);
+  border-radius: 22px;
+  color: #eef0f5;
+  background: radial-gradient(ellipse at 25% 0, rgba(139, 98, 31, .11), transparent 60%), #111419;
+  box-shadow: 0 24px 100px #0009, 0 0 35px #bc86150d;
+  text-align: left;
+}
+.nova-settings-dialog *, .nova-settings-dialog *::before, .nova-settings-dialog *::after { box-sizing: border-box; }
+.nova-settings-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 28px 18px; border-bottom: 1px solid #ffffff0e; flex: 0 0 auto; }
+.nova-settings-eyebrow { display: block; color: #cba969; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; margin-bottom: 4px; }
+.nova-settings-header h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.025em; }
+.nova-settings-close { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 36px; width: 36px; height: 36px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: #aeb4c1; cursor: pointer; }
+.nova-settings-close:hover { color: #f5f6f8; border-color: #ffffff14; background: #ffffff08; }
+.nova-settings-layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); flex: 1; min-height: 0; }
+.nova-settings-nav { display: flex; flex-direction: column; gap: 5px; padding: 24px 15px; border-right: 1px solid #ffffff0b; overflow-y: auto; min-height: 0; background: #0c0f142e; }
+.nova-settings-nav > button { display: flex; align-items: center; gap: 12px; min-height: 43px; flex: 0 0 auto; padding: 9px 12px; width: 100%; border: 1px solid transparent; border-radius: 9px; text-align: left; color: #aeb4c1; background: transparent; cursor: pointer; font: inherit; font-size: 13px; line-height: 1.45; }
+.nova-settings-nav > button svg { flex: 0 0 20px; }
+.nova-settings-nav > button:hover { color: #eef0f5; background: #ffffff04; }
+.nova-settings-nav > button[aria-current="page"] { color: #ffdb90; background: linear-gradient(110deg, #d79b1520, #d79b1509); border-color: #d79b152c; }
+.nova-settings-nav > button[aria-current="page"] svg { filter: drop-shadow(0 0 7px #edac242b); }
+.nova-settings-content { min-width: 0; min-height: 0; padding: 28px 32px 32px; overflow-y: auto; overflow-x: hidden; scrollbar-gutter: stable; overscroll-behavior: contain; }
+.nova-settings-introduction { margin-bottom: 24px; }
+.nova-settings-introduction h2 { margin: 0 0 7px; font-size: 21px; line-height: 1.3; letter-spacing: -.025em; font-weight: 600; }
+.nova-settings-introduction p { margin: 0; color: #999fae; font-size: 13px; line-height: 1.65; max-width: 620px; }
+.nova-settings-card { padding: 20px; margin: 0 0 18px; border: 1px solid #ffffff0f; border-radius: 13px; background: #1b1f2659; }
+.nova-settings-card h3 { margin: 0 0 16px; color: #e8eaf0; font-weight: 600; font-size: 14px; }
+.nova-settings-row { display: flex; align-items: center; justify-content: space-between; gap: 22px; }
+.nova-settings-row > div:first-child { min-width: 0; }
+.nova-settings-row label { font-size: 14px; font-weight: 500; color: #f0f0f4; }
+.nova-settings-row p { margin: 7px 0 0; max-width: 420px; color: #a3a8b4; font-size: 12px; line-height: 1.65; }
+.nova-settings-dialog select, .nova-settings-dialog input:not([type="checkbox"]), .nova-settings-dialog textarea { color: #e8eaf1; border: 1px solid #343946; border-radius: 8px; background: #11151c; padding: 9px 11px; font: inherit; font-size: 13px; min-width: 0; }
+.nova-settings-dialog select { flex: 0 0 auto; min-width: 112px; }
+.nova-settings-dialog textarea { resize: vertical; max-width: 100%; }
+.nova-settings-dialog button { font-family: inherit; }
+.nova-settings-dialog :is(button, select, input, textarea):focus-visible { outline: 2px solid #dca532; outline-offset: 3px; }
+.nova-settings-dialog :is(button, select, input, textarea):disabled { opacity: .45; cursor: not-allowed; }
+.nova-settings-apply-note { color: #8e95a3; font-size: 11px; line-height: 1.6; padding-top: 16px; margin: 18px 0 0; border-top: 1px solid #ffffff09; }
+.nova-settings-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.nova-settings-dialog .nova-settings-actions button { border-radius: 8px; padding: 8px 15px; min-height: 35px; font-size: 12px; cursor: pointer; }
+.nova-settings-primary { border: 1px solid #ba8829; color: #ffe0a0; background: #bc871425; }
+.nova-settings-primary:not(:disabled):hover { background: #bc87143c; }
+.nova-settings-secondary { border: 1px solid #ffffff13; color: #c3c8d3; background: #ffffff03; }
+.nova-settings-secondary:not(:disabled):hover { background: #ffffff08; }
+.nova-settings-success, .nova-settings-error, .nova-settings-pending { margin: 13px 0 0; font-size: 12px; line-height: 1.65; }
+.nova-settings-success { color: #a9d3b1; }
+.nova-settings-error { color: #e3b583; }
+.nova-settings-pending { color: #b9b2a4; }
+.nova-settings-shortcuts > div { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 10px 0; border-top: 1px solid #ffffff08; color: #afb5c1; font-size: 12px; }
+.nova-settings-shortcuts kbd { flex: 0 0 auto; padding: 3px 7px; border: 1px solid #ffffff16; border-radius: 5px; background: #0f1219; color: #c8cbd5; font-size: 11px; }
+.nova-settings-version { display: flex; justify-content: space-between; align-items: center; gap: 20px; font-size: 13px; color: #aeb4c0; }
+.nova-settings-version strong { color: #eee5d2; font-size: 13px; font-weight: 500; }
+.nova-settings-empty { padding: 22px; border: 1px dashed #ffffff17; border-radius: 12px; color: #979daa; font-size: 13px; line-height: 1.6; }
+/* Slots use existing controls; only their Desktop presentation is scoped here. */
+.nova-settings-dialog .settings-section { padding: 18px; margin: 0 0 18px; border: 1px solid #ffffff0f; border-radius: 13px; background: #1b1f2659; }
+.nova-settings-dialog .settings-section-title { margin: 0 0 14px; color: #e8eaf0; font-size: 14px; font-weight: 600; text-transform: none; letter-spacing: normal; }
+.nova-settings-dialog .settings-hint { color: #9aa2b0; font-size: 12px; line-height: 1.6; }
+.nova-settings-dialog .settings-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 10px 0; }
+.nova-settings-dialog .settings-label { color: #cdd0da; font-size: 13px; }
+.nova-settings-dialog .settings-value { color: #abb3c1; font-size: 12px; overflow-wrap: anywhere; }
+.nova-settings-dialog .settings-check-btn, .nova-settings-dialog .settings-update-btn { padding: 7px 11px; border: 1px solid #a779292e; border-radius: 8px; color: #e6c47e; background: #ae771318; cursor: pointer; font-size: 12px; }
+.nova-settings-dialog [hidden] { display: none !important; }
+.nova-settings-dialog .settings-control-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+.nova-settings-dialog .settings-control-form { display: grid; gap: 9px; margin-top: 18px; font-size: 12px; }
+.nova-settings-dialog .settings-control-form label { color: #d4d8e1; }
+.nova-settings-dialog .settings-control-form > button { justify-self: start; }
+.nova-settings-dialog .settings-source-card, .nova-settings-dialog .settings-source-operation, .nova-settings-dialog .settings-memory-record { border: 1px solid #ffffff12; border-radius: 9px; padding: 14px; margin-top: 12px; overflow-wrap: anywhere; }
+.nova-settings-dialog .settings-source-card p, .nova-settings-dialog .settings-memory-record p { white-space: pre-wrap; font-size: 12px; line-height: 1.6; }
+.nova-settings-dialog .settings-toggle-row { display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 1.5; }
+.nova-settings-dialog .settings-toggle-row input { accent-color: #e5ad3b; flex-shrink: 0; }
+.nova-settings-dialog .settings-observed-row, .nova-settings-dialog .settings-capacity > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 0; font-size: 12px; border-bottom: 1px solid #ffffff08; }
+.nova-settings-dialog .settings-observed-row > span { color: #9ca6b8; }
+.nova-settings-dialog .settings-observed-row > strong { font-weight: 500; text-align: right; overflow-wrap: anywhere; min-width: 0; }
+.nova-settings-dialog .settings-feedback { font-size: 12px; line-height: 1.6; color: #e0bd79; margin-top: 12px; }
+.nova-settings-dialog .settings-feedback.error { color: #e6aa9b; }
+.nova-settings-dialog details { margin-top: 12px; font-size: 11px; color: #9ca6b8; }
+.nova-settings-dialog details > summary { cursor: pointer; line-height: 1.7; }
+.nova-settings-dialog details > pre, .nova-settings-dialog details > code { display: block; margin-top: 10px; padding: 10px; background: #090d1499; border-radius: 7px; overflow-wrap: anywhere; white-space: pre-wrap; font-family: var(--font-code); font-size: 10px; max-height: 220px; overflow-y: auto; }
+.nova-settings-dialog .settings-capacity { margin: 12px 0; font-size: 11px; color: #a3adbd; }
+.nova-settings-dialog .settings-capacity p { margin: 8px 0; }
+.provider-select-container > button.model-select { font: inherit; color: inherit; border: 0; background: transparent; text-align: left; cursor: pointer; }
+.provider-dropdown > button.provider-option { font: inherit; color: inherit; border: 0; background: transparent; text-align: left; width: 100%; cursor: pointer; }
+.provider-dropdown > button.provider-option:hover { background: var(--bg-hover); }
+.claude-login-link { border: 0; background: none; padding: 0; font: inherit; cursor: pointer; }
+.nova-settings-dialog .provider-select-container { margin-top: 16px; }
+.nova-settings-dialog .nova-memory-settings .nova-settings-card > label { display: flex; gap: 8px; align-items: center; margin: 12px 0 7px; color: #b2bbca; font-size: 12px; }
+.nova-settings-dialog .nova-memory-settings form > label:not(.settings-toggle-row) { display: block; margin-top: 14px; font-size: 12px; color: #bac2cf; }
+.nova-settings-dialog .nova-memory-settings :is(input:not([type="checkbox"]),textarea) { width: 100%; margin-top: 7px; }
+.nova-settings-dialog .nova-memory-settings form > select { margin-top: 7px; }
+.nova-settings-dialog .nova-memory-settings button { padding: 7px 11px; border: 1px solid #a7792940; border-radius: 8px; color: #e6c47e; background: #ae771318; cursor: pointer; font-size: 12px; }
+.nova-settings-dialog .nova-memory-settings .settings-memory-detail { padding: 14px 0; border-top: 1px solid #ffffff10; }
+.nova-settings-dialog .nova-memory-settings small { color: #8d99ac; font-size: 10px; }
+.nova-settings-dialog .nova-memory-settings .nova-settings-row { font-size: 12px; padding: 9px 0; border-bottom: 1px solid #ffffff08; }
+@media (max-width: 760px) {
+  .nova-modal-backdrop .nova-settings-dialog { width: calc(100vw - 28px); height: calc(100dvh - 28px); max-height: calc(100dvh - 28px); border-radius: 17px; }
+  .nova-settings-header { padding: 16px 20px 14px; }
+  .nova-settings-layout { grid-template-columns: 174px minmax(0, 1fr); }
+  .nova-settings-nav { padding: 18px 9px; }
+  .nova-settings-nav > button { gap: 9px; padding: 8px; font-size: 12px; }
+  .nova-settings-content { padding: 22px 18px; }
+  .nova-settings-introduction h2 { font-size: 19px; }
+  .nova-settings-card { padding: 16px; }
+  .nova-settings-row { align-items: flex-start; flex-direction: column; gap: 13px; }
+  .nova-settings-row select { width: 100%; }
+  .nova-settings-shortcuts > div { gap: 10px; }
+}
+@media (max-height: 520px) {
+  .nova-modal-backdrop .nova-settings-dialog { height: calc(100dvh - 24px); max-height: calc(100dvh - 24px); }
+  .nova-settings-header { padding-top: 12px; padding-bottom: 10px; }
+  .nova-settings-eyebrow { display: none; }
+  .nova-settings-header h1 { font-size: 19px; }
+  .nova-settings-nav { padding-top: 12px; padding-bottom: 12px; }
+  .nova-settings-content { padding-top: 18px; }
+  .nova-settings-introduction { margin-bottom: 17px; }
+}
+
+/* Context draft: equal steps, real preset values, native keyboard range control. */
+.nova-context-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.nova-context-heading > label { font-size: 14px; font-weight: 600; color: #f0f0f4; }
+.nova-context-heading > output { min-width: 54px; padding: 5px 12px; border-radius: 20px; text-align: center; background: #b7801b24; color: #ffce70; font-size: 15px; font-weight: 600; }
+.nova-settings-dialog input.nova-context-slider[type="range"] { display: block; appearance: none; width: 100%; height: 6px; border: 0; border-radius: 6px; padding: 0; margin: 24px 0 8px; cursor: pointer; background: linear-gradient(to right, #f3c468 0 var(--context-fill), #373b43 var(--context-fill) 100%); }
+.nova-context-slider::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border: 2px solid #f3c468; border-radius: 50%; background: #151920; }
+.nova-context-ticks { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin: 0 -6px 18px; }
+.nova-context-ticks > button { padding: 8px 6px; border: 0; border-radius: 5px; background: transparent; color: #a9b0bd; font-size: 12px; cursor: pointer; }
+.nova-context-ticks > button[aria-pressed="true"] { color: #ffcf73; font-weight: 600; }
+.nova-context-ticks > button:not(:disabled):hover { color: #ffe0a0; background: #f3c4680d; }
+.nova-settings-dialog .nova-context-settings .settings-hint { margin: 10px 0 14px; }
+.nova-settings-danger { padding: 10px 15px; border: 1px solid #b96a63; border-radius: 9px; background: #b6534914; color: #f3b6af; font: inherit; cursor: pointer; }
+.nova-settings-danger:not(:disabled):hover { background: #b653492b; border-color: #e9948b; }
+.nova-settings-danger:disabled { opacity: .5; cursor: default; }
+.nova-settings-danger:focus-visible { outline: 2px solid #ffc347; outline-offset: 3px; }
+.nova-project-chats { display: flex; flex-direction: column; margin-top: 14px; }
+.nova-project-chat { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #ffffff0c; }
+.nova-project-chat:last-child { border-bottom: 0; }
+.nova-chat-open { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; align-items: flex-start; text-align: left; padding: 6px 0; border: 0; background: transparent; color: #e8ebf1; font: inherit; cursor: pointer; }
+.nova-chat-open strong { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.nova-chat-open span { color: #949eaf; font-size: 12px; }
+.nova-chat-open:focus-visible { outline: 2px solid #ffc347; outline-offset: 3px; border-radius: 4px; }
+.nova-project-chat .nova-settings-danger { flex-shrink: 0; font-size: 12px; padding: 8px 10px; }
+
+/* Native, keyboard-accessible switches with the same gold focus treatment. */
+.nova-appearance-row { align-items: center; padding: 2px 0 22px; }
+.nova-appearance-row + .nova-appearance-row { padding-top: 22px; padding-bottom: 0; border-top: 1px solid #ffffff0b; }
+.nova-appearance-settings input[role="switch"] { appearance: none; flex: 0 0 38px; width: 38px; height: 22px; margin: 0; padding: 2px; border: 1px solid #515866; border-radius: 20px; background: #252a34; cursor: pointer; }
+.nova-appearance-settings input[role="switch"]::before { content: ''; display: block; width: 16px; height: 16px; border-radius: 50%; background: #b8c0ce; transform: translateX(0); transition: transform .16s ease; }
+.nova-appearance-settings input[role="switch"]:checked { border-color: #d3a13d; background: #8a641d; }
+.nova-appearance-settings input[role="switch"]:checked::before { background: #ffe0a0; transform: translateX(16px); }
+@media (max-width: 760px) { .nova-appearance-row { flex-direction: row; gap: 16px; } }

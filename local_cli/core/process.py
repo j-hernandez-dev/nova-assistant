@@ -94,7 +94,8 @@ class HostProcessLauncherPort(Protocol):
     def launch(self, request: ProcessLaunchRequest, *,
                cancellation_token: CancellationToken,
                deadline: datetime | None,
-               validate_launch: Callable[[], None]) -> ProcessReport: ...
+               validate_launch: Callable[[], None],
+               on_output: Callable[[str, bytes, bool], None] | None = None) -> ProcessReport: ...
 
 
 def process_report_to_tool_result(report, audit, limits):

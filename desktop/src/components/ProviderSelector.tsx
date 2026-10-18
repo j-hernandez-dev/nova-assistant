@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useId } from 'react'
+import { useI18n } from '../i18n'
 
 type Props = {
   currentProvider: string
@@ -8,40 +9,30 @@ type Props = {
   onLoginRequest?: () => void
 }
 
-type ProviderOption = {
-  id: string
-  label: string
-  description: string
-}
-
-const PROVIDERS: ProviderOption[] = [
-  { id: 'claude', label: 'Claude Code', description: 'Anthropic API' },
-  { id: 'ollama', label: 'Local LLM', description: 'Ollama' },
-]
+const PROVIDERS = ['claude', 'ollama'] as const
 
 export function ProviderSelector({ currentProvider, hasClaude, disabled, onSwitch, onLoginRequest }: Props) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
+  const [focused, setFocused] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([])
+  const menuId = useId()
 
-  // Close on Escape key.
+  useEffect(() => {
+    if (disabled) setOpen(false)
+  }, [disabled])
+
   useEffect(() => {
     if (!open) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpen(false)
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [open])
+    optionRefs.current[focused]?.focus()
+  }, [open, focused])
 
-  // Close on click outside.
   useEffect(() => {
     if (!open) return
     const handler = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
     }
     window.addEventListener('mousedown', handler)
     return () => window.removeEventListener('mousedown', handler)
@@ -49,63 +40,56 @@ export function ProviderSelector({ currentProvider, hasClaude, disabled, onSwitc
 
   const handleSelect = useCallback((providerId: string) => {
     if (disabled) return
-    if (providerId === currentProvider) {
-      setOpen(false)
-      return
-    }
-
-    if (providerId === 'claude' && !hasClaude) {
-      setOpen(false)
-      onLoginRequest?.()
-      return
-    }
-
-    onSwitch(providerId)
     setOpen(false)
-  }, [currentProvider, hasClaude, disabled, onSwitch])
+    triggerRef.current?.focus()
+    if (providerId === currentProvider) return
+    if (providerId === 'claude' && !hasClaude) { onLoginRequest?.(); return }
+    onSwitch(providerId)
+  }, [currentProvider, hasClaude, disabled, onSwitch, onLoginRequest])
 
-  const displayLabel = PROVIDERS.find(p => p.id === currentProvider)?.description || currentProvider
+  function showMenu() {
+    if (disabled) return
+    setFocused(Math.max(0, PROVIDERS.findIndex(p => p === currentProvider)))
+    setOpen(value => !value)
+  }
+
+  const displayLabel = currentProvider === 'ollama' ? 'Ollama'
+    : currentProvider === 'claude' ? t('desktopProviderAnthropic') : currentProvider
 
   return (
     <div className="provider-select-container" ref={containerRef}>
-      <span
-        className="model-select"
-        onClick={() => { if (!disabled) setOpen(!open) }}
-        aria-disabled={disabled}
-        title="Click to switch provider"
-      >
+      <button type="button" className="model-select" ref={triggerRef} onClick={showMenu}
+        disabled={disabled} title={t('desktopProviderSwitch')} aria-label={t('desktopProvider') + ': ' + displayLabel}
+        aria-haspopup="menu" aria-expanded={open} aria-controls={open ? menuId : undefined}
+        onKeyDown={event => {
+          if (!disabled && ['ArrowDown', 'ArrowUp'].includes(event.key)) { event.preventDefault(); showMenu() }
+        }}>
         {displayLabel}
-      </span>
+      </button>
 
-      {open && (
-        <div className="provider-dropdown">
-          {
-            PROVIDERS.map(p => {
-              const isActive = p.id === currentProvider
-              const needsLogin = p.id === 'claude' && !hasClaude
-
-              return (
-                <div
-                  key={p.id}
-                  className={`provider-option ${isActive ? 'active' : ''}`}
-                  onClick={() => handleSelect(p.id)}
-                >
-                  <span className="provider-check">{isActive ? '✓' : ''}</span>
-                  <div className="provider-option-info">
-                    <span className="provider-option-label">{p.label}</span>
-                    <span className="provider-option-desc">
-                      {needsLogin ? 'Login required' : p.description}
-                    </span>
-                  </div>
-                  {needsLogin && (
-                    <span className="provider-login-badge">Login</span>
-                  )}
-                </div>
-              )
-            })
-          }
-        </div>
-      )}
+      {open && <div className="provider-dropdown" role="menu" id={menuId} aria-label={t('desktopProvider')}
+        onKeyDown={event => {
+          if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setOpen(false); triggerRef.current?.focus() }
+          else if (event.key === 'Tab') setOpen(false)
+          else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault(); setFocused(value => (value + (event.key === 'ArrowDown' ? 1 : PROVIDERS.length - 1)) % PROVIDERS.length)
+          } else if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); setFocused(event.key === 'Home' ? 0 : PROVIDERS.length - 1) }
+        }}>
+        {PROVIDERS.map((provider, index) => {
+          const active = provider === currentProvider
+          const needsLogin = provider === 'claude' && !hasClaude
+          return <button type="button" key={provider} role="menuitemradio" aria-checked={active}
+            className={`provider-option ${active ? 'active' : ''}`} onClick={() => handleSelect(provider)}
+            ref={element => { optionRefs.current[index] = element }} tabIndex={focused === index ? 0 : -1}>
+            <span className="provider-check" aria-hidden="true">{active ? '✓' : ''}</span>
+            <span className="provider-option-info">
+              <span className="provider-option-label">{provider === 'claude' ? 'Claude Code' : t('desktopProviderLocal')}</span>
+              <span className="provider-option-desc">{needsLogin ? t('desktopProviderLoginRequired') : provider === 'claude' ? t('desktopProviderAnthropic') : 'Ollama'}</span>
+            </span>
+            {needsLogin && <span className="provider-login-badge">{t('desktopProviderLogin')}</span>}
+          </button>
+        })}
+      </div>}
     </div>
   )
 }

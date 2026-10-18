@@ -201,3 +201,74 @@ def test_event_stream_uses_injected_journal_and_preserves_gap_contract():
     assert len(journal.read_after(0)) == 2
     events = stream.poll(cursor, snapshot={"status": "active"}, state_revision=1)
     assert [e.kind for e in events] == [EventKind.EVENT_GAP, EventKind.SESSION_SNAPSHOT]
+
+
+def test_clear_history_deletes_every_project_chat_and_preserves_other_stores(tmp_path):
+    from local_cli.infrastructure.persistence import clear_project_history
+    from tests.test_gui_conversation import app_with_runner,emit_message,wait_finished
+    from tests.test_nova_core_phase4_session import submit
+    from local_cli.application.commands import ApplicationCommand,CommandKind
+    from local_cli.core.contracts import new_command_id
+    state=tmp_path/'state'
+    second=tmp_path/'second';second.mkdir()
+    inactive=ConversationStore(str(state),cwd=str(second));inactive.save([{'role':'user','content':'inactive'}])
+    keep=inactive.path.parent/'events.jsonl';keep.write_text('diagnostic',encoding='utf-8')
+    svc=PersistenceService(workspace=tmp_path,conversation=LegacyConversationRepository(state,tmp_path),
+        snapshots=LegacySessionSnapshotStore(state),history_clear=lambda:clear_project_history(state))
+    def runner(_provider,_model,_tools,messages,*,emit,**_kwargs):
+        emit_message(messages,emit,'answer');return 'answer'
+    app,sid=app_with_runner(tmp_path,runner,persistence_factory=lambda _workspace:svc)
+    wait_finished(app,submit(app,sid,'request'))
+    result=app.handle(ApplicationCommand(new_command_id(),CommandKind.EXECUTE_COMMAND,
+        session_id=sid,payload={'name':'clear_history','scope':'all'}))
+    assert result.accepted
+    assert not list((state/'projects').glob('*/last-conversation.jsonl'))
+    assert keep.read_text(encoding='utf-8')=='diagnostic'
+    assert not app.get_snapshot(sid).turns
+    assert not [m for m in app.get_snapshot(sid).transcript if m['role'] in ('user','assistant')]
+    assert svc.info() is None and inactive.info() is None
+
+
+def test_failed_profile_history_clear_returns_failure_and_retains_live_conversation(tmp_path,monkeypatch):
+    from local_cli.infrastructure.persistence import clear_project_history
+    from tests.test_gui_conversation import app_with_runner,emit_message,wait_finished
+    from tests.test_nova_core_phase4_session import submit
+    from local_cli.application.commands import ApplicationCommand,CommandKind
+    from local_cli.core.contracts import new_command_id
+    from pathlib import Path
+    state=tmp_path/'state'
+    svc=PersistenceService(workspace=tmp_path,conversation=LegacyConversationRepository(state,tmp_path),
+        snapshots=LegacySessionSnapshotStore(state),history_clear=lambda:clear_project_history(state))
+    def runner(_provider,_model,_tools,messages,*,emit,**_kwargs):
+        emit_message(messages,emit,'answer');return 'answer'
+    app,sid=app_with_runner(tmp_path,runner,persistence_factory=lambda _workspace:svc)
+    wait_finished(app,submit(app,sid,'request'))
+    before=app.get_snapshot(sid).transcript
+    original=Path.unlink
+    def deny(path,*args,**kwargs):
+        if path.name=='last-conversation.jsonl':raise PermissionError('owned failure')
+        return original(path,*args,**kwargs)
+    with monkeypatch.context() as patch:
+        patch.setattr(Path,'unlink',deny)
+        result=app.handle(ApplicationCommand(new_command_id(),CommandKind.EXECUTE_COMMAND,
+            session_id=sid,payload={'name':'clear_history','scope':'all'}))
+    assert not result.accepted and result.error.code=='CLEAR_HISTORY_FAILED'
+    assert app.get_snapshot(sid).transcript==before and svc.info()
+
+
+def test_profile_history_clear_refuses_linked_storage_before_deleting_any_chat(tmp_path,monkeypatch):
+    from pathlib import Path
+    from types import SimpleNamespace
+    import stat
+    from local_cli.infrastructure.persistence import clear_project_history
+    state=tmp_path/'state'
+    store=ConversationStore(str(state),cwd=str(tmp_path));store.save([{'role':'user','content':'keep'}])
+    original=Path.lstat
+    linked=state/'projects'/'linked';linked.mkdir()
+    def metadata(path,*args,**kwargs):
+        if path==linked:return SimpleNamespace(st_mode=stat.S_IFLNK,st_file_attributes=0)
+        return original(path,*args,**kwargs)
+    with monkeypatch.context() as patch:
+        patch.setattr(Path,'lstat',metadata)
+        with pytest.raises(PersistenceError):clear_project_history(state)
+    assert store.load()==[{'role':'user','content':'keep'}]

@@ -118,7 +118,7 @@ class SessionManager:
 
         return session_id
 
-    def load_session(self, session_id: str) -> list[dict]:
+    def load_session(self, session_id: str, *, include_presentation: bool = False) -> list[dict]:
         """Load a session from its JSONL file.
 
         Corrupt or incomplete lines are silently skipped so that partially
@@ -146,6 +146,8 @@ class SessionManager:
                     try:
                         obj = json.loads(line)
                         if isinstance(obj, dict) and "role" in obj:
+                            if not include_presentation:
+                                obj.pop("_nova_display", None)
                             messages.append(obj)
                     except (json.JSONDecodeError, ValueError):
                         # Skip corrupt / incomplete lines gracefully.

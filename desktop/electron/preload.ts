@@ -1,4 +1,15 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import { installStartupScreen, startupLocale } from '../shared/startup_screen'
+import { readAppearance } from '../shared/desktop_appearance'
+
+const startupPreferences = process.isMainFrame ? ipcRenderer.sendSync('get-desktop-startup-preferences') : null
+const initialDesktopLocale = startupPreferences?.locale === 'en' || startupPreferences?.locale === 'es'
+  ? startupPreferences.locale : startupLocale(process.argv)
+const initialDesktopAppearance = readAppearance(startupPreferences)
+if (process.isMainFrame) {
+  const disposeStartup = installStartupScreen(document, initialDesktopLocale, initialDesktopAppearance)
+  window.addEventListener('unload', disposeStartup, { once: true })
+}
 
 export type PythonMessage = {
   id?: number
@@ -17,6 +28,26 @@ export type PythonMessage = {
 }
 
 contextBridge.exposeInMainWorld('api', {
+  initialDesktopLocale,
+  initialDesktopAppearance,
+  copyMessage: (messageId: string) => ipcRenderer.invoke('copy-message', messageId),
+  getProjects: () => ipcRenderer.invoke('get-projects'),
+  getProjectChats: () => ipcRenderer.invoke('get-project-chats'),
+  clearProjectChat: (path?:string) => ipcRenderer.invoke('clear-project-chat',path),
+  projectAction: (action: 'add'|'change'|'select'|'remove'|'open', selectedPath?: string) => ipcRenderer.invoke('project-action', action, selectedPath),
+  onProjectsChanged: (callback: (state: unknown) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: unknown) => callback(state)
+    ipcRenderer.on('projects-state', handler)
+    return () => ipcRenderer.removeListener('projects-state', handler)
+  },
+  reviewPendingApproval: () => ipcRenderer.invoke('review-pending-approval'),
+  reviewPendingQuestion: () => ipcRenderer.invoke('review-pending-question'),
+  refreshReadiness: () => ipcRenderer.invoke('refresh-readiness'),
+  retryModelDownloadInventory: () => ipcRenderer.invoke('retry-model-download-inventory'),
+  getDesktopPreferences: () => ipcRenderer.invoke('get-desktop-preferences'),
+  setDesktopAppearance: (value: unknown) => ipcRenderer.invoke('set-desktop-appearance', value),
+  setDesktopLocale: (locale: 'es' | 'en') => ipcRenderer.invoke('set-desktop-locale', locale),
+  setHistoryVisible: (visible: boolean) => ipcRenderer.invoke('set-history-visible', visible),
   memoryCommand: (name: string, args: Record<string, unknown>, commandId?: string) =>
     ipcRenderer.invoke('memory-command', name, args, commandId),
   knowledgePick: () => ipcRenderer.invoke('knowledge-pick'),
@@ -54,7 +85,7 @@ contextBridge.exposeInMainWorld('api', {
     return () => ipcRenderer.removeListener('python-exit', handler)
   },
   getPythonStatus: () => ipcRenderer.invoke('get-python-status'),
-  listDir: (dirPath: string) => ipcRenderer.invoke('list-directory', dirPath),
+  listDir: (dirPath: string, offset = 0) => ipcRenderer.invoke('list-directory', dirPath, offset),
   readFile: (filePath: string) => ipcRenderer.invoke('read-file', filePath),
   openDirectoryDialog: () => ipcRenderer.invoke('open-directory-dialog'),
   getHomeDir: () => ipcRenderer.invoke('get-home-dir'),

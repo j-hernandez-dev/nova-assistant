@@ -593,6 +593,86 @@
           "path": "tests/memory_v1/test_m8_ps_operational.py"
         }
       ]
+    },
+    "GUI_READINESS": {
+      "classification": "CURRENT_PORTABLE_CI",
+      "job": "core",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "ordinary_ci": true,
+      "reason": "GUI-B2 host readiness and JSONL observation contracts use deterministic providers without Ollama, inference, network, GPU or a GUI.",
+      "references": [
+        {
+          "path": "docs/gui_nova/bloque_2_resultados.md"
+        }
+      ]
+    },
+    "GUI_CONVERSATION": {
+      "classification": "CURRENT_PORTABLE_CI",
+      "job": "core",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "ordinary_ci": true,
+      "reason": "GUI-B3 public-message presentation identity and canonical mapping use deterministic providers and owned files without Ollama, network, GPU or GUI.",
+      "references": [
+        {
+          "path": "docs/gui_nova/bloque_3_resultados.md"
+        }
+      ]
+    },
+    "GUI_ACTIVITY": {
+      "classification": "CURRENT_PORTABLE_CI",
+      "job": "core",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "ordinary_ci": true,
+      "reason": "GUI-B4 typed activity, private bounded output, redaction and preserved runtime authority use scripted providers and owned process fixtures, without Ollama, GPU, external network or GUI.",
+      "references": [
+        {
+          "path": "docs/gui_nova/bloque_4_resultados.md"
+        }
+      ]
+    },
+    "GUI_PROJECTS": {
+      "classification": "CURRENT_PORTABLE_CI",
+      "job": "core",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "ordinary_ci": true,
+      "reason": "GUI-B5 workspace transactions, fresh runtime authority, conversation preservation and pending-operation guards use owned directories and scripted providers without GUI, Ollama or external network.",
+      "references": [
+        {
+          "path": "docs/gui_nova/bloque_5_resultados.md"
+        }
+      ]
+    },
+    "GUI_MODEL_LIBRARY": {
+      "classification": "CURRENT_PORTABLE_CI",
+      "job": "core",
+      "platforms": [
+        "Windows",
+        "Linux",
+        "macOS"
+      ],
+      "ordinary_ci": true,
+      "reason": "GUI-B6 optional strict model-library errors and cache preservation use mocked responses; no Ollama, GUI, download or external network.",
+      "references": [
+        {
+          "path": "docs/gui_nova/bloque_6_resultados.md"
+        }
+      ]
     }
   },
   "contracts": [
@@ -20120,6 +20200,391 @@
       "nodeid": "tests/test_cli_response_delivery.py::test_recovered_terminal_snapshot_also_explains_failure",
       "classification": "CURRENT_PORTABLE_CI",
       "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_readiness_compatible_local_model_and_optional_services_do_not_gate_chat",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_readiness_reports_exact_block_without_private_provider_text",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_readiness_other_provider_is_truthfully_unverified_and_does_not_probe",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_completion_only_model_is_ready_without_inference_or_tool_authority",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_wrong_session_rejected_without_provider_io",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_readiness_during_inflight_preserves_pinned_runtime_and_never_touches_authority",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_provider_switch_during_probe_is_stale_without_mutating_new_identity",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_jsonl_get_readiness_uses_application_and_rejects_user_claimed_authority",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_jsonl_probe_is_singleflight_and_does_not_block_other_requests",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_readiness.py::test_readiness_observation_does_not_select_model_or_start_turn",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_READINESS"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_live_and_terminal_message_identity_timestamp_and_canonical_mapping",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_preamble_tool_only_and_final_have_separate_ids_without_content_matching",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_real_agent_loop_binds_preamble_and_final_to_their_canonical_messages",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_partial_generation_never_becomes_completed_public_message",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_append_only_runtime_gets_host_identity_without_fabricating_a_generation",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_display_redaction_and_no_presentation_metadata_in_model_or_persistence",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_rejected_submission_has_no_user_presentation_and_accepted_id_is_stable",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_resume_keeps_domain_outcomes_but_does_not_fabricate_historical_timestamps",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_workspace_rebase_remaps_exact_indices_and_preserves_observed_message_ids",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_live_activity_receipt_ids_reconnect_and_authoritative_terminal",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_typed_policy_and_approval_denial_never_start",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_unknown_cancelled_process_is_never_success_or_retried",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_public_tool_events_never_include_activity_arguments_cwd_or_output",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_progress_redacts_split_secrets_utf8_and_bounds_bytes_and_frequency",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_snapshot_final_outputs_and_error_are_redacted_and_bounded",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_activity_structure_survives_secret_equal_to_status_and_split_chunks",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_large_write_arguments_are_only_bounded_in_activity_preview",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_resume_clears_only_presentation_activity_and_retains_execution_receipts",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_pending_progress_flushes_while_process_is_silent_and_still_running",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_activity.py::test_native_host_output_callback_arrives_while_process_is_running",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_ACTIVITY"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_project_selection_preserves_conversation_and_presentation_identity",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_new_project_runtime_reads_writes_new_root_and_rejects_old_context_and_grant",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_next_model_turn_uses_new_workspace_through_application_runtime",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_invalid_project_does_not_change_effective_workspace",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_active_turn_prevents_project_change_until_finished",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_active_service_and_pending_approval_prevent_project_change",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_browser_human_control_prevents_project_rebinding",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_failed_runtime_preparation_preserves_project_transcript_and_authority",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_jsonl_folder_selection_commits_fresh_runtime_and_keeps_old_tools_immutable",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_projects.py::test_jsonl_preparation_failure_keeps_server_projection_and_runtime",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_PROJECTS"
+    },
+    {
+      "nodeid": "tests/test_gui_model_library.py::test_search_failure_preserves_legacy_fallback_and_strict_error",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_MODEL_LIBRARY"
+    },
+    {
+      "nodeid": "tests/test_gui_model_library.py::test_search_successful_empty_result_is_not_an_outage",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_MODEL_LIBRARY"
+    },
+    {
+      "nodeid": "tests/test_gui_model_library.py::test_catalog_all_queries_unavailable_does_not_overwrite_cache",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_MODEL_LIBRARY"
+    },
+    {
+      "nodeid": "tests/test_gui_model_library.py::test_catalog_partial_response_can_refresh_without_fabricating_models",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_MODEL_LIBRARY"
+    },
+    {
+      "nodeid": "tests/test_gui_model_library.py::test_catalog_empty_valid_response_is_success",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_MODEL_LIBRARY"
+    },
+    {
+      "nodeid": "tests/test_gui_model_library.py::test_catalog_legacy_call_does_not_force_strict_search",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_MODEL_LIBRARY"
+    },
+    {
+      "nodeid": "tests/test_gui_model_library.py::test_server_model_errors_are_correlated_and_sanitized",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_MODEL_LIBRARY"
+    },
+    {
+      "nodeid": "tests/test_gui_model_library.py::test_server_library_unavailable_is_not_empty_success",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_MODEL_LIBRARY"
+    },
+    {
+      "nodeid": "tests/test_gui_model_library.py::test_server_empty_search_response_is_a_correlated_success",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_MODEL_LIBRARY"
+    },
+    {
+      "nodeid": "tests/test_message_dates.py::test_saved_copy_retains_only_dates_and_never_alters_model_messages",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_message_dates.py::test_invalid_or_absent_dates_never_become_current_time",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_message_dates.py::test_both_storage_formats_preserve_dates_for_owner_restore_and_strip_them_for_legacy_model_readers",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_message_dates.py::test_new_message_dates_survive_fresh_session_restore_without_entering_inference_or_reviving_operations",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_desktop_context.py::test_context_setter_accepts_only_exact_supported_numeric_payloads",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_desktop_context.py::test_preset_persists_across_fresh_store_and_corruption_preserves_default",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_desktop_context.py::test_change_reaches_next_inference_preserves_transcript_and_is_idempotent",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_desktop_context.py::test_rejected_limit_revision_and_save_failure_leave_previous_selection",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_desktop_context.py::test_active_turn_cannot_change_context",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_message_dates.py::test_legacy_archive_date_is_preserved_across_later_autosaves_and_fresh_restores",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_nova_core_phase10_persistence.py::test_clear_history_deletes_every_project_chat_and_preserves_other_stores",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_nova_core_phase10_persistence.py::test_failed_profile_history_clear_returns_failure_and_retains_live_conversation",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_nova_core_phase10_persistence.py::test_profile_history_clear_refuses_linked_storage_before_deleting_any_chat",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_conversation_store.py::test_legacy_chat_is_only_loaded_for_its_recorded_project_and_clear_cannot_resurrect_it",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_conversation_store.py::test_similar_project_names_have_independent_chat_storage",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_deleting_one_project_chat_preserves_other_chats_and_project_files",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_project_chat_save_failure_keeps_the_current_project_and_conversation",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_project_chats_switch_transcripts_dates_and_model_context_without_replaying_actions",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_gui_conversation.py::test_jsonl_project_chat_query_during_turn_is_read_only_and_mutations_stay_blocked",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "GUI_CONVERSATION"
+    },
+    {
+      "nodeid": "tests/test_stream_cancellation.py::test_cancel_before_http_headers_closes_only_one_request",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_stream_cancellation.py::test_cancel_mid_line_keeps_observed_partial_and_releases_socket",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_stream_cancellation.py::test_cancellation_is_local_to_request_and_does_not_cancel_shared_client",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_stream_cancellation.py::test_already_cancelled_stream_never_opens_a_request",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_stream_cancellation.py::test_abrupt_eof_is_a_failure_and_is_never_retried",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_stream_cancellation.py::test_agent_does_not_retry_or_execute_tools_after_transport_cancellation",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_stream_cancellation.py::test_application_cancel_releases_pinned_generation_and_accepts_next_turn",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_stream_cancellation.py::test_legacy_injected_ollama_client_keeps_its_stream_interface",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
+    },
+    {
+      "nodeid": "tests/test_stream_cancellation.py::test_cancel_during_overload_backoff_never_starts_another_request",
+      "classification": "CURRENT_PORTABLE_CI",
+      "rule": "CORE"
     }
   ],
   "non_pytest_historical_artifacts": [
@@ -20142,10 +20607,54 @@
       "tests/memory_control.test.cjs",
       "tests/memory_maintenance.test.cjs",
       "tests/knowledge_control.test.cjs",
-      "tests/knowledge_k7.test.cjs"
+      "tests/knowledge_k7.test.cjs",
+      "tests/desktop_presentation_host.test.cjs",
+      "tests/desktop_model_preferences.test.cjs",
+      "tests/readiness_client.test.cjs",
+      "tests/conversation_client.test.cjs",
+      "tests/conversation_preferences.test.cjs",
+      "tests/activity_client.test.cjs",
+      "tests/activity_presentation.test.cjs",
+      "tests/approval_surface.test.cjs",
+      "tests/projects_host.test.cjs",
+      "tests/projects_client.test.cjs",
+      "tests/project_presentation.test.cjs",
+      "tests/model_operations.test.cjs",
+      "tests/model_catalog_presentation.test.cjs",
+      "tests/model_catalog_locale.test.cjs",
+      "tests/desktop_host_locale.test.cjs",
+      "tests/settings_client.test.cjs",
+      "tests/settings_presentation.test.cjs",
+      "tests/settings_actions.test.cjs",
+      "tests/knowledge_settings.test.cjs",
+      "tests/memory_settings.test.cjs",
+      "tests/web_settings.test.cjs",
+      "tests/backend_recovery.test.cjs",
+      "tests/turn_activity.test.cjs",
+      "tests/activity_visuals.test.cjs",
+      "tests/message_controls.test.cjs",
+      "tests/context_settings.test.cjs",
+      "tests/startup_screen.test.cjs",
+      "tests/project_chats.test.cjs"
     ],
     "additional": "npx --no-install tsc --noEmit",
     "no_gui_model_packaging_publish": true
   },
-  "historical_ready_states_preserved": true
+  "historical_ready_states_preserved": true,
+  "desktop_manual_approval_fixture": {
+    "platform": "Windows",
+    "file": "desktop/tests/approval_surface.electron-smoke.cjs",
+    "runner": "installed Electron; build approval_preload.js first; explicit --case=allow, --case=deny or --case=final-ready --ready-only",
+    "ordinary_ci": false,
+    "no_real_execution_effects": true,
+    "reference": "docs/gui_nova/bloque_4_resultados.md"
+  },
+  "desktop_manual_gui_windows": {
+    "platform": "Windows",
+    "file": "desktop/tests/gui_windows.electron.cjs",
+    "runner": "installed Electron after npm run build:source; NOVA_GUI_TEST_OUTPUT (fresh owned directory), NOVA_TEST_PYTHON; optional --real-model uses installed model unchanged",
+    "ordinary_ci": false,
+    "no_packaging_or_download": true,
+    "reference": "docs/gui_nova/bloque_8_resultados.md"
+  }
 }

@@ -6,6 +6,7 @@ Launched exclusively by the Electron E2E harness in an isolated workspace.
 
 import sys
 import time
+import os
 from pathlib import Path
 
 from local_cli.application.rag import RAGService
@@ -16,11 +17,23 @@ import local_cli.bootstrap_server as server_module
 
 
 class ScriptedClient:
+    downloaded = set()
+    refresh_delay = False
     def __init__(self, base_url="http://localhost:11434"):
         self.base_url = base_url
 
     def list_models(self):
-        return [{"name": "local:7b", "size": 4_000_000_000}, {"name": "local:8b", "size": 5_000_000_000}]
+        return [{"name": "local:7b", "size": 4_000_000_000}, {"name": "local:8b", "size": 5_000_000_000}] + [
+            {"name": name, "size": 1_000_000_000} for name in self.downloaded]
+
+    def pull_model(self, model):
+        assert os.environ.get("NOVA_TEST_MODEL_DOWNLOAD") == "1", "Downloads require the isolated fixture flag"
+        for percent, pause in [(15, 5), (55, 4), (100, 2)]:
+            yield {"status": "pulling fixture-layer", "completed": percent, "total": 100}
+            time.sleep(pause)
+        self.downloaded.add(model)
+        self.__class__.refresh_delay = True
+        yield {"status": "success"}
 
     def show_model(self, model):
         return {"name": model, "capabilities": ["completion", "tools"],
@@ -40,6 +53,13 @@ class ScriptedClient:
             }[task]
             yield {"message": {"role": "assistant", "content": "", "tool_calls": [{
                 "function": {"name": name, "arguments": arguments}}]}, "done": True}
+            return
+        if task.startswith("stream-markdown:"):
+            yield {"message": {"role": "assistant", "content": task.split(":", 1)[1]}, "done": False}
+            for _ in range(300):
+                time.sleep(0.025)
+                yield {"message": {"role": "assistant", "content": ""}, "done": False}
+            yield {"message": {"role": "assistant", "content": ""}, "done": True}
             return
         if task == "long":
             for _ in range(300):
@@ -70,6 +90,12 @@ class Retrieval:
 
 
 class DesktopServer(JsonLineServer):
+    def _handle_catalog(self, req_id):
+        if ScriptedClient.refresh_delay:
+            ScriptedClient.refresh_delay = False
+            time.sleep(2)
+        super()._handle_catalog(req_id)
+
     def _bg_update_check(self):
         pass  # No updater/network side effects in an isolated E2E.
 
@@ -79,11 +105,25 @@ class DesktopServer(JsonLineServer):
         return self._rag_service
 
 
+# Workspace changes recreate retrieval through this factory too.
+server_module.create_rag_service = lambda **kwargs: RAGService(Retrieval())
 server_module.OllamaClient = ScriptedClient
 # Exercise the supported Git-absent path; no Git worktree/update is needed.
 import local_cli.infrastructure.capabilities as capabilities
 from local_cli.git_capability import GitCapability
 capabilities.detect_git_capability = lambda *args, **kwargs: GitCapability.UNAVAILABLE
+if os.environ.get("NOVA_TEST_MODEL_DOWNLOAD") == "1":
+    import local_cli.server as jsonl_server
+    jsonl_server.get_merged_catalog = lambda: ([{
+        "name": "downloaded:1b", "display": "Downloaded fixture", "category": "Test",
+        "params": "1B", "size_gb": 1, "description": "Owned download fixture", "tags": [],
+    }], ["Test"])
 server = DesktopServer()
 server._provider_manager._factory = NamedProvider
+if os.environ.get("NOVA_TEST_DELAY_READINESS") == "1":
+    _readiness = server._application.get_readiness
+    def delayed_readiness(session_id):
+        time.sleep(0.4)
+        return _readiness(session_id)
+    server._application.get_readiness = delayed_readiness
 server.run()

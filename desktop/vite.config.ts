@@ -12,9 +12,24 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron',
-            commonjsOptions: { include: [/node_modules/, /approval_host\.cjs$/] },
+            commonjsOptions: { include: [/node_modules/, /approval_(host|surface)\.cjs$/, /(confirmation|question)_surface\.cjs$/, /project_chats\.cjs$/, /desktop_(preferences|host_policy|model_preferences)\.cjs$/, /conversation_preferences\.cjs$/, /projects_host\.cjs$/] },
           },
         },
+      },
+      {
+        entry: 'electron/question_preload.ts',
+        onstart({ reload }) { reload() },
+        vite: { build: { outDir: 'dist-electron' } },
+      },
+      {
+        entry: 'electron/confirmation_preload.ts',
+        onstart({ reload }) { reload() },
+        vite: { build: { outDir: 'dist-electron' } },
+      },
+      {
+        entry: 'electron/approval_preload.ts',
+        onstart({ reload }) { reload() },
+        vite: { build: { outDir: 'dist-electron' } },
       },
       {
         entry: 'electron/preload.ts',

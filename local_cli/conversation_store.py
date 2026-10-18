@@ -18,6 +18,7 @@ mid-save cannot corrupt the previous good copy), tolerant load
 """
 
 import json
+import hashlib
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -46,14 +47,37 @@ class ConversationStore:
             self._cwd = str(Path(cwd or os.getcwd()).resolve())
         except OSError:
             self._cwd = str(cwd or "?")
-        self._dir = (
+        self._legacy_dir = (
             Path(state_dir).expanduser() / "projects"
             / project_slug(self._cwd)
         )
+        identity = hashlib.sha256(os.path.normcase(self._cwd).encode('utf-8')).hexdigest()[:16]
+        self._dir = self._legacy_dir.with_name(self._legacy_dir.name + '-' + identity)
 
     @property
     def path(self) -> Path:
         return self._dir / _FILENAME
+
+    @property
+    def history_paths(self) -> list[Path]:
+        paths = [self.path]
+        legacy = self._legacy_dir / _FILENAME
+        try:
+            with legacy.open(encoding='utf-8') as stream:
+                first = json.loads(stream.readline(131072))
+            cwd = first.get('cwd') if isinstance(first, dict) and first.get('_meta') else None
+            if isinstance(cwd, str) and Path(cwd).is_absolute() and os.path.normcase(str(Path(cwd).resolve())) == os.path.normcase(self._cwd):
+                paths.append(legacy)
+        except (OSError, ValueError, IndexError):
+            pass
+        return paths
+
+    def _read_path(self):
+        return next((path for path in self.history_paths if path.exists()), self.path)
+
+    def clear_checked(self):
+        for path in self.history_paths:
+            path.unlink(missing_ok=True)
 
     # ------------------------------------------------------------------
     # Save / load / clear
@@ -86,15 +110,16 @@ class ConversationStore:
                 fh.write(json.dumps(message, ensure_ascii=False, default=str) + "\n")
         os.replace(tmp_path, self.path)
 
-    def load(self) -> list[dict[str, Any]]:
+    def load(self, *, include_presentation: bool = False, include_archive_date: bool = False) -> list[dict[str, Any]]:
         """Return the saved messages ([] if absent or unreadable)."""
         if not self._enabled:
             return []
         try:
-            text = self.path.read_text(encoding="utf-8")
+            text = self._read_path().read_text(encoding="utf-8")
         except OSError:
             return []
         messages: list[dict[str, Any]] = []
+        archived_at = None
         for line in text.splitlines():
             line = line.strip()
             if not line:
@@ -103,9 +128,22 @@ class ConversationStore:
                 obj = json.loads(line)
             except ValueError:
                 continue
-            if not isinstance(obj, dict) or obj.get("_meta"):
+            if not isinstance(obj, dict):
+                continue
+            if obj.get('_meta'):
+                value = obj.get('saved_at')
+                try:
+                    if isinstance(value, str) and len(value) <= 64 and datetime.fromisoformat(value).tzinfo is not None:
+                        archived_at = value
+                except ValueError:
+                    pass
                 continue
             if "role" in obj:
+                if not include_presentation:
+                    obj.pop("_nova_display", None)
+                elif include_archive_date and archived_at and obj.get('role') in ('user', 'assistant') and not obj.get('_nova_display'):
+                    # This is the archive's date, never an invented send/completion time.
+                    obj['_nova_display'] = {'savedAt': archived_at}
                 messages.append(obj)
         return messages
 
@@ -116,7 +154,7 @@ class ConversationStore:
             return None
         saved_at = ""
         try:
-            first_line = self.path.read_text(
+            first_line = self._read_path().read_text(
                 encoding="utf-8",
             ).splitlines()[0]
             meta = json.loads(first_line)
@@ -139,6 +177,6 @@ class ConversationStore:
     def clear(self) -> None:
         """Discard the saved conversation (e.g. on /clear).  Never raises."""
         try:
-            self.path.unlink(missing_ok=True)
+            self.clear_checked()
         except OSError:
             pass

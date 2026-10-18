@@ -10,11 +10,35 @@ export type ToolResult = {
   output: string
 }
 
+/** Owner-facing observation from Application, never execution authority. */
+export type ToolActivity = {
+  operationId: string; toolCallId: string; turnId: string; messageId: string | null
+  name: string; arguments: Record<string, unknown>; cwd: string
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'denied' | 'cancelled' | 'outcome_unknown'
+  operationStatus: string; effectState: 'none' | 'applied' | 'partial' | 'unknown'
+  errorCode?: string | null; exitCode?: number | null
+  output: string; stdout: string; stderr: string; outputSequence: number; outputTruncated: boolean
+  startedAt?: string; completedAt?: string; observationLost?: boolean
+}
+
+/** Read-only timing/identity from Application's turn sidecar. Never tool authority. */
+export type TurnObservation = {
+  id: string; status: string; startedAt?: string; completedAt?: string
+}
+
 export type Message = {
+  turn?: TurnObservation
   id: string
   role: MessageRole
   content: string
   sourceIndex?: number
+  toolActivities?: ToolActivity[]
+  errorCode?: string
+  generationId?: string
+  createdAt?: string
+  savedAt?: string
+  completedAt?: string
+  deliveryStatus?: 'streaming' | 'completed' | 'cancelled' | 'failed'
   attachmentRefs?: import('../shared/application').AttachmentRef[]
   knowledgeCitations?:import('../shared/application').KnowledgeCitations
   toolCalls?: ToolCall[]
@@ -38,9 +62,19 @@ export type FileEntry = {
   isSymlink: boolean
 }
 
+export type ProjectFolder = { path: string; name: string; isDefault: boolean }
+export type ProjectState = {
+  schemaVersion: 1; defaultPath: string; activePath: string | null
+  folders: ProjectFolder[]; busy: boolean; error?: { code: string } | null
+}
+export type ProjectAction = 'add' | 'change' | 'select' | 'remove' | 'open'
+export type ProjectActionResult = { success: boolean; canceled?: boolean; state: ProjectState; error?: { code: string } }
+export type ListDirResult =
+  | { success: true; root: string; path: string; entries: FileEntry[]; truncated: boolean; nextOffset: number | null; limitReached?: boolean }
+  | { success: false; root?: string; path?: string; error: { code: string } }
 export type ReadFileResult =
-  | { content: string; error?: never; size?: never }
-  | { error: 'too_large'; size: number; content?: never }
+  | { success: true; root: string; path: string; content: string }
+  | { success: false; root?: string; path?: string; size?: number; error: { code: string } }
 
 export type ResumableInfo = {
   count: number
@@ -80,6 +114,22 @@ export type PythonMessage = {
 declare global {
   interface Window {
     api: {
+      getProjectChats: () => Promise<{success:boolean;chats?:Array<{path:string;hasHistory:boolean;messageCount:number;savedAt?:string|null}>;error?:{code:string}}>
+      clearProjectChat: (path?:string) => Promise<{success:boolean;canceled?:boolean;error?:{code:string}}>
+      initialDesktopLocale?: 'es' | 'en'
+      initialDesktopAppearance?: import('../shared/desktop_appearance').AppearancePreferences
+      copyMessage: (messageId: string) => Promise<{ success: boolean }>
+      getDesktopPreferences: () => Promise<import('../electron/desktop_preferences.cjs').DesktopPreferences>
+      setDesktopAppearance: (value: import('../shared/desktop_appearance').AppearancePreferences) => Promise<import('../electron/desktop_preferences.cjs').DesktopPreferencesResult>
+      refreshReadiness: () => Promise<void>
+      retryModelDownloadInventory: () => Promise<{success:boolean}>
+      setHistoryVisible: (visible: boolean) => Promise<{ success: boolean }>
+      reviewPendingApproval: () => Promise<{ success: boolean }>
+      reviewPendingQuestion: () => Promise<{ success: boolean }>
+      setDesktopLocale: (locale: 'es' | 'en') => Promise<
+        { success: true; preferences: { schemaVersion: 1; locale: 'es' | 'en' } }
+        | { success: false; error: { code: string; message: string } }
+      >
       memoryCommand: (name: string, args: Record<string, unknown>, commandId?: string) => Promise<import('../shared/application').MemoryControlResult>
       knowledgePick: () => Promise<import('../shared/application').CommandReceipt>
       knowledgeRefresh:(sourceId:string)=>Promise<import('../shared/application').CommandReceipt>
@@ -94,7 +144,10 @@ declare global {
       onPythonStderr: (cb: (text: string) => void) => () => void
       onPythonExit: (cb: (code: number | null) => void) => () => void
       getPythonStatus: () => Promise<{ running: boolean }>
-      listDir: (dirPath: string) => Promise<FileEntry[]>
+      getProjects: () => Promise<ProjectState>
+      onProjectsChanged: (callback: (state: ProjectState) => void) => () => void
+      projectAction: (action: ProjectAction, path?: string) => Promise<ProjectActionResult>
+      listDir: (dirPath: string, offset?: number) => Promise<ListDirResult>
       readFile: (filePath: string) => Promise<ReadFileResult>
       openDirectoryDialog: () => Promise<Electron.OpenDialogReturnValue>
       getHomeDir: () => Promise<string>

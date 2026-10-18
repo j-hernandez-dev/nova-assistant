@@ -9,6 +9,7 @@ from pathlib import Path
 import os
 import re
 import tempfile
+import stat
 from threading import RLock
 from typing import Any, Mapping
 
@@ -37,9 +38,44 @@ def _key(value: str) -> str:
     return value
 
 
+def clear_project_history(state_dir, *, workspace=None) -> None:
+    """Delete only project chat autosaves within this configured profile."""
+    projects = _absolute(state_dir) / 'projects'
+    def ordinary(path, directory=False):
+        metadata = path.lstat()
+        if (stat.S_ISLNK(metadata.st_mode) or
+                getattr(metadata, 'st_file_attributes', 0) & getattr(stat, 'FILE_ATTRIBUTE_REPARSE_POINT', 0)):
+            raise PersistenceError('CLEAR_HISTORY_FAILED', 'A history path is a filesystem link.')
+        return stat.S_ISDIR(metadata.st_mode) if directory else stat.S_ISREG(metadata.st_mode)
+    try:
+        if not projects.exists():
+            return
+        if not ordinary(projects, directory=True):
+            raise PersistenceError('CLEAR_HISTORY_FAILED')
+        candidates = []
+        selected = [item.parent for item in ConversationStore(str(_absolute(state_dir)), cwd=str(_absolute(workspace))).history_paths] if workspace is not None else projects.iterdir()
+        for project in selected:
+            if not project.exists():
+                continue
+            if not ordinary(project, directory=True):
+                continue
+            target = project / 'last-conversation.jsonl'
+            try:
+                if ordinary(target):
+                    candidates.append(target)
+            except FileNotFoundError:
+                pass
+        # Preflight every path before deleting. Logs, Memory, sources and project files are separate stores.
+        for target in candidates:
+            target.unlink(missing_ok=True)
+    except OSError as exc:
+        raise PersistenceError('CLEAR_HISTORY_FAILED', 'The saved project history could not be fully deleted.') from exc
+
+
 class LegacyConversationRepository:
     def __init__(self, state_dir, workspace):
-        self._store = ConversationStore(str(_absolute(state_dir)), cwd=str(_absolute(workspace)))
+        self._state_dir, self._workspace = _absolute(state_dir), _absolute(workspace)
+        self._store = ConversationStore(str(self._state_dir), cwd=str(self._workspace))
         self._lock = RLock()
 
     def save(self, messages):
@@ -52,7 +88,7 @@ class LegacyConversationRepository:
     def load(self):
         with self._lock:
             try:
-                return self._store.load()
+                return self._store.load(include_presentation=True)
             except Exception as exc:
                 raise PersistenceError("TRANSCRIPT_LOAD_FAILED") from exc
 
@@ -63,10 +99,17 @@ class LegacyConversationRepository:
             except Exception as exc:
                 raise PersistenceError("TRANSCRIPT_LOAD_FAILED") from exc
 
+    def load_for_restore(self):
+        with self._lock:
+            try:
+                return self._store.load(include_presentation=True, include_archive_date=True)
+            except Exception as exc:
+                raise PersistenceError('TRANSCRIPT_LOAD_FAILED') from exc
+
     def clear(self):
         with self._lock:
             try:
-                self._store.path.unlink(missing_ok=True)
+                clear_project_history(self._state_dir, workspace=self._workspace)
             except OSError as exc:
                 raise PersistenceError("CLEAR_FAILED") from exc
 
@@ -109,7 +152,7 @@ class LegacySessionSnapshotStore:
         with self._lock:
             key = _key(session_id)
             try:
-                return SessionManager(str(self._state_dir)).load_session(key)
+                return SessionManager(str(self._state_dir)).load_session(key, include_presentation=True)
             except Exception as exc:
                 raise PersistenceError("SNAPSHOT_LOAD_FAILED") from exc
 

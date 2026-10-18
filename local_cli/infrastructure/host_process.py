@@ -29,12 +29,13 @@ class _Capture:
 
 class HostProcessLauncher:
     """Native controls apply to our launch/capture and measured lifecycle only."""
+    supports_output_progress = True
     def __init__(self, *, popen=None, tree_factory=None):
         self._popen = popen or subprocess.Popen
         self._tree_factory = tree_factory or (WindowsJob if os.name == 'nt' else PosixGroup)
 
     def launch(self, request: ProcessLaunchRequest, *, cancellation_token,
-               deadline, validate_launch):
+               deadline, validate_launch, on_output=None):
         states = ['launch_not_started']
         def early(outcome, code):
             return ProcessReport(None, None, '', '', outcome, code, tuple(states))
@@ -63,6 +64,16 @@ class HostProcessLauncher:
             return early('failed', 'PROCESS_LAUNCH_FAILED')
         states.append('running')
         stdout, stderr = _Capture(request.limits.stdout_bytes), _Capture(request.limits.stderr_bytes)
+        def capture_chunk(channel, capture, chunk):
+            previous_size, previous_cut = len(capture.data), capture.truncated
+            capture.add(chunk)
+            if on_output is not None and (len(capture.data) > previous_size or capture.truncated != previous_cut):
+                # Publication is optional observation. It cannot interrupt or
+                # alter launch authorization, supervision or capture limits.
+                try:
+                    on_output(channel, bytes(capture.data[previous_size:]), capture.truncated)
+                except Exception:
+                    pass
         tree = None
         readers = []
         stop = None
@@ -79,9 +90,9 @@ class HostProcessLauncher:
             readers = [PipeReader(proc.stdout), PipeReader(proc.stderr)]
             while True:
                 progressed = False
-                for reader, capture in zip(readers, (stdout, stderr)):
+                for channel, reader, capture in zip(('stdout', 'stderr'), readers, (stdout, stderr)):
                     chunk = reader.read()
-                    capture.add(chunk)
+                    capture_chunk(channel, capture, chunk)
                     progressed |= bool(chunk)
                 code = proc.poll()
                 if code is not None and not root_exited:
@@ -105,12 +116,12 @@ class HostProcessLauncher:
                             # for EOF on pipes inherited by a surviving GUI process.
                             # Drain a bounded amount of already available startup
                             # output; this is not ongoing application log capture.
-                            for reader, capture in zip(readers, (stdout, stderr)):
+                            for channel, reader, capture in zip(('stdout', 'stderr'), readers, (stdout, stderr)):
                                 for _ in range((capture.limit + 4095) // 4096 + 1):
                                     chunk = reader.read()
                                     if not chunk:
                                         break
-                                    capture.add(chunk)
+                                    capture_chunk(channel, capture, chunk)
                             children_released = True
                             cleanup_scope = 'launcher_only_children_released'
                             states.extend(('children_released', 'cleanup_confirmed'))

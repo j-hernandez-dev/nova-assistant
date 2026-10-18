@@ -13,7 +13,9 @@ import json
 from pathlib import Path
 from threading import Event, RLock, Thread
 from typing import Any, Callable, Mapping
+from uuid import uuid4
 
+from local_cli.application.message_dates import saved_with_dates, restored_with_dates, display_dates
 from local_cli.application.commands import (
     ApplicationCommand, ApplicationError, CommandKind, CommandReceipt,
     ErrorCategory,
@@ -40,6 +42,8 @@ from local_cli.application.events import EventBufferConfig, EventCursor, Session
 from local_cli.application.tool_runtime import (
     LegacyToolAdapter, ToolEvent, ToolRegistry, ToolRuntime,
 )
+from local_cli.application.process import TOOL_OUTPUT_BYTES
+from local_cli.legacy_contracts import tool_result_to_legacy_text
 from local_cli.core.contracts import (
     CausationId, CommandId, EventEnvelope, EventKind, GenerationId, OperationId,
     OperationStatus, OperationType, RuntimeCapabilitySnapshot, SessionId,
@@ -54,6 +58,9 @@ from local_cli.prompts import build_system_prompt
 from local_cli.security import get_sanitized_env
 from local_cli.tools.shell_tool import ShellTool
 from local_cli.sub_agent import SubAgent, SubAgentResult, SubAgentRunner
+
+
+TOOL_ARGUMENT_BYTES = 8 * 1024
 
 
 @dataclass
@@ -101,6 +108,8 @@ class Turn:
     # Ephemeral owner-facing execution projection; never a second transcript,
     # prompt source, durable journal or renderer-owned lifecycle.
     display_messages: list[dict[str, Any]] = field(default_factory=list)
+    tool_activities: dict[str, dict[str, Any]] = field(default_factory=dict, repr=False)
+    user_message: dict[str, Any] | None = field(default=None, repr=False)
     transcript_start: int = 0
     transcript_end: int | None = None
     capabilities: RuntimeCapabilitySnapshot | None = field(default=None, repr=False)
@@ -128,6 +137,7 @@ class AgentSession:
     tools: list[Any]
     transcript: list[dict[str, Any]]
     base_transcript: list[dict[str, Any]] = field(default_factory=list)
+    restored_display_dates: dict[int, dict[str, str]] = field(default_factory=dict, repr=False)
     installed_tools: list[Any] = field(default_factory=list, repr=False)
     environment: dict[str, str] = field(default_factory=dict)
     capabilities: RuntimeCapabilitySnapshot | None = field(default=None, repr=False)
@@ -210,6 +220,7 @@ class AgentSessionCoordinator:
         memory_extractor_factory: Any = None,
         fetch_enabled: bool = True,
         fetch_enabled_save: Callable[[bool], None] | None = None,
+        context_selection_save: Callable[[int], None] | None = None,
     ) -> None:
         if type(fetch_enabled) is not bool:
             raise ValueError('Fetch enabled must be true or false')
@@ -238,6 +249,7 @@ class AgentSessionCoordinator:
         self._process_service = process_service
         self._network_service = network_service
         self._context_selection, self._context_policy = context_selection, context_policy
+        self._context_selection_save = context_selection_save
         self._capability_factory = capability_factory
         self._persistence_factory, self._rag_factory = persistence_factory, rag_factory
         self._initial_messages_factory = initial_messages_factory
@@ -332,6 +344,8 @@ class AgentSessionCoordinator:
                 receipt = self._rag_command(command)
             elif command.kind is CommandKind.EXECUTE_COMMAND:
                 receipt = self._persistence_command(command)
+            elif command.kind is CommandKind.SET_CONTEXT_WINDOW:
+                receipt = self._set_context_window(command)
             elif command.kind is CommandKind.SET_FETCH_ENABLED:
                 receipt = self._set_fetch_enabled(command)
             elif command.kind is CommandKind.SET_SEARCH_ENGINE:
@@ -493,6 +507,37 @@ class AgentSessionCoordinator:
         session.state_revision += 1
         return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
 
+    def _set_context_window(self, command: ApplicationCommand) -> CommandReceipt:
+        session = self._active_session(command)
+        if session is None:
+            return self._reject(command, 'INVALID_SESSION', 'No matching active AgentSession')
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, 'REVISION_CONFLICT', 'Session revision changed')
+        if (any(not t.done.is_set() for t in session.turns)
+                or any(not a.done.is_set() for a in session.agent_operations.values())):
+            return self._reject(command, 'CONFLICT_ACTIVE_OPERATION', 'Context settings cannot change during active execution.')
+        from local_cli.application.context_settings import resolve_context
+        from local_cli.core.context import ContextError
+        requested = command.payload['requestedTokens']
+        try:
+            runtime = self.provider_manager.snapshot().snapshot
+            # Before the first turn, the initial runtime may not yet have model
+            # metadata. Read it without inference before validating a GUI save.
+            if runtime.model_context_window is None and runtime.provider_id in self.provider_manager.SUPPORTED:
+                runtime = self.provider_manager.refresh_status()
+            resolve_context(requested, self._context_policy, runtime)
+        except ContextError as exc:
+            return self._reject(command, exc.code, str(exc))
+        try:
+            if self._context_selection_save is not None:
+                self._context_selection_save(requested)
+        except (OSError, ValueError):
+            return self._reject(command, 'CONTEXT_PREFERENCES_SAVE_FAILED',
+                                'Could not save context settings. The previous setting is unchanged.')
+        self._context_selection = requested
+        session.state_revision += 1
+        return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
+
     def _set_fetch_enabled(self, command: ApplicationCommand) -> CommandReceipt:
         session = self._active_session(command)
         if session is None:
@@ -588,21 +633,7 @@ class AgentSessionCoordinator:
             on_resolved=lambda request, reason: self._publish_user_input_resolved(
                 session, request, reason),
         )
-        session.tool_runtime = ToolRuntime(
-            registry, auto_approve=self._auto_approve,
-            approval_gate=session.approval_gate,
-            user_input_gate=session.user_input_gate,
-            publish=lambda event: self._publish_tool_event(session, event),
-            on_agent_started=lambda *args: self._publish_agent_started(session, *args),
-            on_agent_completed=lambda *args: self._publish_agent_completed(session, *args),
-            process_service=self._process_service,
-            network_service=self._network_service,
-            redactor=self.redactor, environment_service=self._environment_service,
-            environment_selector=self._environment_selector,
-            security_audit=self.security_audit,
-            fetch_enabled=self._fetch_enabled,
-        )
-        session.tool_runtime.install_authority(workspace, session_id)
+        session.tool_runtime = self._create_tool_runtime(session, registry, workspace)
         self._session = session
         if self._persistence_factory is not None:
             try:
@@ -640,6 +671,35 @@ class AgentSessionCoordinator:
         return CommandReceipt(command_id=command.command_id, accepted=True,
                               session_id=session_id, state_revision=1,
                               created_ids={"sessionId": session_id})
+
+    def _create_tool_runtime(self, session, registry, workspace, *, policy=None):
+        """A workspace selection installs a fresh ceiling, broker and issuer.
+
+        Conversation continuity never transfers the previous project's Grants,
+        filesystem handles, cached tool results or Browser-derived bindings.
+        """
+        runtime = ToolRuntime(
+            registry, auto_approve=self._auto_approve,
+            approval_gate=session.approval_gate,
+            user_input_gate=session.user_input_gate,
+            publish=lambda event: self._publish_tool_event(session, event),
+            publish_progress=lambda *args: self._publish_tool_progress(session, *args),
+            on_agent_started=lambda *args: self._publish_agent_started(session, *args),
+            on_agent_completed=lambda *args: self._publish_agent_completed(session, *args),
+            process_service=self._process_service,
+            network_service=self._network_service,
+            redactor=self.redactor, environment_service=self._environment_service,
+            environment_selector=self._environment_selector,
+            security_audit=self.security_audit,
+            fetch_enabled=self._fetch_enabled,
+            policy=policy,
+        )
+        try:
+            runtime.install_authority(workspace, session.session_id)
+        except Exception:
+            runtime.close()
+            raise
+        return runtime
 
     def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
         session = self._session
@@ -682,8 +742,11 @@ class AgentSessionCoordinator:
         session.transcript[:] = self.redactor.messages(session.transcript)
         session.transcript.append({"role": "user", "content": self.redactor.text(command.payload["content"]),
             **({'attachmentRefs': [r.to_dict() for r in refs]} if refs else {})})
+        turn.user_message = {"id": "message_" + uuid4().hex,
+            "createdAt": datetime.now(timezone.utc).isoformat(),
+            "sourceIndex": len(session.transcript) - 1}
         if self._persistence is not None:
-            self._persistence.save(session.transcript)
+            self._persistence.save(self._saved_transcript(session))
         session.state_revision += 1
         if self._events is not None:
             self._events.publish(
@@ -877,9 +940,14 @@ class AgentSessionCoordinator:
             return bool(session is not None and session.status == "active"
                 and not any(not turn.done.is_set() for turn in session.turns)
                 and not any(not agent.done.is_set() for agent in session.agent_operations.values())
-                and not any(not operation.done.is_set() for operation in self._service_operations.values()))
+                and not any(not operation.done.is_set() for operation in self._service_operations.values())
+                and not session.approval_gate.pending()
+                and not session.user_input_gate.pending()
+                and not (session.tool_runtime._browser_service is not None and
+                    session.tool_runtime._browser_service.human_phase in
+                    ('humanActive', 'resumePending', 'blocked')))
 
-    def change_workspace(self, session_id, path: str) -> dict[str, Any]:
+    def change_workspace(self, session_id, path: str, *, project_chat: bool = False) -> dict[str, Any]:
         """Existing folder-selection capability with one Application writer."""
         from local_cli.application.auxiliary import AuxiliaryConflict
         with self._lock:
@@ -892,22 +960,127 @@ class AgentSessionCoordinator:
                 raise ValueError("No path specified")
             if self._workspace_rebinder is None:
                 raise ValueError("Workspace selection is unavailable")
-            target = Path(path).expanduser()
-            target = (target if target.is_absolute() else self._session.workspace / target).resolve()
-            if not target.is_dir():
-                raise ValueError("Workspace must be a directory")
+            try:
+                if '\x00' in path:
+                    raise ValueError("Invalid path")
+                target = Path(path).expanduser()
+                target = (target if target.is_absolute() else self._session.workspace / target).resolve()
+                if not target.is_dir():
+                    raise ValueError("Invalid directory")
+            except (OSError, ValueError):
+                raise ValueError("Workspace must be an accessible directory") from None
             prepared = self._workspace_rebinder(target)
+            if project_chat:
+                try:
+                    persistence = prepared['persistence']
+                    saved = []
+                    if persistence is not None and persistence.info():
+                        saved = persistence.restore(workspace=target)
+                    saved, dates = restored_with_dates(saved)
+                    current = self._session
+                    if target != current.workspace and self._persistence is not None and any(
+                            row.get('role') in ('user', 'assistant') for row in current.transcript):
+                        self._persistence.save(self._saved_transcript(current))
+                        if getattr(self._persistence, 'last_error', None) is not None:
+                            raise self._persistence.last_error
+                    self.rebind_legacy_workspace(target, base_messages=prepared['base_messages'],
+                        persistence=persistence, rag=prepared['rag'], installed_tools=prepared.get('tools'),
+                        commit=prepared.get('commit'), publish=False)
+                except Exception:
+                    if callable(prepared.get('abort')):
+                        prepared['abort']()
+                    raise
+                current.transcript[:] = deepcopy(current.base_transcript) + saved
+                current.turns.clear()
+                current.agent_operations.clear()
+                current.restored_display_dates = {len(current.base_transcript) + index: value for index, value in dates.items()}
+                current.state_revision += 1
+                self._publish_workspace_snapshot()
+                return {**prepared['data'], 'resumable': None, 'projectChat': True}
             old_base = self._session.base_transcript
-            retained = [m for m in self._session.transcript if m not in old_base]
-            self._session.transcript[:] = deepcopy(prepared["base_messages"] + retained)
-            self.rebind_legacy_workspace(target, base_messages=prepared["base_messages"],
-                persistence=prepared["persistence"], rag=prepared["rag"])
+            retained_items = [(index, message) for index, message in enumerate(self._session.transcript)
+                              if message not in old_base]
+            retained = [message for _, message in retained_items]
+            # Capture exact canonical index ownership before deepcopy changes
+            # object identities. Public presentation remains outside messages.
+            index_map = {index: len(prepared["base_messages"]) + offset
+                         for offset, (index, _) in enumerate(retained_items)}
+            try:
+                self.rebind_legacy_workspace(target, base_messages=prepared["base_messages"],
+                    persistence=prepared["persistence"], rag=prepared["rag"],
+                    installed_tools=prepared.get("tools"), commit=prepared.get("commit"),
+                    publish=False)
+            except Exception:
+                if callable(prepared.get("abort")):
+                    prepared["abort"]()
+                raise
+            for turn in self._session.turns:
+                if turn.user_message is not None:
+                    source = turn.user_message.get("sourceIndex")
+                    if source in index_map:
+                        turn.user_message["sourceIndex"] = index_map[source]
+                    else:
+                        turn.user_message = None
+                for row in turn.display_messages:
+                    source = row.get("sourceIndex")
+                    if source in index_map:
+                        row["sourceIndex"] = index_map[source]
+                    else:
+                        row.pop("sourceIndex", None)
+                turn.transcript_start = len(prepared["base_messages"]) + sum(
+                    index < turn.transcript_start for index, _ in retained_items)
+                if turn.transcript_end is not None:
+                    turn.transcript_end = len(prepared["base_messages"]) + sum(
+                        index < turn.transcript_end for index, _ in retained_items)
+            self._session.restored_display_dates = {index_map[index]: dates
+                for index, dates in self._session.restored_display_dates.items() if index in index_map}
+            self._session.transcript[:] = deepcopy(self._session.base_transcript + retained)
+            self._publish_workspace_snapshot()
             return prepared["data"]
+
+    def project_chats(self, session_id, paths):
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if not isinstance(paths, list) or len(paths) > 32 or any(
+                    not isinstance(value, str) or not value or not Path(value).is_absolute() for value in paths):
+                raise ValueError('Invalid project chat selection')
+            if self._persistence is None:
+                raise PersistenceError('PROJECT_CHAT_UNAVAILABLE')
+            result = []
+            for path in paths:
+                info = self._persistence.project_info(path)
+                result.append({'path': path, 'hasHistory': bool(info), 'messageCount': info['count'] if info else 0,
+                               'savedAt': info.get('saved_at') if info else None})
+            return result
+
+    def clear_project_chat(self, session_id, path):
+        from local_cli.application.auxiliary import AuxiliaryConflict
+        with self._lock:
+            self._snapshot_unlocked(session_id)
+            if not self.can_rebind_workspace():
+                error = AuxiliaryConflict('Wait for active execution before deleting a chat')
+                error.code = 'CONFLICT_ACTIVE_OPERATION'
+                raise error
+            if not isinstance(path, str) or not Path(path).is_absolute():
+                raise ValueError('Invalid project chat selection')
+            if self._persistence is None:
+                raise PersistenceError('PROJECT_CHAT_UNAVAILABLE')
+            if Path(path).resolve() == self._session.workspace:
+                receipt = self._persistence_command(ApplicationCommand(
+                    command_id=CommandId(str(uuid4())), kind=CommandKind.EXECUTE_COMMAND,
+                    session_id=self._session.session_id, payload={'name': 'clear'}))
+                if not receipt.accepted:
+                    raise PersistenceError(receipt.error.code, receipt.error.safe_message)
+                self._publish_workspace_snapshot()
+            else:
+                self._persistence.clear_project(path)
+            return {'path': path}
 
     def rebind_legacy_workspace(self, workspace: Path, *,
                                 base_messages: list[dict[str, Any]],
                                 persistence: PersistenceService | None,
-                                rag: RAGService | None) -> None:
+                                rag: RAGService | None,
+                                installed_tools=None, commit=None, publish=True) -> None:
         """Keep the transitional JSONL folder selector on the one session.
 
         Project resources are assembled by the injected composition adapter;
@@ -919,34 +1092,79 @@ class AgentSessionCoordinator:
                 raise ValueError("workspace cannot change during active execution")
             if not workspace.is_absolute() or not workspace.is_dir():
                 raise ValueError("workspace must be an absolute directory")
+            workspace = workspace.resolve()
+            installed_tools = list(self._tool_factory(workspace) if installed_tools is None
+                                   else installed_tools)
+            tools = [tool for tool in installed_tools
+                     if self._fetch_enabled or tool.name != 'web_fetch']
+            previous_runtime = session.tool_runtime
+            next_base = self.redactor.messages(base_messages)
+            if not self._fetch_enabled:
+                prompt = self.redactor.text(self._prompt_factory(tools, workspace))
+                if next_base and next_base[0].get('role') == 'system':
+                    next_base[0] = {**next_base[0], 'content': prompt}
+            capabilities = self._capability_factory(
+                model=self.provider_manager.snapshot().snapshot, cwd=workspace,
+                shell=next((getattr(t, "descriptor", None) for t in tools
+                            if t.name == "bash"), None),
+                resource_context_limit=self._context_policy.resource_limit)
+            # The existing runtime verifies cleanup before relinquishing a
+            # Browser session. An uncertain cleanup cannot create a second one.
+            runtime = self._create_tool_runtime(session, ToolRegistry(installed_tools),
+                workspace, policy=previous_runtime.policy)
+            try:
+                previous_runtime.release_browser()
+            except Exception:
+                runtime.close()
+                raise
             old_knowledge = self._knowledge
             old_knowledge.close()
             from local_cli.application.knowledge_host import KnowledgeHostControls
             self._knowledge = KnowledgeHostControls(self, old_knowledge.factory)
             self._knowledge.actors = old_knowledge.actors
-            session.workspace = workspace.resolve()
-            session.base_transcript = self.redactor.messages(base_messages)
+            if commit is not None:
+                commit()
+            session.workspace = workspace
+            session.installed_tools = installed_tools
+            session.tools = tools
+            session.tool_runtime = runtime
+            previous_runtime._issuer.cancel_session(session.session_id)
+            previous_runtime.close()
+            session.base_transcript = next_base
             if not self._fetch_enabled:
-                prompt = self.redactor.text(self._prompt_factory(session.tools, session.workspace))
-                for messages in (session.base_transcript, session.transcript):
-                    if messages and messages[0].get('role') == 'system':
-                        messages[0] = {**messages[0], 'content': prompt}
+                if session.transcript and session.transcript[0].get('role') == 'system':
+                    session.transcript[0] = {**session.transcript[0], 'content': prompt}
             self._persistence = persistence
             self._bind_redaction(persistence)
             self._rag = rag if rag is not None else RAGService(None)
-            session.capabilities = self._capability_factory(
-                model=self.provider_manager.snapshot().snapshot,
-                cwd=session.workspace,
-                shell=next((getattr(t, "descriptor", None) for t in session.tools
-                            if t.name == "bash"), None),
-                resource_context_limit=self._context_policy.resource_limit)
+            session.capabilities = capabilities
             session.state_revision += 1
-            if self._events is not None:
-                state = self._snapshot_unlocked(session.session_id).to_dict()
-                state["lastSequence"] = self._events.last_sequence + 1
-                self._events.publish(EventKind.SESSION_SNAPSHOT, state,
-                                     state_revision=session.state_revision,
-                                     visibility=Visibility.SENSITIVE)
+            if publish:
+                self._publish_workspace_snapshot()
+
+    def _publish_workspace_snapshot(self):
+        if self._events is not None:
+            session = self._session
+            state = self._snapshot_unlocked(session.session_id).to_dict()
+            state["lastSequence"] = self._events.last_sequence + 1
+            self._events.publish(EventKind.SESSION_SNAPSHOT, state,
+                                 state_revision=session.state_revision,
+                                 visibility=Visibility.SENSITIVE)
+
+    @staticmethod
+    def _saved_transcript(session, messages=None):
+        rows = session.transcript if messages is None else messages
+        metadata = dict(session.restored_display_dates)
+        for turn in session.turns:
+            for item in [turn.user_message, *turn.display_messages]:
+                if not isinstance(item, dict):
+                    continue
+                index = item.get('sourceIndex')
+                if type(index) is int and 0 <= index < len(rows):
+                    dates = display_dates(item)
+                    if dates:
+                        metadata[index] = dates
+        return saved_with_dates(rows, metadata)
 
     def _persistence_command(self, command: ApplicationCommand) -> CommandReceipt:
         session = self._active_session(command)
@@ -961,22 +1179,29 @@ class AgentSessionCoordinator:
                 not a.done.is_set() for a in session.agent_operations.values()):
             return self._reject(command, "CONFLICT_ACTIVE_OPERATION", "Cannot restore/save during active execution")
         try:
-            if name == "clear":
+            if name in ("clear", "clear_history"):
+                fresh = deepcopy(session.base_transcript)
                 if self._refresh_base_factory is not None:
                     fresh = self._refresh_base_factory(session.workspace, session.tools)
                     if not fresh or fresh[0].get("role") != "system":
                         return self._reject(command, "SESSION_SETUP_FAILED",
                                             "Could not rebuild project context")
-                    session.base_transcript = deepcopy(fresh)
+                if self._persistence is not None:
+                    if name == 'clear_history':
+                        self._persistence.clear_history()
+                    else:
+                        self._persistence.clear()
+                        if getattr(self._persistence, 'last_error', None) is not None:
+                            raise self._persistence.last_error
+                session.base_transcript = deepcopy(fresh)
                 session.transcript[:] = deepcopy(session.base_transcript)
                 session.turns.clear()
+                session.restored_display_dates.clear()
                 session.state_revision += 1
-                if self._persistence is not None:
-                    self._persistence.clear()
                 return CommandReceipt(command.command_id, True, session.session_id,
                     session.state_revision)
             if name == "save":
-                key = self._persistence.save_session(session.transcript)
+                key = self._persistence.save_session(self._saved_transcript(session))
                 return CommandReceipt(command.command_id, True, session.session_id,
                     session.state_revision, created_ids={"snapshotKey": key})
             if name != "resume":
@@ -992,9 +1217,17 @@ class AgentSessionCoordinator:
                     return self._reject(command, "SESSION_SETUP_FAILED",
                                         "Could not rebuild project context")
                 session.base_transcript = deepcopy(fresh)
+            saved, dates = restored_with_dates(saved)
+            session.restored_display_dates = {len(session.base_transcript) + index: value for index, value in dates.items()}
             session.transcript[:] = deepcopy(session.base_transcript) + saved
+            # Stored dates are display-only. Restored messages have no live generation IDs/receipts.
+            # Keep prior domain outcomes, retire only their obsolete sidecars.
+            for turn in session.turns:
+                turn.user_message = None
+                turn.display_messages.clear()
+                turn.tool_activities.clear()
             session.state_revision += 1
-            self._persistence.save(session.transcript)
+            self._persistence.save(self._saved_transcript(session))
             return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
         except PersistenceError as exc:
             return CommandReceipt(command.command_id, False, session.session_id, session.state_revision,
@@ -1261,6 +1494,9 @@ class AgentSessionCoordinator:
     def _run_turn(self, session: AgentSession, turn: Turn) -> None:
         working: _WorkingMessages | None = None
         active_generation: GenerationId | None = None
+        # Raw append identity maps to presentation only. No IDs/timestamps are
+        # inserted in the model's working messages or persisted transcript.
+        display_bindings: dict[int, dict[str, Any]] = {}
         display_streams = {key: self.redactor.stream() for key in ('content_delta', 'thinking_delta')}
 
         def context_factory() -> ExecutionContext:
@@ -1286,6 +1522,13 @@ class AgentSessionCoordinator:
         def emit_legacy(event: AgentEvent) -> None:
             nonlocal active_generation
             with self._lock:
+                previous_generation = active_generation
+                if event.kind == "llm_start":
+                    if active_generation is not None:
+                        self._finish_display(turn, "failed", active_generation)
+                    active_generation = new_generation_id()
+                    turn.active_generation = active_generation
+                    turn.stop_generation_requested = False
                 data = self.redactor.value(event.data)
                 if event.kind in display_streams:
                     data['text'] = display_streams[event.kind].feed(event.data.get('text', ''))
@@ -1311,13 +1554,10 @@ class AgentSessionCoordinator:
                 common = dict(state_revision=session.state_revision,
                               turn_id=turn.turn_id, causation_id=cause)
                 if event.kind == "llm_start":
-                    if active_generation is not None:
+                    if previous_generation is not None:
                         publish(EventKind.GENERATION_FAILED,
                                        {"status": "failed", "reason": "incomplete"},
-                                       generation_id=active_generation, **common)
-                    active_generation = new_generation_id()
-                    turn.active_generation = active_generation
-                    turn.stop_generation_requested = False
+                                        generation_id=previous_generation, **common)
                     publish(EventKind.GENERATION_STARTED,
                                    {"status": "started", "modelRuntime": turn.model_runtime.snapshot.to_dict()},
                                    generation_id=active_generation, **common)
@@ -1372,13 +1612,25 @@ class AgentSessionCoordinator:
             def captured_message(message):
                 return deepcopy(citation_receipts.get(id(message),self._citation_message(turn,message)))
             def checkpoint(additions):
-                for message in additions:
-                    if isinstance(message,dict) and id(message) not in citation_receipts:
-                        citation_receipts[id(message)] = self._citation_message(turn,message)
+                with self._lock:
+                    for message in additions:
+                        if isinstance(message,dict) and id(message) not in citation_receipts:
+                            citation_receipts[id(message)] = self._citation_message(turn,message)
+                            if message.get("role") == "assistant":
+                                row = next((row for row in reversed(turn.display_messages)
+                                    if active_generation is not None
+                                    and row.get("generationId") == active_generation
+                                    and row.get("status") == "streaming"), None)
+                                if row is None:
+                                    # A host fallback or a compatible runtime may
+                                    # append an assistant message without llm_start.
+                                    row = self._new_display_message()
+                                    turn.display_messages.append(row)
+                                display_bindings[id(message)] = row
                 if self._persistence is not None:
                     with self._lock:
-                        self._persistence.save(self.redactor.messages(session.transcript + [captured_message(m) for m in additions
-                            if isinstance(m, dict) and m.get("role") in ("assistant", "tool")]))
+                        self._persistence.save(self._saved_transcript(session, self.redactor.messages(session.transcript + [captured_message(m) for m in additions
+                            if isinstance(m, dict) and m.get("role") in ("assistant", "tool")])))
             # Persisted provenance is not a user assertion/provider field. Old
             # Turn citation IDs must never authorize references in a new Turn.
             working = _WorkingMessages([{k:v for k,v in m.items() if k not in ('attachmentRefs','knowledgeCitations')}
@@ -1515,11 +1767,16 @@ class AgentSessionCoordinator:
             try:
                 # The canonical transcript never loses prior turns when the
                 # harness compacts its private working context.
-                additions = [captured_message(message) for message in
-                             (working.appended if working is not None else ())
-                             if isinstance(message, dict)
-                             and message.get("role") in ("assistant", "tool")]
-                session.transcript.extend(self.redactor.messages(additions))
+                appended = [message for message in (working.appended if working is not None else ())
+                            if isinstance(message, dict) and message.get("role") in ("assistant", "tool")]
+                additions = self.redactor.messages([captured_message(message) for message in appended])
+                first_index = len(session.transcript)
+                session.transcript.extend(additions)
+                for offset, message in enumerate(appended):
+                    row = display_bindings.get(id(message))
+                    if row is not None:
+                        row["sourceIndex"] = first_index + offset
+                        row["content"] = additions[offset].get("content") or ""
             except Exception:
                 outcome = TurnOutcome(TurnStatus.FAILED,
                                       error_code="TRANSCRIPT_CAPTURE_FAILED")
@@ -1540,12 +1797,13 @@ class AgentSessionCoordinator:
                 else OperationStatus(outcome.status.value),
             )
             turn.final_content = self.redactor.text(outcome.final_content)
+            self._finish_display(turn, turn.status.value)
             turn.transcript_end = len(session.transcript)
             turn.error_code = self.redactor.text(outcome.error_code)
             turn.terminal_count += 1
             session.state_revision += 1
             if self._persistence is not None:
-                self._persistence.save(session.transcript)
+                self._persistence.save(self._saved_transcript(session))
             self._publish_turn_terminal(session, turn)
             self.provider_manager.end_turn(turn.turn_id)
             if turn.model_runtime._context is not None:
@@ -1673,6 +1931,22 @@ class AgentSessionCoordinator:
                        turn_id=turn.turn_id, causation_id=cause)
 
     @staticmethod
+    def _new_display_message(generation_id=None) -> dict[str, Any]:
+        return {"id": "message_" + uuid4().hex,
+            "createdAt": datetime.now(timezone.utc).isoformat(), "status": "streaming",
+            **({"generationId": generation_id} if generation_id is not None else {}),
+            "role": "assistant", "content": "", "thinking": True,
+            "toolCalls": [], "toolResults": [], "harnessEvents": []}
+
+    @staticmethod
+    def _finish_display(turn: Turn, status: str, generation_id=None) -> None:
+        for row in turn.display_messages:
+            if row.get("status") != "streaming" or (generation_id is not None
+                    and row.get("generationId") != generation_id):
+                continue
+            row.update(status=status, completedAt=datetime.now(timezone.utc).isoformat(), thinking=False)
+
+    @staticmethod
     def _observe_display(turn: Turn, event: AgentEvent) -> None:
         """Recover a live view after renderer reload or journal eviction.
 
@@ -1680,14 +1954,20 @@ class AgentSessionCoordinator:
         session-owner snapshots. It does not affect harness/model messages.
         """
         if event.kind == "llm_start":
-            turn.display_messages.append({"role": "assistant", "content": "",
-                "thinking": True, "toolCalls": [], "toolResults": [], "harnessEvents": []})
+            turn.display_messages.append(AgentSessionCoordinator._new_display_message(turn.active_generation))
         if not turn.display_messages:
             return
         last = turn.display_messages[-1]
         if event.kind == "content_delta":
             last["content"] += event.data.get("text", "")
             last["thinking"] = False
+        elif event.kind == "assistant_message":
+            last["content"] = event.data.get("message", {}).get("content") or ""
+            AgentSessionCoordinator._finish_display(turn,
+                "cancelled" if turn.stop_generation_requested or turn.cancellation.is_cancel_requested()
+                else "completed", last.get("generationId"))
+        elif event.kind in ("interrupted", "stopped"):
+            AgentSessionCoordinator._finish_display(turn, "cancelled", last.get("generationId"))
         elif event.kind == "tool_start":
             last["thinking"] = False
             last["toolCalls"].append({"name": event.data["tool_name"],
@@ -1728,6 +2008,28 @@ class AgentSessionCoordinator:
                     turn.has_unknown_effect = True
                 if invocation.name in ("write", "edit", "bash"):
                     session.filesystem_revision += 1
+            activity = self._tool_activity(turn, invocation)
+            activity['operationStatus'] = operation.status.value
+            if kind is EventKind.TOOL_STARTED:
+                activity.update(status='running', startedAt=datetime.now(timezone.utc).isoformat(),
+                    outputSequence=activity['outputSequence'] + 1)
+            if result is not None:
+                output, output_cut = self._bounded_tool_text(tool_result_to_legacy_text(result))
+                stdout, stdout_cut = self._bounded_tool_text(result.stdout)
+                stderr, stderr_cut = self._bounded_tool_text(result.stderr)
+                activity.update(status=result.status.value, effectState=result.effect_state.value,
+                    output=output, stdout=stdout, stderr=stderr,
+                    outputSequence=activity['outputSequence'] + 1,
+                    outputTruncated=bool(output_cut or stdout_cut or stderr_cut or
+                        result.metadata.get('truncated') or result.metadata.get('stdoutTruncated') or
+                        result.metadata.get('stderrTruncated')),
+                    completedAt=datetime.now(timezone.utc).isoformat())
+                if result.exit_code is not None:
+                    activity['exitCode'] = result.exit_code
+                error = (result.metadata.get('securityErrorCode') or
+                         result.metadata.get('turnConstraintCode') or result.error)
+                if error:
+                    activity['errorCode'] = self._bounded_tool_text(str(error), 256)[0]
             payload = {"name": invocation.name}
             if result is not None:
                 payload.update({
@@ -1746,6 +2048,69 @@ class AgentSessionCoordinator:
                     tool_call_id=invocation.tool_call_id,
                     causation_id=CausationId(turn.command_id),
                 )
+                stream.publish(EventKind.OPERATION_PROGRESS, {
+                    'service': 'tool', 'operationType': 'TOOL',
+                    'operationId': invocation.operation_id, 'toolCallId': invocation.tool_call_id,
+                    'turnId': turn.turn_id, 'outputSequence': activity['outputSequence'],
+                    'activity': deepcopy(activity),
+                }, state_revision=session.state_revision, visibility=Visibility.SENSITIVE,
+                    turn_id=turn.turn_id, operation_id=invocation.operation_id,
+                    tool_call_id=invocation.tool_call_id, causation_id=CausationId(turn.command_id))
+
+    def _bounded_tool_text(self, text: str, limit: int = TOOL_OUTPUT_BYTES) -> tuple[str, bool]:
+        safe = self.redactor.text(text)
+        encoded = safe.encode('utf-8')
+        return encoded[:limit].decode('utf-8', errors='ignore'), len(encoded) > limit
+
+    def _tool_activity(self, turn: Turn, invocation) -> dict[str, Any]:
+        arguments = self.redactor.value(invocation.arguments)
+        encoded = json.dumps(arguments, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+        if len(encoded) > TOOL_ARGUMENT_BYTES:
+            # Preview is JSON text inside a JSON string: reserve its possible
+            # second escaping of quotes/backslashes as well as the wrapper.
+            arguments = {'preview': encoded[:(TOOL_ARGUMENT_BYTES - 64) // 2].decode('utf-8', errors='ignore'),
+                         'truncated': True}
+        return turn.tool_activities.setdefault(invocation.operation_id, {
+            'operationId': invocation.operation_id, 'toolCallId': invocation.tool_call_id,
+            'turnId': turn.turn_id,
+            'messageId': turn.display_messages[-1]['id'] if turn.display_messages else None,
+            'name': invocation.name, 'arguments': arguments,
+            'cwd': self.redactor.text(str(invocation.context.cwd)), 'status': 'pending',
+            'operationStatus': 'requested', 'effectState': 'none',
+            'output': '', 'stdout': '', 'stderr': '', 'outputSequence': 0,
+            'outputTruncated': False,
+        })
+
+    def _publish_tool_progress(self, session: AgentSession, invocation,
+                               channel: str, text: str, truncated: bool) -> None:
+        if channel not in ('stdout', 'stderr'):
+            return
+        with self._lock:
+            turn = next((item for item in session.turns
+                         if item.turn_id == invocation.context.turn_id), None)
+            if turn is None:
+                return
+            activity = turn.tool_activities.get(invocation.operation_id)
+            if activity is None or activity['status'] != 'running':
+                return  # A terminal receipt is authoritative, including late output.
+            retained = len(activity['output'].encode('utf-8'))
+            safe, cut = self._bounded_tool_text(text, max(0, TOOL_OUTPUT_BYTES - retained))
+            activity['outputTruncated'] |= truncated or cut
+            if not safe and not (truncated or cut):
+                return
+            activity[channel] += safe
+            activity['output'] += safe
+            activity['outputSequence'] += 1
+            if self._events is not None:
+                self._events.publish(EventKind.OPERATION_PROGRESS, {
+                    'service': 'tool', 'operationType': 'TOOL', 'channel': channel,
+                    'text': safe, 'outputSequence': activity['outputSequence'],
+                    'outputTruncated': activity['outputTruncated'],
+                    'operationId': invocation.operation_id, 'toolCallId': invocation.tool_call_id,
+                    'turnId': turn.turn_id, 'messageId': activity['messageId'],
+                }, state_revision=session.state_revision, visibility=Visibility.SENSITIVE, turn_id=turn.turn_id,
+                    operation_id=invocation.operation_id, tool_call_id=invocation.tool_call_id,
+                    causation_id=CausationId(turn.command_id))
 
     def _publish_approval_required(self, session: AgentSession,
                                    request: ApprovalRequest) -> None:
@@ -1977,6 +2342,23 @@ class AgentSessionCoordinator:
             self._snapshot_unlocked(session_id)
         return self.provider_manager.list_models()
 
+    def get_readiness(self, session_id: SessionId | None) -> dict[str, Any]:
+        """Read-only host observation; unrelated optional tools do not gate chat."""
+        with self._lock:
+            session = self._session
+            if session is None or session.session_id != session_id or session.status != "active":
+                raise ValueError("No matching active AgentSession")
+        # Do not hold the Application lock across provider I/O or mutate a turn.
+        result = self.provider_manager.get_readiness()
+        with self._lock:
+            if self._session is not session or session.status != "active":
+                raise ValueError("No matching active AgentSession")
+            runtime = self.provider_manager.snapshot().snapshot
+            if (result["providerId"], result["modelId"], result["providerRevision"]) != (
+                    runtime.provider_id, runtime.model_id, runtime.provider_revision):
+                result.update(ready=False, reason="READINESS_STALE", requiredAction=None, installedModels=[])
+            return self.redactor.value({**result, "sessionId": str(session.session_id)})
+
     def register_memory_actor(self, kind, verify):
         """Trusted in-process host seam, not a serialized token or a tool grant."""
         if kind not in ('cli_tty','desktop_host') or not callable(verify):
@@ -2129,7 +2511,7 @@ class AgentSessionCoordinator:
                 session.transcript.append(deepcopy(dict(result.context_message)))
                 session.state_revision += 1
                 if self._persistence is not None:
-                    self._persistence.save(session.transcript)
+                    self._persistence.save(self._saved_transcript(session))
                 if self._events is not None:
                     state = self._snapshot_unlocked(session_id).to_dict()
                     state["lastSequence"] = self._events.last_sequence + 1
@@ -2147,6 +2529,11 @@ class AgentSessionCoordinator:
         if logger is not None:
             logger.redactor = self.redactor
 
+    def _context_settings(self):
+        from local_cli.application.context_settings import context_settings
+        return context_settings(self._context_selection, self._context_policy,
+                                self.provider_manager.snapshot().snapshot)
+
     def _snapshot_unlocked(self, session_id: SessionId | None) -> SessionSnapshot:
         session = self._session
         if session is None or session.session_id != session_id:
@@ -2158,7 +2545,7 @@ class AgentSessionCoordinator:
             last_sequence=self._events.last_sequence if self._events else 0,
             model_runtime=self.provider_manager.snapshot().snapshot.to_dict(),
             capabilities=session.capabilities.to_dict() if session.capabilities else {},
-            services={"rag": self._rag.status(),
+            services={"context": self._context_settings(), "rag": self._rag.status(),
                       "browser": {**next((t.selection.state() for t in session.installed_tools
                           if hasattr(t, 'selection')), {'available': False, 'reason': 'BROWSER_NOT_INSTALLED'}),
                           **(session.tool_runtime._browser_service.public_state() if session.tool_runtime._browser_service is not None else {'controlState': 'agentActive'}),
@@ -2175,6 +2562,8 @@ class AgentSessionCoordinator:
                           "allowRemoteMemoryInjection": self._allow_remote_memory_injection},
                       **({'securityAudit': self.security_audit.health()} if self.security_audit is not None else {}),
                       "filesystem": {"revision": session.filesystem_revision},
+                      "conversationPresentation": [{"sourceIndex": index, **dates}
+                          for index, dates in session.restored_display_dates.items()],
                       "interactions": {
                           "approvals": [{"approvalId": req.approval_id,
                               "turnId": req.turn_id, "operationId": req.operation_id,
@@ -2213,6 +2602,9 @@ class AgentSessionCoordinator:
                 "contextReports": deepcopy(turn.context_reports),
                 "knowledgeCitations": self.redactor.value(turn.citation_reports),
                 "displayMessages": self.redactor.value(turn.display_messages),
+                "toolActivities": [self.redactor.tool_activity(activity)
+                    for activity in turn.tool_activities.values()],
+                "userMessage": self.redactor.value(turn.user_message),
                 "transcriptStart": turn.transcript_start,
                 "transcriptEnd": turn.transcript_end,
             } for turn in session.turns),

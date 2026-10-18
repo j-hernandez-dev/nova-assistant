@@ -13,6 +13,8 @@ function openLink(href: string) {
   }
 }
 
+function StreamingCursor() { return <span className="cursor" aria-hidden="true" /> }
+
 function InlineRun({ runs }: { runs: Inline[] }) {
   return (
     <>
@@ -37,13 +39,13 @@ function InlineRun({ runs }: { runs: Inline[] }) {
   )
 }
 
-function BlockView({ block }: { block: Block }) {
+function BlockView({ block, streaming = false }: { block: Block; streaming?: boolean }) {
   switch (block.kind) {
     case 'heading': {
       const level = Math.min(block.level, 4)
       return (
         <div className={`md-heading md-h${level}`}>
-          <InlineRun runs={block.inline} />
+          <InlineRun runs={block.inline} />{streaming && <StreamingCursor />}
         </div>
       )
     }
@@ -51,20 +53,20 @@ function BlockView({ block }: { block: Block }) {
       return (
         <div className="md-code">
           {block.lang && <div className="md-code-lang">{block.lang}</div>}
-          <pre className="md-code-pre">{block.text}</pre>
+          <pre className="md-code-pre">{block.text}{streaming && <StreamingCursor />}</pre>
         </div>
       )
     case 'list':
       return block.ordered ? (
         <ol className="md-list">
           {block.items.map((item, i) => (
-            <li key={i}><InlineRun runs={item} /></li>
+            <li key={i}><InlineRun runs={item} />{streaming && i === block.items.length - 1 && <StreamingCursor />}</li>
           ))}
         </ol>
       ) : (
         <ul className="md-list">
           {block.items.map((item, i) => (
-            <li key={i}><InlineRun runs={item} /></li>
+            <li key={i}><InlineRun runs={item} />{streaming && i === block.items.length - 1 && <StreamingCursor />}</li>
           ))}
         </ul>
       )
@@ -75,7 +77,7 @@ function BlockView({ block }: { block: Block }) {
             <thead>
               <tr>
                 {block.header.map((cell, i) => (
-                  <th key={i}><InlineRun runs={cell} /></th>
+                  <th key={i}><InlineRun runs={cell} />{streaming && !block.rows.length && i === block.header.length - 1 && <StreamingCursor />}</th>
                 ))}
               </tr>
             </thead>
@@ -83,7 +85,7 @@ function BlockView({ block }: { block: Block }) {
               {block.rows.map((row, r) => (
                 <tr key={r}>
                   {row.map((cell, c) => (
-                    <td key={c}><InlineRun runs={cell} /></td>
+                    <td key={c}><InlineRun runs={cell} />{streaming && r === block.rows.length - 1 && c === row.length - 1 && <StreamingCursor />}</td>
                   ))}
                 </tr>
               ))}
@@ -96,7 +98,7 @@ function BlockView({ block }: { block: Block }) {
         <div className="md-p">
           {block.lines.map((line, i) => (
             <div key={i} className="md-p-line">
-              <InlineRun runs={line} />
+              <InlineRun runs={line} />{streaming && i === block.lines.length - 1 && <StreamingCursor />}
             </div>
           ))}
         </div>
@@ -104,11 +106,12 @@ function BlockView({ block }: { block: Block }) {
   }
 }
 
-export function Markdown({ text }: { text: string }) {
+export function Markdown({ text, streaming = false }: { text: string; streaming?: boolean }) {
   const blocks = useMemo(() => parseMarkdown(text), [text])
   return (
     <div className="md-root">
-      {blocks.map((block, i) => <BlockView key={i} block={block} />)}
+      {blocks.map((block, i) => <BlockView key={i} block={block} streaming={streaming && i === blocks.length - 1} />)}
+      {!blocks.length && streaming && <StreamingCursor />}
     </div>
   )
 }

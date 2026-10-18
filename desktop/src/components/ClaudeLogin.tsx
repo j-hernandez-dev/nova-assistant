@@ -1,4 +1,7 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { ModalHost } from './ModalHost'
+import { useI18n, type TranslationKey } from '../i18n'
+import { desktopAuthErrorKey } from '../desktop_messages_locale'
 
 type Props = {
   onClose: () => void
@@ -8,94 +11,95 @@ type Props = {
 }
 
 export function ClaudeLogin({ onClose, onAuthenticated, isAuthenticated, authMethod }: Props) {
+  const { t } = useI18n()
   const [tab, setTab] = useState<'api_key' | 'subscription'>('api_key')
   const [apiKey, setApiKey] = useState('')
   const [validating, setValidating] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [onClose])
+  const [error, setError] = useState<TranslationKey | ''>('')
+  const [success, setSuccess] = useState<TranslationKey | ''>('')
+  const requestPending = useRef(false)
 
   // Load existing key (masked) on mount.
   useEffect(() => {
+    let active = true
     window.api.getClaudeAuth().then(auth => {
+      if (!active) return
       if (auth.method === 'api_key' && auth.keyHint) {
         setApiKey(auth.keyHint)
       }
-    })
+    }).catch(() => { if (active) setError('desktopAuthLoadFailed') })
+    return () => { active = false }
   }, [])
 
   const handleSaveApiKey = useCallback(async () => {
+    if (requestPending.current) return
     const key = apiKey.trim()
     if (!key) {
-      setError('API key is required.')
+      setError('apiKeyRequired')
       return
     }
     if (!key.startsWith('sk-ant-')) {
-      setError('Invalid key format. Anthropic API keys start with sk-ant-')
+      setError('apiKeyInvalid')
       return
     }
 
+    requestPending.current = true
     setValidating(true)
     setError('')
     setSuccess('')
 
-    const result = await window.api.saveClaudeKey(key)
-    setValidating(false)
-
-    if (result.success) {
-      setSuccess('API key saved and validated.')
-      setApiKey(result.keyHint || key.slice(0, 10) + '...')
-      onAuthenticated('api_key')
-    } else {
-      setError(result.error || 'Failed to save API key.')
-    }
+    try {
+      const result = await window.api.saveClaudeKey(key)
+      if (result.success) {
+        setSuccess('apiKeySaved')
+        setApiKey(result.keyHint || key.slice(0, 10) + '...')
+        onAuthenticated('api_key')
+      } else setError(desktopAuthErrorKey(result.error, 'desktopAuthSaveFailed'))
+    } catch { setError('desktopAuthSaveFailed') }
+    finally { requestPending.current = false; setValidating(false) }
   }, [apiKey, onAuthenticated])
 
   const handleLogout = useCallback(async () => {
-    await window.api.deleteClaudeAuth()
-    setApiKey('')
-    setSuccess('')
-    setError('')
-    // Notify parent that auth was removed.
-    window.api.sendToPython({ id: Date.now(), type: 'claude_logout' })
+    if (requestPending.current) return
+    requestPending.current = true
+    setValidating(true)
+    try {
+      const result = await window.api.deleteClaudeAuth()
+      if (!result.success) { setError('desktopAuthLogoutFailed'); return }
+      setApiKey(''); setSuccess(''); setError('')
+      // Notify parent only after the host reports removal.
+      window.api.sendToPython({ id: Date.now(), type: 'claude_logout' })
+    } catch { setError('desktopAuthLogoutFailed') }
+    finally { requestPending.current = false; setValidating(false) }
   }, [])
 
   const handleSubscriptionLogin = useCallback(async () => {
+    if (requestPending.current) return
+    requestPending.current = true
     setValidating(true)
     setError('')
     setSuccess('')
 
-    const result = await window.api.startClaudeOAuth()
-
-    setValidating(false)
-    if (result.success) {
-      setSuccess('Logged in successfully.')
-      onAuthenticated('subscription')
-    } else {
-      setError(result.error || 'Login failed.')
-    }
+    try {
+      const result = await window.api.startClaudeOAuth()
+      if (result.success) { setSuccess('loggedIn'); onAuthenticated('subscription') }
+      else setError(desktopAuthErrorKey(result.error))
+    } catch { setError('desktopAuthFailed') }
+    finally { requestPending.current = false; setValidating(false) }
   }, [onAuthenticated])
 
   return (
-    <div className="overlay" onClick={onClose}>
-      <div className="claude-login" onClick={e => e.stopPropagation()}>
+    <ModalHost onClose={onClose} label={t('claudeAuthentication')} className="claude-login">
         <div className="claude-login-header">
-          <span className="claude-login-title">Claude Authentication</span>
-          <button className="settings-close" onClick={onClose}>x</button>
+          <span className="claude-login-title">{t('claudeAuthentication')}</span>
+          <button className="settings-close" onClick={onClose} aria-label={t('closeDialog')}>×</button>
         </div>
 
         {isAuthenticated && (
           <div className="claude-login-status">
             <span className="claude-login-status-dot" />
-            <span>Authenticated via {authMethod === 'api_key' ? 'API Key' : 'Subscription'}</span>
-            <button className="claude-logout-btn" onClick={handleLogout}>Logout</button>
+            <span>{t('authenticatedVia')} {authMethod === 'api_key' ? t('apiKey') : t('subscription')}</span>
+            <button className="claude-logout-btn" onClick={handleLogout} disabled={validating}>{t('logout')}</button>
           </div>
         )}
 
@@ -104,13 +108,13 @@ export function ClaudeLogin({ onClose, onAuthenticated, isAuthenticated, authMet
             className={`claude-login-tab ${tab === 'api_key' ? 'active' : ''}`}
             onClick={() => { setTab('api_key'); setError(''); setSuccess('') }}
           >
-            API Key
+            {t('apiKey')}
           </button>
           <button
             className={`claude-login-tab ${tab === 'subscription' ? 'active' : ''}`}
             onClick={() => { setTab('subscription'); setError(''); setSuccess('') }}
           >
-            Subscription
+            {t('subscription')}
           </button>
         </div>
 
@@ -118,17 +122,19 @@ export function ClaudeLogin({ onClose, onAuthenticated, isAuthenticated, authMet
           {tab === 'api_key' ? (
             <div className="claude-login-section">
               <div className="claude-login-desc">
-                Enter your Anthropic API key. Get one from{' '}
-                <span
+                {t('enterApiKey')}{' '}
+                <button type="button"
                   className="claude-login-link"
-                  onClick={() => window.api.openExternalUrl('https://console.anthropic.com/settings/keys')}
+                  onClick={() => { window.api.openExternalUrl('https://console.anthropic.com/settings/keys').catch(() => setError('desktopAuthExternalFailed')) }}
                 >
                   console.anthropic.com
-                </span>
+                </button>
               </div>
               <div className="claude-login-field">
                 <input
                   type="password"
+                  aria-label={t('apiKey')}
+                  autoComplete="off"
                   className="claude-login-input"
                   value={apiKey}
                   onChange={e => setApiKey(e.target.value)}
@@ -142,32 +148,30 @@ export function ClaudeLogin({ onClose, onAuthenticated, isAuthenticated, authMet
                 onClick={handleSaveApiKey}
                 disabled={validating || !apiKey.trim()}
               >
-                {validating ? 'Validating...' : 'Save & Validate'}
+                {validating ? t('validating') : t('saveValidate')}
               </button>
             </div>
           ) : (
             <div className="claude-login-section">
               <div className="claude-login-desc">
-                Log in with your Claude Pro or Max subscription.
-                A browser window will open for authentication.
+                {t('subscriptionDescription')}
               </div>
               <button
                 className="claude-login-btn primary"
                 onClick={handleSubscriptionLogin}
                 disabled={validating}
               >
-                {validating ? 'Logging in...' : 'Login with Claude'}
+                {validating ? t('loggingIn') : t('loginClaude')}
               </button>
               <div className="claude-login-hint">
-                Requires an active Claude Pro or Max subscription.
+                {t('subscriptionRequired')}
               </div>
             </div>
           )}
 
-          {error && <div className="claude-login-error">{error}</div>}
-          {success && <div className="claude-login-success">{success}</div>}
+          {error && <div className="claude-login-error" role="alert">{t(error)}</div>}
+          {success && <div className="claude-login-success" role="status">{t(success)}</div>}
         </div>
-      </div>
-    </div>
+    </ModalHost>
   )
 }

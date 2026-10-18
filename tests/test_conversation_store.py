@@ -170,3 +170,34 @@ class TestServerResume(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_similar_project_names_have_independent_chat_storage(tmp_path):
+    first=tmp_path/'a-b';second=tmp_path/'a_b';first.mkdir();second.mkdir()
+    a=ConversationStore(str(tmp_path/'state'),cwd=str(first))
+    b=ConversationStore(str(tmp_path/'state'),cwd=str(second))
+    assert a.path!=b.path
+    a.save([{'role':'user','content':'alpha'}]);b.save([{'role':'user','content':'beta'}])
+    assert a.load()==[{'role':'user','content':'alpha'}]
+    assert b.load()==[{'role':'user','content':'beta'}]
+    a.clear();assert a.load()==[] and b.load()==[{'role':'user','content':'beta'}]
+
+
+def test_legacy_chat_is_only_loaded_for_its_recorded_project_and_clear_cannot_resurrect_it(tmp_path):
+    import json
+    from local_cli.session_log import project_slug
+    from local_cli.infrastructure.persistence import LegacyConversationRepository,clear_project_history
+    first=tmp_path/'a-b';second=tmp_path/'a_b';first.mkdir();second.mkdir()
+    state=tmp_path/'state';legacy=state/'projects'/project_slug(str(first))/'last-conversation.jsonl'
+    legacy.parent.mkdir(parents=True)
+    legacy.write_text(json.dumps({'_meta':True,'cwd':str(first),'saved_at':'2026-10-17T09:00:00+00:00'})+'\n'+
+        json.dumps({'role':'user','content':'old alpha'})+'\n',encoding='utf-8')
+    a=ConversationStore(str(state),cwd=str(first));b=ConversationStore(str(state),cwd=str(second))
+    assert a.load()==[{'role':'user','content':'old alpha'}] and b.load()==[]
+    b.save([{'role':'user','content':'beta'}])
+    clear_project_history(state,workspace=second)
+    assert legacy.exists() and a.load()==[{'role':'user','content':'old alpha'}]
+    a.save([{'role':'user','content':'new alpha'}]);assert a.load()[-1]['content']=='new alpha'
+    LegacyConversationRepository(state,first).clear()
+    assert not a.path.exists() and not legacy.exists()
+    assert ConversationStore(str(state),cwd=str(first)).load()==[]

@@ -37,7 +37,7 @@ from local_cli.clipboard import (
 )
 from local_cli.git_capability import detect_git_capability
 from local_cli.model_catalog import get_merged_catalog, update_catalog
-from local_cli.model_search import search_models
+from local_cli.model_search import ModelSearchUnavailable, search_models
 from local_cli.ollama_client import OllamaConnectionError
 from local_cli.security import validate_model_name
 from local_cli.updater import get_project_root
@@ -159,7 +159,7 @@ class JsonLineServer:
                 continue
             state = self._application.get_snapshot(self._app_adapter.session_id)
             if any(t["status"] == "running" for t in state.turns) and req_type not in (
-                    "catalog", "search_models", "check_update", "recommend"):
+                    "catalog", "search_models", "check_update", "recommend", "project_chats"):
                 _send({"id": req_id, "type": "error", "code": "CONFLICT_ACTIVE_TURN",
                        "category": "CONTEXT", "message": "Command unavailable during active Turn"})
                 continue
@@ -199,7 +199,16 @@ class JsonLineServer:
                 elif req_type == "recommend":
                     self._handle_recommend(req_id)
                 elif req_type == "set_cwd":
-                    self._handle_set_cwd(req_id, req.get("path", ""))
+                    self._handle_set_cwd(req_id, req.get("path", ""), project_chat=req.get('projectChat') is True)
+                elif req_type in ('project_chats', 'clear_project_chat'):
+                    try:
+                        data = ({'chats': self._application.project_chats(self._app_adapter.session_id, req.get('paths'))}
+                                if req_type == 'project_chats' else
+                                self._application.clear_project_chat(self._app_adapter.session_id, req.get('path')))
+                        _send({'id': req_id, 'type': req_type, 'success': True, **data})
+                    except Exception as exc:
+                        _send({'id': req_id, 'type': req_type, 'success': False,
+                               'error': {'code': getattr(exc, 'code', 'PROJECT_CHAT_FAILED')}})
                 else:
                     _send({"id": req_id, "type": "error", "message": f"Unknown type: {req_type}"})
             except Exception as exc:
@@ -286,8 +295,10 @@ class JsonLineServer:
 
         # Get installed models to mark which are available.
         installed_names: set[str] = set()
+        installed_entries = None
         try:
             models = self._client.list_models()
+            installed_entries = models
             for m in models:
                 name = m.get("name", "")
                 installed_names.add(name)
@@ -310,7 +321,7 @@ class JsonLineServer:
         # Include locally installed models not in the catalog.
         catalog_names = {e["name"] for e in catalog}
         try:
-            models = self._client.list_models()
+            models = installed_entries or []
             for m in models:
                 name = m.get("name", "")
                 if name and name not in catalog_names:
@@ -343,7 +354,10 @@ class JsonLineServer:
         _send({
             "id": req_id,
             "type": "catalog",
-            "data": {"categories": categories, "models": catalog},
+            "data": {"categories": categories, "models": catalog,
+                     "installedModels": None if installed_entries is None else [
+                         {"name": m.get("name", ""), "size": m.get("size", 0)}
+                         for m in installed_entries]},
         })
 
     def _handle_update_catalog(self, req_id: int) -> None:
@@ -351,14 +365,18 @@ class JsonLineServer:
         _send({"id": req_id, "type": "catalog_updating"})
 
         try:
-            result = update_catalog()
+            result = update_catalog(raise_on_error=True)
             _send({
                 "id": req_id,
                 "type": "catalog_updated",
                 "data": result,
             })
-        except Exception as exc:
-            _send({"id": req_id, "type": "error", "message": f"Catalog update failed: {exc}"})
+        except ModelSearchUnavailable:
+            _send({"id": req_id, "type": "error", "code": "MODEL_LIBRARY_UNAVAILABLE",
+                   "message": "The model library is unavailable. Try again."})
+        except Exception:
+            _send({"id": req_id, "type": "error", "code": "MODEL_CATALOG_UPDATE_FAILED",
+                   "message": "Could not update the model catalog. Try again."})
 
     def _handle_pull_model(self, req_id: int, model: str) -> None:
         """Pull/download a model with streaming progress."""
@@ -415,7 +433,7 @@ class JsonLineServer:
     ) -> None:
         """Search Ollama library for models."""
         try:
-            results = search_models(query=query, sort=sort, capability=capability)
+            results = search_models(query=query, sort=sort, capability=capability, raise_on_error=True)
 
             # Mark installed status.
             installed_names: set[str] = set()
@@ -436,8 +454,12 @@ class JsonLineServer:
                     r["installed"] = name in installed_names
 
             _send({"id": req_id, "type": "search_results", "data": results})
-        except Exception as exc:
-            _send({"id": req_id, "type": "error", "message": f"Search failed: {exc}"})
+        except ModelSearchUnavailable:
+            _send({"id": req_id, "type": "error", "code": "MODEL_LIBRARY_UNAVAILABLE",
+                   "message": "The model library is unavailable. Try again."})
+        except Exception:
+            _send({"id": req_id, "type": "error", "code": "MODEL_SEARCH_FAILED",
+                   "message": "Could not search the model library. Try again."})
 
     def _handle_check_update(self, req_id: int) -> None:
         """Check if updates are available."""
@@ -512,13 +534,18 @@ class JsonLineServer:
             "models": recommendations,
         })
 
-    def _handle_set_cwd(self, req_id: int, path: str) -> None:
+    def _handle_set_cwd(self, req_id: int, path: str, *, project_chat: bool = False) -> None:
         """Translate folder selection; Application serializes rebinding."""
         try:
-            data = self._application.change_workspace(self._app_adapter.session_id, path)
+            data = (self._application.change_workspace(self._app_adapter.session_id, path, project_chat=True)
+                    if project_chat else self._application.change_workspace(self._app_adapter.session_id, path))
         except ValueError as exc:
             _send({"id": req_id, "type": "error", "code": getattr(exc, "code", "INVALID_WORKSPACE"),
                    "category": "CONTEXT", "message": str(exc)})
+            return
+        except Exception:
+            _send({"id": req_id, "type": "error", "code": "WORKSPACE_SETUP_FAILED",
+                   "category": "CONTEXT", "message": "Could not initialize the selected workspace"})
             return
         _send({"id": req_id, "type": "cwd_changed", **data})
 

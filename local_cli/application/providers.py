@@ -5,6 +5,7 @@ the existing ModelInferencePort. Factories are injected by composition roots.
 """
 
 from dataclasses import dataclass, field, replace
+from datetime import datetime, timezone
 from threading import RLock
 from typing import Any, Callable
 from urllib.parse import urlsplit, urlunsplit
@@ -130,12 +131,22 @@ class BoundModelRuntime:
         return merged
 
     def chat_stream(self, model, messages, **kwargs):
+        yield from self._chat_stream(model, messages, None, kwargs)
+
+    def chat_stream_cancellable(self, model, messages, *, should_stop, **kwargs):
+        yield from self._chat_stream(model, messages, should_stop, kwargs)
+
+    def _chat_stream(self, model, messages, should_stop, kwargs):
         if model != self.snapshot.model_id:
             raise ProviderTransitionError("MODEL_SNAPSHOT_CONFLICT", "Model does not match snapshot", "MODEL")
         merged = self._kwargs(kwargs)
         messages = self._inference_messages(messages,merged)
         prepared = self._prepare(messages, merged)
-        stream = self._provider.chat_stream(model, prepared.messages if prepared else messages, **merged)
+        cancellable = getattr(type(self._provider), "chat_stream_cancellable", None)
+        inputs = prepared.messages if prepared else messages
+        stream = (self._provider.chat_stream_cancellable(model, inputs, should_stop=should_stop, **merged)
+                  if should_stop is not None and callable(cancellable)
+                  else self._provider.chat_stream(model, inputs, **merged))
         if self._context is not None and self._context.knowledge_output:
             from local_cli.application.knowledge_output import canonical_stream
             stream = canonical_stream(stream)
@@ -382,6 +393,73 @@ class ProviderManager:
                     capability_source="probe_failed")
             self._current = replace(current, snapshot=observed)
             return observed
+
+    def get_readiness(self):
+        """Observe local chat prerequisites without changing runtime identity.
+
+        The probe uses the existing provider's read-only catalog/info operations.
+        It neither starts inference nor changes pinned in-flight observations.
+        A concurrent model/provider switch invalidates the observation.
+        """
+        current = self.snapshot()
+        identity = current.snapshot
+        result = {"schemaVersion": 1, "providerId": identity.provider_id,
+                  "modelId": identity.model_id, "providerRevision": identity.provider_revision,
+                  "ready": False, "reason": None, "observedAt": "",
+                  "installedModels": [], "requiredAction": None}
+
+        def finish(reason=None, action=None):
+            latest = self.snapshot()
+            if (latest.snapshot.provider_id != identity.provider_id
+                    or latest.snapshot.model_id != identity.model_id
+                    or latest.snapshot.provider_revision != identity.provider_revision
+                    or latest._provider is not current._provider):
+                reason, action = "READINESS_STALE", None
+                result["installedModels"] = []
+            result.update(ready=reason is None, reason=reason, requiredAction=action,
+                          observedAt=datetime.now(timezone.utc).isoformat())
+            return result
+
+        if identity.provider_id != "ollama":
+            return finish("PROVIDER_UNVERIFIED", "CONFIGURE_PROVIDER")
+        try:
+            models = current._provider.list_models()
+            if not isinstance(models, list) or len(models) > 1024:
+                return finish("MODEL_VALIDATION_FAILED", "SELECT_MODEL")
+            installed = []
+            for model in models:
+                if (not isinstance(model, dict) or not isinstance(model.get("name"), str)
+                        or not model["name"].strip() or len(model["name"]) > 512):
+                    return finish("MODEL_VALIDATION_FAILED", "SELECT_MODEL")
+                size = model.get("size", 0)
+                if type(size) is not int or size < 0:
+                    return finish("MODEL_VALIDATION_FAILED", "SELECT_MODEL")
+                installed.append({"name": model["name"], "size": size})
+            result["installedModels"] = installed
+            if not installed:
+                return finish("NO_MODELS_INSTALLED", "SELECT_MODEL")
+            if not identity.model_id.strip():
+                return finish("MODEL_NOT_SELECTED", "SELECT_MODEL")
+            # Keep the same optional :tag matching already used by _observe;
+            # this validates selection without choosing another installed model.
+            if not any(model["name"] == identity.model_id
+                       or model["name"].split(":")[0] == identity.model_id for model in installed):
+                return finish("MODEL_NOT_INSTALLED", "SELECT_MODEL")
+            info = current._provider.get_model_info(identity.model_id)
+            if (not isinstance(info, dict) or not isinstance(info.get("capabilities"), list)
+                    or any(not isinstance(capability, str) for capability in info["capabilities"])):
+                return finish("MODEL_VALIDATION_FAILED", "SELECT_MODEL")
+            capabilities = info["capabilities"]
+            if "completion" not in capabilities and "tools" not in capabilities:
+                return finish("MODEL_NOT_CHAT_CAPABLE", "SELECT_MODEL")
+            # Native tool calling is optional: the existing agent also supports
+            # completion models through its text tool-call compatibility path.
+        except ProviderConnectionError:
+            return finish("OLLAMA_UNAVAILABLE")
+        except Exception:
+            # Private endpoint/provider exception text is never projected.
+            return finish("MODEL_VALIDATION_FAILED", "SELECT_MODEL")
+        return finish()
 
     def list_models(self):
         try:

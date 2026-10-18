@@ -2,6 +2,7 @@
 
 import sys
 import os
+from copy import copy
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -191,6 +192,8 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
     from local_cli.interfaces.jsonl_application import JsonlApplicationAdapter
     from local_cli.bootstrap_passive_web import passive_web_tools
     self._tools = passive_web_tools(self._tools,self._config)
+    from local_cli.desktop_context_preferences import DesktopContextPreferences
+    desktop_context = DesktopContextPreferences(self._config.state_dir)
 
     def inference_options() -> dict[str, Any]:
         if self._provider.name != "ollama":
@@ -237,7 +240,8 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
         auto_approve=self._config.auto_approve,
         human_response_deadline_factory=lambda: datetime.now(timezone.utc) +
             timedelta(seconds=human_timeout),
-        context_selection=self._config.num_ctx or "AUTO",
+        context_selection=desktop_context.load(self._config.num_ctx),
+        context_selection_save=desktop_context.save,
         context_policy=policy_from_config(self._config),
         persistence_factory=lambda _workspace: self._conversation_store,
         rag_factory=lambda _workspace: self._rag_service,
@@ -300,60 +304,74 @@ def sync_provider_projection(self):
 
 
 def rebind_server_workspace(self, target):
-    self._cwd = target
-    # Relative read/glob/grep cache keys belong to the old folder.
-    self._tool_cache.clear()
-    for tool in self._tools:
+    """Prepare a folder selection without changing the effective project.
+
+    Application commits these views only after the new ToolRuntime has its
+    own filesystem handles and authority. Legacy executors are shallow copies;
+    rebinding their cwd cannot mutate the previous runtime's exact tool state.
+    """
+    tools = [copy(tool) for tool in self._tools]
+    for tool in tools:
         if hasattr(tool, "cwd"):
             tool.cwd = target
         if isinstance(tool, AgentTool):
+            tool._sub_agent_tools = [copy(child) for child in tool._sub_agent_tools]
             for child_tool in tool._sub_agent_tools:
                 if hasattr(child_tool, "cwd"):
                     child_tool.cwd = target
-    self._git_ops = GitOps(target, self._environment)
-    if hasattr(self, "_auxiliary_services"):
-        self._auxiliary_services.git = self._git_ops
-    # Rebuild system prompt with new cwd.
-    self._system_prompt = build_system_prompt(self._tools, cwd=target)
-    # Re-anchor the project-bound subsystems: a new folder means
-    # a new transcript, its own instruction file, and its own
-    # resumable conversation.
-    self._session_log.close()
-    self._session_log = SessionLogger(self._config.state_dir, cwd=str(target),
-                                    redactor=self._provider_manager.redactor)
-    self._session_log.log_session_start(
-        model=self._config.model,
-        provider=self._provider.name,
-        app_version=__version__,
-        frontend="server",
-        reason="cwd_change",
-    )
-    self._instruction_source = None
-    self._instruction_message = None
+    git_ops = GitOps(target, self._environment)
+    system_prompt = build_system_prompt(tools, cwd=target)
+    instruction_source = instruction_message = None
     loaded_instructions = load_project_instructions(str(target), self._environment)
     if loaded_instructions is not None:
-        self._instruction_source, instruction_text = loaded_instructions
-        self._instruction_message = build_instruction_message(
-            self._instruction_source, instruction_text,
+        instruction_source, instruction_text = loaded_instructions
+        instruction_message = build_instruction_message(
+            instruction_source, instruction_text,
         )
-        self._session_log.log(
-            "project_instructions", source=self._instruction_source,
-        )
-    self._map_message = project_map_message(str(target), self._environment)
-    self._conversation_store = create_persistence_service(config=self._config,
-        workspace=target, logger=self._session_log)
-    if hasattr(self, "_rag_service"):
-        del self._rag_service
-    self._ensure_rag_service()
-    base_messages = [{"role": "system", "content": self._system_prompt}]
-    if self._instruction_message is not None:
-        base_messages.append(self._instruction_message)
-    if self._map_message is not None:
-        base_messages.append(self._map_message)
-    return {"base_messages": base_messages, "persistence": self._conversation_store,
-            "rag": self._rag_service,
-            "data": {"path": str(target), "git_capability": self._git_ops.capability().value,
-                     "resumable": self._conversation_store.info()}}
+    map_message = project_map_message(str(target), self._environment)
+    logger = SessionLogger(self._config.state_dir, cwd=str(target),
+                           redactor=self._provider_manager.redactor)
+    try:
+        persistence = create_persistence_service(config=self._config,
+            workspace=target, logger=logger)
+        from local_cli.config import CONFIG_DEFAULTS
+        rag = (create_rag_service(client=self._client, workspace=target,
+            path=getattr(self._config, "rag_path", CONFIG_DEFAULTS["rag_path"]),
+            embedding_model=getattr(self._config, "rag_model", CONFIG_DEFAULTS["rag_model"]),
+            top_k=getattr(self._config, "rag_topk", CONFIG_DEFAULTS["rag_topk"]),
+            state_dir=self._config.state_dir) if hasattr(self, "_client") else RAGService(None))
+        if getattr(self._config, "rag", False):
+            rag.set_enabled(True)
+        base_messages = [{"role": "system", "content": system_prompt}]
+        if instruction_message is not None:
+            base_messages.append(instruction_message)
+        if map_message is not None:
+            base_messages.append(map_message)
+        data = {"path": str(target), "git_capability": git_ops.capability().value,
+                "resumable": persistence.info()}
+    except Exception:
+        logger.close()
+        raise
+
+    def commit():
+        previous_log = self._session_log
+        self._cwd, self._tools = target, tools
+        self._tool_cache.clear()  # Relative cache keys belonged to the old folder.
+        self._git_ops = git_ops
+        if hasattr(self, "_auxiliary_services"):
+            self._auxiliary_services.git = git_ops
+        self._system_prompt = system_prompt
+        self._instruction_source, self._instruction_message = instruction_source, instruction_message
+        self._map_message = map_message
+        self._conversation_store, self._session_log, self._rag_service = persistence, logger, rag
+        previous_log.close()
+        logger.log_session_start(model=self._config.model, provider=self._provider.name,
+            app_version=__version__, frontend="server", reason="cwd_change")
+        if instruction_source is not None:
+            logger.log("project_instructions", source=instruction_source)
+
+    return {"base_messages": base_messages, "persistence": persistence, "rag": rag,
+            "tools": tools, "commit": commit, "abort": logger.close, "data": data}
 
 
 def refresh_server_base(self, folder, tools):

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, shell, safeStorage } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, shell, safeStorage, Menu, clipboard } from 'electron'
 import { spawn, execFile, ChildProcess } from 'child_process'
 import http from 'node:http'
 import https from 'node:https'
@@ -6,10 +6,21 @@ import crypto from 'node:crypto'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'path'
+import { copyPublicMessage } from './message_copy'
 import { DesktopApplicationClient } from './application_client'
 import { memoryControl } from './memory_control.cjs'
 import { pickKnowledge, knowledgeControl,hostSelection,remoteKnowledge } from './knowledge_control.cjs'
-import { signApproval, confirmApproval, validFrame } from './approval_host.cjs'
+import { signApproval, validFrame } from './approval_host.cjs'
+import { createApprovalSurfaceController } from './approval_surface.cjs'
+import { createDesktopPreferencesStore } from './desktop_preferences.cjs'
+import { createDesktopModelPreferencesStore } from './desktop_model_preferences.cjs'
+import { createConversationPreferencesStore } from './conversation_preferences.cjs'
+import { createConfirmationSurface } from './confirmation_surface.cjs'
+import { createQuestionSurface } from './question_surface.cjs'
+import { createProjectChatClient } from './project_chats.cjs'
+import { createProjectsHost } from './projects_host.cjs'
+import { DESKTOP_UPDATES_ENABLED, disabledDesktopUpdate, editingActionForInput } from './desktop_host_policy.cjs'
+import { memoryDialogOptions, forwardingDialogOptions, pickerDialogOptions, oauthPage } from './desktop_host_locale.cjs'
 
 // Keep the user profile independent of the legacy package name. Set both paths
 // before ready so Chromium caches/cookies also use the Nova profile.
@@ -17,6 +28,9 @@ const desktopDataPath = path.join(app.getPath('appData'), 'nova-desktop')
 fs.mkdirSync(desktopDataPath, { recursive: true })
 app.setPath('userData', desktopDataPath)
 app.setPath('sessionData', desktopDataPath)
+const desktopPreferences = createDesktopPreferencesStore(desktopDataPath)
+const desktopModelPreferences = createDesktopModelPreferencesStore(desktopDataPath)
+const conversationPreferences = createConversationPreferencesStore(desktopDataPath)
 
 // Read the real version from package.json (via Electron) instead of
 // hardcoding — a stale hardcode was shown in the UI for several releases.
@@ -34,17 +48,66 @@ let mainWindow: BrowserWindow | null = null
 let pythonProcess: ChildProcess | null = null
 let lineBuffer = ''
 let rendererReady = false
+let requestedHistoryVisible = false
 let lastReadyMessage: object | null = null
 let storedApiKey: string | null = null
 let restartWorkspace: string | null = null
 let restartReady: Record<string, any> | null = null
 let restoreAfterRestart = false
+let restoreOnWorkspaceBootstrap = true
 let approvalHostKey = ''
+let approvalSurface: ReturnType<typeof createApprovalSurfaceController> | null = null
+let confirmationSurface: ReturnType<typeof createConfirmationSurface> | null = null
+let questionSurface: ReturnType<typeof createQuestionSurface> | null = null
+let chatMutation = false
+let projectsHost: ReturnType<typeof createProjectsHost> | null = null
+let bootstrapReadyMessage: Record<string,any> | null = null
+let bootstrapProjectRequest: {path:string;acknowledged:boolean;resolve:(value:{success:boolean;error?:{code:string}})=>void;timer:ReturnType<typeof setTimeout>} | null = null
+function sameWorkspacePath(left:string,right:string) {
+  const normalize = (value:string) => process.platform === 'win32' ? path.resolve(value).toLowerCase() : path.resolve(value)
+  return normalize(left) === normalize(right)
+}
 const applicationClient = new DesktopApplicationClient(sendToPython, view => {
+  confirmationSurface?.sync()
+  questionSurface?.sync()
+  approvalSurface?.sync()
+  projectsHost?.sync()
+  if (bootstrapProjectRequest?.acknowledged && view.status.ready && view.workspace &&
+      sameWorkspacePath(view.workspace,bootstrapProjectRequest.path)) {
+    const pending = bootstrapProjectRequest; bootstrapProjectRequest = null
+    clearTimeout(pending.timer); pending.resolve({success:true})
+  }
   if (rendererReady && mainWindow && !mainWindow.webContents.isDestroyed()) {
     mainWindow.webContents.send('session-view', view)
   }
 }, command => signApproval(approvalHostKey, command))
+approvalSurface = createApprovalSurfaceController({ BrowserWindow, ipcMain, client: applicationClient,
+  getParent: () => mainWindow, getLocale: () => desktopPreferences.get().locale,
+  preloadPath: path.join(__dirname, 'approval_preload.js') })
+const projectChatClient = createProjectChatClient({send:sendToPython,getView:()=>applicationClient.view})
+confirmationSurface = createConfirmationSurface({BrowserWindow,ipcMain,getParent:()=>mainWindow,
+  getLocale:()=>desktopPreferences.get().locale,preloadPath:path.join(__dirname,'confirmation_preload.js')})
+questionSurface = createQuestionSurface({BrowserWindow, ipcMain, client: applicationClient, getParent: () => mainWindow,
+  getLocale: () => desktopPreferences.get().locale, preloadPath: path.join(__dirname, 'question_preload.js'),
+  canOpen: () => !confirmationSurface?.isPending() && !chatMutation && !applicationClient.view.approvals.length })
+applicationClient.setConversationPreferences(conversationPreferences)
+applicationClient.setConfirmedModelObserver(runtime => {
+  const result = desktopModelPreferences.saveConfirmed(runtime)
+  applicationClient.setModelPreferenceError(result.success ? null : 'MODEL_PREFERENCE_SAVE_FAILED')
+})
+// Recheck only host readiness. This monitor never retries a user operation.
+const readinessMonitor = setInterval(() => applicationClient.refreshReadiness(), 15_000)
+readinessMonitor.unref()
+
+function syncHistoryVisibility() {
+  applicationClient.setHistoryVisible(requestedHistoryVisible && rendererReady && !!mainWindow
+    && !mainWindow.isDestroyed() && mainWindow.isVisible() && !mainWindow.isMinimized())
+}
+
+function clearHistoryVisibility() {
+  requestedHistoryVisible = false
+  applicationClient.setHistoryVisible(false)
+}
 
 // ---------------------------------------------------------------------------
 // Claude credential storage (encrypted with safeStorage when available)
@@ -127,7 +190,7 @@ function validateApiKey(key: string): Promise<{ valid: boolean; error?: string }
           if (res.statusCode === 200) {
             resolve({ valid: true })
           } else if (res.statusCode === 401) {
-            resolve({ valid: false, error: 'Invalid API key.' })
+            resolve({ valid: false, error: 'AUTH_INVALID_KEY' })
           } else {
             // 429 (rate limit) or other errors — key format is valid.
             resolve({ valid: true })
@@ -135,8 +198,8 @@ function validateApiKey(key: string): Promise<{ valid: boolean; error?: string }
         })
       },
     )
-    req.on('error', () => resolve({ valid: false, error: 'Could not reach Anthropic API.' }))
-    req.on('timeout', () => { req.destroy(); resolve({ valid: false, error: 'Request timed out.' }) })
+    req.on('error', () => resolve({ valid: false, error: 'AUTH_NETWORK_FAILED' }))
+    req.on('timeout', () => { req.destroy(); resolve({ valid: false, error: 'AUTH_TIMEOUT' }) })
     req.write(body)
     req.end()
   })
@@ -166,23 +229,23 @@ function startOAuthFlow(): Promise<{ success: boolean; error?: string }> {
 
       if (error) {
         res.writeHead(200, { 'Content-Type': 'text/html' })
-        res.end('<html><body><h2>Login failed</h2><p>You can close this window.</p></body></html>')
+        res.end(oauthPage(desktopPreferences.get().locale, 'failed'))
         if (!resolved) {
           resolved = true
           server.close()
-          resolve({ success: false, error: `OAuth error: ${error}` })
+          resolve({ success: false, error: 'AUTH_OAUTH_FAILED' })
         }
         return
       }
 
       if (!code || returnedState !== state) {
         res.writeHead(400, { 'Content-Type': 'text/html' })
-        res.end('<html><body><h2>Invalid request</h2></body></html>')
+        res.end(oauthPage(desktopPreferences.get().locale, 'invalid'))
         return
       }
 
       res.writeHead(200, { 'Content-Type': 'text/html' })
-      res.end('<html><body><h2>Login successful!</h2><p>You can close this window and return to Local CLI.</p></body></html>')
+      res.end(oauthPage(desktopPreferences.get().locale, 'success'))
 
       if (!resolved) {
         resolved = true
@@ -191,14 +254,15 @@ function startOAuthFlow(): Promise<{ success: boolean; error?: string }> {
         // Exchange the auth code for a session key.
         exchangeOAuthCode(code).then((result) => {
           if (result.apiKey) {
-            saveClaudeAuth('subscription', result.apiKey)
+            try { saveClaudeAuth('subscription', result.apiKey) }
+            catch { resolve({ success: false, error: 'AUTH_SAVE_FAILED' }); return }
             storedApiKey = result.apiKey
             process.env.ANTHROPIC_API_KEY = result.apiKey
             // Notify Python backend.
             sendToPython({ type: 'set_api_key', api_key: result.apiKey })
             resolve({ success: true })
           } else {
-            resolve({ success: false, error: result.error || 'Failed to exchange code.' })
+            resolve({ success: false, error: result.error || 'AUTH_OAUTH_FAILED' })
           }
         })
       }
@@ -208,7 +272,7 @@ function startOAuthFlow(): Promise<{ success: boolean; error?: string }> {
     server.listen(0, '127.0.0.1', () => {
       const addr = server.address()
       if (!addr || typeof addr === 'string') {
-        resolve({ success: false, error: 'Failed to start callback server.' })
+        resolve({ success: false, error: 'AUTH_CALLBACK_FAILED' })
         return
       }
       const port = addr.port
@@ -222,7 +286,7 @@ function startOAuthFlow(): Promise<{ success: boolean; error?: string }> {
         if (!resolved) {
           resolved = true
           server.close()
-          resolve({ success: false, error: 'Login timed out. Please try again.' })
+          resolve({ success: false, error: 'AUTH_TIMEOUT' })
         }
       }, 300_000)
     })
@@ -230,7 +294,7 @@ function startOAuthFlow(): Promise<{ success: boolean; error?: string }> {
     server.on('error', () => {
       if (!resolved) {
         resolved = true
-        resolve({ success: false, error: 'Failed to start callback server.' })
+        resolve({ success: false, error: 'AUTH_CALLBACK_FAILED' })
       }
     })
   })
@@ -255,16 +319,16 @@ function exchangeOAuthCode(code: string): Promise<{ apiKey?: string; error?: str
             if (json.access_token) {
               resolve({ apiKey: json.access_token })
             } else {
-              resolve({ error: json.error || 'No access token returned.' })
+              resolve({ error: 'AUTH_OAUTH_FAILED' })
             }
           } catch {
-            resolve({ error: 'Invalid response from auth server.' })
+            resolve({ error: 'AUTH_INVALID_RESPONSE' })
           }
         })
       },
     )
-    req.on('error', () => resolve({ error: 'Could not reach auth server.' }))
-    req.on('timeout', () => { req.destroy(); resolve({ error: 'Auth request timed out.' }) })
+    req.on('error', () => resolve({ error: 'AUTH_NETWORK_FAILED' }))
+    req.on('timeout', () => { req.destroy(); resolve({ error: 'AUTH_TIMEOUT' }) })
     req.write(body)
     req.end()
   })
@@ -311,11 +375,14 @@ function findProjectRoot(): string {
 function startPythonServer() {
   const pythonCmd = findPython()
   const projectRoot = findProjectRoot()
+  if (!restartWorkspace) restartWorkspace = projectsHost?.preferredPath() || path.join(projectRoot, 'workspace')
 
   console.log(`Starting Python server: ${pythonCmd} -m local_cli --server`)
   console.log(`Working directory: ${projectRoot}`)
 
-  const env: Record<string, string> = { ...process.env as Record<string, string>, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8' }
+  const env: Record<string, string> = desktopModelPreferences.childEnvironment({
+    ...process.env as Record<string, string>, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8',
+  })
   approvalHostKey = crypto.randomBytes(32).toString('hex')
   env.NOVA_APPROVAL_HOST_KEY = approvalHostKey
   if (storedApiKey) {
@@ -324,6 +391,7 @@ function startPythonServer() {
 
   lineBuffer = ''
   lastReadyMessage = null
+  bootstrapReadyMessage = null
   const child = spawn(pythonCmd, ['-m', 'local_cli', '--server'], {
     cwd: projectRoot,
     stdio: ['pipe', 'pipe', 'pipe'],
@@ -347,23 +415,39 @@ function startPythonServer() {
         const msg = JSON.parse(line)
         // Remember the ready message so we can re-send it on HMR re-mounts.
         if (msg.type === 'ready') {
-          lastReadyMessage = msg
+          bootstrapReadyMessage = msg
           if (restartWorkspace) {
             restartReady = msg
-            sendToPython({ id: 'desktop-restart-cwd', type: 'set_cwd', path: restartWorkspace })
+            sendToPython({ id: 'desktop-restart-cwd', type: 'set_cwd', path: restartWorkspace, projectChat: true })
             continue
           }
+          lastReadyMessage = msg
         }
         if (msg.id === 'desktop-restart-cwd') {
           restartWorkspace = null
           if (msg.type === 'cwd_changed' && restartReady) {
+            if (bootstrapProjectRequest) bootstrapProjectRequest.acknowledged = true
+            restartReady = {...restartReady,resumable:msg.resumable || null}
+            lastReadyMessage = restartReady
             applicationClient.receive(restartReady)
-            restoreAfterRestart = !!msg.resumable
+            restoreAfterRestart = restoreOnWorkspaceBootstrap && !!msg.resumable
+            restoreOnWorkspaceBootstrap = false
           } else {
-            applicationClient.receive(restartReady || {})
+            // Never expose chat readiness at the source root after failed bootstrap.
+            projectsHost?.setError('PROJECT_BOOTSTRAP_FAILED')
+            if (bootstrapProjectRequest) {
+              const pending = bootstrapProjectRequest; bootstrapProjectRequest = null
+              clearTimeout(pending.timer); pending.resolve({success:false,error:{code:msg.code || 'PROJECT_BOOTSTRAP_FAILED'}})
+            }
             applicationClient.receive(msg)
+            restartReady = null
+            continue
           }
           restartReady = null
+        }
+        if (projectChatClient.receive(msg)) {
+          if (msg.type === 'clear_project_chat' && msg.success) applicationClient.refresh()
+          continue
         }
         applicationClient.receive(msg)
         if (restoreAfterRestart && applicationClient.view.status.ready) {
@@ -389,6 +473,7 @@ function startPythonServer() {
   child.on('error', () => {
     if (pythonProcess !== child) return
     pythonProcess = null
+    projectChatClient.disconnected()
     applicationClient.disconnected()
   })
   child.stdin?.on('error', () => {
@@ -399,6 +484,7 @@ function startPythonServer() {
     console.log(`Python process exited with code ${code}`)
     mainWindow?.webContents.send('python-exit', code)
     pythonProcess = null
+    projectChatClient.disconnected()
     applicationClient.disconnected()
   })
 }
@@ -413,8 +499,36 @@ function sendToPython(data: object) {
   return false
 }
 
+/** Explicit human folder selection can recover an inaccessible initial workspace. */
+function bootstrapProject(selectedPath:string):Promise<{success:boolean;error?:{code:string}}> {
+  if (bootstrapProjectRequest || applicationClient.workspaceBusy()) return Promise.resolve({success:false,error:{code:'PROJECT_BUSY'}})
+  return new Promise(resolve => {
+    const timer = setTimeout(() => {
+      if (!bootstrapProjectRequest) return
+      bootstrapProjectRequest = null
+      projectsHost?.setError('PROJECT_CHANGE_UNKNOWN')
+      resolve({success:false,error:{code:'PROJECT_CHANGE_UNKNOWN'}})
+    }, 20_000)
+    timer.unref()
+    bootstrapProjectRequest = {path:selectedPath,acknowledged:false,resolve,timer}
+    restoreOnWorkspaceBootstrap = true
+    restartWorkspace = selectedPath
+    if (!pythonProcess) startPythonServer()
+    else if (bootstrapReadyMessage) {
+      restartReady = bootstrapReadyMessage
+      sendToPython({id:'desktop-restart-cwd',type:'set_cwd',path:selectedPath,projectChat:true})
+    }
+    // If startup is still pending, its ready frame uses restartWorkspace above.
+  })
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
+    title: 'Nova',
+    icon: path.join(__dirname, process.env.VITE_DEV_SERVER_URL ? '../public' : '../dist',
+      process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
+    backgroundColor: '#090c12',
+    show: false,
     width: 1000,
     height: 700,
     minWidth: 600,
@@ -426,7 +540,21 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      additionalArguments: [`--nova-desktop-locale=${desktopPreferences.get().locale}`],
     },
+  })
+  const window = mainWindow
+  window.once('ready-to-show', () => { if (!window.isDestroyed()) window.show() })
+  mainWindow.setMenu(null)
+  mainWindow.webContents.on('page-title-updated', event => {
+    event.preventDefault()
+    mainWindow?.setTitle('Nova')
+  })
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    const action = editingActionForInput(input, process.platform)
+    if (!action || !mainWindow) return
+    event.preventDefault()
+    mainWindow.webContents[action]()
   })
 
   // In dev mode, load from Vite dev server.
@@ -437,10 +565,22 @@ function createWindow() {
   }
 
   mainWindow.on('closed', () => {
+    approvalSurface?.invalidate()
+    questionSurface?.invalidate()
     rendererReady = false
+    clearHistoryVisibility()
     mainWindow = null
   })
-  mainWindow.webContents.on('did-start-loading', () => { rendererReady = false })
+  mainWindow.on('hide', () => applicationClient.setHistoryVisible(false))
+  mainWindow.on('minimize', () => applicationClient.setHistoryVisible(false))
+  mainWindow.on('show', () => { syncHistoryVisibility(); questionSurface?.sync() })
+  mainWindow.on('restore', () => { syncHistoryVisibility(); questionSurface?.sync() })
+  mainWindow.on('focus', () => { applicationClient.refreshReadiness(); questionSurface?.sync() })
+  mainWindow.webContents.on('did-start-loading', () => { rendererReady = false; clearHistoryVisibility() })
+  mainWindow.webContents.on('destroyed', clearHistoryVisibility)
+  mainWindow.webContents.on('render-process-gone', () => { rendererReady = false; clearHistoryVisibility() })
+  approvalSurface?.sync()
+  questionSurface?.sync()
 }
 
 // IPC handlers.
@@ -449,9 +589,45 @@ function validApplicationSender(event: Electron.IpcMainEvent | Electron.IpcMainI
     event.senderFrame === mainWindow.webContents.mainFrame
 }
 
+// A memory-only snapshot lets preload apply presentation before the first paint, including reloads.
+ipcMain.on('get-desktop-startup-preferences', event => {
+  event.returnValue = validApplicationSender(event) ? desktopPreferences.get() : null
+})
+ipcMain.handle('set-desktop-appearance', (event, value: unknown) => {
+  if (!validApplicationSender(event)) return { success: false,
+    error: { code: 'DESKTOP_UNTRUSTED_SENDER', message: 'Desktop preferences are unavailable.' } }
+  return desktopPreferences.setAppearance(value)
+})
+ipcMain.handle('get-desktop-preferences', event => {
+  if (!validApplicationSender(event)) return { success: false,
+    error: { code: 'DESKTOP_UNTRUSTED_SENDER', message: 'Desktop preferences are unavailable.' } }
+  return desktopPreferences.get()
+})
+ipcMain.handle('set-desktop-locale', (event, locale: unknown) => {
+  if (!validApplicationSender(event)) return { success: false,
+    error: { code: 'DESKTOP_UNTRUSTED_SENDER', message: 'Desktop preferences are unavailable.' } }
+  const result = desktopPreferences.setLocale(locale)
+  if (result.success) { approvalSurface?.updateLocale(); confirmationSurface?.updateLocale(); questionSurface?.updateLocale() }
+  return result
+})
+ipcMain.handle('set-history-visible', (event, visible: unknown) => {
+  if (!validApplicationSender(event) || typeof visible !== 'boolean') return { success: false }
+  requestedHistoryVisible = visible
+  syncHistoryVisibility()
+  return { success: true }
+})
+
 ipcMain.on('send-to-python', (event, data) => {
-  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'memory_command' || data.type === 'knowledge_command' || data.type === 'confirm_response' ||
-      (data.type === 'application_command' && data.command?.kind === 'ResolveApproval')) return
+  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'set_cwd' || ['project_chats','clear_project_chat','command','chat'].includes(data.type) || data.type === 'memory_command' || data.type === 'knowledge_command' || data.type === 'confirm_response' ||
+      (projectsHost?.isChanging() && ['chat','command','application_command'].includes(data.type)) ||
+      (data.type === 'application_command' && ['ResolveApproval','ResolveUserInput','ExecuteCommand'].includes(data.command?.kind)) ||
+      ((confirmationSurface?.isPending() || chatMutation) && data.type === 'application_command')) return
+  if (applicationClient.modelDownloadBusy() || data.type === 'pull_model' &&
+      (projectsHost?.isChanging() || confirmationSurface?.isPending() || chatMutation || !applicationClient.beginModelDownload(data))) {
+    mainWindow?.webContents.send('python-message', { id: data.id, type: 'error', code: 'MODEL_DOWNLOAD_BUSY', message: 'Wait for the model download and inventory refresh.' })
+    return
+  }
+  applicationClient.trackModelRequest(data)
   sendToPython(data)
 })
 ipcMain.handle('memory-command', async (event, name: string, args: Record<string, unknown>, commandId?: string) => {
@@ -459,35 +635,34 @@ ipcMain.handle('memory-command', async (event, name: string, args: Record<string
     return { schemaVersion: 1, commandId: commandId || '', completed: false,
       error: { code: 'MEMORY_UNTRUSTED_INPUT', message: 'Invalid memory action.' } }
   }
+  if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:commandId || '',completed:false,error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
   return memoryControl(applicationClient, name, args, commandId, (request: { name: string; workspace: string | null; write: boolean }) =>
-    dialog.showMessageBox(mainWindow!, { type: 'warning', title: 'Nova — sensitive memory',
-      message: request.write ? 'Allow this exact sensitive memory write?' : 'Reveal sensitive content for this memory inspection/export?',
-      detail: request.name + '\nWorkspace: ' + request.workspace + '\nLocal storage is not process isolation or encryption. '
-        + 'Forget does not erase audit, logs, source conversations or backups.',
-      buttons: ['Cancel', 'Allow'], defaultId: 0, cancelId: 0, noLink: true }))
+    dialog.showMessageBox(mainWindow!, memoryDialogOptions(desktopPreferences.get().locale, request)))
 })
 
 ipcMain.handle('knowledge-pick', async event => {
   if (!validApplicationSender(event) || !mainWindow) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},
     error:{code:'SOURCE_NOT_AUTHORIZED',message:'Main-frame host picker required.'}}
-  return pickKnowledge(applicationClient, () => dialog.showOpenDialog(mainWindow!,{properties:['openFile']}))
+  if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
+  return pickKnowledge(applicationClient, () => dialog.showOpenDialog(mainWindow!,pickerDialogOptions(desktopPreferences.get().locale,'document')))
 })
 ipcMain.handle('knowledge-command', async (event,name:string,args:Record<string,unknown>,commandId?:string) => {
   if (!validApplicationSender(event) || !validFrame(args)) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},
     error:{code:'SOURCE_NOT_AUTHORIZED',message:'Invalid source control.'}}
-  if(name==='source_remote')return remoteKnowledge(applicationClient,args,()=>dialog.showMessageBox(mainWindow!,{
-    type:'warning',title:'Nova — document forwarding',message:'Allow this source in remote chat context?',
-    detail:'Document data may leave this device. This does not enable remote MEMORY or grant tool/security authority. Future forwarding can be revoked; already transmitted data cannot be recalled.',
-    buttons:['Cancel','Allow'],defaultId:0,cancelId:0,noLink:true}),commandId)
+  if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
+  if(name==='source_remote')return remoteKnowledge(applicationClient,args,()=>dialog.showMessageBox(mainWindow!,
+    forwardingDialogOptions(desktopPreferences.get().locale)),commandId)
   return knowledgeControl(applicationClient,name,args,commandId)
 })
 ipcMain.handle('knowledge-refresh',async(event,sourceId:string)=>{
   if(!validApplicationSender(event)||!mainWindow||typeof sourceId!=='string')return {accepted:false,error:{code:'SOURCE_NOT_AUTHORIZED'}}
-  return hostSelection(applicationClient,'source_refresh',sourceId,()=>dialog.showOpenDialog(mainWindow!,{properties:['openFile']}))
+  if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
+  return hostSelection(applicationClient,'source_refresh',sourceId,()=>dialog.showOpenDialog(mainWindow!,pickerDialogOptions(desktopPreferences.get().locale,'refresh')))
 })
 ipcMain.handle('knowledge-export',async(event,sourceId:string)=>{
   if(!validApplicationSender(event)||!mainWindow||typeof sourceId!=='string')return {accepted:false,error:{code:'SOURCE_NOT_AUTHORIZED'}}
-  return hostSelection(applicationClient,'source_export',sourceId,()=>dialog.showSaveDialog(mainWindow!,{defaultPath:'nova-source-export.bin'}))
+  if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
+  return hostSelection(applicationClient,'source_export',sourceId,()=>dialog.showSaveDialog(mainWindow!,pickerDialogOptions(desktopPreferences.get().locale,'export')))
 })
 
 ipcMain.handle('get-python-status', () => {
@@ -499,26 +674,59 @@ ipcMain.handle('application-command', async (event, kind: string, payload: Recor
     return { schemaVersion: 1, commandId: commandId || '', accepted: false, createdIds: {},
       error: { code: 'INVALID_APPLICATION_COMMAND', message: 'Invalid application command.' } }
   }
+  if (kind === 'ExecuteCommand' && ['clear','clear_history'].includes(payload.name as string)) {
+    return {schemaVersion:1,commandId:commandId || '',accepted:false,createdIds:{},error:{code:'CHAT_CONFIRMATION_REQUIRED',message:'Use the host chat confirmation.'}}
+  }
+  if ((confirmationSurface?.isPending() || chatMutation) && !['CancelTurn','CancelOperation','StopGeneration'].includes(kind)) {
+    return {schemaVersion:1,commandId:commandId || '',accepted:false,createdIds:{},error:{code:'PROJECT_BUSY',message:'Finish the current confirmation first.'}}
+  }
+  if (kind === 'ResolveUserInput') {
+    return { schemaVersion: 1, commandId: commandId || '', accepted: false, createdIds: {},
+      error: { code: 'QUESTION_HOST_ONLY', message: 'Use the host question dialog to answer.' } }
+  }
   if (kind === 'ResolveApproval') {
-    return confirmApproval(applicationClient, payload, commandId, request => dialog.showMessageBox(mainWindow!, {
-      type: 'warning', title: 'Nova — confirmar ejecución local',
-      message: 'Este comando se ejecutará con los permisos normales de tu cuenta.',
-      detail: 'Carpeta: ' + request.cwd + '\n\n' + String(request.arguments.command || JSON.stringify(request.arguments))
-        + (request.arguments.environment ? '\n\nEnvironment: ' + JSON.stringify(request.arguments.environment) : ''),
-      buttons: ['Cancelar', 'Ejecutar'], defaultId: 0, cancelId: 0, noLink: true,
-    }))
+    return { schemaVersion: 1, commandId: commandId || '', accepted: false, createdIds: {},
+      error: { code: 'APPROVAL_HOST_ONLY', message: 'Use the trusted approval surface to decide.' } }
+  }
+  if (projectsHost?.isChanging() && ['SubmitUserInput','ExecuteCommand','ChangeProvider','ChangeModel','SetFetchEnabled','SetSearchEngine','SetBrowser','SetContextWindow'].includes(kind)) {
+    return {schemaVersion:1,commandId:commandId || '',accepted:false,createdIds:{},
+      error:{code:'PROJECT_BUSY',message:'Wait for the selected project to be confirmed.'}}
   }
   return applicationClient.command(kind, payload, commandId)
 })
-ipcMain.handle('restart-backend', () => {
+ipcMain.handle('copy-message', (event, id: unknown) => validApplicationSender(event)
+  ? copyPublicMessage(applicationClient.view.messages, id, text => clipboard.writeText(text)) : { success: false })
+ipcMain.handle('review-pending-question', event => {
+  if (!validApplicationSender(event)) return { success: false }
+  return questionSurface?.reopenPending() || { success: false }
+})
+ipcMain.handle('review-pending-approval', event => {
+  if (!validApplicationSender(event)) return { success: false }
+  return approvalSurface?.reopenPending() || { success: false }
+})
+ipcMain.handle('refresh-readiness', event => {
+  if (!validApplicationSender(event)) return { success: false }
+  applicationClient.refreshReadiness(true)
+  return { success: true }
+})
+ipcMain.handle('retry-model-download-inventory', event => {
+  if (!validApplicationSender(event)) return {success:false}
+  return {success:applicationClient.retryDownloadInventory()}
+})
+ipcMain.handle('restart-backend', event => {
+  if (!validApplicationSender(event)) return {success:false,error:'DESKTOP_UNTRUSTED_SENDER'}
+  if (applicationClient.modelDownloadBusy()) return {success:false,error:'MODEL_DOWNLOAD_BUSY'}
   if (pythonProcess) return { success: false, error: 'Backend is already running.' }
-  restartWorkspace = applicationClient.view.workspace || findProjectRoot()
+  restartWorkspace = applicationClient.view.workspace || projectsHost?.preferredPath() || path.join(findProjectRoot(),'workspace')
+  restoreOnWorkspaceBootstrap = true
   startPythonServer()
   return { success: true }
 })
 
-ipcMain.on('renderer-ready', () => {
+ipcMain.on('renderer-ready', event => {
+  if (!validApplicationSender(event)) return
   rendererReady = true
+  syncHistoryVisibility()
   mainWindow?.webContents.send('session-view', applicationClient.view)
   applicationClient.refresh()
   if (lastReadyMessage) {
@@ -526,39 +734,60 @@ ipcMain.on('renderer-ready', () => {
   }
 })
 
-ipcMain.handle('open-directory-dialog', async () => {
-  const result = await dialog.showOpenDialog({ properties: ['openDirectory'] })
-  return result
-})
-
-ipcMain.handle('list-directory', async (_event, dirPath: string) => {
-  const entries = await fs.promises.readdir(dirPath, { withFileTypes: true })
-  const results = await Promise.all(
-    entries.map(async (entry) => {
-      const fullPath = path.join(dirPath, entry.name)
-      let isSymlink = false
-      try {
-        const stat = await fs.promises.lstat(fullPath)
-        isSymlink = stat.isSymbolicLink()
-      } catch {
-        // Ignore stat errors for individual entries.
-      }
-      return { name: entry.name, isDirectory: entry.isDirectory(), isSymlink }
-    })
-  )
-  return results
-})
-
-const MAX_FILE_SIZE = 1_000_000 // 1MB
-
-ipcMain.handle('read-file', async (_event, filePath: string) => {
-  const stat = await fs.promises.stat(filePath)
-  if (stat.size > MAX_FILE_SIZE) {
-    return { error: 'too_large' as const, size: stat.size }
+ipcMain.handle('get-projects', event => validApplicationSender(event) && projectsHost
+  ? projectsHost.state() : {schemaVersion:1,defaultPath:'',activePath:null,folders:[],busy:false,error:{code:'PROJECT_UNAVAILABLE'}})
+async function confirmChatAction(kind:'remove-project'|'clear-chat'|'clear-all', selectedPath?:string) {
+  const current=applicationClient.view
+  const identity={sessionId:current.sessionId,workspace:current.workspace,revision:current.stateRevision}
+  const folder=selectedPath ? projectsHost?.state().folders.find(folder=>folder.path===selectedPath) : null
+  const valid=()=>{
+    const view=applicationClient.view
+    if(!view.status.ready || view.recovering || view.sessionId!==identity.sessionId || view.workspace!==identity.workspace ||
+      view.stateRevision!==identity.revision || applicationClient.workspaceBusy() || projectsHost?.isChanging() || chatMutation)return false
+    if(folder){try{return fs.realpathSync(folder.path)===folder.path && !!projectsHost?.state().folders.some(item=>item.path===folder.path)}catch{return false}}
+    return !selectedPath
   }
-  const content = await fs.promises.readFile(filePath, 'utf-8')
-  return { content }
+  if(!confirmationSurface || !valid())return {confirmed:false,canceled:true}
+  return confirmationSurface.request({kind,projectName:folder?.name,path:folder?.path,validate:valid})
+}
+ipcMain.handle('get-project-chats',event=>applicationClient.modelDownloadBusy()
+  ? {success:false,error:{code:'MODEL_DOWNLOAD_BUSY'}} : validApplicationSender(event)&&projectsHost
+  ? projectChatClient.list(projectsHost.state().folders.map(folder=>folder.path))
+  : {success:false,error:{code:'PROJECT_CHAT_UNAVAILABLE'}})
+ipcMain.handle('clear-project-chat',async(event,selectedPath?:unknown)=>{
+  if (applicationClient.modelDownloadBusy()) return {success:false,error:{code:'MODEL_DOWNLOAD_BUSY'}}
+  if(!validApplicationSender(event)||!projectsHost || confirmationSurface?.isPending() || chatMutation ||
+    (selectedPath!==undefined && typeof selectedPath!=='string'))return {success:false,error:{code:'PROJECT_BUSY'}}
+  if(typeof selectedPath==='string' && !projectsHost.state().folders.some(folder=>folder.path===selectedPath))
+    return {success:false,error:{code:'PROJECT_NOT_REGISTERED'}}
+  const decision=await confirmChatAction(selectedPath===undefined?'clear-all':'clear-chat',selectedPath as string|undefined)
+  if(!decision.confirmed)return {success:false,canceled:true}
+  chatMutation=true
+  try{
+    if(typeof selectedPath==='string')return await projectChatClient.clear(selectedPath)
+    const receipt=await applicationClient.command('ExecuteCommand',{name:'clear_history',scope:'all'})
+    return {success:receipt.accepted,error:receipt.error}
+  }finally{chatMutation=false}
 })
+ipcMain.handle('project-action', async (event, action: unknown, selectedPath?:unknown) => {
+  if (!validApplicationSender(event) || !projectsHost) return {success:false,error:{code:'PROJECT_UNAVAILABLE'}}
+  if (applicationClient.modelDownloadBusy()) return {success:false,state:projectsHost.state(),error:{code:'MODEL_DOWNLOAD_BUSY'}}
+  if (confirmationSurface?.isPending() || chatMutation) return {success:false,state:projectsHost.state(),error:{code:'PROJECT_BUSY'}}
+  if (action === 'remove') {
+    const folder = projectsHost.state().folders.find(folder=>folder.path===selectedPath)
+    if (!folder) return {success:false,state:projectsHost.state(),error:{code:'PROJECT_NOT_REGISTERED'}}
+    if (folder.isDefault) return {success:false,state:projectsHost.state(),error:{code:'PROJECT_DEFAULT_REQUIRED'}}
+    const decision=await confirmChatAction('remove-project',folder.path)
+    if (!decision.confirmed) return {success:false,canceled:true,state:projectsHost.state()}
+  }
+  return projectsHost.action(action, selectedPath)
+})
+ipcMain.handle('list-directory', (event, dirPath: unknown, offset:unknown = 0) => validApplicationSender(event) && projectsHost
+  ? projectsHost.listDirectory(dirPath, offset) : {success:false,error:{code:'PROJECT_UNAVAILABLE'}})
+ipcMain.handle('read-file', (event, filePath: unknown) => validApplicationSender(event) && projectsHost
+  ? projectsHost.readFile(filePath) : {success:false,error:{code:'PROJECT_UNAVAILABLE'}})
+// Legacy picker no longer changes authority; project-action owns selection and confirmation.
+ipcMain.handle('open-directory-dialog', () => ({canceled:true,filePaths:[]}))
 
 ipcMain.handle('get-home-dir', () => {
   return os.homedir()
@@ -580,7 +809,8 @@ ipcMain.handle('save-claude-key', async (_event, key: string) => {
   if (!validation.valid) {
     return { success: false, error: validation.error }
   }
-  saveClaudeAuth('api_key', key)
+  try { saveClaudeAuth('api_key', key) }
+  catch { return { success: false, error: 'AUTH_SAVE_FAILED' } }
   storedApiKey = key
   process.env.ANTHROPIC_API_KEY = key
   // Notify Python backend about the new key.
@@ -602,6 +832,7 @@ ipcMain.handle('start-claude-oauth', async () => {
 ipcMain.handle('get-app-version', () => APP_VERSION)
 
 ipcMain.handle('check-app-update', async () => {
+  if (!DESKTOP_UPDATES_ENABLED) return disabledDesktopUpdate(APP_VERSION)
   try {
     const data = await fetchJson(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
     const latest = (data.tag_name || '').replace(/^v/, '')
@@ -680,6 +911,8 @@ rm -f "${installScript}"
 }
 
 ipcMain.handle('install-app-update', async (_event, zipUrl: string) => {
+  if (!DESKTOP_UPDATES_ENABLED) return { success: false, ...disabledDesktopUpdate(APP_VERSION),
+    error: 'Desktop updates are not configured for Nova.' }
   // Download ZIP, extract, replace current app, restart.
   // Progress events sent via mainWindow.webContents.send('update-progress', ...)
   const sendProgress = (stage: string, percent: number) => {
@@ -802,7 +1035,7 @@ function downloadFile(url: string, dest: string, onProgress: (pct: number) => vo
 }
 
 ipcMain.handle('open-external-url', (_event, url: string) => {
-  shell.openExternal(url)
+  return shell.openExternal(url)
 })
 
 function fetchJson(url: string): Promise<any> {
@@ -826,9 +1059,26 @@ function fetchJson(url: string): Promise<any> {
 }
 
 app.whenReady().then(async () => {
+  Menu.setApplicationMenu(null)
   initClaudeAuth()
-  startPythonServer()
+  const defaultWorkspace = path.join(findProjectRoot(), 'workspace')
+  let defaultAccessible = true
+  try { fs.mkdirSync(defaultWorkspace, {recursive:true}); fs.accessSync(defaultWorkspace,fs.constants.R_OK|fs.constants.W_OK) }
+  catch { defaultAccessible = false; console.error('PROJECT_DEFAULT_UNAVAILABLE') }
+  try {
+    projectsHost = createProjectsHost({directory:desktopDataPath,defaultPath:defaultWorkspace,client:applicationClient,
+      chooseDirectory:()=>mainWindow ? dialog.showOpenDialog(mainWindow,pickerDialogOptions(desktopPreferences.get().locale,'project')) : Promise.resolve({canceled:true,filePaths:[]}),
+      openPath:selectedPath=>shell.openPath(selectedPath),
+      bootstrapWorkspace:bootstrapProject,
+      clearChat:selectedPath=>projectChatClient.clear(selectedPath),
+      publish:state=>{ if (rendererReady && mainWindow && !mainWindow.webContents.isDestroyed()) mainWindow.webContents.send('projects-state',state) }})
+    if (!defaultAccessible) projectsHost.setError('PROJECT_DEFAULT_UNAVAILABLE')
+  } catch { console.error('PROJECT_DEFAULT_UNAVAILABLE') }
+  if (!projectsHost) { createWindow(); return }
+  if (defaultAccessible || projectsHost.preferredPath() !== projectsHost.defaultPath) startPythonServer()
   createWindow()
+
+  if (!DESKTOP_UPDATES_ENABLED) return
 
   // Auto-update: check on startup, download+install automatically if available.
   try {
@@ -907,5 +1157,10 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', () => {
+  confirmationSurface?.dispose()
+  questionSurface?.dispose()
+  projectChatClient.disconnected()
+  approvalSurface?.dispose()
+  clearInterval(readinessMonitor)
   pythonProcess?.kill()
 })

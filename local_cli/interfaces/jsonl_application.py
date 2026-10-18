@@ -39,6 +39,7 @@ class JsonlApplicationAdapter:
         self._subscriptions: dict[Any, Any] = {}
         self._agent_requests: dict[str, tuple[Any, bool]] = {}
         self._host_approval_key = host_approval_key
+        self._readiness_pending = False
         if host_approval_key and getattr(application, 'redactor', None) is not None:
             application.redactor.register(host_approval_key, protected=True)
         self._approval_actor = (application.register_approval_actor('desktop_host', lambda: True)
@@ -197,6 +198,35 @@ class JsonlApplicationAdapter:
             return True
         if kind == "models":
             self._models(req_id)
+            return True
+        if kind == "get_readiness":
+            if request.get("sessionId", self.session_id) != self.session_id:
+                self._send({"id": req_id, "type": "error", "category": "PROVIDER",
+                            "code": "INVALID_SESSION", "message": "No matching active AgentSession"})
+                return True
+            with self._lock:
+                if self._closed or self._readiness_pending:
+                    self._send({"id": req_id, "type": "error", "category": "PROVIDER",
+                                "code": "READINESS_BUSY", "message": "A readiness check is already running."})
+                    return True
+                self._readiness_pending = True
+            # Provider I/O must never block stdin processing of cancellation or
+            # a human approval. Only one bounded provider probe runs at a time.
+            def probe():
+                try:
+                    data = self.application.get_readiness(self.session_id)
+                    frame = {"id": req_id, "type": "readiness", "data": data}
+                except ValueError:
+                    frame = {"id": req_id, "type": "error", "category": "PROVIDER",
+                             "code": "INVALID_SESSION", "message": "No matching active AgentSession"}
+                except Exception:
+                    frame = {"id": req_id, "type": "error", "category": "PROVIDER",
+                             "code": "READINESS_PROBE_FAILED", "message": "Could not check model readiness."}
+                with self._lock:
+                    self._readiness_pending = False
+                    if not self._closed:
+                        self._send(frame)
+            Thread(target=probe, daemon=True, name="nova-readiness-probe").start()
             return True
         if kind == "auxiliary_command":
             name, arguments = request.get("name"), request.get("arguments", {})

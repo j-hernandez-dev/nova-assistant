@@ -109,6 +109,7 @@ class ToolRuntime:
 
     def __init__(self, registry: ToolRegistry, *,
                  publish: Callable[[ToolEvent], None] | None = None,
+                 publish_progress: Callable[[ToolInvocation, str, str, bool], None] | None = None,
                  auto_approve: bool = False,
                  approval_gate: ApprovalGate | None = None,
                  user_input_gate: UserInputGate | None = None,
@@ -130,6 +131,7 @@ class ToolRuntime:
         self.fetch_enabled = fetch_enabled
         self.registry = registry
         self._publish = publish or (lambda _event: None)
+        self._publish_progress = publish_progress
         self._auto_approve = auto_approve
         self._approval_gate = approval_gate
         self._user_input_gate = user_input_gate
@@ -754,7 +756,11 @@ class ToolRuntime:
                 # A one-shot process grant authorizes launch; its expiry is not
                 # a physical lease on all process effects. Core deadline and the
                 # approved effective timeout govern supervision after launch.
-                deadline=context.deadline, validate_launch=validate_launch)
+                deadline=context.deadline, validate_launch=validate_launch,
+                on_output=(lambda channel, text, truncated: self._publish_progress(
+                    replace(invocation, arguments=self.redactor.value(invocation.arguments),
+                        context=replace(context, environment={})), channel, text, truncated))
+                    if self._publish_progress is not None else None)
             return self._process_result(report, audit, launch.limits)
         if name in FILESYSTEM_TOOLS:
             # Never call the legacy execute/cache path, even on broker failure.

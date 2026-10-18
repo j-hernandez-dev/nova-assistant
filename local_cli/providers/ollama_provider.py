@@ -158,6 +158,17 @@ class OllamaProvider(LLMProvider):
             keep_alive=keep_alive,
         )
 
+    def chat_stream_cancellable(self, model, messages, *, should_stop, **kwargs):
+        # max_tokens is accepted by this adapter but is not an Ollama field.
+        kwargs.pop("max_tokens", None)
+        cancellable = getattr(type(self._client), "chat_stream_cancellable", None)
+        if callable(cancellable):
+            yield from self._client.chat_stream_cancellable(
+                model, messages, should_stop=should_stop, **kwargs)
+        else:
+            # Older injected clients keep their existing cooperative behavior.
+            yield from self.chat_stream(model, messages, **kwargs)
+
     def list_models(self) -> list[dict[str, Any]]:
         """List models available on the Ollama server.
 

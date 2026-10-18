@@ -17,6 +17,7 @@ from local_cli.providers.base import (
     ProviderStreamError,
 )
 from local_cli.security import validate_model_name, validate_ollama_host
+from local_cli.providers.stream_control import open_stream, StreamCancelled
 
 # ---------------------------------------------------------------------------
 # Default timeouts (seconds)
@@ -190,6 +191,7 @@ class OllamaClient:
         path: str,
         data: dict[str, Any],
         timeout: int = _STREAM_TIMEOUT,
+        should_stop=None,
     ) -> Generator[dict[str, Any], None, None]:
         """Send a POST request and yield parsed NDJSON lines.
 
@@ -218,37 +220,33 @@ class OllamaClient:
             method="POST",
         )
 
+        saw_done = False
         try:
-            resp = urllib.request.urlopen(req, timeout=timeout)
+            with open_stream(req, timeout, should_stop) as resp:
+                for line in resp:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        chunk = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if "error" in chunk:
+                        raise OllamaStreamError(f"Ollama error: {chunk['error']}")
+                    saw_done = saw_done or chunk.get("done") is True
+                    yield chunk
+                if should_stop is not None and not should_stop() and not saw_done:
+                    raise OllamaStreamError("Ollama closed the stream before its terminal response")
+        except StreamCancelled:
+            return
         except urllib.error.HTTPError as exc:
-            raise OllamaRequestError(
-                _format_http_error(exc, url)
-            ) from exc
+            raise OllamaRequestError(_format_http_error(exc, url)) from exc
         except urllib.error.URLError as exc:
-            raise OllamaConnectionError(
-                f"Failed to connect to Ollama at {url}: {exc}"
-            ) from exc
+            raise OllamaConnectionError(f"Failed to connect to Ollama at {url}: {exc}") from exc
         except socket.timeout as exc:
-            raise OllamaConnectionError(
-                f"Request to Ollama timed out ({timeout}s): {url}"
-            ) from exc
-
-        try:
-            for line in resp:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    chunk = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if "error" in chunk:
-                    raise OllamaStreamError(
-                        f"Ollama error: {chunk['error']}"
-                    )
-                yield chunk
-        finally:
-            resp.close()
+            raise OllamaConnectionError(f"Request to Ollama timed out ({timeout}s): {url}") from exc
+        except OSError as exc:
+            raise OllamaConnectionError(f"Ollama stream connection failed: {url}") from exc
 
     def _request_no_content(
         self,
@@ -345,6 +343,7 @@ class OllamaClient:
         think: bool | None = None,
         format: str | dict[str, Any] | None = None,
         keep_alive: str | int | None = None,
+        *, _should_stop=None,
     ) -> Generator[dict[str, Any], None, None]:
         """Stream a chat completion from Ollama.
 
@@ -395,8 +394,13 @@ class OllamaClient:
             payload["keep_alive"] = keep_alive
 
         yield from self._stream_request(
-            "/api/chat", payload, timeout=_STREAM_TIMEOUT
+            "/api/chat", payload, timeout=_STREAM_TIMEOUT,
+            **({"should_stop": _should_stop} if _should_stop is not None else {}),
         )
+
+    def chat_stream_cancellable(self, model, messages, *, should_stop, **kwargs):
+        """Keep cancellation local to this one inference request."""
+        yield from self.chat_stream(model, messages, _should_stop=should_stop, **kwargs)
 
     def chat(
         self,

@@ -3,6 +3,73 @@ const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { DesktopApplicationClient, projectTranscript } = require('../electron/application_client.ts')
 
+test('Auxiliary model errors stay in their owning panel only after exact outbound request registration', () => {
+  for (const type of ['catalog', 'search_models', 'recommend', 'pull_model', 'delete_model', 'update_catalog']) {
+    const client = new DesktopApplicationClient(() => {}, () => {})
+    assert.equal(client.trackModelRequest({ id: 51, type }), true)
+    client.receive({ id: 51, type: 'error', message: 'private auxiliary exception' })
+    assert.equal(client.view.error, null)
+    // Tracking is consumed, so an unrelated later error cannot inherit it.
+    client.receive({ id: 51, type: 'error', code: 'UNRELATED_ERROR', message: 'general error' })
+    assert.equal(client.view.error.code, 'UNRELATED_ERROR')
+    client.disconnected()
+  }
+})
+test('Unregistered, mismatched, general, and Application command errors remain visible', async () => {
+  const c = setup()
+  assert.equal(c.client.trackModelRequest({ id: 51, type: 'catalog' }), true)
+  c.client.receive({ id: 52, type: 'error', code: 'GENERAL_ERROR', message: 'visible' })
+  assert.equal(c.client.view.error.code, 'GENERAL_ERROR')
+  const pending = c.client.command('CancelTurn', { turnId: 'turn' }, 'owned-command')
+  const id = c.sent.at(-1).id
+  assert.equal(c.client.trackModelRequest({ id, type: 'catalog' }), false)
+  c.client.receive({ id, type: 'error', code: 'POLICY_DENIED', message: 'Application denial' })
+  assert.equal((await pending).error.code, 'POLICY_DENIED')
+  assert.equal(c.client.view.error.code, 'POLICY_DENIED')
+  c.client.receive({ type: 'error', code: 'GENERAL_NO_ID', message: 'visible' })
+  assert.equal(c.client.view.error.code, 'GENERAL_NO_ID')
+  c.client.disconnected()
+})
+test('Exact terminal receipts clear auxiliary ownership while progress and wrong terminals do not', () => {
+  const client = new DesktopApplicationClient(() => {}, () => {})
+  client.trackModelRequest({ id: 9, type: 'pull_model' })
+  client.receive({ id: 9, type: 'pull_progress', completed: 1, total: 2 })
+  client.receive({ id: 9, type: 'catalog' })
+  client.receive({ id: 9, type: 'error', message: 'owned download failed' })
+  assert.equal(client.view.error, null)
+  for (const [type, terminal] of [['catalog','catalog'], ['search_models','search_results'], ['recommend','recommend'],
+    ['pull_model','pull_done'], ['delete_model','delete_done'], ['update_catalog','catalog_updated']]) {
+    client.trackModelRequest({ id: 10, type })
+    client.receive({ id: 10, type: terminal })
+    client.receive({ id: 10, type: 'error', code: 'LATE_UNRELATED_ERROR', message: 'visible' })
+    assert.equal(client.view.error.code, 'LATE_UNRELATED_ERROR')
+  }
+  client.disconnected()
+})
+test('Backend disconnect and ready clear auxiliary bindings without hiding disconnect outcome', () => {
+  const client = new DesktopApplicationClient(() => {}, () => {})
+  client.trackModelRequest({ id: 18, type: 'search_models' })
+  client.disconnected(); assert.equal(client.view.error.code, 'BACKEND_DISCONNECTED')
+  client.receive({ id: 18, type: 'error', code: 'OLD_CONNECTION_ERROR' })
+  assert.equal(client.view.error.code, 'OLD_CONNECTION_ERROR')
+  client.trackModelRequest({ id: 19, type: 'catalog' })
+  client.receive({ type: 'ready', sessionId: 'new-session', tools: [] })
+  client.receive({ id: 19, type: 'error', code: 'OLD_READY_ERROR' })
+  assert.equal(client.view.error.code, 'OLD_READY_ERROR')
+  client.disconnected()
+})
+test('Only exact known model request types and unique numeric IDs may own auxiliary errors', () => {
+  const client = new DesktopApplicationClient(() => {}, () => {})
+  for (const frame of [{ id: 1, type: 'chat' }, { id: 'desktop-1', type: 'catalog' },
+    { id: 0, type: 'catalog' }, { id: -1, type: 'catalog' }, { id: 1.5, type: 'catalog' },
+    { id: 2, type: 'constructor' }]) assert.equal(client.trackModelRequest(frame), false)
+  assert.equal(client.trackModelRequest({ id: 1, type: 'catalog' }), true)
+  assert.equal(client.trackModelRequest({ id: 1, type: 'search_models' }), false)
+  client.receive({ id: 1, type: 'error', code: 'COLLIDING_REQUEST' })
+  assert.equal(client.view.error.code, 'COLLIDING_REQUEST')
+  client.disconnected()
+})
+
 function state(sequence = 1, changes = {}) {
   return { sessionId: 'session', workspace: '/workspace', stateRevision: 1, lastSequence: sequence,
     transcript: [{ role: 'system', content: 'hidden' }, { role: 'user', content: 'hola' }],

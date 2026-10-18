@@ -1,0 +1,75 @@
+require('./register_typescript.cjs')
+const {test}=require('node:test')
+const assert=require('node:assert/strict')
+const fs=require('node:fs'),ts=require('typescript')
+require.extensions['.tsx']=(module,filename)=>module._compile(ts.transpileModule(fs.readFileSync(filename,'utf8'),{
+  compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true},
+}).outputText,filename)
+const React=require('react'),{renderToStaticMarkup}=require('react-dom/server')
+const {DesktopApplicationClient}=require('../electron/application_client.ts')
+const {settingsEnglish,settingsSpanish}=require('../src/settings_locale.ts')
+let locale='es'
+require.cache[require.resolve('../src/i18n.tsx')]={id:require.resolve('../src/i18n.tsx'),loaded:true,
+  exports:{useI18n:()=>({t:key=>(locale==='es'?settingsSpanish:settingsEnglish)[key]||key})}}
+const {ContextSettings}=require('../src/components/ContextSettings.tsx')
+const context={requestedTokens:8192,selectedTokens:8192,errorCode:null}
+const snapshot=(value=context)=>({sessionId:'owned',workspace:'/owned',lastSequence:1,stateRevision:3,
+  modelRuntime:{modelId:'fixture',providerId:'ollama',providerRevision:1},transcript:[],turns:[],services:{rag:{},context:value}})
+function setup(){const sent=[],client=new DesktopApplicationClient(frame=>sent.push(frame),()=>{})
+  client.receive({type:'ready',sessionId:'owned',tools:[]})
+  client.receive({type:'snapshot',id:sent.findLast(f=>f.type==='get_snapshot').id,data:snapshot()})
+  return {client,sent}}
+
+test('context setter validates exact presets before sending and waits for snapshot confirmation',async()=>{
+  const {client,sent}=setup(),before=sent.length
+  for(const requestedTokens of [true,'65536',131072,-1,undefined,null])
+    assert.equal((await client.command('SetContextWindow',{requestedTokens})).accepted,false)
+  assert.equal((await client.command('SetContextWindow',{requestedTokens:8192,permission:'all'})).accepted,false)
+  assert.equal(sent.length,before)
+  const pending=client.command('SetContextWindow',{requestedTokens:65536},'owned-preset'),request=sent.at(-1)
+  assert.equal(request.command.expectedRevision,3)
+  assert.equal(client.view.context.requestedTokens,8192)
+  client.receive({type:'application_result',id:request.id,data:{accepted:true,schemaVersion:1,commandId:'owned-preset',createdIds:{}}})
+  assert.equal((await pending).accepted,true)
+  assert.equal(client.view.context.requestedTokens,8192)
+  client.receive({type:'snapshot',id:sent.findLast(f=>f.type==='get_snapshot').id,data:snapshot({requestedTokens:65536,selectedTokens:65536,errorCode:null})})
+  assert.equal(client.view.context.requestedTokens,65536)
+  client.disconnected()
+})
+
+test('context projection drops absent or malformed settings on recovery',()=>{
+  for(const invalid of [undefined,{...context,requestedTokens:131072},{...context,selectedTokens:0},
+    {...context,errorCode:'invalid with spaces'},{...context,selectedTokens:null}]){
+    const {client,sent}=setup();client.refresh()
+    const state=snapshot(invalid);state.services.context=invalid
+    client.receive({type:'snapshot',id:sent.findLast(f=>f.type==='get_snapshot').id,data:state})
+    assert.equal(client.view.context,undefined)
+    client.disconnected()
+  }
+})
+
+test('a rejected context save preserves the conversation error and the confirmed preset',async()=>{
+  const {client,sent}=setup(),previous={code:'OWNED_TURN_ERROR',message:'owned fixture'}
+  client.view.error=previous
+  const pending=client.command('SetContextWindow',{requestedTokens:65536}),request=sent.at(-1)
+  client.receive({type:'application_result',id:request.id,data:{schemaVersion:1,commandId:request.command.commandId,
+    accepted:false,createdIds:{},error:{code:'CONTEXT_LIMIT_EXCEEDED',message:'synthetic limit'}}})
+  assert.equal((await pending).error.code,'CONTEXT_LIMIT_EXCEEDED')
+  assert.deepEqual(client.view.error,previous)
+  assert.equal(client.view.context.requestedTokens,8192)
+  client.disconnected()
+})
+
+test('context UI has five native keyboard steps capped at 64K and translated labels',()=>{
+  const {client}=setup()
+  for(locale of ['es','en']){
+    const html=renderToStaticMarkup(React.createElement(ContextSettings,{view:client.view}))
+    assert.match(html,/type="range" min="0" max="4" step="1"/)
+    assert.match(html,/aria-valuetext="8K"/)
+    assert.match(html,/>64K<\/button>/)
+    assert.doesNotMatch(html,/128K|256K/)
+    assert.ok(html.includes(locale==='es'?'Tokens de contexto':'Context tokens'))
+    assert.ok(html.includes(locale==='es'?'Automático':'Automatic'))
+  }
+  client.disconnected()
+})
