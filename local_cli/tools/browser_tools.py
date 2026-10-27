@@ -1,10 +1,17 @@
 """Compact model schemas; effects can only execute through ToolRuntime."""
 from pathlib import Path
 import os
+import sys
 
 from local_cli.tools.base import Tool
 
-PACKAGE_ROOT = Path(__file__).resolve().parents[2] / 'dist/browser/windows-x64'
+def browser_package_root():
+    if getattr(sys, 'frozen', False):
+        return Path(sys.executable).resolve().parent.parent / 'browser/windows-x64'
+    return Path(__file__).resolve().parents[2] / 'dist/browser/windows-x64'
+
+
+PACKAGE_ROOT = browser_package_root()
 _PAGE = {'type': 'string', 'description': 'Opaque page ID. Usually omit for current page.'}
 _REF = {'type': 'string', 'description': 'Exact ref returned by the latest browser observation.'}
 _SPECS = {

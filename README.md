@@ -18,7 +18,7 @@ Esta versión reúne la reconstrucción de Nova Desktop. Desktop y la CLI compar
 - **Web:** permisos independientes de lectura, búsqueda y navegación; Google, Bing o DuckDuckGo y WebView2, Chrome o Edge, según disponibilidad.
 - **Interfaz:** cuatro temas claros y oscuros, fuentes de interfaz y código, mascotas Nova 2D y Nova 3D, transiciones opcionales, zoom del 50 al 150 %, menús y atajos configurables.
 
-Windows es la plataforma de escritorio y navegación validada localmente. Los contratos Python portables tienen cobertura de CI en Windows, Linux y macOS; eso no equivale a validar la GUI ni la navegación nativa en esos sistemas. La entrega 0.13.0 se prepara como **código fuente**: el build de comprobación no genera ni publica un instalador.
+Windows es la plataforma de escritorio y navegación validada localmente. Los contratos Python portables tienen cobertura de CI en Windows, Linux y macOS; eso no equivale a validar la GUI ni la navegación nativa en esos sistemas. El build de comprobación `build:source` no genera instaladores. El empaquetado de Windows tiene su propio proceso con backend ejecutable, WebView2 y verificación en Windows Sandbox; consulta [la distribución Windows](docs/releases/windows-installer-0.13.0.md).
 
 ## Ejecutar Nova Desktop desde el código
 
@@ -61,9 +61,31 @@ WebView2 necesita el componente preparado en `dist/browser/windows-x64/`, que in
 
 Las versiones y el origen de estas dependencias están en [native/browser-dependencies.json](native/browser-dependencies.json). Consulta también [native](native/) y los [scripts de preparación](scripts/). Chrome y Edge son alternativas explícitas cuando están instalados y sus requisitos están disponibles. Nova no instala ni cambia de navegador silenciosamente.
 
+## Construir el instalador de Windows
+
+Para compilar necesitas Windows x64, Python 3.14 x64, Node.js 22.12 o posterior y el SDK .NET 10. La compilación instala sus dependencias en `build/windows/python`, prepara WebView2 según el manifiesto de dependencias y puede descargarlas. La aplicación instalada incluye esos componentes y no necesita Python, Node ni .NET instalados. Ollama y los modelos siguen siendo requisitos externos.
+
+```powershell
+# Desde la raíz, después de preparar Node y el entorno Python de desarrollo
+Set-Location desktop
+npm.cmd ci
+npm.cmd run build:win
+```
+
+El resultado es `desktop/release/Nova-0.13.0-windows-x64-setup.exe`, acompañado de un recibo de tamaño y SHA256 en `windows-build.json`. El script no publica en GitHub. Las carpetas `build`, `dist` y `desktop/release` son salida generada y están excluidas de Git. Para comprobar el instalador sin modificar la instalación del host, usa Windows Sandbox:
+
+```powershell
+# Desde la raíz; utiliza un directorio nuevo fuera del checkout
+$installerQA = Join-Path $env:TEMP ("nova-install-qa-" + [guid]::NewGuid().ToString("N"))
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/test_windows_installer.ps1 `
+  -Installer "$PWD/desktop/release/Nova-0.13.0-windows-x64-setup.exe" -Output "$installerQA"
+```
+
+Esta prueba no modifica las políticas del host: crea un Windows aislado sin red, comprueba el backend y una página local de WebView2, abre Nova mediante su IPC real y comprueba que la desinstalación conserve el perfil y los documentos. Las políticas de ejecución de Windows siguen aplicándose; cualquier bloqueo se informa como fallo. El instalador de esta entrega no incorpora un certificado comercial de firma de código.
+
 ## Proyectos, fuentes y contexto
 
-Añade una carpeta con Proyectos o **Archivo → Nuevo proyecto…**. El proyecto inicial es `<checkout>/workspace/`. El panel de contenido tiene Archivos, Fuentes y Recuerdos. General permite ocultarlo para dedicar todo el panel a la lista de proyectos.
+Añade una carpeta con Proyectos o **Archivo → Nuevo proyecto…**. El proyecto inicial es `<checkout>/workspace/` durante el desarrollo y `Documentos/Nova/workspace/` en una instalación nueva. La instalación respeta los proyectos ya guardados en el perfil. El panel de contenido tiene Archivos, Fuentes y Recuerdos. General permite ocultarlo para dedicar todo el panel a la lista de proyectos.
 
 Hay dos formas complementarias de usar las fuentes:
 
@@ -192,7 +214,7 @@ npm.cmd run build:source
 
 Los resultados de contratos van a directorios nuevos, propios y fuera del checkout. El inventario distingue pruebas actuales, artefactos históricos y comprobaciones nativas o con modelos reales. No ejecutes todas las campañas históricas como si certificaran el código actual.
 
-`npm test` ejecuta todas las suites ordinarias `.test.cjs` y exige que coincidan con el inventario de CI. `build:source` verifica TypeScript y construye renderer, proceso principal y preloads; **no ejecuta electron-builder**. Los scripts `build` y `build:win|mac|linux` sí empaquetan y requieren una validación de distribución separada.
+`npm test` ejecuta todas las suites ordinarias `.test.cjs` y exige que coincidan con el inventario de CI. `build:source` verifica TypeScript y construye renderer, proceso principal y preloads; **no ejecuta electron-builder**. `build:win` prepara un backend PyInstaller independiente, el componente de navegación y el instalador NSIS x64 en `desktop/release`, con publicación deshabilitada. Los otros scripts de empaquetado conservan su alcance previo; macOS/Linux no tienen esta distribución autónoma validada.
 
 Para comprobar la versión visible con Electron y el backend sintético, usa un directorio nuevo fuera del checkout:
 

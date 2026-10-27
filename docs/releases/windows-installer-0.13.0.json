@@ -1,0 +1,168 @@
+{
+  "schema": "NOVA_WINDOWS_INSTALLER_REVIEW_V1",
+  "version": "0.13.0",
+  "checkedAt": "2026-10-27T05:32:06.273228+00:00",
+  "sourceBase": "f98668865d16d069fd71785a9c59d1f42f3fedad",
+  "candidateIncludesUncommittedPackagingChanges": true,
+  "installer": {
+    "schema": "NOVA_WINDOWS_BUILD_V1",
+    "version": "0.13.0",
+    "installer": "Nova-0.13.0-windows-x64-setup.exe",
+    "sha256": "20a8aa68fcba17cabc1f4b29cf60f1b82834627a505dd0ee7c01e1a97805b94d",
+    "bytes": 457393466,
+    "backend": "eb05ea8462e7db330a6d1828f746d29586e446305022818d8b4e833c04ce7e36",
+    "browser": "155.0.4283.45",
+    "published": false,
+    "pythonRequiredAtRuntime": false,
+    "dotnetRequiredAtRuntime": false,
+    "externalRequirements": [
+      "Ollama",
+      "a compatible installed LLM"
+    ]
+  },
+  "signed": false,
+  "productionPayloadSha256": {
+    "Nova.exe": "1762512c962b63ec548ec0342699b0828aae9c57534a9c9f12e0f7d37054b339",
+    "resources/app.asar": "9c50e4df4f916b8c871627ee8aaf3fe9301b12a585d3d503a6cc93f0697c577d",
+    "resources/backend/nova-backend.exe": "eb05ea8462e7db330a6d1828f746d29586e446305022818d8b4e833c04ce7e36",
+    "resources/browser/windows-x64/host/nova-webview-host.exe": "3e9d35979acf28a7bbab2eaa0bc58563257a17710568d486e60b94fe7022b4a0",
+    "resources/browser/windows-x64/runtime/msedgewebview2.exe": "46b3c6ac9169416cc2ee76b23ee3d9db0eb8daefb914b1d9cc0f5d2387b033ac",
+    "resources/browser/windows-x64/python/playwright/driver/node.exe": "ba4e6d110e8c1592a1ecd390f6b05f3da124b13871a5be62b341a07a853c6c32"
+  },
+  "functionalIsolated": {
+    "status": "PASS",
+    "checks": [
+      "isolated QA installer selected",
+      "NSIS installation succeeds",
+      "separate QA process name installed",
+      "identical production payload: resources\\app.asar",
+      "identical production payload: resources\\backend\\nova-backend.exe",
+      "identical production payload: resources\\browser\\windows-x64\\host\\nova-webview-host.exe",
+      "identical production payload: resources\\browser\\windows-x64\\runtime\\msedgewebview2.exe",
+      "identical production payload: resources\\browser\\windows-x64\\python\\playwright\\driver\\node.exe",
+      "installed application and browser checks succeed",
+      "one QA uninstaller",
+      "NSIS uninstaller exits successfully",
+      "installed executable and backend are removed",
+      "profile and documents survive uninstall",
+      "existing Nova executable remains unchanged",
+      "existing Nova preferences remain unchanged"
+    ],
+    "applicationChecks": [
+      "Installed frozen backend runs NumPy, PDF and SQLite without Python on PATH",
+      "Installed native WebView2 opens and edits the owned local fixture and closes its job/profile",
+      "Production packaged mode retained; known folders redirected before entry point runs",
+      "Real packaged backend exchanges JSONL and remains connected",
+      "Version is 0.13.0 through actual preload and IPC",
+      "Default workspace lives in isolated writable documents, outside installation",
+      "Profile is isolated below the owned QA directory",
+      "Preferences save through production IPC",
+      "About visibly displays the installed version",
+      "Application closes normally and releases its backend",
+      "Saved preferences survive normal close"
+    ],
+    "nsisVariant": {
+      "separateAppIdentity": true,
+      "separateExecutableName": true,
+      "noShortcuts": true,
+      "runAfterFinish": false,
+      "compression": "store",
+      "productionCompressionUnchanged": true
+    },
+    "payloadComparedToProduction": true,
+    "systemPythonOnPath": false,
+    "systemNodeOnPath": false,
+    "systemDotnetOnPath": false,
+    "hostPolicyChanged": false,
+    "existingNovaPreserved": true,
+    "syntheticDataOnly": true,
+    "realModelInference": false
+  },
+  "windowsSandbox": {
+    "status": "BLOCKED_UNSIGNED",
+    "attempts": 2,
+    "productionInstallerAttempted": true,
+    "cleanSandboxInstallPassed": false,
+    "userAcceptedIsolatedFunctionalFallback": true,
+    "securityPolicyRelaxed": false
+  },
+  "tests": {
+    "core": {
+      "total": 3008,
+      "passed": 3001,
+      "failed": 0,
+      "skipped": 7,
+      "collectionGuard": "PASS",
+      "selectionManifestSha256": "2a335902f7043c60974b616767ed44e22fe144b44871b28432a310e601d7354e",
+      "failures": [],
+      "additionalPassingSubtests": 69
+    },
+    "security": {
+      "total": 666,
+      "passed": 666,
+      "failed": 0,
+      "skipped": 0,
+      "collectionGuard": "PASS",
+      "selectionManifestSha256": "2a335902f7043c60974b616767ed44e22fe144b44871b28432a310e601d7354e",
+      "failures": []
+    },
+    "memory": {
+      "total": 817,
+      "passed": 817,
+      "failed": 0,
+      "skipped": 0,
+      "collectionGuard": "PASS",
+      "selectionManifestSha256": "2a335902f7043c60974b616767ed44e22fe144b44871b28432a310e601d7354e",
+      "failures": []
+    },
+    "knowledge": {
+      "total": 1051,
+      "passed": 1051,
+      "failed": 0,
+      "skipped": 0,
+      "collectionGuard": "PASS",
+      "selectionManifestSha256": "2a335902f7043c60974b616767ed44e22fe144b44871b28432a310e601d7354e",
+      "failures": []
+    },
+    "desktop": {
+      "total": 549,
+      "passed": 549,
+      "failed": 0,
+      "skipped": 0,
+      "ordinarySuites": 65,
+      "location": "isolated source checkout",
+      "failures": []
+    }
+  },
+  "testTotals": {
+    "total": 6091,
+    "passed": 6084,
+    "failed": 0,
+    "skipped": 7
+  },
+  "npmVulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "metadata": "PASS",
+  "pythonBuildDependencies": "PASS",
+  "staticContracts": 3933,
+  "gitBytePreservation": {
+    "status": "PASS",
+    "exactFiles": 8,
+    "expectedHashesChanged": false
+  },
+  "published": false,
+  "commitCreated": false,
+  "tagCreated": false,
+  "limitations": [
+    "Unsigned production installer was blocked by Windows Sandbox Application Control.",
+    "Host lifecycle uses an isolated QA NSIS wrapper with byte-identical production payload.",
+    "No clean Windows VM install success, signing certification or real-model campaign is claimed.",
+    "Build and retest from the final committed source before tagging or publishing the release."
+  ]
+}

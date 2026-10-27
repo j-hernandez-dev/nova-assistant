@@ -10,6 +10,8 @@ import subprocess
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+from tempfile import TemporaryDirectory
+from local_cli.memory_preferences import MemoryPreferences
 
 from local_cli.agent import run_agent
 from local_cli.cli import build_parser
@@ -108,10 +110,25 @@ def capture_server_and_provider():
         }]),
         iter([{"message": {"content": "done"}, "done": True}]),
     ]
-    server = _make_server(provider, [_EchoTool()])
     sent = []
-    with patch("local_cli.server._send", side_effect=sent.append):
-        server._handle_chat(7, "go")
+    with TemporaryDirectory(prefix='nova-phase0-state-') as state:
+        server = _make_server(provider, [_EchoTool()])
+        server._config.state_dir = state
+        # This legacy wire-format characterization predates capture. Keep it
+        # independent of host preferences and a real model-backed extractor;
+        # current capture/default behavior has its own Memory contracts.
+        preferences = MemoryPreferences(state)
+        preferences.update({**{k:v for k,v in preferences.snapshot().items() if k!='sensitiveProjects'},
+                            'autoCapture':False})
+        try:
+            with patch("local_cli.server._send", side_effect=sent.append):
+                server._handle_chat(7, "go")
+            assert provider.chat_stream.call_count == 2
+        finally:
+            if hasattr(server, '_application'):
+                server._application.close_browser()
+                server._application.close_knowledge()
+                assert server._application._knowledge.closed.wait(2)
     tool_formats = {
         provider.name: provider.format_tools([_EchoTool()])
         for provider in (

@@ -14,7 +14,7 @@
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
     "build:mac": "tsc && vite build && electron-builder --mac",
-    "build:win": "tsc && vite build && electron-builder --win",
+    "build:win": "node ./dev/package_windows.cjs",
     "build:linux": "tsc && vite build && electron-builder --linux",
     "preview": "vite preview",
     "electron:dev": "vite build && electron .",
@@ -88,11 +88,23 @@
           ]
         }
       ],
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "artifactName": "Nova-${version}-windows-${arch}-setup.${ext}",
+      "extraResources": [
+        {
+          "from": "../dist/windows-backend/nova-backend",
+          "to": "backend"
+        },
+        {
+          "from": "../dist/windows-browser/windows-x64",
+          "to": "browser/windows-x64"
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false
     },
     "linux": {
       "target": [
@@ -116,6 +128,9 @@
       "provider": "github",
       "owner": "j-hernandez-dev",
       "repo": "nova-assistant"
+    },
+    "directories": {
+      "output": "release"
     }
   },
   "allowScripts": {

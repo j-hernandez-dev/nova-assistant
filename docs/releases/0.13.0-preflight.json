@@ -1,20 +1,21 @@
 {
-  "schema": "nova-source-release-preflight-2",
+  "schema": "nova-source-release-preflight-3",
   "version": "0.13.0",
-  "checkedAt": "2026-10-27T03:34:44.698866+00:00",
+  "checkedAt": "2026-10-27T05:32:06.273228+00:00",
   "localReviewDate": "2026-10-26",
   "timezone": "America/Mexico_City",
-  "readinessScope": "Source versioning on the validated Windows environment; no binary distribution certification",
+  "readinessScope": "Source regression and isolated Windows installer functional validation; unsigned Sandbox install blocked",
   "readyForSourceVersioning": true,
   "git": {
-    "branch": "stabilization",
-    "base": "fcd7b5b4b76121edc0b92ed70673601d0c4d2ee6",
+    "branch": "main",
+    "base": "f98668865d16d069fd71785a9c59d1f42f3fedad",
     "proposedTag": "v0.13.0",
     "tagAbsentAtCheck": true,
     "commitCreated": false,
     "pushPerformed": false,
     "tagCreated": false,
-    "indexStaged": false
+    "indexStaged": false,
+    "note": "GUI base was committed and pushed by the user before this packaging preparation; packaging changes remain unstaged."
   },
   "checks": {
     "metadata": "PASS",
@@ -33,9 +34,9 @@
     },
     "sourceBuild": {
       "status": "PASS",
-      "location": "actual checkout",
-      "command": "npm run build:source",
-      "installerGenerated": false
+      "location": "isolated packaging checkout",
+      "command": "npm run build:win (plus final source/NSIS rebuild)",
+      "installerGenerated": true
     },
     "gitignore": {
       "status": "PASS",
@@ -43,15 +44,15 @@
     },
     "contractInventory": {
       "status": "PASS",
-      "staticContracts": 3930,
+      "staticContracts": 3933,
       "categories": {
         "SPECIAL_INFRASTRUCTURE_ONLY": 74,
-        "CURRENT_PORTABLE_CI": 3756,
+        "CURRENT_PORTABLE_CI": 3759,
         "HISTORICAL_CERTIFICATION_ARTIFACT": 93,
         "CURRENT_LOCAL_EVIDENCE_ONLY": 7
       },
       "unclassified": 0,
-      "sha256": "fb5630edfb40f766a0680c9948317ed58139634b6803ff70af5d91941b8563ad"
+      "sha256": "2a335902f7043c60974b616767ed44e22fe144b44871b28432a310e601d7354e"
     },
     "gitWhitespace": {
       "status": "PASS",
@@ -65,22 +66,19 @@
       "novaWindows": 1,
       "status": "PASS"
     },
-    "stageMatchesInstalledSources": {
-      "status": "PASS",
-      "comparedPaths": 2680,
-      "releaseDocumentsAppliedAfterValidation": true
-    },
-    "npmAuditCiGate": "npm audit --audit-level=low (all scopes)"
+    "npmAuditCiGate": "npm audit --audit-level=low (all scopes)",
+    "sourceApplication": "Applied after validation with per-file preconditions and checksums; see installation receipt outside Git."
   },
   "tests": {
     "core": {
-      "total": 3004,
-      "passed": 2996,
+      "total": 3008,
+      "passed": 3001,
       "failed": 0,
-      "skipped": 8,
+      "skipped": 7,
       "collectionGuard": "PASS",
-      "selectionManifestSha256": "fb5630edfb40f766a0680c9948317ed58139634b6803ff70af5d91941b8563ad",
-      "failures": []
+      "selectionManifestSha256": "2a335902f7043c60974b616767ed44e22fe144b44871b28432a310e601d7354e",
+      "failures": [],
+      "additionalPassingSubtests": 69
     },
     "security": {
       "total": 666,
@@ -88,7 +86,7 @@
       "failed": 0,
       "skipped": 0,
       "collectionGuard": "PASS",
-      "selectionManifestSha256": "fb5630edfb40f766a0680c9948317ed58139634b6803ff70af5d91941b8563ad",
+      "selectionManifestSha256": "2a335902f7043c60974b616767ed44e22fe144b44871b28432a310e601d7354e",
       "failures": []
     },
     "memory": {
@@ -97,7 +95,7 @@
       "failed": 0,
       "skipped": 0,
       "collectionGuard": "PASS",
-      "selectionManifestSha256": "fb5630edfb40f766a0680c9948317ed58139634b6803ff70af5d91941b8563ad",
+      "selectionManifestSha256": "2a335902f7043c60974b616767ed44e22fe144b44871b28432a310e601d7354e",
       "failures": []
     },
     "knowledge": {
@@ -106,24 +104,24 @@
       "failed": 0,
       "skipped": 0,
       "collectionGuard": "PASS",
-      "selectionManifestSha256": "fb5630edfb40f766a0680c9948317ed58139634b6803ff70af5d91941b8563ad",
+      "selectionManifestSha256": "2a335902f7043c60974b616767ed44e22fe144b44871b28432a310e601d7354e",
       "failures": []
     },
     "desktop": {
-      "total": 546,
-      "passed": 546,
+      "total": 549,
+      "passed": 549,
       "failed": 0,
       "skipped": 0,
       "ordinarySuites": 65,
-      "location": "actual checkout after npm ci",
+      "location": "isolated source checkout",
       "failures": []
     }
   },
   "testTotals": {
-    "total": 6084,
-    "passed": 6076,
+    "total": 6091,
+    "passed": 6084,
     "failed": 0,
-    "skipped": 8
+    "skipped": 7
   },
   "native": {
     "gui": {
@@ -194,6 +192,12 @@
       "dispatchCount": 1,
       "approved": false,
       "executed": false
+    },
+    "previousGuiCampaign": {
+      "status": "PASS",
+      "carriedForwardFrom": "GUI review at source base",
+      "repeatedForPackaging": false,
+      "note": "Full theme/window campaign was not repeated; installed About version and backend/browser lifecycle were tested again."
     }
   },
   "npmAudit": {
@@ -238,13 +242,14 @@
     ]
   },
   "limitations": [
-    "Local current regression and native synthetic GUI checks are not a new historical certification.",
-    "No installer, real-model campaign or native browser certification was performed.",
-    "Linux/macOS native GUI and platform-specific permissions were not validated in this review.",
-    "Eight pre-existing conditional Core skips remain; no new skips, xfails or broad exclusions were added.",
-    "npm audit is a time-bounded advisory check, not proof that dependencies contain no defects.",
-    "Build retains chunk-size warnings for the lazy-loaded 3D scene.",
-    "No commit, push or version tag has been created."
+    "Unsigned production installer was blocked by Windows Sandbox Application Control.",
+    "Host lifecycle uses an isolated QA NSIS wrapper with byte-identical production payload.",
+    "No clean Windows VM install success, signing certification or real-model campaign is claimed.",
+    "Build and retest from the final committed source before tagging or publishing the release.",
+    "Linux/macOS native GUI and platform-specific permissions were not validated in this packaging review.",
+    "Seven existing conditional Core skips remain; no new skips, xfails or broad exclusions were added.",
+    "Core also passed 69 subtests, reported separately from collected test totals.",
+    "No commit, push, version tag or GitHub Release was created by this packaging step."
   ],
   "postReviewAesthetics": {
     "status": "PASS",
@@ -271,5 +276,12 @@
     },
     "backendSourceChanged": false,
     "dependenciesChanged": false
+  },
+  "windowsInstaller": {
+    "report": "windows-installer-0.13.0.json",
+    "functionalIsolated": "PASS",
+    "sandbox": "BLOCKED_UNSIGNED",
+    "signed": false,
+    "sha256": "20a8aa68fcba17cabc1f4b29cf60f1b82834627a505dd0ee7c01e1a97805b94d"
   }
 }

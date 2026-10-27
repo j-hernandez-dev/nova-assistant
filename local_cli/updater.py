@@ -20,6 +20,8 @@ def check_for_updates() -> tuple[bool, str]:
     Returns:
         A tuple of (has_updates, message).
     """
+    if getattr(sys, 'frozen', False):
+        return False, 'Packaged Nova is updated through its installer.'
     root = get_project_root()
     capability = detect_git_capability(root)
     if capability is GitCapability.UNAVAILABLE:
@@ -68,6 +70,8 @@ def perform_update() -> tuple[bool, str]:
     Returns:
         A tuple of (success, message).
     """
+    if getattr(sys, 'frozen', False):
+        return False, 'Packaged Nova is updated through its installer.'
     root = get_project_root()
     capability = detect_git_capability(root)
     if capability is GitCapability.UNAVAILABLE:

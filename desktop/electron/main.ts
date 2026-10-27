@@ -1,5 +1,5 @@
 import { installConsolePipeGuard } from './console_pipes.cjs'
-import { resolvePythonRuntime } from './python_runtime.cjs'
+import { resolvePythonRuntime, resolveDefaultWorkspace } from './python_runtime.cjs'
 import { prepareChromiumCaches } from './chromium_cache.cjs'
 import { applyPendingStorageDeletions, createStorageHost } from './storage_host.cjs'
 import { app, BrowserWindow, dialog, ipcMain, shell, Menu, clipboard, nativeTheme, powerMonitor } from 'electron'
@@ -162,14 +162,22 @@ function findProjectRoot(): string {
   return path.resolve(__dirname, '..', '..')
 }
 
+function defaultWorkspace() {
+  return resolveDefaultWorkspace(findProjectRoot(), app.getPath('documents'), app.isPackaged)
+}
+
 function startPythonServer() {
   const projectRoot = findProjectRoot()
-  const runtime = resolvePythonRuntime(projectRoot)
+  let runtime: ReturnType<typeof resolvePythonRuntime>
+  try { runtime = resolvePythonRuntime(projectRoot, {packaged: app.isPackaged && process.platform === 'win32'}) }
+  catch { console.error('BUNDLED_BACKEND_NOT_FOUND'); applicationClient.disconnected(); return }
   const pythonCmd = runtime.executable
-  if (!restartWorkspace) restartWorkspace = projectsHost?.preferredPath() || path.join(projectRoot, 'workspace')
+  const backendArgs = runtime.args || ['-m', 'local_cli', '--server']
+  if (!restartWorkspace) restartWorkspace = projectsHost?.preferredPath() || defaultWorkspace()
 
-  console.log(`Starting Python server: ${pythonCmd} -m local_cli --server`)
-  console.log(`Working directory: ${projectRoot}`)
+  console.log(`Starting backend: ${pythonCmd} ${backendArgs.join(' ')}`)
+  const backendCwd = app.isPackaged && process.platform === 'win32' ? restartWorkspace : projectRoot
+  console.log(`Working directory: ${backendCwd}`)
 
   const env: Record<string, string> = desktopModelPreferences.childEnvironment({
     ...runtime.env, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8',
@@ -180,8 +188,8 @@ function startPythonServer() {
   lineBuffer = ''
   lastReadyMessage = null
   bootstrapReadyMessage = null
-  const child = spawn(pythonCmd, ['-m', 'local_cli', '--server'], {
-    cwd: projectRoot,
+  const child = spawn(pythonCmd, backendArgs, {
+    cwd: backendCwd,
     stdio: ['pipe', 'pipe', 'pipe'],
     env,
     windowsHide: true,
@@ -753,7 +761,7 @@ ipcMain.handle('restart-backend', event => {
   if (!validApplicationSender(event)) return {success:false,error:'DESKTOP_UNTRUSTED_SENDER'}
   if (applicationClient.modelDownloadBusy()) return {success:false,error:'MODEL_DOWNLOAD_BUSY'}
   if (pythonProcess) return { success: false, error: 'Backend is already running.' }
-  restartWorkspace = applicationClient.view.workspace || projectsHost?.preferredPath() || path.join(findProjectRoot(),'workspace')
+  restartWorkspace = applicationClient.view.workspace || projectsHost?.preferredPath() || defaultWorkspace()
   restoreOnWorkspaceBootstrap = true
   startPythonServer()
   return { success: true }
@@ -1075,12 +1083,12 @@ function fetchJson(url: string): Promise<any> {
 
 app.whenReady().then(async () => {
   Menu.setApplicationMenu(null)
-  const defaultWorkspace = path.join(findProjectRoot(), 'workspace')
+  const initialWorkspace = defaultWorkspace()
   let defaultAccessible = true
-  try { fs.mkdirSync(defaultWorkspace, {recursive:true}); fs.accessSync(defaultWorkspace,fs.constants.R_OK|fs.constants.W_OK) }
+  try { fs.mkdirSync(initialWorkspace, {recursive:true}); fs.accessSync(initialWorkspace,fs.constants.R_OK|fs.constants.W_OK) }
   catch { defaultAccessible = false; console.error('PROJECT_DEFAULT_UNAVAILABLE') }
   try {
-    projectsHost = createProjectsHost({directory:desktopDataPath,defaultPath:defaultWorkspace,client:applicationClient,
+    projectsHost = createProjectsHost({directory:desktopDataPath,defaultPath:initialWorkspace,client:applicationClient,
       chooseDirectory:()=>mainWindow ? dialog.showOpenDialog(mainWindow,pickerDialogOptions(desktopPreferences.get().locale,'project')) : Promise.resolve({canceled:true,filePaths:[]}),
       openPath:selectedPath=>shell.openPath(selectedPath),
       bootstrapWorkspace:bootstrapProject,

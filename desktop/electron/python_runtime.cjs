@@ -16,6 +16,15 @@ function resolvePythonRuntime(projectRoot, options = {}) {
   })
   const inherited = options.env || process.env
   const env = Object.fromEntries(Object.entries(inherited).filter(([, value]) => value !== undefined))
+  if (options.packaged) {
+    const bundled = paths.join(projectRoot, 'backend', 'nova-backend.exe')
+    if (platform !== 'win32' || !exists(bundled)) throw new Error('BUNDLED_BACKEND_NOT_FOUND')
+    for (const key of Object.keys(env)) {
+      if (['PYTHONHOME', 'PYTHONPATH', 'VIRTUAL_ENV', '__PYVENV_LAUNCHER__', 'PYTHONNOUSERSITE'].includes(key.toUpperCase()) || key.toUpperCase().startsWith('_PYI_')) delete env[key]
+    }
+    env.PYTHONNOUSERSITE = '1'
+    return { executable: bundled, args: ['--server'], env }
+  }
   const venv = paths.join(projectRoot, '.venv')
   const executable = paths.join(venv, platform === 'win32' ? 'Scripts' : 'bin', platform === 'win32' ? 'python.exe' : 'python')
 
@@ -38,4 +47,9 @@ function resolvePythonRuntime(projectRoot, options = {}) {
   return { executable: platform === 'win32' ? 'python' : candidates.find(probe) || 'python3', env }
 }
 
-module.exports = { resolvePythonRuntime }
+function resolveDefaultWorkspace(projectRoot, documentsDirectory, packaged, platform = process.platform) {
+  const paths = platform === 'win32' ? path.win32 : path.posix
+  return packaged ? paths.join(documentsDirectory, 'Nova', 'workspace') : paths.join(projectRoot, 'workspace')
+}
+
+module.exports = { resolvePythonRuntime, resolveDefaultWorkspace }
