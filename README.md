@@ -1,10 +1,10 @@
 # Nova
 
-**0.13.0 · A local AI assistant for projects, files, sources, and memories.**
+**0.13.1 · A local AI assistant for projects, files, sources, and memories.**
 
 Nova combines a desktop interface with Ollama models and tools for reading and modifying files, running commands, and accessing the web. The model proposes actions; the host checks permissions and requests the appropriate approvals. The interface is available in English and Spanish.
 
-This release brings together the Nova Desktop rebuild. Desktop and the CLI share the Application Python backend. The identifiers `local-cli`, `local_cli`, `local-cli-desktop`, and the Electron application identifier are retained for compatibility with existing installations and profiles.
+Version 0.13.1 fixes Unicode transport in the standalone Windows backend, including accented characters and emoji in chat and workspace snapshots. It builds on the Nova Desktop rebuild introduced in 0.13.0. Desktop and the CLI share the Application Python backend. The identifiers `local-cli`, `local_cli`, `local-cli-desktop`, and the Electron application identifier are retained for compatibility with existing installations and profiles.
 
 ## Features
 
@@ -72,13 +72,19 @@ npm.cmd ci
 npm.cmd run build:win
 ```
 
-The output is `desktop/release/Nova-0.13.0-windows-x64-setup.exe`, accompanied by a size and SHA256 receipt in `windows-build.json`. The script does not publish to GitHub. The `build`, `dist`, and `desktop/release` folders contain generated output and are excluded from Git. To test the installer without modifying the host installation, use Windows Sandbox:
+If npm cannot resolve `node` because of an inherited PATH problem, invoke the build launcher directly from `desktop`:
+
+```powershell
+& "C:\Program Files\nodejs\node.exe" .\dev\package_windows.cjs
+```
+
+The output is `desktop/release/Nova-0.13.1-windows-x64-setup.exe`, accompanied by a size and SHA256 receipt in `windows-build.json`. The script does not publish to GitHub. The `build`, `dist`, and `desktop/release` folders contain generated output and are excluded from Git. To test the installer without modifying the host installation, use Windows Sandbox:
 
 ```powershell
 # From the repository root; use a new directory outside the checkout
 $installerQA = Join-Path $env:TEMP ("nova-install-qa-" + [guid]::NewGuid().ToString("N"))
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/test_windows_installer.ps1 `
-  -Installer "$PWD/desktop/release/Nova-0.13.0-windows-x64-setup.exe" -Output "$installerQA"
+  -Installer "$PWD/desktop/release/Nova-0.13.1-windows-x64-setup.exe" -Output "$installerQA"
 ```
 
 This test does not modify host policies: it creates an isolated Windows environment without networking, checks the backend and a local WebView2 page, opens Nova through its actual IPC, and checks that uninstallation preserves the profile and documents. Windows execution policies still apply; any block is reported as a failure. The installer provided with this release does not include a commercial code-signing certificate.
@@ -198,7 +204,7 @@ From the repository root, with the Python environment prepared:
 ```powershell
 $novaPython = Join-Path $PWD ".venv\Scripts\python.exe"
 & $novaPython -m pip install -e ".[browser,memory-semantic]" pytest pytest-subtests
-& $novaPython -B ci/release_check.py --tag v0.13.0
+& $novaPython -B ci/release_check.py --tag v0.13.1
 & $novaPython -B ci/contract_inventory.py
 $run = Join-Path $env:TEMP ("nova-preflight-" + [guid]::NewGuid().ToString("N"))
 & $novaPython -B ci/run_contracts.py --job core --output "$run\core"
@@ -226,7 +232,7 @@ node desktop/tests/run_gui.cjs --case about-version --output "$nativeRun" --pyth
 
 The launcher gives the test application the actual package version and creates a private profile. It also supports `question-host` and `resume-recovery`; these cases use a scripted backend without real inference or data from your profile.
 
-Electron tests and campaigns involving real models or browsing are explicit checks with dedicated profiles. See the [0.13.0 results and limitations](docs/releases/0.13.0.md). Earlier evidence, including failed or partial attempts, remains in [docs](docs/) with its original scope.
+Electron tests and campaigns involving real models or browsing are explicit checks with dedicated profiles. See the [0.13.1 release notes and validation](docs/releases/0.13.1.md). The [0.13.0 GUI review](docs/releases/0.13.0.md) and earlier evidence, including failed or partial attempts, remain in [docs](docs/) with their original scope.
 
 ## License and origin
 

@@ -58,6 +58,8 @@ try {
     $env:LOCAL_CLI_STATE_DIR = "$root\UserState"
     $source = Get-ChildItem -LiteralPath 'C:\NovaInput' -Filter '*-windows-x64-setup.exe' -File
     Check 'one installer supplied' (@($source).Count -eq 1)
+    Check 'installer filename contains a release version' ($source.Name -match '^Nova-(\d+\.\d+\.\d+)-windows-x64-setup\.exe$')
+    $expectedVersion = $Matches[1]
     $expected = Get-Content -Raw -LiteralPath 'C:\NovaInput\installer.sha256'
     Check 'installer SHA256 matches host build' ((Get-FileHash -Algorithm SHA256 -LiteralPath $source.FullName).Hash -eq $expected.Trim())
     Check 'no developer Python or Node on PATH' (-not (Get-Command python.exe,node.exe,dotnet.exe -ErrorAction SilentlyContinue))
@@ -91,7 +93,7 @@ try {
     Wait-Renderer '!!window.__installView?.sessionId && window.__installView.status.connected'
     Check 'real frozen backend exchanges JSONL with Electron' (Eval '!!window.__installView.sessionId && window.__installView.status.connected')
     $version = Eval 'window.api.getAppVersion()'
-    Check 'installed version matches release' ($version -eq '0.13.0')
+    Check 'installed version matches release' ($version -eq $expectedVersion)
     $result.version = $version
     $projects = Eval 'window.api.getProjects()'
     $documents = [Environment]::GetFolderPath('MyDocuments')
@@ -102,7 +104,7 @@ try {
     Eval 'document.querySelector(".nova-rail [data-icon=settings]").closest("button").click();true' | Out-Null
     Wait-Renderer '!!document.querySelector("[data-settings-section=about]")'
     Eval 'document.querySelector("[data-settings-section=about]").click();true' | Out-Null
-    Wait-Renderer 'document.querySelector(".nova-settings-dialog").textContent.includes("v0.13.0")'
+    Wait-Renderer ('document.querySelector(".nova-settings-dialog").textContent.includes(' + (ConvertTo-Json -Compress ('v'+$expectedVersion)) + ')')
     $image = Cdp 'Page.captureScreenshot' @{format='png'}
     [IO.File]::WriteAllBytes("$output\installed-about.png",[Convert]::FromBase64String($image.data))
     $profile = Join-Path $env:APPDATA 'nova-desktop'

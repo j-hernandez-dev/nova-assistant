@@ -1,0 +1,133 @@
+{
+  "schema": "NOVA_WINDOWS_RELEASE_VALIDATION_V1",
+  "version": "0.13.1",
+  "checkedAt": "2026-10-27T21:11:20.942020+00:00",
+  "localReviewDate": "2026-10-27",
+  "sourceBase": "e8499e12d287ab74c72b0e9308d1306792080b32",
+  "includesLocalReleaseChanges": true,
+  "installer": {
+    "schema": "NOVA_WINDOWS_BUILD_V1",
+    "version": "0.13.1",
+    "installer": "Nova-0.13.1-windows-x64-setup.exe",
+    "sha256": "ae0378ec0d04c726736c74a9b25804150bb199fc8c59f444b315ec19a9a6d08d",
+    "bytes": 457391410,
+    "backend": "d83c35b76c94ac34506b349b918aef67776bd39f27142894decec66a41a2a7f2",
+    "browser": "155.0.4283.45",
+    "published": false,
+    "pythonRequiredAtRuntime": false,
+    "dotnetRequiredAtRuntime": false,
+    "externalRequirements": [
+      "Ollama",
+      "a compatible installed LLM"
+    ]
+  },
+  "productionPayloadSha256": {
+    "Nova.exe": "4dc40ee4f2cb07c6d7c4ad5b8c7e805c876677bb39794e371d002297df123bcb",
+    "resources/app.asar": "141459e43de2c3c86d94dbb2a0ec4673daf710c0002b47b933ec5f0ffa8d13d9",
+    "resources/backend/nova-backend.exe": "d83c35b76c94ac34506b349b918aef67776bd39f27142894decec66a41a2a7f2",
+    "resources/browser/windows-x64/host/nova-webview-host.exe": "f22f44675281b4bc56f9ff0a635cb9b91b9469cea2204846d1e9362f90f62e7c",
+    "resources/browser/windows-x64/runtime/msedgewebview2.exe": "46b3c6ac9169416cc2ee76b23ee3d9db0eb8daefb914b1d9cc0f5d2387b033ac",
+    "resources/browser/windows-x64/python/playwright/driver/node.exe": "ba4e6d110e8c1592a1ecd390f6b05f3da124b13871a5be62b341a07a853c6c32"
+  },
+  "signed": false,
+  "published": false,
+  "unitTests": {
+    "passed": 7,
+    "failed": 0,
+    "unicodeCases": 3,
+    "staticContracts": 3935
+  },
+  "installedValidation": {
+    "status": "PASS",
+    "lifecycleChecks": [
+      "isolated QA installer selected",
+      "NSIS installation succeeds",
+      "separate QA process name installed",
+      "identical production Electron executable",
+      "identical production payload: resources\\app.asar",
+      "identical production payload: resources\\backend\\nova-backend.exe",
+      "identical production payload: resources\\browser\\windows-x64\\host\\nova-webview-host.exe",
+      "identical production payload: resources\\browser\\windows-x64\\runtime\\msedgewebview2.exe",
+      "identical production payload: resources\\browser\\windows-x64\\python\\playwright\\driver\\node.exe",
+      "installed application and browser checks succeed",
+      "one QA uninstaller",
+      "NSIS uninstaller exits successfully",
+      "installed executable and backend are removed",
+      "profile and documents survive uninstall",
+      "existing Nova executable remains unchanged",
+      "existing Program Files backend remains unchanged",
+      "existing Nova preferences remain unchanged"
+    ],
+    "applicationChecks": [
+      "Installed frozen backend runs NumPy, PDF and SQLite without Python on PATH",
+      "Frozen backend version matches release",
+      "Installed native WebView2 opens and edits the owned local fixture and closes its job/profile",
+      "Production packaged mode retained; known folders redirected before entry point runs",
+      "Real packaged backend exchanges JSONL and remains connected",
+      "Version is 0.13.1 through actual preload and IPC",
+      "Default workspace lives in isolated writable documents, outside installation",
+      "Profile is isolated below the owned QA directory",
+      "Preferences save through production IPC",
+      "About visibly displays the installed version",
+      "UTF-8 input reaches the owned Ollama fixture unchanged",
+      "Installed chat history renders accents, Chinese and emoji without replacement characters",
+      "Actual Stop button cancels an active Unicode response and releases the provider stream",
+      "Cancellation refresh stays valid without APPLICATION_ADAPTER_FAILED or mojibake",
+      "New messages still complete after cancellation",
+      "Application closes normally and releases its backend",
+      "Saved preferences survive normal close"
+    ],
+    "runtime": {
+      "status": "PASS",
+      "version": "0.13.1",
+      "frozen": true,
+      "python": "3.14.6",
+      "numpy": "2.5.4",
+      "pypdf": "6.19.0",
+      "pdfRoundTrip": true,
+      "numpyNativeMath": true,
+      "sqlite": true,
+      "browserPresent": true
+    },
+    "browser": {
+      "status": "PASS",
+      "engine": "WebView2",
+      "runtimeVersion": "155.0.4283.45",
+      "ownedLoopbackNavigation": true,
+      "formRoundTrip": true,
+      "hostExited": true,
+      "jobEmpty": true,
+      "profileRemoved": true,
+      "externalWebsite": false
+    },
+    "unicodeInput": true,
+    "unicodeHistoryRendering": true,
+    "unicodeWorkspacePath": true,
+    "stopButton": true,
+    "providerStreamClosed": true,
+    "messageAfterCancellation": true,
+    "observedCancellationMilliseconds": 110,
+    "applicationAdapterFailed": false,
+    "realModelInference": false,
+    "ownedLoopbackProvider": true,
+    "qaInstallerCacheRemoved": true
+  },
+  "isolation": {
+    "wrapperIdentity": "com.local-cli.desktop.installer.qa.utf8.0131",
+    "wrapperPackageName": "nova-installer-qa-0131-20261027",
+    "wrapperCompression": "store",
+    "productionPayloadHashesMatched": true,
+    "appIsPackaged": true,
+    "knownFoldersRedirectedBeforeMain": true,
+    "productionInstallationModified": false,
+    "productionPreferencesModified": false,
+    "hostSecurityPolicyChanged": false
+  },
+  "limitations": [
+    "NSIS lifecycle used a separate QA identity and byte-identical application, backend and browser payload.",
+    "Production installer is unsigned. Earlier Windows Sandbox Application Control rejection was not bypassed or retested.",
+    "Streaming and cancellation used an owned Ollama-compatible loopback fixture, not real model inference.",
+    "Normal Program Files installation was preserved and still requires an explicit update.",
+    "No Git commit, tag, push or GitHub Release was created by this preparation."
+  ]
+}
