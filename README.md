@@ -1,30 +1,30 @@
 # Nova
 
-**0.13.0 · Asistente de IA local para proyectos, archivos, fuentes y recuerdos.**
+**0.13.0 · A local AI assistant for projects, files, sources, and memories.**
 
-Nova combina una interfaz de escritorio con modelos de Ollama y herramientas para leer y modificar archivos, ejecutar comandos y consultar la web. El modelo propone las acciones; el host comprueba sus permisos y solicita las autorizaciones correspondientes. La interfaz está disponible en español e inglés.
+Nova combines a desktop interface with Ollama models and tools for reading and modifying files, running commands, and accessing the web. The model proposes actions; the host checks permissions and requests the appropriate approvals. The interface is available in English and Spanish.
 
-Esta versión reúne la reconstrucción de Nova Desktop. Desktop y la CLI comparten el backend Python de Application. Los identificadores `local-cli`, `local_cli`, `local-cli-desktop` y el identificador de Electron se conservan por compatibilidad con instalaciones y perfiles existentes.
+This release brings together the Nova Desktop rebuild. Desktop and the CLI share the Application Python backend. The identifiers `local-cli`, `local_cli`, `local-cli-desktop`, and the Electron application identifier are retained for compatibility with existing installations and profiles.
 
-## Qué incluye
+## Features
 
-- **Proyectos:** carpetas independientes, historial de conversaciones, panel lateral redimensionable y visor con pestañas de archivos, fuentes y recuerdos.
-- **Modelos LLM y EM:** detección por capacidades, selección de modelos instalados, activación individual, contexto automático o manual y estadísticas de uso separadas.
-- **Catálogo de Ollama:** Todos, Instalados y Para ti; búsqueda, variantes y descarga explícita. Las recomendaciones consideran la memoria disponible y son estimaciones.
-- **Fuentes:** archivos copiados a Nova y URL importadas por proyecto. Puedes seleccionarlas para el siguiente mensaje, verlas, descargarlas, cambiar su vínculo o eliminarlas.
-- **Conocimiento:** recuperación léxica y semántica del proyecto, indexación automática y reconstrucción del índice. Las opciones semánticas requieren un modelo EM instalado, habilitado y disponible.
-- **Recuerdos:** consulta, creación manual, edición en tabla, eliminación y propuestas de captura automática; importación y exportación con confirmaciones para contenido sensible.
-- **Almacenamiento:** medición del espacio de los datos de Nova, acceso a sus carpetas y administración de copias de archivos por proyecto o sin vínculo.
-- **Web:** permisos independientes de lectura, búsqueda y navegación; Google, Bing o DuckDuckGo y WebView2, Chrome o Edge, según disponibilidad.
-- **Interfaz:** cuatro temas claros y oscuros, fuentes de interfaz y código, mascotas Nova 2D y Nova 3D, transiciones opcionales, zoom del 50 al 150 %, menús y atajos configurables.
+- **Projects:** independent folders, conversation history, a resizable sidebar, and a viewer with tabs for files, sources, and memories.
+- **LLM and EM models:** capability-based detection, installed model selection, individual model enablement, automatic or manual context limits, and separate usage statistics.
+- **Ollama catalog:** All, Installed, and For You views; search, variants, and explicit downloads. Recommendations consider available memory and are estimates.
+- **Sources:** files copied into Nova and URLs imported per project. Select them for the next message, preview them, download them, change their project association, or delete them.
+- **Knowledge:** lexical and semantic project retrieval, automatic indexing, and index rebuilding. Semantic options require an installed, enabled, and available EM model.
+- **Memories:** browsing, manual creation, table-based editing, deletion, and automatic capture proposals; import and export with confirmations for sensitive content.
+- **Storage:** measurement of Nova's data usage, access to its folders, and management of file copies associated with projects or left unlinked.
+- **Web:** separate permissions for reading, searching, and browsing; Google, Bing, or DuckDuckGo, and WebView2, Chrome, or Edge, depending on availability.
+- **Interface:** four light and dark themes, interface and code fonts, Nova 2D and Nova 3D mascots, optional transitions, zoom from 50% to 150%, menus, and configurable keyboard shortcuts.
 
-Windows es la plataforma de escritorio y navegación validada localmente. Los contratos Python portables tienen cobertura de CI en Windows, Linux y macOS; eso no equivale a validar la GUI ni la navegación nativa en esos sistemas. El build de comprobación `build:source` no genera instaladores. El empaquetado de Windows tiene su propio proceso con backend ejecutable, WebView2 y verificación en Windows Sandbox; consulta [la distribución Windows](docs/releases/windows-installer-0.13.0.md).
+Windows is the desktop and browsing platform validated locally. Portable Python contracts have CI coverage on Windows, Linux, and macOS; this does not constitute validation of the GUI or native browsing on those systems. The `build:source` verification build does not generate installers. Windows packaging has a separate process that includes an executable backend, WebView2, and Windows Sandbox verification; see the [Windows distribution guide](docs/releases/windows-installer-0.13.0.md).
 
-## Ejecutar Nova Desktop desde el código
+## Run Nova Desktop from source
 
-Necesitas Git, Python 3.10 o posterior, Node.js 22.12 o posterior con npm y Ollama en ejecución. CI usa Python 3.14 y Node.js 24. Instala un modelo de conversación compatible con herramientas en Ollama; Nova no lo descarga al arrancar. El modelo predeterminado es `qwen3.5:9b`, pero debes elegir uno adecuado para tu equipo.
+You need Git, Python 3.10 or later, Node.js 22.12 or later with npm, and a running Ollama instance. CI uses Python 3.14 and Node.js 24. Install a tool-capable conversational model in Ollama; Nova does not download one at startup. The default model is `qwen3.5:9b`, but you should choose a model suitable for your hardware.
 
-Desde PowerShell:
+From PowerShell:
 
 ```powershell
 git clone https://github.com/j-hernandez-dev/nova-assistant.git
@@ -37,163 +37,163 @@ npm.cmd ci
 npm.cmd run dev -- --host 127.0.0.1
 ```
 
-`npm run dev` abre Nova y arranca su backend. Mantén abierta esa terminal. En los siguientes arranques basta con ejecutar ese comando desde `desktop`. Node debe estar en el PATH para los procesos que npm inicia.
+`npm run dev` opens Nova and starts its backend. Keep that terminal open. For subsequent launches, run the same command from `desktop`. Node must be on the PATH used by processes launched through npm.
 
-Desktop selecciona la `.venv` de este checkout, aunque haya otro entorno Python activado. El registro de inicio indica el intérprete y la carpeta utilizados. Si antes instalaste otra copia, reinstala el paquete editable desde el checkout correcto y comprueba su procedencia:
+Desktop selects this checkout's `.venv`, even if another Python environment is active. The startup log identifies the interpreter and working directory being used. If you previously installed another copy, reinstall the editable package from the correct checkout and verify where it is loaded from:
 
 ```powershell
-# Desde la raíz del repositorio
+# From the repository root
 & .\.venv\Scripts\python.exe -c "import local_cli; print(local_cli.__file__)"
 ```
 
-Si un PATH demasiado largo impide encontrar `node`, `tsc` o `vite`, puedes limitarlo en esta terminal, sin cambiar las variables guardadas de Windows:
+If an excessively long PATH prevents `node`, `tsc`, or `vite` from being found, you can shorten it for the current terminal without changing Windows' saved environment variables:
 
 ```powershell
 $env:Path = "C:\Program Files\nodejs;$env:SystemRoot\System32;$env:SystemRoot;$env:SystemRoot\System32\WindowsPowerShell\v1.0;C:\Program Files\Git\cmd"
 npm.cmd run dev -- --host 127.0.0.1
 ```
 
-Si tu versión de npm bloquea los scripts de instalación de Electron o esbuild, autoriza esas dependencias según el aviso de npm. Para recuperar un binario de Electron ausente, ejecuta `node .\node_modules\electron\install.js` desde `desktop`.
+If your npm version blocks Electron or esbuild installation scripts, approve those dependencies as instructed by npm. To restore a missing Electron binary, run `node .\node_modules\electron\install.js` from `desktop`.
 
-### Componente de navegación
+### Browsing component
 
-WebView2 necesita el componente preparado en `dist/browser/windows-x64/`, que incluye el host, su runtime y las dependencias de automatización. Es salida generada y está excluida de Git. **Instalar el extra Python `browser` no crea este componente.** Una copia limpia sin él puede usar archivos, terminal y las demás funciones disponibles, pero no debe anunciar navegación WebView2 lista.
+WebView2 requires the component prepared in `dist/browser/windows-x64/`, which includes the host, its runtime, and automation dependencies. This is generated output and is excluded from Git. **Installing the Python `browser` extra does not create this component.** A clean checkout without it can use files, the terminal, and other available features, but must not report WebView2 browsing as ready.
 
-Las versiones y el origen de estas dependencias están en [native/browser-dependencies.json](native/browser-dependencies.json). Consulta también [native](native/) y los [scripts de preparación](scripts/). Chrome y Edge son alternativas explícitas cuando están instalados y sus requisitos están disponibles. Nova no instala ni cambia de navegador silenciosamente.
+Dependency versions and their origins are listed in [native/browser-dependencies.json](native/browser-dependencies.json). Also see [native](native/) and the [preparation scripts](scripts/). Chrome and Edge are explicit alternatives when installed and their requirements are available. Nova does not silently install or switch browsers.
 
-## Construir el instalador de Windows
+## Build the Windows installer
 
-Para compilar necesitas Windows x64, Python 3.14 x64, Node.js 22.12 o posterior y el SDK .NET 10. La compilación instala sus dependencias en `build/windows/python`, prepara WebView2 según el manifiesto de dependencias y puede descargarlas. La aplicación instalada incluye esos componentes y no necesita Python, Node ni .NET instalados. Ollama y los modelos siguen siendo requisitos externos.
+Building requires Windows x64, Python 3.14 x64, Node.js 22.12 or later, and the .NET 10 SDK. The build installs its dependencies into `build/windows/python`, prepares WebView2 according to the dependency manifest, and may download the required components. The installed application includes these components and does not require a separate Python, Node.js, or .NET installation. Ollama and models remain external requirements.
 
 ```powershell
-# Desde la raíz, después de preparar Node y el entorno Python de desarrollo
+# From the repository root, after preparing Node and the development Python environment
 Set-Location desktop
 npm.cmd ci
 npm.cmd run build:win
 ```
 
-El resultado es `desktop/release/Nova-0.13.0-windows-x64-setup.exe`, acompañado de un recibo de tamaño y SHA256 en `windows-build.json`. El script no publica en GitHub. Las carpetas `build`, `dist` y `desktop/release` son salida generada y están excluidas de Git. Para comprobar el instalador sin modificar la instalación del host, usa Windows Sandbox:
+The output is `desktop/release/Nova-0.13.0-windows-x64-setup.exe`, accompanied by a size and SHA256 receipt in `windows-build.json`. The script does not publish to GitHub. The `build`, `dist`, and `desktop/release` folders contain generated output and are excluded from Git. To test the installer without modifying the host installation, use Windows Sandbox:
 
 ```powershell
-# Desde la raíz; utiliza un directorio nuevo fuera del checkout
+# From the repository root; use a new directory outside the checkout
 $installerQA = Join-Path $env:TEMP ("nova-install-qa-" + [guid]::NewGuid().ToString("N"))
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/test_windows_installer.ps1 `
   -Installer "$PWD/desktop/release/Nova-0.13.0-windows-x64-setup.exe" -Output "$installerQA"
 ```
 
-Esta prueba no modifica las políticas del host: crea un Windows aislado sin red, comprueba el backend y una página local de WebView2, abre Nova mediante su IPC real y comprueba que la desinstalación conserve el perfil y los documentos. Las políticas de ejecución de Windows siguen aplicándose; cualquier bloqueo se informa como fallo. El instalador de esta entrega no incorpora un certificado comercial de firma de código.
+This test does not modify host policies: it creates an isolated Windows environment without networking, checks the backend and a local WebView2 page, opens Nova through its actual IPC, and checks that uninstallation preserves the profile and documents. Windows execution policies still apply; any block is reported as a failure. The installer provided with this release does not include a commercial code-signing certificate.
 
-## Proyectos, fuentes y contexto
+## Projects, sources, and context
 
-Añade una carpeta con Proyectos o **Archivo → Nuevo proyecto…**. El proyecto inicial es `<checkout>/workspace/` durante el desarrollo y `Documentos/Nova/workspace/` en una instalación nueva. La instalación respeta los proyectos ya guardados en el perfil. El panel de contenido tiene Archivos, Fuentes y Recuerdos. General permite ocultarlo para dedicar todo el panel a la lista de proyectos.
+Add a folder through Projects or **File → New project…**. The initial project is `<checkout>/workspace/` during development and `Documents/Nova/workspace/` for a new installation. Installation preserves projects already saved in the profile. The content panel contains Files, Sources, and Memories. General settings let you hide it to dedicate the entire panel to the project list.
 
-Hay dos formas complementarias de usar las fuentes:
+There are two complementary ways to use sources:
 
-1. **Selección explícita para un mensaje:** marca sus casillas en el panel lateral. Aparecen encima del campo de escritura y puedes retirarlas con la ×. Un archivo añadido desde el selector o arrastrado al chat se copia a Nova, se vincula al proyecto y queda seleccionado para el mensaje.
-2. **Recuperación automática:** Conocimiento configura qué fragmentos del proyecto se recuperan por coincidencia de palabras o similitud semántica. Es independiente de la selección explícita.
+1. **Explicit selection for a message:** select their checkboxes in the sidebar. They appear above the message field and can be removed using ×. A file added through the picker or dragged into the chat is copied into Nova, associated with the project, and selected for the message.
+2. **Automatic retrieval:** Knowledge settings control which project passages are retrieved through keyword matching or semantic similarity. This is independent of explicit selection.
 
-Los textos seleccionados que caben en el presupuesto de contexto se incluyen completos; los mayores se preparan por fragmentos. `source_read` permite al modelo leer más de la copia autorizada durante ese turno. Seleccionar una fuente no copia el archivo al directorio de trabajo ni garantiza que todo el documento quepa en un solo contexto.
+Selected texts that fit within the context budget are included in full; larger texts are prepared as passages. `source_read` lets the model read more from the authorized copy during that turn. Selecting a source does not copy the file into the working directory or guarantee that the entire document will fit into a single context.
 
-Las referencias muestran la fuente y su ubicación legible. Validar `[K1]`, `[K2]`, etc. comprueba referencias estructurales del turno, no la veracidad de cada afirmación. Identificadores inventados o rangos como `[K1-K10]` pueden producir un aviso de referencia no verificable. Nova no reescribe la respuesta para ocultarlo.
+References display the source and a readable location. Validating `[K1]`, `[K2]`, and similar markers checks the turn's structural references, not the truth of every claim. Invented identifiers or ranges such as `[K1-K10]` may produce an unverifiable-reference warning. Nova does not rewrite the response to hide it.
 
-## Modelos locales
+## Local models
 
-Modelo LLM contiene los modelos de conversación y Modelo EM los de embeddings. La clasificación de modelos instalados utiliza las capacidades que comunica Ollama; el nombre comercial no basta para identificar un embedding.
+LLM Model contains conversational models, while EM Model contains embedding models. Installed models are classified using capabilities reported by Ollama; a model's commercial name alone is insufficient to identify it as an embedding model.
 
-| Modelo | Valores manuales de contexto | Predeterminado |
+| Model | Manual context options | Default |
 | --- | --- | --- |
-| LLM | 4K, 8K, 16K, 32K, 64K, 128K, 256K | Automático |
-| EM | 512, 1K, 2K, 4K, 8K, 16K, 32K | Automático; todos los EM habilitados |
+| LLM | 4K, 8K, 16K, 32K, 64K, 128K, 256K | Automatic |
+| EM | 512, 1K, 2K, 4K, 8K, 16K, 32K | Automatic; all EM models enabled |
 
-Estos valores no amplían los límites del modelo ni la memoria del equipo. Nova informa los errores de contexto y ejecución. En un embedding, el contexto limita cada texto de entrada; no representa un historial de conversación ni tokens de respuesta.
+These settings do not increase the model's limits or the computer's available memory. Nova reports context and execution errors. For an embedding model, context limits each input text; it does not represent conversation history or response tokens.
 
-El catálogo público se consulta en Ollama y conserva metadatos en caché. Sin conexión puede usar la información guardada e indicar que está desactualizada. Descargar, eliminar y usar modelos son acciones explícitas. Los pesos los administra Ollama y no se suman al almacenamiento de Nova.
+The public catalog is retrieved from Ollama, and its metadata is cached. When offline, Nova can use saved information and indicate that it is outdated. Downloading, deleting, and using models are explicit actions. Ollama manages model weights, which are not included in Nova's storage usage.
 
-## Recuerdos
+## Memories
 
-La **recuperación** consulta recuerdos existentes; la **captura** crea recuerdos o candidatos:
+**Retrieval** queries existing memories; **capture** creates memories or candidates:
 
-- Recuperación léxica: palabras y términos coincidentes; activada por defecto.
-- Recuperación semántica: similitud mediante embeddings; desactivada por defecto y dependiente de un EM disponible.
-- Captura automática: activada por defecto en **Guardado de bajo riesgo**. **Sólo proponer** deja candidatos para revisión en Propuestas pendientes.
-- Captura manual: permite elegir tipo, ámbito del proyecto actual o perfil personal y clasificación sensible.
+- Lexical retrieval: matching words and terms; enabled by default.
+- Semantic retrieval: similarity through embeddings; disabled by default and dependent on an available EM model.
+- Automatic capture: enabled by default in **Low-risk saving** mode. **Propose only** leaves candidates for review under Pending proposals.
+- Manual capture: lets you choose the type, current-project or personal-profile scope, and sensitive-content classification.
 
-Memoria permite autorizar el acceso a recuerdos sensibles por proyecto con confirmación. Mostrar, escribir o exportar contenido sensible conserva sus confirmaciones correspondientes. No hay una opción de Memoria en contexto remoto.
+Memory settings let you authorize access to sensitive memories per project, with confirmation. Viewing, writing, or exporting sensitive content retains the corresponding confirmation requirements. There is no remote-context memory option.
 
-Importar reemplaza los recuerdos actuales después de confirmarlo. Exportar permite incluir contenido sensible sólo con confirmación. Los archivos exportados contienen datos del usuario: guárdalos fuera del repositorio.
+Importing replaces current memories after confirmation. Exporting can include sensitive content only with confirmation. Exported files contain user data: keep them outside the repository.
 
-## Configuración y atajos
+## Settings and shortcuts
 
-| Grupo | Secciones |
+| Group | Sections |
 | --- | --- |
-| Interfaz | General, Apariencia, Atajos |
-| Modelos | Modelo LLM, Modelo EM |
-| Contexto y herramientas | Memoria, Conocimiento, Web |
-| Proyectos y datos | Proyectos, Chats, Almacenamiento |
-| Acerca de | Versión, derechos de autor, backend, proveedor y herramientas |
+| Interface | General, Appearance, Shortcuts |
+| Models | LLM Model, EM Model |
+| Context and tools | Memory, Knowledge, Web |
+| Projects and data | Projects, Chats, Storage |
+| About | Version, copyright, backend, provider, and tools |
 
-Los ajustes se guardan al aplicarlos. Restablecer recupera los valores de la sección; Almacenamiento usa **Actualizar** para volver a medir. El idioma puede seguir al sistema o fijarse en español o inglés. No traduce los chats ni cambia las respuestas del modelo.
+Settings are saved when applied. Reset restores the section's defaults; Storage uses **Refresh** to measure usage again. The interface language can follow the system or be set to English or Spanish. This does not translate chats or change the model's responses.
 
-Atajos iniciales de Windows, configurables en Atajos:
+Default Windows shortcuts, configurable in Shortcuts:
 
-| Acción | Atajo |
+| Action | Shortcut |
 | --- | --- |
-| Proyectos | Ctrl+B |
-| Fuentes | Ctrl+Shift+F |
-| Recuerdos | Ctrl+Shift+N |
-| Modelos | Ctrl+Shift+M |
-| Configuración | Ctrl+, |
-| Enfocar el mensaje | Ctrl+L |
-| Historial | Ctrl+Shift+H |
-| Adjuntar archivo | Ctrl+Shift+A |
-| Añadir proyecto | Ctrl+Shift+O |
-| Cerrar visor | Ctrl+Shift+W |
-| Enviar / nueva línea / detener | Enter / Shift+Enter / Escape |
+| Projects | Ctrl+B |
+| Sources | Ctrl+Shift+F |
+| Memories | Ctrl+Shift+N |
+| Models | Ctrl+Shift+M |
+| Settings | Ctrl+, |
+| Focus message field | Ctrl+L |
+| History | Ctrl+Shift+H |
+| Attach file | Ctrl+Shift+A |
+| Add project | Ctrl+Shift+O |
+| Close viewer | Ctrl+Shift+W |
+| Send / new line / stop | Enter / Shift+Enter / Escape |
 
-## Datos y almacenamiento
+## Data and storage
 
-Ubicaciones predeterminadas; los overrides del backend están en [local_cli/config.py](local_cli/config.py):
+Default locations; backend overrides are defined in [local_cli/config.py](local_cli/config.py):
 
-| Datos | Ubicación |
+| Data | Location |
 | --- | --- |
-| Preferencias Desktop, proyectos, apariencia y atajos | `%APPDATA%\nova-desktop\` |
-| Configuración Python | `%USERPROFILE%\.config\nova\config` |
-| Conversaciones, sesiones, recuerdos, copias de fuentes e índices | `%USERPROFILE%\.local\state\nova\` |
-| Auditoría de seguridad | `%LOCALAPPDATA%\Nova\security_audit\v1\` |
-| Catálogo de modelos | `%USERPROFILE%\.cache\nova\` |
-| Navegación y descargas retenidas | Carpetas administradas de navegación; Almacenamiento muestra las rutas efectivas |
-| Planes y Knowledge legado | `.agents/` del proyecto |
+| Desktop preferences, projects, appearance, and shortcuts | `%APPDATA%\nova-desktop\` |
+| Python configuration | `%USERPROFILE%\.config\nova\config` |
+| Conversations, sessions, memories, source copies, and indexes | `%USERPROFILE%\.local\state\nova\` |
+| Security audit | `%LOCALAPPDATA%\Nova\security_audit\v1\` |
+| Model catalog | `%USERPROFILE%\.cache\nova\` |
+| Browsing data and retained downloads | Managed browsing folders; Storage displays the effective paths |
+| Plans and legacy Knowledge data | The project's `.agents/` folder |
 
-Almacenamiento desglosa chats, adjuntos, recuerdos, navegación, configuración, auditoría, catálogo y cachés. Excluye la instalación y los pesos de Ollama. Actualizar recalcula tamaños e inventario.
+Storage breaks down chats, attachments, memories, browsing, configuration, auditing, the catalog, and caches. It excludes the application installation and Ollama model weights. Refresh recalculates sizes and the inventory.
 
-Adjuntar un archivo crea una **copia persistente**. Mover o renombrar el original no rompe esa copia. Puedes descargarla con Guardar como, desvincularla, cambiarla de proyecto o eliminarla. Quitar un proyecto conserva sus copias en **No vinculado**, salvo que confirmes eliminar sus archivos asociados. Eliminar la copia de Nova no elimina el original.
+Attaching a file creates a **persistent copy**. Moving or renaming the original does not break that copy. You can download it through Save As, unlink it, move its association to another project, or delete it. Removing a project preserves its copies under **Unlinked**, unless you confirm deletion of its associated files. Deleting Nova's copy does not delete the original.
 
-La limpieza de carpetas explica sus efectos y pide reiniciar cuando el almacén está en uso. Las operaciones pendientes se conservan en `nova-storage-control`, junto al perfil, hasta completarse. No borres manualmente almacenes activos.
+Folder cleanup explains its effects and requests a restart when a store is in use. Pending operations are retained in `nova-storage-control`, alongside the profile, until completed. Do not manually delete active stores.
 
-## Permisos y recuperación
+## Permissions and recovery
 
-Nova puede leer, escribir, editar, listar y buscar archivos; ejecutar comandos; consultar páginas y manejar un navegador. Los permisos web son independientes de las aprobaciones de acciones. La búsqueda usa Google por defecto; Bing y DuckDuckGo son alternativas.
+Nova can read, write, edit, list, and search files; run commands; retrieve web pages; and operate a browser. Web permissions are independent of action approvals. Search uses Google by default; Bing and DuckDuckGo are alternatives.
 
-La política, las aprobaciones y las concesiones de un solo uso median los efectos. El shell y el navegador operan con los permisos normales de la cuenta. Los perfiles de navegador son propios y temporales; no se usa el perfil personal de Chrome o Edge. Esto no ofrece aislamiento completo de procesos o red. La protección de valores sensibles tiene límites explícitos y no equivale a cifrado ni borrado forense.
+Policy checks, approvals, and single-use grants mediate side effects. The shell and browser run with the account's normal permissions. Browser profiles are dedicated and temporary; personal Chrome or Edge profiles are not used. This does not provide complete process or network isolation. Sensitive-value protection has explicit limits and is not equivalent to encryption or forensic erasure.
 
-Las acciones fallidas o inciertas no se convierten en éxito mediante la respuesta del modelo. Cancelar no deshace lo realizado. Las operaciones y aprobaciones interrumpidas no se reproducen automáticamente al reiniciar el backend. El borrador sin enviar y el historial guardado se conservan.
+Failed or uncertain actions are not turned into successes by the model's response. Cancellation does not undo completed actions. Interrupted operations and approvals are not automatically replayed when the backend restarts. Unsent drafts and saved history are preserved.
 
-Desktop admite una instancia por perfil y regenera sus cachés desechables de Chromium antes del arranque. Conserva una copia anterior en `.chromium-cache-backup` sin borrar cookies, localStorage, preferencias, chats o recuerdos. Si una caché está bloqueada, evita su uso persistente en ese arranque. Esto reduce los problemas tras cierres abruptos, pero no sustituye una copia de seguridad.
+Desktop supports one instance per profile and regenerates disposable Chromium caches before startup. It retains a previous copy in `.chromium-cache-backup` without deleting cookies, localStorage, preferences, chats, or memories. If a cache is locked, persistent use of that cache is avoided for that startup. This reduces problems after abrupt shutdowns but does not replace a backup.
 
-Detalles: [ejecución de aplicaciones](docs/application_launch.md), [navegación](docs/active_web_reimplementation/) y [límites de seguridad](docs/security_v12/s8_limits.md).
+Details: [application execution](docs/application_launch.md), [browsing](docs/active_web_reimplementation/), and [security limits](docs/security_v12/s8_limits.md).
 
 ## CLI
 
 ```powershell
-# Desde la raíz del checkout
+# From the checkout root
 & .\.venv\Scripts\python.exe -m local_cli --provider ollama --select-model
 ```
 
-`--help` describe los argumentos y `/help` los comandos. Entre ellos: `/models`, `/model`, `/browser`, `/search`, `/fetch`, `/attach`, `/source`, `/rag`, `/memory`, `/context` y `/usage`. `/fetch on|off|status` controla lectura HTTP separada de navegación. Los mensajes de sistema de la CLI están en inglés; el modelo puede responder en tu idioma.
+`--help` describes arguments, and `/help` describes commands. Available commands include `/models`, `/model`, `/browser`, `/search`, `/fetch`, `/attach`, `/source`, `/rag`, `/memory`, `/context`, and `/usage`. `/fetch on|off|status` controls HTTP reading separately from browsing. CLI system messages are in English; the model can respond in your language.
 
-## Comprobaciones de desarrollo y versión
+## Development and release checks
 
-Desde la raíz, con el entorno Python preparado:
+From the repository root, with the Python environment prepared:
 
 ```powershell
 $novaPython = Join-Path $PWD ".venv\Scripts\python.exe"
@@ -212,22 +212,22 @@ npm.cmd test
 npm.cmd run build:source
 ```
 
-Los resultados de contratos van a directorios nuevos, propios y fuera del checkout. El inventario distingue pruebas actuales, artefactos históricos y comprobaciones nativas o con modelos reales. No ejecutes todas las campañas históricas como si certificaran el código actual.
+Contract results are written to new, test-owned directories outside the checkout. The inventory distinguishes current tests, historical artifacts, and native or real-model checks. Do not run all historical campaigns as though they certify the current code.
 
-`npm test` ejecuta todas las suites ordinarias `.test.cjs` y exige que coincidan con el inventario de CI. `build:source` verifica TypeScript y construye renderer, proceso principal y preloads; **no ejecuta electron-builder**. `build:win` prepara un backend PyInstaller independiente, el componente de navegación y el instalador NSIS x64 en `desktop/release`, con publicación deshabilitada. Los otros scripts de empaquetado conservan su alcance previo; macOS/Linux no tienen esta distribución autónoma validada.
+`npm test` runs every ordinary `.test.cjs` suite and requires them to match the CI inventory. `build:source` checks TypeScript and builds the renderer, main process, and preloads; **it does not run electron-builder**. `build:win` prepares a standalone PyInstaller backend, the browsing component, and the NSIS x64 installer in `desktop/release`, with publishing disabled. Other packaging scripts retain their previous scope; macOS and Linux do not have this validated standalone distribution.
 
-Para comprobar la versión visible con Electron y el backend sintético, usa un directorio nuevo fuera del checkout:
+To check the visible version using Electron and the synthetic backend, use a new directory outside the checkout:
 
 ```powershell
-# Desde la raíz, después de build:source
+# From the repository root, after build:source
 $nativeRun = Join-Path $env:TEMP ("nova-about-" + [guid]::NewGuid().ToString("N"))
 node desktop/tests/run_gui.cjs --case about-version --output "$nativeRun" --python "$novaPython"
 ```
 
-El launcher da a la aplicación de prueba la versión real del paquete y crea un perfil privado. También admite `question-host` y `resume-recovery`; estos casos usan un backend programado, sin inferencia real ni datos de tu perfil.
+The launcher gives the test application the actual package version and creates a private profile. It also supports `question-host` and `resume-recovery`; these cases use a scripted backend without real inference or data from your profile.
 
-Las pruebas Electron y las campañas con modelos o navegación reales son comprobaciones explícitas con perfiles propios. Consulta los [resultados y límites de 0.13.0](docs/releases/0.13.0.md). Las evidencias anteriores, incluidas las fallidas o parciales, permanecen en [docs](docs/) con su alcance original.
+Electron tests and campaigns involving real models or browsing are explicit checks with dedicated profiles. See the [0.13.0 results and limitations](docs/releases/0.13.0.md). Earlier evidence, including failed or partial attempts, remains in [docs](docs/) with its original scope.
 
-## Licencia y origen
+## License and origin
 
-MIT; consulta [LICENSE](LICENSE). Nova se desarrolla sobre el proyecto original [local-cli de lutelute](https://github.com/lutelute/local-cli); se conserva la atribución de sus contribuciones.
+MIT; see [LICENSE](LICENSE). Nova builds on the original [local-cli project by lutelute](https://github.com/lutelute/local-cli); attribution for those contributions is preserved.
