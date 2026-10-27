@@ -60,7 +60,7 @@ _SLASH_COMMANDS: dict[str, str] = {
     "/diff": "Show uncommitted changes in the working tree.",
     "/context": "Show context window usage (messages, tokens, compaction).",
     "/memory <action>": "Explicit local memory controls; /memory help for syntax and privacy limits.",
-    "/attach <path>": "Explicit host attachment import (SESSION); extraction capability required before READY.",
+    "/attach <path>": "Copy an attachment into this project's persistent storage; extraction required before READY.",
     "/source <action>": "List/select/detach/promote/import/delete/cancel sources through Application.",
     "/copy": "Copy last assistant response to clipboard.",
     "/usage": "Show per-message token usage and session totals.",
@@ -121,7 +121,7 @@ def _context_window(value: str) -> int:
     except ValueError:
         number = -1
     if number not in (0, *PRESETS):
-        raise argparse.ArgumentTypeError("use AUTO, 0, 4096, 8192, 16384, 32768, or 65536")
+        raise argparse.ArgumentTypeError("use AUTO, 0, 4096, 8192, 16384, 32768, 65536, 131072, or 262144")
     return number
 
 
@@ -225,9 +225,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--provider",
         type=str,
-        choices=("ollama", "claude", "llama-server"),
+        choices=("ollama", "llama-server"),
         default=None,
-        help="Set the LLM provider (ollama, claude, or llama-server).",
+        help="Set the LLM provider (ollama or llama-server).",
     )
     parser.add_argument(
         "--brain-model",
@@ -245,7 +245,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--num-ctx",
         type=_context_window,
         default=None,
-        help="Context tokens: 0/AUTO (default), 4096, 8192, 16384, 32768, or 65536 (advanced, manual).",
+        help="Context tokens: 0/AUTO (default), 4096, 8192, 16384, 32768, 65536, 131072, or 262144 (advanced, manual).",
     )
     parser.add_argument(
         "--temperature",
@@ -523,8 +523,8 @@ def _handle_application_slash_command(command: str, console, ctx: SimpleNamespac
         if not validate_model_name(argument):
             print(f"Error: invalid model name. Usage: {cmd} <model>")
             return True
-    if cmd == "/provider" and argument not in ("", "ollama", "claude", "llama-server"):
-        print("Error: invalid provider. Usage: /provider [ollama|claude|llama-server]")
+    if cmd == "/provider" and argument not in ("", "ollama", "llama-server"):
+        print("Error: invalid provider. Usage: /provider [ollama|llama-server]")
         return True
     if cmd == "/rollback" and len(argument.split()) > 1:
         print("Error: expected one checkpoint tag. Usage: /rollback [tag]")

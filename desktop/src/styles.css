@@ -1,3 +1,6 @@
+@import './public_model_library.css';
+@import './project_pane.css';
+@import './source_references.css';
 :root {
   --bg: #090c12;
   --bg-alt: #13171f;
@@ -19,19 +22,23 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body, #root { height: 100%; overflow: hidden; }
+html, body { height: 100%; overflow: hidden; }
 
 body {
   font-family: var(--font);
   font-size: 13px;
-  background: var(--bg);
+  background: #0a0a0a;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
 }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+/* Keep the same rounded scrollbar across every Nova scroll area. */
+* { scrollbar-width:auto;scrollbar-color:auto; }
+::-webkit-scrollbar { width:6px;height:6px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border);border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--text-muted); }
+::-webkit-scrollbar-button { display:none;width:0;height:0; }
 
 /* Layout */
 .app {
@@ -356,23 +363,27 @@ body {
 }
 
 /* Markdown rendering (assistant messages) */
-.md-root { white-space: normal; }
+.md-root { white-space: normal; overflow-wrap: anywhere; min-width: 0; }
 
-.md-p { margin: 2px 0; }
+.md-p { margin: 0 0 .75em; }
+.md-root > :last-child { margin-bottom: 0; }
 .md-p-line { min-height: 1.2em; }
 
 .md-heading { font-weight: 700; margin: 10px 0 4px; }
 .md-h1 { font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 3px; }
 .md-h2 { font-size: 14px; }
 .md-h3 { font-size: 13px; }
-.md-h4 { font-size: 12.5px; color: var(--text-muted); }
+.md-h4, .md-h5, .md-h6 { font-size: 12.5px; color: var(--text-muted); }
 
 .md-inline-code {
   background: rgba(128, 128, 128, 0.15);
   border: 1px solid var(--border);
   border-radius: 3px;
   padding: 0 4px;
-  font-size: 12px;
+  font-size: .9em;
+  white-space: break-spaces;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .md-bold { font-weight: 700; }
@@ -403,6 +414,7 @@ body {
   line-height: 1.45;
   white-space: pre;
 }
+.md-code-pre > code { font: inherit; white-space: inherit; }
 
 .md-list { margin: 4px 0 4px 4px; padding-left: 18px; }
 .md-list li { margin: 2px 0; }
@@ -1101,32 +1113,6 @@ body {
   color: var(--yellow);
 }
 
-/* View tabs (Catalog / Discover) */
-.picker-view-tabs {
-  display: flex;
-  gap: 0;
-}
-
-.picker-view-tab {
-  background: none;
-  border: none;
-  font-family: var(--font);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 0 12px 0 0;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-
-.picker-view-tab.active { color: var(--text); }
-.picker-view-tab:hover { color: var(--text-dim); }
-
-.picker-tab-sep {
-  width: 1px;
-  background: var(--border);
-  margin: 2px 4px;
-}
-
 /* Search result extras */
 .picker-model-tag {
   font-size: 9px;
@@ -1542,50 +1528,6 @@ body {
 }
 
 /* ===== Provider Selector ===== */
-.provider-select-container {
-  position: relative;
-  display: inline-flex;
-  -webkit-app-region: no-drag;
-}
-
-.provider-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  z-index: 50;
-  background: var(--bg-alt);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  min-width: 200px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.provider-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.provider-option:hover {
-  background: var(--bg-hover);
-}
-
-.provider-option.active {
-  background: rgba(88, 166, 255, 0.05);
-}
-
-.provider-option.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.provider-option.disabled:hover {
-  background: transparent;
-}
 
 .provider-check {
   width: 16px;
@@ -1593,24 +1535,6 @@ body {
   color: var(--accent);
   font-size: 12px;
   flex-shrink: 0;
-}
-
-.provider-option-info {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  min-width: 0;
-}
-
-.provider-option-label {
-  color: var(--text);
-  font-weight: 700;
-  font-size: 12px;
-}
-
-.provider-option-desc {
-  color: var(--text-muted);
-  font-size: 11px;
 }
 
 .provider-confirm {
@@ -1864,190 +1788,6 @@ body {
   text-align: center;
 }
 
-/* ===== Claude Login ===== */
-.claude-login {
-  background: var(--bg-alt);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  width: 400px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.claude-login-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.claude-login-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.claude-login-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: rgba(63, 185, 80, 0.06);
-  border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  color: var(--green);
-}
-
-.claude-login-status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-}
-
-.claude-logout-btn {
-  margin-left: auto;
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text-muted);
-  font-family: var(--font);
-  font-size: 11px;
-  padding: 2px 8px;
-  cursor: pointer;
-}
-
-.claude-logout-btn:hover {
-  color: var(--red);
-  border-color: var(--red);
-}
-
-.claude-login-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--border);
-}
-
-.claude-login-tab {
-  flex: 1;
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-muted);
-  font-family: var(--font);
-  font-size: 12px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.claude-login-tab:hover {
-  color: var(--text-dim);
-}
-
-.claude-login-tab.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
-}
-
-.claude-login-body {
-  padding: 16px;
-}
-
-.claude-login-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.claude-login-desc {
-  font-size: 12px;
-  color: var(--text-dim);
-  line-height: 1.5;
-}
-
-.claude-login-link {
-  color: var(--accent);
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.claude-login-link:hover {
-  color: var(--text);
-}
-
-.claude-login-field {
-  display: flex;
-  gap: 8px;
-}
-
-.claude-login-input {
-  flex: 1;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 12px;
-  padding: 8px 10px;
-  outline: none;
-}
-
-.claude-login-input:focus {
-  border-color: var(--accent);
-}
-
-.claude-login-btn {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-family: var(--font);
-  font-size: 12px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-.claude-login-btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--bg);
-  font-weight: 700;
-}
-
-.claude-login-btn.primary:hover:not(:disabled) {
-  opacity: 0.85;
-}
-
-.claude-login-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.claude-login-hint {
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-.claude-login-error {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--red);
-  padding: 6px 10px;
-  background: rgba(248, 81, 73, 0.08);
-  border-radius: 4px;
-}
-
-.claude-login-success {
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--green);
-  padding: 6px 10px;
-  background: rgba(63, 185, 80, 0.08);
-  border-radius: 4px;
-}
-
 /* Provider login badge */
 .provider-login-badge {
   font-size: 10px;
@@ -2089,6 +1829,7 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 }
 .nova-app {
   position: relative;
+  height: 100%;
   flex-direction: row;
   isolation: isolate;
   background: radial-gradient(ellipse at 54% -20%, rgba(134, 76, 5, .18), transparent 55%), #090c12;
@@ -2264,7 +2005,26 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
   pointer-events: none;
   font-variant-numeric: tabular-nums;
 }
+.nova-app .chat-pane {
+  --nova-chat-width: 1050px;
+  --nova-chat-gutter: 28px;
+  position: relative;
+  isolation: isolate;
+}
+/* Decorative scene follows the chat viewport, independently of composer notices. */
+.nova-home-scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0 140px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
 .nova-home {
+  z-index: 1;
   display: flex;
   position: relative;
   align-items: center;
@@ -2366,24 +2126,32 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
   z-index: 1;
 }
 .nova-history-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
   color: #f5f5f8;
   font-size: clamp(22px, 2.2vw, 30px);
   line-height: 1.15;
   font-weight: 600;
   letter-spacing: -.025em;
 }
+.nova-history-title > svg { width: .95em; height: .95em; flex-shrink: 0; }
+.nova-history-title > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .nova-conversation {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 4px max(28px, calc((100% - 1050px) / 2)) 22px;
+  padding: 4px var(--nova-chat-gutter) 22px;
   scrollbar-gutter: stable;
 }
 .nova-conversation .terminal-inner {
   display: flex;
   flex-direction: column;
-  max-width: none;
+  width: 100%;
+  max-width: var(--nova-chat-width);
+  margin-inline: auto;
   padding: 0;
 }
 .nova-conversation .msg { margin: 0 0 20px; }
@@ -2509,9 +2277,15 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 }
 .nova-composer-area {
   position: relative;
-  width: min(1120px, calc(100% - 82px));
+  display: grid;
+  grid-template-columns: minmax(0, var(--nova-chat-width));
+  justify-content: center;
+  width: 100%;
   margin: 0 auto;
-  padding: 8px 0 35px;
+  padding: 8px var(--nova-chat-gutter) 35px;
+  /* Match the conversation's reserved scrollbar space, including when empty. */
+  overflow: hidden;
+  scrollbar-gutter: stable;
   flex-shrink: 0;
   z-index: 4;
 }
@@ -2609,13 +2383,6 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
   right: 12px;
   pointer-events: none;
 }
-.nova-composer-hint {
-  padding: 8px 13px 0;
-  color: var(--text-muted);
-  font-size: 11px;
-  line-height: 1.4;
-  text-align: center;
-}
 .nova-secondary-tools {
   display: block;
   padding: 8px 15px 0;
@@ -2698,7 +2465,8 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
   border-radius: 12px;
 }
 .nova-composer-area .confirm-bar {
-  margin-bottom: 10px;
+  margin: 0 0 10px;
+  min-width: 0;
   border: 1px solid rgba(255, 195, 71, .35);
   border-radius: 15px;
   background: rgba(30, 26, 21, .98);
@@ -2764,18 +2532,12 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 .picker-action:disabled { opacity: .45; cursor: not-allowed; }
 .picker-model[aria-disabled="true"] { cursor: default; }
 .nova-modal-backdrop {
+  inset: var(--nova-titlebar-height, 44px) var(--nova-window-inset, 8px) var(--nova-window-inset, 8px);
+  border-radius: var(--nova-window-radius, 14px);
   z-index: 60;
   padding: 24px;
   background: rgba(0, 0, 0, .62);
   backdrop-filter: blur(5px);
-}
-.nova-modal-backdrop .picker, .nova-modal-backdrop .settings-panel, .nova-modal-backdrop .claude-login {
-  border-color: rgba(255, 194, 69, .28);
-  border-radius: 20px;
-  background: linear-gradient(145deg, #181a21, #10141d);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, .6), 0 0 45px rgba(219, 140, 0, .035);
-  max-width: calc(100vw - 48px);
-  max-height: calc(100dvh - 48px);
 }
 .nova-modal-backdrop .picker.picker-wide { width: 820px; }
 .nova-modal-backdrop .picker-header { padding: 18px 23px; }
@@ -2786,8 +2548,6 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
   padding: 11px 13px;
   font-size: 14px;
 }
-.nova-modal-backdrop .picker-view-tab { font-weight: 500; }
-.nova-modal-backdrop .picker-view-tab.active { color: #fff5de; }
 .nova-modal-backdrop .picker-tab.active { border-bottom-color: var(--accent); }
 .nova-modal-backdrop .picker-model { padding: 13px 22px; }
 .nova-modal-backdrop .picker-model-name { font-size: 14px; }
@@ -2799,21 +2559,23 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 .nova-app .harness-events { font-size: 10px; }
 
 @media (max-width: 1080px) {
+  .nova-app .chat-pane { --nova-chat-gutter: 24px; }
   .nova-header { padding-left: 25px; padding-right: 25px; }
-  .nova-composer-area { width: calc(100% - 48px); }
   .nova-model-button { max-width: 205px; }
   .nova-project-pane { width: 230px; flex-basis: 230px; }
 }
 @media (max-width: 760px) {
+  .nova-app .chat-pane { --nova-chat-gutter: 14px; }
   .nova-rail { width: 60px; flex-basis: 60px; padding: 14px 8px; gap: 12px; }
   .nova-brand { margin-bottom: 0; }
   .nova-nav-button { width: 42px; height: 42px; }
   .nova-nav-button.active::before, .nova-nav-button[aria-pressed="true"]::before { left: -9px; }
+  .nova-home-scene { padding: 64px 0 120px; }
   .nova-header { min-height: 77px; padding: 17px 19px 13px; }
   .nova-header-actions { gap: 9px; }
   .nova-status-pill { min-height: 30px; padding: 0 11px; font-size: 11px; }
   .nova-icon-button { width: 39px; height: 39px; padding: 8px; }
-  .nova-composer-area { width: calc(100% - 28px); padding-bottom: 21px; }
+  .nova-composer-area { padding-bottom: 21px; }
   .nova-composer { padding: 7px 8px; gap: 6px; min-height: 60px; }
   .nova-attach-button, .nova-send-button { width: 40px; height: 40px; padding: 9px; }
   .nova-input { font-size: 13px; padding-left: 2px; }
@@ -2821,7 +2583,6 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
   .nova-model-button svg { width: 14px; height: 14px; }
   .nova-model-select { padding-right: 17px; }
   .nova-model-select + svg { right: 9px; }
-  .nova-conversation { padding-left: 17px; padding-right: 13px; }
   .nova-message-assistant { width: 94%; }
   .nova-message-user { max-width: 90%; }
   .nova-message-bubble { padding: 11px 13px; border-radius: 15px; }
@@ -2836,11 +2597,6 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
     box-shadow: 18px 0 45px rgba(0, 0, 0, .5);
   }
   .nova-modal-backdrop { padding: 14px; }
-  .nova-modal-backdrop .picker, .nova-modal-backdrop .settings-panel, .nova-modal-backdrop .claude-login {
-    max-width: calc(100vw - 28px);
-    max-height: calc(100dvh - 28px);
-    border-radius: 15px;
-  }
 }
 @media (max-height: 520px) {
   .nova-rail { padding-top: 12px; padding-bottom: 12px; gap: 10px; }
@@ -2848,7 +2604,6 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
   .nova-header { min-height: 66px; padding-top: 12px; padding-bottom: 8px; }
   .nova-composer-area { padding-bottom: 12px; }
   .nova-home-caption { bottom: 1px; font-size: 11px; }
-  .nova-composer-hint { padding-top: 5px; font-size: 10px; }
   .nova-legacy-controls { max-height: 120px; }
   .nova-readiness-notice { padding: 9px 12px; margin-bottom: 9px; gap: 8px 12px; }
   .nova-readiness-copy { flex-basis: 180px; }
@@ -2872,22 +2627,23 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 .project-add-button { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 50%; color: var(--text); background: rgba(31, 36, 49, .55); cursor: pointer; flex-shrink: 0; }
 .project-add-button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .project-add-button:disabled { opacity: .4; cursor: default; }
-.project-folder-list { flex: 0 1 auto; min-height: 0; max-height: 38%; overflow: auto; padding: 0 12px 10px; }
-.project-card { position: relative; border: 1px solid transparent; border-radius: 11px; margin-bottom: 7px; background: rgba(25, 29, 40, .35); }
+.project-folder-list { flex: 0 1 auto; min-width: 0; min-height: 0; max-height: 38%; overflow-y: auto; overflow-x: hidden; padding: 0 12px 10px; }
+.nova-projects[data-show-files="false"] > .project-folder-list { flex: 1 1 0; max-height: none; }
+.project-card { position: relative; min-width: 0; border: 1px solid transparent; border-radius: 11px; margin-bottom: 7px; background: rgba(25, 29, 40, .35); }
 .project-card.selected { border-color: rgba(255, 183, 38, .55); background: linear-gradient(115deg, rgba(102, 70, 13, .23), rgba(25, 29, 40, .6)); box-shadow: inset 0 0 14px rgba(255, 177, 28, .04); }
 .project-select-button { display: flex; flex-direction: column; gap: 7px; width: 100%; min-width: 0; padding: 13px 44px 12px 12px; background: none; border: 0; text-align: left; color: var(--text); cursor: pointer; font: inherit; }
 .project-select-button:disabled { cursor: default; }
 .project-card:not(.selected) .project-select-button:hover:not(:disabled) { background: rgba(255, 192, 55, .055); border-radius: 11px; }
-.project-card-heading { display: flex; align-items: center; gap: 9px; font-size: 13px; }
+.project-card-heading { display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; font-size: 13px; }
 .project-card-heading > svg { color: var(--accent); flex-shrink: 0; }
-.project-card-heading > span { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.project-card-heading > span { flex: 1; min-width: 0; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
 .project-card-path { display: block; font-size: 10px; line-height: 1.4; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 .project-default-label { color: var(--text-muted); font-size: 10px; }
 .project-options { position: absolute; right: 9px; top: 10px; }
-.project-options-button { width: 28px; height: 28px; padding: 0; display: grid; place-items: center; cursor: pointer; background: rgba(14, 17, 25, .6); border: 1px solid rgba(149, 157, 178, .35); color: var(--text-dim); border-radius: 8px; }
+.project-options-button { width: 28px; height: 28px; padding: 0; display: grid; place-items: center; cursor: pointer; background: transparent; border: 0; color: var(--text-dim); border-radius: 8px; }
 .project-options-button > svg { display: block; pointer-events: none; }
-.project-options-button:focus-visible { outline: none; border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-.project-options-button:hover:not(:disabled), .project-options-button[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.project-options-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.project-options-button:hover:not(:disabled), .project-options-button[aria-expanded="true"] { background: rgba(255, 188, 49, .09); color: var(--accent); }
 .project-options-button:disabled { opacity: .4; cursor: default; }
 .project-context-menu { position: fixed; z-index: 30; width: 220px; padding: 6px; margin-top: 6px; margin-left: -199px; background: rgba(19, 22, 30, .99); border: 1px solid rgba(255, 181, 42, .5); border-radius: 10px; box-shadow: 0 12px 32px #0009; }
 .project-context-menu button { display: block; width: 100%; padding: 10px 9px; text-align: left; color: var(--text); border: none; border-radius: 6px; background: none; font: inherit; font-size: 12px; cursor: pointer; }
@@ -2958,23 +2714,19 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 .nova-modal-backdrop .picker.picker-wide.nova-model-dialog {
   width: 1000px;
   height: min(740px, calc(100dvh - 64px));
-  max-height: calc(100dvh - 48px);
+  max-height: 100%;
   min-height: 0;
   border-color: rgba(234, 172, 62, .42);
   background: linear-gradient(145deg, #24211bee 0%, #171b24fa 28%, #11151dfa 100%);
   box-shadow: 0 32px 100px #000a, inset 0 1px 0 #ffe6aa12, 0 0 50px #e8a21a0a;
 }
-.nova-model-dialog .picker-header { padding: 0 26px; min-height: 68px; gap: 16px; flex-shrink: 0; border-color: #abb4c01c; }
-.nova-model-dialog .picker-view-tabs { align-self: stretch; gap: 18px; min-width: 0; }
-.nova-model-dialog .picker-view-tab { position: relative; padding: 0 10px; white-space: nowrap; font-size: 14px; }
-.nova-model-dialog .picker-view-tab.active { color: #fff2d8; }
-.nova-model-dialog .picker-view-tab.active::after { content: ''; position: absolute; bottom: 0; height: 2px; left: 0; right: 0; border-radius: 2px; background: var(--accent); box-shadow: 0 0 12px #ffc23f80; }
+.nova-model-dialog .picker-header { padding: 22px 28px 18px; gap: 20px; flex-shrink: 0; border-color: #ffffff0e; }
+.nova-model-title { min-width: 0; }
+.nova-model-title h1 { margin: 0; font-size: 22px; line-height: 1.3; font-weight: 600; letter-spacing: -.025em; }
 .nova-model-dialog .picker-header-sub { display: flex; align-items: center; gap: 15px; margin-left: auto; font-size: 11px; min-width: 0; }
 .nova-model-dialog .picker-installed-count { white-space: nowrap; font-variant-numeric: tabular-nums; }
 .nova-model-dialog .picker-update-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; font: inherit; color: #c9ccda; border: 1px solid #8b95a52f; border-radius: 9px; background: #20252d66; cursor: pointer; white-space: nowrap; }
 .nova-model-dialog .picker-update-btn:hover:not(:disabled) { color: #ffe2a4; border-color: #e8b74b80; }
-.nova-model-dialog .picker-close { display: grid; place-items: center; width: 32px; height: 32px; min-width: 32px; padding: 7px; margin: 0; border: 0; border-left: 1px solid #8b95a52f; border-radius: 0; background: transparent; color: #b5bdce; cursor: pointer; }
-.nova-model-dialog .picker-close:hover { color: #fff; }
 .nova-model-dialog .picker-panel { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
 .nova-model-dialog .picker-search { position: relative; display: flex; align-items: center; gap: 9px; padding: 16px 26px 10px; border: 0; flex-shrink: 0; }
 .nova-model-dialog .picker-search > svg { position: absolute; left: 40px; color: #a3acbc; pointer-events: none; }
@@ -2983,13 +2735,13 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 .nova-model-dialog .picker-search input::placeholder { color: #a3acbc; opacity: 1; }
 .nova-model-dialog .picker-refresh { position: absolute; right: 36px; width: 29px; height: 29px; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #9fa9bb; cursor: pointer; }
 .nova-model-dialog .picker-refresh:hover:not(:disabled) { color: var(--accent); background: #ffffff09; }
-.nova-model-dialog .picker-tabs { margin: 0 26px; border-color: #abb4c01c; gap: 8px; scrollbar-width: thin; }
+.nova-model-dialog .picker-tabs { margin: 0 26px; border-color: #abb4c01c; gap: 8px; }
 .nova-model-dialog .picker-tab { padding: 10px 13px; font-size: 12px; }
 .nova-model-dialog .picker-tab.active { color: #ffd36c; }
-.nova-model-dialog .picker-list { min-height: 0; overflow-x: hidden; overflow-y: auto; padding: 0 26px; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #6c6f784d transparent; }
+.nova-model-dialog .picker-list { min-height: 0; overflow-x: hidden; overflow-y: auto; padding: 0 26px; overscroll-behavior: contain; }
 .nova-model-dialog .picker-category { margin: 0; padding: 14px 0 8px; background: #161b23f5; color: #929aab; font-size: 11px; font-weight: 600; letter-spacing: .7px; }
 .nova-model-dialog .picker-model { padding: 15px 0; gap: 18px; align-items: center; border-color: #a6afbd13; cursor: default; }
-.nova-model-dialog .picker-model.current { background: linear-gradient(90deg, #f3b13208, transparent); }
+.nova-model-dialog .picker-model.current { background: linear-gradient(90deg, transparent, #f3b1320a 12%, #f3b13205 64%, transparent); border-radius: 10px; }
 .nova-model-dialog .picker-model-name { flex-wrap: wrap; gap: 6px 9px; font-size: 15px; line-height: 1.4; }
 .nova-model-dialog .picker-model-name strong { font-weight: 600; overflow-wrap: anywhere; }
 .nova-model-dialog .picker-model-params { padding: 1px 5px; font-size: 10px; background: #0c111a40; border-color: #78839445; color: #b5bdca; line-height: 1.5; }
@@ -3018,8 +2770,6 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 .nova-model-dialog .cloud-badge { color: #a5aabc; border: 1px solid #a5aabc38; }
 .nova-model-dialog .picker-system-info { padding: 14px 26px; gap: 10px; flex-wrap: wrap; justify-content: flex-start; background: #daa74408; border-color: #abb4c01c; flex-shrink: 0; }
 .nova-model-dialog .picker-system-info span + span::before { content: '·'; margin-right: 10px; color: #5f697b; }
-.nova-model-dialog .picker-discover-filters { flex-shrink: 0; }
-.nova-model-dialog .picker-discover-filters .picker-tabs + .picker-tabs { border-bottom: 1px solid #abb4c01c; }
 .nova-model-dialog .picker-inline-status { padding: 12px 0; color: #b7c2d4; font-size: 12px; }
 .nova-model-dialog .picker-empty { padding: 45px 16px; line-height: 1.6; }
 .nova-model-dialog .picker-footer { display: flex; justify-content: space-between; gap: 10px; padding: 11px 26px; border-top: 1px solid #abb4c01c; flex-shrink: 0; color: #8993a5; font-size: 10px; line-height: 1.5; background: #10151b73; }
@@ -3037,12 +2787,9 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 @keyframes picker-progress { from { transform: translateX(-100%); } to { transform: translateX(330%); } }
 @media (max-width: 760px) {
   .nova-modal-backdrop .picker.picker-wide.nova-model-dialog { height: calc(100dvh - 28px); }
-  .nova-model-dialog .picker-header { padding: 0 15px; min-height: 80px; flex-wrap: wrap; gap: 0 12px; position: relative; }
-  .nova-model-dialog .picker-view-tabs { height: 43px; width: calc(100% - 35px); gap: 5px; }
-  .nova-model-dialog .picker-view-tab { font-size: 12px; padding: 0 10px; }
-  .nova-model-dialog .picker-header-sub { height: 34px; margin: 0; width: 100%; justify-content: space-between; padding-bottom: 5px; }
+  .nova-model-dialog .picker-header { padding: 16px 20px 14px; gap: 12px; }
+  .nova-model-dialog .picker-header-sub { gap: 9px; }
   .nova-model-dialog .picker-update-btn { padding: 4px 8px; }
-  .nova-model-dialog .picker-close { position: absolute; right: 10px; top: 7px; }
   .nova-model-dialog .picker-search { padding: 11px 15px 8px; }
   .nova-model-dialog .picker-search > svg { left: 29px; }
   .nova-model-dialog .picker-search input { font-size: 12px; }
@@ -3148,13 +2895,19 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 @media (hover: none) { .nova-message-footer { opacity: 1; } }
 .nova-app-logo { display: block; flex-shrink: 0; object-fit: contain; border-radius: 6px; }
 
-/* Saved reduction supplements the OS preference; it never forces system motion back on. */
-:root[data-nova-reduce-motion="true"] *,
-:root[data-nova-reduce-motion="true"] *::before,
-:root[data-nova-reduce-motion="true"] *::after {
-  animation: none !important;
+/* Decorative motion and interface transitions are independent preferences. */
+:root[data-nova-reduce-motion="true"] .nova-orbit,
+:root[data-nova-reduce-motion="true"] .nova-orbit * { animation: none !important; }
+:root[data-nova-transitions="false"] *,
+:root[data-nova-transitions="false"] *::before,
+:root[data-nova-transitions="false"] *::after {
   transition: none !important;
   scroll-behavior: auto !important;
+}
+:root[data-nova-transitions="false"] :is(.nova-modal-backdrop, .nova-modal-backdrop > [role="dialog"],
+  .nova-project-pane, .viewer-pane, .nova-view-enter, .nova-prompt-sent,
+  .nova-prompt-field[data-sent] .nova-input, .nova-composer[data-sent], .nova-floating-panel) {
+  animation: none !important;
 }
 
 /* Shared subwindow motion, with outgoing controls made inert by ModalHost. */
@@ -3166,11 +2919,14 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 @keyframes nova-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
 @keyframes nova-dialog-in { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: none; } }
 @keyframes nova-dialog-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(8px) scale(.99); } }
-.nova-project-pane { --nova-project-width: 312px; min-width: 0; animation: nova-drawer-in .22s cubic-bezier(.2,.8,.2,1) both; }
+.nova-project-pane { --nova-project-width: 312px; --nova-drawer-width: var(--nova-project-width); --nova-drawer-offset: -12px; }
+.nova-app .viewer-pane { --nova-drawer-width: 350px; --nova-drawer-offset: 12px; }
+.nova-project-pane, .nova-app .viewer-pane { min-width: 0; animation: nova-drawer-in .22s cubic-bezier(.2,.8,.2,1) both; }
 .nova-project-pane > .explorer { width: var(--nova-project-width); min-width: var(--nova-project-width); height: 100%; }
-.nova-project-pane[data-exiting] { pointer-events: none; width: 0; flex-basis: 0; opacity: 0; animation: nova-drawer-out .22s ease both; }
-@keyframes nova-drawer-in { from { width: 0; flex-basis: 0; opacity: 0; transform: translateX(-12px); } to { width: var(--nova-project-width); flex-basis: var(--nova-project-width); opacity: 1; transform: none; } }
-@keyframes nova-drawer-out { from { width: var(--nova-project-width); flex-basis: var(--nova-project-width); opacity: 1; transform: none; } to { width: 0; flex-basis: 0; opacity: 0; transform: translateX(-12px); } }
+.nova-project-pane[data-exiting], .nova-app .viewer-pane[data-exiting] { pointer-events: none; width: 0; flex-basis: 0; opacity: 0; animation: nova-drawer-out .22s ease both; }
+@keyframes nova-drawer-in { from { width: 0; flex-basis: 0; opacity: 0; transform: translateX(var(--nova-drawer-offset)); } to { width: var(--nova-drawer-width); flex-basis: var(--nova-drawer-width); opacity: 1; transform: none; } }
+@keyframes nova-drawer-out { from { width: var(--nova-drawer-width); flex-basis: var(--nova-drawer-width); opacity: 1; transform: none; } to { width: 0; flex-basis: 0; opacity: 0; transform: translateX(var(--nova-drawer-offset)); } }
+@media (max-width: 1000px) { .nova-app .viewer-pane { --nova-drawer-width: min(520px, calc(100% - 28px)); } }
 @media (max-width: 900px) { .nova-project-pane { --nova-project-width: 260px; } }
 .nova-view-enter { animation: nova-view-in .22s ease both; }
 @keyframes nova-view-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
@@ -3179,13 +2935,12 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 .nova-prompt-field .nova-input { display: block; width: 100%; }
 .nova-prompt-sent { position: absolute; inset: 0; padding: 9px 5px; color: var(--text); white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 15px; line-height: 1.5; pointer-events: none; animation: nova-prompt-away .28s ease-out both; }
 .nova-prompt-field[data-sent] .nova-input { animation: nova-prompt-ready .28s ease both; }
-.nova-send-feedback { display: inline-flex; align-items: center; justify-content: center; gap: 5px; color: #d9c190; }
 .nova-composer[data-sent] { animation: nova-send-acknowledged .55s ease-out; }
 @keyframes nova-prompt-away { from { opacity: .9; transform: translateY(0); } to { opacity: 0; transform: translateY(-12px); } }
 @keyframes nova-prompt-ready { from { opacity: 0; } to { opacity: 1; } }
 @keyframes nova-send-acknowledged { 0% { border-color: #e8b74b99; box-shadow: 0 0 0 3px #e8b74b18; } 100% { border-color: #adb4c63d; box-shadow: 0 0 0 0 #e8b74b00; } }
 .nova-model-dialog .picker-update-btn { flex-shrink: 0; }
-:root[data-nova-reduce-motion="true"] .nova-prompt-sent { display: none; }
+:root[data-nova-transitions="false"] .nova-prompt-sent { display: none; }
 @media (prefers-reduced-motion: reduce) { .nova-prompt-sent { display: none; } }
 
 /* Composer model list shares Nova's floating surfaces instead of an OS menu. */
@@ -3199,6 +2954,7 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 .nova-model-option.selected { color: #ffdb90; background: #d79b1520; }
 .nova-model-option.selected.active { background: #d79b1533; }
 @keyframes nova-selector-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.nova-floating-panel { animation: nova-selector-in .14s ease-out; }
 
 .nova-download-notice { gap: 9px; }
 .nova-download-heading { display: flex; align-items: baseline; gap: 16px; width: 100%; min-width: 0; }
@@ -3212,4 +2968,19 @@ pre, code, kbd, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-p
 .nova-download-hint { color: var(--text-dimmer, #8d95a6); }
 @keyframes nova-download-progress { from { transform: translateX(-110%); } to { transform: translateX(300%); } }
 @media (prefers-reduced-motion: reduce) { .nova-download-track > div { animation: none !important; transition: none; } }
-:root[data-nova-reduce-motion="true"] .nova-download-track > div { animation: none !important; transition: none; }
+
+/* Match Nova's close glyph while keeping the browser's native search clearing. */
+:is(.nova-shortcuts-search, .nova-model-dialog) input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  width: 18px; height: 18px; margin-left: 8px;
+  background-color: #a3acbc;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.65' stroke-linecap='round'%3E%3Cpath d='m6 6 12 12M18 6 6 18'/%3E%3C/svg%3E") center / 18px 18px no-repeat;
+  cursor: pointer;
+}
+:is(.nova-shortcuts-search, .nova-model-dialog) input[type="search"]::-webkit-search-cancel-button:hover { background-color: #f0cf8d; }
+
+/* One close/remove treatment across subwindows, the viewer and compact options. */
+button.nova-dismiss-button { color: #aeb4c1; background: transparent; border: 1px solid transparent; cursor: pointer; }
+.nova-model-dialog .picker-close { display: grid; place-items: center; flex: 0 0 36px; width: 36px; height: 36px; padding: 0; margin: 0; border-radius: 10px; }
+button.nova-dismiss-button:is(:hover, :focus-visible):not(:disabled) { color: #f0cf8d; background: #ffffff08; border-color: #ffffff14; }
+button.nova-dismiss-button:focus-visible { outline: 2px solid #ffc347; outline-offset: 2px; }

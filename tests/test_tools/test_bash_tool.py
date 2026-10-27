@@ -1,6 +1,8 @@
 """Tests for local_cli.tools.bash_tool module."""
 
 import os
+from pathlib import Path
+import shlex
 import tempfile
 import unittest
 
@@ -57,38 +59,43 @@ class TestBashToolExecution(unittest.TestCase):
 
     def test_stderr_captured(self) -> None:
         """stderr is captured in the result."""
-        result = self.tool.execute(command="echo stderr_test >&2")
+        result = self.tool.execute(command="[Console]::Error.WriteLine('stderr_test')" if self.tool.descriptor.kind == "powershell" else "echo stderr_test >&2")
         self.assertIn("stderr_test", result)
 
     def test_combined_stdout_stderr(self) -> None:
         """Both stdout and stderr are combined in the result."""
         result = self.tool.execute(
-            command="echo out_part && echo err_part >&2"
+            command="Write-Output 'out_part'; [Console]::Error.WriteLine('err_part')" if self.tool.descriptor.kind == "powershell" else "echo out_part && echo err_part >&2"
         )
         self.assertIn("out_part", result)
         self.assertIn("err_part", result)
 
     def test_command_exit_code_nonzero_still_returns_output(self) -> None:
         """A command with non-zero exit code still returns its output."""
-        result = self.tool.execute(command="echo failing && exit 1")
+        result = self.tool.execute(command="Write-Output 'failing'; exit 1" if self.tool.descriptor.kind == "powershell" else "echo failing && exit 1")
         self.assertIn("failing", result)
 
     def test_file_operations_in_temp_dir(self) -> None:
         """Execute file operations in a temporary directory."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            result = self.tool.execute(
-                command=f"echo 'test content' > {tmpdir}/test.txt && cat {tmpdir}/test.txt"
-            )
-            self.assertIn("test content", result)
+            filename = Path(tmpdir) / 'test.txt'
+            quoted = str(filename).replace("'", "''")
+            command = (f"Set-Content -LiteralPath '{quoted}' -Value 'test content'; Get-Content -LiteralPath '{quoted}'"
+                       if self.tool.descriptor.kind == "powershell" else
+                       f"printf '%s\\n' 'test content' > {shlex.quote(str(filename))} && cat {shlex.quote(str(filename))}")
+            result = self.tool.execute(command=command)
+            self.assertEqual(filename.read_text().strip(), 'test content')
+            self.assertEqual(result.strip(), 'test content')
 
     def test_multiline_output(self) -> None:
         """Capture multiline output correctly."""
         result = self.tool.execute(
-            command="echo line1 && echo line2 && echo line3"
+            command="Write-Output 'line1'; Write-Output 'line2'; Write-Output 'line3'" if self.tool.descriptor.kind == "powershell" else "echo line1 && echo line2 && echo line3"
         )
         self.assertIn("line1", result)
         self.assertIn("line2", result)
         self.assertIn("line3", result)
+        self.assertEqual(result.strip().splitlines(), ["line1", "line2", "line3"])
 
 
 class TestBashToolTimeout(unittest.TestCase):

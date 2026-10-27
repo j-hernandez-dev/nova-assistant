@@ -76,19 +76,21 @@ test('citation projection preserves historical IDs/locator; React renders labels
  const React=require('react'),{renderToStaticMarkup}=require('react-dom/server')
  const {MessageBlock}=require('../src/components/MessageBlock.tsx')
  const html=renderToStaticMarkup(React.createElement(MessageBlock,{message:rows[0]}))
- assert.ok(html.includes('old') && html.includes('K999') && html.includes('&lt;script&gt;'))
- // Desktop defaults to Spanish; keep the structural-only disclaimer intact.
- assert.ok(!html.includes('<script>forged') && html.includes('sin garantía de respaldo de cada afirmación'))
+ assert.ok(html.includes('K1') && html.includes('K999') && html.includes('&lt;script&gt;'))
+ assert.match(html,/Página 2|Page 2/)
+ assert.ok(!html.includes('<script>forged') && html.includes('nova-source-reference-unavailable'))
+ assert.ok(!html.includes('{&quot;kind&quot;'), 'Friendly references must not print the raw locator JSON')
 })
 
 test('minimal Desktop remains a projection: no DB/parser/authority or direct file ingestion',()=>{
  const root=path.join(__dirname,'..'),main=fs.readFileSync(path.join(root,'electron/main.ts'),'utf8')
  for(const channel of ['knowledge-refresh','knowledge-export']) {
-  const text=main.slice(main.indexOf(`ipcMain.handle('${channel}'`),main.indexOf(`ipcMain.handle('${channel}'`)+550)
+  const start=main.indexOf(`ipcMain.handle('${channel}'`),end=main.indexOf("\nipcMain.handle(",start+1)
+  const text=main.slice(start,end<0?undefined:end)
   assert.ok(text.includes('validApplicationSender(event)') && text.includes('hostSelection'))
  }
- const app=fs.readFileSync(path.join(root,'src/App.tsx'),'utf8')+fs.readFileSync(path.join(root,'src/components/KnowledgeSettings.tsx'),'utf8')
- assert.ok(app.includes('knowledgeRefresh(ref.sourceId)') && app.includes('knowledgeExport(ref.sourceId)'))
+ const app=fs.readFileSync(path.join(root,'src/App.tsx'),'utf8')+fs.readFileSync(path.join(root,'src/components/SourcesWindow.tsx'),'utf8')
+ assert.ok(app.includes('window.api.sourcesDownload(ids)') && app.includes('window.api.sourcesPick()'))
  assert.ok(!app.includes('KnowledgeStore') && !app.includes('sqlite') && !app.includes('SourceRevision.from'))
  assert.ok(main.includes('remoteKnowledge') && main.includes('forwardingDialogOptions(desktopPreferences.get().locale)'))
  const {forwardingDialogOptions}=require('../electron/desktop_host_locale.cjs')

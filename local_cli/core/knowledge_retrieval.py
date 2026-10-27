@@ -136,7 +136,7 @@ class DocumentRetrievalResult:
     def __post_init__(self):
         _require(isinstance(self.candidates, tuple) and len(self.candidates) <= FINAL_CAP)
         _require(all(isinstance(c, DocumentCandidate) for c in self.candidates))
-        _require(self.mode in ('NONE', 'lexical', 'hybrid'))
+        _require(self.mode in ('NONE', 'lexical', 'semantic', 'hybrid'))
         _require(bool(self.candidates) == (self.mode != 'NONE'))
         _require(self.semantic_state in ('DISABLED', 'UNAVAILABLE', 'AVAILABLE', 'DEGRADED', 'NOT_CERTIFIED', 'CERTIFIED'))
 

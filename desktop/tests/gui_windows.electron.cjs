@@ -1,3 +1,4 @@
+if(!process.argv.includes('--closed-console'))require('../electron/console_pipes.cjs').installConsolePipeGuard()
 // Manual Windows regression. Real Electron/main/preload/Application/tools/stores.
 // Inference is scripted unless --real-model; no downloads, packaging or personal profile.
 const assert = require('node:assert/strict')
@@ -8,6 +9,14 @@ const cp = require('node:child_process')
 const electron = require('electron')
 const repo = path.resolve(__dirname, '../..')
 const real = process.argv.includes('--real-model')
+const closedConsole=process.argv.includes('--closed-console')
+const hiddenTest=closedConsole||process.argv.includes('--hidden-window')
+const appearanceSystem = process.argv.includes('--appearance-system') || process.argv.includes('--appearance')
+const windowControlsTheme = process.argv.includes('--window-controls-theme')
+const llmSettings=process.argv.includes('--llm-settings')
+const emSettings=process.argv.includes('--embedding-settings')
+const surfaceConsistency=process.argv.includes('--surface-consistency')
+const memorySettings=surfaceConsistency||process.argv.includes('--memory-settings')||process.argv.includes('--memories-window')
 const output = path.resolve(process.env.NOVA_GUI_TEST_OUTPUT || '')
 assert.ok(process.env.NOVA_GUI_TEST_OUTPUT, 'explicit owned output directory required')
 assert.ok(process.env.NOVA_TEST_PYTHON, 'explicit Python environment required')
@@ -19,10 +28,14 @@ fs.mkdirSync(workspace,{recursive:true})
 fs.writeFileSync(path.join(workspace,'sample.txt'),'sample file: GUI Windows fixture.\n')
 fs.writeFileSync(path.join(workspace,'README.md'),'# Nova Windows test\n\nOwned synthetic project for GUI validation.\n')
 const home=path.join(output,'home'); fs.mkdirSync(home,{recursive:true})
+let fixtureSystemLanguage='es-MX'
+if(!real)electron.app.getPreferredSystemLanguages=()=>[fixtureSystemLanguage]
+if(appearanceSystem||llmSettings)electron.nativeTheme.themeSource='dark'
 electron.app.setPath('appData',path.join(output,'app-data'))
 const profile=path.join(output,'app-data','nova-desktop')
 fs.mkdirSync(profile,{recursive:true})
 fs.writeFileSync(path.join(profile,'project-preferences.json'),JSON.stringify({schemaVersion:1,folders:[workspace],activePath:workspace}))
+if(windowControlsTheme)fs.writeFileSync(path.join(profile,'desktop-preferences.json'),JSON.stringify({schemaVersion:1,locale:'es',colorScheme:'light',lightTheme:'matrix'}))
 process.env.XDG_CONFIG_HOME=path.join(home,'.config')
 if(process.argv.includes('--chat-history')){
   const fixtureEnv={...process.env,PYTHONPATH:process.env.NOVA_TEST_SOURCE||repo,USERPROFILE:home,HOME:home}
@@ -32,11 +45,23 @@ if(process.argv.includes('--chat-history')){
     "for folder in sys.argv[2:]: ConversationStore(str(state),cwd=folder).save([{'role':'user','content':'legacy request'},{'role':'assistant','content':'legacy reply'}])",
   ].join('\n'),home,workspace,path.join(output,'second-project')],{env:fixtureEnv,windowsHide:true})
 }
+if(closedConsole)process.on('uncaughtException',error=>{
+  fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({status:'FAIL',error:String(error.stack||error)}))
+  try{backend?.kill()}catch{}
+  electron.app.exit(1)
+})
 let backend, win, picked=[], opened=[]
+const saved=[]
 const approvalWindows=[]
 const confirmationBindings=new Map(), questionBindings=new Map()
 let confirmationDecision, questionDecision
 let rejectNextSubmit=false, rejectNextAnswer=false, delayNextSubmit=false
+let rejectNextShortcut=false
+let rejectNextGeneral=false
+let rejectNextVisibility=false
+let rejectNextWeb=false
+let projectChatListCalls=0,projectChatListDelay=0
+let rejectNextAppearance=false,holdAppearanceRenderer=false,appearanceRendererHeld=null
 const commands=[], results=[], crashes=[], stderr=[], copied=[]
 const spawn=cp.spawn
 cp.spawn=function(command,args,options){
@@ -44,8 +69,14 @@ cp.spawn=function(command,args,options){
     const env={...options.env,PYTHONPATH:process.env.NOVA_TEST_SOURCE || repo,
       USERPROFILE:home,HOME:home,LOCALAPPDATA:path.join(home,'AppData','Local'),
       PYTHONDONTWRITEBYTECODE:'1',LOCAL_CLI_AUTO_UPDATE:'false',
-      ...(process.argv.includes('--model-cursor')?{NOVA_TEST_DELAY_READINESS:'1'}:{}),
-      ...(process.argv.includes('--download-locks')?{NOVA_TEST_MODEL_DOWNLOAD:'1',NOVA_TEST_DELAY_READINESS:'1'}:{})}
+      ...((process.argv.includes('--model-cursor')||process.argv.includes('--scene-stability')||process.argv.includes('--chat-layout-markdown'))?{NOVA_TEST_DELAY_READINESS:'1'}:{}),
+      ...((emSettings||memorySettings)?{NOVA_TEST_EM_SETTINGS:'1',NOVA_TEST_EM_NEW_MODEL:path.join(output,'new-embedding')}:{}),
+      ...(memorySettings?{NOVA_TEST_MEMORY_SETTINGS:'1',PYTHONPATH:[process.env.NOVA_TEST_SOURCE||repo,process.env.NOVA_TEST_MEMORY_NUMPY].filter(Boolean).join(path.delimiter)}:{}),
+      ...(llmSettings?{NOVA_TEST_LLM_SETTINGS:'1',NOVA_TEST_MODEL_DOWNLOAD:'1'}:{}),
+      ...(process.argv.includes('--download-locks')?{NOVA_TEST_MODEL_DOWNLOAD:'1',NOVA_TEST_DELAY_READINESS:'1'}:{}),
+      ...((process.argv.includes('--send-latency')||process.argv.includes('--scene-stability')||process.argv.includes('--chat-layout-markdown'))?{NOVA_TEST_SEND_LATENCY:'1'}:{}),
+      ...(process.argv.includes('--context-256k')?{NOVA_TEST_HIGH_CONTEXT:'1'}:{}),
+      ...(process.argv.includes('--tools-fallback')?{NOVA_TEST_TOOLS_FALLBACK:'1',NOVA_TEST_TOOLS_FALLBACK_GATE:path.join(output,'allow-fallback-response')}:{})}
     // The model profile is inherited unchanged; only the scripted tag is test data.
     if(!real && !env.LOCAL_CLI_MODEL) env.LOCAL_CLI_MODEL='local:7b'
     backend=spawn(process.env.NOVA_TEST_PYTHON,
@@ -61,16 +92,29 @@ cp.spawn=function(command,args,options){
 }
 // Native picker outcomes are owned fixture data; real project host still commits.
 electron.dialog.showOpenDialog=async()=>picked.shift() || {canceled:true,filePaths:[]}
+electron.dialog.showSaveDialog=async()=>saved.shift() || {canceled:true}
+const memorySensitiveDialogs=[]
+if(memorySettings)electron.dialog.showMessageBox=async options=>{memorySensitiveDialogs.push(options);return {response:1}}
 electron.shell.openPath=async selected=>{opened.push(selected);return ''}
 class TestWindow extends electron.BrowserWindow {
-  setTitle(value){return super.setTitle('Nova — GUI-B8 '+(real?'real model':'scripted'))}
-  constructor(options){super({...options,show:options.parent?options.show:true});this.testOptions=options;
+  show(){if(!hiddenTest)return super.show()}
+  isVisible(){return memorySettings&&hiddenTest?true:super.isVisible()}
+  setTitleBarOverlay(options){super.setTitleBarOverlay(options);this.captionUpdates??=[];this.captionUpdates.push({...options})}
+  setTitle(value){return super.setTitle('Nova â€” GUI-B8 '+(real?'real model':'scripted'))}
+  constructor(options){super({...options,show:hiddenTest?false:options.parent?options.show:true,webPreferences:{...options.webPreferences,...(hiddenTest?{backgroundThrottling:false}:{})}});this.testOptions=options;
     console.log('WINDOW',this.id,'parent',options.parent?.id)
     this.webContents.on('preload-error',(_e,_p,e)=>console.error('PRELOAD',e.message))
     this.webContents.on('did-fail-load',(_e,c,m)=>console.error('LOAD',c,m))
-    if(options.parent) { approvalWindows.push(this); if(options.webPreferences?.preload?.endsWith('confirmation_preload.js'))super.setTitle('Nova — Confirmation validation') }
+    if(options.parent) { approvalWindows.push(this); if(options.webPreferences?.preload?.endsWith('confirmation_preload.js'))super.setTitle('Nova â€” Confirmation validation') }
     if(!options.parent){
-    win=this;this.setTitle('Nova — GUI-B8 Windows validation');
+    win=this;this.setTitle('Nova â€” GUI-B8 Windows validation');
+    if(process.argv.includes('--dev-renderer'))this.webContents.on('console-message',details=>{
+      if(['warning','error'].includes(details.level))console.error('RENDERER',details.message)
+    })
+    if(appearanceSystem)this.webContents.session.webRequest.onBeforeRequest({urls:['file:///*']},(request,callback)=>{
+      if(holdAppearanceRenderer&&request.url.includes('/assets/index-')&&request.url.endsWith('.js')){appearanceRendererHeld=callback;return}
+      callback({})
+    })
     if (process.argv.includes('--context-review')) { assert.equal(path.basename(options.icon),'icon.ico'); assert.ok(fs.existsSync(options.icon)); }
     this.webContents.on('render-process-gone',(_e,d)=>crashes.push(d.reason))
     this.webContents.on('preload-error',(_e,_p,e)=>crashes.push(e.message))
@@ -78,10 +122,18 @@ class TestWindow extends electron.BrowserWindow {
 }
 const load=Module._load
 Module._load=function(name,...rest){if(name==='electron')return {...electron,BrowserWindow:TestWindow,clipboard:{writeText:text=>copied.push(text)}};return load.call(this,name,...rest)}
+let surfaceMemoryDelay=0
 const handle=electron.ipcMain.handle.bind(electron.ipcMain)
 electron.ipcMain.handle=(channel,handler)=>{if(channel==='question-surface-decision')questionDecision=handler;if(channel==='confirmation-surface-decision')confirmationDecision=handler;return handle(channel,(event,...args)=>{
+  if(surfaceMemoryDelay&&channel==='memory-command'&&args[0]==='memory_list')return new Promise(resolve=>setTimeout(()=>resolve(handler(event,...args)),surfaceMemoryDelay))
+  if(channel==='get-project-chats'){projectChatListCalls++;if(projectChatListDelay)return new Promise(resolve=>setTimeout(()=>resolve(handler(event,...args)),projectChatListDelay))}
   if(channel==='set-history-visible')console.log('HISTORY',args[0],{visible:win?.isVisible(),minimized:win?.isMinimized()})
+  if(channel==='set-desktop-shortcuts'&&rejectNextShortcut){rejectNextShortcut=false;return {success:false,error:{code:'DESKTOP_PREFERENCES_SAVE_FAILED',message:'Owned save failure'}}}
+  if(channel==='set-desktop-general'&&rejectNextGeneral){rejectNextGeneral=false;return {success:false,error:{code:'DESKTOP_PREFERENCES_SAVE_FAILED',message:'Owned general save failure'}}}
+  if(channel==='set-desktop-appearance'&&rejectNextAppearance){rejectNextAppearance=false;return {success:false,error:{code:'DESKTOP_PREFERENCES_SAVE_FAILED',message:'Owned appearance save failure'}}}
+  if(channel==='set-model-visibility'&&rejectNextVisibility){rejectNextVisibility=false;return {success:false,error:{code:'MODEL_VISIBILITY_SAVE_FAILED'}}}
   if(channel==='application-command'){
+    if(args[0]==='SetWebSettings'&&rejectNextWeb){rejectNextWeb=false;return {schemaVersion:1,commandId:'owned-web-denial',accepted:false,createdIds:{},error:{code:'WEB_CONFIGURATION_FAILED',message:'Owned save failure'}}}
     if(args[0]==='SubmitUserInput'&&rejectNextSubmit){rejectNextSubmit=false;return {schemaVersion:1,commandId:'owned-denial',accepted:false,createdIds:{},error:{code:'CONFLICT_ACTIVE_TURN',message:'owned rejection'}}}
     if(args[0]==='ResolveUserInput'&&rejectNextAnswer){rejectNextAnswer=false;return {schemaVersion:1,commandId:'owned-denial',accepted:false,createdIds:{},error:{code:'APPLICATION_UNAVAILABLE',message:'owned rejection'}}}
     if(args[0]==='SubmitUserInput'&&delayNextSubmit){delayNextSubmit=false;return new Promise(resolve=>setTimeout(()=>resolve(handler(event,...args)),450))}
@@ -92,13 +144,30 @@ electron.ipcMain.handle=(channel,handler)=>{if(channel==='question-surface-decis
   if(channel==='approval-surface-ready')console.log('APPROVAL READY',result.accepted,result.error?.code)
   return result
 })}
-require('../dist-electron/main.js')
+let rendererDevServer
+const mainLoaded=(async()=>{
+  if(process.argv.includes('--dev-renderer')){
+    const vite=await import('vite')
+    const loaded=await vite.loadConfigFromFile({command:'serve',mode:'development'},path.join(__dirname,'../vite.config.ts'))
+    assert.ok(loaded,'the real Vite configuration must load')
+    // Keep the actual renderer plugins/optimizer. This fixture owns main/preload
+    // and profile, so the automatic Electron launcher must not start a second app.
+    const plugins=loaded.config.plugins.flat(Infinity).filter(plugin=>plugin.name!=='vite-plugin-electron')
+    rendererDevServer=await vite.createServer({...loaded.config,configFile:false,root:path.join(__dirname,'..'),plugins,
+      cacheDir:path.join(output,'vite-cache'),server:{host:'127.0.0.1',port:0,hmr:false}})
+    await rendererDevServer.listen()
+    process.env.VITE_DEV_SERVER_URL=rendererDevServer.resolvedUrls.local[0]
+    console.log('OWNED_DEV_RENDERER',process.env.VITE_DEV_SERVER_URL)
+  }
+  require('../dist-electron/main.js')
+})()
+electron.app.on('before-quit',()=>{void rendererDevServer?.close()})
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms))
 async function until(fn,label,ms=25000){const end=Date.now()+ms;while(Date.now()<end){const r=await fn();if(r)return r;await delay(75)}throw new Error('Timeout: '+label)}
-const js=code=>win.webContents.executeJavaScript(code,true)
+const js=async code=>{try{return await win.webContents.executeJavaScript(code,true)}catch(error){throw new Error('Renderer evaluation failed: '+code+'\n'+error.message)}}
 const view=()=>js('window.__guiView')
 const record=(name,details={})=>{results.push({name,status:'PASS',...details});console.log('PASS',name)}
-async function attach(){await until(()=>js('!!window.api'),'preload');await js('window.api.onSessionView(v=>window.__guiView=v);window.api.signalReady()');await until(async()=>(await view())?.status.ready,'Application snapshot',(process.argv.includes('--chat-history')||process.argv.includes('--project-chats'))?60000:25000)}
+async function attach(){await until(()=>js('!!window.api'),'preload');if(hiddenTest)win.webContents.send('desktop-window-shown');await js('window.api.onSessionView(v=>window.__guiView=v);window.api.signalReady()');await until(async()=>(await view())?.status.ready,'Application snapshot',(process.argv.includes('--chat-history')||process.argv.includes('--project-chats'))?60000:25000)}
 async function command(kind,payload){return js(`window.api.applicationCommand(${JSON.stringify(kind)},${JSON.stringify(payload)})`)}
 async function click(selector){assert.equal(await js(`!!document.querySelector(${JSON.stringify(selector)})`),true,selector);await js(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});e.focus();e.click()})()`);await delay(100)}
 async function input(selector,text){
@@ -106,6 +175,11 @@ async function input(selector,text){
     await click(selector)
     await js('(()=>{const option=[...document.querySelectorAll(".nova-model-option")].find(e=>e.dataset.model==='+JSON.stringify(text)+');if(!option)throw Error("Missing model option");option.click()})()')
     await delay(80);return
+  }
+  if(await js(`document.querySelector(${JSON.stringify(selector)})?.getAttribute('role')==='combobox'`)){
+    await click(selector)
+    await js(`(()=>{const option=[...document.querySelectorAll('.nova-settings-listbox [role=option]')].find(e=>e.dataset.value===${JSON.stringify(text)});if(!option)throw Error('Missing setting option');option.click()})()`)
+    await delay(100);return
   }
   await js(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});Object.getOwnPropertyDescriptor(Object.getPrototypeOf(e),'value').set.call(e,${JSON.stringify(text)});e.dispatchEvent(new Event('input',{bubbles:true}));e.dispatchEvent(new Event('change',{bubbles:true}));})()`);await delay(80)}
 async function submit(text){const before=commands.filter(f=>f.command?.kind==='SubmitUserInput').length;await input('textarea.input-field',text);await click('.nova-send-button');await until(()=>commands.filter(f=>f.command?.kind==='SubmitUserInput').length===before+1,'one submitted user turn')}
@@ -142,15 +216,16 @@ async function questionHostFlow(){
   await submit('ask');let child=await nativeQuestionWindow()
   const request=(await view()).inputs[0],binding=questionBindings.get(child.webContents.id)
   assert.equal(child.testOptions.modal,true);assert.equal(child.testOptions.frame,false)
-  assert.equal(child.testOptions.backgroundColor,'#151413');assert.equal(child.testOptions.parent,win)
+  const theme=await js(`(()=>{const probe=document.createElement('span');probe.style.backgroundColor='var(--accent)';document.body.append(probe);const accent=getComputedStyle(probe).backgroundColor;probe.remove();return{panel:getComputedStyle(document.documentElement).getPropertyValue('--panel').trim(),accent}})()`)
+  assert.equal(child.testOptions.backgroundColor,theme.panel);assert.equal(child.testOptions.parent,win)
   assert.equal(await js("!!document.querySelector('.nova-question-dialog')"),false)
   assert.equal(await child.webContents.executeJavaScript("document.getElementById('heading').textContent"),'Nova tiene una pregunta')
-  assert.equal(await child.webContents.executeJavaScript("document.getElementById('question').textContent"),'¿Continuar?')
+  assert.equal(await child.webContents.executeJavaScript("document.getElementById('question').textContent"),'\u00bfContinuar?')
   assert.equal(await child.webContents.executeJavaScript("document.activeElement.id"),'answer')
-  assert.equal(await child.webContents.executeJavaScript("getComputedStyle(document.getElementById('send')).backgroundColor"),'rgb(213, 173, 113)')
+  assert.equal(await child.webContents.executeJavaScript("getComputedStyle(document.getElementById('send')).backgroundColor"),theme.accent)
   assert.equal((await command('ResolveUserInput',{inputRequestId:request.inputRequestId,response:'bypass'})).error.code,'QUESTION_HOST_ONLY')
   assert.equal((await questionDecision({sender:win.webContents,senderFrame:win.webContents.mainFrame},{nonce:binding.nonce,action:'answer',response:'bypass'})).accepted,false)
-  const response='Sí, continúa.\nConserva esta segunda línea.'
+  const response='SÃ­, continÃºa.\nConserva esta segunda lÃ­nea.'
   await child.webContents.executeJavaScript('(()=>{const e=document.getElementById("answer");e.value='+JSON.stringify(response)+';e.dispatchEvent(new Event("input",{bubbles:true}));e.focus()})()')
   await child.webContents.executeJavaScript("document.getElementById('send').click()")
   await delay(100);assert.equal((await view()).inputs[0].inputRequestId,request.inputRequestId)
@@ -194,24 +269,30 @@ async function projectChatsFlow(){
   await submit('alpha request');await idle()
   const alphaDates=(await view()).messages.map(message=>({createdAt:message.createdAt,completedAt:message.completedAt}))
   await click('.nova-history-button')
-  assert.equal(await js(`document.querySelector('.nova-history-title').textContent`),'Chat · project')
+  assert.equal(await js(`document.querySelector('.nova-history-title').textContent`),'project')
   picked.push({canceled:false,filePaths:[beta]});assert.equal((await js(`window.api.projectAction('add')`)).success,true)
   await until(async()=>(await view()).workspace===beta,'Beta selected')
   assert.equal((await view()).messages.length,0);assert.equal(await js(`!!document.querySelector('.nova-history-button')`),false)
   await submit('beta request');await idle()
   assert.equal((await view()).messages.filter(message=>message.role==='user')[0].content,'beta request')
   assert.equal((await js(`window.api.projectAction('select',${JSON.stringify(workspace)})`)).success,true)
-  await until(()=>js(`document.querySelector('.nova-history-title').textContent==='Chat · project'`),'Alpha title')
+  await until(()=>js(`document.querySelector('.nova-history-title').textContent==='project'`),'Alpha title')
   assert.deepEqual((await view()).messages.map(message=>({createdAt:message.createdAt,completedAt:message.completedAt})),alphaDates)
   assert.ok((await view()).messages.every(message=>!message.content.includes('beta request')))
   picked.push({canceled:false,filePaths:[empty]});await js(`window.api.projectAction('add')`)
   assert.equal((await view()).messages.length,0);assert.equal(await js(`!!document.querySelector('.nova-history-button')`),false)
   await js(`window.api.projectAction('select',${JSON.stringify(beta)})`)
-  await until(()=>js(`document.querySelector('.nova-history-title').textContent==='Chat · Beta'`),'Beta chat title')
+  await until(()=>js(`document.querySelector('.nova-history-title').textContent==='Beta'`),'Beta chat title')
   record('Selecting projects swaps independent chats and exact dates; empty projects have no chat icon or previous-project content')
   await click('.nova-rail button:last-child');await click('.nova-settings-nav [data-settings-section="chat"]')
   await until(()=>js(`document.querySelectorAll('.nova-project-chat').length>=3&&!document.querySelector('.nova-chat-settings').textContent.includes('Cargando chats')`),'Chats list')
   assert.ok(await js(`document.querySelector('.nova-settings-nav [data-settings-section="chat"]').textContent==='Chats'`))
+  assert.equal(await js("document.querySelector('.nova-chat-settings .nova-preferences-group > h3').textContent"),'Chats por proyecto')
+  assert.equal(await js("document.querySelector('.nova-project-chats').lastElementChild.classList.contains('nova-project-chat')"),true)
+  assert.ok(await js("[...document.querySelectorAll('[data-chat-action=delete]')].every(e=>e.textContent==='Borrar')"))
+  assert.equal(await js("!!document.querySelector('[data-chat-action=clear-all]')"),false)
+  fs.writeFileSync(path.join(output,'chats-settings-es.png'),(await win.webContents.capturePage()).toPNG())
+
   assert.equal((await js(`window.api.getProjectChats()`)).chats.filter(chat=>chat.hasHistory).length,2)
   const mutationCount=()=>commands.filter(frame=>frame.type==='clear_project_chat').length
   const before=mutationCount()
@@ -239,13 +320,19 @@ async function projectChatsFlow(){
   assert.equal((await view()).messages.length,0)
   assert.equal(await js(`!!document.querySelector('.nova-history-button')`),false)
   record('Removing a project confirms chat deletion, preserves folder files, and adding it again starts an empty chat')
-  await click('.nova-rail button:last-child');await input('.nova-settings-content select','en');await click('.nova-settings-content form button[type="submit"]')
+  await click('.nova-rail button:last-child');await input('[data-settings-select=language]','en')
   await until(()=>js(`document.documentElement.lang==='en'`),'English')
   await click('.nova-settings-nav [data-settings-section="chat"]')
-  assert.ok(await js(`document.querySelector('.nova-chat-settings').textContent.includes('Project chats')`))
+  assert.ok(await js(`document.querySelector('.nova-chat-settings').textContent.includes('Chats by project')`))
+  assert.ok(await js("[...document.querySelectorAll('[data-chat-action=delete]')].every(e=>e.textContent==='Delete')"))
+  assert.equal(await js("!!document.querySelector('[data-chat-action=clear-all]')"),false)
+  await resize(720,900)
+  assert.ok(await js("[...document.querySelectorAll('.nova-chat-settings .nova-preference-row')].every(e=>getComputedStyle(e).flexDirection==='row')"))
+  fs.writeFileSync(path.join(output,'chats-settings-en-compact.png'),(await win.webContents.capturePage()).toPNG())
+
   await click('.nova-settings-close')
   await submit('new beta');await idle();await click('.nova-history-button')
-  assert.equal(await js(`document.querySelector('.nova-history-title').textContent`),'Chat · Beta')
+  assert.equal(await js(`document.querySelector('.nova-history-title').textContent`),'Beta')
   record('Plural Chats and project chat headings remain consistent in English')
   assert.deepEqual(crashes,[])
 }
@@ -273,21 +360,20 @@ async function chatHistoryFlow(){
   await click('.nova-settings-nav [data-settings-section="chat"]')
   const clearCount=()=>commands.filter(f=>f.command?.payload?.name==='clear_history').length
   await until(()=>js(`!document.querySelector('.nova-chat-settings').textContent.includes('Cargando chats')`),'chat list loaded')
-  const clearAll='.nova-chat-settings section:last-of-type .nova-settings-danger'
-  await click(clearAll);await confirmation(false,'clear-all');assert.equal(clearCount(),0)
-  await click(clearAll);await confirmation(true,'clear-all')
+  await js("window.api.clearProjectChat().then(result=>window.__clearAllResult=result);true");await confirmation(false,'clear-all');assert.equal(clearCount(),0)
+  await js("window.api.clearProjectChat().then(result=>window.__clearAllResult=result);true");await confirmation(true,'clear-all')
   await until(async()=>(await view()).messages.length===0,'confirmed history cleared')
-  await until(()=>js(`document.querySelector('.nova-chat-settings').textContent.includes('Historial borrado.')`),'visible deletion receipt')
+  assert.equal(await js("!!document.querySelector('[data-chat-action=clear-all]')"),false)
   assert.equal(clearCount(),1)
   const projects=path.join(home,'.local','state','nova','projects')
   assert.ok(fs.readdirSync(projects).every(folder=>!fs.existsSync(path.join(projects,folder,'last-conversation.jsonl'))))
   assert.ok(fs.existsSync(path.join(profile,'project-preferences.json')))
   record('Chat follows General; cancel changes nothing; one confirmed action clears both projects and the active conversation')
   await click('.nova-settings-nav [data-settings-section="general"]')
-  await input('.nova-settings-content select','en');await click('.nova-settings-content form button[type="submit"]')
+  await input('[data-settings-select=language]','en')
   await until(()=>js(`document.documentElement.lang==='en'`),'English saved')
   await click('.nova-settings-nav [data-settings-section="chat"]')
-  assert.ok(await js(`document.querySelector('.nova-chat-settings').textContent.includes('Delete all chats')`))
+  assert.equal(await js("document.querySelector('.nova-chat-settings').textContent.includes('Delete all chats')"),false)
   await click('.nova-settings-close');await click('.nova-rail button[aria-expanded]');await click('.project-options-button')
   assert.ok(await js(`document.querySelector('.project-options').textContent.includes('Change project')`))
   assert.ok(await js(`document.querySelector('.project-options').textContent.includes('Remove project')`))
@@ -300,7 +386,11 @@ async function checkLayout(label){const value=await js(`(()=>{const root=documen
 async function resize(width,height,zoom=1){
   win.setSize(width,height)
   console.log('BOUNDS', {requested:[width,height],observed:win.getSize()})
-  await until(()=>Math.abs(win.getSize()[0]-width)<=2 && Math.abs(win.getSize()[1]-height)<=2,'native window bounds')
+  // Native Windows frame/minimum sizes are rounded through the display DPI.
+  // Keep layout assertions against actual client geometry; do not require
+  // non-client rounding to be identical across Chromium releases.
+  const rounding=process.platform==='win32'?Math.max(2,Math.ceil(electron.screen.getDisplayMatching(win.getBounds()).scaleFactor*2)):2
+  await until(()=>Math.abs(win.getSize()[0]-width)<=rounding && Math.abs(win.getSize()[1]-height)<=rounding,'native window bounds')
   const baseRatio=await js('devicePixelRatio')/win.webContents.getZoomFactor()
   win.webContents.setZoomFactor(zoom)
   await until(async()=>Math.abs((await js('devicePixelRatio'))-baseRatio*zoom)<0.02,'Chromium zoom applied')
@@ -317,7 +407,7 @@ async function uiBasics(){
   assert.equal(await js(`(()=>{const d=document.querySelector('[role="dialog"]');const buttons=[...d.querySelectorAll('button,select,input,textarea,[tabindex]')].filter(e=>!e.disabled&&e.tabIndex>=0&&e.getClientRects().length);buttons.at(-1).focus();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));return document.activeElement===buttons[0]})()`),true)
   await js(`document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))`)
   await until(()=>js(`!document.querySelector('[role="dialog"]')`),'Escape close')
-  assert.equal(await js("document.activeElement.getAttribute('aria-label')"),'Configuración')
+  assert.equal(await js("document.activeElement.getAttribute('aria-label')"),'ConfiguraciÃ³n')
   record('Modal traps focus, closes on Escape and returns focus')
   await checkLayout('1000x700 composer')
   await resize(600,400);await checkLayout('600x400 composer')
@@ -333,49 +423,1541 @@ async function contextSettingsFlow(){
   await click('.nova-rail button[aria-haspopup="dialog"]:last-child')
   await click('.nova-settings-nav [data-settings-section="connection"]')
   await until(()=>js(`!!document.querySelector('.nova-context-settings')`),'context settings')
-  assert.equal(await js(`document.querySelector('.nova-context-slider').max`),'4')
+  assert.equal(await js(`document.querySelector('.nova-context-slider').max`),'6')
   assert.equal(await js(`document.querySelector('.nova-context-slider').step`),'1')
   assert.equal(await js(`getComputedStyle(document.querySelector('.nova-context-slider')).height`),'6px')
   assert.ok(await js(`getComputedStyle(document.querySelector('.nova-context-slider')).backgroundImage.includes('linear-gradient')`))
   assert.ok(await js(`document.querySelector('.nova-context-ticks').textContent.includes('64K')`))
   await click('.nova-context-ticks button:nth-child(3)')
-  await click('.nova-context-settings button[type="submit"]')
+
   await until(async()=>(await view()).context?.requestedTokens===16384,'real saved 16K')
   await until(()=>js(`document.querySelector('.nova-context-settings [role="status"]')?.textContent.includes('Contexto guardado')`),'Spanish context saved feedback')
   record('Context slider saves 16K through real IPC/Application')
   await click('.nova-context-ticks button:nth-child(5)')
-  await click('.nova-context-settings button[type="submit"]')
-  await until(()=>js(`document.querySelector('.nova-context-settings [role="alert"]')?.textContent.includes('límite conocido')`),'known model limit rejection')
+
+  await until(()=>js(`document.querySelector('.nova-context-settings [role="alert"]')?.textContent.includes('lÃ­mite conocido')`),'known model limit rejection')
   assert.equal((await view()).context.requestedTokens,16384)
-  record('64K cap offered; smaller declared model limit rejects without mutation')
-  await click('.nova-context-settings .nova-settings-secondary')
+  record('Manual presets through 256K offered; smaller declared model limit rejects without mutation')
+
   await click('.nova-settings-close')
   await click('.nova-rail button[aria-haspopup="dialog"]:last-child')
-  await input('.nova-settings-content select','en')
-  await click('.nova-settings-content form button[type="submit"]')
+  await input('[data-settings-select=language]','en')
   await until(()=>js(`document.documentElement.lang==='en'`),'English settings')
   await click('.nova-settings-nav [data-settings-section="connection"]')
   assert.ok(await js(`document.querySelector('.nova-context-settings').textContent.includes('Context tokens')`))
   await click('.nova-context-settings input[type="checkbox"]')
-  await click('.nova-context-settings button[type="submit"]')
+
   await until(async()=>(await view()).context?.requestedTokens===0,'AUTO restored')
   await until(()=>js(`document.querySelector('.nova-context-settings [role="status"]')?.textContent.includes('Context saved')`),'English context saved feedback')
   record('English labels and Automatic preference confirmed')
   await click('.nova-settings-nav button:nth-child(1)')
-  await input('.nova-settings-content select','es')
-  await click('.nova-settings-content form button[type="submit"]')
+  await input('[data-settings-select=language]','es')
   await until(()=>js(`document.documentElement.lang==='es'`),'Spanish restored')
   await click('.nova-settings-close')
 }
+
+async function appearanceSystemFlow(){
+  await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1280,1000)
+  win.webContents.debugger.attach('1.3')
+  await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]})
+  const prefs=()=>js('window.api.getDesktopPreferences()')
+  const appearanceKeys=['colorScheme','lightTheme','darkTheme','interfaceFont','codeFont','showStartupScreen','startupMotion','mascotMotion']
+  const pickAppearance=value=>Object.fromEntries(appearanceKeys.map(key=>[key,value[key]]))
+  const defaults={colorScheme:'system',lightTheme:'nova',darkTheme:'nova',interfaceFont:'system',codeFont:'system',showStartupScreen:true,startupMotion:true,mascotMotion:true}
+  const savedFile=path.join(profile,'desktop-preferences.json')
+  const select=name=>'[data-settings-select='+name+']'
+  const settled=()=>until(()=>js("document.querySelector('.nova-appearance-settings .nova-section-introduction > button')?.disabled===false"),'appearance save acknowledged')
+  const set=async(name,value)=>{await settled();await input(select(name),value);await settled()}
+  const toggle=async name=>{await settled();await click('[data-appearance='+name+']');await settled()}
+  const closeSettings=async()=>{await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings closed')}
+  const openAppearance=async()=>{await click('.nova-rail button:last-child');await click('[data-settings-section=appearance]');await settled()}
+  const rgb=hex=>'rgb('+[1,3,5].map(index=>parseInt(hex.slice(index,index+2),16)).join(', ')+')'
+  const nearby=(actual,expected)=>{const a=actual.match(/[\d.]+/g)?.map(Number),b=expected.match(/[\d.]+/g)?.map(Number);return !!a&&!!b&&a.length===b.length&&a.every((value,index)=>Math.abs(value-b[index])<=2)}
+  const luminance=hex=>[1,3,5].map(index=>parseInt(hex.slice(index,index+2),16)/255).map(value=>value<=.04045?value/12.92:Math.pow((value+.055)/1.055,2.4)).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0)
+  const paletteSnapshot=()=>js("(()=>{const r=document.documentElement,s=getComputedStyle(r);return{theme:r.dataset.novaTheme,scheme:r.dataset.novaScheme,bg:s.getPropertyValue('--bg').trim(),text:s.getPropertyValue('--text').trim(),chrome:s.getPropertyValue('--nova-titlebar-bg').trim(),accent:s.getPropertyValue('--accent').trim(),windowBar:getComputedStyle(document.querySelector('.nova-window-titlebar')).backgroundColor,heading:getComputedStyle(document.querySelector('.nova-settings-header h1')).color,surface:getComputedStyle(document.querySelector('.nova-settings-dialog')).backgroundColor}})()")
+  await openAppearance()
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-appearance-settings h3')].map(e=>e.textContent)"),['Estilo','TipografÃ­a','Pantalla de carga','Mascota'])
+  assert.equal(await js("document.querySelector('.nova-appearance-settings .nova-settings-introduction p').textContent"),'Personaliza la experiencia visual de Nova.')
+  assert.equal(await js("document.querySelectorAll('.nova-appearance-settings .nova-preference-row').length"),7)
+  assert.equal(await js("document.querySelectorAll('.nova-appearance-settings form,.nova-appearance-settings select,.nova-appearance-settings button[type=submit]').length"),0)
+  assert.equal(await js("document.querySelector('.nova-appearance-settings').textContent.includes('Los cambios se aplican sÃ³lo al guardar')"),false)
+  assert.deepEqual(pickAppearance(await prefs()),defaults)
+  const nativeFonts=await js('window.api.getDesktopFonts()')
+  assert.equal(nativeFonts.success,true);assert.ok(nativeFonts.fonts.length>10,'Windows has real installed font families')
+  await until(()=>js("!document.querySelector('.nova-appearance-font-status')"),'installed fonts loaded')
+  for(const name of ['interfaceFont','codeFont']){
+    await click(select(name))
+    const values=await js("[...document.querySelectorAll('.nova-settings-listbox [role=option]')].map(e=>e.dataset.value)")
+    assert.equal(values[0],'system');assert.equal(values.length,nativeFonts.fonts.length+1)
+    assert.deepEqual(new Set(values.slice(1)),new Set(nativeFonts.fonts))
+    await js("document.querySelector('[aria-expanded=true][role=combobox]').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))")
+  }
+  const palettes=[],paletteMismatches=[]
+  for(const scheme of ['dark','light']){
+    await set('colorScheme',scheme)
+    for(const theme of ['nova','synthwave84','matrix','box']){
+      await set('theme',theme)
+      await until(()=>js('document.documentElement.dataset.novaTheme==='+JSON.stringify(theme)+'&&document.documentElement.dataset.novaScheme==='+JSON.stringify(scheme)),scheme+' '+theme+' effective')
+      const snapshot=await paletteSnapshot();palettes.push(snapshot)
+      if(snapshot.windowBar!==rgb(snapshot.chrome))paletteMismatches.push({scheme,theme,role:'titlebar',expected:rgb(snapshot.chrome),actual:snapshot.windowBar})
+      if(snapshot.heading!==rgb(snapshot.text)&&!(scheme==='dark'&&theme==='nova'&&nearby(snapshot.heading,rgb(snapshot.text))))paletteMismatches.push({scheme,theme,role:'heading',expected:rgb(snapshot.text),actual:snapshot.heading})
+      const light=luminance(snapshot.bg),text=luminance(snapshot.text),contrast=(Math.max(light,text)+.05)/(Math.min(light,text)+.05)
+      assert.ok(contrast>=4.5,JSON.stringify({scheme,theme,contrast}))
+      assert.equal((await prefs())[scheme==='light'?'lightTheme':'darkTheme'],theme)
+      await js("document.querySelector('.nova-settings-content').scrollTop=0");await delay(160)
+      fs.writeFileSync(path.join(output,'appearance-'+scheme+'-'+theme+'-es.png'),(await win.webContents.capturePage()).toPNG())
+    }
+  }
+  assert.equal(new Set(palettes.map(value=>value.bg)).size,8)
+  assert.equal(new Set(palettes.map(value=>value.surface)).size,8)
+  fs.writeFileSync(path.join(output,'eight-palette-probes.json'),JSON.stringify(palettes,null,2))
+  record('Appearance has seven autosaving controls in four groups; all installed fonts are offered in both selectors; all eight themes recolor readable text and the integrated titlebar')
+  await set('theme','matrix');await set('colorScheme','dark');await set('theme','synthwave84')
+  await set('interfaceFont',nativeFonts.fonts.includes('Arial')?'Arial':nativeFonts.fonts[0])
+  await set('codeFont',nativeFonts.fonts.includes('Consolas')?'Consolas':nativeFonts.fonts[1])
+  const beforeFailure=pickAppearance(await prefs())
+  rejectNextAppearance=true;await toggle('mascotMotion')
+  assert.deepEqual(pickAppearance(await prefs()),beforeFailure)
+  assert.equal(await js("document.querySelector('[data-appearance=mascotMotion]').checked"),true)
+  assert.ok(await js("document.querySelector('.nova-appearance-settings [role=alert]').textContent.includes('Se conservan')"))
+  await toggle('mascotMotion')
+  assert.equal(await js("document.documentElement.dataset.novaMascotMotion"),'false')
+  assert.equal(await js("document.documentElement.dataset.novaStartupMotion"),'true')
+  assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-rings')).animationName"),'none')
+  assert.equal(await js("getComputedStyle(document.querySelector('.nova-settings-dialog')).animationName"),'nova-dialog-in')
+  await toggle('mascotMotion');await toggle('startupMotion')
+  assert.equal(await js("document.documentElement.dataset.novaStartupMotion"),'false')
+  assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-rings')).animationName"),'nova-orbit-revolve')
+  await click('[data-settings-section=general]');await click('[data-general=transitionsEnabled]')
+  await until(()=>js("document.documentElement.dataset.novaTransitions==='false'"),'UI transitions disabled independently')
+  assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-rings')).animationName"),'nova-orbit-revolve')
+  await click('[data-general=transitionsEnabled]')
+  await until(()=>js("document.documentElement.dataset.novaTransitions==='true'"),'UI transitions restored')
+  await click('[data-settings-section=appearance]');await set('colorScheme','system')
+  const systemBytes=fs.readFileSync(savedFile,'utf8')
+  electron.nativeTheme.themeSource='light'
+  await until(()=>js("document.documentElement.dataset.novaScheme==='light'&&document.documentElement.dataset.novaTheme==='matrix'"),'System switches to saved light theme')
+  assert.equal(await js("document.querySelector('[data-settings-select=theme]').value"),'matrix')
+  electron.nativeTheme.themeSource='dark'
+  await until(()=>js("document.documentElement.dataset.novaScheme==='dark'&&document.documentElement.dataset.novaTheme==='synthwave84'"),'System switches to saved dark theme')
+  assert.equal(fs.readFileSync(savedFile,'utf8'),systemBytes,'native system changes do not rewrite saved preferences')
+  await click('[data-settings-section=general]');await input('[data-settings-select=language]','en');await until(()=>js("document.documentElement.lang==='en'"),'English autosaved')
+  await click('[data-settings-section=appearance]')
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-appearance-settings h3')].map(e=>e.textContent)"),['Style','Typography','Startup screen','Mascot'])
+  assert.equal(await js("document.querySelector('.nova-appearance-settings .nova-settings-introduction p').textContent"),'Customize Novaâ€™s visual experience.')
+  assert.equal(await js("document.querySelector('.nova-appearance-settings .nova-section-introduction > button').textContent"),'Reset')
+  const fontPrefs=await prefs()
+  assert.ok(await js("getComputedStyle(document.querySelector('.nova-settings-nav')).fontFamily.includes("+JSON.stringify(fontPrefs.interfaceFont)+")"))
+  await resize(720,820);await click(select('interfaceFont'));await delay(180)
+  const geometry=await js("(()=>{const r=document.querySelector('.nova-settings-listbox').getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:innerWidth,height:innerHeight,overflow:document.documentElement.scrollWidth>innerWidth}})()")
+  assert.ok(geometry.left>=0&&geometry.right<=geometry.width&&geometry.top>=44&&geometry.bottom<=geometry.height,JSON.stringify(geometry));assert.equal(geometry.overflow,false)
+  fs.writeFileSync(path.join(output,'appearance-fonts-en-compact.png'),(await win.webContents.capturePage()).toPNG())
+  await js("document.querySelector('[aria-expanded=true][role=combobox]').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))")
+  await closeSettings();await resize(1280,1000)
+  const markdown='Inline '+String.fromCharCode(96)+'code'+String.fromCharCode(96)+'\n\n'+String.fromCharCode(96).repeat(3)+'js\nconst answer = 42;\n'+String.fromCharCode(96).repeat(3)
+  await submit('stream-markdown:'+markdown);await idle();await click('.nova-history-button')
+  await until(()=>js("!!document.querySelector('.md-code code')"),'rendered markdown code')
+  assert.ok(await js("getComputedStyle(document.querySelector('.md-code code')).fontFamily.includes("+JSON.stringify(fontPrefs.codeFont)+")"))
+  assert.ok(await js("getComputedStyle(document.querySelector('.nova-message-assistant')).fontFamily.includes("+JSON.stringify(fontPrefs.interfaceFont)+")"))
+  await click('.nova-history-button')
+  const beforeReload=pickAppearance(await prefs())
+  await reload();await until(()=>js("!document.getElementById('nova-startup')"),'appearance reload')
+  assert.deepEqual(pickAppearance(await prefs()),beforeReload)
+  assert.equal(await js("document.documentElement.dataset.novaTheme"),'synthwave84')
+  assert.equal(await js("document.documentElement.dataset.novaStartupMotion"),'false')
+  assert.ok(await js("getComputedStyle(document.querySelector('textarea.input-field')).fontFamily.includes("+JSON.stringify(fontPrefs.interfaceFont)+")"))
+  record('Each save keeps the other preferences; a rejected save preserves confirmed values; motion controls stay independent; System follows native theme updates; separate light/dark themes and both fonts persist')
+  // Inspect a real host-owned native surface and its live presentation update.
+  await openAppearance();await set('colorScheme','light');await closeSettings();await submit('ask')
+  const child=await nativeQuestionWindow()
+  await until(()=>child.webContents.executeJavaScript("document.documentElement.dataset.novaScheme==='light'&&document.documentElement.dataset.novaTheme==='matrix'"),'native question inherits light Matrix')
+  assert.ok(await child.webContents.executeJavaScript("getComputedStyle(document.body).fontFamily.includes("+JSON.stringify(fontPrefs.interfaceFont)+")"))
+  fs.writeFileSync(path.join(output,'appearance-native-question-light.png'),(await child.webContents.capturePage()).toPNG())
+  const nativeBefore=await child.webContents.executeJavaScript("getComputedStyle(document.body).backgroundColor")
+  const nextNative={...pickAppearance(await prefs()),colorScheme:'dark',darkTheme:'box'}
+  assert.equal((await js('window.api.setDesktopAppearance('+JSON.stringify(nextNative)+')')).success,true)
+  await until(()=>child.webContents.executeJavaScript("document.documentElement.dataset.novaScheme==='dark'&&document.documentElement.dataset.novaTheme==='box'"),'existing native question follows dark Box')
+  assert.notEqual(await child.webContents.executeJavaScript("getComputedStyle(document.body).backgroundColor"),nativeBefore)
+  await clickQuestion(child,'stop');await idle(3000);await until(()=>child.isDestroyed(),'native question closed')
+  record('Native question uses the selected interface font and follows live light/dark theme changes')
+  // Hold only this fixture's renderer request to inspect saved startup colors before React.
+  await openAppearance();await set('colorScheme','light');await set('theme','matrix');await closeSettings()
+  const evaluate=async expression=>{const result=await win.webContents.debugger.sendCommand('Runtime.evaluate',{expression,returnByValue:true});if(result.exceptionDetails)throw Error(JSON.stringify(result.exceptionDetails));return result.result.value}
+  holdAppearanceRenderer=true;appearanceRendererHeld=null
+  const didReload=new Promise(resolve=>win.webContents.once('did-finish-load',resolve));win.reload()
+  await until(()=>appearanceRendererHeld,'owned renderer held before React')
+  await until(()=>evaluate("!!document.querySelector('.nova-startup-star')&&document.documentElement.dataset.novaScheme==='light'"),'light startup presentation before React')
+  assert.equal(await evaluate("document.documentElement.dataset.novaTheme"),'matrix')
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('.nova-startup-star')).animationName"),'none')
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('#nova-startup-metal stop')).stopColor"),'rgb(21, 22, 27)')
+  assert.equal(await evaluate("document.getElementById('root').hasAttribute('inert')"),true)
+  fs.writeFileSync(path.join(output,'appearance-startup-light-static.png'),(await win.webContents.capturePage()).toPNG())
+  await evaluate("(()=>{const screen=document.getElementById('nova-startup'),root=document.getElementById('root');window.__appearanceFade=[];function frame(){if(!screen.isConnected)return;window.__appearanceFade.push({screen:Number(getComputedStyle(screen).opacity),root:Number(getComputedStyle(root).opacity)});requestAnimationFrame(frame)}requestAnimationFrame(frame)})()")
+  holdAppearanceRenderer=false;appearanceRendererHeld({});appearanceRendererHeld=null;await didReload;await attach()
+  await until(()=>evaluate("!document.getElementById('nova-startup')"),'static art finishes with fade')
+  assert.equal(await evaluate("window.__appearanceFade.some(frame=>frame.screen>0&&frame.screen<1&&frame.root>0&&frame.root<1)"),true)
+  assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-rings')).animationName"),'nova-orbit-revolve')
+  record('Saved light theme and black static emblem are applied before React; the startup fade remains active while mascot motion is enabled')
+  await openAppearance();await toggle('showStartupScreen');await closeSettings()
+  holdAppearanceRenderer=true;appearanceRendererHeld=null
+  const hiddenReload=new Promise(resolve=>win.webContents.once('did-finish-load',resolve));win.reload()
+  await until(()=>appearanceRendererHeld,'owned renderer held with startup hidden')
+  await until(()=>evaluate("!!document.getElementById('nova-startup')"),'hidden startup document parsed')
+  assert.equal(await evaluate("getComputedStyle(document.getElementById('nova-startup')).display"),'none')
+  holdAppearanceRenderer=false;appearanceRendererHeld({});appearanceRendererHeld=null;await hiddenReload;await attach()
+  await until(()=>js("!document.getElementById('nova-startup')"),'hidden startup completed')
+  await openAppearance();await click('.nova-appearance-settings .nova-section-introduction > button');await settled()
+  assert.deepEqual(pickAppearance(await prefs()),defaults)
+  assert.equal((await prefs()).language,'en');assert.equal((await prefs()).transitionsEnabled,true,'Appearance reset preserves General')
+  assert.ok(await js("getComputedStyle(document.body).fontFamily.startsWith('system-ui')"))
+  assert.ok(await js("document.documentElement.style.getPropertyValue('--font-code').startsWith('ui-monospace')"))
+  await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]})
+  assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-rings')).animationName"),'none')
+  await win.webContents.debugger.detach();assert.deepEqual(crashes,[])
+  record('Hidden startup is honored before React; Appearance Reset restores every default while retaining General; system reduced motion still stops decorative animation')
+  assert.deepEqual(paletteMismatches,[],'all eight visible palette probes must use selected colors')
+}
+
 async function finish(){
   fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({status:'PASS',real,inferenceRequested:real&&!process.argv.includes('--inspect-only'),runtime:process.versions,results,crashes,commands:commands.map(f=>({type:f.type,kind:f.command?.kind})),finishedAt:new Date().toISOString()},null,2))
   console.log('NOVA_GUI_B8_WINDOWS_OK',process.argv.includes('--inspect-only')?'HOST_ONLY':real?'REAL_MODEL':'SCRIPTED')
 }
+
+async function resumeRecoveryFlow(){
+  await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+  const hostPid=backend.pid, session=(await view()).sessionId
+  const log=path.join(profile,'desktop-recovery.log')
+  const logText=()=>fs.existsSync(log)?fs.readFileSync(log,'utf8'):''
+  const pid=()=>win.webContents.getOSProcessId()
+  const originalPid=pid()
+  await input('textarea.input-field','Borrador sin enviar')
+  electron.powerMonitor.emit('suspend');await delay(150);electron.powerMonitor.emit('resume')
+  await until(()=>logText().includes('renderer-responsive'),'resume paint acknowledgement')
+  assert.equal(pid(),originalPid);assert.equal(await js("document.querySelector('textarea.input-field').value"),'Borrador sin enviar')
+  assert.equal(backend.pid,hostPid);assert.equal((await view()).sessionId,session)
+  record('Healthy suspend/resume repaints the same renderer and preserves the unsent draft and backend')
+
+  const probesBefore=logText().split('renderer-responsive').length
+  win.minimize();electron.powerMonitor.emit('suspend');electron.powerMonitor.emit('resume');await delay(200)
+  assert.equal(logText().split('renderer-responsive').length,probesBefore)
+  win.restore();win.show();win.focus()
+  await until(()=>logText().split('renderer-responsive').length>probesBefore,'restored window probe')
+  assert.equal(pid(),originalPid)
+  record('A minimized window waits until restore before checking renderer health')
+
+  const gpuBefore=logText().split('renderer-responsive').length
+  electron.app.emit('child-process-gone',{}, {type:'GPU',reason:'crashed',exitCode:1})
+  await until(()=>logText().split('renderer-responsive').length>gpuBefore,'GPU loss repaint acknowledgement')
+  assert.equal(pid(),originalPid)
+  record('GPU-process recovery requests a fresh paint without reloading a responsive interface')
+
+  await submit('long')
+  const active=await until(async()=>(await view()).activeTurnId,'confirmed active turn before renderer failure')
+  const submitted=commands.filter(f=>f.command?.kind==='SubmitUserInput').length
+  const beforeCrashes=crashes.length
+  const loaded=new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(new Error('Recovery did not load a new renderer')),25000)
+    win.webContents.once('did-finish-load',()=>{clearTimeout(timer);resolve()})
+  })
+  if(process.argv.includes('--resume-hang')){
+    // Only the isolated fixture renderer is blocked. The real main process must
+    // detect its missing paint acknowledgement and replace it after the deadline.
+    void win.webContents.executeJavaScript('while (true) {}').catch(()=>{})
+    electron.powerMonitor.emit('suspend');electron.powerMonitor.emit('resume')
+  }else{
+    electron.powerMonitor.emit('suspend')
+    win.webContents.forcefullyCrashRenderer()
+    await delay(150)
+    assert.equal(logText().includes('renderer-reload'),false,'no reload while suspended')
+    electron.powerMonitor.emit('resume')
+  }
+  await loaded;await attach()
+  await until(()=>js("!document.getElementById('nova-startup')"),'recovered interface visible')
+  assert.notEqual(pid(),originalPid);assert.equal(backend.pid,hostPid)
+  assert.equal((await view()).sessionId,session)
+  if(!process.argv.includes('--resume-hang'))assert.equal((await view()).activeTurnId,active)
+  await idle()
+  assert.equal(commands.filter(f=>f.command?.kind==='SubmitUserInput').length,submitted)
+  assert.equal((await view()).messages.filter(m=>m.role==='user'&&m.content==='long').length,1)
+  assert.equal(commands.filter(f=>['ResumeConversation','ImportConversation'].includes(f.command?.kind)).length,0)
+  assert.equal(crashes.length,beforeCrashes+1,'exactly one deliberate renderer termination')
+  assert.ok(['killed','crashed'].includes(crashes.at(-1)))
+  assert.equal((logText().match(/renderer-reload\n/g)||[]).length,1)
+  assert.equal(logText().includes('manual-recovery-offered'),false)
+  fs.writeFileSync(path.join(output,'resume-recovered.png'),(await win.webContents.capturePage()).toPNG())
+  record(process.argv.includes('--resume-hang')?'Hung renderer is automatically replaced; completed response is restored once':'Dead renderer recovers after resume while the same active turn continues',
+    {backendPid:hostPid,previousRendererPid:originalPid,recoveredRendererPid:pid(),submissions:submitted})
+}
+
+async function embeddingSettingsFlow(){
+  await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1280,980)
+  await click('.nova-rail button:last-child');await click('[data-settings-section=general]');await input('[data-settings-select=language]','es')
+  await click('[data-settings-section=embedding]')
+  await until(async()=>(await view()).embedding?.connected,'EM inventory')
+  const switches=()=>js("[...document.querySelectorAll('[data-embedding-visibility]')].map(e=>({name:e.dataset.embeddingVisibility,checked:e.checked,disabled:e.disabled}))")
+  assert.equal(await js("document.querySelector('.nova-em-settings h2').textContent"),'Modelo EM')
+  assert.deepEqual((await switches()).map(e=>e.name),['fixture-embedding:small','fixture-embedding:large'])
+  assert.ok((await switches()).every(e=>e.checked&&!e.disabled))
+  assert.equal(await js("document.querySelector('[data-settings-select=embeddingModel]').disabled"),false)
+  assert.equal(await js("document.querySelector('.nova-em-settings .nova-llm-status>div:last-child dd').textContent"),'Disponible')
+  assert.equal(await js("document.querySelector('[data-embedding-context-auto]').checked"),true)
+  assert.deepEqual(await js("(()=>{const e=document.querySelector('[data-embedding-context]');return{type:e.type,min:e.min,max:e.max,step:e.step,disabled:e.disabled}})()"),{type:'range',min:'0',max:'6',step:'1',disabled:true})
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-em-settings .nova-context-ticks button')].map(e=>e.textContent)"),['512','1K','2K','4K','8K','16K','32K'])
+  await click('[data-embedding-visibility="fixture-embedding:small"]')
+  await until(async()=>(await view()).embedding?.selectedModel==='fixture-embedding:large','enabled model selected')
+  await click('.nova-em-settings .nova-context-ticks button:nth-child(6)')
+  await until(async()=>(await view()).embedding.requestedTokens===16384,'context saved')
+  assert.equal(await js("document.querySelector('[data-embedding-context-auto]').checked"),false)
+  await js("document.querySelector('[data-embedding-context]').focus()")
+  win.webContents.sendInputEvent({type:'keyDown',keyCode:'Home'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'Home'})
+  await until(async()=>(await view()).embedding.requestedTokens===512,'slider keyboard minimum saved')
+  await js("document.querySelector('[data-embedding-context]').focus()")
+  win.webContents.sendInputEvent({type:'keyDown',keyCode:'End'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'End'})
+  await until(async()=>(await view()).embedding.requestedTokens===32768,'slider keyboard maximum saved')
+  await input('[data-embedding-context]','5')
+  await js("document.querySelector('[data-embedding-context]').dispatchEvent(new PointerEvent('pointerup',{bubbles:true}))")
+  await until(async()=>(await view()).embedding.requestedTokens===16384,'slider pointer release saved')
+  await click('[data-embedding-visibility="fixture-embedding:small"]')
+  await until(async()=>(await view()).embedding.enabledModels.length===2,'second model enabled')
+  await input('[data-settings-select=embeddingModel]','fixture-embedding:small')
+  await until(()=>js("!!document.querySelector('.nova-em-settings [role=alert]')"),'known context mismatch')
+  assert.ok(await js("document.querySelector('.nova-em-settings [role=alert]').textContent.includes('(fixture-embedding:small): 512')"))
+  assert.equal((await view()).embedding.selectedModel,'fixture-embedding:large')
+  await click('.nova-em-settings .nova-context-ticks button:first-child');await until(async()=>(await view()).embedding.requestedTokens===512,'lower context')
+  await input('[data-settings-select=embeddingModel]','fixture-embedding:small');await until(async()=>(await view()).embedding.selectedModel==='fixture-embedding:small','small model selected')
+  await click('.nova-em-settings .nova-context-ticks button:nth-child(3)')
+  await until(()=>js("!!document.querySelector('.nova-em-settings [role=alert]')&&document.querySelector('.nova-em-settings .nova-context-heading output').textContent==='512'"),'rejected slider value restored')
+  assert.equal((await view()).embedding.requestedTokens,512)
+  await click('[data-embedding-visibility="fixture-embedding:small"]');await until(async()=>(await view()).embedding.selectedModel==='fixture-embedding:large','hidden selection replaced')
+  await click('[data-settings-select=embeddingModel]')
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-settings-listbox [role=option]')].map(e=>e.dataset.value)"),['fixture-embedding:large']);await click('[data-settings-select=embeddingModel]')
+  await click('[data-settings-section=connection]')
+  assert.deepEqual(await js("[...document.querySelectorAll('[data-model-visibility]')].map(e=>e.dataset.modelVisibility)"),['local:7b','local:8b'])
+  assert.equal(await js("document.querySelector('.nova-llm-status>div:last-child dd').textContent"),'Disponible')
+  fs.writeFileSync(path.join(output,'new-embedding'),'owned fixture');await js('window.api.refreshReadiness()')
+  await until(async()=>(await view()).readiness.installedModels.some(m=>m.name==='fixture-embedding:new'),'new model inventory')
+  await click('[data-settings-section=embedding]');assert.equal((await switches()).find(e=>e.name==='fixture-embedding:new').checked,true)
+  await click('.nova-em-settings .nova-context-ticks button:nth-child(6)');await until(async()=>(await view()).embedding.requestedTokens===16384,'manual context screenshot')
+  await js("document.querySelector('.nova-em-settings .nova-context-settings').scrollIntoView({block:'center'})");await delay(100)
+  fs.writeFileSync(path.join(output,'embedding-es.png'),(await win.webContents.capturePage()).toPNG())
+  await reload();await until(async()=>(await view()).embedding?.selectedModel==='fixture-embedding:large','selection after reload')
+  backend.kill();await until(async()=>!(await view()).status.connected,'owned backend exit');assert.equal((await js('window.api.restartBackend()')).success,true);await attach()
+  await until(async()=>(await view()).embedding?.selectedModel==='fixture-embedding:large','selection persisted after restart')
+  await until(()=>js("!document.getElementById('nova-startup')"),'startup after restart')
+  await click('.nova-rail button:last-child');await click('[data-settings-section=embedding]')
+  await click('.nova-em-settings .nova-settings-reset');await until(async()=>(await view()).embedding.enabledModels.length===3&&(await view()).embedding.requestedTokens===0,'atomic reset')
+  assert.ok((await switches()).every(e=>e.checked))
+  assert.equal(await js("document.querySelector('[data-embedding-context-auto]').checked&&document.querySelector('[data-embedding-context]').disabled"),true)
+  await click('[data-settings-section=general]');await input('[data-settings-select=language]','en');await click('[data-settings-section=embedding]')
+  assert.equal(await js("document.querySelector('.nova-em-settings h2').textContent"),'EM model')
+  assert.equal(await js("document.querySelector('.nova-em-settings .nova-settings-reset').textContent"),'Reset')
+  assert.equal(await js("document.querySelector('.nova-em-settings .nova-llm-status>div:last-child dd').textContent"),'Available')
+  assert.ok(await js("document.querySelector('.nova-em-settings .settings-toggle-row').textContent.includes('Automatic')"))
+  await click('[data-settings-section=connection]')
+  assert.equal(await js("document.querySelector('.nova-llm-status>div:last-child dd').textContent"),'Available')
+  await click('[data-settings-section=embedding]')
+  await resize(740,840);assert.equal(await js("(()=>{const e=document.querySelector('.nova-settings-content');return e.scrollWidth<=e.clientWidth+1})()"),true)
+  await js("document.querySelector('.nova-em-settings .nova-context-settings').scrollIntoView({block:'center'})");await delay(100)
+  fs.writeFileSync(path.join(output,'embedding-en.png'),(await win.webContents.capturePage()).toPNG())
+  fs.unlinkSync(path.join(output,'new-embedding'));fs.writeFileSync(path.join(output,'new-embedding.empty'),'owned empty inventory');await js('window.api.refreshReadiness()')
+  await until(async()=>(await switches()).length===0,'no installed embeddings')
+  assert.equal(await js("document.querySelector('[data-embedding-context]').disabled&&document.querySelector('[data-embedding-context-auto]').disabled"),true)
+  assert.deepEqual(crashes,[])
+  record('EM and LLM inventories split by capability, seven-value context slider, keyboard/pointer autosave, rejection rollback, visibility fallback, dynamic install, atomic reset, persistence, consistent Available status in ES/EN and narrow layout')
+}
+
+
+
+async function decideMemoryDialog(kind,confirmed=true,screenshot){
+  const child=await until(()=>approvalWindows.find(w=>!w.isDestroyed()&&w.testOptions.webPreferences?.preload?.endsWith('confirmation_preload.js')),'Nova memory confirmation')
+  await until(()=>confirmationBindings.has(child.webContents.id),'bound confirmation')
+  const binding=confirmationBindings.get(child.webContents.id);assert.equal(binding.kind,kind)
+  assert.equal(child.testOptions.frame,false);assert.equal(child.testOptions.webPreferences.sandbox,true)
+  const title=await child.webContents.executeJavaScript("document.querySelector('h1').textContent")
+  assert.ok(/sensible|sensitive/.test(title))
+  if(screenshot){child.webContents.invalidate();await delay(100);fs.writeFileSync(path.join(output,screenshot),(await child.webContents.capturePage()).toPNG())}
+  assert.equal(confirmationDecision({sender:child.webContents,senderFrame:child.webContents.mainFrame},{nonce:binding.nonce,confirmed}).accepted,true)
+}
+async function surfaceConsistencyFlow(){
+  await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1280,980)
+  const defaults={colorScheme:'dark',lightTheme:'nova',darkTheme:'nova',interfaceFont:'system',codeFont:'system',showStartupScreen:true,startupMotion:true,mascotMotion:true}
+  async function close(){await click('.nova-surface-header>.nova-dismiss-button');await until(()=>js("!document.querySelector('.nova-surface-dialog')"),'surface closed')}
+  async function open(which){
+    await click(which==='settings'?'.nova-rail button:last-child':which==='models'?'.nova-rail button:nth-child(2)':'[data-open-memories]')
+    await until(()=>js("!!document.querySelector('.nova-surface-dialog')"),'surface mounted');await delay(250)
+  }
+  const fingerprint=()=>js("(()=>{const d=document.querySelector('.nova-surface-dialog'),s=getComputedStyle(d),h=d.querySelector('.nova-surface-header'),hs=getComputedStyle(h),t=getComputedStyle(h.querySelector('h1')),e=getComputedStyle(h.querySelector('.nova-settings-eyebrow')),c=getComputedStyle(h.querySelector('.nova-dismiss-button'));return {width:s.width,height:s.height,radius:s.borderRadius,background:s.background,border:s.border,shadow:s.boxShadow,header:{height:hs.height,padding:hs.padding,border:hs.borderBottom,font:t.font,color:t.color,margin:t.margin,eyebrow:e.font,eyebrowColor:e.color,close:[c.width,c.height,c.borderRadius]}}})()")
+  async function capture(name){
+    const details=await js("(()=>{const h=document.querySelector('.nova-surface-header');return [...h.querySelectorAll('.nova-settings-eyebrow,.nova-dismiss-button')].map(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return {text:e.textContent,display:s.display,visibility:s.visibility,opacity:s.opacity,color:s.color,bounds:{x:r.x,y:r.y,width:r.width,height:r.height}}})})()")
+    fs.writeFileSync(path.join(output,name+'.json'),JSON.stringify(details))
+    await js("document.querySelector('.nova-surface-header').style.transform='translateZ(0)'")
+    await js('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');win.webContents.invalidate();await delay(150)
+    fs.writeFileSync(path.join(output,name),(await win.webContents.capturePage()).toPNG())
+  }
+  await open('settings');await click('[data-settings-section=general]');await input('[data-settings-select=language]','es');await close()
+  assert.equal((await js('window.api.memoryCommand("memory_remember",{kind:"PREFERENCE",text:"Owned ordinary surface preference.",scope:"WORKSPACE"})')).completed,true)
+  const privateWrite=js('window.api.memoryCommand("memory_remember",{kind:"PREFERENCE",text:"Owned private surface preference.",scope:"WORKSPACE",sensitive:true,consentSensitive:true})')
+  await decideMemoryDialog('memory-write-sensitive');assert.equal((await privateWrite).completed,true)
+  surfaceMemoryDelay=750
+  await click('[data-open-memories]');await until(()=>js("!!document.querySelector('.memories-toolbar')"),'initial toolbar')
+  const offsets=[]
+  for(let i=0;i<8;i++){
+    offsets.push(await js("document.querySelector('.memories-toolbar').offsetTop"))
+    assert.equal(await js("document.querySelector('.memories-content').innerText.includes('Aplicando ajuste')"),false)
+    await delay(120)
+  }
+  assert.equal(new Set(offsets).size,1,'first open keeps the toolbar in place')
+  surfaceMemoryDelay=0
+  await until(()=>js("!document.querySelector('[data-memory-tab=saved]').disabled&&document.querySelectorAll('[data-memory-record]').length===2"),'initial records settled')
+  assert.equal(await js("document.querySelectorAll('.memories-header p').length"),0)
+  await click('[id$=-reveal]')
+  await until(()=>approvalWindows.some(w=>!w.isDestroyed()),'sensitive confirmation opened')
+  assert.equal(await js("document.querySelector('[id$=-reveal]').checked"),false)
+  await decideMemoryDialog('memory-reveal-sensitive',false,'confirmation-es.png')
+  await until(()=>js("!document.querySelector('[data-memory-tab=saved]').disabled"),'cancel settled')
+  assert.equal(await js("document.querySelector('[id$=-reveal]').checked"),false)
+  assert.equal(await js("document.querySelectorAll('.memories-content [role=alert]').length"),0)
+  assert.equal(await js("document.querySelectorAll('[data-memory-record]').length"),2)
+  await click('[id$=-reveal]');await decideMemoryDialog('memory-reveal-sensitive',true)
+  await until(()=>js("document.querySelector('[id$=-reveal]').checked&&document.querySelector('.memories-list').innerText.includes('Owned private surface preference.')"),'accepted sensitive list')
+  await click('[id$=-reveal]');assert.equal(await js("document.querySelector('.nova-memories-dialog').innerText.includes('Owned private surface preference.')"),false)
+  await until(()=>js("!document.querySelector('[data-memory-tab=saved]').disabled"),'normal list restored')
+  assert.equal(memorySensitiveDialogs.length,0,'memory never uses Windows message boxes')
+  await close()
+  for(const scheme of ['dark','light'])for(const theme of ['nova','synthwave84','matrix','box']){
+    assert.equal((await js('window.api.setDesktopAppearance('+JSON.stringify({...defaults,colorScheme:scheme,[scheme==='dark'?'darkTheme':'lightTheme']:theme})+')')).success,true)
+    await until(()=>js('document.documentElement.dataset.novaTheme==='+JSON.stringify(theme)+'&&document.documentElement.dataset.novaScheme==='+JSON.stringify(scheme)),'theme applied')
+    await open('settings');const reference=await fingerprint()
+    assert.equal(reference.width,'1040px');assert.equal(reference.height,'750px');assert.equal(reference.radius,'22px')
+    await click('[data-settings-section=shortcuts]')
+    assert.equal(await js("document.querySelector('.nova-shortcuts-search input').placeholder"),'Buscar atajos...')
+    await input('.nova-shortcuts-search input','modelos');await click('.nova-shortcuts-search .nova-search-submit')
+    assert.ok(await js("document.querySelectorAll('[data-shortcut]').length>0"))
+    if(scheme==='dark'&&theme==='nova')await capture('settings-es.png')
+    await close();await open('models')
+    assert.deepEqual(await fingerprint(),reference,'Models matches Settings: '+scheme+' '+theme)
+    assert.equal(await js("document.querySelector('.picker-search input').placeholder"),'Filtrar modelos...')
+    assert.equal(await js("document.querySelectorAll('.picker-installed-count,.picker-update-btn').length"),2)
+    await input('.picker-search input','local');await click('.picker-search .nova-search-submit')
+    if(scheme==='dark'&&theme==='nova')await capture('models-es.png')
+    await close();await open('memories')
+    await until(()=>js("!document.querySelector('[data-memory-tab=saved]').disabled"),'memories ready')
+    assert.deepEqual(await fingerprint(),reference,'Memories matches Settings: '+scheme+' '+theme)
+    assert.equal(await js("document.querySelectorAll('.memories-search .nova-search-submit').length"),1)
+    if((scheme==='dark'&&theme==='nova')||(scheme==='light'&&theme==='box'))await capture('memories-'+scheme+'-'+theme+'.png')
+    await close()
+  }
+  await open('settings');await click('[data-settings-section=general]');await input('[data-settings-select=language]','en')
+  await click('[data-settings-section=shortcuts]');assert.equal(await js("document.querySelector('.nova-shortcuts-search input').placeholder"),'Search shortcuts...');await close()
+  await open('models');assert.equal(await js("document.querySelector('.picker-search input').placeholder"),'Filter models...');await close()
+  await open('memories');await until(()=>js("!document.querySelector('[data-memory-tab=saved]').disabled"),'English memory list')
+  await click('[id$=-reveal]');await decideMemoryDialog('memory-reveal-sensitive',false,'confirmation-en.png')
+  await until(()=>js("!document.querySelector('[data-memory-tab=saved]').disabled"),'cancel settled')
+  await resize(740,840);await delay(250)
+  assert.equal(await js("(()=>{const e=document.querySelector('.nova-surface-dialog');return e.scrollWidth<=e.clientWidth+1})()"),true)
+  await capture('memories-en-narrow.png')
+  assert.equal(memorySensitiveDialogs.length,0);assert.deepEqual(crashes,[])
+  record('Nova confirmations accept or cancel sensitive viewing without Windows dialogs or checkbox drift; stable first-open toolbar; Settings geometry/header/colors shared by Models and Memories in all eight palettes; search arrows/placeholders in ES/EN; narrow layout')
+}
+
+async function memoriesWindowFlow(){
+  async function captureMemory(name){
+    await until(()=>js("!document.querySelector('[data-memory-tab=saved]').disabled"),'memory controls settled')
+    await js('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
+    win.webContents.invalidate();await delay(250)
+    fs.writeFileSync(path.join(output,name),(await win.webContents.capturePage()).toPNG())
+  }
+  await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1280,980)
+  await click('.nova-rail button:last-child');await click('[data-settings-section=general]');await input('[data-settings-select=language]','es')
+  await click('[data-settings-section=web]')
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-web-settings .nova-preference-row .nova-setting-label')].map(e=>e.textContent)"),['Lectura web','Búsqueda web','Navegación web'])
+  await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings closed')
+  assert.equal(await js("document.querySelector('.nova-rail button:nth-child(2)').nextElementSibling.hasAttribute('data-open-memories')"),true)
+  const preferences={lexicalRecall:false,semanticRecall:false,autoCapture:true,captureMode:'propose_only'}
+  assert.equal((await js('window.api.memoryCommand("memory_configure",'+JSON.stringify(preferences)+')')).completed,true)
+  await click('[data-open-memories]')
+  await until(()=>js("document.querySelector('.memories-empty h3')?.textContent==='No hay recuerdos para mostrar'&&!document.querySelector('[data-memory-tab=add]').disabled"),'initial memories')
+  assert.equal(await js("document.querySelector('.nova-memories-dialog h1').textContent"),'Recuerdos')
+  assert.deepEqual(await js("[...document.querySelectorAll('[data-memory-tab]')].map(e=>e.textContent)"),['Guardados','Añadir recuerdo','Propuestas pendientes'])
+  async function addMemory(text,scope='WORKSPACE',sensitive=false){
+    await click('[data-memory-tab=add]')
+    await input('.memories-editor textarea',text);await input('.memories-editor [id$="-kind"]','PREFERENCE')
+    await input('.memories-editor [id$="-write-scope"]',scope)
+    if(sensitive)await click('.memories-editor [id$="-sensitive"]')
+    await js("document.querySelector('.memories-editor').requestSubmit()")
+    if(sensitive)await decideMemoryDialog("memory-write-sensitive")
+    await until(()=>js("document.querySelector('[data-memory-tab=saved]').getAttribute('aria-selected')==='true'&&!!document.querySelector('[data-memory-record]')&&!document.querySelector('[data-memory-tab=add]').disabled"),'memory saved and listed')
+  }
+  await addMemory('Owned cobalt workspace preference.')
+  await addMemory('Owned cobalt profile preference.','GLOBAL_PROFILE')
+  await addMemory('Owned cobalt private preference.','GLOBAL_PROFILE',true)
+  assert.equal(memorySensitiveDialogs.length,0,'sensitive writes use Nova')
+  const all=await js('window.api.memoryCommand("memory_list",{scope:"ALL",limit:20})')
+  assert.equal(all.data.records.length,3)
+  const privateId=all.data.records.find(r=>r.sensitivityClass==='SENSITIVE').memoryId
+  const workspaceId=all.data.records.find(r=>r.scopeKind==='WORKSPACE').memoryId
+  assert.equal(await js("document.querySelector('.nova-memories-dialog').innerText.includes('Owned cobalt private preference.')"),false)
+  await click('[data-memory-record="'+privateId+'"]')
+  assert.equal(await js("document.querySelector('[data-memory-detail]').innerText.includes('El contenido sensible está oculto.')"),true)
+  await click('[data-memory-detail] .memories-button');await decideMemoryDialog('memory-reveal-sensitive')
+  await until(()=>js("document.querySelector('[data-memory-detail] textarea')?.value==='Owned cobalt private preference.'"),'sensitive reveal')
+  assert.equal(memorySensitiveDialogs.length,0)
+  await click('[data-memory-record="'+workspaceId+'"]')
+  await input('[data-memory-detail] textarea','Owned cobalt corrected workspace preference.')
+  await click('[data-memory-detail] .memories-button.primary')
+  await until(()=>js("document.querySelector('.memories-list')?.innerText.includes('Owned cobalt corrected workspace preference.')"),'correction persisted')
+  await input('.memories-toolbar [id$="-scope"]','GLOBAL_PROFILE')
+  await until(()=>js("document.querySelectorAll('[data-memory-record]').length===2"),'profile scope')
+  await input('.memories-toolbar [id$="-scope"]','ALL')
+  await until(()=>js("document.querySelectorAll('[data-memory-record]').length===4"),'all scope includes marked prior version')
+  await input('.memories-search input','corrected')
+  await js("document.querySelector('.memories-search').requestSubmit()")
+  await until(()=>js("document.querySelectorAll('[data-memory-record]').length===1"),'search matches')
+  await click('[data-memory-record]')
+  const appearance={colorScheme:'dark',lightTheme:'nova',darkTheme:'nova',interfaceFont:'system',codeFont:'system',showStartupScreen:true,startupMotion:true,mascotMotion:true}
+  await js('window.api.setDesktopAppearance('+JSON.stringify(appearance)+')');await delay(200)
+  await until(()=>js("document.documentElement.dataset.novaTheme==='nova'&&document.documentElement.dataset.novaScheme==='dark'"),'Nova dark palette')
+  await captureMemory('memories-es-dark.png')
+  await click('[data-memory-detail] .memories-delete>.memories-button')
+  assert.equal((await js('window.api.memoryCommand("memory_list",{scope:"ALL",limit:20})')).data.records.length,4,'delete requires confirmation')
+  await click('[data-memory-detail] .memories-delete .danger')
+  await until(()=>js("document.querySelectorAll('[data-memory-record]').length===3"),'confirmed deletion')
+  await js('window.api.setDesktopAppearance('+JSON.stringify({...appearance,colorScheme:'light',lightTheme:'box'})+')');await delay(200)
+  await until(()=>js("document.documentElement.dataset.novaTheme==='box'&&document.documentElement.dataset.novaScheme==='light'"),'Box light palette')
+  await captureMemory('memories-es-light.png')
+  await click('.memories-close');await until(()=>js("!document.querySelector('.nova-memories-dialog')"),'memory window closed')
+  await submit('I prefer concise answers.');await idle()
+  await until(async()=>!(await view()).memory.maintenanceBusy,'first capture settled')
+  await submit('I prefer short examples.');await idle()
+  await until(async()=>!(await view()).memory.maintenanceBusy,'second capture settled')
+  await click('[data-open-memories]');await until(()=>js("!document.querySelector('[data-memory-tab=proposals]')?.disabled"),'records loaded');await click('[data-memory-tab=proposals]')
+  await until(()=>js("document.querySelectorAll('[data-memory-proposal]').length===2"),'automatic capture proposals')
+  await js('window.api.setDesktopAppearance('+JSON.stringify({...appearance,darkTheme:'synthwave84'})+')');await delay(200)
+  await until(()=>js("document.documentElement.dataset.novaTheme==='synthwave84'&&document.documentElement.dataset.novaScheme==='dark'"),'SynthWave dark palette')
+  await captureMemory('memories-proposals.png')
+  const approvedText=await js("document.querySelector('[data-memory-proposal]>p').textContent")
+  await click('[data-memory-proposal] .primary')
+  await until(()=>js("document.querySelectorAll('[data-memory-proposal]').length===1"),'proposal approved')
+  await click('[data-memory-proposal] .memories-button:not(.primary)')
+  await until(()=>js("document.querySelectorAll('[data-memory-proposal]').length===0&&!document.querySelector('[data-memory-tab=saved]').disabled"),'proposal rejected')
+  await click('[data-memory-tab=saved]');await until(()=>js("document.querySelector('.memories-list')?.innerText.includes("+JSON.stringify(approvedText)+")"),'approved memory listed')
+  await click('.memories-close');await until(()=>js("!document.querySelector('.nova-memories-dialog')"),'window closed')
+  await click('.nova-rail button:last-child');await click('[data-settings-section=general]');await input('[data-settings-select=language]','en')
+  await click('[data-settings-section=web]')
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-web-settings .nova-preference-row .nova-setting-label')].map(e=>e.textContent)"),['Web reading','Web search','Web browsing'])
+  await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings closed')
+  await click('[data-open-memories]');await until(()=>js("!document.querySelector('[data-memory-tab=add]')?.disabled"),'records loaded');await click('[data-memory-tab=add]');await resize(740,840);await delay(200)
+  assert.equal(await js("document.querySelector('.nova-memories-dialog h1').textContent"),'Memories')
+  assert.equal(await js("(()=>{const e=document.querySelector('.memories-content');return e.scrollWidth<=e.clientWidth+1})()"),true)
+  assert.equal(await js("document.querySelectorAll('[role=dialog][aria-modal=true]').length"),1)
+  assert.equal(await js("document.getElementById('root').inert"),true)
+  await captureMemory('memories-en-narrow.png')
+  win.webContents.sendInputEvent({type:'keyDown',keyCode:'Escape'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'Escape'})
+  await until(()=>js("!document.querySelector('.nova-memories-dialog')"),'Escape closes window')
+  assert.equal(await js("document.activeElement?.hasAttribute('data-open-memories')"),true)
+  assert.deepEqual(crashes,[])
+  record('Memories rail placement, ES/EN Web labels, independent manual management, scope/search/detail/correction/confirmed deletion, sensitive host consent, real capture proposal approval/rejection, Nova/Box/SynthWave palettes, narrow layout, Escape and focus restoration')
+}
+
+async function memorySettingsFlow(){
+  await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1280,980)
+  await click('.nova-rail button:last-child');await click('[data-settings-section=general]');await input('[data-settings-select=language]','es')
+  await click('[data-settings-section=memory]')
+  await until(async()=>(await view()).memory?.semanticAvailable,'installed enabled EM availability')
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-memory-settings h3')].map(e=>e.textContent)"),['Recuperación de memoria','Recuerdos','Acceso a contenido sensible'])
+  assert.equal(await js("document.querySelectorAll('.nova-memory-settings textarea,.nova-memory-settings pre,.nova-memory-settings form').length"),0)
+  assert.equal((await view()).memory.autoCapture,true);assert.equal((await view()).memory.captureMode,'low_risk')
+  await click('[data-memory-setting=lexicalRecall]');await until(async()=>(await view()).memory.lexicalRecall===false,'lexical saved')
+  await click('[data-memory-setting=semanticRecall]');await until(async()=>(await view()).memory.semantic===true,'semantic saved')
+  await input('[data-settings-select=memoryCaptureMode]','propose_only');await until(async()=>(await view()).memory.captureMode==='propose_only','capture mode saved')
+  await click('[data-memory-setting=autoCapture]');await until(async()=>(await view()).memory.autoCapture===false,'capture disabled')
+  assert.equal(await js("document.querySelector('[data-settings-select=memoryCaptureMode]').disabled"),true)
+  await click('.nova-memory-settings .nova-settings-reset');await until(async()=>(await view()).memory.lexicalRecall&&(await view()).memory.autoCapture&&!(await view()).memory.semantic,'defaults restored')
+  const remember=async(text,sensitive=false)=>{const pending=js('window.api.memoryCommand("memory_remember",'+JSON.stringify({kind:'PREFERENCE',text,scope:sensitive?'GLOBAL_PROFILE':'WORKSPACE',...(sensitive?{sensitive:true,consentSensitive:true}:{})})+')');if(sensitive)await decideMemoryDialog('memory-write-sensitive');return pending}
+  assert.equal((await remember('Owned native cobalt normal preference')).completed,true)
+  assert.equal((await remember('Owned native cobalt private preference',true)).completed,true)
+  const normalFile=path.join(output,'memories-normal.json'),privateFile=path.join(output,'memories-private.json')
+  saved.push({canceled:false,filePath:normalFile});await click('[data-memory-export]')
+  await until(()=>fs.existsSync(normalFile),'normal file export')
+  assert.equal(JSON.parse(fs.readFileSync(normalFile)).records.length,1)
+  async function decideMemory(kind,confirmed=true){
+    const child=await until(()=>approvalWindows.find(w=>!w.isDestroyed()&&w.testOptions.webPreferences?.preload?.endsWith('confirmation_preload.js')),'Memory confirmation')
+    await until(()=>confirmationBindings.has(child.webContents.id),'Memory confirmation bound')
+    const binding=confirmationBindings.get(child.webContents.id);assert.equal(binding.kind,kind)
+    const copy=await child.webContents.executeJavaScript('document.body.innerText');assert.ok(copy.includes('recuerdos')||copy.includes('contenido sensible'))
+    assert.equal(confirmationDecision({sender:child.webContents,senderFrame:child.webContents.mainFrame},{nonce:binding.nonce,confirmed}).accepted,true)
+  }
+  await click('[data-memory-export-sensitive]');saved.push({canceled:false,filePath:privateFile})
+  await click('[data-memory-export]');assert.equal(fs.existsSync(privateFile),false)
+  await decideMemory('memory-export-sensitive');await until(()=>fs.existsSync(privateFile),'sensitive file export')
+  assert.equal(JSON.parse(fs.readFileSync(privateFile)).records.length,2)
+  const projectPath=(await view()).workspace
+  assert.equal((await js('window.api.memoryCommand("memory_project_access",'+JSON.stringify({projectPath,enabled:true})+')')).error.code,'MEMORY_HOST_ACTION_REQUIRED')
+  await click('[data-memory-project]');await decideMemory('memory-sensitive-access')
+  await until(async()=>(await view()).memory.sensitiveProjects.length===1,'project access confirmed')
+  picked.push({canceled:false,filePaths:[normalFile]});await click('[data-memory-import]')
+  assert.equal(picked.length,1,'Import must confirm before opening a file picker')
+  await decideMemory('memory-import')
+  await until(()=>js("document.querySelector('.nova-memory-settings').innerText.includes('Recuerdos importados.')"),'profile import completed')
+  let list=await js('window.api.memoryCommand("memory_list",{scope:"ALL",limit:20})')
+  assert.equal(list.data.records.length,1);assert.equal((await view()).memory.sensitiveProjects.length,1)
+  const invalidFile=path.join(output,'invalid-memories.json');fs.writeFileSync(invalidFile,'{invalid')
+  picked.push({canceled:false,filePaths:[invalidFile]});await click('[data-memory-import]');await decideMemory('memory-import')
+  await until(()=>js("!!document.querySelector('.nova-memory-settings [role=alert]')"),'invalid import reported')
+  list=await js('window.api.memoryCommand("memory_list",{scope:"ALL",limit:20})');assert.equal(list.data.records.length,1)
+  await until(()=>js("document.querySelector('.nova-memory-settings').getAttribute('aria-busy')==='false'"),'Memory UI settled')
+  await js("document.querySelector('.nova-memory-settings h2').scrollIntoView({block:'start'})");await delay(300)
+  win.webContents.invalidate();await delay(100)
+  fs.writeFileSync(path.join(output,'memory-es.png'),(await win.webContents.capturePage()).toPNG())
+  await click('.nova-memory-settings .nova-settings-reset');await until(async()=>(await view()).memory.sensitiveProjects.length===0,'Reset revokes permissions')
+  const projectsBefore=await js("document.querySelectorAll('[data-memory-project]').length")
+  const another=path.join(output,'Another');fs.mkdirSync(another);picked.push({canceled:false,filePaths:[another]})
+  assert.equal((await js('window.api.projectAction("add")')).success,true)
+  await until(()=>js("document.querySelectorAll('[data-memory-project]').length==="+(projectsBefore+1)),'dynamic project permission list')
+  assert.equal(await js("[...document.querySelectorAll('[data-memory-project]')].every(e=>!e.checked)"),true)
+  await click('[data-settings-section=general]');await input('[data-settings-select=language]','en');await click('[data-settings-section=memory]')
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-memory-settings h3')].map(e=>e.textContent)"),['Memory retrieval','Memories','Sensitive content access'])
+  await resize(740,840);await delay(250)
+  assert.equal(await js("(()=>{const e=document.querySelector('.nova-settings-content');return e.scrollWidth<=e.clientWidth+1})()"),true)
+  assert.equal(await js("[...document.querySelectorAll('.nova-memory-settings input[role=switch]')].every(e=>e.getBoundingClientRect().height<=24)"),true)
+  fs.writeFileSync(path.join(output,'memory-en.png'),(await win.webContents.capturePage()).toPNG())
+  fs.writeFileSync(path.join(output,'new-embedding.empty'),'owned fixture');await js('window.api.refreshReadiness()')
+  await until(async()=>!(await view()).memory.semanticAvailable,'no enabled installed EM')
+  assert.equal(await js("document.querySelector('[data-memory-setting=semanticRecall]').disabled"),true)
+  assert.deepEqual(crashes,[])
+  record('Memory controls save and reset; EM gates semantic retrieval; signed normal/sensitive profile export and atomic import; invalid file preserves records; project grants confirm and reset; dynamic project list; ES/EN and narrow layout')
+}
+
+async function webSettingsFlow(){
+  await until(()=>js("!document.getElementById('nova-startup')"),'startup complete')
+  await resize(1280,940)
+  await click('.nova-rail button:last-child');await click('[data-settings-section=general]')
+  await input('[data-settings-select=language]','es');await click('[data-settings-section=web]')
+  const toggle=key=>'[data-web-permission='+key+']'
+  const all=()=>js("[...document.querySelectorAll('.nova-web-settings input[role=switch]')].map(e=>({key:e.dataset.webPermission,checked:e.checked,disabled:e.disabled}))")
+  await until(async()=>(await all()).length===3&&(await all()).every(e=>!e.disabled),'Web observations')
+  assert.ok(await js("document.querySelector('.nova-web-settings').innerText.includes('Configura los permisos de lectura, búsqueda y navegación web de Nova.')"))
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-web-settings h3')].map(e=>e.textContent)"),['Permisos'])
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-web-settings .nova-preference-row .nova-setting-label')].map(e=>e.textContent)"),['Lectura web','Búsqueda web','Navegación web'])
+  assert.equal(await js("document.querySelectorAll('.nova-web-settings form,.nova-web-settings [type=submit]').length"),0)
+  assert.equal(await js("document.querySelector('.nova-web-notice').textContent"),'El navegador funciona con los permisos de tu cuenta, sin aislamiento de red. Seleccionarlo no aprueba acciones.')
+  await click('[data-settings-select=web-search-engine]')
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-settings-listbox [role=option]')].map(e=>e.dataset.value)"),['google','bing','duckduckgo'])
+  await click('.nova-settings-listbox [data-value=bing]')
+  await until(async()=>(await view()).search.engine==='bing','saved search engine')
+  await click('[data-settings-select=web-browser]')
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-settings-listbox [role=option]')].map(e=>e.dataset.value)"),['webview2','chrome','edge'])
+  await click('[data-settings-select=web-browser]')
+  for(const [key,domain] of [['fetchEnabled','fetch'],['searchEnabled','search'],['browserEnabled','browser']]){
+    await click(toggle(key));await until(async()=>(await view())[domain].enabled===false,key+' saved off')
+    await until(async()=>(await all()).every(e=>!e.disabled),'save confirmed')
+  }
+  assert.equal(await js("document.querySelector('[data-settings-select=web-search-engine]').disabled"),true)
+  assert.equal(await js("document.querySelector('[data-settings-select=web-browser]').disabled"),true)
+  const persisted=path.join(home,'.local/state/nova/web-preferences.json')
+  assert.deepEqual(JSON.parse(fs.readFileSync(persisted,'utf8')),{schema:'NOVA_WEB_PREFERENCES_V1',fetchEnabled:false,searchEnabled:false,browserEnabled:false,engine:'bing',browser:'webview2'})
+  await reload();await click('.nova-rail button:last-child');await click('[data-settings-section=web]')
+  assert.ok((await all()).every(e=>!e.checked))
+  backend.kill();await until(async()=>!(await view()).status.connected,'owned backend exit')
+  assert.equal((await js('window.api.restartBackend()')).success,true);await attach()
+  await until(async()=>(await view()).search?.enabled===false,'persisted Web permissions after backend replacement')
+  record('Spanish normalized Web layout, ordered menus, immediate atomic saves and persistence through renderer/backend replacement')
+  await until(()=>js("document.querySelector('.nova-web-settings .nova-settings-reset')?.disabled===false"),'reset ready')
+  await click('.nova-web-settings .nova-settings-reset')
+  await until(async()=>(await view()).fetch.enabled&&(await view()).search.enabled&&(await view()).browser.enabled&&(await view()).search.engine==='google','reset defaults')
+  await until(async()=>(await all()).every(e=>!e.disabled),'reset confirmation')
+  rejectNextWeb=true;await click(toggle('searchEnabled'))
+  await until(()=>js("!!document.querySelector('.nova-web-settings [role=alert]')"),'localized save failure')
+  assert.equal((await view()).search.enabled,true)
+  assert.equal(await js("document.querySelector('[data-web-permission=searchEnabled]').checked"),true)
+  await click(toggle('searchEnabled'));await until(async()=>(await view()).search.enabled===false,'explicit subsequent change')
+  await until(async()=>(await all()).every(e=>!e.disabled),'save after rejection')
+  await click(toggle('searchEnabled'));await until(async()=>(await view()).search.enabled===true,'search on')
+  const defaults={colorScheme:'dark',lightTheme:'nova',darkTheme:'nova',interfaceFont:'system',codeFont:'system',showStartupScreen:true,startupMotion:true,mascotMotion:true}
+  for(const scheme of ['dark','light'])for(const theme of ['nova','synthwave84','matrix','box']){
+    await js('window.api.setDesktopAppearance('+JSON.stringify({...defaults,colorScheme:scheme,[scheme==='dark'?'darkTheme':'lightTheme']:theme})+')')
+    await until(()=>js('document.documentElement.dataset.novaTheme==='+JSON.stringify(theme)+'&&document.documentElement.dataset.novaScheme==='+JSON.stringify(scheme)),'palette')
+    await click('[data-settings-section=general]')
+    const switchStyle=selector=>js('(()=>{const e=document.querySelector('+JSON.stringify(selector)+'),s=getComputedStyle(e),thumb=getComputedStyle(e,"::before");return{appearance:s.appearance,width:s.width,height:s.height,border:s.border,radius:s.borderRadius,background:s.backgroundColor,thumb:thumb.backgroundColor,thumbWidth:thumb.width,thumbTransform:thumb.transform}})()')
+    const reference=await switchStyle('[data-general=transitionsEnabled]')
+    assert.equal(reference.appearance,'none')
+    await click('[data-settings-section=web]')
+    assert.deepEqual(await switchStyle('[data-web-permission=searchEnabled]'),reference)
+  }
+  record('Reset restores all defaults in one command; rejected saves retain confirmed values; switches inherit all eight palettes')
+  await js('window.api.setDesktopAppearance('+JSON.stringify(defaults)+')')
+  await js('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))')
+  fs.writeFileSync(path.join(output,'web-settings-es.png'),(await win.webContents.capturePage()).toPNG())
+  await click('[data-settings-section=general]');await input('[data-settings-select=language]','en');await click('[data-settings-section=web]')
+  assert.deepEqual(await js("[...document.querySelectorAll('.nova-web-settings .nova-preference-row .nova-setting-label')].map(e=>e.textContent)"),['Web reading','Web search','Web browsing'])
+  assert.equal(await js("document.querySelector('.nova-web-settings .nova-settings-reset').textContent"),'Reset')
+  await resize(740,840);await delay(150)
+  assert.equal(await js("(()=>{const e=document.querySelector('.nova-settings-content');return e.scrollWidth<=e.clientWidth+1})()"),true)
+  fs.writeFileSync(path.join(output,'web-settings-en-narrow.png'),(await win.webContents.capturePage()).toPNG())
+  assert.deepEqual(crashes,[])
+  record('English labels and notice, shared Reset styling and narrow settings layout remain usable')
+}
 electron.app.whenReady().then(async()=>{
  try{
+  await mainLoaded
   await until(()=>win&&!win.webContents.isLoading(),'renderer');await attach();win.show()
+  if(process.argv.includes('--resume-recovery')){await resumeRecoveryFlow();await finish();backend?.kill();electron.app.quit();return}
   electron.app.setAccessibilitySupportEnabled(true)
   await until(async()=>(await view())?.readiness?.ready,'real host readiness',real?60000:25000)
+  if(closedConsole){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup complete')
+    const originalSession=(await view()).sessionId
+    process.send?.({type:'close-console'})
+    await delay(200)
+    console.log('Owned window event after stdout closed');console.warn('Owned stderr event after stderr closed')
+    await resize(1000,800)
+    assert.equal((await view()).sessionId,originalSession)
+    backend.kill();await until(async()=>!(await view()).status.connected,'backend exit with closed console')
+    await delay(200)
+    console.log('Owned shutdown event after backend exit')
+    assert.equal(win.isVisible(),false)
+    record('Closed stdout and stderr do not interrupt window events or backend exit')
+    await finish();electron.app.quit();return
+  }
+  if(surfaceConsistency){await surfaceConsistencyFlow();await finish();backend?.kill();electron.app.quit();return}
+  if(process.argv.includes('--memories-window')){await memoriesWindowFlow();await finish();backend?.kill();electron.app.quit();return}
+  if(memorySettings){await memorySettingsFlow();await finish();backend?.kill();electron.app.quit();return}
+  if(emSettings){await embeddingSettingsFlow();await finish();backend?.kill();electron.app.quit();return}
+  if(process.argv.includes('--web-settings')){await webSettingsFlow();await finish();backend?.kill();electron.app.quit();return}
+  if(process.argv.includes('--settings-consistency')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1280,940)
+    await submit('saved chat for layout');await idle();await click('.nova-rail button:last-child')
+    const sections=['general','appearance','connection','projects','shortcuts']
+    const selector=section=>'.'+({general:'nova-general-settings',appearance:'nova-appearance-settings',connection:'nova-llm-settings',projects:'nova-project-settings',shortcuts:'nova-shortcuts-settings'})[section]+' .nova-settings-reset'
+    const style=async sel=>js('(()=>{const e=document.querySelector('+JSON.stringify(sel)+'),s=getComputedStyle(e);return{height:s.height,padding:s.padding,border:s.border,borderRadius:s.borderRadius,background:s.backgroundColor,color:s.color,font:s.font,opacity:s.opacity,cursor:s.cursor,outline:s.outline,outlineOffset:s.outlineOffset}})()')
+    const defaults={colorScheme:'dark',lightTheme:'nova',darkTheme:'nova',interfaceFont:'system',codeFont:'system',showStartupScreen:true,startupMotion:true,mascotMotion:true}
+    for(const scheme of ['dark','light'])for(const theme of ['nova','synthwave84','matrix','box']){
+      await js('window.api.setDesktopAppearance('+JSON.stringify({...defaults,colorScheme:scheme,[scheme==='dark'?'darkTheme':'lightTheme']:theme})+')')
+      await until(()=>js('document.documentElement.dataset.novaTheme==='+JSON.stringify(theme)+'&&document.documentElement.dataset.novaScheme==='+JSON.stringify(scheme)),'palette')
+      let baseline
+      for(const section of sections){
+        await click('[data-settings-section='+section+']');const sel=selector(section)
+        await until(()=>js('document.querySelector('+JSON.stringify(sel)+')?.disabled===false'),'reset ready')
+        win.webContents.sendInputEvent({type:'mouseMove',x:2,y:2});await js('document.querySelector('+JSON.stringify(sel)+').blur()');await delay(30)
+        const normal=await style(sel),point=await js('(()=>{const r=document.querySelector('+JSON.stringify(sel)+').getBoundingClientRect();return{x:Math.round(r.left+r.width/2),y:Math.round(r.top+r.height/2)}})()')
+        win.webContents.sendInputEvent({type:'mouseMove',...point});await delay(60);const hover=await style(sel)
+        win.webContents.sendInputEvent({type:'mouseMove',x:2,y:2});await js("document.querySelector('.nova-settings-nav button:last-child').focus()")
+        win.webContents.sendInputEvent({type:'keyDown',keyCode:'Tab'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'Tab'});await delay(30)
+        assert.equal(await js('document.activeElement===document.querySelector('+JSON.stringify(sel)+')'),true)
+        const focus=await style(sel)
+        const disabled=await js('(()=>{const e=document.querySelector('+JSON.stringify(sel)+');e.disabled=true;const s=getComputedStyle(e),v={opacity:s.opacity,cursor:s.cursor,background:s.backgroundColor,color:s.color,border:s.border};e.disabled=false;return v})()')
+        assert.equal(normal.height,'36px');assert.equal(normal.borderRadius,'8px');assert.equal(disabled.opacity,'0.5');assert.equal(disabled.cursor,'default')
+        const variants={normal,hover,focus,disabled}
+        if(baseline)assert.deepEqual(variants,baseline,scheme+' '+theme+' '+section);else baseline=variants
+      }
+    }
+    record('All five Reset buttons match in normal, hover, keyboard focus and disabled states across all eight palettes')
+    await click('[data-settings-section=general]');await input('[data-settings-select=language]','en');await until(()=>js("document.documentElement.lang==='en'"),'English')
+    for(const section of sections){await click('[data-settings-section='+section+']');assert.equal(await js('document.querySelector('+JSON.stringify(selector(section))+').textContent'),'Reset')}
+    await click('[data-settings-section=general]');await input('[data-settings-select=language]','es');await until(()=>js("document.documentElement.lang==='es'"),'Spanish')
+    await click('[data-settings-section=chat]');await until(()=>js("document.querySelector('.nova-chat-settings')?.getAttribute('aria-busy')==='false'"),'chat summaries ready')
+    assert.equal(await js("!!document.querySelector('[data-chat-action=clear-all],.nova-chat-clear-all')"),false)
+    assert.equal(await js("document.querySelector('.nova-chat-settings').textContent.includes('Borrar todos los chats')"),false)
+    const bounds=()=>js("(()=>{const e=document.querySelector('.nova-project-chats'),r=e.getBoundingClientRect();return{top:r.top,height:r.height,scroll:document.querySelector('.nova-settings-content').scrollTop,text:e.textContent}})()")
+    const before=await bounds(),listCalls=projectChatListCalls;projectChatListDelay=400
+    await js("window.__chatLoadingFlashes=0;window.__chatObserver=new MutationObserver(()=>{if(document.querySelector('.nova-chat-settings')?.textContent.includes('Cargando chats'))window.__chatLoadingFlashes++});window.__chatObserver.observe(document.querySelector('.nova-chat-settings'),{subtree:true,childList:true,characterData:true,attributes:true})")
+    for(let pulse=0;pulse<6;pulse++){await js('window.api.refreshReadiness()');await delay(70)}
+    assert.equal(projectChatListCalls,listCalls,'unchanged host publications must not refetch the same chats')
+    assert.deepEqual(await bounds(),before);assert.equal(await js('window.__chatLoadingFlashes'),0)
+    await js('window.__chatObserver.disconnect()')
+    await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings closed')
+    await click('.nova-rail button:last-child');await click('[data-settings-section=chat]')
+    assert.equal(await js("document.querySelector('.nova-chat-settings').textContent.includes('Cargando chats')"),false,'cached lists stay visible during genuine refresh')
+    await until(()=>projectChatListCalls>listCalls,'reopened list refresh');await delay(450);projectChatListDelay=0
+    await click('.nova-project-chat [data-chat-action=delete]:not(:disabled)');await confirmation(true,'clear-chat')
+    await until(()=>js("document.querySelector('.nova-chat-settings').textContent.includes('Chat borrado.')"),'individual chat deletion')
+    assert.equal(await js("!!document.querySelector('[data-chat-action=clear-all]')"),false)
+    fs.writeFileSync(path.join(output,'chats-stable-no-bulk-delete.png'),(await win.webContents.capturePage()).toPNG())
+    assert.deepEqual(crashes,[])
+    record('Chats has no bulk-delete option; repeated host snapshots neither refetch nor move the list; cached refresh is stable and individual deletion works')
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--projects-settings')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1400,1040)
+    const alpha=path.join(output,'Alpha'),custom=path.join(output,'Chosen-default')
+    fs.mkdirSync(alpha);fs.mkdirSync(custom);fs.writeFileSync(path.join(custom,'keep.txt'),'preserve')
+    const initial=(await js('window.api.getProjects()')).defaultPath
+    picked.push({canceled:false,filePaths:[alpha]});assert.equal((await js("window.api.projectAction('add')")).success,true)
+    const open=async()=>{await click('.nova-rail button:last-child');await click('[data-settings-section=projects]');await until(()=>js("!!document.querySelector('.nova-project-settings')"),'project settings')}
+    const close=async()=>{await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings closed')}
+    const defaultMenu='.nova-project-settings section:first-of-type [data-project-menu]'
+    const menuActions=()=>js("[...document.querySelectorAll('.nova-project-folder-menu [role=menuitem]')].map(e=>e.dataset.projectAction)")
+    await open()
+    assert.deepEqual(await js("[...document.querySelectorAll('.nova-project-settings section > h3')].map(e=>e.textContent)"),['Carpeta predeterminada','Carpetas por proyecto'])
+    assert.equal(await js("document.querySelectorAll('.nova-project-setting-row').length"),(await js('window.api.getProjects()')).folders.length)
+    assert.equal(await js("/Proyecto actual|Proyecto predeterminado|Abrir panel de proyectos/.test(document.querySelector('.nova-project-settings').textContent)"),false)
+    await click(defaultMenu);assert.deepEqual(await menuActions(),['change','open'])
+    await js("document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))")
+    await until(()=>js("!document.querySelector('.nova-project-folder-menu')"),'menu dismissed');assert.equal(await js("!!document.querySelector('.nova-settings-dialog')"),true)
+    await click(defaultMenu);await click('[data-project-action=open]');assert.ok(opened.includes(initial))
+    await click('.nova-project-settings section:last-of-type [data-project-menu]');assert.deepEqual(await menuActions(),['change','remove','open'])
+    await js("document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))")
+    await click(defaultMenu);picked.push({canceled:false,filePaths:[custom]});await click('[data-project-action=change]')
+    await until(async()=>(await js('window.api.getProjects()')).defaultPath===custom,'default from Settings')
+    await until(async()=>(await view()).workspace===custom,'custom default is effective')
+    fs.writeFileSync(path.join(output,'projects-settings-es.png'),(await win.webContents.capturePage()).toPNG())
+    assert.equal((await js('window.api.projectAction("remove",'+JSON.stringify(custom)+')')).error.code,'PROJECT_DEFAULT_REQUIRED')
+    await close();await click('.nova-rail button[aria-expanded]');await click('.project-card.selected .project-options-button')
+    picked.push({canceled:false,filePaths:[alpha]});await click('.project-card.selected .project-context-menu button:first-child')
+    await until(async()=>(await js('window.api.getProjects()')).defaultPath===alpha,'default from project drawer')
+    assert.equal(fs.readFileSync(path.join(custom,'keep.txt'),'utf8'),'preserve')
+    await open();await click('.nova-project-settings .nova-section-introduction > button')
+    await until(async()=>(await js('window.api.getProjects()')).defaultPath===initial&&(await view()).workspace===initial,'default reset')
+    await click('[data-settings-section=general]');await input('[data-settings-select=language]','en');await until(()=>js("document.documentElement.lang==='en'"),'English')
+    await click('[data-settings-section=projects]');await resize(720,900)
+    assert.deepEqual(await js("[...document.querySelectorAll('.nova-project-settings section > h3')].map(e=>e.textContent)"),['Default folder','Folders by project'])
+    await click(defaultMenu);assert.deepEqual(await menuActions(),['change','open'])
+    assert.equal(await js("document.querySelector('.nova-project-folder-menu [data-project-action=change]').textContent"),'Change project')
+    const bounds=await js("(()=>{const r=document.querySelector('.nova-project-folder-menu').getBoundingClientRect(),d=document.querySelector('.nova-settings-dialog').getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,dl:d.left,dr:d.right,dt:d.top,db:d.bottom}})()")
+    assert.ok(bounds.left>=bounds.dl&&bounds.right<=bounds.dr&&bounds.top>=bounds.dt&&bounds.bottom<=bounds.db,JSON.stringify(bounds))
+    fs.writeFileSync(path.join(output,'projects-settings-en-compact.png'),(await win.webContents.capturePage()).toPNG())
+    await js("document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))")
+    await close();await reload();await until(()=>js("!document.getElementById('nova-startup')"),'reload ready');await open()
+    assert.equal((await js('window.api.getProjects()')).defaultPath,initial)
+    assert.deepEqual(crashes,[])
+    record('Default appears first; menus expose exact registered actions; Settings and drawer can change it; Reset restores the original; English, compact placement and reload work')
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(llmSettings){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1400,1040)
+    const open=async()=>{await click('.nova-rail button:last-child');await click('[data-settings-section=connection]');await until(()=>js("document.querySelector('[data-model-visibility]')?.disabled===false"),'LLM ready')}
+    const close=async()=>{await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings closed')}
+    const counts=()=>js("[...document.querySelectorAll('.nova-usage-chart-heading strong')].map(e=>e.textContent)")
+    await open()
+    assert.equal(await js("document.querySelector('.nova-llm-settings h2').textContent"),'Modelo LLM')
+    assert.equal(await js("document.querySelectorAll('.nova-usage-chart').length"),2)
+    assert.deepEqual(await js("[...document.querySelectorAll('.nova-llm-status dt')].map(e=>e.textContent)"),['Proveedor','Modelo actual','Conexión'])
+    assert.equal(await js("[...document.querySelectorAll('.nova-llm-settings button')].some(e=>e.textContent==='Abrir gestor de modelos')"),false)
+    assert.equal(await js("document.querySelectorAll('.nova-context-settings button[type=submit],.provider-select-container').length"),0)
+    assert.equal(await js("typeof window.api.hasClaudeAccess"),'undefined')
+    await click('[data-settings-select=usageRange]')
+    assert.deepEqual(await js("[...document.querySelectorAll('.nova-settings-listbox [role=option]')].map(e=>e.dataset.value)"),['today','yesterday','last7','last30','thisMonth','lastMonth','last6Months'])
+    await js("document.querySelector('[data-settings-select=usageRange]').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))")
+    await until(async()=>JSON.stringify(await counts())==='["0","0"]','empty usage')
+    await click('[data-model-visibility="local:8b"]');await until(()=>js("document.querySelector('[data-model-visibility=\"local:8b\"]').checked===false"),'model hidden')
+    await close();await click('.nova-model-select')
+    assert.deepEqual(await js("[...document.querySelectorAll('.nova-model-option[data-model]')].map(e=>e.dataset.model)"),['local:7b'])
+    await js("document.querySelector('.nova-model-select').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))")
+    await submit('metrics fixture');await idle();await open()
+    await until(async()=>JSON.stringify(await counts())==='["145","1"]','persisted usage after inference')
+    await click('.nova-context-ticks button:nth-child(3)');await until(async()=>(await view()).context.requestedTokens===16384,'context autosaved')
+    rejectNextVisibility=true;await click('[data-model-visibility="local:8b"]')
+    await until(()=>js("!!document.querySelector('.nova-llm-settings [role=alert]')"),'failed visibility notice')
+    assert.equal(await js("document.querySelector('[data-model-visibility=\"local:8b\"]').checked"),false)
+    await js("document.querySelector('.nova-settings-content').scrollTop=0")
+    fs.writeFileSync(path.join(output,'llm-es-dark.png'),(await win.webContents.capturePage()).toPNG())
+    record('LLM section has seven time ranges and two real-metric charts; context autosaves; exclusions and failed saves are respected')
+    const defaults={colorScheme:'dark',lightTheme:'nova',darkTheme:'nova',interfaceFont:'system',codeFont:'system',showStartupScreen:true,startupMotion:true,mascotMotion:true}
+    for(const scheme of ['dark','light'])for(const theme of ['nova','synthwave84','matrix','box']){
+      await js('window.api.setDesktopAppearance('+JSON.stringify({...defaults,colorScheme:scheme,[scheme==='dark'?'darkTheme':'lightTheme']:theme})+')')
+      await until(()=>js('document.documentElement.dataset.novaTheme==='+JSON.stringify(theme)+'&&document.documentElement.dataset.novaScheme==='+JSON.stringify(scheme)),'palette')
+      const style=await js("(()=>{const r=getComputedStyle(document.documentElement),chart=getComputedStyle(document.querySelector('.nova-usage-chart')),toggle=getComputedStyle(document.querySelector('[data-model-visibility=\"local:7b\"]'));return{panel:chart.backgroundColor,accent:toggle.backgroundColor,expectedPanel:r.getPropertyValue('--bg-input').trim(),expectedAccent:(()=>{const p=document.createElement('span');p.style.color='var(--nova-switch-on-track)';document.body.append(p);const color=getComputedStyle(p).color;p.remove();return color})(),width:toggle.width,height:toggle.height}})()")
+      const rgb=hex=>'rgb('+[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)).join(', ')+')'
+      assert.equal(style.panel,rgb(style.expectedPanel));assert.equal(style.accent,style.expectedAccent);assert.equal(style.width,'38px');assert.equal(style.height,'22px')
+    }
+    await click('[data-settings-section=general]');await input('[data-settings-select=language]','en');await until(()=>js("document.documentElement.lang==='en'"),'English')
+    await click('[data-settings-section=connection]');await input('[data-settings-select=usageRange]','lastMonth');await until(async()=>JSON.stringify(await counts())==='["0","0"]','last month')
+    await input('[data-settings-select=usageRange]','last6Months');await until(async()=>JSON.stringify(await counts())==='["145","1"]','six-month usage');assert.equal(await js("document.querySelectorAll('[data-usage-chart=tokens] svg g[aria-label]').length"),6)
+    await input('[data-settings-select=usageRange]','today');await until(async()=>JSON.stringify(await counts())==='["145","1"]','today restored')
+    await resize(720,900)
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-llm-model')).flexDirection"),'row')
+    await js("document.querySelector('.nova-settings-content').scrollTop=0")
+    fs.writeFileSync(path.join(output,'llm-en-light-compact.png'),(await win.webContents.capturePage()).toPNG())
+    assert.equal(await js("document.querySelector('.nova-llm-settings h2').textContent"),'LLM model')
+    await click('.nova-llm-settings .nova-section-introduction > button');await until(async()=>(await view()).context.requestedTokens===0,'context reset')
+    await until(()=>js("document.querySelector('[data-model-visibility=\"local:8b\"]').checked"),'visibility reset')
+    assert.deepEqual(await counts(),['145','1'])
+    record('All eight themes style charts and model toggles; English/compact layout and period filters work; Reset retains the usage history')
+    await click('[data-model-visibility="local:7b"]');await until(async()=>(await view()).status.model==='local:8b','hidden current model replaced')
+    await close();assert.equal(await js("document.querySelector('.nova-model-current').textContent"),'local:8b');await open()
+    await click('[data-model-visibility="local:8b"]');await until(()=>js("document.querySelector('[data-model-visibility=\"local:8b\"]').checked===false"),'all models hidden')
+    await close();assert.equal(await js("document.querySelector('.nova-model-current').textContent"),'No active models');assert.equal(await js("document.querySelector('.nova-model-select').disabled"),true)
+    await input('textarea.input-field','do not submit with hidden model');assert.equal(await js("document.querySelector('.nova-send-button').disabled"),true);await input('textarea.input-field','')
+    await open();await click('[data-model-visibility="local:7b"]');await until(async()=>(await view()).status.model==='local:7b','enabled model becomes selected')
+    record('Hiding the selected model switches to a visible model; hiding every model clears the selector and blocks hidden-model submission')
+    await close();await js("window.api.sendToPython({id:910,type:'pull_model',model:'downloaded:1b'})")
+    await until(async()=>(await view()).readiness.installedModels.some(m=>m.name==='downloaded:1b'),'new model observed',30000)
+    await until(async()=>!(await view()).modelDownload||['complete','failed'].includes((await view()).modelDownload.phase),'download settled')
+    await open();assert.equal(await js("document.querySelector('[data-model-visibility=\"downloaded:1b\"]').checked"),true)
+    await close();await reload();await until(()=>js("!document.getElementById('nova-startup')"),'reload ready');await open()
+    await until(async()=>JSON.stringify(await counts())==='["145","1"]','usage after reload')
+    assert.deepEqual(crashes,[])
+    record('Newly installed models enter the dynamic list enabled; usage and visibility survive renderer restart')
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(windowControlsTheme){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup complete')
+    const caption=()=>js("(()=>{const s=getComputedStyle(document.documentElement);return{color:s.getPropertyValue('--nova-titlebar-bg').trim(),symbolColor:s.getPropertyValue('--nova-titlebar-text').trim(),height:44}})()")
+    assert.deepEqual(win.testOptions.titleBarOverlay,await caption(),'saved light theme applies to native controls at creation')
+    assert.equal(await js("document.documentElement.dataset.novaScheme"),'light')
+    record('Saved light theme colors the native caption before the first renderer paint',win.testOptions.titleBarOverlay)
+    const defaults={colorScheme:'system',lightTheme:'nova',darkTheme:'nova',interfaceFont:'system',codeFont:'system',showStartupScreen:true,startupMotion:true,mascotMotion:true}
+    for(const colorScheme of ['dark','light'])for(const theme of ['nova','synthwave84','matrix','box']){
+      const next={...defaults,colorScheme,[colorScheme==='light'?'lightTheme':'darkTheme']:theme}
+      assert.equal((await js('window.api.setDesktopAppearance('+JSON.stringify(next)+')')).success,true)
+      await until(()=>js('document.documentElement.dataset.novaTheme==='+JSON.stringify(theme)+'&&document.documentElement.dataset.novaScheme==='+JSON.stringify(colorScheme)),colorScheme+' '+theme+' applied')
+      assert.deepEqual(win.captionUpdates.at(-1),await caption(),colorScheme+' '+theme+' native overlay matches titlebar')
+      assert.equal(await js('navigator.windowControlsOverlay.visible'),true)
+    }
+    record('All eight palettes update the native caption background and symbols without recreating the window')
+    const system={...defaults,lightTheme:'matrix',darkTheme:'synthwave84'}
+    assert.equal((await js('window.api.setDesktopAppearance('+JSON.stringify(system)+')')).success,true)
+    for(const source of ['light','dark']){
+      electron.nativeTheme.themeSource=source
+      await until(()=>js('document.documentElement.dataset.novaScheme==='+JSON.stringify(source)),'system '+source)
+      assert.deepEqual(win.captionUpdates.at(-1),await caption(),'native controls follow the System setting')
+    }
+    const before={...win.captionUpdates.at(-1)},count=win.captionUpdates.length
+    assert.equal((await js('window.api.setDesktopAppearance('+JSON.stringify({...defaults,colorScheme:'invalid'})+')')).success,false)
+    assert.equal(win.captionUpdates.length,count);assert.deepEqual(win.captionUpdates.at(-1),before)
+    win.maximize();await until(()=>win.isMaximized(),'maximize');win.unmaximize();await until(()=>!win.isMaximized(),'restore bounds')
+    win.minimize();await until(()=>win.isMinimized(),'minimize');win.restore();await until(()=>!win.isMinimized()&&win.isVisible(),'restore visible')
+    assert.deepEqual(win.captionUpdates.at(-1),await caption());assert.deepEqual(crashes,[])
+    record('System changes recolor caption controls; invalid saves preserve colors; native minimize and maximize still work')
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(appearanceSystem){await appearanceSystemFlow();await finish();backend?.kill();electron.app.quit();return}
+  if(process.argv.includes('--model-catalog')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1280,900)
+    const sectionNames=()=>js("[...document.querySelectorAll('[data-model-section]')].map(e=>e.textContent)")
+    const hoverClose=async selector=>{
+      const point=await js('(()=>{const r=document.querySelector('+JSON.stringify(selector)+').getBoundingClientRect();return{x:Math.round(r.left+r.width/2),y:Math.round(r.top+r.height/2)}})()')
+      win.webContents.sendInputEvent({type:'mouseMove',...point});await delay(220)
+      return js('(()=>{const s=getComputedStyle(document.querySelector('+JSON.stringify(selector)+'));return{color:s.color,background:s.backgroundColor,border:s.borderTopColor}})()')
+    }
+    await click('.nova-rail button:nth-child(2)');await until(()=>js("document.querySelectorAll('.picker-model').length===2"),'installed catalog by default')
+    assert.equal(await js("document.querySelector('.nova-model-title h1').textContent"),'Modelos')
+    assert.equal(await js("document.querySelector('.nova-model-title > span').textContent"),'Nova')
+    assert.deepEqual(await sectionNames(),['Instalados','Todos','Para ti','CÃ³digo','PequeÃ±os','Razonamiento','MultilingÃ¼e'])
+    assert.equal(await js("document.querySelector('[data-model-section=installed]').getAttribute('aria-pressed')"),'true')
+    assert.equal(await js("!!document.querySelector('.picker-view-tabs, .picker-discover-filters')"),false)
+    assert.equal(commands.some(f=>f.type==='recommend'||f.type==='search_models'),false)
+    assert.equal(await js("document.querySelector('.picker-installed-count').textContent"),'2 instalados')
+    assert.equal(await js("document.querySelector('.picker-update-btn').textContent.trim()"),'Sincronizar')
+    const modelHover=await hoverClose('.picker-close');assert.equal(modelHover.color,'rgb(240, 207, 141)');assert.notEqual(modelHover.background,'rgba(0, 0, 0, 0)')
+    fs.writeFileSync(path.join(output,'model-catalog-installed-es.png'),(await win.webContents.capturePage()).toPNG())
+    await click('[data-model-section=all]');assert.ok(await js("document.querySelectorAll('.picker-model').length>2"))
+    await click('[data-model-section=Code]');await input('.picker-search input','qwen2.5-coder:7b')
+    assert.equal(await js("document.querySelectorAll('.picker-model').length"),1)
+    await input('.picker-search input','');await click('[data-model-section=recommend]')
+    await until(()=>js("document.querySelector('.picker-list').getAttribute('aria-busy')==='false'"),'hardware recommendation result',40000)
+    assert.equal(await js("!!document.querySelector('.picker-system-info')"),true)
+    assert.equal(await js("!!document.querySelector('.picker-load-error')"),false)
+    assert.equal(commands.filter(f=>f.type==='recommend').length,1)
+    fs.writeFileSync(path.join(output,'model-catalog-for-you-es.png'),(await win.webContents.capturePage()).toPNG())
+    await click('[data-model-section=Multilingual]');assert.ok(await js("document.querySelectorAll('.picker-model').length>0"))
+    assert.equal(await js("[...document.querySelectorAll('.picker-category')].some(e=>e.textContent==='JaponÃ©s')"),false)
+    await click('[data-model-section=recommend]');assert.equal(commands.filter(f=>f.type==='recommend').length,1)
+    await click('.picker-close');await until(()=>js("!document.querySelector('.nova-model-dialog')"),'model window closed')
+    await click('.nova-rail button:last-child');assert.deepEqual(await hoverClose('.nova-settings-close'),modelHover)
+    await click('[data-settings-section=shortcuts]');assert.deepEqual(await hoverClose('.nova-shortcut-remove'),modelHover)
+    await click('[data-settings-section=general]');await input('[data-settings-select=language]','en')
+    await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings closed')
+    await click('.nova-rail button:nth-child(2)');await until(()=>js("!!document.querySelector('[data-model-section=installed]')"),'English catalog')
+    assert.deepEqual(await sectionNames(),['Installed','All','For you','Code','Small','Reasoning','Multilingual'])
+    assert.equal(await js("document.querySelector('.nova-model-title h1').textContent"),'Models')
+    await resize(720,820);await delay(260)
+    const geometry=await js("(()=>{const h=document.querySelector('.picker-header').getBoundingClientRect(),c=document.querySelector('.picker-close').getBoundingClientRect(),s=document.querySelector('.picker-update-btn').getBoundingClientRect(),t=document.querySelector('.nova-model-title').getBoundingClientRect();return{closeInside:c.right<=h.right&&c.bottom<=h.bottom,syncFits:s.right<c.left,titleFits:t.right<s.left,overflow:document.documentElement.scrollWidth>innerWidth}})()")
+    assert.deepEqual(geometry,{closeInside:true,syncFits:true,titleFits:true,overflow:false})
+    fs.writeFileSync(path.join(output,'model-catalog-en-compact.png'),(await win.webContents.capturePage()).toPNG())
+    assert.equal(commands.some(f=>f.type==='search_models'),false);assert.deepEqual(crashes,[])
+    record('One catalog starts with Installed, keeps seven ordered categories, and loads hardware recommendations only on demand')
+    record('Nova/Models header preserves inventory and Sync; close/remove hover matches Settings at wide and compact widths in both languages')
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--general-interface')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup complete');await resize(1280,900)
+    win.webContents.debugger.attach('1.3');await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]})
+    const general=()=>js('window.api.getDesktopPreferences()')
+    const language='[data-settings-select="language"]'
+    const openGeneral=async()=>{await click('.nova-rail button:last-child');await click('[data-settings-section=general]')}
+    const nativeEscape=async()=>{win.webContents.sendInputEvent({type:'keyDown',keyCode:'Escape'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'Escape'});await delay(100)}
+    assert.equal((await general()).language,'system');assert.equal((await general()).locale,'es')
+    await openGeneral()
+    assert.equal(await js("document.querySelectorAll('.nova-general-settings .nova-preference-row').length"),3)
+    assert.equal(await js("document.querySelector('.nova-general-settings').textContent.includes('ConfiguraciÃ³n general de la aplicaciÃ³n.')"),true)
+    assert.equal(await js("document.querySelector('.nova-general-settings').textContent.includes('Los cambios se aplican sÃ³lo al guardar')"),false)
+    assert.equal(await js("!!document.querySelector('.nova-general-settings form')"),false)
+    assert.equal(await js("document.querySelector('[data-general=autoSwitchView]').checked"),false)
+    assert.equal(await js("document.querySelector('[data-general=transitionsEnabled]').checked"),true)
+    await click(language)
+    assert.deepEqual(await js("[...document.querySelectorAll('.nova-settings-listbox [role=option]')].map(e=>e.textContent)"),['Sistema','EspaÃ±ol','English'])
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-settings-listbox')).animationName"),'nova-selector-in')
+    await nativeEscape();assert.equal(await js("!!document.querySelector('.nova-settings-listbox')"),false);assert.equal(await js("!!document.querySelector('.nova-settings-dialog')"),true)
+    await fs.promises.writeFile(path.join(output,'general-es.png'),(await win.webContents.capturePage()).toPNG())
+    await input(language,'en');await until(()=>js("document.documentElement.lang==='en'"),'English autosaved')
+    assert.equal((await general()).language,'en')
+    await click('[data-general=autoSwitchView]');assert.equal((await general()).autoSwitchView,true)
+    rejectNextGeneral=true;await click('[data-general=transitionsEnabled]')
+    assert.equal((await general()).transitionsEnabled,true);assert.equal(await js("document.querySelector('[data-general=transitionsEnabled]').checked"),true)
+    assert.ok(await js("document.querySelector('.nova-general-settings').textContent.includes('previous settings remain active')"))
+    await click('[data-general=transitionsEnabled]');assert.equal((await general()).transitionsEnabled,false)
+    await input(language,'es');await until(()=>js("document.documentElement.lang==='es'"),'Spanish autosaved')
+    await click('.nova-settings-close');assert.equal(await js("!!document.querySelector('.nova-settings-dialog')"),false)
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-rings')).animationName"),'nova-orbit-revolve')
+    await click('.nova-rail button[aria-expanded]')
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-project-pane')).animationName"),'none')
+    await click('.project-card.selected .project-options-button')
+    assert.equal(await js("getComputedStyle(document.querySelector('.project-context-menu')).animationName"),'none')
+    await click('.project-card.selected .project-options-button')
+    await until(()=>js("[...document.querySelectorAll('.explorer-node.file')].some(e=>e.textContent.includes('sample.txt'))"),'file entry')
+    await js("[...document.querySelectorAll('.explorer-node.file')].find(e=>e.textContent.includes('sample.txt')).click()")
+    await until(()=>js("!!document.querySelector('.viewer-pane')"),'viewer')
+    assert.equal(await js("getComputedStyle(document.querySelector('.viewer-pane')).animationName"),'none')
+    await click('.file-viewer-close');assert.equal(await js("!!document.querySelector('.viewer-pane')"),false)
+    rejectNextSubmit=true;await input('textarea.input-field','rejected');await click('.nova-send-button')
+    assert.equal(await js("!!document.querySelector('.nova-home-scene')"),true)
+    await submit('hello');await idle();await until(()=>js("!!document.querySelector('.nova-conversation')"),'accepted message switches to chat')
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-conversation')).animationName"),'none')
+    await click('.nova-history-button');assert.equal(await js("getComputedStyle(document.querySelector('.nova-home-scene')).animationName"),'none')
+    await click('.nova-rail button:nth-child(2)');assert.equal(await js("getComputedStyle(document.querySelector('.nova-model-dialog')).animationName"),'none')
+    await click('.picker-close');assert.equal(await js("!!document.querySelector('.nova-model-dialog')"),false)
+    record('General autosaves, keeps previous values after rejection and switches view only after an accepted message')
+    await openGeneral();await click('[data-general=transitionsEnabled]');await delay(300)
+    await click('[data-settings-section=appearance]');await click('[data-appearance=mascotMotion]')
+    await until(()=>js("document.documentElement.dataset.novaMascotMotion==='false'"),'decorative motion disabled')
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-rings')).animationName"),'none')
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-settings-dialog')).animationName"),'nova-dialog-in')
+    await click('[data-settings-section=general]');await click(language)
+    const floating=await js("getComputedStyle(document.querySelector('.nova-settings-listbox')).animationName")
+    assert.equal(floating,'nova-selector-in');await nativeEscape()
+    await click('[data-settings-section=web]')
+    assert.equal(await js("document.querySelectorAll('.nova-settings-dialog select').length"),0)
+    const webCombo='.nova-settings-content [data-settings-domain=web] [role=combobox]:not(:disabled)'
+    await click(webCombo);assert.equal(await js("getComputedStyle(document.querySelector('.nova-settings-listbox')).animationName"),floating);await nativeEscape()
+    await click('[data-settings-section=memory]');await click('.nova-settings-content [data-settings-domain=memory] [role=combobox]:not(:disabled)')
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-settings-listbox')).animationName"),floating);await nativeEscape()
+    await click('[data-settings-section=connection]');await click('[data-settings-domain=connection] details > summary')
+    await click('.provider-select-container [role=combobox]');assert.equal(await js("getComputedStyle(document.querySelector('.nova-settings-listbox')).animationName"),floating);await nativeEscape()
+    await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings close')
+    await click('.project-card.selected .project-options-button');assert.equal(await js("getComputedStyle(document.querySelector('.project-context-menu')).animationName"),floating)
+    await click('.project-card.selected .project-options-button');await click('.nova-model-select')
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-model-listbox')).animationName"),floating);await nativeEscape()
+    record('All settings comboboxes and project menus share model-selector motion while decorative motion stays independent')
+    await openGeneral();fixtureSystemLanguage='en-US';await click('.nova-general-settings .nova-section-introduction > button')
+    await until(()=>js("document.documentElement.lang==='en'"),'System follows English locale')
+    const restored=await general();assert.equal(restored.language,'system');assert.equal(restored.autoSwitchView,false);assert.equal(restored.transitionsEnabled,true);assert.equal(restored.mascotMotion,false);assert.equal(restored.startupMotion,true)
+    await fs.promises.writeFile(path.join(output,'general-en.png'),(await win.webContents.capturePage()).toPNG())
+    await resize(720,820);await click(language);await delay(220)
+    const bounds=await js("(()=>{const e=document.querySelector('.nova-settings-listbox'),r=e.getBoundingClientRect(),b=document.querySelector('[data-settings-select=language]').getBoundingClientRect(),s=document.querySelector('[data-settings-select=language] svg').getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,anchorBottom:b.bottom,opacity:getComputedStyle(e).opacity,arrowInset:b.right-s.right,width:innerWidth,height:innerHeight}})()")
+    assert.ok(bounds.left>=0&&bounds.right<=bounds.width&&bounds.top>=44&&bounds.bottom<=bounds.height)
+    assert.ok(Math.abs(bounds.top-bounds.anchorBottom-8)<1,JSON.stringify(bounds));assert.equal(bounds.opacity,'1');assert.ok(bounds.arrowInset>=14,JSON.stringify(bounds));await fs.promises.writeFile(path.join(output,'general-compact-dropdown.png'),(await win.webContents.capturePage()).toPNG())
+    await nativeEscape();await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'close before reload')
+    await reload();await until(()=>js("!document.getElementById('nova-startup')"),'reloaded startup')
+    await submit('after reset');await idle();assert.equal(await js("!!document.querySelector('.nova-home-scene')"),true)
+    const persisted=await general();assert.equal(persisted.language,'system');assert.equal(persisted.autoSwitchView,false);assert.equal(persisted.transitionsEnabled,true);assert.equal(persisted.mascotMotion,false);assert.equal(persisted.startupMotion,true)
+    record('Reset preserves Appearance, System uses the current OS language, defaults persist and compact menus remain inside the window')
+    assert.deepEqual(crashes,[]);win.webContents.debugger.detach();await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--keyboard-shortcuts')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed');await resize(1280,900)
+    const nativeKey=async(keyCode,modifiers=[])=>{
+      win.focus();win.webContents.sendInputEvent({type:'keyDown',keyCode,modifiers});win.webContents.sendInputEvent({type:'keyUp',keyCode,modifiers});await delay(100)
+    }
+    const bindingText=id=>js(`document.querySelector('[data-shortcut="${id}"] .nova-shortcut-binding').textContent`)
+    const capture=async(id,keyCode,modifiers=[])=>{
+      await click(`[data-shortcut="${id}"] .nova-shortcut-binding`)
+      assert.equal(await bindingText(id),'Presiona teclas');await nativeKey(keyCode,modifiers)
+    }
+    await click('.nova-rail button:last-child')
+    assert.equal(await js("!!document.querySelector('.nova-settings-shortcuts')"),false)
+    await click('[data-settings-section=shortcuts]')
+    const order=await js("[...document.querySelectorAll('[data-settings-section]')].map(e=>e.dataset.settingsSection)")
+    assert.equal(order.indexOf('shortcuts'),order.indexOf('knowledge')+1)
+    assert.equal(await js("document.querySelectorAll('[data-shortcut]').length"),14)
+    assert.equal(await js("document.querySelector('.nova-shortcuts-settings h2').textContent"),'Atajos')
+    assert.equal(await js("!!document.querySelector('.nova-shortcuts-settings button[type=submit]')"),false)
+    await input('.nova-shortcuts-search input','LINEA')
+    assert.deepEqual(await js("[...document.querySelectorAll('[data-shortcut]')].map(e=>e.dataset.shortcut)"),['newLine'])
+    await input('.nova-shortcuts-search input','unmatched-search');assert.equal(await js("document.querySelectorAll('[data-shortcut]').length"),0)
+    await input('.nova-shortcuts-search input','')
+    record('Dedicated section, keyboard icon, accent-insensitive search and no save button')
+    await capture('models','B',['control'])
+    assert.ok(await js("document.querySelector('.nova-shortcuts-feedback').textContent.includes('Mostrar u ocultar proyectos')"))
+    assert.equal(await bindingText('models'),'Presiona teclas')
+    await nativeKey('V',['control'])
+    assert.ok(await js("document.querySelector('.nova-shortcuts-feedback').textContent.includes('reservada')"))
+    await nativeKey('Escape');assert.equal(await bindingText('models'),'Ctrl+MayÃºs+M')
+    assert.equal(await js("!!document.querySelector('.nova-settings-dialog')"),true,'Esc cancels recording without closing settings')
+    await capture('models','M',['control','alt'])
+    await until(async()=>(await bindingText('models'))==='Ctrl+Alt+M','models binding saved')
+    assert.equal((await js('window.api.getDesktopPreferences()')).shortcuts.models,'Mod+Alt+M')
+    rejectNextShortcut=true;await capture('models','N',['control','alt'])
+    assert.equal(await bindingText('models'),'Ctrl+Alt+M')
+    assert.ok(await js("document.querySelector('.nova-shortcuts-feedback').textContent.includes('No se pudo guardar')"))
+    assert.equal((await js('window.api.getDesktopPreferences()')).shortcuts.models,'Mod+Alt+M')
+    record('Native key capture rejects conflicts and editing chords; failed autosave keeps the active binding')
+    await capture('settings','K',['control','alt'])
+    await until(async()=>(await bindingText('settings'))==='Ctrl+Alt+K','settings saved')
+    await capture('sendMessage','Enter',['control'])
+    await until(async()=>(await bindingText('sendMessage'))==='Ctrl+Intro','send saved')
+    await capture('showHome','F8');await until(async()=>(await bindingText('showHome'))==='F8','previously unassigned action saved')
+    await capture('showHome','Backspace');await until(async()=>(await bindingText('showHome'))==='Sin asignar','shortcut unassigned')
+    await reload();await until(()=>js("!document.getElementById('nova-startup')"),'reload startup')
+    await nativeKey('K',['control','alt']);await until(()=>js("!!document.querySelector('.nova-settings-dialog')"),'custom settings action after reload')
+    await click('[data-settings-section=shortcuts]');assert.equal(await bindingText('settings'),'Ctrl+Alt+K');assert.equal(await bindingText('sendMessage'),'Ctrl+Intro')
+    await nativeKey('Escape');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings closed')
+    await nativeKey('M',['control','alt']);await until(()=>js("!!document.querySelector('.nova-model-dialog')"),'custom models shortcut')
+    await nativeKey('Escape');await until(()=>js("!document.querySelector('.nova-model-dialog')"),'models closed')
+    await nativeKey('M',['control','shift']);assert.equal(await js("!!document.querySelector('.nova-model-dialog')"),false)
+    await input('textarea.input-field','first')
+    const sentBefore=commands.filter(f=>f.command?.kind==='SubmitUserInput').length
+    await js("document.querySelector('textarea.input-field').focus()")
+    await js("window.addEventListener('keydown',e=>window.__enterPrevented=e.defaultPrevented,{once:true})")
+    await nativeKey('Enter');assert.equal(await js('window.__enterPrevented'),false)
+    // Electron's synthetic keyDown omits the platform text/char event.
+    win.webContents.sendInputEvent({type:'char',keyCode:'\r'});await delay(100)
+    assert.equal(await js("document.querySelector('textarea.input-field').value"),'first\n')
+    await nativeKey('Enter',['shift']);assert.equal(await js("document.querySelector('textarea.input-field').value"),'first\n\n')
+    assert.equal(commands.filter(f=>f.command?.kind==='SubmitUserInput').length,sentBefore)
+    await input('textarea.input-field','hello');await nativeKey('Enter',['control']);await idle()
+    assert.equal(commands.filter(f=>f.command?.kind==='SubmitUserInput').length,sentBefore+1)
+    await submit('long');await until(async()=>(await view()).activeTurnId,'stream active')
+    const canceledBefore=commands.filter(f=>f.command?.kind==='CancelTurn').length
+    await nativeKey('Escape');await idle();assert.equal(commands.filter(f=>f.command?.kind==='CancelTurn').length,canceledBefore+1)
+    record('Custom shortcuts survive reload, execute real actions, preserve newlines and cancel generation once')
+    await nativeKey('K',['control','alt']);await click('[data-settings-section=shortcuts]')
+    await click('.nova-shortcuts-introduction > button')
+    await until(async()=>(await bindingText('settings'))==='Ctrl+,','defaults restored')
+    assert.equal(await bindingText('sendMessage'),'Intro');assert.equal(await bindingText('models'),'Ctrl+MayÃºs+M')
+    await fs.promises.writeFile(path.join(output,'shortcuts-es.png'),(await win.webContents.capturePage()).toPNG())
+    await click('[data-settings-section=general]');await input('[data-settings-select=language]','en')
+    await until(()=>js("document.documentElement.lang==='en'"),'English saved')
+    await click('[data-settings-section=shortcuts]')
+    assert.equal(await js("document.querySelector('.nova-shortcuts-settings h2').textContent"),'Shortcuts')
+    assert.equal(await js("document.querySelector('.nova-shortcuts-search input').placeholder"),'Search shortcuts')
+    assert.equal(await bindingText('models'),'Ctrl+Shift+M')
+    await resize(720,820)
+    const geometry=await js("(()=>{const c=document.querySelector('.nova-settings-content');return{width:c.clientWidth,scroll:c.scrollWidth,rows:[...document.querySelectorAll('.nova-shortcut-row')].map(e=>{const r=e.getBoundingClientRect();return{left:r.left,right:r.right}}),content:c.getBoundingClientRect().toJSON()}})()")
+    assert.ok(geometry.scroll<=geometry.width+1,JSON.stringify(geometry))
+    assert.ok(geometry.rows.every(r=>r.left>=geometry.content.left&&r.right<=geometry.content.right))
+    await fs.promises.writeFile(path.join(output,'shortcuts-en-compact.png'),(await win.webContents.capturePage()).toPNG())
+    record('Reset persists defaults, both languages render fully, and narrow layout has no horizontal overflow')
+    assert.deepEqual(crashes,[]);await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--viewer-motion')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+    win.webContents.debugger.attach('1.3')
+    await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]})
+    await resize(1280,820)
+    await click('.nova-rail button[aria-expanded]');await delay(250)
+    const drawerMotion=await js("(()=>{const s=getComputedStyle(document.querySelector('.nova-project-pane'));return{duration:s.animationDuration,easing:s.animationTimingFunction,name:s.animationName}})()")
+    const openFile=async name=>{
+      await until(()=>js(`[...document.querySelectorAll('.explorer-node.file')].some(e=>e.querySelector('.explorer-name').textContent===${JSON.stringify(name)})`),'file entry '+name)
+      await js(`[...document.querySelectorAll('.explorer-node.file')].find(e=>e.querySelector('.explorer-name').textContent===${JSON.stringify(name)}).click()`)
+      await until(()=>js("!!document.querySelector('.viewer-pane')"),'viewer mounted')
+    }
+    const checkMotion=async width=>{
+      await resize(width,820)
+      await openFile('sample.txt');await delay(85)
+      const opening=await js("(()=>{const e=document.querySelector('.viewer-pane'),s=getComputedStyle(e);return{width:e.getBoundingClientRect().width,name:s.animationName,duration:s.animationDuration,easing:s.animationTimingFunction,inert:e.inert}})()")
+      assert.equal(opening.name,drawerMotion.name);assert.equal(opening.duration,drawerMotion.duration);assert.equal(opening.easing,drawerMotion.easing);assert.equal(opening.inert,false)
+      await delay(220)
+      const full=await js("document.querySelector('.viewer-pane').getBoundingClientRect().width")
+      assert.ok(opening.width>0&&opening.width<full,JSON.stringify({opening,full}))
+      assert.equal(Math.round(full),width>1000?350:520)
+      await until(()=>js("document.querySelector('.file-viewer-content')?.textContent.includes('sample file')"),'preview loaded')
+      await fs.promises.writeFile(path.join(output,'viewer-'+width+'.png'),(await win.webContents.capturePage()).toPNG())
+      await click('.file-viewer-close')
+      const closing=await js("(()=>{const e=document.querySelector('.viewer-pane');return{width:e.getBoundingClientRect().width,name:getComputedStyle(e).animationName,inert:e.inert,hidden:e.getAttribute('aria-hidden'),content:e.textContent}})()")
+      assert.equal(closing.name,'nova-drawer-out');assert.equal(closing.inert,true);assert.equal(closing.hidden,'true');assert.ok(closing.content.includes('sample file'));assert.ok(closing.width>0&&closing.width<full)
+      await until(()=>js("!document.querySelector('.viewer-pane')"),'viewer exit cleanup')
+      record('Viewer uses project drawer motion and retains inert content through closing at '+width+'px',{opening:opening.width,full,closing:closing.width})
+    }
+    await checkMotion(1280);await checkMotion(980)
+    const longName='very-long-project-folder-'.repeat(4),longProject=path.join(output,longName)
+    fs.mkdirSync(longProject);fs.writeFileSync(path.join(longProject,'sample.txt'),'long project sample file\n')
+    picked.push({canceled:false,filePaths:[longProject]})
+    await click('.project-add-button')
+    await until(async()=>(await view()).workspace===longProject,'long project selected')
+    const checkName=async width=>{
+      await resize(width,820);await delay(250)
+      const card=await js("(()=>{const c=document.querySelector('.project-card.selected'),n=c.querySelector('.project-card-heading > span'),icon=c.querySelector('.project-card-heading > svg'),options=c.querySelector('.project-options-button'),list=document.querySelector('.project-folder-list');return{text:n.textContent,title:c.querySelector('.project-select-button').title,ellipsis:getComputedStyle(n).textOverflow,scroll:n.scrollWidth,available:n.clientWidth,nameRight:n.getBoundingClientRect().right,optionsLeft:options.getBoundingClientRect().left,iconWidth:icon.getBoundingClientRect().width,listScroll:list.scrollWidth,listWidth:list.clientWidth}})()")
+      assert.equal(card.text,longName);assert.equal(card.title,longProject);assert.equal(card.ellipsis,'ellipsis');assert.ok(card.scroll>card.available);assert.ok(card.available>0);assert.ok(card.nameRight<card.optionsLeft);assert.equal(card.iconWidth,21);assert.ok(card.listScroll<=card.listWidth+1,JSON.stringify(card))
+      await click('.project-card.selected .project-options-button');assert.equal(await js("!!document.querySelector('.project-context-menu')"),true)
+      await click('.project-card.selected .project-options-button')
+      await fs.promises.writeFile(path.join(output,'long-project-'+width+'.png'),(await win.webContents.capturePage()).toPNG())
+      record('Long project names ellipsize without horizontal overflow or hiding options at '+width+'px',card)
+    }
+    await checkName(1280);await checkName(720)
+    await openFile('sample.txt');await delay(260)
+    await js(`[...document.querySelectorAll('.project-select-button')].find(e=>e.title===${JSON.stringify(workspace)}).click()`)
+    await until(async()=>(await view()).workspace===workspace,'original project restored')
+    assert.equal(await js("!!document.querySelector('.viewer-pane')"),false,'a previous project preview must not survive a root change')
+    await openFile('README.md');await until(()=>js("document.querySelector('.file-viewer-content')?.textContent.includes('Owned synthetic project')"),'fresh preview after switching project')
+    await click('.file-viewer-close');await delay(260)
+    await openFile('sample.txt');await click('.file-viewer-close');await openFile('README.md')
+    await delay(300);assert.equal(await js("document.querySelector('.file-viewer-name').textContent"),'README.md')
+    assert.equal(await js("document.querySelector('.viewer-pane').inert"),false)
+    record('Project changes discard old previews and reopening during exit retains the newly selected file')
+    await click('.file-viewer-close');await until(()=>js("!document.querySelector('.viewer-pane')"),'cleanup before reduced motion')
+    await js("window.api.setDesktopGeneral({language:'en',autoSwitchView:false,transitionsEnabled:false}).then(()=>{document.documentElement.dataset.novaTransitions='false'})")
+    await openFile('sample.txt')
+    assert.equal(await js("getComputedStyle(document.querySelector('.viewer-pane')).animationName"),'none')
+    await click('.file-viewer-close');assert.equal(await js("!!document.querySelector('.viewer-pane')"),false)
+    await js("window.api.setDesktopGeneral({language:'en',autoSwitchView:false,transitionsEnabled:true}).then(()=>{document.documentElement.dataset.novaTransitions='true'})")
+    await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]})
+    await openFile('sample.txt');await click('.file-viewer-close')
+    assert.equal(await js("!!document.querySelector('.viewer-pane')"),false)
+    record('Disabled transitions and operating system reduced motion both remove the viewer immediately on close')
+    await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]})
+    await submit('hello');await idle()
+    await until(()=>js("!!document.querySelector('.nova-history-button')"),'history control')
+    await click('.nova-history-button')
+    const historyMotion=await js("(()=>{const s=getComputedStyle(document.querySelector('.nova-conversation'));return{name:s.animationName,duration:s.animationDuration,easing:s.animationTimingFunction}})()")
+    await click('.nova-history-button')
+    const sceneMotion=await js("(()=>{const e=document.querySelector('.nova-home-scene'),s=getComputedStyle(e);return{name:s.animationName,duration:s.animationDuration,easing:s.animationTimingFunction,running:e.getAnimations().some(a=>a.playState==='running'),opacity:Number(s.opacity)}})()")
+    assert.equal(sceneMotion.name,historyMotion.name);assert.equal(sceneMotion.duration,historyMotion.duration);assert.equal(sceneMotion.easing,historyMotion.easing)
+    assert.equal(sceneMotion.running,true);assert.ok(sceneMotion.opacity>0&&sceneMotion.opacity<1)
+    await delay(250)
+    assert.equal(await js("getComputedStyle(document.querySelector('.nova-home-scene')).opacity"),'1')
+    record('Returning from history animates the scene itself with the same transition',{historyMotion,sceneMotion})
+    assert.deepEqual(crashes,[]);win.webContents.debugger.detach()
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--window-chrome')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+    assert.equal(win.testOptions.titleBarStyle,'hidden')
+    assert.deepEqual(win.testOptions.titleBarOverlay,await js("(()=>{const s=getComputedStyle(document.documentElement);return{color:s.getPropertyValue('--nova-titlebar-bg').trim(),symbolColor:s.getPropertyValue('--nova-titlebar-text').trim(),height:44}})()"))
+    const frame=async label=>{
+      const state=await js("(()=>{const bar=document.querySelector('.nova-window-titlebar'),mark=bar.querySelector('svg'),root=document.getElementById('root'),folder=document.querySelector('.nova-rail button:first-child svg'),brain=document.querySelector('.nova-rail button:nth-child(2) svg');const rect=e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom}};return{bar:rect(bar),root:rect(root),mark:rect(mark),folder:rect(folder),brain:rect(brain),drag:getComputedStyle(bar).webkitAppRegion,color:getComputedStyle(bar).backgroundColor,body:getComputedStyle(document.body).backgroundColor,radius:getComputedStyle(root).borderRadius,controlsVisible:navigator.windowControlsOverlay?.visible,controlsHeight:navigator.windowControlsOverlay?.getTitlebarAreaRect().height,width:innerWidth,height:innerHeight,platform:document.documentElement.dataset.novaPlatform}})()")
+      assert.equal(state.drag,'drag');assert.equal(state.color,'rgb(10, 10, 10)');assert.equal(state.body,state.color)
+      assert.equal(state.platform,'win32');assert.equal(state.controlsVisible,true)
+      assert.ok(Math.abs(state.root.y-state.bar.bottom)<.5,JSON.stringify(state))
+      assert.ok(Math.abs(state.root.x-8)<.5&&Math.abs(state.root.right-(state.width-8))<.5,JSON.stringify(state))
+      assert.ok(Math.abs(state.root.bottom-(state.height-8))<.5,JSON.stringify(state))
+      for(const icon of [state.folder,state.brain])assert.equal(icon.width,state.mark.width)
+      assert.equal(state.mark.width,24);assert.equal(state.radius,'14px')
+      assert.ok(Math.abs(state.bar.height-state.controlsHeight)<.5,JSON.stringify(state))
+      record(label,state)
+    }
+    await frame('Native caption controls occupy a black draggable title bar with a 24px hamburger and matching rail icons')
+    fs.writeFileSync(path.join(output,'integrated-titlebar-home.png'),(await win.webContents.capturePage()).toPNG())
+    win.maximize();await until(()=>win.isMaximized(),'maximize');await delay(250)
+    await frame('Maximizing preserves the title bar and rounded inset content')
+    fs.writeFileSync(path.join(output,'integrated-titlebar-maximized.png'),(await win.webContents.capturePage()).toPNG())
+    win.unmaximize();await until(()=>!win.isMaximized(),'restore bounds');await delay(150)
+    win.minimize();await until(()=>win.isMinimized(),'minimize')
+    win.restore();await until(()=>!win.isMinimized()&&win.isVisible(),'restore visible')
+    record('Native maximize, restore and minimize remain functional')
+    for(const [width,height] of [[1000,700],[720,820]]){
+      await resize(width,height);await delay(200);await frame('Integrated frame at '+width+'px')
+      for(const [button,dialog,close] of [['.nova-rail button:last-child','.nova-settings-dialog','.nova-settings-close'],['.nova-rail button:nth-child(2)','.nova-model-dialog','.picker-close']]){
+        await click(button);await delay(250)
+        const fits=await js('(()=>{const d=document.querySelector('+JSON.stringify(dialog)+').getBoundingClientRect(),r=document.getElementById("root").getBoundingClientRect(),b=document.querySelector(".nova-window-titlebar").getBoundingClientRect();return{top:d.top,bottom:d.bottom,left:d.left,right:d.right,root:r.toJSON(),barBottom:b.bottom}})()')
+        assert.ok(fits.top>=fits.barBottom&&fits.bottom<=fits.root.bottom+1&&fits.left>=fits.root.left&&fits.right<=fits.root.right+1,JSON.stringify(fits))
+        if(width===1000&&dialog==='.nova-settings-dialog')fs.writeFileSync(path.join(output,'integrated-titlebar-settings.png'),(await win.webContents.capturePage()).toPNG())
+        await click(close);await until(()=>js('!document.querySelector('+JSON.stringify(dialog)+')'),'subwindow closed')
+      }
+    }
+    record('Settings and Models fit inside the rounded content frame and leave the native caption available')
+    await reload();await until(()=>js("!document.getElementById('nova-startup')"),'reloaded startup');await frame('Reload retains the single integrated title bar')
+    assert.equal(await js("document.querySelectorAll('.nova-window-titlebar').length"),1)
+    assert.deepEqual(crashes,[])
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--modal-scrollbars')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+    const inspect=async(child,selector,label)=>{
+      const styles=await child.webContents.executeJavaScript('(()=>{const e=document.querySelector('+JSON.stringify(selector)+'),s=getComputedStyle(e),actions=document.querySelector(".actions,footer").getBoundingClientRect();return{scheme:getComputedStyle(document.documentElement).colorScheme,width:getComputedStyle(e,"::-webkit-scrollbar").width,height:getComputedStyle(e,"::-webkit-scrollbar").height,thumb:getComputedStyle(e,"::-webkit-scrollbar-thumb").backgroundColor,track:getComputedStyle(e,"::-webkit-scrollbar-track").backgroundColor,buttons:getComputedStyle(e,"::-webkit-scrollbar-button").display,overflow:e.scrollHeight>e.clientHeight,gutter:s.scrollbarGutter,footerVisible:actions.top>=0&&actions.bottom<=innerHeight,focus:getComputedStyle(document.activeElement).outlineColor}})()')
+      assert.equal(styles.scheme,'dark');assert.equal(styles.width,'6px');assert.equal(styles.height,'6px')
+      assert.equal(styles.thumb,'rgb(43, 47, 57)');assert.equal(styles.track,'rgba(0, 0, 0, 0)');assert.equal(styles.buttons,'none')
+      assert.equal(styles.overflow,true);assert.equal(styles.footerVisible,true);assert.equal(styles.gutter,'stable')
+      assert.equal(styles.focus,'rgb(213, 173, 113)')
+      record(label,styles)
+    }
+    await submit('approval')
+    await until(async()=>(await view()).approvals.length===1,'pending synthetic permission')
+    const permission=await until(()=>approvalWindows.find(child=>!child.isDestroyed()&&child.testOptions.webPreferences?.preload?.endsWith('approval_preload.js')),'permission surface')
+    await until(()=>permission.webContents.executeJavaScript("!document.getElementById('deny').disabled"),'permission ready')
+    // Display-only overflow fixture. The pending request is canceled, never approved.
+    await permission.webContents.executeJavaScript("document.getElementById('arguments').textContent="+JSON.stringify(Array.from({length:60},(_,i)=>'Synthetic permission details line '+(i+1)).join('\n')))
+    await inspect(permission,'.details','Permission details use Nova dark scrollbars while the action buttons stay visible')
+    fs.writeFileSync(path.join(output,'permission-scrollbar.png'),(await permission.webContents.capturePage()).toPNG())
+    await command('CancelTurn',{turnId:(await view()).activeTurnId});await idle()
+    await until(()=>permission.isDestroyed(),'permission closes after cancellation')
+    assert.equal(commands.some(frame=>frame.command?.kind==='ResolveApproval'),false)
+    await click('.nova-rail button:last-child')
+    await click('.nova-settings-nav [data-settings-section="chat"]')
+    await js("window.api.clearProjectChat().then(result=>window.__clearAllResult=result);true")
+    const confirmationWindow=await until(()=>approvalWindows.find(child=>!child.isDestroyed()&&child.testOptions.webPreferences?.preload?.endsWith('confirmation_preload.js')),'confirmation surface')
+    await until(()=>confirmationBindings.has(confirmationWindow.webContents.id),'confirmation ready')
+    await confirmationWindow.webContents.executeJavaScript("document.getElementById('message').textContent="+JSON.stringify(Array.from({length:40},(_,i)=>'Synthetic confirmation details line '+(i+1)).join('\n'))+";document.getElementById('path').textContent="+JSON.stringify('Owned project path / '+('long-segment/').repeat(20)))
+    await inspect(confirmationWindow,'.content','Long confirmation content uses the same dark scrollbars and preserves its action buttons')
+    fs.writeFileSync(path.join(output,'confirmation-scrollbar.png'),(await confirmationWindow.webContents.capturePage()).toPNG())
+    confirmationWindow.close();await until(()=>confirmationWindow.isDestroyed(),'confirmation canceled by closing')
+    assert.equal(commands.some(frame=>frame.command?.payload?.name==='clear_history'),false)
+    assert.deepEqual(crashes,[])
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--chat-layout-markdown')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+    const sample='**Archivo: `perrito.jpg`**\n\n**Negrita con *cursiva* y `cÃ³digo`**\n\n- **`elemento`**\n- Otra lÃ­nea\n\n| Nombre | Valor |\n| --- | --- |\n| **`archivo`** | `a|b` |\n\n```js\nconst example = "**literal**";\n```'
+    await submit(sample);await idle();await click('.nova-history-button');await delay(250)
+    assert.equal(await js("!!document.querySelector('.nova-message-assistant strong code')"),true)
+    assert.equal(await js("document.querySelector('.nova-message-assistant strong code').textContent"),'perrito.jpg')
+    assert.equal(await js("document.querySelector('.nova-message-assistant .md-table tbody tr').children.length"),2)
+    const aligned=async label=>{
+      const geometry=await js("(()=>{const r=s=>{const e=document.querySelector(s);if(!e)return null;const x=e.getBoundingClientRect();return{left:x.left,right:x.right,width:x.width}};return{assistant:r('.nova-message-assistant .nova-message-bubble'),user:r('.nova-message-user .nova-message-bubble'),prompt:r('.nova-composer'),status:r('.nova-readiness-notice'),error:r('.nova-composer-area > .confirm-bar'),overflow:document.documentElement.scrollWidth>innerWidth+1}})()")
+      assert.equal(geometry.overflow,false)
+      assert.ok(Math.abs(geometry.assistant.left-geometry.prompt.left)<.5,JSON.stringify(geometry))
+      assert.ok(Math.abs(geometry.user.right-geometry.prompt.right)<.5,JSON.stringify(geometry))
+      for(const box of [geometry.status,geometry.error].filter(Boolean)){
+        assert.ok(Math.abs(box.left-geometry.prompt.left)<.5&&Math.abs(box.right-geometry.prompt.right)<.5,JSON.stringify(geometry))
+      }
+      record(label,geometry)
+    }
+    await resize(1440,960);await delay(250);await aligned('Wide conversation shares both prompt edges with Nova and user messages')
+    fs.writeFileSync(path.join(output,'aligned-chat-markdown.png'),(await win.webContents.capturePage()).toPNG())
+    await click('.nova-rail button[aria-expanded]');await delay(300)
+    await aligned('Opening the project panel preserves the shared chat column')
+    await click('.nova-rail button[aria-expanded]');await until(()=>js("!document.querySelector('.nova-project-pane')"),'project panel closed')
+    await submit('fixture-generic-error');await idle()
+    await until(()=>js("!!document.querySelector('.nova-composer-area > .confirm-bar')"),'error banner')
+    for(const [width,height] of [[1440,960],[1000,840],[720,820]]){
+      await resize(width,height);await delay(150)
+      await js('void window.api.refreshReadiness()')
+      await until(()=>js("!!document.querySelector('.nova-readiness-notice')"),'connection status notice')
+      await aligned('Messages, prompt, connection status and error align at '+width+'px')
+      fs.writeFileSync(path.join(output,'aligned-status-error-'+width+'.png'),(await win.webContents.capturePage()).toPNG())
+    }
+    // The existing stream fixture keeps inference open while real DOM ranges locate the caret.
+    await until(async()=>(await view()).readiness.ready,'readiness settled')
+    await submit('stream-markdown:**Archivo: `perrito.jpg`**')
+    await until(()=>js("!!document.querySelector('.nova-message-assistant .cursor')"),'streaming caret')
+    const caret=await js("(()=>{const e=[...document.querySelectorAll('.nova-message-assistant .cursor')].at(-1),c=e.previousElementSibling;const a=e.getBoundingClientRect(),b=c.getBoundingClientRect();return{sameLine:a.top<b.bottom&&a.bottom>b.top,gap:a.left-b.right}})()")
+    assert.equal(caret.sameLine,true);assert.ok(caret.gap>=-1&&caret.gap<12,JSON.stringify(caret))
+    await click('.nova-send-button');await idle(3000)
+    record('Nested Markdown renders without raw delimiters and the streaming cursor follows the formatted filename')
+    assert.deepEqual(crashes,[])
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--scene-stability')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+    const sceneRect=()=>js("(()=>{const r=document.querySelector('.nova-orbit').getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}})()")
+    const sameScene=async(expected,label)=>{const actual=await sceneRect();for(const key of ['x','y','width','height'])assert.ok(Math.abs(actual[key]-expected[key])<.5,label+' '+key);record(label,{scene:actual})}
+    const aligned=async label=>{
+      const boxes=await js("['.nova-readiness-notice','.nova-composer-area > .confirm-bar','.nova-composer'].map(selector=>{const e=document.querySelector(selector);if(!e)return null;const r=e.getBoundingClientRect();return{selector,left:r.left,right:r.right}})")
+      assert.ok(boxes.every(Boolean),JSON.stringify(boxes))
+      assert.ok(boxes.every(box=>Math.abs(box.left-boxes[2].left)<.5&&Math.abs(box.right-boxes[2].right)<.5),JSON.stringify(boxes))
+      record(label,{boxes})
+    }
+    const initial=await sceneRect()
+    await input('.nova-model-select','local:8b')
+    await until(()=>js("!!document.querySelector('.nova-readiness-notice')"),'model-switch status notice')
+    await sameScene(initial,'Scene stays anchored when the model switch notice appears')
+    await until(async()=>(await view()).readiness?.ready&&await js("!document.querySelector('.nova-readiness-notice')"),'model switch completed')
+    await sameScene(initial,'Scene stays anchored when the model switch notice disappears')
+    await submit('fixture-generic-error');await idle()
+    await until(()=>js("!!document.querySelector('.nova-composer-area > .confirm-bar')"),'generation error banner')
+    await sameScene(initial,'Scene stays anchored when a generation error appears')
+    await js('void window.api.refreshReadiness()')
+    await until(()=>js("!!document.querySelector('.nova-readiness-notice')"),'checking notice above error')
+    await sameScene(initial,'Connection notice and error do not resize the background scene')
+    await aligned('Connection notice, generation error and prompt share both horizontal edges')
+    fs.writeFileSync(path.join(output,'aligned-notices-background.png'),(await win.webContents.capturePage()).toPNG())
+    await input('textarea.input-field','Line 1\nLine 2\nLine 3\nLine 4')
+    await sameScene(initial,'A multiline prompt does not move the background')
+    await resize(720,820);await delay(300)
+    const narrow=await sceneRect()
+    await js('void window.api.refreshReadiness()')
+    await until(()=>js("!!document.querySelector('.nova-readiness-notice')"),'narrow checking notice')
+    await sameScene(narrow,'Narrow-layout notices preserve the background anchor')
+    await aligned('Narrow-layout status, error and prompt remain aligned')
+    fs.writeFileSync(path.join(output,'aligned-notices-narrow.png'),(await win.webContents.capturePage()).toPNG())
+    assert.deepEqual(crashes,[])
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--startup-fade')){
+    const systemReducedBefore=await js("matchMedia('(prefers-reduced-motion: reduce)').matches")
+    win.webContents.debugger.attach('1.3')
+    await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]})
+    await win.webContents.debugger.sendCommand('Page.enable')
+    await win.webContents.debugger.sendCommand('Page.addScriptToEvaluateOnNewDocument',{source:
+      "(()=>{const trace=window.__startupFade={frames:[],events:[],done:false};let saw=false;document.addEventListener('transitionrun',e=>{if(e.propertyName==='opacity'&&['root','nova-startup'].includes(e.target.id))trace.events.push(e.target.id)},true);function sample(time){const screen=document.getElementById('nova-startup'),root=document.getElementById('root');if(screen&&root){saw=true;trace.frames.push({time,screen:Number(getComputedStyle(screen).opacity),root:Number(getComputedStyle(root).opacity)});}if(!saw||screen)requestAnimationFrame(sample);else trace.done=true;}requestAnimationFrame(sample);})()"})
+    await reload()
+    await until(()=>js("(()=>{const s=document.getElementById('nova-startup');return !!s&&Number(getComputedStyle(s).opacity)>.1&&Number(getComputedStyle(s).opacity)<.9})()"),'visible startup fade')
+    fs.writeFileSync(path.join(output,'startup-crossfade.png'),(await win.webContents.capturePage()).toPNG())
+    await until(()=>js("window.__startupFade?.done"),'fade complete')
+    const trace=await js('window.__startupFade')
+    const mixed=trace.frames.filter(frame=>frame.screen>0&&frame.screen<1&&frame.root>0&&frame.root<1)
+    assert.ok(mixed.length>=2,JSON.stringify(trace))
+    assert.ok(trace.frames.some(frame=>frame.screen===1&&frame.root===0),'opaque loading screen is painted before fading')
+    assert.ok(mixed.every(frame=>Math.abs(frame.screen+frame.root-1)<.05),'both opacities share the same progress')
+    assert.ok(trace.events.includes('root')&&trace.events.includes('nova-startup'))
+    assert.equal(await js("getComputedStyle(document.getElementById('root')).opacity"),'1')
+    assert.equal(await js("document.getElementById('root').hasAttribute('inert')"),false)
+    fs.writeFileSync(path.join(output,'startup-fade-trace.json'),JSON.stringify({systemReducedBefore,...trace},null,2))
+    record('Loading and home crossfade together after a painted preparation frame',{intermediateFrames:mixed.length,systemReducedBefore})
+    await click('.nova-rail button[aria-expanded]')
+    await until(()=>js("!!document.querySelector('.project-options-button')"),'project options')
+    await js('document.activeElement.blur()')
+    const menu=await js("(()=>{const b=document.querySelector('.project-options-button'),s=getComputedStyle(b),r=b.getBoundingClientRect(),icon=b.querySelector('svg').getBoundingClientRect();return {border:s.borderWidth,borderColor:s.borderTopColor,background:s.backgroundColor,offsetX:Math.abs((r.left+r.right-icon.left-icon.right)/2),offsetY:Math.abs((r.top+r.bottom-icon.top-icon.bottom)/2)}})()")
+    assert.equal(menu.border,'1px');assert.equal(menu.borderColor,'rgba(0, 0, 0, 0)');assert.equal(menu.background,'rgba(0, 0, 0, 0)')
+    assert.ok(menu.offsetX<1&&menu.offsetY<1)
+    await delay(300)
+    fs.writeFileSync(path.join(output,'borderless-project-menu.png'),(await win.webContents.capturePage()).toPNG())
+    await click('.project-options-button')
+    assert.ok(await js("!!document.querySelector('.project-context-menu')"))
+    await js('document.activeElement.blur()')
+    assert.equal(await js("getComputedStyle(document.querySelector('.project-options-button')).borderTopColor"),'rgba(0, 0, 0, 0)')
+    record('Project menu shows only centered dots without a border and still opens its actions',menu)
+    assert.deepEqual(crashes,[])
+    win.webContents.debugger.detach()
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--tools-fallback')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+    await submit('fallback-ok')
+    await until(async()=>(await view()).messages.some(message=>message.harnessEvents?.includes('tools_fallback')),'observed native tools adaptation')
+    const pending=await view(),initial=pending.messages.filter(message=>message.role==='assistant')
+    assert.equal(initial.length,1)
+    assert.equal(initial[0].deliveryStatus,'streaming')
+    assert.equal(await js("document.body.innerText.includes('No se pudo completar la respuesta')"),false)
+    fs.writeFileSync(path.join(output,'fallback-thinking-es.png'),(await win.webContents.capturePage()).toPNG())
+    await reload()
+    const recovered=(await view()).messages.filter(message=>message.role==='assistant')
+    assert.equal(recovered.length,1)
+    assert.equal(recovered[0].id,initial[0].id)
+    assert.equal(recovered[0].deliveryStatus,'streaming')
+    await until(()=>js("!document.getElementById('nova-startup')"),'reloaded renderer revealed')
+    assert.equal(await js("document.body.innerText.includes('No se pudo completar la respuesta')"),false)
+    record('A model rejecting native tools keeps one thinking response without a failure notice, including after renderer reload')
+    fs.writeFileSync(path.join(output,'allow-fallback-response'),'continue')
+    await idle()
+    await until(async()=>(await view()).messages.some(message=>message.content.includes('fallback-ok')&&message.role==='assistant'),'completed fallback reply')
+    const completed=(await view()).messages.filter(message=>message.role==='assistant')
+    assert.equal(completed.length,1)
+    assert.equal(completed[0].id,initial[0].id)
+    assert.equal(completed[0].deliveryStatus,'completed')
+    assert.equal((stderr.join('').match(/TEST_NATIVE_TOOLS_REJECTED/g)||[]).length,1)
+    assert.equal(await js("document.body.innerText.includes('No se pudo completar la respuesta')"),false)
+    if(!await js("document.body.innerText.includes('Â¡Hola ðŸ§ ! fallback-ok')")) await click('.nova-history-button')
+    await until(()=>js("document.body.innerText.includes('Â¡Hola ðŸ§ ! fallback-ok')"),'completed reply visible in history')
+    await delay(300)
+    fs.writeFileSync(path.join(output,'fallback-completed-es.png'),(await win.webContents.capturePage()).toPNG())
+    assert.deepEqual(crashes,[])
+    record('The same public generation completes normally after the one format adaptation')
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--context-256k')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+    await click('.nova-rail button[aria-label="ConfiguraciÃ³n"]')
+    await click('.nova-settings-nav [data-settings-section="connection"]')
+    assert.equal(await js("document.querySelector('.nova-context-slider').max"),'6')
+    assert.equal(await js("document.querySelectorAll('.nova-context-ticks button').length"),7)
+    const checkAlignment=async label=>{
+      const offsets=[]
+      for(let index=0;index<7;index++){
+        await click('.nova-context-ticks button:nth-child('+(index+1)+')')
+        const geometry=await js("(()=>{const slider=document.querySelector('.nova-context-slider'),r=slider.getBoundingClientRect(),thumb=parseFloat(getComputedStyle(slider).getPropertyValue('--context-thumb-size')),button=document.querySelector('.nova-context-ticks button[aria-pressed=true]'),text=document.createRange();text.selectNodeContents(button);const t=text.getBoundingClientRect(),card=document.querySelector('.nova-context-settings').getBoundingClientRect(),b=button.getBoundingClientRect();return {expected:r.left+thumb/2+(r.width-thumb)*Number(slider.value)/Number(slider.max),actual:(t.left+t.right)/2,inside:b.left>=card.left&&b.right<=card.right}})()")
+        const offset=Math.abs(geometry.actual-geometry.expected)
+        assert.ok(offset<1,label+' step '+index+' misaligned by '+offset+'px')
+        assert.equal(geometry.inside,true,label+' labels stay inside their card')
+        offsets.push(offset)
+      }
+      record(label+' labels align with every thumb position',{maxOffsetPx:Math.max(...offsets)})
+    }
+    await checkAlignment('Spanish wide panel')
+
+    for(const [position,tokens] of [[6,131072],[7,262144]]){
+      await click('.nova-context-ticks button:nth-child('+position+')')
+
+      await until(async()=>(await view()).context?.requestedTokens===tokens && (await view()).context?.selectedTokens===tokens,'saved '+tokens)
+      await delay(250)
+      fs.writeFileSync(path.join(output,'context-'+tokens+'-es.png'),(await win.webContents.capturePage()).toPNG())
+      await click('.nova-settings-close')
+      await submit('context-window:'+tokens);await idle()
+      assert.ok(stderr.join('').includes('TEST_CONTEXT_REQUEST '+tokens),'exact context reaches scripted Ollama client')
+      await click('.nova-rail button[aria-label="ConfiguraciÃ³n"]')
+      await click('.nova-settings-nav [data-settings-section="connection"]')
+    }
+    await click('.nova-context-ticks button:nth-child(3)')
+
+    await until(async()=>(await view()).context?.requestedTokens===16384,'aligned 16K saved')
+    await delay(250)
+    fs.writeFileSync(path.join(output,'context-aligned-16k-es.png'),(await win.webContents.capturePage()).toPNG())
+    await click('.nova-context-ticks button:nth-child(7)')
+
+    await until(async()=>(await view()).context?.requestedTokens===262144,'256K saved again')
+    record('All seven steps display correctly and 128K/256K save through real IPC/Application and reach inference exactly')
+    await js("document.querySelector('.nova-context-slider').focus()")
+    win.webContents.sendInputEvent({type:'keyDown',keyCode:'Home'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'Home'});await delay(100)
+    assert.equal(await js("document.querySelector('.nova-context-heading output').textContent"),'4K')
+    win.webContents.sendInputEvent({type:'keyDown',keyCode:'End'});win.webContents.sendInputEvent({type:'keyUp',keyCode:'End'});await delay(100)
+    assert.equal(await js("document.querySelector('.nova-context-heading output').textContent"),'256K')
+    await click('.nova-settings-close')
+    await reload();assert.equal((await view()).context.requestedTokens,262144)
+    backend.kill();await until(async()=>!(await view()).status.connected,'owned backend stopped')
+    assert.equal((await js('window.api.restartBackend()')).success,true)
+    await attach();await until(async()=>(await view()).readiness?.ready,'fresh backend readiness')
+    assert.deepEqual((await view()).context,{requestedTokens:262144,selectedTokens:262144,errorCode:null})
+    record('Native Home/End keyboard control works; saved 256K survives renderer reload and Python backend replacement')
+    await input('.nova-model-select','local:8b')
+    await until(async()=>(await view()).context?.errorCode==='CONTEXT_LIMIT_EXCEEDED','smaller model error projection')
+    const rejected=await command('SetContextWindow',{requestedTokens:131072})
+    assert.equal(rejected.error.code,'CONTEXT_LIMIT_EXCEEDED')
+    assert.equal((await view()).context.requestedTokens,262144)
+    assert.equal((await command('SetContextWindow',{requestedTokens:0})).accepted,true)
+    await until(async()=>(await view()).context?.selectedTokens===8192,'AUTO remains within smaller model limit')
+    await input('.nova-model-select','local:7b')
+    assert.equal((await command('SetContextWindow',{requestedTokens:262144})).accepted,true)
+    await until(async()=>(await view()).context?.requestedTokens===262144,'256K restored')
+    record('Smaller model rejects 128K without changing persisted preference; AUTO still respects its native limit')
+    await click('.nova-rail button[aria-label="ConfiguraciÃ³n"]')
+    await input('[data-settings-select=language]','en')
+    await until(()=>js("document.documentElement.lang==='en'"),'English saved')
+    await click('.nova-settings-nav [data-settings-section="connection"]')
+    assert.ok(await js("document.querySelector('.nova-context-settings').textContent.includes('Maximum: 256K.')"))
+    await resize(720,820);await delay(300)
+    await checkAlignment('English narrow panel')
+    fs.writeFileSync(path.join(output,'context-256k-en-narrow.png'),(await win.webContents.capturePage()).toPNG())
+    assert.deepEqual(crashes,[])
+    record('English labels, 256K maximum hint and seven labels fit the narrow settings panel')
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--send-latency')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+    const metadataCount=()=> (stderr.join('').match(/TEST_METADATA_(?:TAGS|SHOW)/g)||[]).length
+    const metadataBefore=metadataCount(), began=Date.now()
+    await submit('fast cached send');await idle()
+    const elapsed=Date.now()-began
+    assert.equal(metadataCount(),metadataBefore,'sending does not revalidate tags or model info')
+    assert.ok(elapsed<2000,'scripted foreground send should settle promptly: '+elapsed)
+    assert.equal(await js("document.querySelector('textarea.input-field').value"),'')
+    record('A send uses cached model observations with no tags/show round trip and clears the prompt after acceptance',{elapsedMs:elapsed})
+    const submitCount=()=>commands.filter(frame=>frame.command?.kind==='SubmitUserInput').length
+    await submit('fixture-offline');await idle()
+    await until(async()=>(await view()).readiness.reason==='OLLAMA_UNAVAILABLE','connection failure notice')
+    assert.equal((await view()).status.connected,true,'Python backend remains connected')
+    assert.equal(await js("document.querySelector('.nova-send-button').disabled"),true)
+    assert.ok(await js("document.querySelector('.nova-readiness-notice').textContent.includes('Abre Ollama')"))
+    const offlineCount=submitCount();await delay(150);assert.equal(submitCount(),offlineCount,'no automatic replay')
+    fs.writeFileSync(path.join(output,'send-connection-failure-es.png'),(await win.webContents.capturePage()).toPNG())
+    await js('window.api.refreshReadiness()');await until(async()=>(await view()).readiness.ready,'explicit connection recheck')
+    await submit('fixture-response-timeout');await idle()
+    await until(()=>js("document.querySelector('.nova-readiness-notice')?.textContent.includes('tardÃ³ demasiado')"),'connected response timeout notice')
+    assert.equal((await view()).readiness.ready,true,'a slow model is not an offline service')
+    assert.ok(await js("!document.querySelector('.nova-readiness-notice').textContent.includes('Abre Ollama')"))
+    const timeoutCount=submitCount();await delay(150);assert.equal(submitCount(),timeoutCount,'timeout never replays the message')
+    fs.writeFileSync(path.join(output,'send-response-timeout-es.png'),(await win.webContents.capturePage()).toPNG())
+    await click('.nova-rail button[aria-label="ConfiguraciÃ³n"]')
+    await input('[data-settings-select=language]','en')
+    await until(()=>js("document.documentElement.lang==='en'"),'English saved')
+    await click('.nova-settings-close')
+    await until(()=>js("document.querySelector('.nova-readiness-notice')?.textContent.includes('took too long')"),'English response timeout')
+    fs.writeFileSync(path.join(output,'send-response-timeout-en.png'),(await win.webContents.capturePage()).toPNG())
+    await submit('fixture-model-missing');await idle()
+    await until(async()=>(await view()).readiness.reason==='MODEL_NOT_INSTALLED','missing model invalidates cached selection')
+    assert.equal((await view()).readiness.requiredAction,'SELECT_MODEL')
+    record('Unavailable service, connected response timeout and missing model show distinct actionable notices in Spanish and English without retrying a Turn')
+    await finish();backend?.kill();electron.app.quit();return
+  }
   if(process.argv.includes('--download-locks')){
     await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
     const initialWorkspace=(await view()).workspace
@@ -397,10 +1979,10 @@ electron.app.whenReady().then(async()=>{
     assert.equal(await js("document.querySelector('.nova-model-select').disabled"),true)
     assert.equal(await js("document.querySelector('.nova-attach-button').disabled"),true)
     assert.equal(await js("document.querySelector('.nova-send-button').disabled"),true)
-    const geometry=await js("(()=>{const a=document.querySelector('.nova-download-notice').getBoundingClientRect(),b=document.querySelector('.nova-composer').getBoundingClientRect();return {above:a.bottom<=b.top,percent:document.querySelector('.nova-download-track').getAttribute('aria-valuenow'),footer:document.querySelector('.nova-composer-hint').textContent}})()")
-    assert.equal(geometry.above,true);assert.equal(geometry.percent,'15');assert.ok(!geometry.footer.includes('Descargando'))
+    const geometry=await js("(()=>{const a=document.querySelector('.nova-download-notice').getBoundingClientRect(),b=document.querySelector('.nova-composer').getBoundingClientRect();return {above:a.bottom<=b.top,percent:document.querySelector('.nova-download-track').getAttribute('aria-valuenow'),footer:document.querySelector('.nova-composer-hint')?.textContent||''}})()")
+    assert.equal(geometry.above,true);assert.equal(geometry.percent,'15');assert.equal(geometry.footer,'')
     await delay(250);fs.writeFileSync(path.join(output,'download-progress-es.png'),(await win.webContents.capturePage()).toPNG())
-    await click('.nova-rail button[aria-label="Configuración"]')
+    await click('.nova-rail button[aria-label="ConfiguraciÃ³n"]')
     assert.equal(await js("document.querySelector('[data-settings-section=connection]').disabled"),true)
     assert.equal(await js("document.querySelector('[data-settings-section=chat]').disabled"),true)
     assert.equal(await js("document.querySelector('[data-settings-section=appearance]').disabled"),false)
@@ -474,7 +2056,7 @@ electron.app.whenReady().then(async()=>{
   }
   if(process.argv.includes('--question-style')||process.argv.includes('--visual-controls')){
     await submit('ask');const child=await nativeQuestionWindow()
-    await child.webContents.executeJavaScript("(()=>{const q=document.getElementById('question'),a=document.getElementById('answer');q.textContent=Array.from({length:14},(_,i)=>(i+1)+'. Una opción de ejemplo para comprobar el desplazamiento.').join('\\n');a.value=Array.from({length:12},(_,i)=>'Respuesta de prueba, línea '+(i+1)).join('\\n');a.dispatchEvent(new Event('input',{bubbles:true}));a.focus();document.querySelector('.content').scrollTop=0})()")
+    await child.webContents.executeJavaScript("(()=>{const q=document.getElementById('question'),a=document.getElementById('answer');q.textContent=Array.from({length:14},(_,i)=>(i+1)+'. Una opciÃ³n de ejemplo para comprobar el desplazamiento.').join('\\n');a.value=Array.from({length:12},(_,i)=>'Respuesta de prueba, lÃ­nea '+(i+1)).join('\\n');a.dispatchEvent(new Event('input',{bubbles:true}));a.focus();document.querySelector('.content').scrollTop=0})()")
     await delay(350)
     const styles=await child.webContents.executeJavaScript("(()=>{const a=document.getElementById('answer'),q=document.getElementById('question'),c=document.querySelector('.content'),s=getComputedStyle(a);return{focus:s.outlineColor,border:s.borderColor,scheme:getComputedStyle(document.documentElement).colorScheme,questionScroll:q.scrollHeight>q.clientHeight,contentScroll:c.scrollHeight>c.clientHeight,answerScroll:a.scrollHeight>a.clientHeight,scrollWidth:getComputedStyle(a,'::-webkit-scrollbar').width,thumb:getComputedStyle(a,'::-webkit-scrollbar-thumb').backgroundColor,track:getComputedStyle(a,'::-webkit-scrollbar-track').backgroundColor}})()")
     assert.equal(styles.focus,'rgb(213, 173, 113)');assert.equal(styles.border,styles.focus)
@@ -486,6 +2068,17 @@ electron.app.whenReady().then(async()=>{
     fs.writeFileSync(path.join(output,'question-focus.png'),(await child.webContents.capturePage()).toPNG())
     record('Question, content and textarea scrollbars use Nova dark six-pixel styling; text input focus and border use modal gold',styles)
     await clickQuestion(child,'stop');await idle(3000)
+    await finish();backend?.kill();electron.app.quit();return
+  }
+  if(process.argv.includes('--about-version')){
+    await until(()=>js("!document.getElementById('nova-startup')"),'startup dismissed')
+    await click('.nova-rail button:last-child');await click('[data-settings-section="about"]')
+    const version=JSON.parse(fs.readFileSync(path.join(repo,'desktop/package.json'),'utf8')).version
+    assert.equal(electron.app.getVersion(),version,'Native launcher must carry the real package version')
+    assert.equal(await js('window.api.getAppVersion()'),version)
+    await until(()=>js("document.querySelector('.nova-about-identity')?.textContent.includes('v"+version+"')"),'About package version')
+    fs.writeFileSync(path.join(output,'about-version.png'),(await win.webContents.capturePage()).toPNG())
+    record('Acerca de displays the actual Electron package version',{version})
     await finish();backend?.kill();electron.app.quit();return
   }
   if(process.argv.includes('--question-host')){await questionHostFlow();await finish();backend?.kill();electron.app.quit();return}
@@ -515,7 +2108,7 @@ electron.app.whenReady().then(async()=>{
     await click('.nova-settings-close')
     assert.equal(await js("document.querySelector('.nova-settings-dialog').parentElement.inert"),true)
     await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'settings exit')
-    assert.equal(await js("document.activeElement.getAttribute('aria-label')"),'Configuración')
+    assert.equal(await js("document.activeElement.getAttribute('aria-label')"),'ConfiguraciÃ³n')
     await click('.nova-rail button:nth-child(2)')
     assert.equal(await js("getComputedStyle(document.querySelector('.nova-model-dialog')).animationName"),modalAnimation)
     const sync=await js("(()=>{const e=document.querySelector('.picker-update-btn');return{text:e.textContent.trim(),fits:e.scrollWidth<=e.clientWidth+1}})()")
@@ -530,14 +2123,14 @@ electron.app.whenReady().then(async()=>{
     assert.equal(await js("!!document.querySelector('.nova-send-feedback')"),false)
     await submit('long')
     assert.equal(await js("document.querySelector('textarea.input-field').value"),'')
-    assert.equal(await js("document.querySelector('.nova-send-feedback')?.textContent"),'Mensaje enviado')
+    assert.equal(await js("!!document.querySelector('.nova-send-feedback, .nova-composer-hint')"),false)
     assert.equal(await js("getComputedStyle(document.querySelector('.nova-prompt-sent')).animationName"),'nova-prompt-away')
     await click('.nova-history-button')
     assert.equal(await js("getComputedStyle(document.querySelector('.nova-conversation')).animationName"),'nova-view-in')
     await click('.nova-history-button')
     assert.equal(await js("getComputedStyle(document.querySelector('.nova-home')).animationName"),'nova-view-in')
     await click('.nova-send-button');await idle(3000)
-    await until(()=>js("!document.querySelector('.nova-send-feedback')"),'send feedback clears')
+    await until(()=>js("!document.querySelector('.nova-prompt-sent')"),'send animation clears')
     delayNextSubmit=true
     await input('textarea.input-field','long');await click('.nova-send-button')
     await input('textarea.input-field','next draft')
@@ -545,70 +2138,22 @@ electron.app.whenReady().then(async()=>{
     assert.equal(await js("document.querySelector('textarea.input-field').value"),'next draft')
     assert.equal(await js("!!document.querySelector('.nova-prompt-sent')"),false)
     await click('.nova-send-button');await idle(3000)
-    await until(()=>js("!document.querySelector('.nova-send-feedback')"),'second feedback clears')
-    record('Send feedback follows acceptance only, rejected submissions retain their text, and typing a new draft while awaiting the receipt is preserved; both chat views animate')
+    await until(()=>js("!document.querySelector('.nova-prompt-sent')"),'second send animation clears')
+    record('Send animation follows acceptance only without footer text, rejected submissions retain their text, and typing a new draft while awaiting the receipt is preserved; both chat views animate')
     await questionHostFlow()
-    await click('.nova-rail button:last-child');await input('.nova-settings-content select','en');await click('.nova-settings-content form button[type=submit]')
+    await click('.nova-rail button:last-child');await input('[data-settings-select=language]','en')
     await until(()=>js("document.documentElement.lang==='en'"),'English locale')
     await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'English settings close')
     await click('.nova-rail button:nth-child(2)');assert.equal(await js("document.querySelector('.picker-update-btn').textContent.trim()"),'Sync')
     await click('.picker-close');await until(()=>js("!document.querySelector('.nova-model-dialog')"),'English models close')
-    await js("window.api.setDesktopAppearance({reduceMotion:true,showStartupScreen:true}).then(()=>{document.documentElement.dataset.novaReduceMotion='true'})")
+    await js("window.api.setDesktopGeneral({language:'en',autoSwitchView:false,transitionsEnabled:false}).then(()=>{document.documentElement.dataset.novaTransitions='false'})")
     await click('.nova-rail button:last-child')
     assert.equal(await js("getComputedStyle(document.querySelector('.nova-settings-dialog')).animationName"),'none')
     await click('.nova-settings-close');await until(()=>js("!document.querySelector('.nova-settings-dialog')"),'reduced exit')
     await click('.nova-rail button[aria-expanded]')
     assert.equal(await js("getComputedStyle(document.querySelector('.nova-project-pane')).animationName"),'none')
     await click('.nova-rail button[aria-expanded]');await until(()=>js("!document.querySelector('.nova-project-pane')"),'reduced drawer exit')
-    record('English retains Sync and translated questions; saved reduced motion disables both shared modal and project transitions')
-    win.webContents.debugger.detach()
-    await finish();backend?.kill();electron.app.quit();return
-  }
-  if(process.argv.includes('--appearance')){
-    await until(()=>js("!document.getElementById('nova-startup')"),'startup completed')
-    win.webContents.debugger.attach('1.3')
-    await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]})
-    await click('.nova-rail button:last-child')
-    assert.deepEqual(await js("[...document.querySelectorAll('.nova-settings-nav button')].map(e=>e.dataset.settingsSection)"),['general','appearance','connection','projects','chat','web','memory','knowledge','about'])
-    assert.equal(await js("document.querySelector('[data-settings-section=projects]').textContent"),'Proyectos')
-    await click('[data-settings-section=appearance]')
-    await until(()=>js("!!document.querySelector('[data-appearance=reduceMotion]')"),'appearance loaded')
-    assert.equal(await js("document.querySelector('[data-settings-section=appearance]').textContent"),'Apariencia')
-    const before=await js('window.api.getDesktopPreferences()')
-    assert.equal(before.reduceMotion,false);assert.equal(before.showStartupScreen,true)
-    await click('[data-appearance=reduceMotion]')
-    assert.equal(await js("document.documentElement.dataset.novaReduceMotion"),'false')
-    await click('.nova-appearance-settings button[type=button]')
-    assert.equal(await js("document.querySelector('[data-appearance=reduceMotion]').checked"),false)
-    record('Appearance follows General; Chats follows Projects; unsaved changes cancel without changing effective animation')
-    await click('[data-appearance=reduceMotion]');await click('[data-appearance=showStartupScreen]')
-    await click('.nova-appearance-settings button[type=submit]')
-    await until(()=>js("document.documentElement.dataset.novaReduceMotion==='true'"),'saved motion applied')
-    assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-satellite-a')).animationName"),'none')
-    fs.writeFileSync(path.join(output,'appearance-es.png'),(await win.webContents.capturePage()).toPNG())
-    const prefs=JSON.parse(fs.readFileSync(path.join(profile,'desktop-preferences.json'),'utf8'))
-    assert.equal(prefs.reduceMotion,true);assert.equal(prefs.showStartupScreen,false)
-    record('Saving reduces mascot motion immediately and persists both appearance preferences')
-    await click('[data-settings-section=general]');await input('.nova-settings-content select','en');await click('.nova-settings-content form button[type=submit]')
-    await until(()=>js("document.documentElement.lang==='en'"),'English saved')
-    await click('[data-settings-section=appearance]')
-    assert.equal(await js("document.querySelector('[data-settings-section=appearance]').textContent"),'Appearance')
-    assert.equal(await js("document.querySelector('[data-settings-section=projects]').textContent"),'Projects')
-    assert.ok(await js("document.querySelector('.nova-appearance-settings').textContent.includes('Show startup screen')"))
-    await reload()
-    await until(()=>js("!document.getElementById('nova-startup')"),'hidden startup removed on mount')
-    assert.equal(await js("document.documentElement.dataset.novaReduceMotion"),'true')
-    assert.equal(await js("document.documentElement.dataset.novaShowStartup"),'false')
-    assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-core')).animationName"),'none')
-    record('Appearance and English survive renderer reload; preload reads current saved values before paint')
-    await click('.nova-rail button:last-child');await click('[data-settings-section=appearance]')
-    await until(()=>js("!!document.querySelector('[data-appearance=reduceMotion]')"),'reloaded appearance')
-    await click('[data-appearance=reduceMotion]');await click('[data-appearance=showStartupScreen]');await click('.nova-appearance-settings button[type=submit]')
-    await until(()=>js("document.documentElement.dataset.novaReduceMotion==='false'"),'motion restored')
-    assert.notEqual(await js("getComputedStyle(document.querySelector('.nova-orbit-core')).animationName"),'none')
-    await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]})
-    assert.equal(await js("getComputedStyle(document.querySelector('.nova-orbit-core')).animationName"),'none')
-    record('Default motion restores the loop while continuing to respect reduced motion from the system')
+    record('English retains Sync and translated questions; disabled transitions remove both shared modal and project motion')
     win.webContents.debugger.detach()
     await finish();backend?.kill();electron.app.quit();return
   }
@@ -647,7 +2192,7 @@ electron.app.whenReady().then(async()=>{
     assert.ok(!states.some(s=>['OLLAMA_UNAVAILABLE','READINESS_CHECK_FAILED','READINESS_STALE','BACKEND_DISCONNECTED'].includes(s)),JSON.stringify(states))
     assert.equal(commands.filter(f=>f.command?.kind==='ChangeModel').length,4)
     record('Four model selector changes drain delayed old probes and confirm the new model without false connection warnings or repeated changes')
-    const samples=['Primera línea con **negrita**.\nSegunda línea que sigue escribiendo','Texto con '+String.fromCharCode(96)+'código'+String.fromCharCode(96),'# Un encabezado','- primero\n- último',String.fromCharCode(96).repeat(3)+'js\nconst answer = 42;','| A | B |\n| --- | --- |\n| uno | último |']
+    const samples=['Primera lÃ­nea con **negrita**.\nSegunda lÃ­nea que sigue escribiendo','Texto con '+String.fromCharCode(96)+'cÃ³digo'+String.fromCharCode(96),'# Un encabezado','- primero\n- Ãºltimo',String.fromCharCode(96).repeat(3)+'js\nconst answer = 42;','| A | B |\n| --- | --- |\n| uno | Ãºltimo |']
     for(let i=0;i<samples.length;i++){
       await submit('stream-markdown:'+samples[i])
       if(i===0)await click('.nova-history-button')
@@ -670,14 +2215,14 @@ electron.app.whenReady().then(async()=>{
     await click('.nova-send-button');await idle(3000)
     await submit('hello');await idle()
     await click('.nova-history-button')
-    await until(()=>js("[...document.querySelectorAll('.nova-turn-time')].some(e=>e.textContent.includes('Trabajó durante'))"),'plain reply work time')
+    await until(()=>js("[...document.querySelectorAll('.nova-turn-time')].some(e=>e.textContent.includes('TrabajÃ³ durante'))"),'plain reply work time')
     const timing=await js("[...document.querySelectorAll('.nova-turn-time')].at(-1).textContent")
-    assert.ok(timing.includes('Trabajó durante'));assert.ok(!timing.includes('Actividad'))
+    assert.ok(timing.includes('TrabajÃ³ durante'));assert.ok(!timing.includes('Actividad'))
     record('A reply without tools displays its measured worked duration')
     backend.kill();await until(async()=>!(await view()).status.connected,'owned backend stopped')
     assert.equal((await js('window.api.restartBackend()')).success,true)
     await attach();await until(async()=>(await view()).messages.some(m=>m.role==='assistant'&&m.content.includes('hello')),'restored plain reply',60000)
-    await until(()=>js("[...document.querySelectorAll('.nova-turn-time')].at(-1)?.textContent.includes('Trabajó durante')"),'restored duration')
+    await until(()=>js("[...document.querySelectorAll('.nova-turn-time')].at(-1)?.textContent.includes('TrabajÃ³ durante')"),'restored duration')
     assert.equal(await js("[...document.querySelectorAll('.nova-turn-time')].at(-1).textContent"),timing)
     record('Backend replacement restores the same duration from persisted dates')
     assert.equal((await js("window.api.setDesktopLocale('en')")).success,true)
@@ -711,7 +2256,7 @@ electron.app.whenReady().then(async()=>{
   }else if(real){
     const tasks=[
       ['plain answer','Responde exactamente NOVA_GUI_OK. No uses herramientas.'],
-      ['read file','Lee sample.txt y dime exactamente qué contiene.'],
+      ['read file','Lee sample.txt y dime exactamente quÃ© contiene.'],
       ['create file','Crea hola.txt en la carpeta actual con el texto Hola mundo.']]
     for(const [name,text] of tasks){
       const count=(await view()).messages.length;const started=Date.now()
@@ -731,7 +2276,7 @@ electron.app.whenReady().then(async()=>{
     await input('textarea.input-field','')
     assert.equal(await js(`document.querySelector('textarea.input-field').getBoundingClientRect().height`),initialHeight)
     record('Prompt grows with multiline text and returns to centered single-line height')
-    await submit('hello\n**Markdown**\n\n```txt\nline 1\nline 2\n```');await until(async()=>(await view()).messages.some(m=>m.content.includes('¡Hola 🧠!')),'Unicode response');await idle()
+    await submit('hello\n**Markdown**\n\n```txt\nline 1\nline 2\n```');await until(async()=>(await view()).messages.some(m=>m.content.includes('Â¡Hola ðŸ§ !')),'Unicode response');await idle()
     assert.equal(await js(`document.querySelector('textarea.input-field').getBoundingClientRect().height`),initialHeight)
     assert.equal(await js(`!!document.querySelector('.nova-home')`),true)
     assert.equal((await view()).conversation.unreadCount,1)
@@ -804,13 +2349,8 @@ electron.app.whenReady().then(async()=>{
     record('Owned attachment acquired through signed host picker')
     await click('.nova-rail button:last-child')
     await click('.nova-settings-nav [data-settings-section="memory"]')
-    await until(()=>js(`!document.querySelector('.nova-memory-settings form textarea').disabled`),'Memory controls available')
-    await input('.nova-memory-settings form textarea','The owned GUI test project uses C#.')
-    await click('.nova-memory-settings form.nova-settings-card button[type="submit"]')
-    await until(()=>js(`document.querySelector('.nova-memory-settings form textarea').value===''`),'confirmed Memory write')
-    await click('.nova-memory-settings section form button[type="button"]')
-    await until(()=>js(`document.querySelector('.settings-memory-list')?.textContent.includes('The owned GUI test project uses C#.')`),'Memory list')
-    record('Memory: explicit non-sensitive remember/list through real host and store')
+    assert.equal(await js("document.querySelectorAll('.nova-memory-settings form,.nova-memory-settings textarea').length"),0)
+    record('Memory settings are separated from the deferred memories manager')
     await click('.nova-settings-nav [data-settings-section="knowledge"]')
     assert.equal((await command('SetRAGEnabled',{enabled:true})).accepted,true)
     await until(async()=>(await view()).rag?.availability==='AVAILABLE','RAG ready')
@@ -824,7 +2364,7 @@ electron.app.whenReady().then(async()=>{
     await until(()=>js(`document.documentElement.lang==='en'`),'persist English')
     await js(`document.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}))`)
     await reload();assert.equal(await js('document.documentElement.lang'),'en')
-    assert.ok((await view()).messages.some(m=>m.content.includes('¡Hola'))|| (await view()).messages.some(m=>m.content==='long'))
+    assert.ok((await view()).messages.some(m=>m.content.includes('Â¡Hola'))|| (await view()).messages.some(m=>m.content==='long'))
     record('English UI persists through renderer reload; transcript not translated')
     await input('.nova-model-select','local:8b')
     await until(async()=>(await view()).status.model==='local:8b'&&(await view()).readiness?.ready,'confirmed installed model change')
@@ -852,7 +2392,7 @@ electron.app.whenReady().then(async()=>{
     await click('.nova-rail button[aria-haspopup="dialog"]:last-child')
     await click('.nova-settings-nav [data-settings-section="connection"]')
     await click('.nova-context-ticks button:nth-child(3)')
-    await click('.nova-context-settings button[type="submit"]')
+
     await until(async()=>(await view()).context?.requestedTokens===16384,'persist final 16K')
     await click('.nova-settings-close')
   backend.kill()
@@ -867,7 +2407,11 @@ electron.app.whenReady().then(async()=>{
   else {backend?.kill();electron.app.quit()}
  }catch(error){
   console.error(error.stack||error)
-  let lastView,dom;try{lastView=await view();dom=await js('document.body.innerText')}catch{}
+  let lastView,dom;try{
+    if(process.argv.includes('--resume-recovery'))[lastView,dom]=await Promise.race([
+      Promise.all([view(),js('document.body.innerText')]),delay(1500).then(()=>[null,'Renderer unavailable'])])
+    else {lastView=await view();dom=await js('document.body.innerText')}
+  }catch{}
   fs.writeFileSync(path.join(output,'result.json'),JSON.stringify({status:'FAIL',real,results,error:String(error.stack||error),lastView,dom,stderr,crashes},null,2))
   backend?.kill();electron.app.exit(1)
  }

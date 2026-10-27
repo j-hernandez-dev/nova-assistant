@@ -1,10 +1,11 @@
-"""Optional manual 64K; AUTO, typed failures and public numeric DTOs stay stable.
+"""Optional manual 64K, 128K and 256K; AUTO, typed failures and public numeric DTOs stay stable.
 
 Provider metadata/inference are synthetic. This does not certify a real model
 or resource budget, and never probes GPU/network or changes host configuration.
 """
 
 from copy import deepcopy
+from math import ceil
 from unittest.mock import Mock
 
 import pytest
@@ -52,29 +53,36 @@ def state_for(provider):
     return state
 
 
-@pytest.mark.parametrize('requested', ['64K', '64k', 65536])
-def test_manual_64k_acceptance_is_exact_and_verified(requested):
-    assert ContextSelection(requested).resolve(model_limit=131072,
-        provider_limit=65536, resource_limit=65536) == (65536, True, 'manual_verified')
-    assert PRESETS == (4096, 8192, 16384, 32768, 65536)
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+@pytest.mark.parametrize('format', ['upper', 'lower', 'numeric'])
+def test_manual_64k_acceptance_is_exact_and_verified(tokens, format):
+    requested = tokens if format == 'numeric' else f'{tokens // 1024}K'
+    if format == 'lower':
+        requested = requested.lower()
+    assert ContextSelection(requested).resolve(model_limit=tokens,
+        provider_limit=tokens, resource_limit=tokens) == (tokens, True, 'manual_verified')
+    assert PRESETS == (4096, 8192, 16384, 32768, 65536, 131072, 262144)
     assert AUTO_PRESETS == (4096, 8192, 16384, 32768)
 
 
 @pytest.mark.parametrize('field', ['model_limit', 'provider_limit', 'resource_limit'])
 @pytest.mark.parametrize('limit', [4096, 8192, 16384, 32768, 65535])
-def test_manual_64k_rejects_each_known_smaller_limit_without_clamping(field, limit):
-    limits = dict(model_limit=131072, provider_limit=131072, resource_limit=131072)
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+def test_manual_64k_rejects_each_known_smaller_limit_without_clamping(field, limit, tokens):
+    limits = dict(model_limit=tokens, provider_limit=tokens, resource_limit=tokens)
     limits[field] = limit
     with pytest.raises(ContextError) as error:
-        ContextSelection('64K').resolve(**limits)
+        ContextSelection(tokens).resolve(**limits)
     assert error.value.code == 'CONTEXT_LIMIT_EXCEEDED'
 
 
 @pytest.mark.parametrize('limits', [(None, None, None), (65536, None, None),
     (65536, 65536, None), (None, 65536, 65536)])
-def test_unknown_preserves_explicit_manual_unverified_contract(limits):
-    assert ContextSelection('64K').resolve(model_limit=limits[0],
-        provider_limit=limits[1], resource_limit=limits[2]) == (65536, False, 'manual_unverified')
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+def test_unknown_preserves_explicit_manual_unverified_contract(limits, tokens):
+    limits = tuple(tokens if limit is not None else None for limit in limits)
+    assert ContextSelection(tokens).resolve(model_limit=limits[0],
+        provider_limit=limits[1], resource_limit=limits[2]) == (tokens, False, 'manual_unverified')
 
 
 @pytest.mark.parametrize('requested', ['AUTO', 0])
@@ -88,62 +96,73 @@ def test_auto_does_not_recommend_or_select_new_manual_capacity(requested, native
         provider_limit=native, resource_limit=native) == (4096, False, 'native_model_limit_unknown')
 
 
-@pytest.mark.parametrize('tokenizer,margin,estimated', [
-    (None, 6554, True), (lambda text: len(text), 3277, False)])
-def test_64k_reserves_remain_numeric_and_do_not_double_output(tokenizer, margin, estimated):
-    budget = ContextManager(ContextSelection(65536), tokenizer=tokenizer).prepare(
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+@pytest.mark.parametrize('tokenizer,estimated', [
+    (None, True), (lambda text: len(text), False)])
+def test_64k_reserves_remain_numeric_and_do_not_double_output(tokens, tokenizer, estimated):
+    margin = ceil(tokens * (0.1 if estimated else 0.05))
+    budget = ContextManager(ContextSelection(tokens), tokenizer=tokenizer).prepare(
         [{'role': 'user', 'content': 'Synthetic acción 🙂'}]).budget
-    assert budget.selected_context_window == 65536
+    assert budget.selected_context_window == tokens
     assert budget.output_reserve == 4096 and budget.safety_margin == margin
     assert budget.estimated is estimated
 
 
-@pytest.mark.parametrize('value', ['64K', '64k', '65536'])
-def test_config_and_numeric_cli_flag_accept_manual_64k(tmp_path, value):
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+@pytest.mark.parametrize('format', ['upper', 'lower', 'numeric'])
+def test_config_and_numeric_cli_flag_accept_manual_64k(tmp_path, tokens, format):
+    value = str(tokens) if format == 'numeric' else f'{tokens // 1024}K'
+    if format == 'lower':
+        value = value.lower()
     from local_cli.cli import build_parser
     path = tmp_path / 'synthetic.config'
     path.write_text('num_ctx=' + value, encoding='utf-8')
-    assert Config(config_file=str(path)).num_ctx == 65536
+    assert Config(config_file=str(path)).num_ctx == tokens
     parser = build_parser()
-    assert parser.parse_args(['--num-ctx', '65536']).num_ctx == 65536
+    assert parser.parse_args(['--num-ctx', str(tokens)]).num_ctx == tokens
     assert parser.parse_args(['--num-ctx', '0']).num_ctx == 0
     assert parser.parse_args([]).num_ctx is None
-    assert '65536' in parser.format_help()
+    assert str(tokens) in parser.format_help()
 
 
-def test_legacy_resolver_keeps_manual_64k_and_auto_ceiling(monkeypatch):
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+def test_legacy_resolver_keeps_manual_64k_and_auto_ceiling(monkeypatch, tokens):
     from local_cli.context_sizing import resolve_num_ctx
     monkeypatch.setattr('local_cli.context_sizing._max_ctx_cache', {})
     monkeypatch.setattr('local_cli.context_sizing._system_ram_gb', lambda: 128)
     client = Mock()
     client.show_model.return_value = {'model_info': {'synthetic.context_length': 262144}}
-    assert resolve_num_ctx(client, 'synthetic', configured=65536) == 65536
+    assert resolve_num_ctx(client, 'synthetic', configured=tokens) == tokens
     client.show_model.assert_not_called()
     assert resolve_num_ctx(client, 'synthetic', estimated_tokens=200000) == 32768
 
 
 @pytest.mark.parametrize('name', ['ollama', 'claude', 'llama-server'])
-def test_common_boundary_64k_metadata_and_provider_options(tmp_path, name):
-    provider = CapacityProvider(name)
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+def test_common_boundary_64k_metadata_and_provider_options(tmp_path, name, tokens):
+    provider = CapacityProvider(name, model_limit=tokens, provider_limit=tokens)
     state = state_for(provider)
-    assert state.snapshot().snapshot.model_context_window == 65536
+    assert state.snapshot().snapshot.model_context_window == tokens
     reports = []
-    bound = bind_context(state.snapshot(), workspace=tmp_path, requested='64K',
-        policy=ContextPolicy(resource_limit=65536), report=reports.append,
+    bound = bind_context(state.snapshot(), workspace=tmp_path, requested=tokens,
+        policy=ContextPolicy(resource_limit=tokens), report=reports.append,
         capability_factory=capabilities)
     list(bound.chat_stream('old', [{'role': 'user', 'content': 'Synthetic current input'}]))
     options = provider.requests[0][1]
-    assert options == ({'options': {'num_ctx': 65536, 'num_predict': 4096}}
-                       if name == 'ollama' else {'max_tokens': 4096})
+    assert options == ({'options': {'num_ctx': tokens, 'num_predict': 4096}}
+                       if name == 'ollama' else {'max_tokens': 4096} if name == 'llama-server' else {})
     assert reports[0]['budget']['selection_verified'] is True
-    assert reports[0]['budget']['selected_context_window'] == 65536
+    assert reports[0]['budget']['selected_context_window'] == tokens
 
 
-@pytest.mark.parametrize('model_limit,provider_limit,resource_limit', [
-    (32768, 131072, 65536), (65536, 32768, 65536), (65536, 131072, 32768)])
-def test_rejection_happens_before_provider_inference(tmp_path, model_limit, provider_limit, resource_limit):
-    provider = CapacityProvider(model_limit=model_limit, provider_limit=provider_limit)
-    bound = bind_context(state_for(provider).snapshot(), workspace=tmp_path, requested='64K',
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+@pytest.mark.parametrize('field', ['model_limit', 'provider_limit', 'resource_limit'])
+def test_rejection_happens_before_provider_inference(tmp_path, tokens, field):
+    limits = dict(model_limit=tokens, provider_limit=tokens, resource_limit=tokens)
+    limits[field] = tokens - 1
+    resource_limit = limits.pop('resource_limit')
+    provider = CapacityProvider(**limits)
+    bound = bind_context(state_for(provider).snapshot(), workspace=tmp_path, requested=tokens,
         policy=ContextPolicy(resource_limit=resource_limit), capability_factory=capabilities)
     with pytest.raises(ContextError) as error:
         list(bound.chat_stream('old', [{'role': 'user', 'content': 'synthetic'}]))
@@ -151,24 +170,25 @@ def test_rejection_happens_before_provider_inference(tmp_path, model_limit, prov
     assert provider.requests == [] and provider.prompts == []
 
 
-def test_application_cli_server_snapshot_and_smaller_model_switch(tmp_path, monkeypatch, capsys):
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+def test_application_cli_server_snapshot_and_smaller_model_switch(tmp_path, monkeypatch, capsys, tokens):
     from local_cli.server import JsonLineServer
     from local_cli.session import SessionManager
     from tests.cli_application_fixture import _ReplContext, _handle_slash_command
-    provider = CapacityProvider()
+    provider = CapacityProvider(model_limit=tokens, provider_limit=tokens)
     app = AgentSessionCoordinator(provider=provider, model='old', provider_manager=state_for(provider),
         tool_factory=lambda _: [], prompt_factory=lambda *_: 'Synthetic mandatory safety.',
-        context_selection='64K', context_policy=ContextPolicy(resource_limit=65536),
+        context_selection=tokens, context_policy=ContextPolicy(resource_limit=tokens),
         capability_factory=capabilities, event_config=EventBufferConfig())
     session = start(app, tmp_path).session_id
     receipt = submit(app, session, 'Synthetic Unicode acción 🙂')
     assert app.wait_for_turn(receipt.created_ids['turnId'], 5)
     state = snapshot(app, session)
     assert state.turns[-1]['status'] == 'completed'
-    assert state.model_runtime['modelContextWindow'] == 65536
+    assert state.model_runtime['modelContextWindow'] == tokens
     usage = app.get_context_usage(session)
     budget = usage['budget']
-    assert usage['token_limit'] == budget['selected_context_window'] == 65536
+    assert usage['token_limit'] == budget['selected_context_window'] == tokens
     assert budget['selection_verified'] is True
     wire = []
     adapter = JsonlApplicationAdapter(app, session, wire.append)
@@ -187,7 +207,7 @@ def test_application_cli_server_snapshot_and_smaller_model_switch(tmp_path, monk
         SessionManager(tmp_path), 'safe')
     ctx.context_budget = budget
     assert _handle_slash_command('/context', ctx)
-    assert '65536' in capsys.readouterr().out
+    assert str(tokens) in capsys.readouterr().out
     assert change(app, session).accepted  # New model has only 8192 tokens.
     receipt = submit(app, session, 'Next synthetic input')
     assert app.wait_for_turn(receipt.created_ids['turnId'], 5)

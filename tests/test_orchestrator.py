@@ -50,9 +50,9 @@ class TestOrchestratorInit(unittest.TestCase):
 
     def test_active_provider_from_config(self) -> None:
         """Active provider name comes from config.provider."""
-        config = _make_config(provider="claude")
+        config = _make_config(provider="llama-server")
         orch = Orchestrator(config)
-        self.assertEqual(orch.get_active_provider_name(), "claude")
+        self.assertEqual(orch.get_active_provider_name(), "llama-server")
 
     def test_default_brain_model_from_config_model(self) -> None:
         """Brain model defaults to config.model when orchestrator_model is empty."""
@@ -103,11 +103,11 @@ class TestGetActiveProviderName(unittest.TestCase):
         config = _make_config(provider="ollama")
         orch = Orchestrator(config)
 
-        mock_provider = _make_mock_provider("claude")
-        orch._providers["claude"] = mock_provider
+        mock_provider = _make_mock_provider("llama-server")
+        orch._providers["llama-server"] = mock_provider
 
-        orch.switch_provider("claude")
-        self.assertEqual(orch.get_active_provider_name(), "claude")
+        orch.switch_provider("llama-server")
+        self.assertEqual(orch.get_active_provider_name(), "llama-server")
 
 
 class TestGetProvider(unittest.TestCase):
@@ -129,19 +129,6 @@ class TestGetProvider(unittest.TestCase):
                 "ollama", base_url="http://localhost:11434"
             )
 
-    def test_creates_claude_provider(self) -> None:
-        """get_provider('claude') creates a ClaudeProvider."""
-        config = _make_config()
-        orch = Orchestrator(config)
-
-        with patch("local_cli.providers.get_provider") as mock_get:
-            mock_prov = _make_mock_provider("claude")
-            mock_get.return_value = mock_prov
-
-            result = orch.get_provider("claude")
-
-            self.assertIs(result, mock_prov)
-            mock_get.assert_called_once_with("claude")
 
     def test_caches_provider(self) -> None:
         """Provider instances are cached by name."""
@@ -165,13 +152,13 @@ class TestGetProvider(unittest.TestCase):
         orch = Orchestrator(config)
 
         mock_ollama = _make_mock_provider("ollama")
-        mock_claude = _make_mock_provider("claude")
+        mock_claude = _make_mock_provider("llama-server")
 
         orch._providers["ollama"] = mock_ollama
-        orch._providers["claude"] = mock_claude
+        orch._providers["llama-server"] = mock_claude
 
         self.assertIs(orch.get_provider("ollama"), mock_ollama)
-        self.assertIs(orch.get_provider("claude"), mock_claude)
+        self.assertIs(orch.get_provider("llama-server"), mock_claude)
 
     def test_none_returns_active_provider(self) -> None:
         """get_provider(None) returns the active provider."""
@@ -230,21 +217,21 @@ class TestSwitchProvider(unittest.TestCase):
         config = _make_config(provider="ollama")
         orch = Orchestrator(config)
 
-        mock_prov = _make_mock_provider("claude")
-        orch._providers["claude"] = mock_prov
+        mock_prov = _make_mock_provider("llama-server")
+        orch._providers["llama-server"] = mock_prov
 
-        orch.switch_provider("claude")
-        self.assertEqual(orch.get_active_provider_name(), "claude")
+        orch.switch_provider("llama-server")
+        self.assertEqual(orch.get_active_provider_name(), "llama-server")
 
     def test_switch_returns_new_provider(self) -> None:
         """switch_provider returns the new provider instance."""
         config = _make_config(provider="ollama")
         orch = Orchestrator(config)
 
-        mock_prov = _make_mock_provider("claude")
-        orch._providers["claude"] = mock_prov
+        mock_prov = _make_mock_provider("llama-server")
+        orch._providers["llama-server"] = mock_prov
 
-        result = orch.switch_provider("claude")
+        result = orch.switch_provider("llama-server")
         self.assertIs(result, mock_prov)
 
     def test_switch_creates_provider_if_needed(self) -> None:
@@ -253,13 +240,13 @@ class TestSwitchProvider(unittest.TestCase):
         orch = Orchestrator(config)
 
         with patch("local_cli.providers.get_provider") as mock_get:
-            mock_prov = _make_mock_provider("claude")
+            mock_prov = _make_mock_provider("llama-server")
             mock_get.return_value = mock_prov
 
-            result = orch.switch_provider("claude")
+            result = orch.switch_provider("llama-server")
 
             self.assertIs(result, mock_prov)
-            self.assertEqual(orch.get_active_provider_name(), "claude")
+            self.assertEqual(orch.get_active_provider_name(), "llama-server")
 
     def test_switch_to_same_provider(self) -> None:
         """Switching to the already-active provider is a no-op."""
@@ -285,7 +272,7 @@ class TestSwitchProvider(unittest.TestCase):
         with patch("local_cli.providers.get_provider") as mock_get:
             mock_get.side_effect = ValueError("No API key")
 
-            result = orch.switch_provider("claude")
+            result = orch.switch_provider("llama-server")
 
             # Should fall back to ollama.
             self.assertIs(result, mock_ollama)
@@ -303,7 +290,7 @@ class TestSwitchProvider(unittest.TestCase):
             mock_get.side_effect = ValueError("No API key")
 
             with patch("sys.stderr") as mock_stderr:
-                orch.switch_provider("claude")
+                orch.switch_provider("llama-server")
                 # Verify warnings were written.
                 self.assertTrue(mock_stderr.write.called)
 
@@ -316,7 +303,7 @@ class TestSwitchProvider(unittest.TestCase):
             mock_get.side_effect = ValueError("No providers available")
 
             with self.assertRaises(ValueError) as ctx:
-                orch.switch_provider("claude")
+                orch.switch_provider("llama-server")
             self.assertIn("Cannot switch", str(ctx.exception))
             self.assertIn("fallback", str(ctx.exception))
 
@@ -331,26 +318,18 @@ class TestSwitchProvider(unittest.TestCase):
         with patch("local_cli.providers.get_provider") as mock_get:
             mock_get.side_effect = ValueError("Claude API key missing")
 
-            result = orch.switch_provider("claude")
+            result = orch.switch_provider("llama-server")
 
             self.assertEqual(orch.get_active_provider_name(), "ollama")
             self.assertIs(result, mock_ollama)
 
-    def test_switch_from_ollama_fallback_to_claude(self) -> None:
-        """When switching to ollama fails, falls back to claude."""
-        config = _make_config(provider="claude")
-        orch = Orchestrator(config)
-
-        mock_claude = _make_mock_provider("claude")
-        orch._providers["claude"] = mock_claude
-
-        with patch("local_cli.providers.get_provider") as mock_get:
-            mock_get.side_effect = ValueError("Ollama not available")
-
-            result = orch.switch_provider("ollama")
-
-            self.assertEqual(orch.get_active_provider_name(), "claude")
-            self.assertIs(result, mock_claude)
+    def test_failed_ollama_initialization_never_falls_back_to_a_retired_provider(self):
+        orch = Orchestrator(_make_config())
+        with patch("local_cli.providers.get_provider", side_effect=ValueError("Ollama unavailable")) as factory:
+            with self.assertRaises(ValueError):
+                orch.switch_provider("ollama")
+        self.assertEqual(factory.call_count, 1)
+        self.assertEqual(orch.get_active_provider_name(), "ollama")
 
 
 class TestBrainModel(unittest.TestCase):
@@ -420,7 +399,7 @@ class TestGetModelForTask(unittest.TestCase):
             TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=1
         )
         registry.update_task_route(
-            TaskType.PLANNING, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.PLANNING, "llama-server", "claude-sonnet-4-5", priority=1
         )
         orch = Orchestrator(config, registry=registry)
 
@@ -428,7 +407,7 @@ class TestGetModelForTask(unittest.TestCase):
         plan_result = orch.get_model_for_task(TaskType.PLANNING)
 
         self.assertEqual(code_result, ("ollama", "qwen3:8b"))
-        self.assertEqual(plan_result, ("claude", "claude-sonnet-4-5"))
+        self.assertEqual(plan_result, ("llama-server", "claude-sonnet-4-5"))
 
     def test_without_registry_uses_config(self) -> None:
         """Without registry, falls back to active provider + config model."""
@@ -444,12 +423,12 @@ class TestGetModelForTask(unittest.TestCase):
         orch = Orchestrator(config)
 
         # Pre-populate provider cache.
-        mock_claude = _make_mock_provider("claude")
-        orch._providers["claude"] = mock_claude
+        mock_claude = _make_mock_provider("llama-server")
+        orch._providers["llama-server"] = mock_claude
 
-        orch.switch_provider("claude")
+        orch.switch_provider("llama-server")
         result = orch.get_model_for_task(TaskType.PLANNING)
-        self.assertEqual(result, ("claude", "qwen3:8b"))
+        self.assertEqual(result, ("llama-server", "qwen3:8b"))
 
     def test_registry_fallback_to_default(self) -> None:
         """Registry with no mapping falls back to registry default."""
@@ -489,7 +468,7 @@ class TestGetProviderForTask(unittest.TestCase):
         config = _make_config(provider="ollama", model="qwen3:8b")
         registry = ModelRegistry()
         registry.update_task_route(
-            TaskType.PLANNING, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.PLANNING, "llama-server", "claude-sonnet-4-5", priority=1
         )
         orch = Orchestrator(config, registry=registry)
 
@@ -511,7 +490,7 @@ class TestGetProviderForTask(unittest.TestCase):
         config = _make_config(provider="ollama", model="qwen3:8b")
         registry = ModelRegistry()
         registry.update_task_route(
-            TaskType.PLANNING, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.PLANNING, "llama-server", "claude-sonnet-4-5", priority=1
         )
         orch = Orchestrator(config, registry=registry)
 
@@ -603,14 +582,14 @@ class TestOrchestratorConformance(unittest.TestCase):
         """Orchestrator consults model registry for task routing."""
         registry = ModelRegistry()
         registry.update_task_route(
-            TaskType.REVIEW, "claude", "claude-haiku-4-5", priority=1
+            TaskType.REVIEW, "llama-server", "claude-haiku-4-5", priority=1
         )
 
         config = _make_config()
         orch = Orchestrator(config, registry=registry)
 
         result = orch.get_model_for_task(TaskType.REVIEW)
-        self.assertEqual(result, ("claude", "claude-haiku-4-5"))
+        self.assertEqual(result, ("llama-server", "claude-haiku-4-5"))
 
     def test_supports_runtime_provider_switching(self) -> None:
         """Orchestrator supports switching providers at runtime."""
@@ -618,13 +597,13 @@ class TestOrchestratorConformance(unittest.TestCase):
         orch = Orchestrator(config)
 
         mock_ollama = _make_mock_provider("ollama")
-        mock_claude = _make_mock_provider("claude")
+        mock_claude = _make_mock_provider("llama-server")
         orch._providers["ollama"] = mock_ollama
-        orch._providers["claude"] = mock_claude
+        orch._providers["llama-server"] = mock_claude
 
         self.assertEqual(orch.get_active_provider_name(), "ollama")
-        orch.switch_provider("claude")
-        self.assertEqual(orch.get_active_provider_name(), "claude")
+        orch.switch_provider("llama-server")
+        self.assertEqual(orch.get_active_provider_name(), "llama-server")
         orch.switch_provider("ollama")
         self.assertEqual(orch.get_active_provider_name(), "ollama")
 
@@ -658,18 +637,6 @@ class TestProviderCreation(unittest.TestCase):
                 "ollama", base_url="http://custom:9999"
             )
 
-    def test_claude_provider_no_extra_args(self) -> None:
-        """Claude provider is created without extra arguments."""
-        config = _make_config()
-        orch = Orchestrator(config)
-
-        with patch("local_cli.providers.get_provider") as mock_get:
-            mock_prov = _make_mock_provider("claude")
-            mock_get.return_value = mock_prov
-
-            orch.get_provider("claude")
-
-            mock_get.assert_called_once_with("claude")
 
 
 class TestEdgeCases(unittest.TestCase):
@@ -680,7 +647,7 @@ class TestEdgeCases(unittest.TestCase):
         config = _make_config(provider="ollama")
         registry = ModelRegistry()
         registry.update_task_route(
-            TaskType.PLANNING, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.PLANNING, "llama-server", "claude-sonnet-4-5", priority=1
         )
         orch = Orchestrator(config, registry=registry)
 
@@ -698,12 +665,12 @@ class TestEdgeCases(unittest.TestCase):
         orch = Orchestrator(config)
 
         mock_ollama = _make_mock_provider("ollama")
-        mock_claude = _make_mock_provider("claude")
+        mock_claude = _make_mock_provider("llama-server")
         orch._providers["ollama"] = mock_ollama
-        orch._providers["claude"] = mock_claude
+        orch._providers["llama-server"] = mock_claude
 
         # Switch to claude and back.
-        orch.switch_provider("claude")
+        orch.switch_provider("llama-server")
         result = orch.switch_provider("ollama")
 
         self.assertIs(result, mock_ollama)
@@ -721,10 +688,10 @@ class TestEdgeCases(unittest.TestCase):
 
         # Add route -> specific mapping.
         registry.update_task_route(
-            TaskType.CODE_GENERATION, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.CODE_GENERATION, "llama-server", "claude-sonnet-4-5", priority=1
         )
         result2 = orch.get_model_for_task(TaskType.CODE_GENERATION)
-        self.assertEqual(result2, ("claude", "claude-sonnet-4-5"))
+        self.assertEqual(result2, ("llama-server", "claude-sonnet-4-5"))
 
     def test_set_registry_changes_routing(self) -> None:
         """Setting a new registry changes task routing behavior."""
@@ -738,12 +705,12 @@ class TestEdgeCases(unittest.TestCase):
         # Set registry with different routing.
         registry = ModelRegistry()
         registry.update_task_route(
-            TaskType.PLANNING, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.PLANNING, "llama-server", "claude-sonnet-4-5", priority=1
         )
         orch.registry = registry
 
         result2 = orch.get_model_for_task(TaskType.PLANNING)
-        self.assertEqual(result2, ("claude", "claude-sonnet-4-5"))
+        self.assertEqual(result2, ("llama-server", "claude-sonnet-4-5"))
 
 
 if __name__ == "__main__":

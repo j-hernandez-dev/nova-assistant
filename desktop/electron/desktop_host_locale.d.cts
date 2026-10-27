@@ -6,4 +6,3 @@ export function memoryDialogOptions(locale: Locale, request: { name: string; wor
 export function forwardingDialogOptions(locale: Locale): ConfirmationOptions
 export function pickerDialogOptions(locale: Locale, kind: 'export'): { title: string; buttonLabel: string; defaultPath: string }
 export function pickerDialogOptions(locale: Locale, kind: 'document' | 'refresh' | 'project'): { title: string; buttonLabel: string; properties: Array<'openDirectory' | 'openFile'> }
-export function oauthPage(locale: Locale, status: 'success' | 'failed' | 'invalid'): string

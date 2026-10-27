@@ -28,6 +28,13 @@ test('A scope change rejects a late result rather than attaching it to another p
  assert.equal(await running,null);const current=h.render('new-session:new-project')
  assert.equal(current.result,null);assert.equal(current.busy,false);h.dispose()
 })
+
+test('Canceling a confirmation is neutral and allows the next explicit action',async()=>{
+ const h=harness();h.render()
+ assert.equal(await h.render().run(async()=>({completed:false,canceled:true})),null)
+ assert.equal(h.render().busy,false);assert.equal(h.render().errorCode,null);assert.equal(h.render().unconfirmed,false)
+ assert.equal((await h.render().run(async()=>({completed:true}))).completed,true);h.dispose()
+})
 test('Unknown effects remain unconfirmed and block another call, including Memory outcomeUnknown flags',async()=>{
  for(const error of [{code:'OUTCOME_UNKNOWN'},{code:'MEMORY_WRITE_FAILED',outcomeUnknown:true}]){
   const h=harness();h.render();assert.equal(await h.render().run(async()=>({completed:false,error})),null)

@@ -10,6 +10,9 @@ FILENAME = 'browser-search.json'
 
 
 def load_settings(state_dir):
+    from local_cli.web_config import has_web_settings, load_web_settings
+    if has_web_settings(state_dir):
+        return BrowserSearchSettings(load_web_settings(state_dir)['engine'])
     path = Path(state_dir).expanduser() / FILENAME
     try:
         if path.is_symlink() or path.stat().st_size > 1024: return BrowserSearchSettings()
@@ -23,6 +26,10 @@ def load_settings(state_dir):
 
 def save_settings(state_dir, engine):
     BrowserSearchSettings(engine)
+    from local_cli.web_config import has_web_settings, update_web_settings
+    if has_web_settings(state_dir):
+        update_web_settings(state_dir, engine=engine)
+        return
     root = Path(state_dir).expanduser()
     root.mkdir(parents=True, exist_ok=True)
     path, temporary = root / FILENAME, None

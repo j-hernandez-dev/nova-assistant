@@ -108,8 +108,6 @@ def _dispatch_alternate_modes(args: object, config: Config) -> bool:
 
         if config.provider == "llama-server":
             prov = get_provider("llama-server", base_url=config.llama_server_url)
-        elif config.provider == "claude":
-            prov = get_provider("claude")
         else:
             prov = get_provider("ollama", base_url=config.ollama_host)
         run_bench(prov, config.model)
@@ -300,8 +298,8 @@ def _init_orchestrator(
 ) -> Orchestrator:
     """Create the orchestrator and initialize its active provider.
 
-    A non-Ollama provider that fails to initialize (e.g. Claude without
-    an API key) falls back to Ollama with a warning; if no provider can
+    A non-Ollama provider that fails to initialize falls back to Ollama
+    with a warning; if no provider can
     be initialized the process exits with status 1.
 
     Args:

@@ -146,28 +146,35 @@ CATALOG: list[CatalogEntry] = [
                  "大型多言語モデル。高品質な多言語生成。16GB+ VRAM推奨。",
                  ["multilingual"], 8192, "2024-10", ["多言語", "高品質翻訳"], 3),
 
-    # --- Japanese ---
-    CatalogEntry("llm-jp:13b", "LLM-jp 13B", "Japanese", "13B", 7.4,
+    # Additional language-focused models.
+    CatalogEntry("llm-jp:13b", "LLM-jp 13B", "Multilingual", "13B", 7.4,
                  "国立情報学研究所（NII）開発。日本語特化。学術・ビジネス文書に強い。",
                  ["japanese"], 4096, "2024-03", ["日本語", "学術", "ビジネス"], 3),
-    CatalogEntry("hf.co/elyza/Llama-3-ELYZA-JP-8B-GGUF", "ELYZA JP 8B", "Japanese", "8B", 4.7,
+    CatalogEntry("hf.co/elyza/Llama-3-ELYZA-JP-8B-GGUF", "ELYZA JP 8B", "Multilingual", "8B", 4.7,
                  "ELYZA製日本語Llama 3。日本語NLPタスク全般に強い。実用的。",
                  ["japanese"], 8192, "2024-06", ["日本語", "NLP", "実用的"], 4),
-    CatalogEntry("hf.co/LiquidAI/LFM2.5-1.2B-JP-GGUF", "LFM 2.5 1.2B JP", "Japanese", "1.2B", 0.8,
+    CatalogEntry("hf.co/LiquidAI/LFM2.5-1.2B-JP-GGUF", "LFM 2.5 1.2B JP", "Multilingual", "1.2B", 0.8,
                  "Liquid AI製日本語特化小型モデル。軽量で高速。簡単な日本語タスク向き。",
                  ["japanese"], 4096, "2024-11", ["日本語", "軽量", "高速"], 4),
-    CatalogEntry("hf.co/mmnga/cyberagent-DeepSeek-R1-Distill-Qwen-14B-Japanese-gguf", "CyberAgent DeepSeek R1 14B JP", "Japanese", "14B", 9.0,
+    CatalogEntry("hf.co/mmnga/cyberagent-DeepSeek-R1-Distill-Qwen-14B-Japanese-gguf", "CyberAgent DeepSeek R1 14B JP", "Multilingual", "14B", 9.0,
                  "CyberAgent製。DeepSeek R1の日本語蒸留版。日本語での推論に強い。",
                  ["japanese", "reasoning"], 32768, "2025-02", ["日本語", "推論", "CoT"], 3),
-    CatalogEntry("hf.co/mmnga/Fugaku-LLM-13B-instruct-gguf", "Fugaku LLM 13B", "Japanese", "13B", 7.4,
+    CatalogEntry("hf.co/mmnga/Fugaku-LLM-13B-instruct-gguf", "Fugaku LLM 13B", "Multilingual", "13B", 7.4,
                  "富岳スパコンプロジェクト発。日本語命令チューニング済み。",
                  ["japanese"], 4096, "2024-05", ["日本語", "学術"], 2),
-    CatalogEntry("hf.co/dahara1/gemma-2-2b-jpn-it-gguf", "Gemma 2 2B JPN IT", "Japanese", "2B", 1.6,
+    CatalogEntry("hf.co/dahara1/gemma-2-2b-jpn-it-gguf", "Gemma 2 2B JPN IT", "Multilingual", "2B", 1.6,
                  "Google Gemma 2日本語版。小型で高速。簡単な日本語会話向き。",
                  ["japanese"], 8192, "2024-08", ["日本語", "軽量", "会話"], 4),
 ]
 
-CATEGORIES = ["Code", "General", "Small", "Reasoning", "Japanese", "Multilingual"]
+CATEGORIES = ["Code", "General", "Small", "Reasoning", "Multilingual"]
+
+
+def _normalize_category(entry: dict) -> dict:
+    """Fold the retired language category into Multilingual, including old caches."""
+    if entry.get("category") in ("Japanese", "日本語"):
+        return {**entry, "category": "Multilingual"}
+    return entry
 
 
 def get_catalog() -> list[dict]:
@@ -209,6 +216,9 @@ def _classify_model(name: str, tags: list[str], desc: str) -> str:
     lower_name = name.lower()
     lower_desc = desc.lower()
 
+    if "embedding" in tags or any(k in lower_name for k in ("embed", "minilm", "bge")):
+        return "Embedding"
+
     if any(k in lower_name for k in ("coder", "code", "starcoder", "deepseek-coder")):
         return "Code"
     if "code" in tags:
@@ -221,9 +231,9 @@ def _classify_model(name: str, tags: list[str], desc: str) -> str:
         return "Embedding"
 
     if any(k in lower_name for k in ("elyza", "llm-jp", "japanese", "-jp-", "-jp:")):
-        return "Japanese"
+        return "Multilingual"
     if "japanese" in tags:
-        return "Japanese"
+        return "Multilingual"
 
     if any(k in lower_name for k in ("aya", "translate")):
         return "Multilingual"
@@ -311,6 +321,7 @@ def update_catalog(*, raise_on_error: bool = False) -> dict:
         try:
             data = json.loads(_CACHE_FILE.read_text(encoding="utf-8"))
             for entry in data.get("models", []):
+                entry = _normalize_category(entry)
                 existing[entry["name"]] = entry
         except (json.JSONDecodeError, KeyError):
             pass
@@ -392,7 +403,7 @@ def get_cached_catalog() -> list[dict] | None:
     if time.time() - updated_at > _CACHE_MAX_AGE:
         return None
 
-    return data.get("models", [])
+    return [_normalize_category(entry) for entry in data.get("models", [])]
 
 
 def get_merged_catalog() -> tuple[list[dict], list[str]]:

@@ -5,6 +5,7 @@ import { ActivityChain } from './TurnActivity'
 import { collectActions } from '../turn_activity'
 import { applicationErrorKey } from '../activity_presentation'
 import { useI18n } from '../i18n'
+import { SourceContext, SourceReferences } from './SourceReferences'
 
 type Props = { message: Message; approvalToolCallIds?: string[]; showActivity?: boolean }
 
@@ -30,6 +31,8 @@ export function MessageBlock({ message, approvalToolCallIds = [], showActivity =
       </span>
     </div>}
 
+    {role === 'user' && <SourceContext sources={message.sourceContext}/>}
+
     {showActivity && role === 'assistant' && thinking && !interrupted && !content && !toolActivities?.length && !toolCalls?.length && (
       <div className="msg-prompt nova-message-bubble"><span className="msg-body agent"><span className="thinking-indicator">
         <span className="thinking-dot" /><span className="thinking-dot" /><span className="thinking-dot" />
@@ -43,15 +46,7 @@ export function MessageBlock({ message, approvalToolCallIds = [], showActivity =
       {t(message.deliveryStatus === 'cancelled' ? 'responseInterrupted' : 'responseFailed')}
     </p>}
 
-    {message.knowledgeCitations && <details aria-label={t('knowledgeCitations')}>
-      <summary>{t('structuralSources')}</summary>
-      {message.knowledgeCitations.valid.map(citation => <div key={citation.citationId}>
-        [{citation.citationId}] {citation.displayLabel} — {t('revision')} {citation.revisionId}
-        <pre>{JSON.stringify(citation.locator)}</pre>
-        <button onClick={() => void window.api.knowledgeCommand('source_detail', { sourceId: citation.sourceId, revisionId: citation.revisionId })}>{t('sourceRevisionDetail')}</button>
-      </div>)}
-      {message.knowledgeCitations.invalid.length > 0 && <div>{t('invalidReferences')}: {message.knowledgeCitations.invalid.join(', ')}</div>}
-    </details>}
+    {role === 'assistant' && <SourceReferences citations={message.knowledgeCitations}/>}
     <MessageFooter message={message} />
   </article>
 }

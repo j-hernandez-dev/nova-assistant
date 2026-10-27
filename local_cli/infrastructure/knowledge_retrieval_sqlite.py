@@ -27,6 +27,18 @@ from local_cli.infrastructure.knowledge_query import plan_query
 class DocumentRetrievalStorage:
     """Infrastructure mixin; transaction/containment ownership stays in K1."""
 
+    def document_index_inventory(self, access, space_id=''):
+        """Current authorized revisions only; old, deleted and foreign data is excluded."""
+        where, args = self._retrieval_where(access, DocumentRetrievalFilter())
+        with self._transaction(write=False):
+            rows = self._connection.execute(f'''SELECT ch.revision_id,
+                count(DISTINCT ch.chunk_id) AS chunks,
+                count(DISTINCT CASE WHEN v.space_id=? THEN ch.chunk_id END) AS indexed,
+                count(v.chunk_id) AS prior
+                FROM chunks ch {self._joins()} LEFT JOIN semantic_vectors v USING(chunk_id)
+                WHERE {where} GROUP BY ch.revision_id''', [space_id, *args]).fetchall()
+            return [dict(row) for row in rows]
+
     def _retrieval_where(self, access, filters):
         _require(isinstance(access, KnowledgeAccess) and isinstance(filters, DocumentRetrievalFilter))
         where = ["s.workspace_id=?", "(s.scope_kind='WORKSPACE' OR s.session_id=?)",

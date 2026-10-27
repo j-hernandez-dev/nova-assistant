@@ -6,6 +6,7 @@ const REASON_MESSAGES: Record<string, TranslationKey> = {
   BACKEND_DISCONNECTED: 'readinessBackendDisconnected',
   INVALID_SESSION: 'readinessBackendDisconnected',
   OLLAMA_UNAVAILABLE: 'readinessOllamaUnavailable',
+  OLLAMA_CONNECTION_TIMEOUT: 'modelConnectTimeout',
   NO_MODELS_INSTALLED: 'readinessNoModels',
   MODEL_NOT_SELECTED: 'readinessSelectModel',
   MODEL_NOT_INSTALLED: 'readinessModelMissing',
@@ -22,6 +23,7 @@ type Props = {
   reason: string | null
   requiredAction: 'SELECT_MODEL' | 'CONFIGURE_PROVIDER' | null
   modelChanging?: boolean
+  responseDelayed?: boolean
   onConfigure: () => void
   onRecheck: () => Promise<void>
   configuration?: ReactNode
@@ -29,16 +31,16 @@ type Props = {
 
 /** Readiness is a host projection. This card only explains the reported state. */
 export function ReadinessNotice({ ready, reason, requiredAction, modelChanging = false,
-  onConfigure, onRecheck, configuration }: Props) {
+  onConfigure, onRecheck, configuration, responseDelayed = false }: Props) {
   const { t } = useI18n()
   const inFlight = useRef(false)
   const [checking, setChecking] = useState(false)
   const [checkFailed, setCheckFailed] = useState(false)
-  if (ready && !modelChanging) return null
+  if (ready && !modelChanging && !responseDelayed) return null
   const isChecking = checking || reason === 'CHECKING' || modelChanging
   const canConfigure = !modelChanging && requiredAction !== null && reason !== 'OLLAMA_UNAVAILABLE'
-  const title = canConfigure ? 'finishSetup' : isChecking ? 'readinessCheckingTitle' : 'readinessStatusTitle'
-  const message = modelChanging ? 'modelChanging' : checkFailed
+  const title = responseDelayed ? 'modelResponseDelayedTitle' : canConfigure ? 'finishSetup' : isChecking ? 'readinessCheckingTitle' : 'readinessStatusTitle'
+  const message = responseDelayed && !checkFailed ? 'modelResponseTimeout' : modelChanging ? 'modelChanging' : checkFailed
     ? 'readinessCheckFailed' : REASON_MESSAGES[reason || 'READINESS_CHECK_FAILED'] || 'readinessCheckFailed'
 
   async function recheck() {

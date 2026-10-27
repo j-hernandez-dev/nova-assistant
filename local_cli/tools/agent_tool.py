@@ -140,7 +140,7 @@ class AgentTool(Tool):
         redactor=None,
         security_audit=None,
         turn_effect_constraints=None,
-        fetch_enabled=True,
+        fetch_enabled=True, search_enabled=True, browser_enabled=True,
         **kwargs: object,
     ) -> str:
         """Spawn a sub-agent to execute the given task.
@@ -202,7 +202,7 @@ class AgentTool(Tool):
             network_service=network_service,
             redactor=redactor,
             security_audit=security_audit,
-            fetch_enabled=fetch_enabled,
+            fetch_enabled=fetch_enabled, search_enabled=search_enabled, browser_enabled=browser_enabled,
         )
         sub_agent._turn_effect_constraints = turn_effect_constraints
 
@@ -273,9 +273,6 @@ class AgentTool(Tool):
             ):
                 base_url = self._provider.client.base_url
             return get_provider("ollama", base_url=base_url)
-
-        if provider_name == "claude":
-            return get_provider("claude")
 
         if provider_name == "llama-server":
             base_url = getattr(self._provider, "_base_url", "http://localhost:8090")

@@ -60,7 +60,7 @@ def main():
             'tests/security_v12/test_s6_environment.py','tests/security_v12/test_s6_redaction.py',
             'tests/security_v12/test_s6_runtime.py',*REGRESSION,
             'tests/test_security.py','tests/test_sub_agent.py','tests/test_session_log.py',
-            'tests/test_nova_core_phase10_persistence.py','tests/test_providers/test_claude_provider.py',
+            'tests/test_nova_core_phase10_persistence.py',
             'tests/security_v12/test_s0_surfaces.py::test_public_base_tool_schemas_match_s0_snapshot']),
     ]
     failed = False

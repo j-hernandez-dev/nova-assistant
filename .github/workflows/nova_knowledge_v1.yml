@@ -68,37 +68,9 @@ jobs:
         with:
           node-version: '24.19.0'
       - run: npm ci
-      - name: Ordinary Desktop contract suites
-        run: >-
-          node --experimental-transform-types --test
-          tests/application_client.test.cjs
-          tests/approval_host.test.cjs
-          tests/security_audit.test.cjs
-          tests/memory_control.test.cjs
-          tests/memory_maintenance.test.cjs
-          tests/knowledge_control.test.cjs
-          tests/knowledge_k7.test.cjs
-          tests/desktop_presentation_host.test.cjs
-          tests/desktop_model_preferences.test.cjs
-          tests/readiness_client.test.cjs
-          tests/backend_recovery.test.cjs
-          tests/conversation_client.test.cjs
-          tests/conversation_preferences.test.cjs
-          tests/activity_client.test.cjs
-          tests/activity_presentation.test.cjs
-          tests/approval_surface.test.cjs
-          tests/projects_host.test.cjs
-          tests/projects_client.test.cjs
-          tests/project_presentation.test.cjs
-          tests/model_operations.test.cjs
-          tests/model_catalog_presentation.test.cjs
-          tests/model_catalog_locale.test.cjs
-          tests/desktop_host_locale.test.cjs
-          tests/settings_client.test.cjs
-          tests/settings_presentation.test.cjs
-          tests/settings_actions.test.cjs
-          tests/knowledge_settings.test.cjs
-          tests/memory_settings.test.cjs
-          tests/web_settings.test.cjs
-      - name: Desktop static TypeScript contract
-        run: npx --no-install tsc --noEmit
+      - name: Audit all locked Desktop dependencies
+        run: npm audit --audit-level=low
+      - name: Ordinary Desktop contract suites (complete inventory)
+        run: npm test
+      - name: Source build and TypeScript contract (no packaging)
+        run: npm run build:source

@@ -110,7 +110,6 @@ def test_native_unused_known_secret_echo_is_redacted(tmp_path, record_property):
 
 
 def test_real_provider_http_auth_remains_separate_and_prompt_reply_redacted(tmp_path, record_property):
-    from local_cli.providers.claude_provider import ClaudeProvider
     from local_cli.application.providers import ProviderManager
     secret = 'provider-http-dummy-789'
     received = []
@@ -127,15 +126,26 @@ def test_real_provider_http_auth_remains_separate_and_prompt_reply_redacted(tmp_
     server = ThreadingHTTPServer(('127.0.0.1',0), Handler)
     thread = Thread(target=server.serve_forever, daemon=True); thread.start()
     try:
-        provider = ClaudeProvider(api_key=secret, base_url='http://127.0.0.1:'+str(server.server_port))
-        manager = ProviderManager(provider, 'claude-fixture')
+        import urllib.request
+        class AuthenticatedFixture:
+            name = 'authenticated-fixture'
+            def __init__(self):
+                self._api_key = secret
+            _base_url = 'http://127.0.0.1:'+str(server.server_port)
+            def chat(self, model, messages, **kwargs):
+                request = urllib.request.Request(self._base_url, data=json.dumps({'messages': messages}).encode(), headers={'x-api-key': self._api_key}, method='POST')
+                with urllib.request.urlopen(request, timeout=3) as response:
+                    value = json.loads(response.read())
+                return {'message': {'role': 'assistant', 'content': value['content'][0]['text']}}
+        provider = AuthenticatedFixture()
+        manager = ProviderManager(provider, 'authenticated-fixture')
         bound = manager.snapshot()
-        result = bound.chat('claude-fixture', [{'role':'user','content':secret}])
+        result = bound.chat('authenticated-fixture', [{'role':'user','content':secret}])
         assert received[0][0] == secret
         assert secret not in json.dumps(received[0][1])
         assert secret not in json.dumps(result) and MARKER in json.dumps(result)
         assert provider._api_key == secret
-        record_property('real_claude_adapter_local_http_dummy_auth', True)
+        record_property('real_isolated_adapter_local_http_dummy_auth', True)
         record_property('cloud_or_actual_model_used', False)
     finally:
         server.shutdown(); server.server_close(); thread.join(3)

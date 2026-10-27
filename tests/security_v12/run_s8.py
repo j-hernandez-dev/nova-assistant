@@ -66,7 +66,7 @@ def main():
         ('security_regression',UNIT),
         ('core_regression',[*REGRESSION,'tests/test_security.py','tests/test_sub_agent.py',
             'tests/test_session_log.py','tests/test_nova_core_phase10_persistence.py',
-            'tests/test_providers/test_claude_provider.py',
+
             'tests/security_v12/test_s0_surfaces.py::test_public_base_tool_schemas_match_s0_snapshot'])]
     if args.host_real: groups+=HOST
     if args.e2e and not (args.tests and any('test_s8_e2e.py' in p for p in args.tests)):

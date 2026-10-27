@@ -1,19 +1,13 @@
 const crypto = require('node:crypto')
 const { stableJson, validFrame } = require('./approval_host.cjs')
+const { surfaceDocument, surfaceScale, surfaceBounds, applySurfaceZoom } = require('./surface_appearance.cjs')
 const READY = 'question-surface-ready', DECIDE = 'question-surface-decision', LOCALE = 'question-surface-locale'
 // Match the host confirmation: inline NOVA heading, fine border and filled gold action.
 const HTML = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none';script-src 'none';style-src 'unsafe-inline';connect-src 'none';img-src 'none';object-src 'none';base-uri 'none';form-action 'none'"><title>Nova</title><style>
 html{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;height:100%;background:#151413;color:#ede9e3;font:14px/1.55 system-ui,sans-serif}body{border:1px solid #9b7b50;border-radius:12px;overflow:hidden}main{display:flex;flex-direction:column;gap:16px;height:100%;padding:24px}header{display:flex;align-items:center;gap:12px}.mark{color:#d5ad71;font-weight:700;font-size:13px}h1{font-size:18px;margin:0}.content{flex:1;overflow:auto;min-height:0;padding:5px;margin:-5px;scrollbar-gutter:stable;overscroll-behavior:contain}#question{margin:0 0 16px;color:#c9c2b7;white-space:pre-wrap;overflow-wrap:anywhere;max-height:140px;overflow:auto}label{display:block;margin-bottom:7px;color:#c9c2b7;font-size:13px}textarea{display:block;width:100%;height:96px;min-height:70px;max-height:180px;resize:vertical;border:1px solid #494035;border-radius:7px;padding:10px 12px;background:#100f0e;color:#ede9e3;font:inherit}#hint,#status{font-size:11px;margin:7px 0 0;color:#a79b89}#status[role=alert]{color:#e3b583}footer{display:flex;justify-content:flex-end;gap:10px;flex-shrink:0}button{padding:9px 18px;border:1px solid #796548;border-radius:8px;background:#30291f;color:#f5f0e8;font:inherit;cursor:pointer}#send{background:#d5ad71;color:#1c170f;font-weight:600}button:focus-visible,textarea:focus-visible{outline:2px solid #d5ad71;outline-offset:3px}button:disabled,textarea:disabled{opacity:.5;cursor:default}
-/* Match Nova's six-pixel dark scrollbars on the question, content and response. */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track,::-webkit-scrollbar-corner{background:transparent}
-::-webkit-scrollbar-thumb{background:#2b2f39;border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:#484e5c}
-::-webkit-scrollbar-button{display:none;width:0;height:0}
 textarea{caret-color:#d5ad71}textarea:focus{border-color:#d5ad71}
 @media(max-height:340px){main{padding:18px;gap:12px}#question{max-height:70px;margin-bottom:10px}textarea{height:72px}}
 </style></head><body><main role="dialog" aria-modal="true" aria-labelledby="heading"><header><span class="mark">NOVA</span><h1 id="heading"></h1></header><div class="content"><p id="question"></p><label id="answer-label" for="answer"></label><textarea id="answer" disabled aria-describedby="question hint"></textarea><p id="hint"></p><p id="status" role="status" aria-live="polite"></p></div><footer><button id="stop" disabled></button><button id="send" disabled></button></footer></main></body></html>`
-const URL = 'data:text/html;charset=utf-8,' + encodeURIComponent(HTML)
 function captureQuestion(view, now = Date.now()) {
   const request = view?.inputs?.[0]
   if (!view?.status?.ready || !view.status.connected || view.recovering || view.gap ||
@@ -28,10 +22,10 @@ function captureQuestion(view, now = Date.now()) {
     fingerprint: stableJson([view.sessionId, view.workspace, view.activeTurnId, copy]) }
 }
 function questionBounds(parent) {
-  const area = parent.getContentBounds(), width = Math.max(1, Math.min(640, area.width - 32)), height = Math.max(1, Math.min(400, area.height - 32))
-  return { x: Math.round(area.x + (area.width - width) / 2), y: Math.round(area.y + (area.height - height) / 2), width, height }
+  return surfaceBounds(parent,640,400)
 }
 function createQuestionSurface({ BrowserWindow, ipcMain, client, getParent, getLocale, preloadPath,
+  getPresentation,
   canOpen = () => true, now = Date.now, setTimeout: schedule = setTimeout, clearTimeout: cancel = clearTimeout }) {
   let active = null, disposed = false
   const suppressed = new Set(), consumed = new Set()
@@ -50,14 +44,14 @@ function createQuestionSurface({ BrowserWindow, ipcMain, client, getParent, getL
     if (!canOpen()) return close(record, false)
     if (!record.ready) return
     if (!record.parent.isVisible() || record.parent.isMinimized()) { record.window.hide(); return }
-    try { record.window.setBounds(questionBounds(record.parent)); if (!record.window.isVisible()) record.window.show() }
+    try { applySurfaceZoom(record.window,record.parent);record.window.setBounds(questionBounds(record.parent)); if (!record.window.isVisible()) record.window.show() }
     catch { close(record) }
   }
   function create(capture, parent) {
     const child = new BrowserWindow({ ...questionBounds(parent), parent, modal: true, frame: false, show: false,
       resizable: false, movable: false, minimizable: false, maximizable: false, fullscreenable: false,
-      skipTaskbar: true, title: 'Nova', backgroundColor: '#151413',
-      webPreferences: { preload: preloadPath, sandbox: true, contextIsolation: true, nodeIntegration: false,
+      skipTaskbar: true, title: 'Nova', backgroundColor: getPresentation?.()?.variables?.['--panel'] || '#151413',
+      webPreferences: { preload: preloadPath, sandbox: true, contextIsolation: true, nodeIntegration: false,zoomFactor:surfaceScale(parent),
         webviewTag: false, nodeIntegrationInSubFrames: false, nodeIntegrationInWorker: false, devTools: false,
         webSecurity: true, disableDialogs: true, partition: 'nova-question-surface' } })
     let resolveReady
@@ -90,7 +84,7 @@ function createQuestionSurface({ BrowserWindow, ipcMain, client, getParent, getL
       }
       expire()
     }
-    Promise.resolve(child.loadURL(URL)).catch(() => close(record))
+    Promise.resolve(child.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(surfaceDocument(HTML, getPresentation?.())))).catch(() => close(record))
   }
   function sync() {
     if (disposed) return
@@ -112,7 +106,7 @@ function createQuestionSurface({ BrowserWindow, ipcMain, client, getParent, getL
     record.ready = true; cancel(record.bootTimer); display(record)
     if (active !== record) return { accepted: false }
     record.resolveReady(true)
-    return { accepted: true, nonce: record.nonce, question: record.capture.request.question, locale: getLocale() }
+    return { accepted: true, nonce: record.nonce, question: record.capture.request.question, locale: getLocale(), presentation: getPresentation?.() }
   })
   ipcMain.handle(DECIDE, async (event, payload) => {
     const record = active
@@ -140,6 +134,12 @@ function createQuestionSurface({ BrowserWindow, ipcMain, client, getParent, getL
       return { success: ready && active === record && current(record) }
     },
     updateLocale() { if (active?.ready) active.window.webContents.send(LOCALE, getLocale()) },
+    updateAppearance() { if (active && !active.window.isDestroyed()) {
+      applySurfaceZoom(active.window,active.parent);active.window.setBounds(questionBounds(active.parent))
+      const presentation = getPresentation?.()
+      if (presentation?.variables?.['--panel']) active.window.setBackgroundColor?.(presentation.variables['--panel'])
+      if (active.ready) active.window.webContents.send('question-surface-appearance', presentation)
+    } },
     dispose() { disposed = true; close(active); ipcMain.removeHandler(READY); ipcMain.removeHandler(DECIDE) } }
 }
 module.exports = { createQuestionSurface, captureQuestion, questionBounds, HTML, READY, DECIDE, LOCALE }

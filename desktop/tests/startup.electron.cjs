@@ -2,15 +2,16 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),cp=require('node:child_process'),Module=require('node:module')
 const electron=require('electron'),repo=path.resolve(__dirname,'../..')
 assert.ok(process.env.NOVA_GUI_TEST_OUTPUT && process.env.NOVA_TEST_PYTHON,'explicit owned output and Python required')
+const coldFade=process.argv.includes('--cold-fade'),staticArt=process.argv.includes('--static-art'),noTransitions=process.argv.includes('--no-transitions')
 const output=path.resolve(process.env.NOVA_GUI_TEST_OUTPUT),english=process.argv.includes('--english'),broken=process.argv.includes('--broken-entry'),savedAppearance=process.argv.includes('--saved-appearance')
 assert.ok(!fs.existsSync(path.join(output,'started.json')),'use a fresh owned output')
 fs.mkdirSync(output,{recursive:true});fs.writeFileSync(path.join(output,'started.json'),JSON.stringify({pid:process.pid,at:new Date().toISOString()}))
 const profile=path.join(output,'app-data','nova-desktop'),home=path.join(output,'home'),workspace=path.join(output,'project')
 for(const directory of [profile,home,workspace])fs.mkdirSync(directory,{recursive:true})
-fs.writeFileSync(path.join(profile,'desktop-preferences.json'),JSON.stringify({schemaVersion:1,locale:english?'en':'es',reduceMotion:savedAppearance,showStartupScreen:!savedAppearance}))
+fs.writeFileSync(path.join(profile,'desktop-preferences.json'),JSON.stringify({schemaVersion:1,locale:english?'en':'es',reduceMotion:savedAppearance||staticArt,showStartupScreen:!savedAppearance,transitionsEnabled:!noTransitions}))
 fs.writeFileSync(path.join(profile,'project-preferences.json'),JSON.stringify({schemaVersion:1,folders:[workspace],activePath:workspace}))
 electron.app.setPath('appData',path.dirname(profile));process.env.XDG_CONFIG_HOME=path.join(home,'.config')
-let backend,win,held,block=true,breakOnce=broken,showRequests=0
+let backend,win,held,block=!coldFade,breakOnce=broken,showRequests=0
 const checks=[],crashes=[],spawn=cp.spawn
 cp.spawn=function(command,args,options){
   if(args.includes('--server')){
@@ -23,7 +24,7 @@ cp.spawn=function(command,args,options){
 }
 class StartupWindow extends electron.BrowserWindow{
   setTitle(){return super.setTitle('Nova — Startup validation')}
-  show(){showRequests++;return super.show()}
+  show(){showRequests++;if(coldFade&&!this.getParentWindow())return;return super.show()}
   constructor(options){super(options);if(options.parent)return
     assert.equal(options.show,false,'host must wait for first paint')
     win=this;this.setTitle('Nova — Startup validation')
@@ -50,6 +51,44 @@ electron.app.whenReady().then(async()=>{
   try{
     await until(()=>win,'owned window');win.webContents.debugger.attach('1.3')
     await until(()=>showRequests>0,'host requests showing the first painted document')
+    if(coldFade){
+      await win.webContents.debugger.sendCommand('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'no-preference'}]})
+      if(noTransitions){
+        await until(()=>evaluate("!document.getElementById('nova-startup')&&!!document.querySelector('.nova-rail')"),'startup completes immediately with transitions disabled')
+        assert.equal(await evaluate("document.documentElement.dataset.novaTransitions"),'false')
+        assert.equal(await evaluate("getComputedStyle(document.getElementById('root')).opacity"),'1')
+        assert.equal(await evaluate("document.getElementById('root').hasAttribute('inert')"),false)
+        electron.BrowserWindow.prototype.show.call(win);if(!win.isVisible())electron.BrowserWindow.prototype.show.call(win)
+        await until(()=>win.isVisible(),'native window shown without fade')
+        assert.equal(await evaluate("getComputedStyle(document.querySelector('.nova-orbit-rings')).animationName"),'nova-orbit-revolve')
+        assert.deepEqual(crashes,[]);record('Disabling transitions reveals the ready interface immediately while the mascot keeps animating')
+        save('PASS');backend?.kill();electron.app.quit();return
+      }
+      await until(()=>evaluate("document.documentElement.getAttribute('data-nova-startup')==='ready'"),'ready interface while native window is hidden')
+      if(staticArt){
+        assert.equal(await evaluate("getComputedStyle(document.querySelector('.nova-startup-streak')).animationName"),'none')
+        assert.equal(await evaluate("document.documentElement.dataset.novaTransitions"),'true')
+        record('Static loading art keeps interface transitions enabled')
+      }
+      assert.equal(win.isVisible(),false)
+      await delay(650)
+      assert.equal(await evaluate("!!document.getElementById('nova-startup')&&!document.getElementById('nova-startup').hasAttribute('data-leaving')"),true,'hidden startup cannot consume its fade')
+      await evaluate("(()=>{const trace=window.__coldFade={frames:[]};function sample(){const screen=document.getElementById('nova-startup'),root=document.getElementById('root');if(!screen){trace.done=true;return;}trace.frames.push({screen:Number(getComputedStyle(screen).opacity),root:Number(getComputedStyle(root).opacity)});requestAnimationFrame(sample);}requestAnimationFrame(sample);})()")
+      electron.BrowserWindow.prototype.show.call(win)
+      if(!win.isVisible())electron.BrowserWindow.prototype.show.call(win)
+      await until(()=>win.isVisible(),'actual native window shown')
+      await until(()=>evaluate("window.__coldFade.frames.some(frame=>frame.screen>0&&frame.screen<1&&frame.root>0&&frame.root<1)"),'visible cold-start crossfade')
+      fs.writeFileSync(path.join(output,'cold-start-crossfade.png'),(await win.webContents.capturePage()).toPNG())
+      await until(()=>evaluate("window.__coldFade.done===true"),'cold fade completion')
+      const trace=await evaluate('window.__coldFade')
+      fs.writeFileSync(path.join(output,'cold-start-frames.json'),JSON.stringify(trace,null,2))
+      assert.ok(trace.frames.some(frame=>frame.screen===1&&frame.root===0))
+      assert.equal(await evaluate("getComputedStyle(document.getElementById('root')).opacity"),'1')
+      assert.equal(await evaluate("document.getElementById('root').hasAttribute('inert')"),false)
+      assert.deepEqual(crashes,[])
+      record('A completed hidden startup retains its loading screen, then crossfades only after the native window is really shown')
+      save('PASS');backend?.kill();electron.app.quit();return
+    }
     // STARTUPINFO from a hidden Windows helper may suppress the first ShowWindow.
     // Only repeat it after the production host has requested display.
     if(!win.isVisible())win.show()

@@ -49,7 +49,9 @@ def test_cloud_and_llama_do_not_receive_ollama_options(tmp_path, name):
     state.refresh_status()
     bound = bind_context(state.snapshot(), workspace=tmp_path, capability_factory=capabilities)
     list(bound.chat_stream("old", [{"role": "user", "content": "hello"}], max_tokens=10000))
-    assert provider.chat_stream.call_args.kwargs == {"max_tokens": 1024}
+    expected = {"max_tokens": 1024} if name == "llama-server" else {"max_tokens": 10000}
+    assert provider.chat_stream.call_args.kwargs == expected
+    assert "options" not in provider.chat_stream.call_args.kwargs
 
 
 def test_adapter_tokenizer_used_and_usage_both_retained(tmp_path):

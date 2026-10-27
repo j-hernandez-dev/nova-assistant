@@ -78,10 +78,10 @@ export function ModelSelector({ models, current, disabled, placeholder, title, o
       aria-activedescendant={open ? id + '-option-' + activeIndex : undefined} value={current} disabled={locked}
       onKeyDown={key} onBlur={event => { if (!menu.current?.contains(event.relatedTarget as Node)) setOpen(false) }}
       onClick={() => { if (open) setOpen(false); else show() }}>
-      <span className="nova-model-current">{models.includes(current) ? current : placeholder}</span>
+      <span className="nova-model-current">{current || placeholder}</span>
     </button>
     <NovaIcon name="chevron" size={16} />
-    {open && createPortal(<div id={id} ref={menu} className="nova-model-listbox" role="listbox" aria-label={t('installedOllamaModels')} style={position}
+    {open && createPortal(<div id={id} ref={menu} className="nova-model-listbox nova-floating-panel" role="listbox" aria-label={t('installedOllamaModels')} style={position}
       onMouseDown={event => event.preventDefault()}>
       {models.map((model, index) => <div id={id + '-option-' + index} key={model} role="option" aria-selected={model === current}
         data-model={model} className={'nova-model-option' + (index === activeIndex ? ' active' : '') + (model === current ? ' selected' : '')}

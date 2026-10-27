@@ -250,17 +250,29 @@ def create_cli_application(*, config: Any, provider_manager: Any,
             result["keep_alive"] = config.keep_alive
         return result
 
+    # CLI has no Desktop readiness observer: validate once before accepting input.
+    if (provider_manager.snapshot().name in provider_manager.SUPPORTED and
+            provider_manager.snapshot().snapshot.capability_source == "unprobed"):
+        provider_manager.refresh_status()
+
+    from local_cli.web_config import load_web_settings, save_web_settings
+    web_settings = load_web_settings(config.state_dir)
+    from local_cli.memory_preferences import MemoryPreferences
+    memory_preferences=MemoryPreferences(config.state_dir)
     coordinator = AgentSessionCoordinator(
-        fetch_enabled=load_fetch_enabled(config.state_dir),
+        fetch_enabled=web_settings['fetchEnabled'],
+        search_enabled=web_settings['searchEnabled'], browser_enabled=web_settings['browserEnabled'],
+        web_engine=web_settings['engine'], web_browser=web_settings['browser'],
+        web_settings_save=lambda value: save_web_settings(config.state_dir, value),
         fetch_enabled_save=lambda enabled: save_fetch_enabled(config.state_dir, enabled),
         knowledge_factory=knowledge_factory(config.state_dir),
-        memory_factory=memory_factory(config.state_dir,
+        memory_preferences=memory_preferences,
+        memory_factory=memory_factory(config.state_dir,preferences=memory_preferences,
             embedding_model=getattr(config,'memory_embedding_model',''),
             embedding_endpoint=getattr(config,'memory_embedding_endpoint','http://127.0.0.1:11434'),
             capture_mode=getattr(config,'memory_auto_capture','off')),
         memory_capture_mode=getattr(config,'memory_auto_capture','off'),
         memory_extractor_factory=memory_extractor_factory,
-        allow_remote_memory_injection=getattr(config, 'allow_remote_memory_injection', False),
         security_audit_port=create_security_audit(workspace),
         provider=provider_manager.snapshot()._provider,
         model=provider_manager.snapshot().snapshot.model_id,

@@ -36,14 +36,16 @@ from local_cli.clipboard import (
     copy_to_clipboard,
 )
 from local_cli.git_capability import detect_git_capability
-from local_cli.model_catalog import get_merged_catalog, update_catalog
-from local_cli.model_search import ModelSearchUnavailable, search_models
+from local_cli.model_catalog import get_merged_catalog
+from local_cli.model_library import search_library, model_variants, synchronize_catalog as update_catalog
+from local_cli.model_search import ModelSearchUnavailable
 from local_cli.ollama_client import OllamaConnectionError
 from local_cli.security import validate_model_name
 from local_cli.updater import get_project_root
 
 
 _send_lock = threading.Lock()
+_library_workers = threading.BoundedSemaphore(4)
 
 
 def _send(obj: dict[str, Any]) -> None:
@@ -103,7 +105,6 @@ class JsonLineServer:
         """Main loop: read stdin lines, dispatch, write responses."""
         # Send ready signal.
         tool_names = [t.name for t in self._tools]
-        has_claude = bool(os.environ.get("ANTHROPIC_API_KEY"))
         _send({
             "type": "ready",
             "model": self._config.model,
@@ -111,7 +112,6 @@ class JsonLineServer:
             "git_capability": self._git_ops.capability().value,
             "backend_git_capability": detect_git_capability(get_project_root()).value,
             "provider": getattr(self._config, "provider", "ollama"),
-            "has_claude": has_claude,
             # Offer to restore this folder's previous conversation.
             "resumable": self._conversation_store.info(),
             **({"sessionId": self._app_adapter.session_id, "apiSchemaVersion": 1}
@@ -159,7 +159,7 @@ class JsonLineServer:
                 continue
             state = self._application.get_snapshot(self._app_adapter.session_id)
             if any(t["status"] == "running" for t in state.turns) and req_type not in (
-                    "catalog", "search_models", "check_update", "recommend", "project_chats"):
+                    "catalog", "library_search", "library_variants", "check_update", "recommend", "project_chats", "model_usage"):
                 _send({"id": req_id, "type": "error", "code": "CONFLICT_ACTIVE_TURN",
                        "category": "CONTEXT", "message": "Command unavailable during active Turn"})
                 continue
@@ -180,26 +180,29 @@ class JsonLineServer:
                 elif req_type == "delete_model":
                     self._handle_delete_model(req_id, req.get("model", ""))
                 elif req_type == "update_catalog":
-                    self._handle_update_catalog(req_id)
-                elif req_type == "search_models":
-                    self._handle_search_models(
-                        req_id,
-                        req.get("query", ""),
-                        req.get("sort", "popular"),
-                        req.get("capability", ""),
-                    )
+                    self._start_library_request(req_id, self._handle_update_catalog)
+                elif req_type == "library_search":
+                    self._start_library_request(req_id, self._handle_library_search, req)
+                elif req_type == "library_variants":
+                    self._start_library_request(req_id, self._handle_library_variants, req)
                 elif req_type == "check_update":
                     self._handle_check_update(req_id)
                 elif req_type == "do_update":
                     self._handle_do_update(req_id)
-                elif req_type == "set_api_key":
-                    self._handle_set_api_key(req_id, req.get("api_key", ""))
-                elif req_type == "claude_logout":
-                    self._handle_claude_logout(req_id)
                 elif req_type == "recommend":
-                    self._handle_recommend(req_id)
+                    self._start_library_request(req_id, self._handle_recommend)
                 elif req_type == "set_cwd":
                     self._handle_set_cwd(req_id, req.get("path", ""), project_chat=req.get('projectChat') is True)
+                elif req_type == 'model_usage':
+                    try:
+                        kind = req.get('kind', 'llm')
+                        if kind not in ('llm', 'embedding'):
+                            raise ValueError('INVALID_USAGE_KIND')
+                        ledger = self._embedding_usage_ledger if kind == 'embedding' else self._usage_ledger
+                        data = ledger.query(req.get('query'))
+                        _send({'id': req_id, 'type': 'model_usage', 'success': True, 'data': data})
+                    except Exception:
+                        _send({'id': req_id, 'type': 'model_usage', 'success': False, 'error': {'code': 'USAGE_UNAVAILABLE'}})
                 elif req_type in ('project_chats', 'clear_project_chat'):
                     try:
                         data = ({'chats': self._application.project_chats(self._app_adapter.session_id, req.get('paths'))}
@@ -360,12 +363,40 @@ class JsonLineServer:
                          for m in installed_entries]},
         })
 
+    def _start_library_request(self, req_id, handler, *args):
+        if not _library_workers.acquire(blocking=False):
+            _send({"id": req_id, "type": "error", "code": "MODEL_LIBRARY_BUSY"})
+            return
+        def work():
+            try:
+                handler(req_id, *args)
+            finally:
+                _library_workers.release()
+        threading.Thread(target=work, daemon=True).start()
+
+    def _handle_library_search(self, req_id, request):
+        try:
+            data = search_library(request.get("query", ""), page=request.get("page", 1),
+                kind=request.get("kind", "all"), capability=request.get("capability", ""),
+                local=request.get("local", True), refresh=request.get("refresh", False), source=request.get("source", "auto"))
+            _send({"id": req_id, "type": "library_search", "data": data})
+        except Exception:
+            _send({"id": req_id, "type": "error", "code": "MODEL_LIBRARY_UNAVAILABLE"})
+
+    def _handle_library_variants(self, req_id, request):
+        try:
+            data = model_variants(request.get("family"), refresh=request.get("refresh", False))
+            _send({"id": req_id, "type": "library_variants", "data": data})
+        except Exception:
+            _send({"id": req_id, "type": "error", "code": "MODEL_VARIANTS_UNAVAILABLE"})
+
     def _handle_update_catalog(self, req_id: int) -> None:
         """Fetch latest models from ollama.com and update local cache."""
         _send({"id": req_id, "type": "catalog_updating"})
 
         try:
-            result = update_catalog(raise_on_error=True)
+            result = update_catalog(raise_on_error=True, progress=lambda count:
+                _send({"id": req_id, "type": "catalog_updating", "count": count}))
             _send({
                 "id": req_id,
                 "type": "catalog_updated",
@@ -428,39 +459,6 @@ class JsonLineServer:
         except Exception as exc:
             _send({"id": req_id, "type": "error", "message": f"Delete failed: {exc}"})
 
-    def _handle_search_models(
-        self, req_id: int, query: str, sort: str, capability: str,
-    ) -> None:
-        """Search Ollama library for models."""
-        try:
-            results = search_models(query=query, sort=sort, capability=capability, raise_on_error=True)
-
-            # Mark installed status.
-            installed_names: set[str] = set()
-            try:
-                models = self._client.list_models()
-                for m in models:
-                    name = m.get("name", "")
-                    installed_names.add(name)
-                    installed_names.add(name.split(":")[0])
-            except OllamaConnectionError:
-                pass
-
-            for r in results:
-                name = r["name"]
-                if ":" in name:
-                    r["installed"] = name in installed_names
-                else:
-                    r["installed"] = name in installed_names
-
-            _send({"id": req_id, "type": "search_results", "data": results})
-        except ModelSearchUnavailable:
-            _send({"id": req_id, "type": "error", "code": "MODEL_LIBRARY_UNAVAILABLE",
-                   "message": "The model library is unavailable. Try again."})
-        except Exception:
-            _send({"id": req_id, "type": "error", "code": "MODEL_SEARCH_FAILED",
-                   "message": "Could not search the model library. Try again."})
-
     def _handle_check_update(self, req_id: int) -> None:
         """Check if updates are available."""
         result = self._application.execute_auxiliary(
@@ -484,55 +482,24 @@ class JsonLineServer:
             "message": result["message"],
         })
 
-    def _handle_set_api_key(self, req_id: int, api_key: str) -> None:
-        """Set the Anthropic API key at runtime (from desktop login)."""
-        if not api_key:
-            _send({"id": req_id, "type": "error", "message": "No API key provided."})
-            return
-        os.environ["ANTHROPIC_API_KEY"] = api_key
-        _send({"id": req_id, "type": "api_key_set", "has_claude": True})
 
-    def _handle_claude_logout(self, req_id: int) -> None:
-        """Clear the stored API key and revert to Ollama if active."""
-        if self._reject_active_provider_change(req_id):
-            return
-        if self._provider.name == "claude":
-            self._handle_switch_provider(req_id, "ollama")
-            if self._provider.name == "claude":
-                return
-        os.environ.pop("ANTHROPIC_API_KEY", None)
-        _send({"id": req_id, "type": "api_key_set", "has_claude": False})
 
     def _handle_recommend(self, req_id: int) -> None:
-        """Return model recommendations based on system specs."""
-        from local_cli.system_info import get_system_info, recommend_models
-
-        info = get_system_info()
-        recommendations = recommend_models(ram_gb=info.get("ram_gb"))
-
-        # Mark installed status.
-        installed_names: set[str] = set()
+        """Recommend fitting variants from the same public library as All."""
+        from local_cli.system_info import get_system_info
+        from local_cli.model_recommendations import recommend_catalog_models
         try:
-            models = self._client.list_models()
-            for m in models:
-                name = m.get("name", "")
-                installed_names.add(name)
-                installed_names.add(name.split(":")[0])
-        except OllamaConnectionError:
-            pass
-
-        for rec in recommendations:
-            rec["installed"] = (
-                rec["name"] in installed_names
-                or rec["name"].split(":")[0] in installed_names
-            )
-
-        _send({
-            "id": req_id,
-            "type": "recommend",
-            "system": info,
-            "models": recommendations,
-        })
+            info = get_system_info()
+            try:
+                installed = [m.get("name", "") for m in self._client.list_models()]
+            except OllamaConnectionError:
+                installed = []
+            def progress(models, status):
+                _send(dict(id=req_id, type="recommend_progress", system=info, models=models, recommendation=status))
+            models, status = recommend_catalog_models(info, installed=installed, progress=progress)
+            _send(dict(id=req_id, type="recommend", system=info, models=models, recommendation=status))
+        except Exception:
+            _send(dict(id=req_id, type="error", code="MODEL_RECOMMEND_FAILED"))
 
     def _handle_set_cwd(self, req_id: int, path: str, *, project_chat: bool = False) -> None:
         """Translate folder selection; Application serializes rebinding."""

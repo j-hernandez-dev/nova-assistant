@@ -11,7 +11,9 @@ import urllib.request
 import urllib.parse
 from typing import Any
 
-_USER_AGENT = "local-cli/0.12.6"
+from local_cli import __version__
+
+_USER_AGENT = f"Nova/{__version__}"
 _TIMEOUT = 15
 _BASE_URL = "https://ollama.com/search"
 

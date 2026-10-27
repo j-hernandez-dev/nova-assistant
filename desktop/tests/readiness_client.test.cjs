@@ -243,3 +243,32 @@ test('model switch checks only the new revision and still exposes a real current
  assert.equal(ctx.client.view.readiness.reason,'OLLAMA_UNAVAILABLE')
  ctx.client.disconnected()
 })
+
+
+function failedInference(ctx, code, modelId='model:old', revision=1) {
+  ctx.client.refresh()
+  const request=ctx.sent.filter(frame=>frame.type==='get_snapshot').at(-1)
+  ctx.client.receive({id:request.id,type:'snapshot',data:{...snapshot(),stateRevision:4,lastSequence:4,
+    turns:[{turnId:'failed-turn',status:'failed',errorCode:code,transcriptStart:0,transcriptEnd:0,
+      modelRuntime:{providerId:'ollama',modelId,providerRevision:revision}}]}})
+}
+test('A terminal inference connection failure invalidates cached readiness without replaying a Turn',()=>{
+  for(const [code,reason] of [['OLLAMA_CONNECTION_FAILED','OLLAMA_UNAVAILABLE'],['OLLAMA_CONNECT_TIMEOUT','OLLAMA_CONNECTION_TIMEOUT'],['OLLAMA_MODEL_UNAVAILABLE','MODEL_NOT_INSTALLED']]){
+    const ctx=setup();observation(ctx);failedInference(ctx,code)
+    assert.equal(ctx.client.view.readiness.ready,false);assert.equal(ctx.client.view.readiness.reason,reason)
+    assert.equal(ctx.client.view.error.code,code)
+    assert.equal(ctx.sent.filter(frame=>frame.type==='application_command').length,0)
+    const count=ctx.sent.filter(frame=>frame.type==='get_readiness').length
+    failedInference(ctx,code)
+    assert.equal(ctx.sent.filter(frame=>frame.type==='get_readiness').length,count)
+    ctx.client.refreshReadiness(true);observation(ctx);assert.equal(ctx.client.view.readiness.ready,true);ctx.client.disconnected()
+  }
+})
+test('A connected response timeout preserves connection readiness; failures from another selected runtime cannot invalidate it',()=>{
+  const ctx=setup();observation(ctx);failedInference(ctx,'OLLAMA_RESPONSE_TIMEOUT')
+  assert.equal(ctx.client.view.readiness.ready,true);assert.equal(ctx.client.view.error.code,'OLLAMA_RESPONSE_TIMEOUT')
+  failedInference(ctx,'OLLAMA_CONNECTION_FAILED','different-model',99)
+  assert.equal(ctx.client.view.readiness.ready,true)
+  assert.equal(ctx.client.view.error,null,'an old runtime failure cannot become a warning for the selected model')
+  assert.equal(ctx.sent.filter(frame=>frame.type==='application_command').length,0);ctx.client.disconnected()
+})

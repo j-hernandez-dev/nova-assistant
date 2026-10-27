@@ -1,72 +1,74 @@
-import {useEffect,useRef,useState,type ReactNode} from 'react'
+import {useId,useState} from 'react'
 import type {DesktopSessionView} from '../../shared/application'
 import {useI18n} from '../i18n'
 import {SettingsActionFeedback,useSettingsAction} from '../settings_actions'
+import {SettingsSelect} from './SettingsSelect'
 
-type Props={view:DesktopSessionView|null}
-export function WebSettings({view}:Props){
-  const {t}=useI18n()
+type WebPreferences={fetchEnabled:boolean;searchEnabled:boolean;browserEnabled:boolean;engine:string;browser:string}
+export const defaultWebPreferences:WebPreferences={fetchEnabled:true,searchEnabled:true,browserEnabled:true,engine:'google',browser:'webview2'}
+export function observedWebPreferences(view:DesktopSessionView|null):WebPreferences|null{
+  if(!view?.fetch || !view.search || !view.browser)return null
+  const value={fetchEnabled:view.fetch.enabled,searchEnabled:view.search.enabled,browserEnabled:view.browser.enabled,
+    engine:view.search.engine,browser:view.browser.selected}
+  return ['fetchEnabled','searchEnabled','browserEnabled'].every(key=>typeof value[key as keyof WebPreferences]==='boolean')?value:null
+}
+export function WebSettings({view}:{view:DesktopSessionView|null}){
+  const {t}=useI18n(),id=useId()
   const scope=`${view?.sessionId||''}:${view?.workspace||''}`
-  const disabled=!view?.status.ready||!!view.activeTurnId||!!view.approvals.length||!!view.inputs.length
-  return <>
-    <ServiceSetting key={`${scope}:fetch`} title={t('settingsFetch')} hint={t('settingsFetchHint')} disabled={disabled}
-      effective={view?.fetch?String(view.fetch.enabled):undefined} scope={scope} kind="SetFetchEnabled" field="enabled"
-      choices={[['true',t('settingsOn')],['false',t('settingsOff')]]}>
-      {view?.fetch&&<ObservedValue label={t('settingsAvailable')} value={t(view.fetch.available?'settingsAvailable':'settingsUnavailable')}/>}
-    </ServiceSetting>
-    <ServiceSetting key={`${scope}:engine`} title={t('settingsSearchEngine')} disabled={disabled}
-      effective={view?.search?.engine} scope={scope} kind="SetSearchEngine" field="engine"
-      choices={[['bing','Bing'],['google','Google'],['duckduckgo','DuckDuckGo']]}>
-      {view?.search&&<><ObservedValue label={t('settingsObserved')} value={t(view.search.available?'settingsAvailable':'settingsUnavailable')}/>
-        {view.search.runtimeCheckedOnUse&&<p className="settings-hint">{t('settingsRuntimeOnUse')}</p>}
-        {view.search.unavailableReason&&<SettingsCode code={view.search.unavailableReason}/>}</>}
-    </ServiceSetting>
-    <ServiceSetting key={`${scope}:browser`} title={t('settingsBrowserAdapter')} hint={t('settingsBrowserChangeHint')} disabled={disabled}
-      effective={view?.browser?.selected} scope={scope} kind="SetBrowser" field="browser"
-      choices={['webview2','chrome','edge'].map(value=>[value,value==='webview2'?'WebView2':value==='chrome'?'Chrome':'Edge',
-        !!view?.browser?.choices.find(choice=>choice.browser===value&&!choice.available)])}>
-      {view?.browser&&<><ObservedValue label={t('settingsObserved')} value={t(view.browser.available?'settingsAvailable':'settingsUnavailable')}/>
-        {view.browser.runtimeCheckedOnUse&&<p className="settings-hint">{t('settingsRuntimeOnUse')}</p>}
-        {view.browser.unavailableReason&&<SettingsCode code={view.browser.unavailableReason}/>}</>}
-    </ServiceSetting>
-    <p className="settings-hint">{t('settingsNoIsolation')}</p>
-  </>
+  const action=useSettingsAction(scope)
+  const [submitted,setSubmitted]=useState<WebPreferences|null>(null)
+  const current=observedWebPreferences(view)
+  const confirmed=!!submitted&&!!current&&Object.keys(defaultWebPreferences).every(key=>current[key as keyof WebPreferences]===submitted[key as keyof WebPreferences])
+  const waiting=!!action.result?.accepted&&!!submitted&&!confirmed
+  const busy=action.busy||waiting
+  const disabled=busy||!current||!view?.status.ready||!view.status.connected||!!view.recovering||!!view.activeTurnId||!!view.approvals.length||!!view.inputs.length
+  const save=(patch:Partial<WebPreferences>)=>{
+    if(disabled||!current)return
+    const value={...current,...patch}
+    setSubmitted(value)
+    void action.run(()=>window.api.applicationCommand('SetWebSettings',value))
+  }
+  const toggle=(field:'fetchEnabled'|'searchEnabled'|'browserEnabled',label:string,hint:string)=>
+    <input id={id+'-'+field} data-web-permission={field} className="nova-switch" type="checkbox" role="switch"
+      aria-label={label} aria-describedby={hint} checked={current?.[field]??false} disabled={disabled}
+      onChange={event=>save({[field]:event.target.checked})}/>
+  return <div className="nova-web-settings">
+    <div className="nova-settings-introduction nova-section-introduction">
+      <div><h2>{t('settingsWeb')}</h2><p>{t('settingsWebHint')}</p></div>
+      <button type="button" className="nova-settings-reset" disabled={disabled} onClick={()=>save(defaultWebPreferences)}>{t('settingsReset')}</button>
+    </div>
+    <section className="nova-preferences-group" aria-labelledby={id+'-permissions'}>
+      <h3 id={id+'-permissions'}>{t('webPermissions')}</h3>
+      <div className="nova-settings-card nova-preferences-list" aria-busy={busy}>
+        <div className="nova-preference-row"><div><span className="nova-setting-label">{t('settingsFetch')}</span><p id={id+'-fetch-hint'}>{t('settingsFetchHint')}</p></div>
+          <div className="nova-web-controls">{toggle('fetchEnabled',t('settingsFetch'),id+'-fetch-hint')}</div>
+        </div>
+        <div className="nova-preference-row"><div><span className="nova-setting-label">{t('webSearchPermission')}</span><p id={id+'-search-hint'}>{t('webSearchPermissionHint')}</p></div>
+          <div className="nova-web-controls">
+            <SettingsSelect data-settings-select="web-search-engine" aria-label={t('settingsSearchEngine')} value={current?.engine||''}
+              disabled={disabled||!current?.searchEnabled} options={[{value:'google',label:'Google'},{value:'bing',label:'Bing'},{value:'duckduckgo',label:'DuckDuckGo'}]}
+              onChange={engine=>save({engine})}/>
+            {toggle('searchEnabled',t('webSearchPermission'),id+'-search-hint')}
+          </div>
+        </div>
+        <div className="nova-preference-row"><div><span className="nova-setting-label">{t('webBrowserPermission')}</span><p id={id+'-browser-hint'}>{t('webBrowserPermissionHint')}</p></div>
+          <div className="nova-web-controls">
+            <SettingsSelect data-settings-select="web-browser" aria-label={t('settingsBrowserAdapter')} value={current?.browser||''}
+              disabled={disabled||!current?.browserEnabled} options={(['webview2','chrome','edge'] as const).map(value=>{
+                const unavailable=!!view?.browser?.choices.find(choice=>choice.browser===value&&!choice.available)
+                return {value,label:value==='webview2'?'WebView2':value==='chrome'?'Chrome':'Edge',description:unavailable?t('settingsUnavailable'):undefined,disabled:unavailable&&value!==current?.browser}
+              })} onChange={browser=>save({browser})}/>
+            {toggle('browserEnabled',t('webBrowserPermission'),id+'-browser-hint')}
+          </div>
+        </div>
+      </div>
+    </section>
+    {!current&&<p className="settings-hint">{t('settingsNotObserved')}</p>}
+    {confirmed&&action.result?<p className="settings-feedback" role="status">{t('settingsSaved')}</p>:waiting?<p className="settings-feedback" role="status">{t('settingsSaving')}</p>:<SettingsActionFeedback action={action}/>}
+    <p className="settings-hint nova-web-notice">{t('settingsNoIsolation')}</p>
+  </div>
 }
 
-export function ServiceSetting({title,hint,effective,scope,kind,field,choices,disabled,children}:{
-  title:string;hint?:string;effective:string|undefined;scope:string;kind:string;field:string
-  choices:Array<[string,string,boolean?]>;disabled:boolean;children?:ReactNode
-}){
-  const {t}=useI18n()
-  const [draft,setDraft]=useState(effective||'')
-  const [submitted,setSubmitted]=useState<string|null>(null)
-  const previous=useRef(effective)
-  const action=useSettingsAction(scope)
-  const waiting=!!action.result?.accepted&&submitted!==null&&effective!==submitted
-  useEffect(()=>{setDraft(current=>current===(previous.current||'')?effective||'':current);previous.current=effective},[effective])
-  const confirmed=!!action.result&&submitted!==null&&effective===submitted&&draft===submitted
-  return <form className="nova-settings-card" aria-label={title} onSubmit={event=>{event.preventDefault();
-    if(effective===undefined||draft===effective||disabled||action.busy||waiting)return
-    setSubmitted(draft)
-    void action.run(()=>window.api.applicationCommand(kind,{[field]:field==='enabled'?draft==='true':draft})).then(receipt=>{
-      if(!receipt)setSubmitted(null)
-    })
-  }}>
-    <div className="nova-settings-row"><div><label>{title}</label>{hint&&<p>{hint}</p>}</div>
-      <select aria-label={title} value={draft} disabled={disabled||action.busy||waiting||effective===undefined}
-        onChange={event=>setDraft(event.target.value)}>
-        {!draft&&<option value="">{t('settingsUnknown')}</option>}
-        {choices.map(([value,label,unavailable])=><option key={value} value={value} disabled={unavailable&&value!==effective}>{label}{unavailable?` · ${t('settingsUnavailable')}`:''}</option>)}
-      </select></div>
-    <p className="settings-hint">{t('settingsEffective')}: {choices.find(([value])=>value===effective)?.[1]||t('settingsUnknown')}</p>
-    {effective===undefined?<p className="settings-hint">{t('settingsNotObserved')}</p>:children}
-    {confirmed?<p className="settings-feedback" role="status">{t('settingsServiceSaved')}</p>:<SettingsActionFeedback action={action}/>}
-    <div className="nova-settings-actions">
-      <button type="button" className="nova-settings-secondary" disabled={action.busy||waiting||draft===effective} onClick={()=>setDraft(effective||'')}>{t('settingsServiceCancel')}</button>
-      <button className="nova-settings-primary" type="submit" disabled={disabled||action.busy||waiting||effective===undefined||draft===effective}>{t('settingsServiceSave')}</button>
-    </div>
-  </form>
-}
 export function ObservedValue({label,value}:{label:string;value:string}){
   return <div className="settings-observed-row"><span>{label}</span><strong>{value}</strong></div>
 }

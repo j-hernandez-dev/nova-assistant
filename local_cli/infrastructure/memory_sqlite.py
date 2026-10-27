@@ -419,6 +419,30 @@ class SQLiteMemoryStore:
             self._save_sources(dto)
             self._project(safe)
 
+    def edit_explicit(self, records):
+        """Atomic host-authenticated table edit, including explicit scope moves."""
+        safe=tuple((self._prepare(record),revision) for record,revision in records)
+        with self._transaction(write=True):
+            for record,revision in safe:
+                old=self._old(record.memory_id,revision);dto=codec.encode(record)
+                if (old['subject_id']!=dto['subjectId'] or old['created_at']!=dto['createdAt']
+                        or old['status'] not in ('ACTIVE','CONFLICTED') or record.revision!=revision+1
+                        or dto['updatedAt']<old['updated_at'] or record.status is not MemoryStatus.ACTIVE
+                        or record.source_class is not MemorySourceClass.USER_EXPLICIT_MEMORY):
+                    raise MemoryError(MemoryErrorCode.CONFLICT)
+                moved=(old['scope_kind'],old['scope_id'])!=(dto['scopeKind'],dto['scopeId'])
+                if moved and record.supersedes_memory_id is not None:raise MemoryError(MemoryErrorCode.SCOPE_MISMATCH)
+                if not moved and old['supersedes_memory_id']!=record.supersedes_memory_id:raise MemoryError(MemoryErrorCode.CONFLICT)
+            for record,_ in safe:
+                dto=codec.encode(record)
+                self._connection.execute('UPDATE memories SET '+','.join(k+'=?' for k in _COLUMNS[1:])+' WHERE memory_id=?',
+                    [dto[k] for k in _DTO_COLUMNS[1:]]+[record.memory_id])
+                self._connection.execute('DELETE FROM memory_sources WHERE memory_id=?',(record.memory_id,))
+                self._connection.execute('DELETE FROM memory_relations WHERE memory_id=?',(record.memory_id,))
+                if record.supersedes_memory_id:
+                    self._connection.execute('INSERT INTO memory_relations VALUES (?,?)',(record.memory_id,record.supersedes_memory_id))
+                self._save_sources(dto);self._project(record)
+
     def supersede(self, old_id, record, *, expected_revision):
         safe = self._prepare(record)
         with self._transaction(write=True):
@@ -443,21 +467,32 @@ class SQLiteMemoryStore:
             self._insert(safe)
 
     def delete(self, memory_id, scope, *, expected_revision):
+        self.delete_explicit([(memory_id,expected_revision)],scope)
+
+    def delete_explicit(self, records, scope):
         with self._transaction(write=True):
-            old = self._old(memory_id, expected_revision)
-            self._assert_scope(old, scope)
-            self._connection.execute('INSERT INTO memory_tombstones VALUES (?,?,?,?,?,?,?,?)',
-                (memory_id, old['subject_id'], old['scope_kind'], old['scope_id'], old['identity_version'],
-                 old['content_hash'], old['revision']+1, codec.timestamp(datetime.now(timezone.utc))))
-            self.remove_lexical_row(memory_id)
-            self._connection.execute('DELETE FROM memories WHERE memory_id=?', (memory_id,))
-            # M6 owns only its bounded queue/proposal derivatives. Audit/source
-            # conversations and unrelated maintenance formats are untouched.
-            from local_cli.infrastructure.memory_maintenance import invalidate_owned_jobs
-            invalidate_owned_jobs(self,old)
-            self._bump_semantic_epoch()
-            # Sources/embedding rows/eligible relations are FK-cascaded. Audit,
-            # external backups, snapshots and transcripts are never touched.
+            prepared=[];seen=set()
+            for memory_id,revision in records:
+                if memory_id in seen:raise MemoryError(MemoryErrorCode.INVALID_RECORD)
+                old=self._old(memory_id,revision);self._assert_scope(old,scope)
+                seen.add(memory_id);prepared.append(old)
+            for old in prepared:self._delete_row(old)
+
+    def _delete_row(self, old):
+        memory_id=old['memory_id']
+        self._connection.execute('INSERT INTO memory_tombstones VALUES (?,?,?,?,?,?,?,?)',
+            (memory_id, old['subject_id'], old['scope_kind'], old['scope_id'], old['identity_version'],
+             old['content_hash'], old['revision']+1, codec.timestamp(datetime.now(timezone.utc))))
+        self.remove_lexical_row(memory_id)
+        self._connection.execute('DELETE FROM memories WHERE memory_id=?', (memory_id,))
+        # M6 owns only its bounded queue/proposal derivatives. Audit/source
+        # conversations and unrelated maintenance formats are untouched.
+        from local_cli.infrastructure.memory_maintenance import invalidate_owned_jobs
+        invalidate_owned_jobs(self,old)
+        self._bump_semantic_epoch()
+        # Sources/embedding rows/eligible relations are FK-cascaded. Audit,
+        # external backups, snapshots and transcripts are never touched.
+
 
     @staticmethod
     def _access(scope, alias='m'):
@@ -600,6 +635,56 @@ class SQLiteMemoryStore:
                 tomb_clause+' ORDER BY t.memory_id',tomb_params)]
             return dict(format='nova-memory-export',exportVersion=1,schemaVersion=1,
                 subjectId=scope.subject_id.value,records=records,tombstones=tombstones)
+
+    def export_profile(self,subject,*,include_sensitive,limit):
+        with self._transaction():
+            rows=self._connection.execute('SELECT * FROM memories WHERE subject_id=?'+
+                ('' if include_sensitive else " AND sensitivity_class='NORMAL'")+' ORDER BY memory_id LIMIT ?',
+                (subject.value,limit+1)).fetchall()
+            if len(rows)>limit:raise MemoryError(MemoryErrorCode.TRANSFER_TOO_LARGE)
+            records=[codec.encode(self._load(row)) for row in rows]
+            tombstones=[dict(row) for row in self._connection.execute(
+                'SELECT * FROM memory_tombstones WHERE subject_id=? ORDER BY memory_id LIMIT ?', (subject.value,limit+1))]
+            if len(tombstones)>limit:raise MemoryError(MemoryErrorCode.TRANSFER_TOO_LARGE)
+            scopes={(r['scopeId'],r['identityVersion']) for r in records if r['scopeId']}
+            scopes.update((r['scope_id'],r['identity_version']) for r in tombstones if r['scope_id'])
+            projects=[]
+            for wid,version in sorted(scopes):
+                row=self._connection.execute('SELECT canonical_path FROM workspaces WHERE workspace_id=? AND identity_version=?',(wid,version)).fetchone()
+                projects.append({'workspaceId':wid,'identityVersion':version,'path':row[0] if row else None})
+            return dict(format='nova-memory-export',exportVersion=2,schemaVersion=1,subjectId=subject.value,
+                records=records,tombstones=tombstones,projects=projects)
+
+    def replace_profile(self,subject,records,tombstones,projects):
+        safe={r.memory_id:self._prepare(r) for r in records}
+        if len(safe)!=len(records) or any(r.subject_id!=subject for r in records):
+            raise MemoryError(MemoryErrorCode.IMPORT_INVALID)
+        tomb_by_id={r['memory_id']:r for r in tombstones}
+        # Topological validation happens before opening a write transaction.
+        ordered=[];visited=set();visiting=set()
+        def visit(record):
+            if record.memory_id in visited:return
+            if record.memory_id in visiting:raise MemoryError(MemoryErrorCode.IMPORT_INVALID)
+            visiting.add(record.memory_id)
+            parent=record.supersedes_memory_id
+            if parent:
+                if parent in safe:visit(safe[parent])
+                elif parent not in tomb_by_id:raise MemoryError(MemoryErrorCode.IMPORT_INVALID)
+            visiting.remove(record.memory_id);visited.add(record.memory_id);ordered.append(record)
+        for record in records:visit(record)
+        with self._transaction(write=True):
+            self._connection.execute('DELETE FROM memory_fts WHERE memory_id IN (SELECT memory_id FROM memories WHERE subject_id=?)',(subject.value,))
+            self._connection.execute('DELETE FROM memories WHERE subject_id=?',(subject.value,))
+            self._connection.execute('DELETE FROM memory_tombstones WHERE subject_id=?',(subject.value,))
+            self._connection.execute("DELETE FROM maintenance_jobs WHERE json_extract(payload,'$.subjectId')=?",(subject.value,))
+            for wid,path in projects.items():
+                self._connection.execute('INSERT INTO workspaces VALUES (?,?,?) ON CONFLICT(workspace_id,identity_version) DO UPDATE SET canonical_path=excluded.canonical_path',
+                    (wid.value,wid.identity_version,path))
+            for item in tombstones:
+                self._connection.execute('INSERT INTO memory_tombstones (memory_id,subject_id,scope_kind,scope_id,identity_version,content_hash,revision,deleted_at) VALUES (?,?,?,?,?,?,?,?)',
+                    [item[k] for k in ('memory_id','subject_id','scope_kind','scope_id','identity_version','content_hash','revision','deleted_at')])
+            for record in ordered:self._insert(record)
+            self._bump_semantic_epoch()
 
     def storage_stats(self):
         with self._transaction():

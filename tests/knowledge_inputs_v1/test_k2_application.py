@@ -23,7 +23,7 @@ def test_real_session_acquisition_operation_publication_progress_no_paths_or_con
         service=c.app._knowledge.service
         ref=refs(c)[0]
         source=service.store.get_source(ref['sourceId'],service.access)
-        assert source.scope.kind is KnowledgeScopeKind.SESSION and source.scope.session_id==c.sid
+        assert source.scope.kind is KnowledgeScopeKind.WORKSPACE and source.scope.session_id is None
         assert service.store.read_blob(source.current_revision_id,service.access)==PAYLOAD
         assert op.status.value=='completed' and op.progress['phase']=='COMPLETED'
         events=c.app.poll_events(cursor)
@@ -44,30 +44,24 @@ def test_explicit_scope_and_reopen_session_cleanup_workspace_persistence(tmp_pat
     svc=c.app._knowledge.service;ref=refs(c)[0];access=svc.access
     close(c)
     with SQLiteKnowledgeStore(tmp_path/'private-state') as store:
-        if scope=='WORKSPACE':
-            assert store.get_source(ref['sourceId'],KnowledgeAccess(access.workspace_id,'ses_new')).current_revision_id==ref['revisionId']
-        else:
-            with pytest.raises(KnowledgeError): store.get_source(ref['sourceId'],access)
+        # Legacy SESSION requests are upgraded to persistent project attachments.
+        assert store.get_source(ref['sourceId'],KnowledgeAccess(access.workspace_id,'ses_new')).current_revision_id==ref['revisionId']
         with pytest.raises(KnowledgeError): store.get_source(ref['sourceId'],KnowledgeAccess('wrong-workspace',access.session_id))
 
 
-def test_promotion_is_independent_new_source_revision_preserves_original_and_no_origin_reopen(tmp_path):
+def test_legacy_promotion_is_noop_for_persistent_attachment_without_origin_reopen(tmp_path):
     c=setup(tmp_path)
     try:
         invoke(c);original=refs(c)[0];svc=c.app._knowledge.service
         c.file.unlink()  # Explicit promotion copies acquired bytes, not origin.
         _,op=invoke(c,'source_promote',{'sourceId':original['sourceId']})
         assert op.status.value=='completed'
-        promoted=next(r for r in refs(c) if r['sourceId']!=original['sourceId'])
-        source=svc.store.get_source(promoted['sourceId'],svc.access)
+        assert refs(c)==[original]
+        source=svc.store.get_source(original['sourceId'],svc.access)
         assert source.scope.kind is KnowledgeScopeKind.WORKSPACE
-        assert source.source_id!=original['sourceId'] and source.current_revision_id!=original['revisionId']
+        assert source.source_id==original['sourceId'] and source.current_revision_id==original['revisionId']
         assert svc.store.read_blob(source.current_revision_id,svc.access)==PAYLOAD
-        assert original in refs(c) and source.origin=='knowledge-revision:'+original['revisionId']
-        old=svc.store.read_prepared(original['revisionId'],svc.access)
-        new=svc.store.read_prepared(source.current_revision_id,svc.access)
-        assert old.document.text==new.document.text and old.chunks[0].chunk_id!=new.chunks[0].chunk_id
-        assert old.document.blocks[0].block_id!=new.document.blocks[0].block_id
+        assert op.result['unchanged'] is True
     finally: close(c)
 
 
@@ -179,7 +173,13 @@ def test_attachment_identity_state_and_scope_enforced_no_renderer_synthesized_re
         elif tamper in ('wrong-session','wrong-workspace'):
             svc=c.app._knowledge.service
             other=KnowledgeAccess(svc.access.workspace_id,'ses_foreign') if tamper=='wrong-session' else KnowledgeAccess('foreign-workspace',c.sid)
-            with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+            if tamper=='wrong-workspace':
+                with pytest.raises(KnowledgeError):svc.store.get_source(ref['sourceId'],other)
+            else:
+                # Persistence deliberately permits a future session in the same
+                # workspace; authenticated controls remain current-session bound.
+                result=c.app.execute_knowledge(command(c,'source_list',{},session_id='ses_foreign'),actor=c.actor)
+                assert not result['accepted'] and result['error']['code']=='INVALID_SESSION'
             c.app._knowledge.catalog.clear()
         else:
             from local_cli.core.knowledge import new_source_id

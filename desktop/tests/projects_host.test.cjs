@@ -19,7 +19,7 @@ function fixture(t, saved) {
   t.after(()=>fs.rmSync(root,{recursive:true,force:true}))
   return {host,root,profile,workspace,a,b,client,opened,events,setChoice:value=>choice=value}
 }
-test('Default project is host-derived; saved registry never replaces its identity', t=>{
+test('Legacy registries do not reinterpret a stray default field as a user-selected folder', t=>{
   const f=fixture(t,({a})=>({schemaVersion:1,defaultPath:a,activePath:a,folders:[a]}))
   assert.equal(f.host.state().defaultPath,f.workspace)
   assert.equal(f.host.preferredPath(),f.a)
@@ -182,4 +182,62 @@ test('project removal deletes its chat only after a confirmed fallback; deletion
   assert.equal(host.state().folders.some(folder=>folder.path===f.a),!deleted)
   assert.equal(fs.readFileSync(file,'utf8'),'preserve')
  }
+})
+
+
+test('Changing the default uses the native picker, preserves other projects and survives reopening',async t=>{
+ const f=fixture(t);await f.host.action('add')
+ fs.writeFileSync(path.join(f.workspace,'keep.txt'),'original files');fs.writeFileSync(path.join(f.b,'keep.txt'),'chosen files')
+ f.setChoice({canceled:false,filePaths:[f.b]})
+ const result=await f.host.action('change',f.workspace)
+ assert.equal(result.success,true);assert.equal(f.host.defaultPath,f.b);assert.equal(result.state.activePath,f.b)
+ assert.deepEqual(result.state.folders.map(x=>[x.path,x.isDefault]),[[f.b,true],[f.a,false]])
+ assert.equal((await f.host.action('remove',f.b)).error.code,'PROJECT_DEFAULT_REQUIRED')
+ const saved=JSON.parse(fs.readFileSync(path.join(f.profile,'project-preferences.json'),'utf8'))
+ assert.equal(saved.schemaVersion,2);assert.equal(saved.defaultPath,f.b)
+ const reopened=createProjectsHost({directory:f.profile,defaultPath:f.workspace,client:f.client,chooseDirectory:async()=>({canceled:true}),openPath:async()=>''})
+ assert.equal(reopened.defaultPath,f.b);assert.equal(reopened.preferredPath(),f.b)
+ assert.equal(fs.readFileSync(path.join(f.workspace,'keep.txt'),'utf8'),'original files');assert.equal(fs.readFileSync(path.join(f.b,'keep.txt'),'utf8'),'chosen files')
+})
+
+test('Cancel, busy work and rejected workspace changes do not replace the default',async t=>{
+ const f=fixture(t);f.setChoice({canceled:true,filePaths:[]})
+ assert.equal((await f.host.action('change',f.workspace)).canceled,true);assert.equal(f.host.defaultPath,f.workspace)
+ f.client.busy=true;assert.equal((await f.host.action('reset-default')).error.code,'PROJECT_BUSY');f.client.busy=false
+ f.setChoice({canceled:false,filePaths:[f.a]});f.client.changeWorkspace=async()=>({success:false,error:{code:'CONFLICT_ACTIVE_OPERATION'}})
+ assert.equal((await f.host.action('change',f.workspace)).success,false);assert.equal(f.host.defaultPath,f.workspace)
+ assert.equal(fs.existsSync(path.join(f.profile,'project-preferences.json')),false)
+ assert.equal((await f.host.action('reset-default',f.b)).error.code,'PROJECT_INVALID_ACTION')
+})
+
+test('A failed preference write keeps the prior default and rolls the workspace back',async t=>{
+ const f=fixture(t),rename=fs.renameSync
+ fs.renameSync=(from,to)=>{if(to===path.join(f.profile,'project-preferences.json'))throw Error('owned failure');return rename(from,to)}
+ try{
+  const result=await f.host.action('change',f.workspace)
+  assert.equal(result.success,false);assert.equal(result.error.code,'PROJECT_PREFERENCES_SAVE_FAILED')
+  assert.equal(f.host.defaultPath,f.workspace);assert.equal(f.client.view.workspace,f.workspace)
+  assert.deepEqual(f.host.state().folders.map(x=>x.path),[f.workspace])
+ }finally{fs.renameSync=rename}
+})
+
+test('Reset restores the immutable original folder, recreates it if missing and preserves custom files',async t=>{
+ const f=fixture(t);await f.host.action('change',f.workspace)
+ fs.writeFileSync(path.join(f.a,'keep.txt'),'preserve')
+ assert.equal(path.dirname(f.workspace),f.root);fs.rmdirSync(f.workspace)
+ f.client.busy=true;assert.equal((await f.host.action('reset-default')).success,false);assert.equal(fs.existsSync(f.workspace),false);f.client.busy=false
+ const result=await f.host.action('reset-default')
+ assert.equal(result.success,true);assert.equal(f.host.defaultPath,f.workspace);assert.equal(result.state.activePath,f.workspace)
+ assert.equal(fs.statSync(f.workspace).isDirectory(),true);assert.equal(fs.readFileSync(path.join(f.a,'keep.txt'),'utf8'),'preserve')
+ assert.equal((await f.host.action('remove',f.workspace)).error.code,'PROJECT_DEFAULT_REQUIRED')
+})
+
+test('Reset refuses a replacement junction and can recover an unavailable backend through the host',async t=>{
+ const f=fixture(t);await f.host.action('change',f.workspace)
+ assert.equal(path.dirname(f.workspace),f.root);fs.rmdirSync(f.workspace);fs.symlinkSync(f.b,f.workspace,process.platform==='win32'?'junction':'dir')
+ assert.equal((await f.host.action('reset-default')).error.code,'PROJECT_PATH_CHANGED');assert.equal(f.host.defaultPath,f.a)
+ const missing=path.join(f.root,'new-original');f.client.view.status.ready=false;f.client.view.workspace=null
+ const recovery=createProjectsHost({directory:path.join(f.root,'recovery-profile'),defaultPath:missing,client:f.client,
+  chooseDirectory:async()=>({canceled:true}),openPath:async()=>'',bootstrapWorkspace:async root=>{f.client.view.workspace=root;f.client.view.status.ready=true;return{success:true}}})
+ assert.equal((await recovery.action('reset-default')).success,true);assert.equal(recovery.defaultPath,missing)
 })

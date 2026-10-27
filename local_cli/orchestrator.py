@@ -75,7 +75,7 @@ class Orchestrator:
         provider modules optional.
 
         Args:
-            name: Provider name (``'ollama'`` or ``'claude'``).
+            name: Provider name (``'ollama'`` or ``'llama-server'``).
 
         Returns:
             A :class:`LLMProvider` instance.
@@ -83,15 +83,12 @@ class Orchestrator:
         Raises:
             ValueError: If *name* is not a recognized provider.
             ValueError: If the provider cannot be initialized (e.g.
-                missing API key for Claude).
+                unavailable local inference endpoint).
         """
         from local_cli.providers import get_provider
 
         if name == "ollama":
             return get_provider("ollama", base_url=self._config.ollama_host)
-
-        if name == "claude":
-            return get_provider("claude")
 
         if name == "llama-server":
             return get_provider(
@@ -101,7 +98,7 @@ class Orchestrator:
 
         raise ValueError(
             f"Unknown provider: {name!r}. "
-            f"Supported providers: 'ollama', 'claude', 'llama-server'."
+            f"Supported providers: 'ollama', 'llama-server'."
         )
 
     # ------------------------------------------------------------------
@@ -190,7 +187,9 @@ class Orchestrator:
             return provider
         except (ValueError, Exception) as exc:
             # Attempt fallback to the other provider.
-            fallback = "ollama" if name != "ollama" else "claude"
+            if name == "ollama":
+                raise ValueError(f"Cannot initialize Ollama: {exc}") from exc
+            fallback = "ollama"
             sys.stderr.write(
                 f"Warning: Failed to switch to provider {name!r}: {exc}\n"
                 f"Attempting fallback to {fallback!r}...\n"

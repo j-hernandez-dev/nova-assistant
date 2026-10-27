@@ -17,7 +17,7 @@ from local_cli.providers.base import (
     ProviderStreamError,
 )
 from local_cli.security import validate_model_name, validate_ollama_host
-from local_cli.providers.stream_control import open_stream, StreamCancelled
+from local_cli.providers.stream_control import open_stream, StreamCancelled, StreamTimedOut, ResponseDeadline
 
 # ---------------------------------------------------------------------------
 # Default timeouts (seconds)
@@ -28,8 +28,11 @@ _DEFAULT_TIMEOUT = 30
 
 # Streaming chat completions (model may take time to start generating).
 # CPU-only inference with large models + tools can take several minutes
-# before the first token is emitted; 600s accommodates this.
-_STREAM_TIMEOUT = 600
+# before the first token is emitted; allow up to 15 minutes without a response.
+_STREAM_TIMEOUT = 15 * 60
+# Managed chat calls separate TCP setup from cold-load/prefill and output stalls.
+_FIRST_RESPONSE_TIMEOUT = _STREAM_TIMEOUT
+_RESPONSE_IDLE_TIMEOUT = _STREAM_TIMEOUT
 
 
 # ---------------------------------------------------------------------------
@@ -43,6 +46,12 @@ class OllamaConnectionError(ProviderConnectionError):
     Inherits from :class:`~local_cli.providers.base.ProviderConnectionError`
     so that ``except ProviderConnectionError`` catches this as well.
     """
+    code = "OLLAMA_CONNECTION_FAILED"
+
+
+class OllamaResponseTimeout(ProviderStreamError):
+    """The service connected, but model output exceeded its response deadline."""
+    code = "OLLAMA_RESPONSE_TIMEOUT"
 
 
 class OllamaRequestError(ProviderRequestError):
@@ -119,7 +128,7 @@ class OllamaClient:
         ValueError: If *base_url* does not point to a localhost address.
     """
 
-    def __init__(self, base_url: str = "http://localhost:11434") -> None:
+    def __init__(self, base_url: str = "http://localhost:11434", *, usage_recorder=None) -> None:
         base_url = base_url.rstrip("/")
 
         if not validate_ollama_host(base_url):
@@ -128,6 +137,16 @@ class OllamaClient:
             )
 
         self.base_url: str = base_url
+        self.usage_recorder = usage_recorder
+
+    def _begin_usage(self, path, data, should_stop=None):
+        if self.usage_recorder is None or path not in ('/api/chat', '/api/generate') or (should_stop is not None and should_stop()):
+            return None
+        return self.usage_recorder.begin((data or {}).get('model', ''))
+
+    def _finish_usage(self, identity, data, outcome):
+        if self.usage_recorder is not None:
+            self.usage_recorder.finish(identity, data, outcome)
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -165,10 +184,16 @@ class OllamaClient:
             url, data=body, headers=headers, method=method,
         )
 
+        usage_id = self._begin_usage(path, data)
+        usage_data, outcome = {}, 'failed'
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 raw = resp.read().decode("utf-8")
-                return json.loads(raw)
+                result = json.loads(raw)
+                if isinstance(result, dict):
+                    usage_data = result
+                    outcome = 'completed'
+                return result
         except urllib.error.HTTPError as exc:
             raise OllamaRequestError(
                 _format_http_error(exc, url)
@@ -185,6 +210,8 @@ class OllamaClient:
             raise OllamaRequestError(
                 f"Invalid JSON response from Ollama: {exc}"
             ) from exc
+        finally:
+            self._finish_usage(usage_id, usage_data, outcome)
 
     def _stream_request(
         self,
@@ -221,8 +248,13 @@ class OllamaClient:
         )
 
         saw_done = False
+        usage_id = self._begin_usage(path, data, should_stop)
+        usage_data, outcome = {}, 'failed'
+        deadline = (ResponseDeadline(_FIRST_RESPONSE_TIMEOUT, _RESPONSE_IDLE_TIMEOUT)
+                    if path in ("/api/chat", "/api/generate") and should_stop is not None else None)
+        stream_options = {"response_deadline": deadline} if deadline is not None else {}
         try:
-            with open_stream(req, timeout, should_stop) as resp:
+            with open_stream(req, timeout, should_stop, **stream_options) as resp:
                 for line in resp:
                     line = line.strip()
                     if not line:
@@ -233,20 +265,49 @@ class OllamaClient:
                         continue
                     if "error" in chunk:
                         raise OllamaStreamError(f"Ollama error: {chunk['error']}")
+                    for key in ('prompt_eval_count', 'eval_count'):
+                        if key in chunk:
+                            usage_data[key] = chunk[key]
                     saw_done = saw_done or chunk.get("done") is True
+                    if saw_done:
+                        outcome = 'completed'
+                    message = chunk.get("message") or {}
+                    if deadline is not None and (saw_done or chunk.get("response") or
+                            message.get("content") or message.get("thinking") or message.get("tool_calls")):
+                        deadline.progress()
                     yield chunk
                 if should_stop is not None and not should_stop() and not saw_done:
                     raise OllamaStreamError("Ollama closed the stream before its terminal response")
         except StreamCancelled:
+            outcome = 'interrupted'
             return
+        except StreamTimedOut as exc:
+            raise OllamaResponseTimeout("Ollama connected but did not respond within the allowed time") from exc
         except urllib.error.HTTPError as exc:
-            raise OllamaRequestError(_format_http_error(exc, url)) from exc
+            detail = _format_http_error(exc, url)
+            error = OllamaRequestError(detail)
+            if exc.code == 404 and "model" in detail.lower() and "not found" in detail.lower():
+                error.code = "OLLAMA_MODEL_UNAVAILABLE"
+            raise error from exc
         except urllib.error.URLError as exc:
-            raise OllamaConnectionError(f"Failed to connect to Ollama at {url}: {exc}") from exc
+            if deadline is not None and deadline.started is not None and isinstance(exc.reason, socket.timeout):
+                raise OllamaResponseTimeout("Ollama connected but its response timed out") from exc
+            error = OllamaConnectionError(f"Failed to connect to Ollama at {url}: {exc}")
+            if isinstance(exc.reason, socket.timeout):
+                error.code = "OLLAMA_CONNECT_TIMEOUT"
+            raise error from exc
         except socket.timeout as exc:
-            raise OllamaConnectionError(f"Request to Ollama timed out ({timeout}s): {url}") from exc
+            if deadline is not None and deadline.started is not None:
+                raise OllamaResponseTimeout("Ollama connected but its response timed out") from exc
+            error = OllamaConnectionError(f"Ollama connection timed out: {url}")
+            error.code = "OLLAMA_CONNECT_TIMEOUT"
+            raise error from exc
         except OSError as exc:
             raise OllamaConnectionError(f"Ollama stream connection failed: {url}") from exc
+        finally:
+            if should_stop is not None and should_stop() and not saw_done:
+                outcome = 'interrupted'
+            self._finish_usage(usage_id, usage_data, outcome)
 
     def _request_no_content(
         self,
@@ -556,7 +617,7 @@ class OllamaClient:
             "/api/pull", payload, timeout=_STREAM_TIMEOUT
         )
 
-    def show_model(self, model: str) -> dict[str, Any]:
+    def show_model(self, model: str, *, timeout=None) -> dict[str, Any]:
         """Show detailed information about a model.
 
         Calls ``POST /api/show`` to retrieve model metadata including
@@ -577,7 +638,7 @@ class OllamaClient:
         """
         self._validate_model(model)
         payload: dict[str, Any] = {"model": model}
-        return self._request("POST", "/api/show", data=payload)
+        return self._request("POST", "/api/show", data=payload, **({"timeout":timeout} if timeout is not None else {}))
 
     def list_running_models(self) -> list[dict[str, Any]]:
         """List models currently loaded in VRAM.

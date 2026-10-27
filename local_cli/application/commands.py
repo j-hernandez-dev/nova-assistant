@@ -28,6 +28,11 @@ class CommandKind(str, Enum):
     QUERY_RAG = "QueryRAG"
     GET_RAG_STATUS = "GetRAGStatus"
     SET_CONTEXT_WINDOW = "SetContextWindow"
+    SET_EMBEDDING_SETTINGS = "SetEmbeddingSettings"
+    RESET_EMBEDDING_SETTINGS = "ResetEmbeddingSettings"
+    SET_KNOWLEDGE_SETTINGS = "SetKnowledgeSettings"
+    RESET_KNOWLEDGE_SETTINGS = "ResetKnowledgeSettings"
+    SET_WEB_SETTINGS = "SetWebSettings"
     SET_FETCH_ENABLED = "SetFetchEnabled"
     SET_SEARCH_ENGINE = "SetSearchEngine"
     SET_BROWSER = "SetBrowser"
@@ -118,10 +123,23 @@ class ApplicationCommand:
             from local_cli.core.context import PRESETS
             if (set(self.payload) != {'requestedTokens'} or type(self.payload['requestedTokens']) is not int
                     or self.payload['requestedTokens'] not in (0, *PRESETS)):
-                raise ValueError('SetContextWindow requires only requestedTokens: 0, 4096, 8192, 16384, 32768, or 65536')
+                raise ValueError('SetContextWindow requires only requestedTokens: 0, 4096, 8192, 16384, 32768, 65536, 131072, or 262144')
         if self.kind is CommandKind.EXECUTE_COMMAND and self.payload.get('name') == 'clear_history':
             if set(self.payload) != {'name', 'scope'} or self.payload['scope'] != 'all':
                 raise ValueError('clear_history requires scope: all')
+        if self.kind is CommandKind.RESET_EMBEDDING_SETTINGS and self.payload:
+            raise ValueError('ResetEmbeddingSettings requires an empty payload')
+        if self.kind is CommandKind.SET_EMBEDDING_SETTINGS:
+            from local_cli.embedding_settings import validate_settings
+            validate_settings(dict(self.payload))
+        if self.kind is CommandKind.RESET_KNOWLEDGE_SETTINGS and self.payload:
+            raise ValueError('ResetKnowledgeSettings requires an empty payload')
+        if self.kind is CommandKind.SET_KNOWLEDGE_SETTINGS:
+            from local_cli.knowledge_preferences import validate_settings
+            validate_settings(dict(self.payload))
+        if self.kind is CommandKind.SET_WEB_SETTINGS:
+            from local_cli.web_config import validate_web_settings
+            validate_web_settings(dict(self.payload))
         if self.kind is CommandKind.SET_FETCH_ENABLED and (
                 set(self.payload) != {'enabled'} or type(self.payload['enabled']) is not bool):
             raise ValueError('SetFetchEnabled requires only a boolean enabled')

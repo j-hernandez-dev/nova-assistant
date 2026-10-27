@@ -212,7 +212,8 @@ def test_cli_and_jsonl_use_same_plan_free_tool_runtime_and_approval(tmp_path, mo
         service = BrowserExecutionService(lambda: adapter)
         app = AgentSessionCoordinator(provider=provider, model='fixture', event_config=EventBufferConfig(),
             prompt_factory=lambda tools, workspace: 'Use the available tools. Report observed results only.',
-            tool_factory=lambda _: browser_tools(service_factory=lambda: service))
+            tool_factory=lambda _: browser_tools(service_factory=lambda: service,
+                selection=__import__('types').SimpleNamespace(state=lambda: {'available': True})))
         sid = start(app, tmp_path).session_id
         if root == 'cli':
             rendered = []

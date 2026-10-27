@@ -23,6 +23,17 @@ class ScriptedClient:
         self.base_url = base_url
 
     def list_models(self):
+        if os.environ.get("NOVA_TEST_SEND_LATENCY") == "1":
+            print("TEST_METADATA_TAGS", file=sys.stderr, flush=True)
+        if os.environ.get('NOVA_TEST_EM_SETTINGS') == '1':
+            base = [{'name':'local:7b','size':4_000_000_000,'digest':'chat-v1'},
+                    {'name':'local:8b','size':5_000_000_000,'digest':'chat-v2'}]
+            if not Path(os.environ['NOVA_TEST_EM_NEW_MODEL']+'.empty').exists():
+                base += [{'name':'fixture-embedding:small','size':100_000_000,'digest':'em-v1'},
+                         {'name':'fixture-embedding:large','size':600_000_000,'digest':'em-v2'}]
+            if Path(os.environ['NOVA_TEST_EM_NEW_MODEL']).exists():
+                base += [{'name':'fixture-embedding:new','size':200_000_000,'digest':'em-v3'}]
+            return base
         return [{"name": "local:7b", "size": 4_000_000_000}, {"name": "local:8b", "size": 5_000_000_000}] + [
             {"name": name, "size": 1_000_000_000} for name in self.downloaded]
 
@@ -36,14 +47,46 @@ class ScriptedClient:
         yield {"status": "success"}
 
     def show_model(self, model):
-        return {"name": model, "capabilities": ["completion", "tools"],
-                "model_info": {"test.context_length": 32768}}
+        if os.environ.get('NOVA_TEST_EM_SETTINGS') == '1' and model.startswith('fixture-embedding:'):
+            return {'name':model,'capabilities':['embedding'],'model_info':{'test.context_length':512 if model.endswith('small') else 32768,'test.embedding_length':3}}
+        if os.environ.get("NOVA_TEST_SEND_LATENCY") == "1":
+            print("TEST_METADATA_SHOW", file=sys.stderr, flush=True)
+        return {"name": model, "capabilities": (["completion"]
+                    if os.environ.get("NOVA_TEST_TOOLS_FALLBACK") == "1" else ["completion", "tools"]),
+                "model_info": {"test.context_length": (
+                    (8192 if model == "local:8b" else 262144)
+                    if os.environ.get("NOVA_TEST_HIGH_CONTEXT") == "1" else 32768)}}
 
     def get_version(self):
         return {"version": "test"}
 
     def chat_stream(self, model, messages, **kwargs):
         task = next((m["content"] for m in reversed(messages) if m["role"] == "user"), "hello")
+        if os.environ.get("NOVA_TEST_TOOLS_FALLBACK") == "1":
+            if kwargs.get('tools') is not None:
+                from local_cli.ollama_client import OllamaRequestError
+                print('TEST_NATIVE_TOOLS_REJECTED', file=sys.stderr, flush=True)
+                raise OllamaRequestError('Synthetic model does not support tools')
+            # Hold only the isolated fixture, so renderer recovery can inspect
+            # the pending adaptation before any model content is returned.
+            gate = Path(os.environ['NOVA_TEST_TOOLS_FALLBACK_GATE'])
+            deadline = time.monotonic() + 15
+            while not gate.exists():
+                assert time.monotonic() < deadline, 'Owned fallback fixture gate timed out'
+                time.sleep(0.025)
+            task = 'fallback-ok'
+        if os.environ.get("NOVA_TEST_SEND_LATENCY") == "1":
+            from local_cli.ollama_client import OllamaConnectionError, OllamaResponseTimeout, OllamaRequestError
+            if task == "fixture-generic-error":
+                raise OllamaRequestError("Synthetic generation failure")
+            if task == "fixture-offline":
+                raise OllamaConnectionError("Owned connection failure")
+            if task == "fixture-response-timeout":
+                raise OllamaResponseTimeout("Owned response timeout")
+            if task == "fixture-model-missing":
+                error = OllamaRequestError("Owned missing model")
+                error.code = "OLLAMA_MODEL_UNAVAILABLE"
+                raise error
         latest_tool = messages[-1].get("role") == "tool"
         if task in ("ask", "approval", "read") and not latest_tool:
             name, arguments = {
@@ -54,6 +97,10 @@ class ScriptedClient:
             yield {"message": {"role": "assistant", "content": "", "tool_calls": [{
                 "function": {"name": name, "arguments": arguments}}]}, "done": True}
             return
+        if os.environ.get("NOVA_TEST_HIGH_CONTEXT") == "1" and task.startswith("context-window:"):
+            expected = int(task.split(":", 1)[1])
+            assert kwargs["options"]["num_ctx"] == expected, kwargs
+            print(f"TEST_CONTEXT_REQUEST {expected}", file=sys.stderr, flush=True)
         if task.startswith("stream-markdown:"):
             yield {"message": {"role": "assistant", "content": task.split(":", 1)[1]}, "done": False}
             for _ in range(300):
@@ -66,6 +113,23 @@ class ScriptedClient:
                 yield {"message": {"role": "assistant", "content": "texto "}, "done": False}
                 time.sleep(0.025)
         yield {"message": {"role": "assistant", "content": "¡Hola 🧠! " + task}, "done": True}
+
+
+if os.environ.get('NOVA_TEST_LLM_SETTINGS') == '1':
+    _scripted_chat = ScriptedClient.chat_stream
+    def _metered_chat(self, model, messages, **kwargs):
+        ledger = getattr(self, 'usage_recorder', None)
+        identity = ledger.begin(model) if ledger else None
+        last = {}
+        try:
+            for chunk in _scripted_chat(self, model, messages, **kwargs):
+                if chunk.get('done'):
+                    chunk = {**chunk, 'prompt_eval_count': 125, 'eval_count': 20}
+                    last = chunk
+                yield chunk
+        finally:
+            if ledger: ledger.finish(identity, last, 'completed' if last.get('done') else 'interrupted')
+    ScriptedClient.chat_stream = _metered_chat
 
 
 class NamedProvider(OllamaProvider):
@@ -118,8 +182,26 @@ if os.environ.get("NOVA_TEST_MODEL_DOWNLOAD") == "1":
         "name": "downloaded:1b", "display": "Downloaded fixture", "category": "Test",
         "params": "1B", "size_gb": 1, "description": "Owned download fixture", "tags": [],
     }], ["Test"])
+if os.environ.get('NOVA_TEST_MEMORY_SETTINGS') == '1':
+    from local_cli.infrastructure.memory_embeddings import LocalOllamaEmbeddings
+    def memory_transport(self,path,deadline,data=None):
+        client=ScriptedClient()
+        if path=='/api/tags':return {'models':client.list_models()}
+        if path=='/api/ps':return {'models':[]}
+        if path=='/api/show':return client.show_model(data['model'])
+        if path=='/api/embed':return {'embeddings':[[1.,0.,0.] for _ in data['input']],'prompt_eval_count':len(data['input'])}
+        raise AssertionError('Unexpected synthetic embedding request')
+    LocalOllamaEmbeddings._request=memory_transport
+
 server = DesktopServer()
 server._provider_manager._factory = NamedProvider
+if os.environ.get('NOVA_TEST_MEMORY_SETTINGS') == '1':
+    class MemoryWindowExtractor:
+        def extract(self,input,*,cancellation,deadline):
+            from tests.memory_v1.m6_fixtures import reply
+            import hashlib
+            return reply(input.text,key='preference.fixture_'+hashlib.sha256(input.text.encode()).hexdigest()[:12])
+    server._application._memory_extractor_factory=lambda *_:MemoryWindowExtractor()
 if os.environ.get("NOVA_TEST_DELAY_READINESS") == "1":
     _readiness = server._application.get_readiness
     def delayed_readiness(session_id):

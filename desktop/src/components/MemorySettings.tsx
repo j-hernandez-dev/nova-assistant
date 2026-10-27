@@ -1,208 +1,98 @@
-import { useEffect, useId, useRef, useState } from 'react'
-import type { DesktopSessionView } from '../../shared/application'
-import { useI18n } from '../i18n'
-import { SettingsActionFeedback, useSettingsAction } from '../settings_actions'
+import {useEffect,useId,useRef,useState} from 'react'
+import type {DesktopSessionView,MemoryControlResult,MemoryStatus} from '../../shared/application'
+import type {ProjectState} from '../types'
+import {useI18n} from '../i18n'
+import {sameProjectPath} from '../project_presentation'
+import {useSettingsAction} from '../settings_actions'
+import {SettingsSelect} from './SettingsSelect'
 
-type Props = { view: DesktopSessionView | null }
-export type MemoryInspection = { memoryId: string; revision: number; canonicalText: string; kind: string;
-  scopeKind: string; status: string; sensitivityClass?: string; hidden: boolean }
-type Proposal = { jobId: string; revision: number; proposalId: string; text: string; kind: string; scopeKind: string }
-const kinds = ['PREFERENCE', 'SEMANTIC_FACT', 'WORKSPACE_FACT', 'EPISODE', 'PROCEDURE'] as const
-const kindKeys = ['memorySettingsPreference', 'memorySettingsFact', 'memorySettingsProjectFact', 'memorySettingsEpisode', 'memorySettingsProcedure'] as const
-const statusKeys = { ACTIVE: 'memorySettingsActive', SUPERSEDED: 'memorySettingsSuperseded', CONFLICTED: 'memorySettingsConflicted',
-  RETRACTED: 'memorySettingsRetracted', EXPIRED: 'memorySettingsExpired', DELETED: 'memorySettingsDeleted' } as const
-const object = (value: any) => value && typeof value === 'object' && !Array.isArray(value)
-const identity = (value: unknown): value is string => typeof value === 'string' && value.length > 0 && value.length <= 128
+type Preferences={lexicalRecall:boolean;semanticRecall:boolean;autoCapture:boolean;captureMode:'low_risk'|'propose_only'}
+export const memoryDefaults:Preferences={lexicalRecall:true,semanticRecall:false,autoCapture:true,captureMode:'low_risk'}
+const preferences=(memory:MemoryStatus):Preferences=>({lexicalRecall:memory.lexicalRecall,semanticRecall:memory.semantic,
+  autoCapture:memory.autoCapture,captureMode:memory.captureMode==='propose_only'?'propose_only':'low_risk'})
+const same=(a:Preferences,b:Preferences)=>Object.keys(memoryDefaults).every(key=>a[key as keyof Preferences]===b[key as keyof Preferences])
 
-/** Inspection data never becomes a chat message, a tool argument or authority. */
-export function memoryInspection(value: any): MemoryInspection | null {
-  if (!object(value) || !identity(value.memoryId) || !Number.isSafeInteger(value.revision) || value.revision < 1
-    || typeof value.canonicalText !== 'string' || !kinds.includes(value.kind) || !['WORKSPACE', 'GLOBAL_PROFILE'].includes(value.scopeKind)
-    || !Object.prototype.hasOwnProperty.call(statusKeys, value.status)) return null
-  return { memoryId: value.memoryId, revision: value.revision, canonicalText: value.canonicalText,
-    kind: value.kind, scopeKind: value.scopeKind, status: value.status, sensitivityClass: value.sensitivityClass,
-    hidden: value.sensitivityClass === 'SENSITIVE' && value.canonicalText === '[SENSITIVE — explicit inspection required]' }
-}
-export function memoryProposals(value: unknown): Proposal[] {
-  return Array.isArray(value) ? value.flatMap(row => object(row) && identity(row.jobId) && Number.isSafeInteger(row.revision)
-    && row.revision >= 1 && object(row.proposal) && identity(row.proposal.proposalId)
-    && typeof row.proposal.text === 'string' && kinds.includes(row.proposal.kind)
-    && ['WORKSPACE', 'GLOBAL_PROFILE'].includes(row.proposal.scopeKind)
-    ? [{ jobId: row.jobId, revision: row.revision, proposalId: row.proposal.proposalId,
-      text: row.proposal.text, kind: row.proposal.kind, scopeKind: row.proposal.scopeKind }] : []) : []
-}
-export function memoryRecordMutation(record: MemoryInspection, text?: string, consentSensitive = false): Record<string, unknown> {
-  return { memoryId: record.memoryId, revision: record.revision,
-    ...(text !== undefined ? { text, ...(consentSensitive ? { consentSensitive: true } : {}) } : {}) }
-}
-export function memoryProposalMutation(proposal: Proposal, resolution?: 'create' | 'supersede' | 'conflict'): Record<string, unknown> {
-  return { jobId: proposal.jobId, proposalId: proposal.proposalId, revision: proposal.revision,
-    ...(resolution ? { resolution } : {}) }
-}
-
-type InspectionState = { scope: string; records: MemoryInspection[] | null; nextCursor: string | null;
-  selected: MemoryInspection | null; proposals: Proposal[] | null; status: Record<string, any> | null; exported: Record<string, any> | null }
-const empty = (scope: string): InspectionState => ({scope, records:null, nextCursor:null, selected:null, proposals:null, status:null, exported:null})
-
-/** Explicit controls of the existing Memory service. No automatic recall, capture or schema changes. */
-export function MemorySettings({ view }: Props) {
-  const { t } = useI18n(), id = useId()
-  const scope = `${view?.sessionId || ''}:${view?.workspace || ''}:${!!view?.status.connected}`
-  const action = useSettingsAction(scope)
-  const liveScope = useRef(scope), alive = useRef(true)
-  liveScope.current = scope
-  const [loaded, setLoaded] = useState<InspectionState>(() => empty(scope))
-  const data = loaded.scope === scope ? loaded : empty(scope)
-  const [filterScope, setFilterScope] = useState('WORKSPACE')
-  const [includeSensitive, setIncludeSensitive] = useState(false)
-  const [query, setQuery] = useState('')
-  const [text, setText] = useState(''), [key, setKey] = useState('')
-  const [kind, setKind] = useState<string>('WORKSPACE_FACT')
-  const [writeScope, setWriteScope] = useState('WORKSPACE')
-  const [sensitive, setSensitive] = useState(false)
-  const [correction, setCorrection] = useState(''), [correctionConsent, setCorrectionConsent] = useState(false)
-  const [forgetConfirmation, setForgetConfirmation] = useState(false)
-  const [resolution, setResolution] = useState<'create'|'supersede'|'conflict'>('create')
-  const [uncertainEffect, setUncertainEffect] = useState(false)
-  const memory = view?.memory
-  const ready = !!view?.status.ready && !view.recovering && !view.gap && !!memory?.lexicalRecall
-  const disabled = !ready || !!view?.activeTurnId || !!view?.activeGenerationId || action.busy
-  const mutationDisabled = disabled || uncertainEffect || action.errorCode === 'OUTCOME_UNKNOWN'
-
-  useEffect(() => { setLoaded(empty(scope)); setQuery(''); setText(''); setKey(''); setIncludeSensitive(false)
-    setSensitive(false); setCorrection(''); setCorrectionConsent(false); setForgetConfirmation(false)
-    setFilterScope('WORKSPACE'); setWriteScope('WORKSPACE'); setKind('WORKSPACE_FACT'); setUncertainEffect(false)
-  }, [scope])
-  useEffect(() => { alive.current = true; return () => { alive.current = false } }, [])
-
-  const invoke = async (name: string, args: Record<string, unknown>, mutation = false) => {
-    if (disabled || (mutation && mutationDisabled)) return null
-    const receipt = await action.run(async () => {
-      const result = await window.api.memoryCommand(name, args)
-      if (alive.current && liveScope.current === scope && mutation
-          && (result.error?.outcomeUnknown || result.error?.code === 'OUTCOME_UNKNOWN')) setUncertainEffect(true)
-      return result
-    })
-    return alive.current && liveScope.current === scope && receipt?.completed ? receipt.data || null : null
+type SideState={busy:boolean;unknown?:boolean;error?:string;done?:'import'|'export'|'access';revision?:number}
+export function MemorySettings({view,projects=null,locked=false}:{view:DesktopSessionView|null;projects?:ProjectState|null;locked?:boolean}){
+  const {t}=useI18n(),id=useId(),memory=view?.memory
+  const scope=`memory:${view?.sessionId}:${view?.workspace}`
+  const action=useSettingsAction(scope)
+  const [pending,setPending]=useState<Preferences|null>(null)
+  const [includeSensitive,setIncludeSensitive]=useState(false)
+  const [side,setSide]=useState<SideState>({busy:false})
+  const alive=useRef(true),currentScope=useRef(scope),sending=useRef(false)
+  currentScope.current=scope
+  useEffect(()=>{alive.current=true;return()=>{alive.current=false}},[])
+  const confirmed=!!memory&&!!pending&&same(preferences(memory),pending)
+  useEffect(()=>{if(confirmed)setPending(null)},[confirmed])
+  const waiting=!!action.result&&!!pending&&!confirmed
+  const sideWaiting=!!side.revision&&(view?.stateRevision??0)<side.revision
+  const disabled=locked||!memory||!view?.status.ready||!view.status.connected||!!view.recovering||!!view.activeTurnId||!!view.activeGenerationId
+    ||!!view.approvals.length||!!view.inputs.length||!!memory?.maintenanceBusy||!!projects?.busy||action.busy||waiting||side.busy||sideWaiting||!!side.unknown
+  async function save(patch:Partial<Preferences>,reset=false){
+    if(disabled||sending.current||!memory)return
+    sending.current=true;setSide({busy:false})
+    const next=reset?memoryDefaults:{...preferences(memory),...patch};setPending(next)
+    try{const result=await action.run(()=>window.api.memoryCommand(reset?'memory_reset_settings':'memory_configure',reset?{}:next));if(!result)setPending(null);else if(reset)setIncludeSensitive(false)}
+    finally{sending.current=false}
   }
-  const inspectPage = async (search = false, cursor?: string) => {
-    const result = await invoke(search ? 'memory_search' : 'memory_list', { scope: filterScope, limit:20, includeSensitive,
-      ...(search ? {query:query.trim()} : cursor ? {cursor} : {}) })
-    if (result) setLoaded(old => ({...old, scope, records:Array.isArray(result.records)
-      ? result.records.map(memoryInspection).filter((row: MemoryInspection|null):row is MemoryInspection => !!row) : [],
-      nextCursor:!search && typeof result.nextCursor === 'string' ? result.nextCursor : null, selected:null}))
-    setForgetConfirmation(false)
+  async function external(request:()=>Promise<MemoryControlResult>,done:NonNullable<SideState['done']>){
+    if(disabled||sending.current)return
+    sending.current=true;setSide({busy:true});const origin=scope
+    try{
+      const result=await request()
+      if(!alive.current||currentScope.current!==origin)return
+      if(result.canceled){setSide({busy:false});return}
+      if(result.completed)setSide({busy:false,done,revision:result.stateRevision})
+      else setSide({busy:false,error:result.error?.code||'MEMORY_WRITE_FAILED',unknown:result.error?.outcomeUnknown})
+    }catch{if(alive.current&&currentScope.current===origin)setSide({busy:false,error:'MEMORY_OUTCOME_UNKNOWN',unknown:true})}
+    finally{sending.current=false}
   }
-  const inspectRecord = async (record: MemoryInspection) => {
-    const result = await invoke('memory_show',{memoryId:record.memoryId,includeSensitive})
-    const selected = memoryInspection(result?.record)
-    if (selected) { setLoaded(old => ({...old,scope,selected})); setCorrection(selected.hidden ? '' : selected.canonicalText)
-      setCorrectionConsent(false); setForgetConfirmation(false) }
-  }
-  const remember = async () => {
-    const result = await invoke('memory_remember',{kind,text,scope:writeScope,...(key.trim() ? {key:key.trim()} : {}),
-      ...(sensitive ? {sensitive:true,consentSensitive:true} : {})},true)
-    if (result) { setText(''); setKey(''); setSensitive(false); setLoaded(empty(scope)) }
-  }
-  const mutateRecord = async (forget = false) => {
-    if (!data.selected) return
-    const result = await invoke(forget ? 'memory_forget' : 'memory_correct',
-      memoryRecordMutation(data.selected,forget ? undefined : correction,correctionConsent),true)
-    if (result) { setLoaded(empty(scope)); setCorrection(''); setCorrectionConsent(false); setForgetConfirmation(false) }
-  }
-  const inspectProposals = async () => {
-    const result = await invoke('memory_proposals',{})
-    if (result) setLoaded(old => ({...old,scope,proposals:memoryProposals(result.proposals)}))
-  }
-  const decideProposal = async (proposal: Proposal, confirm: boolean) => {
-    const result = await invoke(confirm ? 'memory_confirm' : 'memory_reject',memoryProposalMutation(proposal,confirm ? resolution : undefined),true)
-    // Revision belongs to the whole proposal job; reload rather than reuse siblings with the old revision.
-    if (result) setLoaded(old => ({...old,scope,proposals:null,records:null,nextCursor:null,selected:null}))
-  }
-
-  return <div className="nova-memory-settings">
-    <section className="nova-settings-card">
-      <h3>{t('memorySettingsState')}</h3><p className="settings-hint">{t('memorySettingsReadonly')}</p>
-      {!memory && <p role="status">{t('memorySettingsUnavailable')}</p>}
-      {(['lexicalRecall','semantic','autoCapture','allowRemoteMemoryInjection'] as const).map((field,index) => <div className="nova-settings-row" key={field}>
-        <span>{t((['memorySettingsLexical','memorySettingsSemantic','memorySettingsCapture','memorySettingsRemote'] as const)[index])}</span>
-        <span>{t(!memory ? 'settingsUnknown' : memory[field] ? 'settingsOn' : 'settingsOff')}</span>
-      </div>)}
-      <button disabled={disabled} onClick={async () => { const status = await invoke('memory_status',{}); if (status) setLoaded(old => ({...old,scope,status})) }}>{t('memorySettingsStatusDetail')}</button>
-      {data.status && <details><summary>{t('memorySettingsMetadata')}</summary><pre>{JSON.stringify(data.status,null,2)}</pre></details>}
+  const toggle=(field:'lexicalRecall'|'semanticRecall'|'autoCapture',label:string,hint:string,extraDisabled=false)=><input
+    id={id+'-'+field} data-memory-setting={field} className="nova-switch" role="switch" type="checkbox" aria-label={label} aria-describedby={hint}
+    checked={memory?(field==='semanticRecall'?memory.semantic:memory[field]):false} disabled={disabled||extraDisabled}
+    onChange={event=>void save({[field]:event.target.checked})}/>
+  const error=side.error||action.errorCode
+  const errorKey=error==='MEMORY_IMPORT_INVALID'?'memoryImportInvalid':error==='MEMORY_TRANSFER_TOO_LARGE'?'memoryTransferLarge':error==='MEMORY_EMBEDDING_REQUIRED'?'memorySemanticRequired':
+    error==='CONFLICT_ACTIVE_OPERATION'||error==='PROJECT_BUSY'?'memoryBusy':error==='REVISION_CONFLICT'?'memoryStale':'memoryOperationFailed'
+  return <div className="nova-memory-settings" aria-busy={disabled}>
+    <div className="nova-settings-introduction nova-section-introduction"><div><h2>{t('settingsMemory')}</h2><p>{t('memoryDescription')}</p></div>
+      <button className="nova-settings-reset" type="button" disabled={disabled} onClick={()=>void save({},true)}>{t('settingsReset')}</button></div>
+    <section className="nova-preferences-group" aria-labelledby={id+'-recall'}><h3 id={id+'-recall'}>{t('memoryRecovery')}</h3>
+      <div className="nova-settings-card nova-preferences-list">
+        <div className="nova-preference-row"><div><span className="nova-setting-label">{t('memorySettingsLexical')}</span><p id={id+'-lexical-hint'}>{t('memoryLexicalHint')}</p></div>
+          {toggle('lexicalRecall',t('memorySettingsLexical'),id+'-lexical-hint')}</div>
+        <div className="nova-preference-row"><div><span className="nova-setting-label">{t('memorySettingsSemantic')}</span><p id={id+'-semantic-hint'}>{t('memorySemanticHint')}</p></div>
+          {toggle('semanticRecall',t('memorySettingsSemantic'),id+'-semantic-hint',memory?.semanticAvailable!==true)}</div>
+      </div>
     </section>
-    <SettingsActionFeedback action={action}/>
-    {uncertainEffect && <p className="settings-feedback" role="alert">{t('memorySettingsUnconfirmed')}</p>}
-    <section className="nova-settings-card">
-      <h3>{t('memorySettingsInspect')}</h3>
-      <label htmlFor={`${id}-scope`}>{t('memorySettingsScope')}</label>
-      <select id={`${id}-scope`} value={filterScope} disabled={action.busy} onChange={event => {
-        setFilterScope(event.target.value); setLoaded(empty(scope)); setForgetConfirmation(false)
-      }}><option value="WORKSPACE">{t('memorySettingsWorkspace')}</option><option value="GLOBAL_PROFILE">{t('memorySettingsGlobal')}</option><option value="ALL">{t('memorySettingsAll')}</option></select>
-      <label><input type="checkbox" checked={includeSensitive} disabled={action.busy} onChange={event => {
-        setIncludeSensitive(event.target.checked); setLoaded(empty(scope)); setForgetConfirmation(false)
-      }}/>{t('memorySettingsSensitive')}</label><p className="settings-hint">{t('memorySettingsSensitiveHint')}</p>
-      <form onSubmit={event => {event.preventDefault(); void inspectPage(true)}}>
-        <label htmlFor={`${id}-query`}>{t('memorySettingsQuery')}</label>
-        <input id={`${id}-query`} value={query} maxLength={4096} disabled={action.busy} onChange={event => setQuery(event.target.value)}/>
-        <div className="nova-settings-actions"><button disabled={disabled || !query.trim()} type="submit">{t('memorySettingsSearch')}</button>
-          <button type="button" disabled={disabled} onClick={() => void inspectPage()}>{t('memorySettingsList')}</button>
-          {data.nextCursor && <button type="button" disabled={disabled} onClick={() => void inspectPage(false,data.nextCursor!)}>{t('memorySettingsNext')}</button>}</div>
-      </form>
-      <p className="settings-hint">{t('memorySettingsPageHint')}</p>
-      {data.records === null ? <p>{t('memorySettingsNotLoaded')}</p> : data.records.length === 0 ? <p>{t('memorySettingsEmpty')}</p> :
-        <div className="settings-memory-list">{data.records.map(record => <MemoryRecordRow key={record.memoryId} record={record} disabled={disabled} onInspect={() => void inspectRecord(record)}/>)}</div>}
-      {data.selected && <section className="settings-memory-detail">
-        <h4>{t('memorySettingsRecord')}</h4><MemoryRecordRow record={data.selected}/>
-        {!data.selected.hidden && <>
-          <label htmlFor={`${id}-correction`}>{t('memorySettingsText')}</label><textarea id={`${id}-correction`} value={correction} maxLength={4096} rows={4} disabled={mutationDisabled} onChange={event => setCorrection(event.target.value)}/>
-          {data.selected.sensitivityClass === 'SENSITIVE' && <label><input type="checkbox" checked={correctionConsent} disabled={mutationDisabled} onChange={event => setCorrectionConsent(event.target.checked)}/>{t('memorySettingsWriteSensitive')}</label>}
-          <div className="nova-settings-actions"><button disabled={mutationDisabled || !correction.trim() || correction === data.selected.canonicalText
-            || (data.selected.sensitivityClass === 'SENSITIVE' && !correctionConsent)} onClick={() => void mutateRecord()}>{t('memorySettingsCorrect')}</button>
-            <button disabled={action.busy} onClick={() => {setCorrection(data.selected!.canonicalText);setCorrectionConsent(false);setForgetConfirmation(false)}}>{t('memorySettingsCancelEdit')}</button></div>
-        </>}
-        <p className="settings-hint">{t('memorySettingsForgetHint')}</p>
-        <div className="nova-settings-actions">{forgetConfirmation ? <>
-          <button disabled={mutationDisabled} onClick={() => void mutateRecord(true)}>{t('memorySettingsForgetConfirm')}</button>
-          <button disabled={action.busy} onClick={() => setForgetConfirmation(false)}>{t('memorySettingsForgetCancelled')}</button>
-        </> : <button disabled={mutationDisabled} onClick={() => setForgetConfirmation(true)}>{t('memorySettingsForget')}</button>}</div>
-      </section>}
+    <section className="nova-preferences-group" aria-labelledby={id+'-records'}><h3 id={id+'-records'}>{t('memoryRecords')}</h3>
+      <div className="nova-settings-card nova-preferences-list">
+        <div className="nova-preference-row"><div><span className="nova-setting-label">{t('memorySettingsCapture')}</span><p id={id+'-capture-hint'}>{t('memoryCaptureHint')}</p></div>
+          {toggle('autoCapture',t('memorySettingsCapture'),id+'-capture-hint')}</div>
+        <div className="nova-preference-row"><div><span className="nova-setting-label">{t('memoryCaptureMode')}</span><p>{t('memoryCaptureModeHint')}</p></div>
+          <SettingsSelect id={id+'-mode'} data-settings-select="memoryCaptureMode" aria-label={t('memoryCaptureMode')}
+            value={memory?.captureMode==='propose_only'?'propose_only':'low_risk'} disabled={disabled||!memory?.autoCapture}
+            options={[{value:'low_risk',label:t('memoryLowRisk')},{value:'propose_only',label:t('memoryProposeOnly')}]}
+            onChange={value=>void save({captureMode:value as Preferences['captureMode']})}/></div>
+        <div className="nova-preference-row"><div><h4>{t('memoryImport')}</h4><p>{t('memoryImportHint')}</p></div>
+          <button className="nova-settings-secondary" data-memory-import type="button" disabled={disabled} onClick={()=>void external(()=>window.api.memoryTransfer('import'),'import')}>{t('memoryImportButton')}</button></div>
+        <div className="nova-preference-row"><div><h4>{t('memoryExport')}</h4><p>{t('memoryExportHint')}</p></div><div className="nova-memory-controls">
+          <span className="settings-toggle-row"><input data-memory-export-sensitive aria-label={t('memoryIncludeSensitive')} type="checkbox" checked={includeSensitive} disabled={disabled} onChange={event=>setIncludeSensitive(event.target.checked)}/>{t('memoryIncludeSensitive')}</span>
+          <button className="nova-settings-secondary" data-memory-export type="button" disabled={disabled} onClick={()=>void external(()=>window.api.memoryTransfer('export',includeSensitive),'export')}>{t('memoryExportButton')}</button></div></div>
+      </div>
     </section>
-    <form className="nova-settings-card" onSubmit={event => {event.preventDefault(); void remember()}}>
-      <h3>{t('memorySettingsNew')}</h3><p className="settings-hint">{t('memorySettingsWriteHint')}</p>
-      <label htmlFor={`${id}-kind`}>{t('memorySettingsKind')}</label><select id={`${id}-kind`} value={kind} disabled={mutationDisabled} onChange={event => setKind(event.target.value)}>
-        {kinds.map((value,index) => <option key={value} value={value}>{t(kindKeys[index])}</option>)}</select>
-      <label htmlFor={`${id}-write-scope`}>{t('memorySettingsScope')}</label><select id={`${id}-write-scope`} value={writeScope} disabled={mutationDisabled} onChange={event => setWriteScope(event.target.value)}>
-        <option value="WORKSPACE">{t('memorySettingsWorkspace')}</option><option value="GLOBAL_PROFILE">{t('memorySettingsGlobal')}</option></select>
-      <label htmlFor={`${id}-text`}>{t('memorySettingsText')}</label><textarea id={`${id}-text`} value={text} maxLength={4096} rows={4} disabled={mutationDisabled} onChange={event => setText(event.target.value)}/>
-      <label htmlFor={`${id}-key`}>{t('memorySettingsKey')}</label><input id={`${id}-key`} value={key} maxLength={256} disabled={mutationDisabled} onChange={event => setKey(event.target.value)}/>
-      <label><input type="checkbox" checked={sensitive} disabled={mutationDisabled} onChange={event => setSensitive(event.target.checked)}/>{t('memorySettingsWriteSensitive')}</label>
-      <div className="nova-settings-actions"><button type="submit" disabled={mutationDisabled || !text.trim()}>{t('memorySettingsRemember')}</button></div>
-    </form>
-    <section className="nova-settings-card">
-      <h3>{t('memorySettingsProposals')}</h3><button disabled={disabled} onClick={() => void inspectProposals()}>{t('memorySettingsLoadProposals')}</button>
-      {data.proposals?.length === 0 && <p>{t('memorySettingsNoProposals')}</p>}
-      {!!data.proposals?.length && <><label htmlFor={`${id}-resolution`}>{t('memorySettingsResolution')}</label>
-        <select id={`${id}-resolution`} value={resolution} disabled={mutationDisabled} onChange={event => setResolution(event.target.value as typeof resolution)}>
-          <option value="create">{t('memorySettingsCreate')}</option><option value="supersede">{t('memorySettingsSupersede')}</option><option value="conflict">{t('memorySettingsConflict')}</option></select>
-        {data.proposals.map(proposal => <article className="settings-memory-record" key={`${proposal.jobId}:${proposal.proposalId}`}>
-          <p>{proposal.text}</p><small>{t(kindKeys[kinds.indexOf(proposal.kind as typeof kinds[number])])} · {t(proposal.scopeKind === 'WORKSPACE' ? 'memorySettingsWorkspace' : 'memorySettingsGlobal')}</small>
-          <div className="nova-settings-actions"><button disabled={mutationDisabled} onClick={() => void decideProposal(proposal,true)}>{t('memorySettingsConfirm')}</button>
-            <button disabled={mutationDisabled} onClick={() => void decideProposal(proposal,false)}>{t('memorySettingsReject')}</button></div>
-        </article>)}</>}
+    <section className="nova-preferences-group" aria-labelledby={id+'-access'}><h3 id={id+'-access'}>{t('memorySensitiveAccess')}</h3>
+      <div className="nova-settings-card nova-preferences-list">{projects?.folders.map(folder=><div className="nova-preference-row nova-project-setting-row" key={folder.path}>
+        <div><span className="nova-setting-label">{folder.name}</span><p title={folder.path}>{folder.path}</p></div>
+        <input id={id+'-project-'+folder.path} data-memory-project={folder.path} className="nova-switch" role="switch" type="checkbox" aria-label={folder.name}
+          checked={!!memory?.sensitiveProjects?.some(path=>sameProjectPath(path,folder.path))} disabled={disabled}
+          onChange={event=>{const enabled=event.target.checked;void external(()=>window.api.memoryProjectAccess(folder.path,enabled),'access')}}/>
+      </div>)}{!projects?.folders.length&&<p className="settings-hint">{t('projectLoading')}</p>}</div>
     </section>
-    <section className="nova-settings-card"><h3>{t('memorySettingsExport')}</h3><p className="settings-hint">{t('memorySettingsExportHint')}</p>
-      <button disabled={disabled} onClick={async () => {const exported = await invoke('memory_export',{includeSensitive}); if (exported) setLoaded(old => ({...old,scope,exported}))}}>{t('memorySettingsExport')}</button>
-      {data.exported && <details open><summary>{t('memorySettingsExportData')}</summary><pre>{JSON.stringify(data.exported,null,2)}</pre></details>}
-    </section>
+    {action.unconfirmed||side.unknown?<p className="nova-settings-error" role="alert">{t('memorySettingsUnconfirmed')}</p>:error?<div className="nova-settings-error" role="alert"><p>{t(errorKey)}</p><details><summary>{t('diagnosticDetails')}</summary><code>{error}</code></details></div>:
+      side.done?<p className="settings-feedback" role="status">{t(side.done==='import'?'memoryImportDone':side.done==='export'?'memoryExportDone':'settingsSaved')}</p>:
+      action.busy||waiting||side.busy||sideWaiting?<p className="settings-feedback" role="status">{t('settingsSaving')}</p>:
+      action.result?<p className="settings-feedback" role="status">{t('settingsSaved')}</p>:null}
   </div>
-}
-
-export function MemoryRecordRow({record,disabled,onInspect}:{record:MemoryInspection;disabled?:boolean;onInspect?:()=>void}) {
-  const {t} = useI18n()
-  return <article className="settings-memory-record"><p>{record.hidden ? t('memorySettingsHidden') : record.canonicalText}</p>
-    <small>{t(kindKeys[kinds.indexOf(record.kind as typeof kinds[number])])} · {t(record.scopeKind === 'WORKSPACE' ? 'memorySettingsWorkspace' : 'memorySettingsGlobal')}
-      {' · '}{t(statusKeys[record.status as keyof typeof statusKeys])}{' · '}{t('memorySettingsRevision')} {record.revision}</small>
-    {onInspect && <button type="button" disabled={disabled} onClick={onInspect}>{t('memorySettingsDetail')}</button>}
-  </article>
 }

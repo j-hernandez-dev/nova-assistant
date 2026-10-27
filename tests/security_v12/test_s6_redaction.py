@@ -88,11 +88,14 @@ def test_persistence_new_writes_and_reads_safe_without_rewriting_old_file(tmp_pa
     messages = [{'role':'user','content':'dummy-api-key-123'}]
     repo, snapshots = Mock(), Mock()
     repo.load.return_value = messages
+    repo.load_for_restore.return_value = messages
     service = PersistenceService(workspace=tmp_path, conversation=repo, snapshots=snapshots, redactor=redactor())
     service.save(messages); service.save_session(messages)
     assert repo.save.call_args.args[0][0]['content'] == MARKER
     assert snapshots.save_session.call_args.args[0][0]['content'] == MARKER
     assert service.load()[0]['content'] == service.restore(workspace=tmp_path)[0]['content'] == MARKER
+    repo.load.assert_called_once_with()
+    repo.load_for_restore.assert_called_once_with()
     assert messages[0]['content'] == 'dummy-api-key-123'
 
 

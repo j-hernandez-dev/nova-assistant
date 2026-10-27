@@ -1,5 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import type { ProjectState, ProjectAction } from '../types'
+import type {DesktopSessionView} from '../../shared/application'
+import type {SourceFile} from '../../shared/storage'
+import type {MemoryInspection} from './MemoryRecords'
+import {ProjectContents} from './ProjectContents'
 import { useI18n, type TranslationKey } from '../i18n'
 import { NovaIcon } from './NovaIcon'
 import { mergeProjectEntries, projectErrorKey, projectPreviewMatches, sameProjectPath } from '../project_presentation'
@@ -13,10 +17,18 @@ type Props = {
   onFileSelect: (path: string) => void
   onProjectAction: (action: ProjectAction, path?: string) => Promise<void>
   refreshKey?: number
+  showFiles?: boolean
+  view?: DesktopSessionView | null
+  onSourceSelect?: (source:SourceFile)=>void
+  selectedSourceIds?:string[]
+  sourcePanelRevision?:number
+  onSourceChoose?:(source:SourceFile,checked:boolean)=>void
+  onMemorySelect?: (record:MemoryInspection)=>void
+  onPreviewClear?: ()=>void
 }
 
 /** Project selection is a host transaction; this component presents only confirmed state. */
-export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjectAction, refreshKey }: Props) {
+export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjectAction, refreshKey, showFiles = true, view = null,selectedSourceIds,sourcePanelRevision,onSourceChoose, onSourceSelect = () => {}, onMemorySelect = () => {}, onPreviewClear = () => {} }: Props) {
   const { t } = useI18n()
   const rootDir = projects?.activePath || null
   const [nodes, setNodes] = useState<TreeNode[]>([])
@@ -60,7 +72,7 @@ export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjec
 
   useEffect(() => {
     const request = ++revision.current
-    setError(null); setTruncated(false); setNextOffset(null); setLoadingMore(false); moreLock.current = false; setLoading(!!rootDir)
+    setError(null); setTruncated(false); setNextOffset(null); setLoadingMore(false); moreLock.current = false; setLoading(!!rootDir && showFiles)
     const expanded = new Set<string>()
     const collect = (items: TreeNode[]) => { for (const node of items) {
       if (node.expanded && !node.isSymlink) expanded.add(node.path)
@@ -68,7 +80,7 @@ export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjec
     } }
     collect(nodesRef.current)
     setNodes([])
-    if (!rootDir) return
+    if (!rootDir || !showFiles) return
     const rebuild = async (path: string): Promise<{ children: TreeNode[]; truncated: boolean; nextOffset: number | null }> => {
       const loaded = await loadDirectory(path, rootDir)
       for (const node of loaded.children) if (node.isDirectory && !node.isSymlink && expanded.has(node.path)) {
@@ -85,7 +97,7 @@ export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjec
       setError(projectErrorKey(cause?.code)); setLoading(false)
     })
     return () => { revision.current += 1 }
-  }, [rootDir, refreshKey, loadDirectory])
+  }, [rootDir, refreshKey, loadDirectory, showFiles])
 
   const updateNode = useCallback((path: string, updater: (node: TreeNode) => TreeNode) => {
     const update = (items: TreeNode[]): TreeNode[] => items.map(node => node.path === path ? updater(node)
@@ -93,7 +105,7 @@ export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjec
     setNodes(current => update(current))
   }, [])
   const toggle = useCallback(async (node: TreeNode) => {
-    if (node.loading || node.isSymlink || !rootDir) return
+    if (!showFiles || node.loading || node.isSymlink || !rootDir) return
     if (node.expanded) { updateNode(node.path, current => ({ ...current, expanded: false })); return }
     if (node.children !== null) { updateNode(node.path, current => ({ ...current, expanded: true })); return }
     const request = revision.current
@@ -106,10 +118,10 @@ export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjec
       if (request === revision.current) updateNode(node.path, current => ({ ...current, loading: false,
         error: projectErrorKey((cause as { code?: string })?.code) }))
     }
-  }, [rootDir, loadDirectory, updateNode])
+  }, [rootDir, loadDirectory, updateNode, showFiles])
   const loadMore = useCallback(async (node?: TreeNode) => {
     const offset = node ? node.nextOffset : nextOffset
-    if (!rootDir || offset === null || moreLock.current || node?.loading) return
+    if (!showFiles || !rootDir || offset === null || moreLock.current || node?.loading) return
     const request = revision.current
     moreLock.current = true
     if (node) updateNode(node.path, current => ({ ...current, loading: true, error: null }))
@@ -127,11 +139,11 @@ export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjec
       if (node) updateNode(node.path, current => ({ ...current, loading: false, error: key }))
       else setError(key)
     } finally { if (request === revision.current) { moreLock.current = false; setLoadingMore(false) } }
-  }, [rootDir, nextOffset, loadDirectory, updateNode])
+  }, [rootDir, nextOffset, loadDirectory, updateNode, showFiles])
   const action = (kind: ProjectAction, path?: string) => { setMenuPath(null); void onProjectAction(kind, path) }
   const disabled = busy || !!projects?.busy
   const visibleError = errorCode || projects?.error?.code
-  return <section className="explorer nova-projects">
+  return <section className="explorer nova-projects" data-show-files={showFiles}>
     <div className="explorer-header">
       <h2 className="explorer-title">{t('projects')}</h2>
       <button className="project-add-button" disabled={disabled || !projects} onClick={() => action('add')}
@@ -150,14 +162,14 @@ export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjec
             {folder.isDefault && <span className="project-default-label">{t('projectDefault')}</span>}
           </button>
           <div className="project-options" ref={menuPath === folder.path ? menuRef : undefined}>
-            <button className="project-options-button" disabled={disabled} aria-haspopup="menu"
+            <button className="project-options-button nova-dismiss-button" disabled={disabled} aria-haspopup="menu"
               aria-expanded={menuPath === folder.path} aria-label={`${t('projectOptions')}: ${folder.name}`}
               onClick={() => setMenuPath(current => current === folder.path ? null : folder.path)}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
                 <circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" />
               </svg>
             </button>
-            {menuPath === folder.path && <div className="project-context-menu" role="menu">
+            {menuPath === folder.path && <div className="project-context-menu nova-floating-panel" role="menu">
               <button role="menuitem" onClick={() => action('change', folder.path)}>{t('projectChange')}</button>
               <button role="menuitem" disabled={folder.isDefault} onClick={() => action('remove', folder.path)} title={t(folder.isDefault ? 'projectDefaultRequired' : 'projectRemoveHint')}>{t('projectRemove')}</button>
               <button role="menuitem" onClick={() => action('open', folder.path)}>{t('projectOpen')}</button>
@@ -169,14 +181,16 @@ export function FileExplorer({ projects, busy, errorCode, onFileSelect, onProjec
     {projects && !rootDir ? <div className="explorer-empty">
       <p>{t('projectEmpty')}</p><span className="explorer-hint">{t('projectEmptyHint')}</span>
       <button className="explorer-open-btn" disabled={disabled} onClick={() => action('select', projects.defaultPath)}>{t('projectUseDefault')}</button>
-    </div> : <div className="explorer-tree" aria-label={t('projects')} aria-busy={loading}>
+    </div> : showFiles && rootDir && <ProjectContents key={rootDir+':'+view?.sessionId+':'+!!view?.status.connected} rootDir={rootDir} view={view} busy={disabled} refreshKey={refreshKey}
+      sourcePanelRevision={sourcePanelRevision} selectedSourceIds={selectedSourceIds} onSourceChoose={onSourceChoose} onSourceSelect={onSourceSelect} onMemorySelect={onMemorySelect} onPreviewClear={onPreviewClear}>
+    <div className="explorer-tree" aria-label={t('projectFilesTab')} aria-busy={loading}>
       {loading && <div className="explorer-loading" role="status">{t('projectFolderLoading')}</div>}
       {error && <div className="explorer-error" role="alert">{t(error)}</div>}
       {!loading && !error && rootDir && nodes.length === 0 && <div className="explorer-empty-dir">{t('projectEmptyDirectory')}</div>}
       <NodeList nodes={nodes} depth={0} onToggle={toggle} onFileSelect={onFileSelect} onLoadMore={loadMore} />
       {nextOffset !== null && <button className="explorer-show-more" disabled={loadingMore} onClick={() => void loadMore()}>{t(loadingMore ? 'projectFolderLoading' : 'projectMoreItems')}</button>}
       {truncated && <p className="project-list-limit">{t('projectListTruncated')}</p>}
-    </div>}
+    </div></ProjectContents>}
   </section>
 }
 function NodeList({ nodes, depth, onToggle, onFileSelect, onLoadMore }: { nodes: TreeNode[]; depth: number;
@@ -189,8 +203,8 @@ function NodeList({ nodes, depth, onToggle, onFileSelect, onLoadMore }: { nodes:
         aria-expanded={node.isDirectory && !node.isSymlink ? node.expanded : undefined}
         title={node.isSymlink ? `${node.path} — ${t('projectSymlink')}` : node.path}
         onClick={() => node.isDirectory ? onToggle(node) : onFileSelect(node.path)}>
-        <span className="explorer-arrow">{node.isDirectory ? (node.expanded ? '▾' : '▸') : ''}</span>
-        <span className="explorer-icon">{node.isDirectory ? <NovaIcon name="folder" size={16} /> : <FileIcon />}</span>
+        {node.isDirectory&&<span className="explorer-arrow">{node.expanded ? '▾' : '▸'}</span>}
+        <span className="explorer-icon"><NovaIcon name={node.isDirectory?'folder':'file-read'} size={16}/></span>
         <span className="explorer-name">{node.name}</span>
         {node.isSymlink && <span className="explorer-symlink-badge">↗</span>}
       </button>
@@ -204,5 +218,3 @@ function NodeList({ nodes, depth, onToggle, onFileSelect, onLoadMore }: { nodes:
 
   </>
 }
-function FileIcon() { return <svg width="15" height="17" viewBox="0 0 15 17" fill="none" stroke="currentColor" aria-hidden="true">
-  <path d="M3 1h6l4 4v11H3zM9 1v4h4M5 9h6M5 12h6" strokeWidth="1.2" /></svg> }

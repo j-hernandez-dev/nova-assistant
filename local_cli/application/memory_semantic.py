@@ -18,7 +18,7 @@ FALLBACK_RESERVE_MS = 50
 
 
 class SemanticAdmission:
-    def __init__(self, embeddings, index_factory, *, soft_ms=350, hard_ms=600):
+    def __init__(self, embeddings, index_factory, *, soft_ms=350, hard_ms=600,allow_sensitive=lambda:False):
         if not 0<soft_ms<=hard_ms<=600:
             raise ValueError('Invalid recall deadline')
         self.embeddings, self.index_factory = embeddings, index_factory
@@ -26,6 +26,8 @@ class SemanticAdmission:
         # Preserve a useful soft/hard interval for smaller contract-test budgets.
         self.fallback_reserve_ms=min(FALLBACK_RESERVE_MS,hard_ms*.1,(hard_ms-soft_ms)/2)
         self.index, self._pending, self._lock = None, None, Lock()
+        self.allow_sensitive=allow_sensitive
+        self._stop=Event()
 
     @property
     def available(self):
@@ -88,9 +90,10 @@ class SemanticAdmission:
         except Exception:
             return (), 'DEGRADED', MemoryErrorCode.EMBEDDING_UNAVAILABLE.value
 
-    def prepare(self):
+    def prepare(self,*,store=None,scope=None,redactor=None):
         """Restore persisted projections asynchronously; no record embeddings."""
         with self._lock:
+            self._stop=Event()
             future=Future(); self._pending=future
         def run():
             try:
@@ -98,6 +101,9 @@ class SemanticAdmission:
                 if space is None: raise MemoryError(MemoryErrorCode.EMBEDDING_UNAVAILABLE)
                 self.index=self.index_factory(space)
                 self.index.rebuild(space.embedding_space_id)
+                if store is not None:
+                    from datetime import datetime,timezone
+                    self.maintain(store,scope,at=datetime.now(timezone.utc),redactor=redactor,_preparing=True)
                 future.set_result(None)
             except BaseException as exc:
                 future.set_exception(exc)
@@ -105,7 +111,9 @@ class SemanticAdmission:
 
     def project_record(self, record, *, redactor):
         """Derived work after an explicit durable write, not another write policy."""
-        with self._lock:
+        if not self._lock.acquire(blocking=False):
+            raise MemoryError(MemoryErrorCode.EMBEDDING_UNAVAILABLE)
+        try:
             if self._pending is not None and not self._pending.done():
                 raise MemoryError(MemoryErrorCode.EMBEDDING_UNAVAILABLE)
             space=self.embeddings.status()
@@ -115,7 +123,7 @@ class SemanticAdmission:
             if redactor.text(record.canonical_text)!=record.canonical_text:
                 raise MemoryError(MemoryErrorCode.SECRET_DENIED)
             # Sensitive records are not sent to an embedding service by default.
-            if record.sensitivity_class.value!='NORMAL' or record.status.value!='ACTIVE':
+            if (record.sensitivity_class.value!='NORMAL' and not self.allow_sensitive()) or record.status.value!='ACTIVE':
                 return
             if not self.index.has_revision(record.memory_id,record.revision):
                 vectors=self.embeddings.embed_records((record,))
@@ -123,13 +131,14 @@ class SemanticAdmission:
                 self.index.upsert(record.memory_id,vectors[0],space.embedding_space_id,
                     expected_revision=record.revision)
             self.index.rebuild(space.embedding_space_id)
+        finally:self._lock.release()
 
     def invalidate(self, memory_id):
         if self.index is not None:
             self.index.remove(memory_id)
             self.index.rebuild(self.index.capabilities().embedding_space_id)
 
-    def maintain(self, store, scope, *, at, redactor, batch_size=32):
+    def maintain(self, store, scope, *, at, redactor, batch_size=32,_preparing=False):
         """Trusted idle/explicit-write maintenance. Never invoked by query().
 
         Reuses compatible revision vectors; missing ones embedded in bounded
@@ -139,7 +148,7 @@ class SemanticAdmission:
         if type(batch_size) is not int or not 1<=batch_size<=32:
             raise MemoryError(MemoryErrorCode.CAPACITY_REACHED)
         with self._lock:
-            if self._pending is not None and not self._pending.done():
+            if not _preparing and self._pending is not None and not self._pending.done():
                 raise MemoryError(MemoryErrorCode.EMBEDDING_UNAVAILABLE)
             # Holding this lock excludes a Turn query throughout maintenance.
             space=self.embeddings.status()
@@ -152,15 +161,17 @@ class SemanticAdmission:
             effective_batch=min(batch_size,max(1,(2*1024*1024-4096)//(space.dimension*32)))
             cursor=None; calls=0
             while True:
+                if self._stop.is_set():return dict(embeddingBatches=calls,status='CANCELLED')
                 page=store.list(scope,limit=effective_batch,cursor=cursor)
                 missing=[]
                 for record in page.records:
-                    if record.eligible(scope,at=at) and not self.index.has_revision(record.memory_id,record.revision):
+                    if record.eligible(scope,at=at,allow_sensitive=self.allow_sensitive()) and not self.index.has_revision(record.memory_id,record.revision):
                         if redactor.text(record.canonical_text)!=record.canonical_text:
                             raise MemoryError(MemoryErrorCode.SECRET_DENIED)
                         missing.append(record)
                 if missing:
                     vectors=self.embeddings.embed_records(tuple(missing)); calls+=1
+                    if self._stop.is_set():return dict(embeddingBatches=calls,status='CANCELLED')
                     if len(vectors)!=len(missing):
                         raise MemoryError(MemoryErrorCode.EMBEDDING_SPACE_MISMATCH)
                     for record,vector in zip(missing,vectors):

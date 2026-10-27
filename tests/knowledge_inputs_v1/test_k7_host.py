@@ -51,7 +51,7 @@ def test_forwarding_host_opt_in_then_revoke_not_search_or_memory_consent(tmp_pat
         assert run(c).knowledge_admission.capsule.evidence
         invoke(c,'source_remote',{'sourceId':ref['sourceId'],'allowed':False})
         assert run(c).knowledge_admission.capsule.evidence==()
-        assert c.app._allow_remote_memory_injection is False
+        assert {'lexicalRecall','semantic','autoCapture','captureMode'}<=set(c.app.get_snapshot(c.sid).services['memory'])
     finally:finish(c)
 
 
@@ -125,7 +125,9 @@ def test_foreign_workspace_cannot_inspect_deleted_metadata_or_change_policy(tmp_
     c=case(tmp_path)
     try:
         invoke(c);ref=refs(c)[0];svc=c.app._knowledge.service
-        for access in [KnowledgeAccess('foreign',c.sid),KnowledgeAccess(svc.access.workspace_id,'other-session')]:
+        peer=KnowledgeAccess(svc.access.workspace_id,'other-session')
+        assert svc.store.source_detail(ref['sourceId'],peer).summary.source.source_id == ref['sourceId']
+        for access in [KnowledgeAccess('foreign',c.sid),KnowledgeAccess('foreign','other-session')]:
             with pytest.raises(KnowledgeError):svc.store.source_detail(ref['sourceId'],access)
             with pytest.raises(KnowledgeError):svc.store.set_remote_policy(ref['sourceId'],access,SourceRemotePolicy(True))
             assert svc.store.source_summaries(access)==()

@@ -9,6 +9,9 @@ FILENAME = 'browser-preference.json'
 
 
 def load_browser(state_dir):
+    from local_cli.web_config import has_web_settings, load_web_settings
+    if has_web_settings(state_dir):
+        return load_web_settings(state_dir)['browser']
     path = Path(state_dir).expanduser() / FILENAME
     try:
         if path.is_symlink() or path.stat().st_size > 1024: return 'webview2'
@@ -21,6 +24,10 @@ def load_browser(state_dir):
 
 def save_browser(state_dir, browser):
     if browser not in BROWSERS: raise ValueError('Choose webview2, chrome, or edge.')
+    from local_cli.web_config import has_web_settings, update_web_settings
+    if has_web_settings(state_dir):
+        update_web_settings(state_dir, browser=browser)
+        return
     root = Path(state_dir).expanduser()
     root.mkdir(parents=True, exist_ok=True)
     path, temporary = root / FILENAME, None

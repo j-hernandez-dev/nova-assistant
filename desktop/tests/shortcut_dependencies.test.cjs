@@ -1,0 +1,20 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),{EventEmitter}=require('node:events'),path=require('node:path')
+const {shortcutDependencies}=require('../dev/shortcut_dependencies.cjs')
+test('The real dev configuration uses cache invalidation for the shared keyboard module',()=>{
+ const modulePath=path.resolve(__dirname,'../shared/keyboard_shortcuts.cjs'),plugin=shortcutDependencies(modulePath),config=plugin.config()
+ assert.equal(config.resolve.alias['@nova/keyboard-shortcuts'],modulePath)
+ assert.deepEqual(config.optimizeDeps,{include:['@nova/keyboard-shortcuts'],force:true})
+ const source=require('node:fs').readFileSync(path.resolve(__dirname,'../vite.config.ts'),'utf8')
+ assert.match(source,/shortcutDependencies\(fileURLToPath\(new URL\('\.\/shared\/keyboard_shortcuts\.cjs'/)
+})
+test('Only keyboard source changes restart dependency optimization, once per burst',async()=>{
+ const filename=path.resolve(__dirname,'../shared/keyboard_shortcuts.cjs'),watcher=new EventEmitter(),httpServer=new EventEmitter(),watched=[],calls=[],errors=[]
+ watcher.add=file=>watched.push(file)
+ const plugin=shortcutDependencies(filename)
+ plugin.configureServer({watcher,httpServer,restart:async force=>calls.push(force),config:{logger:{error:error=>errors.push(error)}}})
+ assert.deepEqual(watched,[filename])
+ watcher.emit('change',path.resolve(__dirname,'unrelated.ts'));await new Promise(resolve=>setTimeout(resolve,130));assert.deepEqual(calls,[])
+ watcher.emit('change',filename);watcher.emit('change',filename);await new Promise(resolve=>setTimeout(resolve,130));assert.deepEqual(calls,[true])
+ watcher.emit('change',filename);httpServer.emit('close');await new Promise(resolve=>setTimeout(resolve,130));assert.deepEqual(calls,[true])
+ assert.equal(watcher.listenerCount('change'),0);assert.deepEqual(errors,[])
+})

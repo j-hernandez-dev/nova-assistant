@@ -44,7 +44,8 @@ def test_normal_backend_citations_prompt_and_private_transcript(tmp_path,window)
     try:
         _,op=invoke(c);assert op.status.value=='completed'
         t=run(c,attached=refs(c))
-        a=t.knowledge_admission;assert a.retrieval_count==1 and len(a.capsule.evidence)==1
+        a=t.knowledge_admission;assert a.retrieval_count==0 and len(a.capsule.evidence)==1
+        assert a.capsule.retrieval_mode=='explicit'
         prompt=c.p.captured[0]
         assert any(m['role']=='user' and 'Synthetic zircon reference value: 72.' in m['content'] for m in prompt)
         assert not any('Synthetic zircon reference value: 72.' in m['content'] for m in prompt if m['role']=='system')

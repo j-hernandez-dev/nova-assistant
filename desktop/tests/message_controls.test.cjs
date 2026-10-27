@@ -15,7 +15,7 @@ test('streaming cursor is inside the last rendered Markdown line instead of afte
   ['# Heading','</span>', '</div>'],
   ['- First\n- Last','</span>', '</li>'],
   ['1. First\n2. Last','</span>', '</li>'],
-  ['```js\nconst answer = 42;','42;', '</pre>'],
+  ['```js\nconst answer = 42;','42;', '</code></pre>'],
   ['| One | Two |\n| --- | --- |\n| First | Last |','</span>', '</td>'],
   ['| One | Two |\n| --- | --- |','</span>', '</th>'],
   ['A [link](https://example.test)','</a>', '</div>'],

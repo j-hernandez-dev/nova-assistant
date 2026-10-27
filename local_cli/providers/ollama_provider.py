@@ -183,6 +183,12 @@ class OllamaProvider(LLMProvider):
         """
         return self._client.list_models()
 
+    def get_inventory_info(self, model):
+        # Metadata discovery never waits for a model to load or generate.
+        if isinstance(self._client, OllamaClient):
+            return self._client.show_model(model, timeout=2)
+        return self.get_model_info(model)
+
     def get_model_info(self, model: str) -> dict[str, Any]:
         """Get detailed model information from Ollama.
 

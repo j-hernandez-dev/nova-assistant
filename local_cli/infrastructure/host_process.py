@@ -9,6 +9,7 @@ import time
 
 from local_cli.core.process import ProcessLaunchRequest, ProcessReport
 from local_cli.infrastructure.process_lifecycle import PipeReader, PosixGroup, WindowsJob
+from local_cli.infrastructure.powershell_output import PowerShellStderr, is_powershell_command
 
 
 class _Capture:
@@ -64,16 +65,28 @@ class HostProcessLauncher:
             return early('failed', 'PROCESS_LAUNCH_FAILED')
         states.append('running')
         stdout, stderr = _Capture(request.limits.stdout_bytes), _Capture(request.limits.stderr_bytes)
-        def capture_chunk(channel, capture, chunk):
+        ps_stderr = PowerShellStderr() if is_powershell_command(request.argv) else None
+        clean_stderr = _Capture(request.limits.stderr_bytes) if ps_stderr else stderr
+        def publish(channel, capture, data, truncated):
             previous_size, previous_cut = len(capture.data), capture.truncated
-            capture.add(chunk)
+            capture.add(data)
+            capture.truncated |= truncated
             if on_output is not None and (len(capture.data) > previous_size or capture.truncated != previous_cut):
-                # Publication is optional observation. It cannot interrupt or
-                # alter launch authorization, supervision or capture limits.
+                # Presentation cannot alter authorization, supervision or raw caps.
                 try:
                     on_output(channel, bytes(capture.data[previous_size:]), capture.truncated)
                 except Exception:
                     pass
+        def capture_chunk(channel, capture, chunk):
+            if not chunk:
+                return
+            if channel == 'stderr' and ps_stderr is not None:
+                previous_size, previous_cut = len(capture.data), capture.truncated
+                capture.add(chunk)
+                if len(capture.data) > previous_size or capture.truncated != previous_cut:
+                    publish(channel, clean_stderr, ps_stderr.feed(bytes(capture.data[previous_size:])), capture.truncated)
+            else:
+                publish(channel, capture, chunk, False)
         tree = None
         readers = []
         stop = None
@@ -164,6 +177,8 @@ class HostProcessLauncher:
                 pass
             states.append('cleanup_unknown')
         finally:
+            if ps_stderr is not None:
+                publish('stderr', clean_stderr, ps_stderr.feed(b'', final=True), stderr.truncated)
             for stream in (proc.stdout, proc.stderr):
                 if stream is not None:
                     stream.close()
@@ -185,6 +200,6 @@ class HostProcessLauncher:
         else:
             outcome = 'completed' if proc.returncode == 0 else 'failed'
             error = None if outcome == 'completed' else 'PROCESS_EXIT_NONZERO'
-        return ProcessReport(proc.pid, proc.returncode, stdout.text(), stderr.text(),
-            outcome, error, tuple(states), stdout.truncated, stderr.truncated,
+        return ProcessReport(proc.pid, proc.returncode, stdout.text(), clean_stderr.text(),
+            outcome, error, tuple(states), stdout.truncated, clean_stderr.truncated,
             cleanup_scope, confirmed, children_released=children_released)

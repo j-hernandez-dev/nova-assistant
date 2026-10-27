@@ -35,9 +35,10 @@ def test_published_process_surface_limits_and_ui_are_honest():
         'consentimiento','no cuotas preventivas OS','sin retry ni rollback'):
         assert required.casefold() in limits.casefold()
     cli=(ROOT/'local_cli/interfaces/cli_application.py').read_text(encoding='utf-8')
-    desktop=(ROOT/'desktop/electron/main.ts').read_text(encoding='utf-8')
+    desktop=(ROOT/'desktop/electron/approval_preload.ts').read_text(encoding='utf-8')
     assert 'your account permissions' in cli
-    assert 'permisos normales de tu cuenta' in desktop
+    assert 'permisos de tu cuenta' in desktop
+    assert 'your account permissions' in desktop
     assert set(ControlClass.__members__)=={'APPLICATION_ENFORCED','BROKER_ENFORCED','HOST_UNISOLATED','BEST_EFFORT'}
 
 

@@ -167,7 +167,8 @@ class PlatformShellExecutor:
 class PowerShellExecutor(PlatformShellExecutor):
     def argv(self, command: str) -> list[str]:
         # Make both Windows PowerShell and pwsh emit UTF-8 over captured pipes.
-        script = ("$OutputEncoding = [Console]::OutputEncoding = "
+        script = ("$ProgressPreference = 'SilentlyContinue'; "
+                  "$OutputEncoding = [Console]::OutputEncoding = "
                   "[System.Text.UTF8Encoding]::new($false); " + command)
         encoded = base64.b64encode(script.encode("utf-16le")).decode("ascii")
         return [self.descriptor.executable, "-NoLogo", "-NoProfile",

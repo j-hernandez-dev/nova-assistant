@@ -17,11 +17,13 @@ def get_system_info() -> dict:
     memory = probe_memory()
     devices, total, available = probe_gpu()
     return {"ram_gb": memory.total.value // (1024 ** 3) if memory.total.value is not None else None,
+            "ram_total_bytes": memory.total.value, "ram_available_bytes": memory.available.value,
             "ram_status": memory.total.status.value, "ram_source": memory.source,
             "ram_error": memory.total.reason, "chip": "",
             "gpu": ", ".join(device["name"] for device in (devices.value or [])),
             "gpu_status": devices.status.value,
             "vram_total_bytes": total.value, "vram_available_bytes": available.value,
+            "vram_largest_available_bytes": max((d.get("vramAvailableBytes", 0) for d in (devices.value or [])), default=0) or None,
             "os": platform.system(), "arch": platform.machine()}
 
 

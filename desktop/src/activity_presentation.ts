@@ -2,10 +2,41 @@ import type { ToolActivity } from './types'
 import type { TranslationKey } from './i18n'
 import type { NovaIconName } from './components/NovaIcon'
 
-export type ActivityPresentation = { key: TranslationKey; tone: 'neutral' | 'active' | 'confirmed' | 'warning'; running: boolean }
+export type ActivityPresentation = { key: TranslationKey; tone: 'neutral' | 'active' | 'confirmed' | 'warning'; running: boolean; exitCode?: number }
+
+export function isTerminalActivity(activity: ToolActivity): boolean {
+  return ['bash', 'shell', 'run_command', 'exec_command'].includes(activity.name)
+}
+
+export function activityStatusText(presentation: ActivityPresentation, t: (key: TranslationKey) => string): string {
+  return t(presentation.key).replace('{code}', String(presentation.exitCode ?? ''))
+}
+
+/** A process exit describes execution only; arbitrary command effects stay unverified. */
+function commandPresentation(activity: ToolActivity): ActivityPresentation | null {
+  if (!isTerminalActivity(activity)) return null
+  const result = (key: TranslationKey, tone: ActivityPresentation['tone'] = 'warning'): ActivityPresentation => ({ key, tone, running: false })
+  if (activity.observationLost) return result('activityCommandUnconfirmed')
+  if (['pending', 'running'].includes(activity.status)) return null
+  if (activity.errorCode === 'PROCESS_CLEANUP_UNKNOWN') return result('activityCommandUnconfirmed')
+  if (activity.errorCode === 'PROCESS_TIMEOUT') return result('activityCommandTimedOut')
+  if (activity.errorCode === 'PROCESS_CANCELLED') return result('activityCommandStopped', 'neutral')
+  if (activity.status === 'outcome_unknown' || activity.operationStatus === 'outcome_unknown') return result('activityCommandUnconfirmed')
+  if (activity.status === 'cancelled' || activity.operationStatus === 'cancelled') return result('activityCommandStopped', 'neutral')
+  if (activity.effectState !== 'partial' && activity.status === 'completed' && activity.operationStatus === 'completed'
+      && activity.exitCode === 0 && !activity.errorCode) return result('activityCommandFinished', 'neutral')
+  if (activity.status === 'failed' && activity.operationStatus === 'failed' && Number.isInteger(activity.exitCode)
+      && activity.exitCode !== 0 && (!activity.errorCode || activity.errorCode === 'PROCESS_EXIT_NONZERO')) {
+    return { ...result('activityCommandExitCode'), exitCode: activity.exitCode! }
+  }
+  if (activity.status === 'completed') return result('activityCommandUnconfirmed')
+  return null
+}
 
 /** Only typed host receipts determine an outcome. Output is untrusted display text. */
 export function activityPresentation(activity: ToolActivity, awaitingPermission = false): ActivityPresentation {
+  const command = commandPresentation(activity)
+  if (command) return command
   const state = activity.status
   const operation = activity.operationStatus
   const terminal = !['pending', 'running'].includes(state)
@@ -35,6 +66,11 @@ function unavailableCode(code?: string | null): boolean {
 
 export function activityExplanation(activity: ToolActivity, awaitingPermission = false): TranslationKey | null {
   const key = activityPresentation(activity, awaitingPermission).key
+  if (['activityCommandUnconfirmed', 'activityCommandTimedOut', 'activityCommandStopped'].includes(key)) {
+    if (activity.observationLost || ['unknown', 'partial'].includes(activity.effectState)) return 'activityCommandInterruptedExplanation'
+    return key === 'activityCommandTimedOut' ? 'activityTimedOutExplanation'
+      : key === 'activityCommandStopped' ? 'activityCancelledExplanation' : 'activityObservationLost'
+  }
   if (key === 'activityUnknown') return activity.observationLost ? 'activityObservationLost' : 'activityUnknownExplanation'
   if (key === 'activityAwaitingPermission') return 'activityPermissionExplanation'
   if (key === 'activityDenied') return 'activityDeniedExplanation'
@@ -46,6 +82,7 @@ export function activityExplanation(activity: ToolActivity, awaitingPermission =
 }
 
 export function activityToolLabel(name: string, running = false): TranslationKey {
+  if (name === 'source_read') return running ? 'readingSourceTool' : 'activitySourceReadTool'
   if (!running) {
     if (['read', 'read_file'].includes(name)) return 'activityReadTool'
     if (['write', 'write_file'].includes(name)) return 'activityWriteTool'
@@ -82,7 +119,8 @@ export function representedActivityError(error: ActivityError | null | undefined
   return activities.some(activity => {
     const terminalCause = ['failed', 'denied', 'cancelled', 'outcome_unknown'].includes(activity.status)
       || ['failed', 'cancelled', 'outcome_unknown'].includes(activity.operationStatus)
-      || (!['pending', 'running'].includes(activity.status) && ['unknown', 'partial'].includes(activity.effectState))
+      || (!['pending', 'running'].includes(activity.status) && ['unknown', 'partial'].includes(activity.effectState)
+        && activityPresentation(activity).key !== 'activityCommandFinished')
     if (!terminalCause) return false
     if (error.operationId) return error.operationId === activity.operationId
     if (error.toolCallId) return error.toolCallId === activity.toolCallId
@@ -94,6 +132,10 @@ export function representedActivityError(error: ActivityError | null | undefined
 export function applicationErrorKey(code: string): TranslationKey {
   if (code === 'CONFLICT_ACTIVE_TURN') return 'turnBusyAction'
   if (code === 'OllamaRequestError') return 'modelGenerationFailed'
+  if (code === 'OLLAMA_RESPONSE_TIMEOUT') return 'modelResponseTimeout'
+  if (code === 'OLLAMA_CONNECT_TIMEOUT') return 'modelConnectTimeout'
+  if (code === 'OLLAMA_CONNECTION_FAILED') return 'modelConnectionFailed'
+  if (code === 'OLLAMA_MODEL_UNAVAILABLE') return 'readinessModelMissing'
   if (['BACKEND_DISCONNECTED', 'BACKEND_UNAVAILABLE', 'CONNECTION_LOST'].includes(code)) return 'activityConnectionLost'
   if (code === 'OUTCOME_UNKNOWN' || code === 'TURN_OUTCOME_UNKNOWN') return 'activityUnknown'
   if (['PERMISSION_DENIED', 'POLICY_DENIED', 'APPROVAL_DENIED'].includes(code)) return 'activityDeniedExplanation'
@@ -127,7 +169,7 @@ const toolVisuals: Array<[readonly string[], TranslationKey, NovaIconName]> = [
   [['agent'], 'activityDelegateHeading', 'agents'],
   [['memory_search', 'memory_recall'], 'activityMemoryReadHeading', 'brain'],
   [['memory_store', 'memory_remember'], 'activityMemoryWriteHeading', 'brain'],
-  [['knowledge_read', 'document_read'], 'activityDocumentReadHeading', 'file-read'],
+  [['source_read', 'knowledge_read', 'document_read'], 'activityDocumentReadHeading', 'file-read'],
   [['knowledge_search', 'document_search'], 'activityDocumentSearchHeading', 'search'],
   [['browser_navigate'], 'activityNavigateHeading', 'browser'],
   [['browser_observe'], 'activityObserveHeading', 'eye'],

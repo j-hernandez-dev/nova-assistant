@@ -32,7 +32,8 @@ def vector_checked(vector, dimension):
 
 class NumpySemanticIndex:
     def __init__(self, store, space: EmbeddingSpace, *, minimum_similarity=.45,
-                 matrix_limit_bytes=512*1024*1024):
+                 matrix_limit_bytes=512*1024*1024,allow_sensitive=lambda:False,sensitive_scope=None):
+        self.allow_sensitive,self.sensitive_scope=allow_sensitive,sensitive_scope
         try:
             import numpy as np  # Optional capability; no install/fallback Python scan.
         except (ImportError,OSError):
@@ -86,13 +87,17 @@ class NumpySemanticIndex:
         with self._lock, self.store._transaction(write=True):
             c = self.store._connection
             for memory_id,checked,expected_revision in checked_batch:
-                row = c.execute('SELECT revision,status,sensitivity_class FROM memories WHERE memory_id=?',
+                row = c.execute('SELECT revision,status,sensitivity_class,subject_id,scope_kind,scope_id,identity_version FROM memories WHERE memory_id=?',
                                 (memory_id,)).fetchone()
                 if row is None:
                     raise MemoryError(MemoryErrorCode.NOT_FOUND)
                 if expected_revision is not None and row['revision'] != expected_revision:
                     raise MemoryError(MemoryErrorCode.CONFLICT)
-                if row['status'] != 'ACTIVE' or row['sensitivity_class'] != 'NORMAL':
+                scope=self.sensitive_scope
+                permitted=bool(scope and self.allow_sensitive() and row['subject_id']==scope.subject_id.value and
+                    (row['scope_kind']=='GLOBAL_PROFILE' and scope.include_global or scope.workspace_id and
+                     row['scope_kind']=='WORKSPACE' and row['scope_id']==scope.workspace_id.value and row['identity_version']==scope.workspace_id.identity_version))
+                if row['status'] != 'ACTIVE' or row['sensitivity_class'] != 'NORMAL' and not permitted:
                     raise MemoryError(MemoryErrorCode.SENSITIVE_DENIED)
                 blob = HEADER.pack(MAGIC, row['revision'], self.space.dimension) + struct.pack(
                     '<'+'f'*self.space.dimension, *checked)

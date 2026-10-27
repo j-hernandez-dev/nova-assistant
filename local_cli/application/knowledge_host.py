@@ -241,7 +241,7 @@ class KnowledgeHostControls:
             self.service._events=event
             if command.name=='source_import':
                 outcome=self.service.import_file(context=context,selected_path=command.arguments['path'],
-                    scope_kind=KnowledgeScopeKind(command.arguments.get('scope','SESSION')),
+                    scope_kind=KnowledgeScopeKind.WORKSPACE,
                     acquisition=self.service.acquisition,prepare=self.service.prepare,progress=progress)
             elif command.name=='source_promote':
                 outcome=self.service.promote(command.arguments['sourceId'],context=context,progress=progress)

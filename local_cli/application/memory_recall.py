@@ -26,8 +26,8 @@ MEMORY_GUARD = (
 def local_memory_destination(snapshot):
     """Conservative host endpoint classification, not a network firewall claim.
 
-    Known local adapter + explicit loopback endpoint; unknown/proxy/remote
-    destinations need opt-in. No DNS probing or implicit cloud activation.
+    Memory context requires a known local adapter and an explicit loopback
+    endpoint. No DNS probing or implicit cloud activation.
     """
     if snapshot.provider_id not in ('ollama', 'llama-server') or not snapshot.endpoint:
         return False
@@ -77,7 +77,6 @@ class TurnMemorySnapshot:
     tokens: int = 0
     truncated: bool = False
     error_code: str | None = None
-    remote: bool = False
     embedding_status: str = 'DISABLED'
     semantic_latency_ms: float = 0.0
     lexical_latency_ms: float = 0.0
@@ -90,7 +89,7 @@ class TurnMemorySnapshot:
             retrievalMode=self.retrieval_mode if self.records else 'none', embeddingStatus=self.embedding_status,
             semanticLatencyMs=self.semantic_latency_ms,lexicalLatencyMs=self.lexical_latency_ms,
             retrievalLatencyMs=self.latency_ms, memoryTruncated=self.truncated,
-            errorCode=self.error_code, remoteMemoryInjection=self.remote and bool(self.records))
+            errorCode=self.error_code)
 
 
 class MemoryCapsule:
@@ -127,14 +126,17 @@ class MemoryRetriever:
             workspace_id=service.identity.resolve_workspace(str(workspace), register=False), include_global=True)
         maintenance=getattr(service,'maintenance',None)
         excluded=maintenance.suppressed_memory_ids(scope) if maintenance is not None else ()
-        query = MemoryQuery(text=query_text, scope=scope, at=at, limit=24, match_any=True,exclude_ids=excluded)
-        ranked = service.lexical.search(query)  # SQL eligibility BEFORE ranking; IDs only.
+        sensitive=getattr(service,'allow_sensitive',lambda _workspace:False)(workspace)
+        query = MemoryQuery(text=query_text, scope=scope, at=at, limit=24, match_any=True,exclude_ids=excluded,
+                            allow_sensitive=sensitive)
+        ranked = service.lexical.search(query) if getattr(service,'lexical_enabled',True) else ()
         lexical_ms=(perf_counter()-start)*1000
         semantic_rows, embedding_status, error, semantic_ms = (), 'DISABLED', None, 0.0
-        semantic=getattr(service,'semantic',None)
+        semantic_enabled=getattr(service,'semantic_enabled',True)
+        semantic=getattr(service,'semantic',None) if semantic_enabled else None
         if semantic is not None and not semantic_allowed:
             semantic=None;embedding_status='DEGRADED_BUSY';error='MEMORY_EMBEDDING_UNAVAILABLE'
-        if semantic is None and getattr(service,'semantic_error',None):
+        if semantic_enabled and semantic is None and getattr(service,'semantic_error',None):
             embedding_status,error='DEGRADED',service.semantic_error
         if semantic is not None:
             before=perf_counter()
@@ -157,7 +159,7 @@ class MemoryRetriever:
             record = service.store.get(candidate.memory_id, scope)
             # Revalidate after hydration against interleaved delete/correction,
             # scope/status/validity/sensitivity. Ranking is not truth/confidence.
-            if record is not None and record.eligible(scope, at=at):
+            if record is not None and record.eligible(scope, at=at,allow_sensitive=sensitive):
                 records.append(record)
         records = tuple(records)
         mode = ('exact' if records and query_text in (records[0].canonical_key, records[0].canonical_text)

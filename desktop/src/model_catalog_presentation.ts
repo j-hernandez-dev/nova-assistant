@@ -17,20 +17,17 @@ export function filterCatalog(models: CatalogModel[], filter: string, category: 
   return models.filter(model => (!category || model.category === category) && (!query ||
     [model.name, model.display, model.description, ...model.tags].some(value => value.toLocaleLowerCase().includes(query))))
 }
-export function catalogCategories(categories: string[], models: CatalogModel[]): string[] {
-  return [...new Set([...categories, ...models.map(model => model.category)])]
-}
 export function modelCategoryKey(value: string): TranslationKey | null {
   const mapping: Record<string, TranslationKey> = { Installed: 'modelInstalledCategory', Code: 'code', General: 'modelGeneralCategory',
-    Small: 'modelSmallCategory', Reasoning: 'reasoning', Japanese: 'modelJapaneseCategory',
+    Small: 'modelSmallCategory', Reasoning: 'reasoning',
     Multilingual: 'modelMultilingualCategory', Vision: 'vision', Embedding: 'modelEmbeddingCategory',
     'コード': 'code', '汎用': 'modelGeneralCategory', '小型': 'modelSmallCategory',
-    '推論': 'reasoning', '日本語': 'modelJapaneseCategory', '多言語': 'modelMultilingualCategory',
+    '推論': 'reasoning',  '多言語': 'modelMultilingualCategory',
     '画像': 'vision', '埋め込み': 'modelEmbeddingCategory' }
   return Object.prototype.hasOwnProperty.call(mapping,value) ? mapping[value] : null
 }
 export function modelErrorKey(code?: string | null): TranslationKey {
-  const mapping: Record<string, TranslationKey> = { MODEL_CATALOG_FAILED: 'modelCatalogFailed', MODEL_SEARCH_FAILED: 'modelSearchFailed',
+  const mapping: Record<string, TranslationKey> = { MODEL_CATALOG_FAILED: 'modelCatalogFailed',
     MODEL_RECOMMEND_FAILED: 'modelRecommendFailed', MODEL_DOWNLOAD_FAILED: 'modelDownloadFailed',
     MODEL_DELETE_FAILED: 'modelDeleteFailed', MODEL_SYNC_FAILED: 'modelSyncFailed',
     MODEL_OPERATION_UNCONFIRMED: 'modelOperationUnconfirmed' }
@@ -47,3 +44,9 @@ export function modelContext(value?: number): string {
   return typeof value === 'number' && Number.isFinite(value) && value > 0
     ? value >= 1024 ? `${Math.round(value / 1024)}K` : String(Math.round(value)) : ''
 }
+
+/** All is the primary library; recommendations use the same public inventory. */
+export const catalogSections = [
+  {id:'all',label:'all'}, {id:'installed',label:'modelInstalledCategory'}, {id:'recommend',label:'forYou'},
+] as const satisfies ReadonlyArray<{id:string;label:TranslationKey}>
+export type CatalogSection = typeof catalogSections[number]['id']

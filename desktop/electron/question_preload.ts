@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron'
+import { applySurfacePresentation } from '../shared/surface_presentation'
 // Only the host-created question document receives this preload. No bridge is exposed.
 if (process.isMainFrame) window.addEventListener('DOMContentLoaded', async () => {
   const element = (id: string) => document.getElementById(id)!
@@ -37,6 +38,8 @@ if (process.isMainFrame) window.addEventListener('DOMContentLoaded', async () =>
   try {
     const binding = await ipcRenderer.invoke('question-surface-ready')
     if (!binding?.accepted || typeof binding.nonce !== 'string' || typeof binding.question !== 'string') return
+    applySurfacePresentation(document, binding.presentation)
+    ipcRenderer.on('question-surface-appearance', (_event, value) => applySurfacePresentation(document, value))
     element('question').textContent = binding.question
     localize(binding.locale)
     ipcRenderer.on('question-surface-locale', (_event, locale) => localize(locale))

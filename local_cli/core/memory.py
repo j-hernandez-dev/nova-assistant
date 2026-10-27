@@ -14,7 +14,7 @@ from enum import Enum
 import hashlib
 from pathlib import PurePosixPath, PureWindowsPath
 import re
-from typing import ContextManager, Protocol, runtime_checkable
+from typing import ContextManager, Protocol, Sequence, runtime_checkable
 from uuid import UUID, uuid4
 
 
@@ -30,17 +30,20 @@ class MemoryErrorCode(str, Enum):
     SECRET_DENIED = 'MEMORY_SECRET_DENIED'
     CAPACITY_REACHED = 'MEMORY_CAPACITY_REACHED'
     EMBEDDING_UNAVAILABLE = 'MEMORY_EMBEDDING_UNAVAILABLE'
+    EMBEDDING_CONTEXT_LIMIT = 'MEMORY_EMBEDDING_CONTEXT_LIMIT_EXCEEDED'
     EMBEDDING_SPACE_MISMATCH = 'MEMORY_EMBEDDING_SPACE_MISMATCH'
     RETRIEVAL_TIMEOUT = 'MEMORY_RETRIEVAL_TIMEOUT'
     WRITE_FAILED = 'MEMORY_WRITE_FAILED'
     DELETE_PARTIAL = 'MEMORY_DELETE_PARTIAL'
-    REMOTE_INJECTION_DENIED = 'MEMORY_REMOTE_INJECTION_DENIED'
     INVALID_IDENTITY = 'MEMORY_INVALID_IDENTITY'
     INVALID_RECORD = 'MEMORY_INVALID_RECORD'
     SOURCE_REQUIRED = 'MEMORY_SOURCE_REQUIRED'
     INVALID_PROPOSAL = 'MEMORY_INVALID_PROPOSAL'
     EXTRACTION_UNAVAILABLE = 'MEMORY_EXTRACTION_UNAVAILABLE'
     UNTRUSTED_INPUT = 'MEMORY_UNTRUSTED_INPUT'
+    IMPORT_INVALID = 'MEMORY_IMPORT_INVALID'
+    TRANSFER_TOO_LARGE = 'MEMORY_TRANSFER_TOO_LARGE'
+    EMBEDDING_REQUIRED = 'MEMORY_EMBEDDING_REQUIRED'
 
 
 class MemoryError(ValueError):
@@ -597,7 +600,9 @@ class MemoryStorePort(Protocol):
         """Atomic exact key/content absence precondition for explicit writes."""
         ...
     def update(self, record: MemoryRecord, *, expected_revision: int) -> None: ...
+    def edit_explicit(self, records: Sequence[tuple[MemoryRecord, int]]) -> None: ...
     def supersede(self, old_id: str, record: MemoryRecord, *, expected_revision: int) -> None: ...
+    def delete_explicit(self, records: Sequence[tuple[str, int]], scope: MemoryAccessScope) -> None: ...
     def delete(self, memory_id: str, scope: MemoryAccessScope, *, expected_revision: int) -> None:
         """Delete/invalidations/tombstone are an adapter contract, not this port."""
         ...

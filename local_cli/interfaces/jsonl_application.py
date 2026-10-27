@@ -88,6 +88,21 @@ class JsonlApplicationAdapter:
 
     def handle(self, request: dict[str, Any]) -> bool:
         kind, req_id = request.get("type"), request.get("id", 0)
+        if kind == 'storage_command':
+            from local_cli.application.storage import StorageCommand
+            from local_cli.core.knowledge import KnowledgeError
+            try:
+                command=StorageCommand.from_dict(request.get('command'))
+                if command.session_id != self.session_id or not verify_approval_proof(
+                        self._host_approval_key,command.to_dict(),request.get('hostStorageProof')):
+                    raise ValueError('Authenticated host storage control is required.')
+                result=self.application.execute_storage(command,actor=self._knowledge_actor)
+                self._send(dict(id=req_id,type='storage_result',schemaVersion=1,**result))
+            except (KnowledgeError,TypeError,ValueError):
+                self._send(dict(id=req_id,type='storage_result',schemaVersion=1,success=False,
+                    error=dict(code='STORAGE_NOT_AUTHORIZED',category='STORAGE',
+                        message='Authenticated host storage control is required.',retryable=False)))
+            return True
         if kind == 'knowledge_command':
             from local_cli.application.knowledge_host import KnowledgeCommand
             from local_cli.core.knowledge import KnowledgeError, KnowledgeErrorCode

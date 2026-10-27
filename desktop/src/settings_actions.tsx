@@ -2,7 +2,7 @@ import {useCallback,useEffect,useRef,useState} from 'react'
 import {useI18n} from './i18n'
 import {settingErrorKey} from './settings_services_locale'
 
-type Receipt={accepted?:boolean;completed?:boolean;success?:boolean;error?:{code?:string;outcomeUnknown?:boolean}|null}
+type Receipt={accepted?:boolean;completed?:boolean;success?:boolean;canceled?:boolean;error?:{code?:string;outcomeUnknown?:boolean}|null}
 export type SettingsActionState={busy:boolean;unconfirmed:boolean;errorCode:string|null;result:Receipt|null}
 
 /** UI request observation only; authority and operation outcomes remain in the host. */
@@ -23,6 +23,7 @@ export function useSettingsAction(scope:string) {
     try {
       const result=await action()
       if(!alive.current||request!==epoch.current)return null
+      if(result?.canceled){setState({busy:false,unconfirmed:false,errorCode:null,result:null});return null}
       if(result?.error && (result.error.outcomeUnknown===true||['OUTCOME_UNKNOWN','COMMAND_OUTCOME_UNKNOWN','TIMEOUT','CONNECTION_LOST'].includes(result.error.code||''))){
         retain=true
         setState({busy:true,unconfirmed:true,errorCode:null,result:null});return null

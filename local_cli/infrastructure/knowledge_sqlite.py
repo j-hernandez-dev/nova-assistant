@@ -23,6 +23,7 @@ from local_cli.core.knowledge_store import (ExtractedDocument, DocumentChunk, Im
 from local_cli.infrastructure.knowledge_files import KnowledgeFiles, KnowledgeLease, OP
 from local_cli.infrastructure.knowledge_migrations import APPLICATION_ID, FORMAT, MIGRATIONS, VERSION
 from local_cli.infrastructure.knowledge_retrieval_sqlite import DocumentRetrievalStorage
+from local_cli.infrastructure.knowledge_storage import AttachmentStorage
 import re
 
 
@@ -37,7 +38,7 @@ def failure(exc, *, committing=False):
     return KnowledgeStorageError(code, outcome_unknown=committing)
 
 
-class SQLiteKnowledgeStore(DocumentRetrievalStorage):
+class SQLiteKnowledgeStore(DocumentRetrievalStorage, AttachmentStorage):
     def __init__(self, state_dir, *, limits=KnowledgeLimits()):
         _require(isinstance(limits, KnowledgeLimits))
         self.limits = limits
@@ -64,6 +65,7 @@ class SQLiteKnowledgeStore(DocumentRetrievalStorage):
                 with self._transaction():
                     MIGRATIONS[0](self._connection)
             self._check_schema()
+            self._storage_initialize()
         except Exception as exc:
             self.close()
             if isinstance(exc, KnowledgeError):
@@ -350,6 +352,7 @@ class SQLiteKnowledgeStore(DocumentRetrievalStorage):
                 self._connection.execute('INSERT INTO sources VALUES (?,?,?,?,?,?,?)',
                     (source.source_id, source.scope.workspace_id, source.scope.session_id, source.scope.kind.value,
                      encode(source), None, source.lifecycle_state.value))
+                self._storage_register_source(source)
             if self._connection.execute("SELECT 1 FROM import_operations WHERE source_id=? AND status='running'",
                                         (source.source_id,)).fetchone():
                 raise KnowledgeError(KnowledgeErrorCode.STALE_SOURCE)
@@ -512,6 +515,8 @@ class SQLiteKnowledgeStore(DocumentRetrievalStorage):
             self.files.remove('staging', row['operation_id'] + '.part')
 
     def close_session(self, access):
+        with self._transaction():
+            self._storage_migrate_sessions()
         for source in self.list_sources(access):
             if source.scope.kind is KnowledgeScopeKind.SESSION:
                 self.delete(source.source_id, access)
@@ -522,6 +527,7 @@ class SQLiteKnowledgeStore(DocumentRetrievalStorage):
         with self._lock:
             self._check_schema()
             with self._transaction():
+                self._storage_migrate_sessions()
                 rows = self._connection.execute('SELECT * FROM import_operations WHERE workspace_id=?',
                                                (access.workspace_id,)).fetchall()
                 for row in rows:

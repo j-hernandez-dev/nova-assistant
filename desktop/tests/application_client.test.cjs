@@ -3,8 +3,19 @@ const { test } = require('node:test')
 const assert = require('node:assert/strict')
 const { DesktopApplicationClient, projectTranscript } = require('../electron/application_client.ts')
 
+test('source input reports come from the user Turn projection and retain host availability', () => {
+  const sourceContext = [{sourceId:'one',revisionId:'r1',displayName:'Guide.txt',status:'complete'},
+    {sourceId:'two',revisionId:'r2',displayName:'Book.pdf',status:'partial',admittedChunks:1},
+    {sourceId:'three',revisionId:'r3',displayName:'Revoked.txt',status:'unavailable',errorCode:'STALE_SOURCE'}]
+  const rows = projectTranscript([{role:'user',content:'Explain my sources',sourceContext},
+    {role:'assistant',content:'Answer',sourceContext}], 'test')
+  assert.deepEqual(rows[0].sourceContext,sourceContext)
+  assert.equal(rows[1].sourceContext,undefined)
+  assert.deepEqual(projectTranscript([{role:'user',content:'x',sourceContext:[{status:'success'},null]}],'test')[0].sourceContext,[])
+})
+
 test('Auxiliary model errors stay in their owning panel only after exact outbound request registration', () => {
-  for (const type of ['catalog', 'search_models', 'recommend', 'pull_model', 'delete_model', 'update_catalog']) {
+  for (const type of ['catalog', 'recommend', 'pull_model', 'delete_model', 'update_catalog']) {
     const client = new DesktopApplicationClient(() => {}, () => {})
     assert.equal(client.trackModelRequest({ id: 51, type }), true)
     client.receive({ id: 51, type: 'error', message: 'private auxiliary exception' })
@@ -37,7 +48,7 @@ test('Exact terminal receipts clear auxiliary ownership while progress and wrong
   client.receive({ id: 9, type: 'catalog' })
   client.receive({ id: 9, type: 'error', message: 'owned download failed' })
   assert.equal(client.view.error, null)
-  for (const [type, terminal] of [['catalog','catalog'], ['search_models','search_results'], ['recommend','recommend'],
+  for (const [type, terminal] of [['catalog','catalog'], ['recommend','recommend'],
     ['pull_model','pull_done'], ['delete_model','delete_done'], ['update_catalog','catalog_updated']]) {
     client.trackModelRequest({ id: 10, type })
     client.receive({ id: 10, type: terminal })
@@ -48,7 +59,7 @@ test('Exact terminal receipts clear auxiliary ownership while progress and wrong
 })
 test('Backend disconnect and ready clear auxiliary bindings without hiding disconnect outcome', () => {
   const client = new DesktopApplicationClient(() => {}, () => {})
-  client.trackModelRequest({ id: 18, type: 'search_models' })
+  client.trackModelRequest({ id: 18, type: 'recommend' })
   client.disconnected(); assert.equal(client.view.error.code, 'BACKEND_DISCONNECTED')
   client.receive({ id: 18, type: 'error', code: 'OLD_CONNECTION_ERROR' })
   assert.equal(client.view.error.code, 'OLD_CONNECTION_ERROR')
@@ -62,9 +73,9 @@ test('Only exact known model request types and unique numeric IDs may own auxili
   const client = new DesktopApplicationClient(() => {}, () => {})
   for (const frame of [{ id: 1, type: 'chat' }, { id: 'desktop-1', type: 'catalog' },
     { id: 0, type: 'catalog' }, { id: -1, type: 'catalog' }, { id: 1.5, type: 'catalog' },
-    { id: 2, type: 'constructor' }]) assert.equal(client.trackModelRequest(frame), false)
+    { id: 2, type: 'constructor' }, { id: 3, type: 'search_models' }]) assert.equal(client.trackModelRequest(frame), false)
   assert.equal(client.trackModelRequest({ id: 1, type: 'catalog' }), true)
-  assert.equal(client.trackModelRequest({ id: 1, type: 'search_models' }), false)
+  assert.equal(client.trackModelRequest({ id: 1, type: 'recommend' }), false)
   client.receive({ id: 1, type: 'error', code: 'COLLIDING_REQUEST' })
   assert.equal(client.view.error.code, 'COLLIDING_REQUEST')
   client.disconnected()
@@ -119,14 +130,14 @@ test('Desktop preserves typed manual context rejection from Application', async 
   assert.deepEqual(c.client.view.error, error)
 })
 
-test('M4 remote memory notice comes from backend config, not transcript or renderer consent', () => {
+test('Memory projection exposes only local capabilities and drops obsolete remote fields', () => {
   const snapshot = state(1, { services: { rag: { enabled: false, availability: 'DISABLED' },
     memory: { lexicalRecall: true, semantic: false, autoCapture: false, allowRemoteMemoryInjection: true } } })
   const c = setup(snapshot)
-  assert.match(c.client.view.memoryNotice, /Selected memories may leave this host/)
+  assert.deepEqual(c.client.view.memory, {lexicalRecall:true,semantic:false,autoCapture:false})
+  assert.equal(Object.hasOwn(c.client.view,'memoryNotice'), false)
   assert.equal(c.client.view.messages.some(m => m.content.includes('MEMORY CONTEXT')), false)
   assert.equal(c.sent.filter(f => f.type === 'application_command').length, 0)
-  assert.equal(setup().client.view.memoryNotice, null)
 })
 
 test('snapshot reconstructs the single live chat, tool view and Unicode', () => {

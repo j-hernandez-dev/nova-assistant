@@ -1,11 +1,15 @@
 // Owned fixture: real Electron sandbox/preload/IPC, fake command sink. No backend,
-// account data, tools, external network, synthetic consent, or execution effects.
+// account data, tools, external network, or execution effects. Explicit --auto
+// cases click only this synthetic window against a recording command sink.
 const { app, BrowserWindow, ipcMain } = require('electron')
 const fs = require('node:fs')
 const path = require('node:path')
+const assert = require('node:assert/strict')
 const { createApprovalSurfaceController, READY_CHANNEL } = require('../electron/approval_surface.cjs')
 const caseName = process.argv.find(value => value.startsWith('--case='))?.slice(7) || 'allow'
 const readyOnly = process.argv.includes('--ready-only')
+const automatic = process.argv.includes('--auto')
+if (automatic && !['allow', 'deny'].includes(caseName)) throw new Error('Auto fixture requires allow or deny')
 if (!/^[a-z0-9-]{1,24}$/.test(caseName)) throw new Error('Invalid fixture case')
 const output = path.resolve(__dirname, '../../.runtime/gui-b4-native')
 fs.mkdirSync(output, { recursive: true })
@@ -27,6 +31,10 @@ app.whenReady().then(async () => {
     arguments: { command: 'Write-Output NOVA_GUI_B4_OWNED_FIXTURE', environment: { MODE: 'owned-fixture' } } }
   const client = { view: { sessionId: 'fixture-session', status: { ready: true, connected: true }, approvals: [request] },
     command: (kind, payload, commandId) => {
+      assert.equal(kind, 'ResolveApproval')
+      if (automatic) assert.equal(payload.approved, caseName === 'allow')
+      for (const key of ['approvalId', 'toolCallId', 'requestDigest', 'cwd', 'policyRevision']) assert.equal(payload[key], request[key])
+      assert.equal(dispatchCount, 0, 'A decision cannot dispatch twice')
       const receipt = { event: 'decision', kind, payload, commandId, dispatchCount: ++dispatchCount, executed: false }
       log(receipt); fs.writeFileSync(completionPath, JSON.stringify(receipt, null, 2) + '\n')
       setTimeout(() => app.quit(), 1200)
@@ -52,6 +60,22 @@ app.whenReady().then(async () => {
           nodeIntegration: preferences.nodeIntegration, preload: preferences.preload,
           parentBounds: parent.getContentBounds(), childBounds: child.getBounds(),
           decisionButtons: ['No permitir', 'Permitir'], hostProofExposed: 'hostApprovalProof' in result })
+        if (automatic) setTimeout(async () => {
+          try {
+            const selector = caseName === 'allow' ? 'allow' : 'deny'
+            let point
+            for (let attempt = 0; attempt < 100 && !point; attempt++) {
+              point = await child.webContents.executeJavaScript(`(()=>{const b=document.getElementById('${selector}');if(!b||b.disabled)return null;const r=b.getBoundingClientRect();return{x:Math.round(r.x+r.width/2),y:Math.round(r.y+r.height/2)}})()`)
+              if (!point) await new Promise(resolve => setTimeout(resolve, 20))
+            }
+            assert.ok(point, 'Sandboxed approval preload must enable the decision button')
+            child.webContents.sendInputEvent({type:'mouseDown',button:'left',clickCount:1,...point})
+            child.webContents.sendInputEvent({type:'mouseUp',button:'left',clickCount:1,...point})
+          } catch (error) {
+            fs.writeFileSync(completionPath, JSON.stringify({event:'failed',error:String(error.stack),executed:false}))
+            app.exit(1)
+          }
+        }, 0)
         if (readyOnly) setTimeout(async () => {
           const review = await controller.reopenPending()
           const receipt = { event: 'ready-verification', ready: review.success, dispatchCount, executed: false }
@@ -65,7 +89,7 @@ app.whenReady().then(async () => {
   function ObservedWindow(options) {
     const child = new BrowserWindow(options)
     child.webContents.on('preload-error', (_event, preloadPath, error) => log({ event: 'preload-error', preloadPath, message: error.message }))
-    child.webContents.on('console-message', (_event, level, message) => log({ event: 'child-console', level, message }))
+    child.webContents.on('console-message', details => log({ event: 'child-console', level:details.level, message:details.message }))
     child.webContents.on('did-finish-load', () => log({ event: 'child-loaded', localDataDocument: child.webContents.getURL().startsWith('data:text/html;charset=utf-8,') }))
     child.webContents.on('did-fail-load', (_event, code, description) => log({ event: 'child-load-failed', code, description }))
     child.on('closed', () => log({ event: 'child-closed' }))

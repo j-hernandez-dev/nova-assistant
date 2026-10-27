@@ -20,8 +20,10 @@ from local_cli.application.memory_policy import ExplicitMemoryPolicy
 
 
 MEMORY_COMMANDS = frozenset('memory_status memory_list memory_search memory_show memory_remember '
-    'memory_correct memory_forget memory_export memory_proposals memory_confirm memory_reject'.split())
-MEMORY_WRITES = frozenset(('memory_remember','memory_correct','memory_forget','memory_confirm','memory_reject'))
+    'memory_correct memory_forget memory_export memory_proposals memory_confirm memory_reject '
+    'memory_configure memory_reset_settings memory_project_access memory_import memory_export_all memory_edit memory_delete'.split())
+MEMORY_WRITES = frozenset(('memory_remember','memory_correct','memory_forget','memory_confirm','memory_reject',
+    'memory_configure','memory_reset_settings','memory_project_access','memory_import','memory_edit','memory_delete'))
 FORGET_NOTICE = ('Only this memory and its owned projections were deleted. '
     'Audit, logs, source conversations and external backups were not erased; this is not secure erase.')
 
@@ -83,6 +85,12 @@ class MemoryService:
         self.subject = identity.load_or_create_subject()
         self.semantic = semantic
         self.semantic_error = semantic_error
+        self.lexical_enabled = True
+        self.semantic_enabled = True
+        self.allow_sensitive = lambda _workspace: False
+        self.refresh_settings = lambda _workspace: None
+        self.defer_projection = lambda: None
+        self._semantic_history = []
         from local_cli.application.memory_maintenance import MemoryMaintenanceService
         self.maintenance=(MemoryMaintenanceService(self,maintenance_jobs,mode=capture_mode,
             soft_records=soft_records,soft_bytes=soft_bytes)
@@ -92,6 +100,10 @@ class MemoryService:
                 explicit_user_action=False):
         if name not in MEMORY_COMMANDS or not isinstance(arguments,Mapping) or not explicit_user_action:
             raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+        if name == 'memory_delete':
+            return self._delete(arguments,workspace=workspace)
+        if name == 'memory_edit':
+            return self._edit(arguments,workspace=workspace,session_id=session_id,operation_id=operation_id)
         if name in ('memory_proposals','memory_confirm','memory_reject'):
             if self.maintenance is None:raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
             return self.maintenance.control(name,arguments,workspace=workspace,
@@ -208,6 +220,71 @@ class MemoryService:
         return self._derived_result(dict(memoryId=record.memory_id,revision=record.revision,
             supersedesMemoryId=record.supersedes_memory_id),record=record)
 
+    def _delete(self,arguments,*,workspace):
+        if set(arguments)!={'records'} or not isinstance(arguments['records'],list) or not 1<=len(arguments['records'])<=200:
+            raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+        wid=self.identity.resolve_workspace(workspace,register=True)
+        access=MemoryAccessScope(self.subject,wid);selected=[];seen=set()
+        for row in arguments['records']:
+            if (not isinstance(row,Mapping) or set(row)!={'memoryId','revision'}
+                    or not isinstance(row['memoryId'],str) or not row['memoryId'] or len(row['memoryId'])>128
+                    or type(row['revision']) is not int or row['revision']<1 or row['memoryId'] in seen):
+                raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+            old=self.store.get(row['memoryId'],access)
+            if old is None:raise MemoryError(MemoryErrorCode.NOT_FOUND)
+            if old.revision!=row['revision']:raise MemoryError(MemoryErrorCode.CONFLICT)
+            seen.add(old.memory_id);selected.append((old.memory_id,old.revision))
+        self.store.delete_explicit(selected,access)
+        results=[self._derived_result(dict(memoryId=memory_id,deleted=True),deleted=memory_id) for memory_id,_ in selected]
+        return dict(records=results,deleted=len(results),notice=FORGET_NOTICE)
+
+    def _edit(self,arguments,*,workspace,session_id,operation_id):
+        if set(arguments)!={'records'} or not isinstance(arguments['records'],list) or not 1<=len(arguments['records'])<=200:
+            raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+        wid=self.identity.resolve_workspace(workspace,register=True)
+        access=MemoryAccessScope(self.subject,wid)
+        now=datetime.now(timezone.utc);prepared=[];seen=set()
+        for row in arguments['records']:
+            if not isinstance(row,Mapping) or set(row)!={'memoryId','revision','text','kind','scope','sensitive','consentSensitive'}:
+                raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+            memory_id=row['memoryId']
+            if not isinstance(memory_id,str) or memory_id in seen or len(memory_id)>128:
+                raise MemoryError(MemoryErrorCode.INVALID_RECORD)
+            seen.add(memory_id)
+            old=self.store.get(memory_id,access)
+            if old is None:raise MemoryError(MemoryErrorCode.NOT_FOUND)
+            if type(row['revision']) is not int or row['revision']!=old.revision or old.status not in (MemoryStatus.ACTIVE,MemoryStatus.CONFLICTED):
+                raise MemoryError(MemoryErrorCode.CONFLICT)
+            if type(row['sensitive']) is not bool or type(row['consentSensitive']) is not bool:
+                raise MemoryError(MemoryErrorCode.SENSITIVE_DENIED)
+            if row['scope'] not in ('WORKSPACE','GLOBAL_PROFILE'):
+                raise MemoryError(MemoryErrorCode.SCOPE_MISMATCH)
+            try:kind=MemoryKind(row['kind'])
+            except (TypeError,ValueError):raise MemoryError(MemoryErrorCode.INVALID_RECORD) from None
+            sensitivity=self.policy.classify(row['text'],old.canonical_key,sensitive=row['sensitive'])
+            # Explicit reclassification may remove a manually set sensitive flag;
+            # credentials and detected sensitive text still cannot bypass policy.
+            if sensitivity is MemorySensitivity.SECRET_DENIED:raise MemoryError(MemoryErrorCode.SECRET_DENIED)
+            if sensitivity is MemorySensitivity.SENSITIVE and not row['sensitive']:
+                raise MemoryError(MemoryErrorCode.SENSITIVE_DENIED)
+            if (old.sensitivity_class is MemorySensitivity.SENSITIVE or sensitivity is MemorySensitivity.SENSITIVE) and not row['consentSensitive']:
+                raise MemoryError(MemoryErrorCode.SENSITIVE_DENIED)
+            scope=MemoryScope(MemoryScopeKind(row['scope']),wid if row['scope']=='WORKSPACE' else None)
+            moved=scope!=old.scope
+            evidence=MemorySource(source_id=str(uuid4()),memory_id=memory_id,
+                source_class=MemorySourceClass.USER_EXPLICIT_MEMORY,source_timestamp=now,
+                session_id=session_id,operation_id=operation_id)
+            record=replace(old,scope=scope,kind=kind,canonical_text=row['text'],sensitivity_class=sensitivity,
+                source_class=MemorySourceClass.USER_EXPLICIT_MEMORY,sources=old.sources+(evidence,),
+                revision=old.revision+1,updated_at=now,
+                supersedes_memory_id=None if moved else old.supersedes_memory_id,
+                status=MemoryStatus.ACTIVE,conflict_group_id=None)
+            validate_content_limits(record,self.limits)
+            prepared.append((record,old.revision))
+        self.store.edit_explicit(prepared)
+        results=[self._derived_result(dict(memoryId=record.memory_id,revision=record.revision),record=record) for record,_ in prepared]
+        return dict(records=results)
+
     def _derived_result(self,result,*,record=None,deleted=None):
         if self.semantic is None: return result
         try:
@@ -219,6 +296,7 @@ class MemoryService:
             # retry, changed operation outcome or failure disguised as success.
             result.update(embeddingStatus='DEGRADED',embeddingErrorCode=exc.code if isinstance(exc,MemoryError)
                 else MemoryErrorCode.EMBEDDING_UNAVAILABLE.value)
+            self.defer_projection()
         return result
 
     def _view(self,record,include_sensitive):

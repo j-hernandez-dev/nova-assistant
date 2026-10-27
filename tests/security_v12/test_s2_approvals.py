@@ -159,6 +159,13 @@ def test_desktop_sender_and_native_confirmation_are_on_both_ipc_paths():
     source = (root/'desktop/electron/main.ts').read_text(encoding='utf-8')
     assert 'event.sender === mainWindow.webContents' in source
     assert 'event.senderFrame === mainWindow.webContents.mainFrame' in source
-    assert "data.command?.kind === 'ResolveApproval'" in source
-    assert "kind === 'ResolveApproval'" in source and 'dialog.showMessageBox' in source
+    assert "['ResolveApproval','ResolveUserInput','ExecuteCommand'].includes(data.command?.kind)" in source
+    assert "if (kind === 'ResolveApproval')" in source
+    assert "approvalSurface?.reopenPending()" in source
+    surface = (root/'desktop/electron/approval_surface.cjs').read_text(encoding='utf-8')
+    assert 'event.sender === record.window.webContents' in surface
+    assert 'event.senderFrame === record.window.webContents.mainFrame' in surface
+    assert 'payload.nonce !== record.nonce' in surface
+    assert 'if (!currentCapture(record))' in surface
+    assert "client.command('ResolveApproval'" in surface
     assert "crypto.randomBytes(32)" in source

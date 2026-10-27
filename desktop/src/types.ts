@@ -40,6 +40,7 @@ export type Message = {
   completedAt?: string
   deliveryStatus?: 'streaming' | 'completed' | 'cancelled' | 'failed'
   attachmentRefs?: import('../shared/application').AttachmentRef[]
+  sourceContext?: import('../shared/application').SourceContext[]
   knowledgeCitations?:import('../shared/application').KnowledgeCitations
   toolCalls?: ToolCall[]
   toolResults?: ToolResult[]
@@ -67,7 +68,7 @@ export type ProjectState = {
   schemaVersion: 1; defaultPath: string; activePath: string | null
   folders: ProjectFolder[]; busy: boolean; error?: { code: string } | null
 }
-export type ProjectAction = 'add' | 'change' | 'select' | 'remove' | 'open'
+export type ProjectAction = 'add' | 'change' | 'select' | 'remove' | 'open' | 'reset-default'
 export type ProjectActionResult = { success: boolean; canceled?: boolean; state: ProjectState; error?: { code: string } }
 export type ListDirResult =
   | { success: true; root: string; path: string; entries: FileEntry[]; truncated: boolean; nextOffset: number | null; limitReached?: boolean }
@@ -102,7 +103,6 @@ export type PythonMessage = {
   message?: string
   code?: string
   provider?: string
-  has_claude?: boolean
   git_capability?: 'UNAVAILABLE' | 'AVAILABLE_NOT_REPOSITORY' | 'AVAILABLE_REPOSITORY'
   backend_git_capability?: 'UNAVAILABLE' | 'AVAILABLE_NOT_REPOSITORY' | 'AVAILABLE_REPOSITORY'
   has_updates?: boolean
@@ -118,9 +118,21 @@ declare global {
       clearProjectChat: (path?:string) => Promise<{success:boolean;canceled?:boolean;error?:{code:string}}>
       initialDesktopLocale?: 'es' | 'en'
       initialDesktopAppearance?: import('../shared/desktop_appearance').AppearancePreferences
+      initialDesktopSystemDark?: boolean
+      initialDesktopGeneral?: import('../shared/desktop_general').GeneralPreferences
+      initialDesktopShortcuts?: import('../shared/keyboard_shortcuts.cjs').ShortcutBindings | null
       copyMessage: (messageId: string) => Promise<{ success: boolean }>
       getDesktopPreferences: () => Promise<import('../electron/desktop_preferences.cjs').DesktopPreferences>
       setDesktopAppearance: (value: import('../shared/desktop_appearance').AppearancePreferences) => Promise<import('../electron/desktop_preferences.cjs').DesktopPreferencesResult>
+      getModelVisibility:()=>Promise<import('../electron/desktop_model_visibility.cjs').ModelVisibility>
+      setModelVisibility:(value:import('../electron/desktop_model_visibility.cjs').ModelVisibility)=>Promise<import('../electron/desktop_model_visibility.cjs').ModelVisibilityResult>
+      onModelVisibilityChanged:(callback:(value:import('../electron/desktop_model_visibility.cjs').ModelVisibility)=>void)=>()=>void
+      getModelUsage:(range:import('../shared/model_usage').UsageRange,kind?:'llm'|'embedding')=>Promise<import('../shared/model_usage').ModelUsageResult>
+      getDesktopFonts: () => Promise<import('../electron/desktop_fonts.cjs').DesktopFontsResult>
+      onDesktopAppearanceChanged: (callback: (event: {preferences:import('../electron/desktop_preferences.cjs').DesktopPreferences;systemDark:boolean}) => void) => () => void
+      setDesktopGeneral: (value: import('../shared/desktop_general').GeneralPreferences) => Promise<import('../electron/desktop_preferences.cjs').DesktopPreferencesResult>
+      setDesktopShortcuts: (value: import('../shared/keyboard_shortcuts.cjs').ShortcutBindings) => Promise<import('../electron/desktop_preferences.cjs').DesktopPreferencesResult>
+      setShortcutCapture: (active: boolean) => Promise<{success:boolean}>
       refreshReadiness: () => Promise<void>
       retryModelDownloadInventory: () => Promise<{success:boolean}>
       setHistoryVisible: (visible: boolean) => Promise<{ success: boolean }>
@@ -130,8 +142,26 @@ declare global {
         { success: true; preferences: { schemaVersion: 1; locale: 'es' | 'en' } }
         | { success: false; error: { code: string; message: string } }
       >
+      memoryEditSensitivity: (choice:{memoryId:string;revision:number;sensitive:boolean})=>Promise<import('../shared/application').MemoryControlResult>
       memoryCommand: (name: string, args: Record<string, unknown>, commandId?: string) => Promise<import('../shared/application').MemoryControlResult>
+      memoryTransfer: (kind:'import'|'export',includeSensitive?:boolean) => Promise<import('../shared/application').MemoryControlResult>
+      memoryProjectAccess:(projectPath:string,enabled:boolean)=>Promise<import('../shared/application').MemoryControlResult>
       knowledgePick: () => Promise<import('../shared/application').CommandReceipt>
+      sourcesList:()=>Promise<import('../shared/storage').StorageResult<import('../shared/storage').SourceInventory>>
+      sourcePreview:(id:string)=>Promise<import('../shared/storage').StorageResult<import('../shared/storage').SourcePreview>>
+      sourcesMove:(ids:string[],target:string|null)=>Promise<import('../shared/storage').StorageResult<any>>
+      sourcesDelete:(ids:string[])=>Promise<import('../shared/storage').StorageResult<any>>
+      sourcesDownload:(ids:string[])=>Promise<import('../shared/storage').StorageResult<{downloaded:number}>>
+      sourcesPick:()=>Promise<import('../shared/storage').SourceImportResult>
+      sourcesDrop:(files:File[])=>Promise<import('../shared/storage').SourceImportResult>
+      storageOverview: () => Promise<import('../shared/storage').StorageResult<import('../shared/storage').StorageOverview>>
+      storageFiles: (projectPath:string|null) => Promise<import('../shared/storage').StorageResult<{files:import('../shared/storage').StorageFile[]}>>
+      storageMove: (ids:string[],projectPath:string|null) => Promise<import('../shared/storage').StorageResult<any>>
+      storageDownload: (ids:string[])=>Promise<import('../shared/storage').StorageResult<{downloaded:number}>>
+      storageDeleteFiles: (ids:string[]) => Promise<import('../shared/storage').StorageResult<any>>
+      storageOpenFolder: (id:string) => Promise<import('../shared/storage').StorageResult<any>>
+      storageDeleteFolder: (id:string) => Promise<import('../shared/storage').StorageResult<{restartRequired?:boolean}>>
+      storageRestart: () => Promise<import('../shared/storage').StorageResult<any>>
       knowledgeRefresh:(sourceId:string)=>Promise<import('../shared/application').CommandReceipt>
       knowledgeExport:(sourceId:string)=>Promise<import('../shared/application').CommandReceipt>
       knowledgeCommand: (name:string,args:Record<string,unknown>,commandId?:string) => Promise<import('../shared/application').CommandReceipt>
@@ -151,7 +181,6 @@ declare global {
       readFile: (filePath: string) => Promise<ReadFileResult>
       openDirectoryDialog: () => Promise<Electron.OpenDialogReturnValue>
       getHomeDir: () => Promise<string>
-      hasClaudeAccess: () => Promise<boolean>
       getAppVersion: () => Promise<string>
       checkAppUpdate: () => Promise<{
         available: boolean
@@ -166,21 +195,6 @@ declare global {
       onUpdateProgress: (cb: (progress: { stage: string; percent: number; version?: string }) => void) => () => void
       onAutoUpdateStart: (cb: (info: { version: string }) => void) => () => void
       openExternalUrl: (url: string) => Promise<void>
-      getClaudeAuth: () => Promise<{
-        method: string | null
-        keyHint: string | null
-        authenticated: boolean
-      }>
-      saveClaudeKey: (key: string) => Promise<{
-        success: boolean
-        error?: string
-        keyHint?: string
-      }>
-      deleteClaudeAuth: () => Promise<{ success: boolean }>
-      startClaudeOAuth: () => Promise<{
-        success: boolean
-        error?: string
-      }>
     }
   }
 }

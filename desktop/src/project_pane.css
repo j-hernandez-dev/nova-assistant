@@ -1,0 +1,11 @@
+/* Reserve a narrow resize target beside the content's independent scrollbars. */
+.nova-app .nova-project-pane[data-resizable]{position:relative;box-sizing:border-box;width:var(--nova-project-width);flex:0 0 var(--nova-project-width);max-width:var(--nova-project-width);min-width:0;padding-right:8px;transition:none}
+.nova-app .nova-project-pane[data-resizable]>.explorer{width:calc(var(--nova-project-width) - 9px);min-width:calc(var(--nova-project-width) - 9px)}
+.nova-app .nova-project-pane[data-user-sized]:not([data-exiting]){animation:none}
+.nova-app .nova-project-pane[data-resizable][data-exiting]{width:0;flex-basis:0;padding-right:0}
+.nova-project-resize{position:absolute;right:0;top:0;bottom:0;width:8px;cursor:col-resize;touch-action:none;user-select:none;z-index:2;outline:none;-webkit-app-region:no-drag}
+.nova-project-resize::after{content:'';position:absolute;right:0;top:0;bottom:0;width:2px;background:transparent;transition:background-color .15s}
+.nova-project-resize:hover::after,.nova-project-resize:focus-visible::after,.nova-project-pane[data-resizing]>.nova-project-resize::after{background:var(--accent)}
+.nova-project-resize:focus-visible{outline:1px solid var(--accent);outline-offset:-1px}
+:root[data-nova-resizing-projects],:root[data-nova-resizing-projects] *{cursor:col-resize!important;user-select:none!important}
+@media(max-width:768px){.nova-app .nova-project-pane[data-resizable]{position:absolute}}

@@ -1,11 +1,13 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from 'react'
 import type { PythonMessage, ProjectAction, ProjectState } from './types'
 import { recheckBackend } from './backend_recovery'
 import { useSessionView } from './use_session_view'
 import { NovaIcon } from './components/NovaIcon'
 import { QuestionModal } from './components/QuestionModal'
 import { usePresence } from './use_presence'
-import { NovaOrbit } from './components/NovaOrbit'
+import { useShortcuts } from './keyboard_shortcuts'
+import { bindingFromEvent, type ShortcutAction } from '@nova/keyboard-shortcuts'
+import { NovaMascot } from './components/NovaMascot'
 import { ReadinessNotice } from './components/ReadinessNotice'
 import { ModelDownloadNotice } from './components/ModelDownloadNotice'
 import { useI18n } from './i18n'
@@ -20,21 +22,37 @@ import { ModelPicker } from './components/ModelPicker'
 import { ModelSelector } from './components/ModelSelector'
 import { ModelOperations } from './model_operations'
 import { FileExplorer } from './components/FileExplorer'
-import { ProviderSelector } from './components/ProviderSelector'
+import {ProjectPane} from './components/ProjectPane'
+import {PromptSources} from './components/PromptSources'
+import {SourceDropTarget} from './components/SourceDropTarget'
+import {usePromptSources} from './use_prompt_sources'
+import { LLMSettings } from './components/LLMSettings'
+import { EmbeddingSettings } from './components/EmbeddingSettings'
+import { useModelVisibility } from './model_visibility'
 import { FileViewer } from './components/FileViewer'
+import {MemoryItemViewer,SourceItemViewer} from './components/ProjectItemViewer'
+import type {MemoryInspection} from './components/MemoryRecords'
+import type {SourceFile} from '../shared/storage'
 import { SettingsPanel, type SettingsSection } from './components/SettingsPanel'
 import { ChatSettings, type ProjectChat } from './components/ChatSettings'
-import { ContextSettings } from './components/ContextSettings'
-import { WebSettings, ObservedValue, SettingsCode } from './components/WebSettings'
+import { ProjectsSettings } from './components/ProjectsSettings'
+import { WebSettings } from './components/WebSettings'
+import {AboutRuntime} from './components/AboutSettings'
 import { MemorySettings } from './components/MemorySettings'
+import { StorageSettings } from './components/StorageSettings'
+import { SourcesWindow } from './components/SourcesWindow'
+import { MemoryWindow } from './components/MemoryWindow'
 import { KnowledgeSettings } from './components/KnowledgeSettings'
-import { ClaudeLogin } from './components/ClaudeLogin'
+import {useMemoryProposalNotifications} from './use_memory_proposal_notifications'
 
 let reqIdCounter = 0
 function nextId() { return ++reqIdCounter }
 
 export default function App() {
-  const { t, localeError } = useI18n()
+  const { t, localeError, general } = useI18n()
+  const shortcuts = useShortcuts()
+  const modelVisibility = useModelVisibility()
+  const shortcutTitle = (text: string, action: ShortcutAction) => shortcuts.label(action) ? `${text} (${shortcuts.label(action)})` : text
   const [activeView, setActiveView] = useState<'home' | 'history'>('home')
   const view = useSessionView()
   const messages = view?.messages || []
@@ -64,10 +82,10 @@ export default function App() {
     () => { void window.api.refreshReadiness().catch(() => {}) },
   ))
   const [modelState, setModelState] = useState(modelOperations.state)
-  const { catalog, pulling, pullProgress, searchResults, searching, recommendations, systemInfo, updating } = modelState
+  const { catalog, pulling, pullProgress, recommendations, systemInfo, updating } = modelState
   const download = view?.modelDownload || null
   const downloadBusy = !!download && !['failed', 'complete'].includes(download.phase) || !!pulling
-  useEffect(() => { if (downloadBusy) { setShowPicker(false); setShowClaudeLogin(false) } }, [downloadBusy])
+  useEffect(() => { if (downloadBusy) { setShowPicker(false); } }, [downloadBusy])
   useEffect(() => { if (download?.phase === 'complete') modelOperations.refreshCatalog() }, [download?.id, download?.phase, modelOperations])
   const [updateAvailable, setUpdateAvailable] = useState(false)
   const [updateMessage, setUpdateMessage] = useState('')
@@ -75,7 +93,12 @@ export default function App() {
   const [appUpdateResult, setAppUpdateResult] = useState('')
   const [autoUpdateProgress, setAutoUpdateProgress] = useState<{ stage: string; percent: number; version?: string } | null>(null)
   const [explorerOpen, setExplorerOpen] = useState(false)
+  const projectToggleRef=useRef<HTMLButtonElement>(null)
   const [showSettings, setShowSettings] = useState(false)
+  const [showMemories, setShowMemories] = useState(false)
+  const [showSources,setShowSources]=useState(false)
+  const sourcesPresent=usePresence(showSources&&!askReq&&!confirmReq&&!showSettings&&!showPicker&&!showMemories)
+  const memoriesPresent = usePresence(showMemories && !askReq && !confirmReq && !showSettings && !showPicker && !showSources)
   const explorerPresent = usePresence(explorerOpen)
   const pickerPresent = usePresence(showPicker && !askReq && !confirmReq)
   const settingsPresent = usePresence(showSettings && !askReq && !confirmReq)
@@ -83,12 +106,12 @@ export default function App() {
   const [chatsLoading,setChatsLoading]=useState(false)
   const [chatsError,setChatsError]=useState(false)
   const [chatRevision,setChatRevision]=useState(0)
+  const chatsObserved=useRef(false)
   const [settingsSection,setSettingsSection]=useState<SettingsSection>('general')
-  const [showClaudeLogin, setShowClaudeLogin] = useState(false)
-  useEffect(() => { if (confirmReq || askReq) { setShowSettings(false); setShowPicker(false); setShowClaudeLogin(false) } }, [confirmReq?.approvalId, askReq?.inputRequestId])
-  const [claudeAuthMethod, setClaudeAuthMethod] = useState<string | null>(null)
+  useEffect(() => { if (confirmReq || askReq) { setShowSettings(false); setShowPicker(false); setShowSources(false); setShowMemories(false); } }, [confirmReq?.approvalId, askReq?.inputRequestId])
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
-  const [hasClaude, setHasClaude] = useState(false)
+  const [selectedSource,setSelectedSource]=useState<SourceFile|null>(null)
+  const [selectedMemory,setSelectedMemory]=useState<MemoryInspection|null>(null)
   const [projects, setProjects] = useState<ProjectState | null>(null)
   const [projectErrorCode, setProjectErrorCode] = useState<string | null>(null)
   const [projectActionPending, setProjectActionPending] = useState(false)
@@ -97,16 +120,20 @@ export default function App() {
   const projectActionLocked = useRef(false)
   const rootDir = projects?.activePath || null
   const [selectedFileRoot, setSelectedFileRoot] = useState<string | null>(null)
+  const [fileViewerOpen, setFileViewerOpen] = useState(false)
+  const viewerOpen = general.showFiles && fileViewerOpen && !!(selectedFile||selectedSource||selectedMemory) && !!rootDir && sameProjectPath(selectedFileRoot, rootDir)
+  const viewerPresent = usePresence(viewerOpen)
   const [appVersion, setAppVersion] = useState('')
   const [backendGitCapability, setBackendGitCapability] = useState<'UNAVAILABLE' | 'AVAILABLE_NOT_REPOSITORY' | 'AVAILABLE_REPOSITORY' | null>(null)
   const explorerRefreshKey = (view?.fileRevision || 0) + projectPreviewRevision
   const terminalRef = useRef<HTMLDivElement>(null)
   const followOutputRef = useRef(true)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const [selectedSources,setSelectedSources] = useState<string[]>([])
   const [inputText, setInputText] = useState('')
   const [modelSelectionError, setModelSelectionError] = useState(false)
   const [pendingModel, setPendingModel] = useState<string | null>(null)
+  const [embeddingSelectionPending,setEmbeddingSelectionPending]=useState(false)
+  const embeddingSelectionLock=useRef(false)
   const [modelSelectionAccepted, setModelSelectionAccepted] = useState(false)
   const [submitError, setSubmitError] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -121,7 +148,7 @@ export default function App() {
   const [historyViewError, setHistoryViewError] = useState(false)
   const conversation = view?.conversation
   const unreadCount = conversation?.unreadCount || 0
-  const chatTitle = `${t('projectChat')} · ${fileBasename(view?.workspace || rootDir || '')}`
+  const chatTitle = fileBasename(view?.workspace || rootDir || '')
   const visibleChats:ProjectChat[]=(projects?.folders || []).map(folder=>({...folder,
     active:sameProjectPath(folder.path,view?.workspace),hasHistory:chats.find(chat=>sameProjectPath(chat.path,folder.path))?.hasHistory || false,
     messageCount:chats.find(chat=>sameProjectPath(chat.path,folder.path))?.messageCount || 0}))
@@ -132,21 +159,32 @@ export default function App() {
     if(chatWorkspace.current && !sameProjectPath(chatWorkspace.current,view.workspace))setActiveView(view.conversation.hasConversation?'history':'home')
     chatWorkspace.current=view.workspace
   },[view?.workspace,view?.status.ready,view?.conversation.hasConversation])
+  // Host snapshots recreate the folder array even when no paths changed. Only real membership changes reload chats.
+  const projectChatPaths=JSON.stringify((projects?.folders||[]).map(folder=>folder.path))
+  const projectChatsAvailable=!!projects
   useEffect(()=>{
-    if(!showSettings || !status.ready || streaming || downloadBusy)return
-    let active=true;setChatsLoading(true);setChatsError(false)
+    if(!showSettings || settingsSection!=='chat' || !projectChatsAvailable || !status.ready || streaming || downloadBusy)return
+    let active=true;setChatsLoading(!chatsObserved.current);setChatsError(false)
     void window.api.getProjectChats().then(result=>{
       if(!active)return
       if(!result.success || !Array.isArray(result.chats)){setChatsError(true);return}
-      setChats(result.chats.filter(chat=>typeof chat.path==='string' && typeof chat.hasHistory==='boolean' && Number.isInteger(chat.messageCount)))
+      const next=result.chats.filter(chat=>typeof chat.path==='string' && typeof chat.hasHistory==='boolean' && Number.isInteger(chat.messageCount))
+      chatsObserved.current=true
+      setChats(previous=>previous.length===next.length && previous.every((chat,index)=>chat.path===next[index].path && chat.hasHistory===next[index].hasHistory && chat.messageCount===next[index].messageCount)?previous:next)
     }).catch(()=>{if(active)setChatsError(true)}).finally(()=>{if(active)setChatsLoading(false)})
     return()=>{active=false}
-  },[showSettings,status.ready,streaming,downloadBusy,view?.workspace,projects?.folders,chatRevision])
+  },[showSettings,settingsSection,projectChatsAvailable,status.ready,streaming,downloadBusy,view?.sessionId,view?.workspace,projectChatPaths,chatRevision])
   const readiness = view?.readiness
   const readinessReason = readiness ? readiness.reason : (status.connected ? 'CHECKING' : 'BACKEND_DISCONNECTED')
-  const installedModels = readiness?.installedModels.map(model => model.name) || []
+  const installedModels = useMemo(() => readiness?.installedModels.map(model => model.name) || [], [readiness?.installedModels])
+  const llmModels = useMemo(()=>readiness?.installedModels.filter(model=>model.kind==='llm').map(model=>model.name)||[],[readiness?.installedModels])
+  const embeddingModels = useMemo(()=>readiness?.installedModels.filter(model=>model.kind==='embedding')||[],[readiness?.installedModels])
+  const visibleModels = useMemo(() => llmModels.filter(model => !modelVisibility.hiddenModels.includes(model)), [llmModels,modelVisibility.hiddenModels])
+  const promptModelReady = status.provider !== 'ollama' || modelVisibility.ready && visibleModels.includes(status.model)
   const loadingInstalledModels = readinessReason === 'CHECKING' && installedModels.length === 0
   const systemReady = !!readiness?.ready && status.connected && !pendingModel && !downloadBusy
+  const responseDelayed = systemReady && view?.error?.code === 'OLLAMA_RESPONSE_TIMEOUT'
+  const readinessOwnsError = responseDelayed || !systemReady && ['OLLAMA_CONNECTION_FAILED', 'OLLAMA_CONNECT_TIMEOUT', 'OLLAMA_MODEL_UNAVAILABLE'].includes(view?.error?.code || '')
 
   useEffect(() => modelOperations.subscribe(setModelState), [modelOperations])
   useEffect(() => () => modelOperations.dispose(), [modelOperations])
@@ -228,7 +266,19 @@ export default function App() {
     })()
     return () => { projectRequestRevision.current += 1 }
   }, [view?.workspace])
-  useEffect(() => { setSelectedFile(null); setSelectedFileRoot(null) }, [rootDir])
+  const clearProjectPreview=useCallback(()=>{
+    setFileViewerOpen(false);setSelectedFile(null);setSelectedSource(null);setSelectedMemory(null);setSelectedFileRoot(null)
+  },[])
+  useEffect(clearProjectPreview, [rootDir, general.showFiles,view?.sessionId,view?.status.connected,clearProjectPreview])
+  const managementOpen=showMemories||showSources||showSettings
+  const proposalNotifications=useMemoryProposalNotifications(view,showMemories,managementOpen||showPicker||downloadBusy||projectActionPending||!!projects?.busy)
+  const promptSources=usePromptSources(view,rootDir,downloadBusy||projectActionPending||!!projects?.busy||streaming||submitting||showPicker||!!askReq||!!confirmReq,
+    ()=>{setProjectPreviewRevision(value=>value+1);if(general.showFiles)setExplorerOpen(true)})
+  const managementWasOpen=useRef(managementOpen)
+  useEffect(()=>{
+    if(managementWasOpen.current&&!managementOpen){clearProjectPreview();setProjectPreviewRevision(revision=>revision+1)}
+    managementWasOpen.current=managementOpen
+  },[managementOpen,clearProjectPreview])
   useEffect(() => {
     if (typeof window.api.onProjectsChanged !== 'function') return
     return window.api.onProjectsChanged(state => {
@@ -243,13 +293,7 @@ export default function App() {
   useEffect(() => {
     if (!window.api) return
     window.api.getAppVersion().then(setAppVersion)
-    window.api.hasClaudeAccess().then(setHasClaude)
-    window.api.getClaudeAuth().then(auth => {
-      if (auth.authenticated) {
-        setHasClaude(true)
-        setClaudeAuthMethod(auth.method)
-      }
-    })
+
   }, [])
 
   // Listen for auto-update events from main process.
@@ -262,34 +306,6 @@ export default function App() {
       setAutoUpdateProgress(progress)
     })
     return () => { cleanupStart(); cleanupProgress() }
-  }, [])
-
-  // Cmd/Ctrl+, keyboard shortcut for settings.
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === ',') {
-        if (document.querySelector('.nova-question-pending')) return
-        e.preventDefault()
-        setShowPicker(false)
-        setShowClaudeLogin(false)
-        setSettingsSection('general'); setShowSettings(prev => !prev)
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [])
-
-  // Cmd/Ctrl+B keyboard shortcut to toggle file explorer.
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-        if (document.querySelector('.nova-question-pending')) return
-        e.preventDefault()
-        setExplorerOpen(prev => !prev)
-      }
-    }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
   }, [])
 
   const handleTerminalClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
@@ -313,10 +329,7 @@ export default function App() {
       switch (msg.type) {
         case 'ready':
           setBackendGitCapability(msg.backend_git_capability || null)
-          // Read has_claude from ready message.
-          if (msg.has_claude !== undefined) {
-            setHasClaude(!!msg.has_claude)
-          }
+
           modelOperations.backendReady()
           break
 
@@ -329,9 +342,7 @@ export default function App() {
           setAppUpdating(true)
           break
 
-        case 'api_key_set':
-          setHasClaude(!!(msg as any).has_claude)
-          break
+
 
         case 'update_done': {
           setAppUpdating(false)
@@ -355,21 +366,23 @@ export default function App() {
   }, [modelOperations])
 
   const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || !systemReady || streaming || submittingRef.current) return
+    if (!text.trim() || !systemReady || !promptModelReady || streaming || submittingRef.current) return
     submittingRef.current = true
     setSubmitting(true)
     setSubmitError(false)
-    const attachmentRefs=(view?.knowledge?.attachmentRefs || []).filter(r => selectedSources.includes(r.sourceId))
+    if(promptSources.uploading||!promptSources.selectionReady){submittingRef.current=false;setSubmitting(false);return}
+    const attachmentRefs=promptSources.attachmentRefs
     try {
       const receipt = await window.api.applicationCommand('SubmitUserInput', { content: text, attachmentRefs })
       if (receipt.accepted) {
-        setSelectedSources([])
+        if (general.autoSwitchView) setActiveView('history')
+        promptSources.clear()
         setSentFeedback({ id: ++sendFeedbackRevision.current, text: inputRef.current?.value === text ? text : '' })
         setInputText(current => current === text ? '' : current)
       } else setSubmitError(true)
     } catch { setSubmitError(true) }
     finally { submittingRef.current = false; setSubmitting(false) }
-  }, [view?.knowledge?.attachmentRefs,selectedSources,systemReady,streaming])
+  }, [promptSources,systemReady,promptModelReady,streaming,general.autoSwitchView])
 
   const handleStop = useCallback(() => {
     if (view?.activeTurnId) void window.api.applicationCommand('CancelTurn', { turnId: view.activeTurnId })
@@ -386,13 +399,17 @@ export default function App() {
     // Ignore key events during IME composition (e.g. Japanese input).
     if (e.nativeEvent.isComposing || e.keyCode === 229) return
 
-    if (e.key === 'Escape' && streaming) {
+    const binding = bindingFromEvent(e.nativeEvent, shortcuts.mac)
+    if (binding && binding === shortcuts.bindings.newLine) {
       e.preventDefault()
-      handleStop()
+      const field = e.currentTarget, start = field.selectionStart, end = field.selectionEnd
+      setInputText(text => text.slice(0, start) + '\n' + text.slice(end))
+      requestAnimationFrame(() => field.setSelectionRange(start + 1, start + 1))
       return
     }
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (binding && binding === shortcuts.bindings.sendMessage) {
       e.preventDefault()
+      if (e.repeat) return
       if (streaming) {
         // Stop current stream first; user can then send their message.
         handleStop()
@@ -400,7 +417,7 @@ export default function App() {
       }
       void sendMessage(inputText)
     }
-  }, [inputText, sendMessage, streaming, handleStop])
+  }, [inputText, sendMessage, streaming, handleStop, shortcuts.bindings, shortcuts.mac])
 
   const handleModelSelect = useCallback(async (model: string) => {
     if (downloadBusy || streaming || pendingModel || !status.ready) return
@@ -423,6 +440,21 @@ export default function App() {
     }
   }, [downloadBusy,streaming,pendingModel,status.ready,status.model])
 
+  const visibilitySelectionAttempt = useRef<string|null>(null)
+  useEffect(() => {
+    const hidden = status.provider === 'ollama' && modelVisibility.ready && (modelVisibility.hiddenModels.includes(status.model) || readiness?.installedModels.some(model=>model.name===status.model&&model.kind==='embedding'))
+    if (!hidden) { visibilitySelectionAttempt.current = null; return }
+    // Finish the pinned turn before changing its model. Retry only after the choices or session change.
+    if (!visibleModels.length || !status.ready || modelVisibility.busy || downloadBusy || streaming || pendingModel ||
+        projectActionPending || projects?.busy || view?.recovering || view?.activeTurnId || view?.activeGenerationId || askReq || confirmReq) return
+    const attempt = JSON.stringify([view?.sessionId,view?.workspace,status.model,visibleModels])
+    if (visibilitySelectionAttempt.current === attempt) return
+    visibilitySelectionAttempt.current = attempt
+    void handleModelSelect(visibleModels[0])
+  }, [status.provider,status.model,status.ready,modelVisibility.ready,modelVisibility.hiddenModels,modelVisibility.busy,visibleModels,
+      downloadBusy,streaming,pendingModel,projectActionPending,projects?.busy,view?.sessionId,view?.workspace,view?.recovering,
+      view?.activeTurnId,view?.activeGenerationId,askReq,confirmReq,handleModelSelect])
+
   const handlePull = useCallback((model: string) => {
     if (downloadBusy || streaming || projectActionPending || pendingModel || !status.ready) return
     if (modelOperations.pull(model)) setShowPicker(false)
@@ -430,10 +462,6 @@ export default function App() {
 
   const handleUpdateCatalog = useCallback(() => {
     modelOperations.sync()
-  }, [modelOperations])
-
-  const handleSearch = useCallback((query: string, sort: string, capability: string) => {
-    modelOperations.search(query, sort, capability)
   }, [modelOperations])
 
   const handleDelete = useCallback((model: string) => {
@@ -444,7 +472,7 @@ export default function App() {
     modelOperations.recommend()
   }, [modelOperations])
 
-  const handleClearHistory = useCallback(async (path?:string) => {
+  const handleClearHistory = useCallback(async (path:string) => {
     const result = await window.api.clearProjectChat(path)
     if(result.success)setChatRevision(revision=>revision+1)
     return result
@@ -456,19 +484,11 @@ export default function App() {
     window.api.sendToPython({ id: nextId(), type: 'do_update' })
   }, [])
 
-  const handleProviderSwitch = useCallback((provider: string) => {
-    if (downloadBusy || streaming || pendingModel || !status.ready) return
-    setModelSelectionError(false)
-    void window.api.applicationCommand('ChangeProvider', { providerId: provider }).then(receipt => {
-      if (!receipt.accepted) setModelSelectionError(true)
-    }).catch(() => setModelSelectionError(true))
-  }, [downloadBusy,streaming,pendingModel,status.ready])
-
   const openReadinessConfiguration = useCallback(() => {
     if (downloadBusy) return
     if (readiness?.requiredAction === 'SELECT_MODEL') {
       setShowSettings(false)
-      setShowClaudeLogin(false)
+
       refreshCatalog()
       setShowPicker(true)
     } else if (readiness?.requiredAction === 'CONFIGURE_PROVIDER') {
@@ -477,13 +497,24 @@ export default function App() {
   }, [downloadBusy,readiness?.requiredAction,refreshCatalog])
 
   const handleFileSelect = useCallback((path: string) => {
-    if (!rootDir) return
+    if (!rootDir || !general.showFiles) return
     setSelectedFileRoot(rootDir)
     setSelectedFile(path)
-  }, [rootDir])
+    setSelectedSource(null);setSelectedMemory(null)
+    setFileViewerOpen(true)
+  }, [rootDir, general.showFiles])
+
+  const handleSourceSelect=useCallback((source:SourceFile)=>{
+    if(!rootDir||!general.showFiles||!sameProjectPath(source.projectPath,rootDir))return
+    setSelectedFileRoot(rootDir);setSelectedFile(null);setSelectedMemory(null);setSelectedSource(source);setFileViewerOpen(true)
+  },[rootDir,general.showFiles])
+  const handleMemorySelect=useCallback((record:MemoryInspection)=>{
+    if(!rootDir||!general.showFiles)return
+    setSelectedFileRoot(rootDir);setSelectedFile(null);setSelectedSource(null);setSelectedMemory(record);setFileViewerOpen(true)
+  },[rootDir,general.showFiles])
 
   const handleProjectAction = useCallback(async (action: ProjectAction, path?: string) => {
-    if (downloadBusy || projectActionLocked.current) return
+    if (downloadBusy || projectActionLocked.current || promptSources.uploading) return
     projectActionLocked.current = true
     setProjectActionPending(true)
     setProjectErrorCode(null)
@@ -503,7 +534,44 @@ export default function App() {
       // was open. Refresh reads once after settlement, including cancellation.
       setProjectPreviewRevision(revision => revision + 1)
     }
-  }, [downloadBusy])
+    }, [downloadBusy,promptSources.uploading])
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.isComposing || event.keyCode === 229 || askReq || confirmReq) return
+      const binding = bindingFromEvent(event, shortcuts.mac)
+      if (!binding) return
+      const action = (Object.keys(shortcuts.bindings) as ShortcutAction[]).find(id => shortcuts.bindings[id] === binding)
+      if (!action || action === 'sendMessage' || action === 'newLine') return
+      // Other dialogs and text inputs keep their own navigation and key behavior.
+      if ((showPicker || showSettings || document.querySelector('[role="dialog"]')) && action !== 'settings') return
+      event.preventDefault()
+      if (event.repeat) return
+      switch (action) {
+        case 'settings':
+          setShowSources(false); setShowMemories(false); setShowPicker(false); setSettingsSection('general'); setShowSettings(value => !value); break
+        case 'projects': setExplorerOpen(value => !value); break
+        case 'sources':
+          if (status.ready) { setShowMemories(false); setShowPicker(false); setShowSettings(false); setShowSources(true) } break
+        case 'memories':
+          if (status.ready) { setShowSources(false); setShowPicker(false); setShowSettings(false); setShowMemories(true) } break
+        case 'models':
+          if (status.ready && !downloadBusy) { setShowSources(false); setShowMemories(false); refreshCatalog(); setShowPicker(true) } break
+        case 'focusPrompt': inputRef.current?.focus(); break
+        case 'toggleHistory': if (conversation?.hasConversation) setActiveView(value => value === 'home' ? 'history' : 'home'); break
+        case 'showHome': setActiveView('home'); break
+        case 'stopGeneration': if (streaming) handleStop(); break
+        case 'closePreview': setFileViewerOpen(false); break
+        case 'addProject':
+          if (!downloadBusy && !projectActionPending && !streaming) void handleProjectAction('add'); break
+        case 'attachFile':
+          if(promptSources.canImport)void promptSources.acquire();break
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [shortcuts.bindings, shortcuts.mac, askReq, confirmReq, showPicker, showSettings, downloadBusy,
+      refreshCatalog, conversation?.hasConversation, streaming, handleStop, projectActionPending, handleProjectAction, status.ready, promptSources])
 
   useLayoutEffect(() => { if (inputRef.current) resizePrompt(inputRef.current) }, [inputText, t])
   useEffect(() => {
@@ -521,39 +589,56 @@ export default function App() {
   return (
     <div className="app nova-app">
       <nav className="nova-rail" aria-label="Nova">
-        <button className={`nova-nav-button ${explorerOpen ? 'active' : ''}`}
-          title={`${t('projects')} (Ctrl+B)`} aria-label={t('projects')} aria-expanded={explorerOpen}
+        <button ref={projectToggleRef} className={`nova-nav-button ${explorerOpen ? 'active' : ''}`} aria-controls="nova-project-pane"
+          title={shortcutTitle(t('projects'), 'projects')} aria-label={t('projects')} aria-expanded={explorerOpen}
           onClick={() => setExplorerOpen(v => !v)}><NovaIcon name="folder" size={28} /></button>
+        <button className={'nova-nav-button '+(showSources?'active':'')} data-open-sources
+          title={shortcutTitle(t('sources'),'sources')} aria-label={t('sources')} aria-haspopup="dialog"
+          onClick={()=>{setShowMemories(false);setShowPicker(false);setShowSettings(false);setShowSources(true)}}><NovaIcon name="search" size={28}/></button>
+        <button className={'nova-nav-button '+(showMemories?'active':'')} data-open-memories
+          title={shortcutTitle(t('memoryRecords'),'memories')} aria-label={proposalNotifications.counts.window?`${t('memoryRecords')}: ${proposalNotifications.counts.window} ${t('memoriesUnreadProposals')}`:t('memoryRecords')} aria-haspopup="dialog"
+          onClick={()=>{setShowSources(false);setShowPicker(false);setShowSettings(false);setShowMemories(true)}}>
+          <NovaIcon name="memories" size={28}/>{proposalNotifications.counts.window>0&&<span className="nova-unread-badge" data-memory-notification="window" aria-hidden="true">{proposalNotifications.counts.window>99?'99+':proposalNotifications.counts.window}</span>}</button>
         <button className={`nova-nav-button ${showPicker ? 'active' : ''}`}
-          title={downloadBusy ? t('modelDownloadBusy') : t('models')} aria-label={t('models')} aria-haspopup="dialog" disabled={downloadBusy}
-          onClick={() => { setShowSettings(false); setShowClaudeLogin(false); refreshCatalog(); setShowPicker(true) }}>
+          title={downloadBusy ? t('modelDownloadBusy') : shortcutTitle(t('models'),'models')} aria-label={t('models')} aria-haspopup="dialog" disabled={downloadBusy}
+          onClick={() => { setShowSources(false); setShowMemories(false); setShowSettings(false); refreshCatalog(); setShowPicker(true) }}>
           <NovaIcon name="brain" size={28} /></button>
         <div className="nova-rail-spacer" />
         <button className={`nova-nav-button ${showSettings ? 'active' : ''}`}
-          title={`${t('settings')} (Ctrl+,)`} aria-label={t('settings')} aria-haspopup="dialog"
-          onClick={() => { setShowPicker(false); setShowClaudeLogin(false); setSettingsSection('general'); setShowSettings(true) }}>
+          title={shortcutTitle(t('settings'), 'settings')} aria-label={t('settings')} aria-haspopup="dialog"
+          onClick={() => { setShowSources(false); setShowMemories(false); setShowPicker(false); setSettingsSection('general'); setShowSettings(true) }}>
           <NovaIcon name="settings" size={28} /></button>
       </nav>
 
       <div className="nova-workspace">
         <div className="nova-main">
         {explorerPresent && (
-          <aside className="explorer-pane nova-project-pane" data-exiting={!explorerOpen || undefined}
-            inert={!explorerOpen} aria-hidden={!explorerOpen || undefined} aria-label={t('projects')}>
+          <ProjectPane open={explorerOpen} onCollapse={()=>setExplorerOpen(false)} toggleRef={projectToggleRef}>
             <FileExplorer
               projects={projects}
-              busy={downloadBusy || projectActionPending || streaming || !!view?.approvals.length || !!view?.inputs.length}
+              showFiles={general.showFiles}
+              busy={downloadBusy || projectActionPending || promptSources.uploading || streaming || managementOpen || !!view?.approvals.length || !!view?.inputs.length}
               errorCode={projectErrorCode}
               onFileSelect={handleFileSelect}
+              view={view}
+              onSourceSelect={handleSourceSelect}
+              selectedSourceIds={promptSources.selected.map(source=>source.id)}
+              sourcePanelRevision={promptSources.panelRevision}
+              onSourceChoose={promptSources.choose}
+              onMemorySelect={handleMemorySelect}
+              onPreviewClear={clearProjectPreview}
               onProjectAction={handleProjectAction}
               refreshKey={explorerRefreshKey}
             />
-          </aside>
+          </ProjectPane>
         )}
 
-        <main className="chat-pane" aria-label={activeView === 'home' ? t('home') : chatTitle}>
+        <SourceDropTarget disabled={!promptSources.canImport||managementOpen} onFiles={files=>void promptSources.acquire(files)} label={activeView === 'home' ? t('home') : chatTitle}>
+          {activeView === 'home' && <div className="nova-home-scene nova-view-enter" aria-hidden="true"><NovaMascot /></div>}
           <header className="nova-header">
-            <div className="nova-history-title">{activeView === 'history' ? chatTitle : ''}</div>
+            <div className="nova-history-title">{activeView === 'history' && <>
+              <NovaIcon name="chat" strokeWidth={1.6} /><span>{chatTitle}</span>
+            </>}</div>
             <div className="nova-header-actions">
               {conversation?.hasConversation && <button className="nova-icon-button nova-history-button" title={activeView === 'home' ? t('openProjectChat') : t('home')}
                 aria-label={activeView === 'home' && unreadCount > 0
@@ -572,7 +657,6 @@ export default function App() {
 
           {activeView === 'home' ? (
             <div key="home" className="nova-home nova-view-enter">
-              <NovaOrbit />
               {latestGroup && (streaming || latestGroup.activities.length > 0) && <section className="nova-home-activity" aria-label={t('activity')}>
                 <ConversationTurn key={latestGroup.id} group={latestGroup} activeTurnId={view?.activeTurnId} compact
                   approvalToolCallIds={approvalToolCallIds} />
@@ -594,7 +678,7 @@ export default function App() {
           <div className="nova-composer-area">
             {(historyViewError || conversation?.preferenceError) && <div className="nova-history-notice" role="status">{t('historyStateSaveFailed')}</div>}
             <ModelDownloadNotice download={download} onRetry={() => void window.api.retryModelDownloadInventory()} />
-            {(!downloadBusy || !status.connected) && <ReadinessNotice ready={systemReady} reason={readinessReason}
+            {(!downloadBusy || !status.connected) && <ReadinessNotice responseDelayed={responseDelayed} ready={systemReady} reason={readinessReason}
               requiredAction={readiness?.requiredAction || null} modelChanging={!!pendingModel}
               onConfigure={openReadinessConfiguration} onRecheck={() => recheckBackend(status.connected, window.api)}
               />}
@@ -602,7 +686,7 @@ export default function App() {
             {modelSelectionError && !showPicker && <div className="confirm-bar" role="alert">{t('modelChangeFailed')}</div>}
             {submitError && <div className="confirm-bar" role="alert">{t('submitFailed')}</div>}
             {view?.modelPreferenceError && <div className="confirm-bar" role="alert">{t('modelPreferenceSaveFailed')}</div>}
-            {view?.error && !errorHasActivity && view.error.code !== 'MODEL_SELECTION_NOT_CONFIRMED'
+            {view?.error && !errorHasActivity && !readinessOwnsError && view.error.code !== 'MODEL_SELECTION_NOT_CONFIRMED'
               && !(modelSelectionError && ['MODEL_UNAVAILABLE', 'INVALID_MODEL', 'INVALID_MODEL_INFO',
                 'PROVIDER_UNAVAILABLE', 'PROVIDER_VALIDATION_FAILED', 'CONFLICT_ACTIVE_TURN'].includes(view.error.code)) && <div className="confirm-bar" role="alert">
               <div><span>{t(applicationErrorKey(view.error.code))}</span>
@@ -610,7 +694,6 @@ export default function App() {
               </div>
             </div>}
             {view?.gap && <div className="resume-bar" role="status">{t('eventGap')}</div>}
-            {view?.memoryNotice && <div className="resume-bar" role="status">{t('settingsMemoryRemoteNotice')}</div>}
 
             {confirmReq && <div className="nova-permission-pending" role="status">
               <span>{t('activityAwaitingPermission')}</span>
@@ -619,11 +702,18 @@ export default function App() {
             {confirmReq && approvalReviewError && <p className="nova-permission-error" role="alert">{t('reviewPermissionFailed')}</p>}
             {askReq && <QuestionModal key={`${view?.sessionId}:${askReq.inputRequestId}`} />}
 
+            {promptSources.uploading&&<p className="nova-source-import-feedback" role="status">{t('sourcesWorking')}</p>}
+            {promptSources.error&&<div className="nova-source-import-feedback" data-error role="alert">
+              <p>{t(promptSources.error==='SOURCE_SELECTION_UNAVAILABLE'?'promptSourcesSelectionFailed':promptSources.error.includes('UNKNOWN')?'sourcesUnknown':'sourcesError')}</p>
+              {promptSources.imported>0&&<p>{t('sourcesPartialImport')}: {promptSources.imported}</p>}
+              <details><summary>{t('diagnosticDetails')}</summary><code>{promptSources.error}</code></details>
+            </div>}
+            <PromptSources sources={promptSources.selected} disabled={submitting} onRemove={promptSources.remove}/>
             <div className="nova-composer" data-submitting={submitting || undefined} data-sent={!!sentFeedback || undefined}>
               <button className="nova-attach-button" aria-label={t('attach')}
                 title={view?.knowledge?.hostAcquisition ? t('attach') : t('attachmentsUnavailable')}
-                disabled={downloadBusy || !status.ready || streaming || !view?.knowledge?.hostAcquisition}
-                onClick={() => void window.api.knowledgePick()}><NovaIcon name="plus" /></button>
+                disabled={!promptSources.canImport||managementOpen}
+                onClick={() => void promptSources.acquire()}><NovaIcon name="plus" /></button>
               <div className="nova-prompt-field" data-sent={(!inputText && !!sentFeedback) || undefined}>
               <textarea ref={inputRef} className="input-field nova-input" value={inputText}
                 onChange={e => setInputText(e.target.value)} onKeyDown={handleKeyDown}
@@ -631,95 +721,89 @@ export default function App() {
                 aria-label={t('promptPlaceholder')} rows={1} />
               {sentFeedback?.text && !inputText && <div className="nova-prompt-sent" key={sentFeedback.id} aria-hidden="true">{sentFeedback.text}</div>}
               </div>
-              <ModelSelector models={installedModels} current={status.model} onSelect={handleModelSelect}
+              <ModelSelector models={visibleModels} current={promptModelReady ? status.model : ''} onSelect={handleModelSelect}
                 title={status.provider === 'ollama' ? t('installedOllamaModels') : t('ollamaModelSelectorUnavailable')}
-                disabled={downloadBusy || streaming || !!pendingModel || !status.ready || status.provider !== 'ollama' || showSettings || showPicker || !!askReq || !!confirmReq}
+                disabled={downloadBusy || streaming || !!pendingModel || !status.ready || status.provider !== 'ollama' || showSettings || showPicker || showMemories || showSources || !!askReq || !!confirmReq}
                 placeholder={status.provider !== 'ollama' ? t('ollamaModelSelectorUnavailable')
-                  : loadingInstalledModels ? t('loadingInstalledModels') : installedModels.length ? t('selectModel') : t('noInstalledModels')} />
+                  : loadingInstalledModels ? t('loadingInstalledModels') : !visibleModels.length && installedModels.length ? t('llmNoEnabledModels') : installedModels.length ? t('selectModel') : t('noInstalledModels')} />
               <button className="nova-send-button" aria-label={streaming ? t('stop') : t('send')}
-                title={streaming ? t('stop') : t('send')} disabled={streaming ? !status.ready : !systemReady || submitting || !inputText.trim()}
+                title={streaming ? t('stop') : t('send')} disabled={streaming ? !status.ready : !systemReady || !promptModelReady || submitting || promptSources.uploading || !promptSources.selectionReady || !inputText.trim()}
                 onClick={() => { if (streaming) handleStop(); else void sendMessage(inputText) }}>
                 <NovaIcon name={streaming ? 'stop' : 'send'} /></button>
             </div>
-            <div className="nova-composer-hint"><span role={sentFeedback ? 'status' : undefined} className={sentFeedback ? 'nova-send-feedback' : undefined}>
-              {sentFeedback && <NovaIcon name="check" size={14} />}{t(sentFeedback ? 'messageSent' : 'composerHint')}</span>
-            </div>
+
 
 
           </div>
-        </main>
+        </SourceDropTarget>
 
-        {selectedFile && rootDir && sameProjectPath(selectedFileRoot, rootDir) && <div className="viewer-pane"><FileViewer key={`${rootDir}:${selectedFile}`} filePath={selectedFile} rootDir={rootDir} refreshKey={explorerRefreshKey} onClose={() => setSelectedFile(null)} /></div>}
+        {viewerPresent && rootDir && sameProjectPath(selectedFileRoot, rootDir) && (
+          <div className="viewer-pane" data-exiting={!viewerOpen || undefined}
+            inert={!viewerOpen} aria-hidden={!viewerOpen || undefined}>
+            {selectedMemory?<MemoryItemViewer record={selectedMemory} onClose={()=>setFileViewerOpen(false)}/>
+              :selectedSource?<SourceItemViewer key={`${rootDir}:${selectedSource.id}`} source={selectedSource} rootDir={rootDir} onClose={()=>setFileViewerOpen(false)}/>
+              :selectedFile?<FileViewer key={`${rootDir}:${selectedFile}`} filePath={selectedFile} rootDir={rootDir}
+                refreshKey={explorerRefreshKey} onClose={() => setFileViewerOpen(false)} />:null}
+          </div>
+        )}
         </div>
       </div>
 
-      {pickerPresent && (
-        <ModelPicker open={showPicker && !askReq && !confirmReq} catalog={catalog} searchResults={searchResults} current={status.model}
-          onSelect={handleModelSelect} onPull={handlePull} onDelete={handleDelete} onSearch={handleSearch}
+      {pickerPresent && !showSettings && !showMemories && !showSources && (
+        <ModelPicker open={showPicker && !askReq && !confirmReq} catalog={catalog} current={status.model}
+          library={modelOperations.library} embeddingCurrent={view?.embedding?.selectedModel}
+          embeddingModels={readiness?.installedModels.filter(model=>model.kind==='embedding').map(model=>model.name)}
+          onSelectEmbedding={async model=>{
+            if(!view?.embedding||downloadBusy||streaming||projectActionPending||pendingModel||!status.ready||embeddingSelectionLock.current)return
+            embeddingSelectionLock.current=true;setEmbeddingSelectionPending(true)
+            setModelSelectionError(false)
+            try{
+              const receipt=await window.api.applicationCommand('SetEmbeddingSettings',{modelId:model,
+                requestedTokens:view.embedding.requestedTokens,enabledModels:[...new Set([...view.embedding.enabledModels,model])]})
+              if(receipt.accepted)setShowPicker(false);else setModelSelectionError(true)
+            }catch{setModelSelectionError(true)}finally{embeddingSelectionLock.current=false;setEmbeddingSelectionPending(false)}
+          }}
+          onSelect={handleModelSelect} onPull={handlePull} onDelete={handleDelete}
           onUpdate={handleUpdateCatalog} onClose={() => setShowPicker(false)} pulling={pulling}
-          pullProgress={pullProgress} searching={searching} updating={updating} recommendations={recommendations}
+          pullProgress={pullProgress} updating={updating} recommendations={recommendations}
            systemInfo={systemInfo} onRequestRecommend={handleRecommend} selectionError={modelSelectionError}
-           selectionPending={!!pendingModel} actionsDisabled={downloadBusy || streaming || projectActionPending || !status.ready}
+           selectionPending={!!pendingModel||embeddingSelectionPending} actionsDisabled={downloadBusy || streaming || projectActionPending || !status.ready}
            catalogLoading={modelState.catalogLoading} catalogError={modelState.catalogError}
-           searchError={modelState.searchError} recommendError={modelState.recommendError}
+           recommendError={modelState.recommendError}
+           recommendationStatus={modelState.recommendationStatus}
            recommending={modelState.recommending} operationError={modelState.operationError}
            operationNotice={modelState.operationNotice} deleting={modelState.deleting}
            operationUnconfirmed={modelState.mutationUnconfirmed} onRefreshCatalog={refreshCatalog}
            installedModels={readiness?.observedAt && !['OLLAMA_UNAVAILABLE', 'READINESS_CHECK_FAILED', 'READINESS_STALE', 'CHECKING'].includes(readiness.reason || '') ? installedModels : undefined} />
       )}
 
-      {settingsPresent && (
+      {sourcesPresent && !showSettings && !showPicker && !showMemories && <SourcesWindow key={`sources:${view?.sessionId}:${rootDir}`} view={view} open={showSources&&!askReq&&!confirmReq}
+        locked={downloadBusy||projectActionPending||!!projects?.busy} projectRevision={JSON.stringify(projects?.folders.map(folder=>[folder.path,folder.name])||[])}
+        onAcquire={promptSources.acquire} onImported={promptSources.selectImported} onClose={()=>setShowSources(false)}/>}
+
+      {memoriesPresent && !showSettings && !showPicker && !showSources && <MemoryWindow view={view} open={showMemories&&!askReq&&!confirmReq}
+        proposalNotifications={proposalNotifications}
+        locked={downloadBusy||projectActionPending||!!projects?.busy} onClose={()=>setShowMemories(false)}/>}
+
+      {settingsPresent && !showPicker && !showMemories && !showSources && (
         <SettingsPanel backendLocked={downloadBusy} open={showSettings && !askReq && !confirmReq} onClose={() => setShowSettings(false)} initialSection={settingsSection}
           chat={<ChatSettings disabled={downloadBusy || !status.ready || !!view?.recovering || streaming || !!view?.activeGenerationId || !!view?.approvals.length || !!view?.inputs.length || projectActionPending || !!projects?.busy}
             chats={visibleChats} loading={chatsLoading} error={chatsError} onClear={handleClearHistory}
             onOpen={path=>{setShowSettings(false);if(sameProjectPath(path,view?.workspace))setActiveView(conversation?.hasConversation?'history':'home');else void handleProjectAction('select',path)}} />}
-          connection={<>
-            <section className="nova-settings-card">
-              <ObservedValue label={t('settingsCurrentProvider')} value={status.provider || t('settingsUnknown')} />
-              <ObservedValue label={t('settingsCurrentModel')} value={status.model || t('settingsUnknown')} />
-              <ObservedValue label={t(status.provider==='ollama'?'settingsOllama':'settingsObserved')} value={t(readiness?.ready ? 'systemReady' : 'systemNotReady')} />
-              {!readiness?.ready && <p className="settings-hint">{t('finishSetup')}</p>}
-              {readiness?.reason && <SettingsCode code={readiness.reason} />}
-              <div className="settings-control-actions">
-                <button className="settings-check-btn" disabled={downloadBusy} onClick={() => { setShowSettings(false); refreshCatalog(); setShowPicker(true) }}>{t('settingsOpenModels')}</button>
-              </div>
-            </section>
-            <ContextSettings view={view} />
-            <details className="nova-settings-card"><summary>{t('settingsAdvancedProvider')}</summary>
-              <ProviderSelector currentProvider={status.provider} hasClaude={hasClaude}
-                disabled={downloadBusy || streaming || !!pendingModel || !status.ready} onSwitch={handleProviderSwitch}
-                onLoginRequest={() => { setShowPicker(false); setShowSettings(false); setShowClaudeLogin(true) }} />
-            </details>
-          </>}
-          projects={<section className="nova-settings-card">
-            <ObservedValue label={t('settingsCurrentProject')} value={rootDir || t('settingsNoProject')} />
-            <ObservedValue label={t('settingsDefaultProject')} value={projects?.defaultPath || t('settingsUnknown')} />
-            <p className="settings-hint">{t('settingsProjectHint')}</p>
-            <button className="settings-check-btn" onClick={() => { setShowSettings(false); setExplorerOpen(true) }}>{t('settingsOpenProjects')}</button>
-          </section>}
+          onSectionChange={setSettingsSection}
+          connection={<LLMSettings view={view} models={llmModels} visibility={modelVisibility}
+            active={showSettings&&settingsSection==='connection'} locked={downloadBusy}/>}
+          embedding={<EmbeddingSettings view={view} models={embeddingModels} active={showSettings&&settingsSection==='embedding'} locked={downloadBusy}/> }
+          projects={<ProjectsSettings projects={projects} busy={downloadBusy || projectActionPending || streaming || !!view?.activeGenerationId || !!view?.approvals.length || !!view?.inputs.length}
+            errorCode={projectErrorCode} onAction={handleProjectAction}/>}
           web={<WebSettings key={`web:${view?.sessionId}:${rootDir}:${status.connected}`} view={view} />}
-          memory={<MemorySettings key={`memory:${view?.sessionId}:${rootDir}:${status.connected}`} view={view} />}
-          knowledge={<KnowledgeSettings key={`knowledge:${view?.sessionId}:${rootDir}:${status.connected}`} view={view} selectedSources={selectedSources} onSelectedSources={setSelectedSources} />}
-          about={<>
-            <section className="nova-settings-card">
-              <ObservedValue label={t('backend')} value={t(status.connected ? 'settingsAvailable' : 'settingsUnavailable')} />
-              <ObservedValue label={t('provider')} value={status.provider || t('settingsUnknown')} />
-              <ObservedValue label={t('tools')} value={String(status.tools.length)} />
-              <p className="settings-hint">{t('updatesNotConfigured')}</p>
-              <p className="settings-hint">{t('settingsPrivacyHint')}</p>
-            </section>
-            <section className="nova-settings-card"><h3>{t('settingsDiagnostics')}</h3>
-              <p className="settings-hint">{t('settingsDiagnosticsHint')}</p>
-              <SettingsCode code={view?.error?.code || readiness?.reason || 'OK'} />
-            </section>
-          </>} />
+          memory={<MemorySettings key={`memory:${view?.sessionId}:${rootDir}:${status.connected}`} view={view} projects={projects} locked={downloadBusy||projectActionPending}/>}
+          storage={<StorageSettings active={showSettings&&settingsSection==='storage'} projectRevision={JSON.stringify(projects?.folders.map(folder=>[folder.path,folder.name])||[])} locked={downloadBusy||projectActionPending||streaming||!!projects?.busy}/>}
+          knowledge={<KnowledgeSettings key={`knowledge:${view?.sessionId}:${rootDir}:${status.connected}`} view={view} />}
+          about={<AboutRuntime status={status}/>} />
       )}
 
-      {showClaudeLogin && (
-        <ClaudeLogin onClose={() => setShowClaudeLogin(false)} onAuthenticated={(method) => {
-          setHasClaude(true); setClaudeAuthMethod(method); setShowClaudeLogin(false)
-        }} isAuthenticated={hasClaude} authMethod={claudeAuthMethod} />
-      )}
+
     </div>
   )
 }

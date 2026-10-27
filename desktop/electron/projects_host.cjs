@@ -23,13 +23,24 @@ function createProjectsHost({directory, defaultPath, client, chooseDirectory, op
   let defaultRoot, defaultUnavailable = false
   try { defaultRoot = canonicalDirectory(defaultPath) }
   catch { defaultRoot = path.resolve(defaultPath); defaultUnavailable = true }
+  const initialRoot = defaultRoot
+  let initialParent
+  try { initialParent = canonicalDirectory(path.dirname(initialRoot)) } catch { initialParent = path.dirname(initialRoot) }
   const filename = path.join(directory, 'project-preferences.json')
   let folders = [defaultRoot], preferred = defaultRoot, busy = false,
     error = defaultUnavailable ? {code:'PROJECT_DEFAULT_UNAVAILABLE'} : null, previewEpoch = 0
   try {
     if (fs.statSync(filename).size <= 65536) {
       const saved = JSON.parse(fs.readFileSync(filename, 'utf8'))
-      if (saved?.schemaVersion === 1 && Array.isArray(saved.folders)) {
+      if ([1,2].includes(saved?.schemaVersion) && Array.isArray(saved.folders)) {
+        // Version 1 did not have a user-selected default. Never reinterpret its stray fields.
+        if (saved.schemaVersion === 2 && typeof saved.defaultPath === 'string' && path.isAbsolute(saved.defaultPath) &&
+            saved.defaultPath.length <= 32768 && !saved.defaultPath.includes('\0') && saved.folders.some(value => same(value,saved.defaultPath))) {
+          defaultRoot = path.resolve(saved.defaultPath)
+          try { if (!same(canonicalDirectory(defaultRoot),defaultRoot)) throw Error(); error = null }
+          catch { error = {code:'PROJECT_DEFAULT_UNAVAILABLE'} }
+          folders = [defaultRoot]; preferred = defaultRoot
+        }
         for (const value of saved.folders.slice(0, MAX_FOLDERS)) {
           try { const root = canonicalDirectory(value); if (!folders.some(item => same(item, root))) folders.push(root) } catch { /* Deleted folders are not restored. */ }
         }
@@ -53,12 +64,13 @@ function createProjectsHost({directory, defaultPath, client, chooseDirectory, op
   }
   function notify() { publish(state()) }
   function fail(code) { error = {code}; notify(); return {success: false, state: state(), error: {code}} }
-  function save() {
+  function save(nextFolders = folders, nextDefault = defaultRoot) {
     const temporary = path.join(directory, `.project-preferences-${crypto.randomUUID()}.tmp`)
     try {
       fs.mkdirSync(directory, {recursive: true})
-      fs.writeFileSync(temporary, JSON.stringify({schemaVersion: 1, folders, activePath: active()}) + '\n', {encoding: 'utf8', mode: 0o600, flag: 'wx'})
+      fs.writeFileSync(temporary, JSON.stringify({schemaVersion: 2, defaultPath:nextDefault, folders:nextFolders, activePath: active()}) + '\n', {encoding: 'utf8', mode: 0o600, flag: 'wx'})
       fs.renameSync(temporary, filename)
+      folders = nextFolders; defaultRoot = nextDefault
       preferred = active() || defaultRoot
       return true
     } catch {
@@ -77,12 +89,14 @@ function createProjectsHost({directory, defaultPath, client, chooseDirectory, op
     return {success: true}
   }
   async function performAction(action, suppliedPath) {
-    if (!['add', 'change', 'select', 'remove', 'open'].includes(action) ||
+    if (!['add', 'change', 'select', 'remove', 'open', 'reset-default'].includes(action) ||
         (suppliedPath !== undefined && typeof suppliedPath !== 'string')) return fail('PROJECT_INVALID_ACTION')
     if (busy || client.workspaceBusy?.()) return fail('PROJECT_BUSY')
     const bootstrap = !client.view.status.ready || client.view.recovering
-    if (bootstrap && (action !== 'add' || !bootstrapWorkspace)) return fail('PROJECT_UNAVAILABLE')
-    const selected = folders.find(item => same(item, suppliedPath || active()))
+    if (action === 'reset-default' && suppliedPath !== undefined) return fail('PROJECT_INVALID_ACTION')
+    const selected = action === 'reset-default' ? defaultRoot : folders.find(item => same(item, suppliedPath || active()))
+    const changesDefault = action === 'reset-default' || action === 'change' && same(selected,defaultRoot)
+    if (bootstrap && (!(action === 'add' || changesDefault) || !bootstrapWorkspace)) return fail('PROJECT_UNAVAILABLE')
     if (action !== 'add' && !selected) return fail('PROJECT_NOT_REGISTERED')
     if (action === 'remove' && same(selected, defaultRoot)) return fail('PROJECT_DEFAULT_REQUIRED')
     busy = true; error = null; previewEpoch++; notify()
@@ -94,6 +108,15 @@ function createProjectsHost({directory, defaultPath, client, chooseDirectory, op
         return reason ? fail('PROJECT_OPEN_FAILED') : {success: true, state: state()}
       }
       let destination = selected
+      if (action === 'reset-default') {
+        // Only the immutable original folder may be recreated. Reject a replaced parent or junction.
+        if (!same(canonicalDirectory(path.dirname(initialRoot)),initialParent)) return fail('PROJECT_PATH_CHANGED')
+        if (fs.existsSync(initialRoot) && !same(canonicalDirectory(initialRoot),initialRoot)) return fail('PROJECT_PATH_CHANGED')
+        fs.mkdirSync(initialRoot,{recursive:true})
+        destination = canonicalDirectory(initialRoot)
+        if (!same(destination,initialRoot)) return fail('PROJECT_PATH_CHANGED')
+        fs.accessSync(destination,fs.constants.R_OK|fs.constants.W_OK)
+      }
       if (action === 'add' || action === 'change') {
         if (action === 'add' && folders.length >= MAX_FOLDERS) return fail('PROJECT_LIMIT_REACHED')
         const choice = await chooseDirectory()
@@ -104,8 +127,17 @@ function createProjectsHost({directory, defaultPath, client, chooseDirectory, op
       if (client.workspaceBusy?.() || (!bootstrap && (!client.view.status.ready || client.view.recovering))) return fail('PROJECT_BUSY')
       if (action === 'remove') destination = same(active(), selected) ? defaultRoot : active()
       if (!destination) return fail('PROJECT_UNAVAILABLE')
+      const previous = active()
       const confirmed = await switchRoot(destination)
       if (!confirmed.success) return fail(confirmed.error.code)
+      if (changesDefault) {
+        const nextFolders = [destination,...folders.filter(root => !same(root,selected) && !same(root,destination))]
+        if (!save(nextFolders,destination)) {
+          if (previous && !same(previous,destination)) { try { await switchRoot(previous) } catch {} }
+          notify();return {success:false,state:state(),error}
+        }
+        notify();return {success:true,state:state()}
+      }
       if (action === 'remove' && clearChat) {
         const deleted = await clearChat(selected)
         if (!deleted?.success) return fail('PROJECT_CHAT_CLEAR_FAILED')
@@ -176,7 +208,7 @@ function createProjectsHost({directory, defaultPath, client, chooseDirectory, op
       return result
     } catch { return failure('PROJECT_READ_FAILED') }
   }
-  return {state, action: async (...args) => { const result = await performAction(...args); return {...result,state:state()} }, preferredPath: () => preferred, defaultPath: defaultRoot,
+  return {state, action: async (...args) => { const result = await performAction(...args); return {...result,state:state()} }, preferredPath: () => preferred, get defaultPath() { return defaultRoot },
     listDirectory: (value, offset = 0) => preview(value, 'directory', offset), readFile: value => preview(value, 'file'),
     isChanging: () => busy, sync: notify, setError(code) { error = {code}; notify() }}
 }

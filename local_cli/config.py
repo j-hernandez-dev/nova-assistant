@@ -20,7 +20,6 @@ CONFIG_DEFAULTS: dict[str, object] = {
     "rag": False,
     "web_search_enabled": False,  # Trusted host opt-in; unrelated to document forwarding.
     "web_search_endpoint": "",  # No implicit instance or credentials; SearXNG JSON API.
-    "allow_remote_memory_injection": False,  # Host config only; no implicit consent from model/UI.
     "memory_embedding_model": "",  # OD-02 has no benchmarked recommended model yet.
     "memory_embedding_endpoint": "http://127.0.0.1:11434",  # Separate from RAG/chat provider.
     "memory_auto_capture": "off",  # Trusted opt-in: off / propose_only / low_risk.
@@ -269,7 +268,6 @@ class Config:
         self.rag: bool = _parse_bool(merged["rag"])
         self.web_search_enabled: bool = _parse_bool(merged["web_search_enabled"])
         self.web_search_endpoint: str = str(merged["web_search_endpoint"])
-        self.allow_remote_memory_injection: bool = _parse_bool(merged["allow_remote_memory_injection"])
         self.memory_embedding_model: str = str(merged["memory_embedding_model"])
         self.memory_embedding_endpoint: str = str(merged["memory_embedding_endpoint"])
         self.memory_auto_capture: str = str(merged['memory_auto_capture'])
@@ -279,6 +277,9 @@ class Config:
         self.rag_topk: int = int(merged["rag_topk"])
         self.rag_model: str = str(merged["rag_model"])
         self.provider: str = str(merged["provider"])
+        if self.provider == "claude":  # Migrate the retired provider without preventing startup.
+            self.provider = "ollama"
+            self.model = str(CONFIG_DEFAULTS["model"])
         self.model_registry_file: str = str(merged["model_registry_file"])
         self.orchestrator_model: str = str(merged["orchestrator_model"])
         self.plan_dir: str = str(merged["plan_dir"])
@@ -312,13 +313,3 @@ class Config:
         # When true, an available update is installed automatically on
         # startup (git pull + reinstall) instead of only being notified.
         self.auto_update: bool = _parse_bool(merged["auto_update"])
-
-    @property
-    def has_claude_access(self) -> bool:
-        """Check whether an Anthropic API key is available.
-
-        Reads ``ANTHROPIC_API_KEY`` from the environment at call time and
-        never stores the key value.  Returns ``True`` only when the
-        variable is set to a non-empty string.
-        """
-        return bool(os.environ.get("ANTHROPIC_API_KEY"))

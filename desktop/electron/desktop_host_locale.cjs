@@ -8,7 +8,7 @@ const messages = {
     memoryNotice: 'Local storage is not process isolation or encryption. Forget does not erase audit, logs, source conversations or backups.',
     forwardingTitle: 'Nova — document forwarding',
     forwardingMessage: 'Allow this source in remote chat context?',
-    forwardingNotice: 'Document data may leave this device. This does not enable remote MEMORY or grant tool/security authority. Future forwarding can be revoked; already transmitted data cannot be recalled.',
+    forwardingNotice: 'Document data may leave this device. This does not grant tool or security permissions. Future forwarding can be revoked; already transmitted data cannot be recalled.',
     chooseDocument: 'Select a document', select: 'Select',
     refreshDocument: 'Select the source document again',
     exportDocument: 'Export source document', save: 'Save',
@@ -24,7 +24,7 @@ const messages = {
     memoryNotice: 'El almacenamiento local no ofrece aislamiento de procesos ni cifrado. Olvidar no elimina auditorías, registros, conversaciones de origen ni copias de seguridad.',
     forwardingTitle: 'Nova — envío de documentos',
     forwardingMessage: '¿Permitir esta fuente en el contexto del chat remoto?',
-    forwardingNotice: 'Los datos del documento pueden salir de este dispositivo. Esto no habilita la MEMORIA remota ni concede permisos de herramientas o seguridad. El envío futuro puede revocarse; los datos ya transmitidos no pueden recuperarse.',
+    forwardingNotice: 'Los datos del documento pueden salir de este dispositivo. Esto no concede permisos de herramientas o seguridad. El envío futuro puede revocarse; los datos ya transmitidos no pueden recuperarse.',
     chooseDocument: 'Seleccionar un documento', select: 'Seleccionar',
     refreshDocument: 'Seleccionar de nuevo el documento de origen',
     exportDocument: 'Exportar documento de origen', save: 'Guardar',
@@ -57,12 +57,5 @@ function pickerDialogOptions(locale, kind) {
     buttonLabel: t.select, properties: [kind === 'project' ? 'openDirectory' : 'openFile'] }
 }
 
-function oauthPage(locale, status) {
-  const lang = locale === 'en' ? 'en' : 'es'
-  const t = desktopHostMessages(lang)
-  const title = status === 'success' ? t.authSuccess : status === 'invalid' ? t.authInvalid : t.authFailed
-  return '<!doctype html><html lang="' + lang + '"><head><meta charset="utf-8"><title>Nova</title></head><body><h2>'
-    + title + '</h2><p>' + (status === 'success' ? t.authReturn : t.authClose) + '</p></body></html>'
-}
 
-module.exports = { desktopHostMessages, memoryDialogOptions, forwardingDialogOptions, pickerDialogOptions, oauthPage }
+module.exports = { desktopHostMessages, memoryDialogOptions, forwardingDialogOptions, pickerDialogOptions }

@@ -28,45 +28,45 @@ export function ModalHost({ children, onClose, label, labelledBy, className = ''
     const content = dialog.current
     const backdrop = overlay.current
     if (!content || !backdrop) return
-    const siblings = Array.from(document.body.children).filter(element => element !== backdrop && element instanceof HTMLElement) as HTMLElement[]
+    const chrome=document.getElementById('nova-window-menu')
+    const siblings = Array.from(document.body.children).filter(element => element !== backdrop && element instanceof HTMLElement && !element.classList.contains('nova-window-titlebar')) as HTMLElement[]
     const originalInert = siblings.map(element => ({ element, inert: element.inert }))
     originalInert.forEach(({ element }) => { element.inert = true })
     const originalOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
-    const focusable = () => Array.from(content.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(element => {
+    const focusable = () => {
+      const fields=Array.from(content.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(element => {
       if (element.tabIndex < 0 || element.matches(':disabled') || element.closest('[hidden], [aria-hidden="true"], [inert]')) return false
       for (let ancestor: HTMLElement | null = element; ancestor && ancestor !== backdrop; ancestor = ancestor.parentElement) {
         const style = window.getComputedStyle(ancestor)
         if (style.display === 'none' || style.visibility === 'hidden') return false
       }
       return true
-    })
-    const focusFirst = () => (focusable()[0] || content).focus()
+      })
+      if(chrome&&!chrome.matches(':disabled')&&!chrome.closest('[inert]')&&chrome.getClientRects().length)fields.push(chrome)
+      return fields
+    }
+    const focusFirst = () => (focusable().find(element=>element!==chrome) || content).focus()
     focusFirst()
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        const focused = document.activeElement as HTMLElement | null
+        if(focused===chrome||chrome?.getAttribute('aria-expanded')==='true')return
+        if (focused?.matches('[role="combobox"][aria-expanded="true"], [aria-haspopup="menu"][aria-expanded="true"]') || focused?.closest('[role="menu"]')) return
         event.preventDefault()
         event.stopImmediatePropagation()
         if (latest.current.closeOnEscape) latest.current.onClose()
       } else if (event.key === 'Tab') {
         const targets = focusable()
-        const first = targets[0]
-        const last = targets[targets.length - 1]
-        if (!first) {
-          event.preventDefault()
-          content.focus()
-        } else if (event.shiftKey && (document.activeElement === first || document.activeElement === content || !content.contains(document.activeElement))) {
-          event.preventDefault()
-          last.focus()
-        } else if (!event.shiftKey && (document.activeElement === last || !content.contains(document.activeElement))) {
-          event.preventDefault()
-          first.focus()
-        }
+        const index=targets.indexOf(document.activeElement as HTMLElement)
+        const next=event.shiftKey?(index<=0?targets.length-1:index-1):(index<0||index===targets.length-1?0:index+1)
+        event.preventDefault()
+        ;(targets[next]||content).focus()
       }
     }
     const onFocusIn = (event: FocusEvent) => {
-      if (!content.contains(event.target as Node)) focusFirst()
+      if (event.target!==chrome&&!content.contains(event.target as Node)) focusFirst()
     }
     document.addEventListener('keydown', onKeyDown, true)
     document.addEventListener('focusin', onFocusIn)

@@ -4,6 +4,7 @@ import { applyAppearance, defaultAppearance, type AppearancePreferences } from '
 export type StartupLocale = 'es' | 'en'
 export type StartupPhase = 'loading' | 'mounted' | 'ready' | 'failed'
 export const STARTUP_WAIT_MS = 15000
+export const STARTUP_FADE_MS = 360
 export const startupCopy = {
   es: { loading: 'Iniciando Nova…', hint: 'Preparando tu espacio de trabajo.',
     slow: 'El inicio está tardando más de lo habitual.',
@@ -17,17 +18,20 @@ export function startupLocale(args: readonly string[]): StartupLocale {
 }
 
 type Elements = { screen: HTMLElement; root: HTMLElement; message: HTMLElement; hint: HTMLElement; action: HTMLButtonElement }
-type Clock = { schedule: (fn: () => void, ms: number) => unknown; cancel: (timer: unknown) => void; reload: () => void; reducedMotion?: () => boolean; showStartupScreen?: boolean }
+type Clock = { schedule: (fn: () => void, ms: number) => unknown; cancel: (timer: unknown) => void; frame: (fn: () => void) => unknown; cancelFrame: (frame: unknown) => void; windowVisible?: () => boolean; reload: () => void; reducedMotion?: () => boolean; showStartupScreen?: boolean; transitionsEnabled?: boolean }
 
 /** Separate from React so a slow or broken renderer bundle still has a usable screen. */
 export function createStartupScreen(elements: Elements, locale: StartupLocale, clock: Clock) {
   const { screen, root, message, hint, action } = elements, copy = startupCopy[locale]
   let mounted = false, finished = false, slow = false, failed = false
-  let disposed = false, removed = false, exitTimer: unknown
+  let disposed = false, removed = false, exitTimer: unknown, exitFrame: unknown
   const removeScreen = () => {
     if (disposed || removed) return
     removed = true
     if (exitTimer !== undefined) clock.cancel(exitTimer)
+    if (exitFrame !== undefined) clock.cancelFrame(exitFrame)
+    root.removeAttribute('data-startup-entering')
+    root.removeAttribute('data-startup-revealing')
     screen.removeEventListener('transitionend', transitionEnd)
     screen.remove()
   }
@@ -48,17 +52,38 @@ export function createStartupScreen(elements: Elements, locale: StartupLocale, c
     finished = true
     clock.cancel(timer)
     const restoreFocus = action === action.ownerDocument?.activeElement
+    const animate = clock.showStartupScreen !== false && clock.transitionsEnabled !== false && !clock.reducedMotion?.()
+    if (animate) root.setAttribute('data-startup-entering', 'true')
     root.removeAttribute('inert'); root.removeAttribute('aria-hidden')
     screen.setAttribute('aria-busy', 'false')
     screen.setAttribute('aria-hidden', 'true')
     screen.setAttribute('inert', '')
     action.removeEventListener('click', proceed)
     if (restoreFocus) root.querySelector<HTMLElement>('textarea:not([disabled]), button:not([disabled])')?.focus({ preventScroll: true })
-    if (clock.showStartupScreen === false || clock.reducedMotion?.()) { removeScreen(); return }
-    screen.addEventListener('transitionend', transitionEnd)
-    screen.setAttribute('data-leaving', 'true')
-    // Keep cleanup bounded if Chromium skips transitionend (for example in a hidden window).
-    exitTimer = clock.schedule(removeScreen, 400)
+    if (!animate) { removeScreen(); return }
+    // Commit the opaque loading screen and transparent app for one frame first.
+    // A fast backend can otherwise finish before Chromium has painted either.
+    const prepareVisibleFrame = () => {
+      if (disposed || removed) return
+      // Electron may paint hidden windows before ready-to-show. Wait for the
+      // actual host show event so the fade cannot finish off screen.
+      if (clock.windowVisible?.() === false) {
+        exitFrame = clock.frame(prepareVisibleFrame)
+        return
+      }
+      exitFrame = clock.frame(() => {
+        exitFrame = undefined
+        if (disposed || removed) return
+        if (clock.reducedMotion?.()) { removeScreen(); return }
+        screen.addEventListener('transitionend', transitionEnd)
+        root.setAttribute('data-startup-revealing', 'true')
+        root.removeAttribute('data-startup-entering')
+        screen.setAttribute('data-leaving', 'true')
+        // Start the bound after the fade begins, not while the window is hidden.
+        exitTimer = clock.schedule(removeScreen, STARTUP_FADE_MS + 120)
+      })
+    }
+    exitFrame = clock.frame(prepareVisibleFrame)
   }
   const proceed = () => { if (!finished) { if (mounted) finish(); else clock.reload() } }
   action.addEventListener('click', proceed)
@@ -77,6 +102,7 @@ export function createStartupScreen(elements: Elements, locale: StartupLocale, c
     dispose() {
       disposed = true; finished = true; clock.cancel(timer)
       if (exitTimer !== undefined) clock.cancel(exitTimer)
+      if (exitFrame !== undefined) clock.cancelFrame(exitFrame)
       screen.removeEventListener('transitionend', transitionEnd)
       action.removeEventListener('click', proceed)
     },
@@ -84,7 +110,7 @@ export function createStartupScreen(elements: Elements, locale: StartupLocale, c
 }
 
 /** The preload observes parsing, rather than waiting for DOMContentLoaded (which waits for modules). */
-export function installStartupScreen(doc: Document, locale: StartupLocale, appearance: AppearancePreferences = defaultAppearance): () => void {
+export function installStartupScreen(doc: Document, locale: StartupLocale, appearance: AppearancePreferences = defaultAppearance, windowVisible?: () => boolean, transitionsEnabled = true, systemDark?: boolean): () => void {
   let controller: ReturnType<typeof createStartupScreen> | undefined
   const observer = new MutationObserver(() => {
     if (!controller) mount()
@@ -96,7 +122,8 @@ export function installStartupScreen(doc: Document, locale: StartupLocale, appea
     if (phase === 'ready') { observer.disconnect(); doc.removeEventListener('error', scriptError, true) }
   }
   const mount = () => {
-    applyAppearance(doc, appearance)
+    applyAppearance(doc, appearance, systemDark)
+    doc.documentElement?.setAttribute('data-nova-transitions', String(transitionsEnabled))
     const screen = doc.getElementById('nova-startup'), root = doc.getElementById('root')
     const message = doc.getElementById('nova-startup-message'), hint = doc.getElementById('nova-startup-hint')
     const action = doc.getElementById('nova-startup-action') as HTMLButtonElement | null
@@ -106,9 +133,13 @@ export function installStartupScreen(doc: Document, locale: StartupLocale, appea
     doc.documentElement.lang = locale
     controller = createStartupScreen({ screen, root, message, hint, action }, locale, {
       schedule: (fn, ms) => setTimeout(fn, ms), cancel: timer => clearTimeout(timer as ReturnType<typeof setTimeout>),
+      windowVisible,
+      frame: fn => (doc.defaultView || window).requestAnimationFrame(fn),
+      cancelFrame: frame => (doc.defaultView || window).cancelAnimationFrame(frame as number),
       reload: () => doc.defaultView?.location.reload(),
-      reducedMotion: () => appearance.reduceMotion || !!doc.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      reducedMotion: () => !!doc.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches,
       showStartupScreen: appearance.showStartupScreen,
+      transitionsEnabled,
     })
     // Stop observing the whole parsed document once the small startup island exists.
     observer.disconnect()

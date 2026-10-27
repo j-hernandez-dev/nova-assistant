@@ -184,7 +184,7 @@ def test_recovery_scope_and_orphan_cleanup_only_owned(tmp_path):
         assert store.files.path('staging',foreign.operation_id+'.part').exists()
 
 
-def test_recovery_abandoned_session_not_promoted_preserves_workspace(tmp_path):
+def test_recovery_migrates_abandoned_local_session_and_preserves_workspace(tmp_path):
     state=tmp_path/'state'
     with SQLiteKnowledgeStore(state) as store:
         ws,pw,_=published(store)
@@ -192,8 +192,9 @@ def test_recovery_abandoned_session_not_promoted_preserves_workspace(tmp_path):
     with SQLiteKnowledgeStore(state) as store:
         store.recover(OTHER_SESSION)
         assert store.get_source(ws.source_id,OTHER_SESSION).current_revision_id == pw.revision.revision_id
-        assert not store.files.path('blobs',ps.revision.revision_id+'.bin').exists()
-        assert store.list_sources(OTHER_SESSION) == (ws,)
+        assert store.files.path('blobs',ps.revision.revision_id+'.bin').exists()
+        assert store.get_source(sess.source_id,OTHER_SESSION).scope.kind is KnowledgeScopeKind.WORKSPACE
+        assert {s.source_id for s in store.list_sources(OTHER_SESSION)} == {ws.source_id,sess.source_id}
 
 
 @pytest.mark.parametrize('corrupt', ['blob','fts','document','blocks','duplicate_fts','publication'])

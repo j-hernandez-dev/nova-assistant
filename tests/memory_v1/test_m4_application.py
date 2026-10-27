@@ -153,19 +153,19 @@ def test_destination_classification_not_provider_name_only(name,endpoint,local):
     assert local_memory_destination(snap) is local
 
 
-@pytest.mark.parametrize('allow',[False,True])
-def test_remote_injection_requires_host_opt_in_and_visible_metadata(tmp_path,allow):
-    # No network: this remote-address adapter is SCRIPTED for privacy contracts.
-    provider=CapturingProvider(endpoint='https://example.invalid')
-    app,sid,actor,audit,p,_=make_app(tmp_path,provider=provider,allow_remote_memory_injection=allow)
+@pytest.mark.parametrize('endpoint',['https://example.invalid','http://192.0.2.1:11434',None])
+def test_memory_context_requires_local_destination(tmp_path,monkeypatch,endpoint):
+    # Scripted inference only: a non-local endpoint must never query stored memories.
+    provider=CapturingProvider(endpoint=endpoint)
+    app,sid,actor,audit,p,_=make_app(tmp_path,provider=provider)
     remember(app,sid,actor)
+    monkeypatch.setattr(MemoryRetriever,'retrieve',lambda *_a,**_k:pytest.fail('non-local memory recall'))
     t=turn(app,sid)
     assert t.status.value=='completed'
-    assert bool(t.memory_snapshot.capsule) is allow
-    assert any(MEMORY_HEADER in m.get('content','') for m in p.captured[0]) is allow
-    assert app.get_snapshot(sid).services['memory']['allowRemoteMemoryInjection'] is allow
-    if not allow: assert t.memory_snapshot.error_code=='MEMORY_REMOTE_INJECTION_DENIED'
-    else: assert t.context_reports[0]['remoteMemoryInjection']
+    assert t.memory_snapshot is None
+    assert not any(MEMORY_HEADER in m.get('content','') or m.get('content')==MEMORY_GUARD for m in p.captured[0])
+    assert {'lexicalRecall','semantic','autoCapture','captureMode'}<=set(app.get_snapshot(sid).services['memory'])
+    assert not any('remoteMemoryInjection' in report for report in t.context_reports)
     close(app,audit)
 
 
@@ -192,11 +192,12 @@ def test_child_fresh_inference_has_no_store_access_or_implicit_parent_capsule(tm
     close(app,audit)
 
 
-def test_config_remote_opt_in_default_and_synthetic_file(tmp_path):
-    from local_cli.config import Config
+def test_removed_memory_setting_is_ignored_in_legacy_config(tmp_path):
+    from local_cli.config import Config,CONFIG_DEFAULTS
     path=tmp_path/'config'; path.write_text('allow_remote_memory_injection=true\n',encoding='utf-8')
-    assert Config(config_file=str(path)).allow_remote_memory_injection
-    assert not Config(config_file=str(tmp_path/'absent')).allow_remote_memory_injection
+    assert 'allow_remote_memory_injection' not in CONFIG_DEFAULTS
+    assert not hasattr(Config(config_file=str(path)),'allow_remote_memory_injection')
+    assert not hasattr(Config(config_file=str(tmp_path/'absent')),'allow_remote_memory_injection')
 
 
 @pytest.mark.parametrize('enabled',[False,True])

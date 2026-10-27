@@ -13,7 +13,6 @@ function fixture() {
     expire() { const pending = [...timers.values()]; timers.clear(); for (const callback of pending) callback() } }
 }
 const catalog = { categories: ['General'], models: [{ name: 'owned:1b', display: 'Owned', category: 'General', params: '1B', size_gb: 1, description: 'Owned fixture', tags: [], installed: false }] }
-const search = name => [{ name, description: 'Owned fixture', pulls: 10, pulls_display: '10', tags: [], sizes: ['1b'], installed: false, cloud_only: false }]
 
 test('Default timers preserve the browser global receiver instead of invoking native timers as controller methods', () => {
   const previousSchedule = globalThis.setTimeout, previousCancel = globalThis.clearTimeout
@@ -46,19 +45,39 @@ test('Catalog uses matching request and a duplicate open does not dispatch twice
   assert.deepEqual(f.ops.state.catalog, catalog); assert.equal(f.ops.state.catalogLoading, false)
   assert.equal(f.timers.size, 0)
 })
-test('Latest search owns results; stale success and stale error never replace it', () => {
-  const f = fixture(); f.ops.search('old', 'popular', ''); const first = f.last()
-  f.ops.search('new', 'hot', 'tools'); const second = f.last()
-  f.ops.receive({ id: first.id, type: 'search_results', data: search('old') })
-  assert.equal(f.ops.state.searching, true); assert.deepEqual(f.ops.state.searchResults, [])
-  f.ops.receive({ id: second.id, type: 'search_results', data: search('new') })
-  f.ops.receive({ id: first.id, type: 'error', message: 'raw private token' })
-  assert.equal(f.ops.state.searching, false); assert.equal(f.ops.state.searchResults[0].name, 'new')
-  assert.equal(f.ops.state.searchError, null)
+
+test('Hardware-fit progress is correlated, keeps loading active and preserves exact recommended variants',()=>{
+  const f=fixture();f.ops.recommend();const request=f.last()
+  const model={name:'public-owned:4b-q4_K_M',family:'public-owned',display:'public-owned',reason:'MEMORY_FIT',rank:1,installed:false,
+    kind:'llm',tags:['tools'],description:'Public fixture',size_label:'2.5GB',size_gb:2.5,estimated_memory_gb:3.875,context_length:8192,gpu_fit:false}
+  const recommendation={phase:'variants',scanned:1,total:5,unavailable:0,offline:false,stale:false,syncedAt:1000,budget_gb:7}
+  assert.equal(f.ops.receive({id:request.id+99,type:'recommend_progress',models:[model],recommendation}),false)
+  f.ops.receive({id:request.id,type:'recommend_progress',models:[model],recommendation})
+  assert.equal(f.ops.state.recommending,true);assert.equal(f.ops.state.recommendations[0].name,model.name)
+  assert.equal(f.ops.state.recommendationStatus.scanned,1)
+  f.ops.receive({id:request.id,type:'recommend',models:[model],recommendation:{...recommendation,phase:'complete',scanned:5}})
+  assert.equal(f.ops.state.recommending,false);assert.equal(f.ops.state.recommendationStatus.phase,'complete')
+  assert.ok(f.sent.every(frame=>frame.type==='recommend'));f.ops.dispose()
+})
+
+test('Malformed fit metadata fails without accepting a fabricated fit or progress count',()=>{
+  for(const recommendation of [{phase:'variants',scanned:5,total:1,unavailable:0,offline:false,stale:false,syncedAt:1000,budget_gb:7},{}]){
+    const f=fixture();f.ops.recommend();f.ops.receive({id:f.last().id,type:'recommend_progress',models:[],recommendation})
+    assert.equal(f.ops.state.recommending,false);assert.equal(f.ops.state.recommendError,'MODEL_RECOMMEND_FAILED');f.ops.dispose()
+  }
+})
+
+test('A successful full synchronization refreshes recommendations after an older evaluation drains',()=>{
+  const f=fixture();f.ops.recommend();const old=f.last();f.ops.sync();const sync=f.last()
+  f.ops.receive({id:sync.id,type:'catalog_updated',data:{total:5}})
+  assert.equal(f.sent.filter(frame=>frame.type==='recommend').length,1)
+  f.ops.receive({id:old.id,type:'recommend',models:[],system:null})
+  assert.equal(f.sent.filter(frame=>frame.type==='recommend').length,2)
+  assert.equal(f.ops.state.recommending,true);assert.equal(f.ops.state.recommendations,null)
+  f.ops.dispose()
 })
 test('Errors settle each corresponding spinner as localizable codes without raw server text', () => {
   const calls = [ ['refreshCatalog', [], 'catalogLoading', 'catalogError', 'MODEL_CATALOG_FAILED'],
-    ['search', ['q', 'popular', ''], 'searching', 'searchError', 'MODEL_SEARCH_FAILED'],
     ['recommend', [], 'recommending', 'recommendError', 'MODEL_RECOMMEND_FAILED'],
     ['sync', [], 'updating', 'operationError', 'MODEL_SYNC_FAILED'],
     ['pull', ['owned:1b'], 'pulling', 'operationError', 'MODEL_DOWNLOAD_FAILED'],
@@ -71,12 +90,10 @@ test('Errors settle each corresponding spinner as localizable codes without raw 
     assert.equal(f.timers.size, 0)
   }
 })
-test('Malformed catalog/search/recommend responses become clear errors instead of render exceptions', () => {
+test('Malformed catalog/recommend responses become clear errors instead of render exceptions', () => {
   const f = fixture(); f.ops.refreshCatalog()
   f.ops.receive({ type: 'catalog', id: f.last().id, data: { categories: [], models: [{}] } })
   assert.equal(f.ops.state.catalogError, 'MODEL_CATALOG_FAILED')
-  f.ops.search('', '', ''); f.ops.receive({ type: 'search_results', id: f.last().id, data: [null] })
-  assert.equal(f.ops.state.searchError, 'MODEL_SEARCH_FAILED')
   f.ops.recommend(); f.ops.receive({ type: 'recommend', id: f.last().id, models: [{}] })
   assert.equal(f.ops.state.recommendError, 'MODEL_RECOMMEND_FAILED')
 })
@@ -95,7 +112,7 @@ test('Optional catalog metadata must be render-safe; malformed strengths/date/co
   f.ops.receive({ type: 'catalog', id: f.last().id, data })
   assert.deepEqual(f.ops.state.catalog, data); assert.equal(f.ops.state.catalogError, null); f.ops.dispose()
 })
-test('Hardware JSX fields and search/recommend numeric or boolean fields reject malformed payloads', () => {
+test('Hardware JSX fields and recommendation numeric or boolean fields reject malformed payloads', () => {
   const model = { name: 'owned', display: 'Owned', reason: 'Owned', rank: 1, installed: false, size_gb: 1 }
   const system = { ram_gb: 32, chip: 'Owned', gpu: 'Owned', os: 'Windows', arch: 'x64' }
   for (const optional of [{ gpu: {} }, { chip: {} }, { os: [] }, { arch: 42 }, { ram_gb: NaN }, { ram_gb: Infinity }, { ram_gb: -1 }, { ram_gb: '32' }]) {
@@ -108,11 +125,6 @@ test('Hardware JSX fields and search/recommend numeric or boolean fields reject 
     const f = fixture(); f.ops.recommend()
     f.ops.receive({ type: 'recommend', id: f.last().id, models: [{ ...model, ...optional }], system })
     assert.equal(f.ops.state.recommendError, 'MODEL_RECOMMEND_FAILED'); f.ops.dispose()
-  }
-  for (const optional of [{ pulls: NaN }, { pulls: -1 }, { installed: undefined }, { installed: 'false' }, { cloud_only: {} }]) {
-    const f = fixture(); f.ops.search('owned', 'popular', '')
-    f.ops.receive({ type: 'search_results', id: f.last().id, data: [{ ...search('owned')[0], ...optional }] })
-    assert.equal(f.ops.state.searchError, 'MODEL_SEARCH_FAILED'); assert.equal(f.ops.state.searching, false); f.ops.dispose()
   }
   const f = fixture(); f.ops.recommend()
   f.ops.receive({ type: 'recommend', id: f.last().id, models: [model], system: { ...system, ram_gb: null } })
@@ -190,8 +202,8 @@ test('Fresh correlated progress may resume observation after timeout without cla
   assert.equal(f.ops.pull('owned'), false); f.ops.dispose()
 })
 test('Read-only timeouts release spinners without a false empty-result success', () => {
-  const f = fixture(); f.ops.search('owned', 'popular', ''); f.expire()
-  assert.equal(f.ops.state.searching, false); assert.equal(f.ops.state.searchError, 'MODEL_OPERATION_UNCONFIRMED')
+  const f = fixture(); f.ops.refreshCatalog(); f.expire()
+  assert.equal(f.ops.state.catalogLoading, false); assert.equal(f.ops.state.catalogError, 'MODEL_OPERATION_UNCONFIRMED')
   f.ops.recommend(); f.expire(); assert.equal(f.ops.state.recommending, false)
   assert.equal(f.ops.state.recommendations, null); f.ops.dispose()
 })

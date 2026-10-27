@@ -18,21 +18,31 @@ export type SearchEngine = 'bing' | 'google' | 'duckduckgo'
 // Read-only projections of Application service snapshots. A selection is not
 // a runtime health check, approval or tool Grant.
 export type ContextStatus = { requestedTokens: number; selectedTokens: number | null; errorCode: string | null }
+export type EmbeddingStatus = {
+  modelId:string; requestedTokens:number; enabledModels:string[]; selectedModel:string
+  connected:boolean; selectedTokens:number|null; contextLimit:number|null; errorCode:string|null
+}
+export type InstalledModel = {name:string;size:number;kind?:'llm'|'embedding'|'unknown';contextLength?:number|null}
 export type FetchStatus = { enabled: boolean; available: boolean }
 export type BrowserStatus = {
-  selected: BrowserChoice; available: boolean; unavailableReason: string | null; adapter: string
+  enabled: boolean; selected: BrowserChoice; available: boolean; unavailableReason: string | null; adapter: string
   runtimeCheckedOnUse: boolean; networkIsolation: 'NOT_PROVIDED'; controlClass: 'HOST_UNISOLATED'
   choices: Array<{ browser: BrowserChoice; adapter: string; available: boolean; installed?: boolean; reason: string | null }>
   controlState?: string; sessionState?: string; hasPage?: boolean; lastErrorCode?: string | null
 }
 export type SearchStatus = {
-  backend: 'browser'; engine: SearchEngine; available: boolean; adapter: string
+  enabled: boolean; backend: 'browser'; engine: SearchEngine; available: boolean; adapter: string
   runtimeCheckedOnUse: boolean; unavailableReason: string | null
   serverRequired: false; networkIsolation: 'NOT_PROVIDED'
 }
 export type MemoryStatus = {
   lexicalRecall: boolean; semantic: boolean; autoCapture: boolean
-  captureMode?: 'off' | 'propose_only' | 'low_risk'; allowRemoteMemoryInjection: boolean
+  captureMode?: 'off' | 'propose_only' | 'low_risk'
+  semanticAvailable?: boolean; sensitiveProjects?: string[]; maintenanceBusy?: boolean
+}
+export type KnowledgePreferences = {lexicalRecall:boolean;semanticRecall:boolean;autoIndex:boolean;autoRebuild:boolean}
+export type KnowledgeSettingsStatus = KnowledgePreferences & {
+  semanticAvailable:boolean;indexing:boolean;indexedSources:number;totalSources:number;errorCode:string|null
 }
 export type EventEnvelope = {
   schemaVersion: number; eventId: string; sequence: number; sessionId: string
@@ -47,8 +57,10 @@ export type SessionSnapshot = {
   services: {
     rag: RAGStatus
     context?: ContextStatus
+    embedding?: EmbeddingStatus
     conversationPresentation?: Array<{ sourceIndex: number; createdAt?: string; completedAt?: string; savedAt?: string }>
     knowledge?: KnowledgeStatus
+    knowledgeSettings?: KnowledgeSettingsStatus
     memory?: MemoryStatus
     fetch?: FetchStatus
     search?: SearchStatus
@@ -62,7 +74,7 @@ export type SessionSnapshot = {
 export type ChatReadiness = {
   schemaVersion: 1; sessionId: string | null; providerId: string; modelId: string
   providerRevision: number; ready: boolean; reason: string | null; observedAt: string | null
-  installedModels: Array<{ name: string; size: number }>
+  installedModels: InstalledModel[]
   requiredAction: 'SELECT_MODEL' | 'CONFIGURE_PROVIDER' | null
 }
 export type ModelDownloadState = {
@@ -87,12 +99,13 @@ export type DesktopSessionView = {
   recovering: boolean
   fileRevision: number
   context?: ContextStatus
-  memoryNotice?: string | null
+  embedding?: EmbeddingStatus
   memory?: MemoryStatus
   fetch?: FetchStatus
   search?: SearchStatus
   browser?: BrowserStatus
   knowledge?: KnowledgeStatus
+  knowledgeSettings?: KnowledgeSettingsStatus
   knowledgeOperations?: Array<{operationId:string;status:string;phase?:string;result?:any}>
 }
 
@@ -111,6 +124,9 @@ export type KnowledgeStatus = {
 export type KnowledgeCitations={schemaVersion:number;turnId:string;structuralOnly:boolean;
   valid:Array<{citationId:string;sourceId:string;revisionId:string;displayLabel:string;originDisplay:string;
     locator:{kind:string;coordinates:Record<string,string|number>}}>;invalid:string[]}
+export type SourceContext = {sourceId:string;revisionId:string|null;displayName:string;
+  status:'complete'|'partial'|'unavailable';errorCode?:string|null;reason?:string|null;
+  chunkCount?:number;admittedChunks?:number}
 
 export type CommandReceipt = {
   schemaVersion: number; commandId: string; accepted: boolean
@@ -121,6 +137,7 @@ export type CommandReceipt = {
 export type MemoryControlResult = {
   schemaVersion: 1; commandId: string; completed: boolean; stateRevision?: number
   operationId?: string; data?: Record<string, any>
+  canceled?: boolean
   error?: { code: string; message: string; outcomeUnknown?: boolean; retryable?: boolean }
   securityAudit?: { gap: boolean; errorCode: string; retryAllowed: false }
 }

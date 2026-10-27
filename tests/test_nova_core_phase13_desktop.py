@@ -51,7 +51,15 @@ def test_react_has_no_legacy_agent_state_machine():
                       "type: 'input_response'", "type: 'resume'", "type: 'clear'"):
         assert forbidden not in source
     assert "applicationCommand('SubmitUserInput'" in source
-    assert "applicationCommand('ResolveUserInput'" in source
+    # Main React cannot provide user-input consent; the host-owned surface
+    # binds the current request to its exact child frame and one-use nonce.
+    assert "applicationCommand('ResolveUserInput'" not in source
+    host=(ROOT / "desktop/electron/main.ts").read_text(encoding="utf-8")
+    surface=(ROOT / "desktop/electron/question_surface.cjs").read_text(encoding="utf-8")
+    assert "createQuestionSurface" in host
+    assert "event.sender === record.window.webContents" in surface
+    assert "event.senderFrame === record.window.webContents.mainFrame" in surface
+    assert "nonce" in surface and "ResolveUserInput" in surface
     assert "useSessionView()" in source
 
 

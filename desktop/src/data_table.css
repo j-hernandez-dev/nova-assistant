@@ -1,0 +1,37 @@
+.nova-data-table-wrap { min-width:0;max-width:100%;padding:4px;overflow-x:auto;border:1px solid var(--border);border-radius:12px;background:color-mix(in srgb,var(--bg-alt) 25%,transparent); }
+.nova-data-table { width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;font-size:12px;color:var(--text-dim); }
+.nova-data-table th { text-align:left;vertical-align:middle;font-size:inherit;font-weight:600;padding:12px;border-bottom:1px solid var(--border);color:var(--text-dim);line-height:1.5; }
+.nova-data-table td { padding:14px 12px;border-bottom:1px solid color-mix(in srgb,var(--border) 60%,transparent);line-height:1.6;vertical-align:middle;overflow-wrap:anywhere; }
+.nova-data-table :is(th,td) > input[type="checkbox"] { display:block;width:14px;height:14px;margin:0 auto;vertical-align:middle;accent-color:var(--accent); }
+.nova-data-table tbody tr:last-child td { border-bottom:0; }
+.nova-data-table tr[data-selected] td { background:color-mix(in srgb,var(--accent) 8%,transparent); }
+.nova-data-table tbody tr td:first-child { border-radius:8px 0 0 8px; }
+.nova-data-table tbody tr td:last-child { border-radius:0 8px 8px 0; }
+.nova-data-actions { display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px 14px;margin-top:16px;min-width:0; }
+.nova-data-actions button { flex-shrink:0; }
+:root[data-nova-transitions="false"] .nova-data-actions { animation:none!important;transition:none!important; }
+@media(prefers-reduced-motion:reduce) { .nova-data-actions { animation:none!important;transition:none!important; } }
+
+/* Controls float over the full viewport; there is no footer strip. */
+.nova-data-region { position:relative;display:flex;flex-direction:column;flex:1;min-height:0;min-width:0; }
+.nova-data-scroll { flex:1 1 0;min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:3px 4px 20px; }
+.nova-data-region:has(> .nova-data-dock[data-visible="true"]) > .nova-data-scroll { padding-bottom:calc(var(--nova-data-dock-height,44px) + 28px); }
+.nova-data-dock { position:absolute;z-index:2;left:4px;right:10px;bottom:12px;box-sizing:border-box;min-height:0;margin:0;padding:0;overflow:visible;pointer-events:none;background:transparent; }
+.nova-data-dock > * { pointer-events:auto;opacity:.72;transition:opacity .14s ease; }
+.nova-data-dock:is(:hover,:focus-within,:has([aria-expanded="true"])) > * { opacity:1; }
+.nova-surface-dialog .nova-data-dock :is(button,[role="combobox"]) { min-height:40px;background:var(--panel,var(--bg-alt)); }
+.nova-surface-dialog .nova-data-dock :is(button,[role="combobox"]):hover:not(:disabled) { background:var(--bg-hover); }
+.nova-surface-dialog .nova-data-dock .nova-settings-danger { background:color-mix(in srgb,var(--red) 8%,var(--panel,var(--bg-alt))); }
+.nova-surface-dialog .nova-data-dock .nova-settings-danger:hover:not(:disabled) { background:color-mix(in srgb,var(--red) 17%,var(--panel,var(--bg-alt))); }
+.nova-data-dock > .nova-data-selection-count { padding:6px 8px;border-radius:7px;background:var(--panel,var(--bg-alt)); }
+.nova-data-dock[data-visible="false"] { visibility:hidden;pointer-events:none; }
+:root[data-nova-transitions="false"] .nova-data-dock > * { transition:none!important; }
+@media(prefers-reduced-motion:reduce) { .nova-data-dock > * { transition:none!important; } }
+.nova-data-selection-count { color:var(--text-dim);font-size:11px; }
+.nova-data-search { display:flex;align-items:center;gap:10px;min-width:0;border:1px solid var(--border);border-radius:11px;padding:4px 8px 4px 14px;background:var(--bg-input);color:var(--text-muted); }
+.nova-data-search:focus-within { border-color:var(--accent); }
+.nova-data-search input,.nova-settings-dialog .nova-data-search input[type="search"] { flex:1;min-width:0;width:100%;border:0;border-radius:0;margin:0;padding:10px 0;outline:0;box-shadow:none;background:transparent;color:var(--text);font:inherit; }
+.nova-data-search input::placeholder { color:var(--text-muted); }
+.nova-data-search button { display:inline-grid;place-items:center;flex-shrink:0;width:32px;height:32px;padding:0;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--text-muted);cursor:pointer; }
+.nova-data-search button:hover:not(:disabled) { color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,transparent); }
+.nova-data-search input[type="search"]::-webkit-search-cancel-button { appearance:none; }

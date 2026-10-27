@@ -1,0 +1,25 @@
+const assert=require('node:assert/strict')
+/** Actual computed layout and input hit testing in the synthetic renderer. */
+module.exports=async function floatingControls(win,dockSelector,scrollSelector){
+ const js=code=>win.webContents.executeJavaScript(code,true)
+ const initial=await js(`(()=>{const d=document.querySelector(${JSON.stringify(dockSelector)}),s=document.querySelector(${JSON.stringify(scrollSelector)}),r=d.parentElement,db=d.getBoundingClientRect(),sb=s.getBoundingClientRect(),rb=r.getBoundingClientRect();document.activeElement?.blur();return {position:getComputedStyle(d).position,background:getComputedStyle(d).backgroundColor,viewportHeight:s.clientHeight,regionHeight:rb.height,scrollBottom:sb.bottom,regionBottom:rb.bottom,dockTop:db.top,dockBottom:db.bottom,childOpacity:Number(getComputedStyle(d.firstElementChild).opacity),motion:document.documentElement.dataset.novaTransitions}})()`)
+ assert.ok(initial.viewportHeight>100,JSON.stringify(initial));assert.equal(initial.position,'absolute');assert.equal(initial.background,'rgba(0, 0, 0, 0)')
+ assert.ok(Math.abs(initial.scrollBottom-initial.regionBottom)<2,'viewport reaches the bottom behind the controls')
+ assert.ok(initial.dockTop<initial.scrollBottom&&initial.dockBottom<=initial.scrollBottom)
+ assert.ok(initial.childOpacity>0&&initial.childOpacity<1,'idle controls are translucent')
+ const passThrough=await js(`(()=>{const d=document.querySelector(${JSON.stringify(dockSelector)}),b=d.getBoundingClientRect();const hit=document.elementFromPoint(b.left+2,b.top+b.height/2);return !!hit&&!d.contains(hit)})()`)
+ assert.equal(passThrough,true,'unused overlay area lets pointer input reach the table')
+ if(!win.webContents.debugger.isAttached())win.webContents.debugger.attach('1.3')
+ await win.webContents.debugger.sendCommand('DOM.enable');await win.webContents.debugger.sendCommand('CSS.enable')
+ const {root}=await win.webContents.debugger.sendCommand('DOM.getDocument'),{nodeId}=await win.webContents.debugger.sendCommand('DOM.querySelector',{nodeId:root.nodeId,selector:dockSelector})
+ await js(`document.documentElement.dataset.novaTransitions='false'`)
+ await win.webContents.debugger.sendCommand('CSS.forcePseudoState',{nodeId,forcedPseudoClasses:['hover']})
+ assert.equal(await js(`Number(getComputedStyle(document.querySelector(${JSON.stringify(dockSelector)}).firstElementChild).opacity)`),1,'hover makes the controls opaque')
+ const backgroundAlpha=await js(`(()=>{const d=document.querySelector(${JSON.stringify(dockSelector)}),button=d.querySelector('button:not(:disabled)'),c=document.createElement('canvas');c.width=c.height=1;const ctx=c.getContext('2d');ctx.fillStyle=getComputedStyle(button).backgroundColor;ctx.fillRect(0,0,1,1);return ctx.getImageData(0,0,1,1).data[3]})()`)
+ assert.equal(backgroundAlpha,255,'each hovered control has its own opaque theme background')
+ await win.webContents.debugger.sendCommand('CSS.forcePseudoState',{nodeId,forcedPseudoClasses:[]})
+ await js(`document.querySelector(${JSON.stringify(dockSelector)}).querySelector('button:not(:disabled)').focus()`)
+ assert.equal(await js(`Number(getComputedStyle(document.querySelector(${JSON.stringify(dockSelector)}).firstElementChild).opacity)`),1,'keyboard focus makes the controls opaque')
+ await js(`document.activeElement?.blur();${initial.motion===undefined?"delete document.documentElement.dataset.novaTransitions":`document.documentElement.dataset.novaTransitions=${JSON.stringify(initial.motion)}`}`)
+ return {...initial,passThrough,hoverOpacity:1,focusOpacity:1,backgroundAlpha}
+}

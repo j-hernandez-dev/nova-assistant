@@ -11,7 +11,7 @@ async function pickKnowledge(client, showPicker) {
       typeof picked.filePaths[0] !== 'string') return reject('IMPORT_CANCELLED')
   if (client.view.sessionId !== sessionId || client.view.workspace !== workspace ||
       client.view.stateRevision !== stateRevision) return reject('REVISION_CONFLICT')
-  return client.knowledge('source_import', {path:picked.filePaths[0],scope:'SESSION'})
+  return client.knowledge('source_import', {path:picked.filePaths[0],scope:'WORKSPACE'})
 }
 function knowledgeControl(client,name,args,commandId) {
   const keys = {source_import_url:['url','scope'],source_refresh_url:['sourceId','url'],source_detail:['sourceId','revisionId']}

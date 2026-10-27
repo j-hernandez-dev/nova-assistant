@@ -180,7 +180,7 @@ def test_busy_optional_retrieval_is_typed_not_late_payload_or_failed_turn(tmp_pa
 
 
 @pytest.mark.parametrize('remote',[False,True])
-def test_normal_child_loop_only_delegated_memory_remote_denied_default(tmp_path,remote):
+def test_normal_child_loop_delegates_memory_only_to_local_models(tmp_path,remote):
     # Scripted provider contract only; real Application/runner/SubAgent/ToolRuntime.
     from local_cli.application.session import AgentSessionCoordinator
     from local_cli.application.events import EventBufferConfig

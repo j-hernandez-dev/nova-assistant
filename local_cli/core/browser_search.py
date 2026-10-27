@@ -13,7 +13,7 @@ ENGINES = {
 
 @dataclass(frozen=True)
 class BrowserSearchSettings:
-    engine: str = 'bing'
+    engine: str = 'google'
     # Infrastructure seam for an owned fixture, never a model argument.
     endpoint: str | None = None
 

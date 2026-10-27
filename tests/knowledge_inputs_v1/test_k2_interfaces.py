@@ -63,10 +63,10 @@ def test_cli_workspace_import_list_promote_delete_share_backend_no_second_loop(t
         handle_knowledge_command(str(c.file),console,attach=True)
         original=refs(c)[0]
         handle_knowledge_command('promote '+original['sourceId'],console)
-        assert len(refs(c))==2
+        assert refs(c)==[original]
         handle_knowledge_command('list',console)
         handle_knowledge_command('delete '+original['sourceId'],console)
-        assert len(refs(c))==1 and c.app._session.turns==[]
+        assert len(refs(c))==0 and c.app._session.turns==[]
         handle_knowledge_command('import '+str(c.file),console)
-        assert len(refs(c))==2
+        assert len(refs(c))==1
     finally:console.close();close(c)

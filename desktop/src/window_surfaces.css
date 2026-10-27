@@ -1,0 +1,51 @@
+/* Shared depth for Settings, Models, Sources and Memories. Keep the background's
+   original brightness; focus comes from blur, a quiet edge and a local shadow. */
+.nova-modal-backdrop:has(>.nova-surface-dialog){
+  background:transparent;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+}
+.nova-modal-backdrop :is(.nova-settings-dialog.nova-surface-dialog,.picker.picker-wide.nova-model-dialog.nova-surface-dialog,.nova-memories-dialog.nova-surface-dialog){
+  display:flex;flex-direction:column;width:min(1040px,100%);height:min(750px,100%);max-width:100%;max-height:100%;min-height:0;min-width:0;overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--accent) 18%,var(--border));border-radius:22px;color:var(--text);
+  background:radial-gradient(ellipse at 25% 0,color-mix(in srgb,var(--accent) 5%,transparent),transparent 60%),var(--panel,var(--bg-alt));
+  box-shadow:0 12px 36px color-mix(in srgb,var(--nova-shadow,#000) 24%,transparent),0 2px 8px color-mix(in srgb,var(--nova-shadow,#000) 12%,transparent);text-align:left;
+}
+.nova-modal-backdrop .nova-surface-dialog .nova-surface-header{
+  display:flex;align-items:center;justify-content:space-between;gap:20px;flex:0 0 auto;min-height:88px;margin:0;padding:22px 28px 18px;
+  border-bottom:1px solid color-mix(in srgb,var(--border) 50%,transparent);background:transparent;
+}
+.nova-modal-backdrop .nova-surface-dialog .nova-surface-header .nova-settings-eyebrow{
+  display:block;margin:0 0 4px;font-size:11px;line-height:1.4;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+}
+.nova-modal-backdrop .nova-surface-dialog .nova-surface-header h1{margin:0;font-size:22px;line-height:1.3;font-weight:600;letter-spacing:-.025em}
+.nova-modal-backdrop .nova-surface-dialog .nova-surface-header>.nova-dismiss-button{
+  position:static;display:inline-flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;height:36px;margin:0;padding:0;border-radius:10px;
+}
+.nova-modal-backdrop .nova-surface-dialog .nova-search-submit{
+  display:inline-grid;place-items:center;flex:0 0 32px;width:32px;height:32px;padding:0;border:1px solid transparent;border-radius:8px;
+  color:var(--text-muted);background:transparent;cursor:pointer;
+}
+.nova-modal-backdrop .nova-surface-dialog .nova-search-submit:hover:not(:disabled){color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.nova-modal-backdrop .nova-surface-dialog .nova-search-submit:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nova-modal-backdrop .nova-surface-dialog .nova-search-submit svg{position:static;width:18px;height:18px;margin:0;transform:none;pointer-events:none}
+.nova-surface-dialog .nova-search-refresh{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;padding:0;border:0;border-radius:7px;background:transparent;color:var(--text-dim);cursor:pointer}
+.nova-surface-dialog .nova-search-refresh:hover:not(:disabled){color:var(--accent);background:color-mix(in srgb,var(--text) 3.5%,transparent)}
+.nova-surface-dialog .nova-search-refresh:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nova-surface-dialog button.nova-search-refresh:disabled{opacity:.5;cursor:default}
+.nova-modal-backdrop .nova-model-dialog.nova-surface-dialog .picker-search .nova-search-submit{position:absolute;right:72px}
+.nova-modal-backdrop .nova-model-dialog.nova-surface-dialog .picker-search:not(:has(.picker-refresh)) .nova-search-submit{right:36px}
+.nova-modal-backdrop .nova-model-dialog.nova-surface-dialog .picker-search input{padding-right:84px}
+.nova-modal-backdrop .nova-model-dialog.nova-surface-dialog .picker-search:not(:has(.picker-refresh)) input{padding-right:48px}
+.nova-memories-dialog .memories-list-options{min-height:22px}
+/* All delete actions use the Chats button treatment and the active theme. */
+.nova-surface-dialog .nova-settings-danger{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;
+  border:1px solid var(--red);border-radius:9px;background:color-mix(in srgb,var(--red) 7.8%,transparent);color:var(--red);
+  font:inherit;font-size:12px;line-height:normal;cursor:pointer;
+}
+.nova-surface-dialog .nova-settings-danger:hover:not(:disabled){background:color-mix(in srgb,var(--red) 16.9%,transparent);border-color:var(--red)}
+.nova-surface-dialog .nova-settings-danger:disabled{opacity:.5;cursor:default}
+.nova-surface-dialog .nova-settings-danger:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:600px){
+  .nova-modal-backdrop :is(.nova-settings-dialog.nova-surface-dialog,.picker.picker-wide.nova-model-dialog.nova-surface-dialog,.nova-memories-dialog.nova-surface-dialog){border-radius:18px}
+  .nova-modal-backdrop .nova-surface-dialog .nova-surface-header{padding:20px;gap:12px}
+}

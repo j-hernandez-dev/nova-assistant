@@ -38,7 +38,7 @@ test('cancel, close and a changed project invalidate confirmation without destru
     if(action==='cancel')f.invoke(DECIDE,f.child(),{nonce:binding.nonce,confirmed:false})
     if(action==='close')f.child().destroy()
     if(action==='changed')f.invalidate()
-    assert.deepEqual(await decision,{confirmed:false,canceled:true});assert.equal(f.controller.isPending(),false)
+    assert.deepEqual(await decision,{confirmed:false,canceled:true,deleteAssociatedFiles:false});assert.equal(f.controller.isPending(),false)
   }
 })
 test('project chat transport correlates exact responses and disconnect resolves requests without replay',async()=>{

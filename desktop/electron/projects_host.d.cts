@@ -6,6 +6,6 @@ export function createProjectsHost(options: {directory:string;defaultPath:string
   clearChat?:(path:string)=>Promise<{success:boolean;error?:{code:string}}>;
   openPath:(path:string)=>Promise<string>;publish?:(state:ProjectState)=>void}): {
   state():ProjectState;action(action:unknown,path?:unknown):Promise<any>;preferredPath():string;
-  defaultPath:string;listDirectory(path:unknown,offset?:unknown):Promise<any>;readFile(path:unknown):Promise<any>;
+  readonly defaultPath:string;listDirectory(path:unknown,offset?:unknown):Promise<any>;readFile(path:unknown):Promise<any>;
   isChanging():boolean;sync():void;setError(code:string):void
 }

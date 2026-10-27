@@ -1,9 +1,17 @@
+import {embeddingEnglish,embeddingSpanish} from './embedding_locale'
+import {aboutEnglish,aboutSpanish} from './about_locale'
+import {publicLibraryEnglish,publicLibrarySpanish} from './public_library_locale'
+import {projectContentsEnglish,projectContentsSpanish} from './project_contents_locale'
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import {llmEnglish,llmSpanish} from './llm_locale'
 import {settingsEnglish,settingsSpanish} from './settings_locale'
-import {desktopMessagesEnglish,desktopMessagesSpanish} from './desktop_messages_locale'
 import {settingsServicesEnglish,settingsServicesSpanish} from './settings_services_locale'
+import {sourcesEnglish,sourcesSpanish} from './sources_locale'
 import {knowledgeSettingsEnglish,knowledgeSettingsSpanish} from './knowledge_settings_locale'
 import {memorySettingsEnglish,memorySettingsSpanish} from './memory_settings_locale'
+import {storageEnglish,storageSpanish} from './storage_locale'
+import {shortcutsEnglish,shortcutsSpanish} from './shortcuts_locale'
+import {defaultGeneral, readGeneral, applyGeneral, type GeneralPreferences} from '../shared/desktop_general'
 
 
 
@@ -12,9 +20,10 @@ export type DesktopLocale = 'es' | 'en'
 
 
 const english = {
-  ...settingsEnglish, ...desktopMessagesEnglish, ...settingsServicesEnglish, ...knowledgeSettingsEnglish, ...memorySettingsEnglish,
+  ...publicLibraryEnglish,
+  ...aboutEnglish, ...projectContentsEnglish, ...settingsEnglish, ...settingsServicesEnglish, ...knowledgeSettingsEnglish, ...sourcesEnglish, ...memorySettingsEnglish, ...storageEnglish, ...shortcutsEnglish, ...llmEnglish, ...embeddingEnglish,
   modelInstalledCategory: 'Installed', modelGeneralCategory: 'General', modelSmallCategory: 'Small',
-  modelJapaneseCategory: 'Japanese', modelMultilingualCategory: 'Multilingual', modelEmbeddingCategory: 'Embeddings',
+  modelMultilingualCategory: 'Multilingual', modelEmbeddingCategory: 'Embeddings',
   modelInventoryUnknown: 'Installed models unavailable', modelViewInstalled: 'View installed variants',
   modelSearchSubmit: 'Search library', modelCatalogFailed: 'The catalog could not be loaded. Try again.',
   modelSearchFailed: 'The model library search failed. Try another search when the connection is available.',
@@ -29,7 +38,7 @@ const english = {
   modelMetadataUnknown: 'Not reported', modelRatingSource: 'Catalog rating', modelFilterCount: 'models shown',
   modelDetails: 'Model details', modelClose: 'Close models', modelRefresh: 'Refresh installed models',
   modelDownloadAction: 'Download model', modelDeleteAction: 'Delete model', modelSelectAction: 'Use model',
-  modelTabs: 'Model views', modelCategories: 'Model categories', modelSort: 'Sort results',
+  modelCategories: 'Model categories', modelSort: 'Sort results',
   modelCapabilities: 'Filter by capability', modelCloudOnly: 'Cloud only', modelDetectedHardware: 'Detected hardware',
 
   projectPreviousUnavailable: 'The previous folder is no longer available. Select another folder.',
@@ -64,6 +73,10 @@ const english = {
 
   projectRemoveHint: 'Removes the project from Nova and deletes its chat. The folder files remain on your computer.',
 
+  modelConnectionFailed: 'The message could not be sent to Ollama. Check the connection before trying again.',
+  modelResponseDelayedTitle: 'The model took too long to respond',
+  modelResponseTimeout: 'Ollama connected, but the model did not respond in time. It may be loading or processing the context. Check its status before sending another message.',
+  modelConnectTimeout: 'The connection to Ollama timed out. Check the service and try checking again.',
   modelGenerationFailed: 'The model could not generate a response. Check Ollama and available memory before trying again.',
   home: 'Home', projects: 'Projects', models: 'Models', settings: 'Settings', history: 'History',
 
@@ -85,7 +98,7 @@ const english = {
   activityCommands: 'Command activity', activityFiles: 'File activity', activityNeedsReview: 'Review result',
   promptPlaceholder: 'Work with Nova', thinking: 'Thinking',
   questionOpenFailed: 'The question dialog could not be opened. Try again.',
-  messageSent: 'Message sent', questionHint: 'Answer so Nova can continue with your task.',
+  questionHint: 'Answer so Nova can continue with your task.',
   questionPlaceholder: 'Write your answer…', questionSending: 'Sending…',
   questionAnswerSent: 'Answer sent. Waiting for Nova to continue…',
   questionAnswerFailed: 'Your answer could not be sent. Try again or stop the task.',
@@ -199,6 +212,11 @@ const english = {
 
   activityQuestionTool: 'Question', activityFetchTool: 'Web request', activityWebSearchTool: 'Web search',
 
+  activityCommandFinished: 'Command finished', activityCommandExitCode: 'Command finished · code {code}',
+  activityCommandTimedOut: 'Execution time limit reached', activityCommandStopped: 'Execution stopped',
+  activityCommandUnconfirmed: 'Could not confirm how execution ended',
+  activityCommandInterruptedExplanation: 'The command may have made changes before stopping. Check the current state before repeating it.',
+  activityEffectsVerification: 'Effect verification', activityEffectsNotVerified: 'Not performed',
   activityPending: 'Pending', activityCompleted: 'Execution confirmed', activityDenied: 'Permission denied',
 
   activityFailed: 'Could not execute', activityCancelled: 'Cancelled', activityTimedOut: 'Time limit reached',
@@ -249,11 +267,11 @@ const english = {
 
   sourceRevisionDetail: 'Source and revision details', invalidReferences: 'Invalid references',
 
-  forYou: 'For you', catalog: 'Catalog', discover: 'Discover', installed: 'installed',
+  forYou: 'For you', catalog: 'Catalog', installed: 'installed',
 
   sync: 'Sync', syncing: 'Syncing…', syncModels: 'Fetch the latest catalog from ollama.com',
 
-  filterModels: 'Filter models…', loadingModels: 'Loading models…', all: 'All', noModelMatches: 'No models match.',
+  filterModels: 'Filter models...', loadingModels: 'Loading models…', all: 'All', noModelMatches: 'No models match.',
 
   searchModels: 'Search ollama.com…', searching: 'Searching…', noSearchResults: 'No results. Try another search.',
 
@@ -289,19 +307,19 @@ const english = {
 
   queryProject: 'Query project', keyboardShortcuts: 'Keyboard shortcuts', toggleExplorer: 'Toggle file explorer', newLine: 'New line',
 
-  claudeAuthentication: 'Claude authentication', apiKey: 'API key', subscription: 'Subscription',
 
-  authenticatedVia: 'Authenticated via', logout: 'Log out', apiKeyRequired: 'An API key is required.',
 
-  apiKeyInvalid: 'Anthropic API keys must start with sk-ant-.', apiKeySaved: 'API key saved and validated.',
 
-  apiKeySaveFailed: 'The API key could not be saved.', loggedIn: 'Logged in successfully.', loginFailed: 'Login failed.',
 
-  enterApiKey: 'Enter your Anthropic API key. Get one from', validating: 'Validating…', saveValidate: 'Save and validate',
 
-  subscriptionDescription: 'Log in with your Claude Pro or Max subscription. A browser window will open for authentication.',
 
-  loggingIn: 'Logging in…', loginClaude: 'Log in with Claude', subscriptionRequired: 'An active Claude Pro or Max subscription is required.',
+
+
+
+
+
+
+
 
 } as const
 
@@ -310,9 +328,10 @@ const english = {
 export type TranslationKey = keyof typeof english
 
 const spanish: Record<TranslationKey, string> = {
-  ...settingsSpanish, ...desktopMessagesSpanish, ...settingsServicesSpanish, ...knowledgeSettingsSpanish, ...memorySettingsSpanish,
+  ...publicLibrarySpanish,
+  ...aboutSpanish, ...projectContentsSpanish, ...settingsSpanish, ...settingsServicesSpanish, ...knowledgeSettingsSpanish, ...sourcesSpanish, ...memorySettingsSpanish, ...storageSpanish, ...shortcutsSpanish, ...llmSpanish, ...embeddingSpanish,
   modelInstalledCategory: 'Instalados', modelGeneralCategory: 'General', modelSmallCategory: 'Pequeños',
-  modelJapaneseCategory: 'Japonés', modelMultilingualCategory: 'Multilingüe', modelEmbeddingCategory: 'Embeddings',
+  modelMultilingualCategory: 'Multilingüe', modelEmbeddingCategory: 'Embeddings',
   modelInventoryUnknown: 'Modelos instalados no disponibles', modelViewInstalled: 'Ver variantes instaladas',
   modelSearchSubmit: 'Buscar en la biblioteca', modelCatalogFailed: 'No se pudo cargar el catálogo. Vuelve a intentarlo.',
   modelSearchFailed: 'No se pudo consultar la biblioteca de modelos. Repite la búsqueda cuando haya conexión.',
@@ -327,7 +346,7 @@ const spanish: Record<TranslationKey, string> = {
   modelMetadataUnknown: 'No informado', modelRatingSource: 'Valoración del catálogo', modelFilterCount: 'modelos mostrados',
   modelDetails: 'Detalles del modelo', modelClose: 'Cerrar modelos', modelRefresh: 'Actualizar modelos instalados',
   modelDownloadAction: 'Descargar modelo', modelDeleteAction: 'Eliminar modelo', modelSelectAction: 'Usar modelo',
-  modelTabs: 'Vistas de modelos', modelCategories: 'Categorías de modelos', modelSort: 'Ordenar resultados',
+  modelCategories: 'Categorías de modelos', modelSort: 'Ordenar resultados',
   modelCapabilities: 'Filtrar por capacidad', modelCloudOnly: 'Sólo en la nube', modelDetectedHardware: 'Hardware detectado',
 
   projectPreviousUnavailable: 'La carpeta anterior ya no está disponible. Selecciona otra carpeta.',
@@ -362,6 +381,10 @@ const spanish: Record<TranslationKey, string> = {
 
   projectRemoveHint: 'Retira el proyecto de Nova y elimina su chat. Los archivos de la carpeta permanecen en el equipo.',
 
+  modelConnectionFailed: 'No se pudo enviar el mensaje a Ollama. Comprueba la conexión antes de volver a intentarlo.',
+  modelResponseDelayedTitle: 'El modelo tardó demasiado en responder',
+  modelResponseTimeout: 'Ollama conectó, pero el modelo no respondió a tiempo. Puede estar cargando o procesando el contexto. Comprueba su estado antes de enviar otro mensaje.',
+  modelConnectTimeout: 'Se agotó el tiempo para conectar con Ollama. Comprueba el servicio y vuelve a comprobar.',
   modelGenerationFailed: 'El modelo no pudo generar una respuesta. Comprueba Ollama y la memoria disponible antes de volver a intentarlo.',
   home: 'Inicio', projects: 'Proyectos', models: 'Modelos', settings: 'Configuración', history: 'Historial',
 
@@ -383,7 +406,7 @@ const spanish: Record<TranslationKey, string> = {
   activityCommands: 'Actividad con comandos', activityFiles: 'Actividad de archivos', activityNeedsReview: 'Revisar resultado',
   promptPlaceholder: 'Trabaja con Nova', thinking: 'Pensando',
   questionOpenFailed: 'No se pudo abrir el diálogo de consulta. Inténtalo de nuevo.',
-  messageSent: 'Mensaje enviado', questionHint: 'Responde para que Nova pueda continuar con tu tarea.',
+  questionHint: 'Responde para que Nova pueda continuar con tu tarea.',
   questionPlaceholder: 'Escribe tu respuesta…', questionSending: 'Enviando…',
   questionAnswerSent: 'Respuesta enviada. Esperando a que Nova continúe…',
   questionAnswerFailed: 'No se pudo enviar tu respuesta. Inténtalo de nuevo o detén la tarea.',
@@ -497,6 +520,11 @@ const spanish: Record<TranslationKey, string> = {
 
   activityQuestionTool: 'Consulta', activityFetchTool: 'Consulta web', activityWebSearchTool: 'Búsqueda web',
 
+  activityCommandFinished: 'Comando finalizado', activityCommandExitCode: 'Comando finalizado · código {code}',
+  activityCommandTimedOut: 'Tiempo de ejecución agotado', activityCommandStopped: 'Ejecución detenida',
+  activityCommandUnconfirmed: 'No se pudo confirmar la finalización',
+  activityCommandInterruptedExplanation: 'El comando puede haber realizado cambios antes de detenerse. Comprueba su estado antes de repetirlo.',
+  activityEffectsVerification: 'Verificación de efectos', activityEffectsNotVerified: 'No realizada',
   activityPending: 'Pendiente', activityCompleted: 'Ejecución confirmada', activityDenied: 'Permiso denegado',
 
   activityFailed: 'No se pudo ejecutar', activityCancelled: 'Cancelada', activityTimedOut: 'Tiempo agotado',
@@ -547,11 +575,11 @@ const spanish: Record<TranslationKey, string> = {
 
   sourceRevisionDetail: 'Detalles de fuente y revisión', invalidReferences: 'Referencias no válidas',
 
-  forYou: 'Para ti', catalog: 'Catálogo', discover: 'Descubrir', installed: 'instalados',
+  forYou: 'Para ti', catalog: 'Catálogo', installed: 'instalados',
 
   sync: 'Sincronizar', syncing: 'Sincronizando…', syncModels: 'Consultar el catálogo más reciente de ollama.com',
 
-  filterModels: 'Filtrar modelos…', loadingModels: 'Cargando modelos…', all: 'Todos', noModelMatches: 'No hay modelos que coincidan.',
+  filterModels: 'Filtrar modelos...', loadingModels: 'Cargando modelos…', all: 'Todos', noModelMatches: 'No hay modelos que coincidan.',
 
   searchModels: 'Buscar en ollama.com…', searching: 'Buscando…', noSearchResults: 'Sin resultados. Prueba otra búsqueda.',
 
@@ -587,150 +615,101 @@ const spanish: Record<TranslationKey, string> = {
 
   queryProject: 'Consultar proyecto', keyboardShortcuts: 'Atajos de teclado', toggleExplorer: 'Mostrar u ocultar archivos', newLine: 'Nueva línea',
 
-  claudeAuthentication: 'Autenticación de Claude', apiKey: 'Clave de API', subscription: 'Suscripción',
 
-  authenticatedVia: 'Autenticado mediante', logout: 'Cerrar sesión', apiKeyRequired: 'Se requiere una clave de API.',
 
-  apiKeyInvalid: 'Las claves de Anthropic deben comenzar por sk-ant-.', apiKeySaved: 'Clave de API guardada y validada.',
 
-  apiKeySaveFailed: 'No se pudo guardar la clave de API.', loggedIn: 'Sesión iniciada correctamente.', loginFailed: 'No se pudo iniciar sesión.',
 
-  enterApiKey: 'Introduce tu clave de API de Anthropic. Puedes obtenerla en', validating: 'Validando…', saveValidate: 'Guardar y validar',
 
-  subscriptionDescription: 'Inicia sesión con tu suscripción Claude Pro o Max. Se abrirá una ventana del navegador para autenticarte.',
 
-  loggingIn: 'Iniciando sesión…', loginClaude: 'Iniciar sesión con Claude', subscriptionRequired: 'Se requiere una suscripción activa de Claude Pro o Max.',
+
+
+
+
+
+
+
 
 }
 
 
 
-type LocaleResult = { success: true; preferences: { schemaVersion: 1; locale: DesktopLocale } }
-
-  | { success: false; error: { code: string; message: string } }
-
+type LocaleResult = { success: true; preferences: { schemaVersion: 1; locale: DesktopLocale } } | { success: false; error: { code: string; message: string } }
 type PreferencesHost = {
-
-  getDesktopPreferences: () => Promise<{ schemaVersion: 1; locale: DesktopLocale }>
-
+  getDesktopPreferences: () => Promise<{ schemaVersion: 1; locale: DesktopLocale } & Partial<GeneralPreferences>>
   setDesktopLocale: (locale: DesktopLocale) => Promise<LocaleResult>
-
 }
-
-
-
+type GeneralSaveState = 'idle' | 'saving' | 'unconfirmed' | 'saved' | 'reset' | 'failed'
 export const translate = (locale: DesktopLocale, key: TranslationKey): string => (locale === 'en' ? english : spanish)[key]
-
 const I18nContext = createContext({
-
-  locale: 'es' as DesktopLocale,
-
-  localeError: null as 'localeSaveFailed' | null,
-
+  locale: 'es' as DesktopLocale, localeError: null as 'localeSaveFailed' | null,
   setLocale: async (_locale: DesktopLocale): Promise<boolean> => false,
-
+  general: defaultGeneral, generalReady: false, generalSaveState: 'idle' as GeneralSaveState,
+  saveGeneral: async (_next: GeneralPreferences, _reset = false): Promise<boolean> => false,
   t: (key: TranslationKey): string => translate('es', key),
-
 })
 
-
-
-/** Presentation preferences only. Locale is never sent to the model or CLI. */
-
+/** Desktop presentation only. These preferences never enter model or CLI configuration. */
 export function I18nProvider({ children }: { children: ReactNode }) {
-
   const [locale, setCurrentLocale] = useState<DesktopLocale>(() =>
     typeof window !== 'undefined' && window.api?.initialDesktopLocale === 'en' ? 'en' : 'es')
-
   const [localeError, setLocaleError] = useState<'localeSaveFailed' | null>(null)
-
-  const requestedRevision = useRef(0)
-
-
-
+  const [general, setGeneral] = useState(() => readGeneral(typeof window === 'undefined' ? null : window.api?.initialDesktopGeneral))
+  const [generalReady, setGeneralReady] = useState(() => typeof window !== 'undefined' && !!window.api?.initialDesktopGeneral)
+  const [generalSaveState, setGeneralSaveState] = useState<GeneralSaveState>('idle')
+  const requestedRevision = useRef(0), generalPending = useRef(false)
   useEffect(() => {
-
     let alive = true
-
     const initialRevision = requestedRevision.current
-
     const host = typeof window === 'undefined' ? undefined : window.api as Partial<PreferencesHost> | undefined
-
     if (typeof host?.getDesktopPreferences === 'function') {
-
       void host.getDesktopPreferences().then(preferences => {
-
-        if (alive && initialRevision === requestedRevision.current && preferences.schemaVersion === 1
-
-            && (preferences.locale === 'es' || preferences.locale === 'en')) setCurrentLocale(preferences.locale)
-
-      }).catch(() => { /* Keep the default; browser-only previews need no Electron host. */ })
-
+        if (alive && initialRevision === requestedRevision.current && preferences.schemaVersion === 1 &&
+            (preferences.locale === 'es' || preferences.locale === 'en')) {
+          setCurrentLocale(preferences.locale)
+          const saved = readGeneral(preferences)
+          applyGeneral(document, saved); setGeneral(saved); setGeneralReady(true)
+        }
+      }).catch(() => { /* Keep preload's confirmed values. */ })
     }
-
     return () => { alive = false }
-
   }, [])
-
-
-
   useEffect(() => { document.documentElement.lang = locale }, [locale])
-
-
-
   const setLocale = useCallback(async (next: DesktopLocale): Promise<boolean> => {
-
     if (next !== 'es' && next !== 'en') return false
-
     const revision = ++requestedRevision.current
-
     setLocaleError(null)
-
     const host = typeof window === 'undefined' ? undefined : window.api as Partial<PreferencesHost> | undefined
-
     if (typeof host?.setDesktopLocale !== 'function') {
-
-      setCurrentLocale(next)
-
-      return true
-
+      setCurrentLocale(next); setGeneral(value => ({...value,language:next})); return true
     }
-
     try {
-
       const result = await host.setDesktopLocale(next)
-
       if (!result.success || result.preferences.locale !== next) {
-
         if (revision === requestedRevision.current) setLocaleError('localeSaveFailed')
-
         return false
-
       }
-
-      if (revision === requestedRevision.current) setCurrentLocale(next)
-
+      if (revision === requestedRevision.current) { setCurrentLocale(next); setGeneral(value => ({...value,language:next})) }
       return true
-
-    } catch {
-
-      if (revision === requestedRevision.current) setLocaleError('localeSaveFailed')
-
-      return false
-
-    }
-
+    } catch { if (revision === requestedRevision.current) setLocaleError('localeSaveFailed'); return false }
   }, [])
-
-
-
+  const saveGeneral = useCallback(async (next: GeneralPreferences, reset = false) => {
+    if (!generalReady || generalPending.current) return false
+    generalPending.current = true; ++requestedRevision.current; setGeneralSaveState('saving'); setLocaleError(null)
+    const timer = setTimeout(() => setGeneralSaveState('unconfirmed'), 15000)
+    try {
+      const result = await window.api.setDesktopGeneral(next)
+      const saved = result.success ? readGeneral(result.preferences) : null
+      if (!result.success || !saved || saved.language !== next.language || saved.autoSwitchView !== next.autoSwitchView ||
+          saved.transitionsEnabled !== next.transitionsEnabled || saved.showFiles !== next.showFiles ||
+          saved.collapsibleSourceContext !== next.collapsibleSourceContext || !['es','en'].includes(result.preferences.locale)) {
+        setGeneralSaveState('failed'); return false
+      }
+      applyGeneral(document, saved); setGeneral(saved); setCurrentLocale(result.preferences.locale)
+      setGeneralSaveState(reset ? 'reset' : 'saved'); return true
+    } catch { setGeneralSaveState('failed'); return false }
+    finally { generalPending.current = false; clearTimeout(timer) }
+  }, [generalReady])
   const t = useCallback((key: TranslationKey): string => translate(locale, key), [locale])
-
-  return <I18nContext.Provider value={{ locale, localeError, setLocale, t }}>{children}</I18nContext.Provider>
-
+  return <I18nContext.Provider value={{locale,localeError,setLocale,general,generalReady,generalSaveState,saveGeneral,t}}>{children}</I18nContext.Provider>
 }
-
-
-
 export function useI18n() { return useContext(I18nContext) }
-

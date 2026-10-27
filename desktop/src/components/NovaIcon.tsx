@@ -1,10 +1,10 @@
 import type { SVGProps } from 'react'
 
 export type NovaIconName =
-  | 'home' | 'folder' | 'brain' | 'settings' | 'history'
+  | 'home' | 'folder' | 'brain' | 'sparkle' | 'settings' | 'history' | 'chat' | 'memories' | 'database'
   | 'send' | 'stop' | 'plus' | 'close' | 'chevron' | 'back'
-  | 'terminal' | 'files' | 'file-read' | 'file-write' | 'file-edit' | 'search' | 'globe'
-  | 'browser' | 'pointer' | 'keyboard' | 'upload' | 'download' | 'refresh' | 'forward'
+  | 'terminal' | 'files' | 'file-read' | 'file-write' | 'file-edit' | 'search' | 'globe' | 'link'
+  | 'browser' | 'pointer' | 'keyboard' | 'upload' | 'download' | 'refresh' | 'sync' | 'forward'
   | 'hand' | 'checklist' | 'agents' | 'tool' | 'workflow' | 'help' | 'eye' | 'copy' | 'check'
 
 type Props = Omit<SVGProps<SVGSVGElement>, 'name'> & {
@@ -34,6 +34,7 @@ export function NovaIcon({ name, size = 24, ...props }: Props) {
         <path d="m9.6 3-.5 2a7.3 7.3 0 0 0-1.7 1L5.5 5.4 3.1 9.6l1.4 1.5a7.5 7.5 0 0 0 0 1.9l-1.4 1.4 2.4 4.2 1.9-.6a7.3 7.3 0 0 0 1.7 1l.5 2h4.8l.5-2a7.3 7.3 0 0 0 1.7-1l1.9.6 2.4-4.2-1.4-1.5a7.5 7.5 0 0 0 0-1.9l1.4-1.4-2.4-4.2-1.9.6a7.3 7.3 0 0 0-1.7-1l-.5-2Z" />
         <circle cx="12" cy="12" r="3" />
       </>}
+      {name === 'chat' && <path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 3V6a2 2 0 0 1 2-2Z" />}
       {name === 'history' && <>
         <path d="M3 10a9 9 0 1 1 2.2 8M3 4v6h6" />
         <path d="M12 7v5l3 2" />
@@ -57,14 +58,19 @@ export function NovaIcon({ name, size = 24, ...props }: Props) {
         {name === 'file-write' && <path d="M12 11v7m-3-3.5h6" />}
         {name === 'file-edit' && <path d="m9 18 1-4 6-6 3 3-6 6Zm1-4 3 3" />}
       </>}
+      {name === 'memories' && <g transform="rotate(45 12 12)"><path d="M8 3h8l-1 7 4 4v2H5v-2l4-4ZM12 16v6"/></g>}
+      {name === 'sparkle' && <path d="M12 2C10.8 9.2 9.2 10.8 2 12c7.2 1.2 8.8 2.8 10 10 1.2-7.2 2.8-8.8 10-10-7.2-1.2-8.8-2.8-10-10Z"/>}
+      {name === 'database' && <><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 4 18 4 18 0V5M3 12c0 4 18 4 18 0"/></>}
       {name === 'search' && <><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4 4" /></>}
       {name === 'globe' && <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a17 17 0 0 1 0 18 17 17 0 0 1 0-18" /></>}
+      {name === 'link' && <><path d="m10 13 4-4M9 15l-2 2a4 4 0 0 1-5-5l4-4a4 4 0 0 1 6 0m0 8a4 4 0 0 0 6 0l4-4a4 4 0 0 0-5-5l-2 2" /></>}
       {name === 'browser' && <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 9h18M6 6.5h.01M9 6.5h.01" /></>}
       {name === 'pointer' && <path d="m5 3 3 17 4-6 7-1Zm7 11 4 7" />}
       {name === 'keyboard' && <><rect x="2" y="6" width="20" height="13" rx="2" /><path d="M5 10h1m3 0h1m3 0h1m3 0h2M5 14h1m3 0h1m3 0h1m3 0h2M8 16.5h8" /></>}
       {name === 'upload' && <path d="M4 15v5h16v-5M12 15V3m-5 5 5-5 5 5" />}
       {name === 'download' && <path d="M4 15v5h16v-5M12 3v12m-5-5 5 5 5-5" />}
       {name === 'refresh' && <path d="M20 9a8 8 0 1 0 0 6M20 3v6h-6" />}
+      {name === 'sync' && <path d="M20 7a9 9 0 0 0-15-2L2 8m0-5v5h5M4 17a9 9 0 0 0 15 2l3-3m0 5v-5h-5"/>}
       {name === 'forward' && <path d="m13 5 7 7-7 7M20 12H4" />}
       {name === 'hand' && <path d="M8 12V5a2 2 0 0 1 4 0v7-8a2 2 0 0 1 4 0v8-6a2 2 0 0 1 4 0v9c0 4-3 6-6 6h-2c-3 0-4-2-6-4l-3-4a2 2 0 0 1 3-2l2 2" />}
       {name === 'checklist' && <path d="m3 6 1.5 1.5L7 5m3 1h11M3 12h4m3 0h11M3 18h4m3 0h11" />}

@@ -20,25 +20,25 @@ function setup(){const sent=[],client=new DesktopApplicationClient(frame=>sent.p
   client.receive({type:'snapshot',id:sent.findLast(f=>f.type==='get_snapshot').id,data:snapshot()})
   return {client,sent}}
 
-test('context setter validates exact presets before sending and waits for snapshot confirmation',async()=>{
+for (const tokens of [65536,131072,262144]) test('context setter validates and confirms '+tokens+' tokens',async()=>{
   const {client,sent}=setup(),before=sent.length
-  for(const requestedTokens of [true,'65536',131072,-1,undefined,null])
+  for(const requestedTokens of [true,'65536',524288,262145,-1,undefined,null])
     assert.equal((await client.command('SetContextWindow',{requestedTokens})).accepted,false)
   assert.equal((await client.command('SetContextWindow',{requestedTokens:8192,permission:'all'})).accepted,false)
   assert.equal(sent.length,before)
-  const pending=client.command('SetContextWindow',{requestedTokens:65536},'owned-preset'),request=sent.at(-1)
+  const pending=client.command('SetContextWindow',{requestedTokens:tokens},'owned-preset'),request=sent.at(-1)
   assert.equal(request.command.expectedRevision,3)
   assert.equal(client.view.context.requestedTokens,8192)
   client.receive({type:'application_result',id:request.id,data:{accepted:true,schemaVersion:1,commandId:'owned-preset',createdIds:{}}})
   assert.equal((await pending).accepted,true)
   assert.equal(client.view.context.requestedTokens,8192)
-  client.receive({type:'snapshot',id:sent.findLast(f=>f.type==='get_snapshot').id,data:snapshot({requestedTokens:65536,selectedTokens:65536,errorCode:null})})
-  assert.equal(client.view.context.requestedTokens,65536)
+  client.receive({type:'snapshot',id:sent.findLast(f=>f.type==='get_snapshot').id,data:snapshot({requestedTokens:tokens,selectedTokens:tokens,errorCode:null})})
+  assert.equal(client.view.context.requestedTokens,tokens)
   client.disconnected()
 })
 
 test('context projection drops absent or malformed settings on recovery',()=>{
-  for(const invalid of [undefined,{...context,requestedTokens:131072},{...context,selectedTokens:0},
+  for(const invalid of [undefined,{...context,requestedTokens:524288},{...context,selectedTokens:0},
     {...context,errorCode:'invalid with spaces'},{...context,selectedTokens:null}]){
     const {client,sent}=setup();client.refresh()
     const state=snapshot(invalid);state.services.context=invalid
@@ -60,16 +60,29 @@ test('a rejected context save preserves the conversation error and the confirmed
   client.disconnected()
 })
 
-test('context UI has five native keyboard steps capped at 64K and translated labels',()=>{
+test('context UI has seven native keyboard steps capped at 256K and translated labels',()=>{
   const {client}=setup()
   for(locale of ['es','en']){
     const html=renderToStaticMarkup(React.createElement(ContextSettings,{view:client.view}))
-    assert.match(html,/type="range" min="0" max="4" step="1"/)
+    assert.match(html,/type="range" min="0" max="6" step="1"/)
     assert.match(html,/aria-valuetext="8K"/)
     assert.match(html,/>64K<\/button>/)
-    assert.doesNotMatch(html,/128K|256K/)
+    assert.match(html,/>128K<\/button>/)
+    assert.match(html,/>256K<\/button>/)
+    assert.ok(html.includes((locale==='es'?settingsSpanish:settingsEnglish).contextTokensHint))
+    assert.ok(html.includes(`aria-label="${locale==='es'?'Tokens de contexto':'Context tokens'}"`))
+    assert.ok(html.includes(`aria-label="${locale==='es'?'Automático':'Automatic'}"`))
     assert.ok(html.includes(locale==='es'?'Tokens de contexto':'Context tokens'))
     assert.ok(html.includes(locale==='es'?'Automático':'Automatic'))
   }
+  client.disconnected()
+})
+
+for (const tokens of [131072,262144]) test('context slider displays confirmed '+tokens+' tokens and proportional fill',()=>{
+  const {client}=setup()
+  client.view.context={requestedTokens:tokens,selectedTokens:tokens,errorCode:null}
+  const html=renderToStaticMarkup(React.createElement(ContextSettings,{view:client.view}))
+  assert.ok(html.includes('aria-valuetext="'+tokens/1024+'K"'))
+  assert.match(html,tokens===262144 ? /--context-fill:100%/ : /--context-fill:83\.333/)
   client.disconnected()
 })

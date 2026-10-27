@@ -94,6 +94,7 @@ class KnowledgeService:
                 mediaType=prepared.revision.media_type,chunks=len(prepared.chunks),elapsedMs=(perf_counter()-started)*1000))
         except Exception:
             gap = True
+        if hasattr(self, 'indexing'): self.indexing.refresh()
         return KnowledgeImportOutcome(operation.operation_id, OperationStatus.COMPLETED, result, notification_gap=gap)
 
     def delete(self, source_id, *, context):
@@ -102,13 +103,16 @@ class KnowledgeService:
         self._events('knowledge.source.deleted', dict(sourceId=source_id, operationId=str(context.operation_id)))
 
     def import_file(self, *, context, selected_path, acquisition, prepare=None,
-                    scope_kind=KnowledgeScopeKind.SESSION, progress=lambda phase, size=0: None,source_id=None):
+                    scope_kind=KnowledgeScopeKind.WORKSPACE, progress=lambda phase, size=0: None,source_id=None):
         """Authenticated host acquisition. A producer is a trusted K3 seam.
 
         Missing extraction is a typed failure, never placeholder publication.
         No origin metadata, renderer content or model output selects the path.
         """
         self._check(context)
+        # Local attachments always persist with the project. SESSION remains a
+        # legacy wire value for compatibility, never temporary local storage.
+        scope_kind = KnowledgeScopeKind.WORKSPACE
         if source_id:
             old=self.store.get_source(source_id,self.access)
             if old.scope.kind is not scope_kind or old.kind is SourceKind.URL_SNAPSHOT:
@@ -180,6 +184,10 @@ class KnowledgeService:
         """
         self._check(context)
         source = self.store.get_source(source_id, self.access)
+        if source.scope.kind is KnowledgeScopeKind.WORKSPACE and source.current_revision_id is not None:
+            # Compatibility for old host controls: attachments are already
+            # persistent, so retaining them must not create a duplicate copy.
+            return KnowledgeImportOutcome(str(context.operation_id),OperationStatus.COMPLETED,source,unchanged=True)
         if source.scope.kind is not KnowledgeScopeKind.SESSION or source.current_revision_id is None:
             raise KnowledgeError(KnowledgeErrorCode.STALE_SOURCE)
         prepared = self.store.read_prepared(source.current_revision_id, self.access)
@@ -235,6 +243,7 @@ class KnowledgeService:
     def retrieve(self, query, *, context, filters=None):
         """Scoped K4 data API. K5 will own Turn-level context admission."""
         self._check(context)
+        if hasattr(self, 'indexing'): self.indexing.refresh(schedule=False)
         now = datetime.now(timezone.utc)
         if (context.cancellation_token.is_cancel_requested() or
                 context.deadline is not None and context.deadline <= now):
@@ -242,7 +251,9 @@ class KnowledgeService:
         from local_cli.core.knowledge_retrieval import DocumentRetrievalFilter
         from time import perf_counter
         started = perf_counter()
-        budget = min(.5, max(0, (context.deadline-now).total_seconds())) if context.deadline else .5
+        indexing = getattr(self, 'indexing', None)
+        bound = 30 if indexing and indexing.settings is not None and indexing.preferences.snapshot()['semanticRecall'] else .5
+        budget = min(bound, max(0, (context.deadline-now).total_seconds())) if context.deadline else bound
         result = self.retriever.retrieve(query, self.access, filters or DocumentRetrievalFilter(), semantic_budget=budget)
         if result.semantic_error:
             self._events('knowledge.semantic.degraded', dict(operationId=str(context.operation_id),
@@ -256,6 +267,7 @@ class KnowledgeService:
 
     def close(self):
         try:
+            if hasattr(self, 'indexing'): self.indexing.close()
             if hasattr(self, 'retriever'): self.retriever.close()
             self.store.close_session(self.access)
         finally:

@@ -1,7 +1,6 @@
 // Minimal markdown tokenizer for assistant output — zero dependencies.
 //
-// The desktop app renders every reply as plain text, so reports full of
-// headings, fences and tables arrive as raw markup.  This module parses
+// This module parses
 // the safe, common subset (fences, headings, lists, tables, inline
 // code/bold/links) into plain token objects; the Markdown component
 // maps them to React elements.  Text stays text nodes end to end, so
@@ -13,8 +12,8 @@
 export type Inline =
   | { kind: 'text'; text: string }
   | { kind: 'code'; text: string }
-  | { kind: 'bold'; text: string }
-  | { kind: 'link'; text: string; href: string }
+  | { kind: 'bold' | 'italic' | 'strike'; children: Inline[] }
+  | { kind: 'link'; children: Inline[]; href: string }
 
 export type Block =
   | { kind: 'p'; lines: Inline[][] }
@@ -23,54 +22,139 @@ export type Block =
   | { kind: 'list'; ordered: boolean; items: Inline[][] }
   | { kind: 'table'; header: Inline[][]; rows: Inline[][][] }
 
-const FENCE_RE = /^\s*```(.*)$/
-const HEADING_RE = /^(#{1,4})\s+(.*)$/
+const FENCE_RE = /^ {0,3}(`{3,}|~{3,})(.*)$/
+const HEADING_RE = /^(#{1,6})\s+(.*)$/
 const BULLET_RE = /^\s*[-*+]\s+(.*)$/
 const ORDERED_RE = /^\s*\d+[.)]\s+(.*)$/
 const TABLE_ROW_RE = /^\s*\|(.+)\|\s*$/
 const TABLE_SEP_RE = /^\s*\|?\s*:?-{2,}.*\|.*$/
 
-// Inline syntax: code spans first (nothing nests inside them), then
-// bold, then links.
-const INLINE_RE = /(`[^`]+`)|(\*\*[^*]+\*\*)|(\[[^\]]+\]\((?:https?:\/\/)[^\s)]+\))/g
-const LINK_RE = /^\[([^\]]+)\]\(([^)]+)\)$/
-
-export function parseInline(text: string): Inline[] {
-  const out: Inline[] = []
-  let last = 0
-  for (const match of text.matchAll(INLINE_RE)) {
-    const index = match.index ?? 0
-    if (index > last) {
-      out.push({ kind: 'text', text: text.slice(last, index) })
+function codeSpan(text: string, start: number): { end: number; text: string } | null {
+  const marker = /^`+/.exec(text.slice(start))?.[0]
+  if (!marker) return null
+  let close = text.indexOf(marker, start + marker.length)
+  while (close >= 0) {
+    if (text[close - 1] !== '`' && text[close + marker.length] !== '`') {
+      let value = text.slice(start + marker.length, close).replace(/\n/g, ' ')
+      if (value.startsWith(' ') && value.endsWith(' ') && /[^ ]/.test(value)) value = value.slice(1, -1)
+      return { end: close + marker.length, text: value }
     }
-    const token = match[0]
-    if (token.startsWith('`')) {
-      out.push({ kind: 'code', text: token.slice(1, -1) })
-    } else if (token.startsWith('**')) {
-      out.push({ kind: 'bold', text: token.slice(2, -2) })
-    } else {
-      const link = LINK_RE.exec(token)
+    close = text.indexOf(marker, close + marker.length)
+  }
+  return null
+}
+
+function escaped(char: string | undefined): boolean {
+  const code = char?.charCodeAt(0) || 0
+  return code >= 33 && code <= 47 || code >= 58 && code <= 64
+    || code >= 91 && code <= 96 || code >= 123 && code <= 126
+}
+
+function closeEmphasis(text: string, start: number, marker: string): number {
+  for (let i = start + marker.length; i < text.length; i++) {
+    if (text[i] === '\\' && escaped(text[i + 1])) { i++; continue }
+    if (text[i] === '`') {
+      const code = codeSpan(text, i)
+      if (code) { i = code.end - 1; continue }
+    }
+    if (text[i] !== marker[0]) continue
+    let length = 1
+    while (text[i + length] === marker[0]) length++
+    if (length >= marker.length && /\S/.test(text[i - 1])
+        && !(marker.length === 1 && length % 2 === 0)
+        && !(marker[0] === '_' && /[\p{L}\p{N}]/u.test(text[i + length] || ''))) {
+      return i + length - marker.length
+    }
+    i += length - 1
+  }
+  return -1
+}
+
+function linkSpan(text: string, start: number): { end: number; label: string; href: string } | null {
+  let depth = 1, close = start + 1
+  for (; close < text.length; close++) {
+    if (text[close] === '\\' && escaped(text[close + 1])) { close++; continue }
+    if (text[close] === '`') {
+      const code = codeSpan(text, close)
+      if (code) { close = code.end - 1; continue }
+    }
+    if (text[close] === '[') depth++
+    if (text[close] === ']' && --depth === 0) break
+  }
+  if (text[close + 1] !== '(') return null
+  let end = close + 2
+  depth = 1
+  for (; end < text.length; end++) {
+    if (text[end] === '\\' && escaped(text[end + 1])) { end++; continue }
+    if (text[end] === '(') depth++
+    if (text[end] === ')' && --depth === 0) break
+  }
+  if (depth !== 0) return null
+  const href = text.slice(close + 2, end).replace(/\\([()\\])/g, '$1')
+  if (!/^https?:\/\//i.test(href) || /[\s\x00-\x1f\x7f]/.test(href)) return null
+  try { if (!['http:', 'https:'].includes(new URL(href).protocol)) return null } catch { return null }
+  return { end: end + 1, label: text.slice(start + 1, close), href }
+}
+
+function inlineTokens(text: string, depth: number, links: boolean): Inline[] {
+  if (depth > 16) return [{ kind: 'text', text }]
+  const out: Inline[] = []
+  const literal = (value: string) => {
+    const last = out[out.length - 1]
+    if (last?.kind === 'text') last.text += value
+    else out.push({ kind: 'text', text: value })
+  }
+  for (let i = 0; i < text.length;) {
+    if (text[i] === '\\' && escaped(text[i + 1])) { literal(text[i + 1]); i += 2; continue }
+    if (text[i] === '`') {
+      const code = codeSpan(text, i)
+      if (code) { out.push({ kind: 'code', text: code.text }); i = code.end; continue }
+      const marker = /^`+/.exec(text.slice(i))![0]
+      literal(marker); i += marker.length; continue
+    }
+    if (links && text[i] === '[') {
+      const link = linkSpan(text, i)
       if (link) {
-        out.push({ kind: 'link', text: link[1], href: link[2] })
-      } else {
-        out.push({ kind: 'text', text: token })
+        out.push({ kind: 'link', href: link.href, children: inlineTokens(link.label, depth + 1, false) })
+        i = link.end; continue
       }
     }
-    last = index + token.length
-  }
-  if (last < text.length) {
-    out.push({ kind: 'text', text: text.slice(last) })
+    const marker = '*_~'.includes(text[i]) ? /^(\*{1,3}|_{1,3}|~~)/.exec(text.slice(i))?.[0] : undefined
+    if (marker && /\S/.test(text[i + marker.length] || '')
+        && !(marker[0] === '_' && /[\p{L}\p{N}]/u.test(text[i - 1] || ''))) {
+      const close = closeEmphasis(text, i, marker)
+      if (close >= 0) {
+        let children = inlineTokens(text.slice(i + marker.length, close), depth + 1, links)
+        if (marker.length === 3) children = [{ kind: 'italic', children }]
+        out.push({ kind: marker === '~~' ? 'strike' : marker.length > 1 ? 'bold' : 'italic', children })
+        i = close + marker.length; continue
+      }
+    }
+    literal(text[i]); i++
   }
   return out
 }
 
+export function parseInline(text: string): Inline[] { return inlineTokens(text, 0, true) }
+
 function splitTableRow(line: string): Inline[][] {
   const inner = line.trim().replace(/^\|/, '').replace(/\|$/, '')
-  return inner.split('|').map(cell => parseInline(cell.trim()))
+  const cells: string[] = []
+  let cell = ''
+  for (let i = 0; i < inner.length; i++) {
+    if (inner[i] === '\\' && escaped(inner[i + 1])) { cell += inner.slice(i, i + 2); i++; continue }
+    if (inner[i] === '`') {
+      const code = codeSpan(inner, i)
+      if (code) { cell += inner.slice(i, code.end); i = code.end - 1; continue }
+    }
+    if (inner[i] === '|') { cells.push(cell); cell = '' } else cell += inner[i]
+  }
+  cells.push(cell)
+  return cells.map(value => parseInline(value.trim()))
 }
 
 export function parseMarkdown(text: string): Block[] {
-  const lines = text.split('\n')
+  const lines = text.replace(/\r\n?/g, '\n').split('\n')
   const blocks: Block[] = []
   let paragraph: Inline[][] = []
 
@@ -90,10 +174,11 @@ export function parseMarkdown(text: string): Block[] {
     const fence = FENCE_RE.exec(line)
     if (fence) {
       flushParagraph()
-      const lang = fence[1].trim()
+      const lang = fence[2].trim()
+      const closing = new RegExp('^ {0,3}' + fence[1][0] + '{' + fence[1].length + ',}\\s*$')
       const body: string[] = []
       i += 1
-      while (i < lines.length && !FENCE_RE.test(lines[i])) {
+      while (i < lines.length && !closing.test(lines[i])) {
         body.push(lines[i])
         i += 1
       }

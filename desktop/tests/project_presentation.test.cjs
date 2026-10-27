@@ -3,6 +3,7 @@ const assert = require('node:assert/strict')
 const fs = require('node:fs')
 const ts = require('typescript')
 require('./register_typescript.cjs')
+require.extensions['.css']=()=>{}
 require.extensions['.tsx'] = (module, filename) => module._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
 }).outputText, filename)
@@ -77,4 +78,30 @@ test('Preview remains read-only and escaped, with a localized dismiss control', 
   assert.ok(html.includes('Cargando vista previa'))
   assert.ok(!html.includes('contenteditable'))
   assert.ok(!html.includes('<textarea'))
+})
+
+test('Hiding files preserves project selection and actions while omitting the file tree',()=>{
+  const props={projects:state,busy:false,errorCode:null,onFileSelect(){},async onProjectAction(){}}
+  const visible=render(FileExplorer,props),hidden=render(FileExplorer,{...props,showFiles:false})
+  assert.ok(visible.includes('class="explorer-tree"'))
+  for(const text of ['Archivos','Fuentes','Recuerdos'])assert.ok(visible.includes(text),text)
+  assert.ok(!hidden.includes('project-content-panel'))
+  assert.ok(!hidden.includes('class="explorer-tree"'))
+  for(const text of ['owned project','Añadir proyecto',translate('es','projectOptions')])assert.ok(hidden.includes(text),text)
+  assert.equal((hidden.match(/class="project-select-button"/g)||[]).length,state.folders.length)
+})
+
+
+test('Project settings present the default first, path descriptions and one menu per registered folder in both languages',()=>{
+ const i18n=require('../src/i18n.tsx'),original=i18n.useI18n,{ProjectsSettings}=require('../src/components/ProjectsSettings.tsx')
+ try{for(const locale of ['es','en']){
+  i18n.useI18n=()=>({t:key=>translate(locale,key)})
+  const html=render(ProjectsSettings,{projects:state,busy:false,errorCode:null,async onAction(){}})
+  const headings=[...html.matchAll(/<h3[^>]*>([^<]+)<\/h3>/g)].map(m=>m[1])
+  assert.deepEqual(headings,locale==='es'?['Carpeta predeterminada','Carpetas por proyecto']:['Default folder','Folders by project'])
+  assert.equal((html.match(/data-project-menu=/g)||[]).length,2)
+  assert.ok(html.includes(locale==='es'?'Restablecer':'Reset'))
+  assert.ok(html.includes('owned project'))
+  assert.doesNotMatch(html,/Proyecto actual|Proyecto predeterminado|Abrir panel de proyectos|Current project|Open project panel/)
+ }}finally{i18n.useI18n=original}
 })

@@ -1,13 +1,13 @@
 {
   "name": "local-cli-desktop",
-  "version": "0.12.6",
-  "description": "Desktop GUI for local-cli AI coding agent",
-  "author": "lutelute",
+  "version": "0.13.0",
+  "description": "Nova: local AI assistant for projects, sources and memories",
+  "author": "Nova Assistant contributors",
   "license": "MIT",
-  "homepage": "https://github.com/lutelute/local-cli",
+  "homepage": "https://github.com/j-hernandez-dev/nova-assistant",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lutelute/local-cli.git"
+    "url": "https://github.com/j-hernandez-dev/nova-assistant.git"
   },
   "main": "dist-electron/main.js",
   "scripts": {
@@ -19,27 +19,30 @@
     "preview": "vite preview",
     "electron:dev": "vite build && electron .",
     "typecheck": "node ./node_modules/typescript/bin/tsc --noEmit",
-    "build:source": "node ./node_modules/typescript/bin/tsc --noEmit && node ./node_modules/vite/bin/vite.js build"
+    "build:source": "node ./node_modules/typescript/bin/tsc --noEmit && node ./node_modules/vite/bin/vite.js build",
+    "test": "node ../ci/run_desktop_contracts.cjs"
   },
   "dependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "0.186.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "0.186.0",
     "@vitejs/plugin-react": "^4.3.0",
-    "electron": "^33.0.0",
-    "electron-builder": "^25.0.0",
+    "electron": "45.0.0",
+    "electron-builder": "26.18.0",
     "typescript": "^5.6.0",
-    "vite": "^6.0.0",
+    "vite": "6.4.5",
     "vite-plugin-electron": "^0.28.0",
     "vite-plugin-electron-renderer": "^0.14.0"
   },
   "build": {
     "appId": "com.local-cli.desktop",
     "productName": "Nova",
-    "copyright": "Copyright (c) 2025 lutelute",
+    "copyright": "Copyright (c) 2026 Nova Assistant; original local-cli contributions (c) 2025 lutelute",
     "files": [
       "dist/**/*",
       "dist-electron/**/*"
@@ -111,12 +114,18 @@
     },
     "publish": {
       "provider": "github",
-      "owner": "lutelute",
-      "repo": "local-cli"
+      "owner": "j-hernandez-dev",
+      "repo": "nova-assistant"
     }
   },
   "allowScripts": {
-    "electron@33.4.11": true,
+    "electron@45.0.0": true,
     "esbuild@0.25.12": true
+  },
+  "contributors": [
+    "lutelute (original local-cli project)"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
   }
 }

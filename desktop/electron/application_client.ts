@@ -1,24 +1,31 @@
 import { randomUUID } from 'node:crypto'
+import type { StorageResult } from '../shared/storage'
 import { ModelDownload } from './model_download.ts'
 import type { Message } from '../src/types'
 import { createHash } from 'node:crypto'
 import type { DesktopSessionView, SessionSnapshot, EventEnvelope, CommandReceipt, ChatReadiness } from '../shared/application'
-import type { MemoryControlResult, FetchStatus, SearchStatus, BrowserStatus, MemoryStatus, ContextStatus } from '../shared/application'
+import type { MemoryControlResult, FetchStatus, SearchStatus, BrowserStatus, MemoryStatus, ContextStatus, EmbeddingStatus, KnowledgeSettingsStatus } from '../shared/application'
 import { ConversationNotifications, type ConversationPreferences } from './conversation_notifications.ts'
 import { activeActivity, attachActivities, toolActivity } from './activity_projection.ts'
 
 const PRODUCT_COMMANDS = new Set([
   'SubmitUserInput', 'CancelTurn', 'CancelOperation', 'StopGeneration', 'ChangeModel', 'ChangeProvider',
   'ResolveApproval', 'ResolveUserInput', 'ExecuteCommand', 'SetRAGEnabled', 'QueryRAG',
-  'SetFetchEnabled', 'SetSearchEngine', 'SetBrowser', 'SetContextWindow',
+  'ResetEmbeddingSettings', 'SetEmbeddingSettings', 'SetWebSettings', 'SetFetchEnabled', 'SetSearchEngine', 'SetBrowser', 'SetContextWindow',
+  'SetKnowledgeSettings', 'ResetKnowledgeSettings',
 ])
-const SETTINGS_COMMANDS = new Set(['SetFetchEnabled', 'SetSearchEngine', 'SetBrowser', 'SetContextWindow'])
+const SETTINGS_COMMANDS = new Set(['SetKnowledgeSettings','ResetKnowledgeSettings','ResetEmbeddingSettings', 'SetEmbeddingSettings', 'SetWebSettings', 'SetFetchEnabled', 'SetSearchEngine', 'SetBrowser', 'SetContextWindow'])
 const WORKSPACE_BOUND_COMMANDS = new Set(['SubmitUserInput', 'ExecuteCommand', 'ChangeProvider', 'ChangeModel', ...SETTINGS_COMMANDS])
 
 function validSetting(kind: string, payload: Record<string, unknown>): boolean {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return false
   const keys = Object.keys(payload)
-  if (kind === 'SetContextWindow') return keys.length === 1 && keys[0] === 'requestedTokens' && Number.isInteger(payload.requestedTokens) && [0,4096,8192,16384,32768,65536].includes(payload.requestedTokens as number)
+  if(kind==='ResetKnowledgeSettings')return keys.length===0
+  if(kind==='SetKnowledgeSettings')return keys.length===4&&['lexicalRecall','semanticRecall','autoIndex','autoRebuild'].every(key=>typeof payload[key]==='boolean')
+  if (kind === 'SetContextWindow') return keys.length === 1 && keys[0] === 'requestedTokens' && Number.isInteger(payload.requestedTokens) && [0,4096,8192,16384,32768,65536,131072,262144].includes(payload.requestedTokens as number)
+  if (kind === 'ResetEmbeddingSettings') return keys.length===0
+  if (kind === 'SetEmbeddingSettings') return keys.length===3 && keys.every(key=>['modelId','requestedTokens','enabledModels'].includes(key)) && typeof payload.modelId==='string' && payload.modelId.length<=512 && Number.isInteger(payload.requestedTokens) && [0,512,1024,2048,4096,8192,16384,32768].includes(payload.requestedTokens as number) && Array.isArray(payload.enabledModels) && payload.enabledModels.length<=1024 && payload.enabledModels.every(n=>typeof n==='string'&&n.trim()&&n.length<=512) && new Set(payload.enabledModels).size===payload.enabledModels.length
+  if (kind === 'SetWebSettings') return keys.length===5 && ['fetchEnabled','searchEnabled','browserEnabled'].every(key=>typeof payload[key]==='boolean') && ['google','bing','duckduckgo'].includes(payload.engine as string) && ['webview2','chrome','edge'].includes(payload.browser as string)
   if (kind === 'SetFetchEnabled') return keys.length === 1 && keys[0] === 'enabled' && typeof payload.enabled === 'boolean'
   if (kind === 'SetSearchEngine') return keys.length === 1 && keys[0] === 'engine' && ['bing', 'google', 'duckduckgo'].includes(payload.engine as string)
   if (kind === 'SetBrowser') return keys.length === 1 && keys[0] === 'browser' && ['webview2', 'chrome', 'edge'].includes(payload.browser as string)
@@ -29,32 +36,44 @@ const nullableCode = (value: unknown): value is string | null => value === null 
 const record = (value: any) => value && typeof value === 'object' && !Array.isArray(value)
 
 function settingsProjection(services: SessionSnapshot['services']): {
-  fetch?: FetchStatus; search?: SearchStatus; browser?: BrowserStatus; memory?: MemoryStatus; context?: ContextStatus
+  fetch?: FetchStatus; search?: SearchStatus; browser?: BrowserStatus; memory?: MemoryStatus; context?: ContextStatus; embedding?: EmbeddingStatus; knowledgeSettings?: KnowledgeSettingsStatus
 } {
   const fetch = services.fetch, search = services.search, browser = services.browser, memory = services.memory
   const projected: ReturnType<typeof settingsProjection> = {}
+  const ks=services.knowledgeSettings
+  if(record(ks)&&['lexicalRecall','semanticRecall','autoIndex','autoRebuild','semanticAvailable','indexing'].every(key=>typeof (ks as any)[key]==='boolean')
+    &&[ks!.indexedSources,ks!.totalSources].every(value=>Number.isSafeInteger(value)&&value>=0)&&nullableCode(ks!.errorCode))
+    projected.knowledgeSettings={lexicalRecall:ks!.lexicalRecall,semanticRecall:ks!.semanticRecall,autoIndex:ks!.autoIndex,autoRebuild:ks!.autoRebuild,
+      semanticAvailable:ks!.semanticAvailable,indexing:ks!.indexing,indexedSources:ks!.indexedSources,totalSources:ks!.totalSources,errorCode:ks!.errorCode}
+  const em = services.embedding
+  if(record(em) && typeof em!.modelId==='string' && typeof em!.selectedModel==='string'
+    && [0,512,1024,2048,4096,8192,16384,32768].includes(em!.requestedTokens)
+    && Array.isArray(em!.enabledModels) && em!.enabledModels.length<=1024 && em!.enabledModels.every(n=>typeof n==='string'&&n.length<=512)
+    && typeof em!.connected==='boolean' && [em!.selectedTokens,em!.contextLimit].every(n=>n===null||Number.isSafeInteger(n)&&(n as number)>0)
+    && nullableCode(em!.errorCode)) projected.embedding={modelId:em!.modelId,selectedModel:em!.selectedModel,requestedTokens:em!.requestedTokens,
+      enabledModels:[...em!.enabledModels],connected:em!.connected,selectedTokens:em!.selectedTokens,contextLimit:em!.contextLimit,errorCode:em!.errorCode}
   const context = services.context
-  if (record(context) && [0,4096,8192,16384,32768,65536].includes(context!.requestedTokens)
-      && (context!.selectedTokens === null || [4096,8192,16384,32768,65536].includes(context!.selectedTokens))
+  if (record(context) && [0,4096,8192,16384,32768,65536,131072,262144].includes(context!.requestedTokens)
+      && (context!.selectedTokens === null || [4096,8192,16384,32768,65536,131072,262144].includes(context!.selectedTokens))
       && nullableCode(context!.errorCode)
       && ((context!.selectedTokens === null) === (context!.errorCode !== null)))
     projected.context = { requestedTokens: context!.requestedTokens, selectedTokens: context!.selectedTokens, errorCode: context!.errorCode }
   if (record(fetch) && typeof fetch!.enabled === 'boolean' && typeof fetch!.available === 'boolean')
     projected.fetch = { enabled: fetch!.enabled, available: fetch!.available }
-  if (record(search) && search!.backend === 'browser' && ['bing', 'google', 'duckduckgo'].includes(search!.engine)
+  if (record(search) && typeof search!.enabled === 'boolean' && search!.backend === 'browser' && ['bing', 'google', 'duckduckgo'].includes(search!.engine)
       && typeof search!.available === 'boolean' && identifier(search!.adapter) && typeof search!.runtimeCheckedOnUse === 'boolean'
       && nullableCode(search!.unavailableReason) && search!.serverRequired === false && search!.networkIsolation === 'NOT_PROVIDED')
-    projected.search = { backend: 'browser', engine: search!.engine, available: search!.available, adapter: search!.adapter,
+    projected.search = { enabled: search!.enabled, backend: 'browser', engine: search!.engine, available: search!.available, adapter: search!.adapter,
       runtimeCheckedOnUse: search!.runtimeCheckedOnUse, unavailableReason: search!.unavailableReason,
       serverRequired: false, networkIsolation: 'NOT_PROVIDED' }
-  if (record(browser) && ['webview2', 'chrome', 'edge'].includes(browser!.selected) && typeof browser!.available === 'boolean'
+  if (record(browser) && typeof browser!.enabled === 'boolean' && ['webview2', 'chrome', 'edge'].includes(browser!.selected) && typeof browser!.available === 'boolean'
       && nullableCode(browser!.unavailableReason) && identifier(browser!.adapter) && typeof browser!.runtimeCheckedOnUse === 'boolean'
       && browser!.networkIsolation === 'NOT_PROVIDED' && browser!.controlClass === 'HOST_UNISOLATED'
       && Array.isArray(browser!.choices) && browser!.choices.every(choice => record(choice)
         && ['webview2', 'chrome', 'edge'].includes(choice.browser) && identifier(choice.adapter)
         && typeof choice.available === 'boolean' && nullableCode(choice.reason)
         && (choice.installed === undefined || typeof choice.installed === 'boolean'))) {
-    projected.browser = { selected: browser!.selected, available: browser!.available, unavailableReason: browser!.unavailableReason,
+    projected.browser = { enabled: browser!.enabled, selected: browser!.selected, available: browser!.available, unavailableReason: browser!.unavailableReason,
       adapter: browser!.adapter, runtimeCheckedOnUse: browser!.runtimeCheckedOnUse, networkIsolation: 'NOT_PROVIDED', controlClass: 'HOST_UNISOLATED',
       choices: browser!.choices.map(choice => ({ browser: choice.browser, adapter: choice.adapter, available: choice.available,
         reason: choice.reason, ...(typeof choice.installed === 'boolean' ? { installed: choice.installed } : {}) })),
@@ -63,19 +82,23 @@ function settingsProjection(services: SessionSnapshot['services']): {
       ...(typeof browser!.hasPage === 'boolean' ? { hasPage: browser!.hasPage } : {}),
       ...(nullableCode(browser!.lastErrorCode) ? { lastErrorCode: browser!.lastErrorCode } : {}) }
   }
-  if (record(memory) && ['lexicalRecall', 'semantic', 'autoCapture', 'allowRemoteMemoryInjection'].every(key => typeof (memory as any)[key] === 'boolean'))
+  if (record(memory) && ['lexicalRecall', 'semantic', 'autoCapture'].every(key => typeof (memory as any)[key] === 'boolean'))
     projected.memory = { lexicalRecall: memory!.lexicalRecall, semantic: memory!.semantic, autoCapture: memory!.autoCapture,
-      allowRemoteMemoryInjection: memory!.allowRemoteMemoryInjection,
+      ...(typeof memory!.semanticAvailable==='boolean'?{semanticAvailable:memory!.semanticAvailable}:{}),
+      ...(typeof memory!.maintenanceBusy==='boolean'?{maintenanceBusy:memory!.maintenanceBusy}:{}),
+      ...(Array.isArray(memory!.sensitiveProjects)&&memory!.sensitiveProjects.every((p:unknown)=>typeof p==='string'&&p.length<=4096)?{sensitiveProjects:[...memory!.sensitiveProjects]}:{}),
       ...(['off', 'propose_only', 'low_risk'].includes(memory!.captureMode || '') ? { captureMode: memory!.captureMode } : {}) }
   return projected
 }
 const MEMORY_COMMANDS = new Set(['memory_status','memory_list','memory_search','memory_show',
-  'memory_remember','memory_correct','memory_forget','memory_export',
-  'memory_proposals','memory_confirm','memory_reject'])
+  'memory_remember','memory_correct','memory_forget','memory_export','memory_configure','memory_reset_settings',
+  'memory_project_access','memory_import','memory_export_all',
+  'memory_proposals','memory_confirm','memory_reject','memory_edit','memory_delete'])
 const KNOWLEDGE_COMMANDS = new Set(['source_import','source_promote','source_delete','source_list','source_status','source_cancel',
   'source_import_url','source_refresh_url','source_refresh','source_detail','source_remote','source_export'])
 const MODEL_REQUEST_TERMINALS = new Map([
-  ['catalog', 'catalog'], ['search_models', 'search_results'], ['recommend', 'recommend'],
+  ['catalog', 'catalog'], ['recommend', 'recommend'],
+  ['library_search', 'library_search'], ['library_variants', 'library_variants'],
   ['pull_model', 'pull_done'], ['delete_model', 'delete_done'], ['update_catalog', 'catalog_updated'],
 ])
 
@@ -96,6 +119,9 @@ export function projectTranscript(transcript: Array<Record<string, any>>, prefix
       messages.push({ id: `${prefix}:${index}`, sourceIndex: index, role: raw.role, content: raw.content || '',
         ...(raw.role==='assistant' && raw.knowledgeCitations ? {knowledgeCitations:raw.knowledgeCitations} : {}),
         ...(raw.role === 'user' && Array.isArray(raw.attachmentRefs) ? {attachmentRefs:raw.attachmentRefs} : {}),
+        ...(raw.role === 'user' && Array.isArray(raw.sourceContext) ? {sourceContext:raw.sourceContext.filter((row: any) =>
+          record(row) && typeof row.sourceId === 'string' && typeof row.displayName === 'string'
+          && ['complete','partial','unavailable'].includes(row.status))} : {}),
         ...(calls.length ? { toolCalls: calls, toolResults: [] } : {}) })
     } else if (raw.role === 'tool') {
       const last = messages[messages.length - 1]
@@ -153,10 +179,13 @@ export class DesktopApplicationClient {
   private modelConfirmationTimer: ReturnType<typeof setTimeout> | null = null
   private memoryPending = new Map<string, { commandId: string; resolve: (result: MemoryControlResult) => void }>()
   private knowledgePending = new Map<string, {commandId:string;resolve:(receipt:CommandReceipt)=>void}>()
+  private storagePending = new Map<string, {resolve:(result:StorageResult<any>)=>void;timer:ReturnType<typeof setTimeout>}>()
+  private retiredStorage = new Set<string>()
   private workspaceRequest: {id:string;path:string;sessionId:string;acknowledged:boolean;
     resolve:(value:{success:boolean;error?:{code:string}})=>void;timer:ReturnType<typeof setTimeout>} | null = null
   private serviceWorkActive = false
   private modelRequests = new Map<number, string>()
+  private providerFailures = new Set<string>()
   constructor(private send: (frame: object) => boolean | void,
               private publish: (view: DesktopSessionView) => void,
               private approvalProof?: (command: Record<string, unknown>) => string) {}
@@ -184,7 +213,7 @@ export class DesktopApplicationClient {
   workspaceBusy() {
     return this.modelDownloadBusy() || !!this.workspaceRequest || !!this.view.activeTurnId || !!this.view.activeGenerationId
       || this.view.approvals.length > 0 || this.view.inputs.length > 0 || this.serviceWorkActive
-      || this.memoryPending.size > 0 || this.knowledgePending.size > 0
+      || this.memoryPending.size > 0 || this.knowledgePending.size > 0 || this.storagePending.size > 0
       || [...this.pending.values()].some(item => WORKSPACE_BOUND_COMMANDS.has(item.kind))
   }
   /** Host-only folder selection. A receipt is followed by a matching Application snapshot. */
@@ -345,7 +374,7 @@ export class DesktopApplicationClient {
     this.modelConfirmationTimer = null
     this.resetReadiness('BACKEND_DISCONNECTED')
     this.view = { ...this.view, recovering: true, status: { ...this.view.status, ready: false, connected: false },
-      fetch: undefined, search: undefined, browser: undefined, memory: undefined, context: undefined, memoryNotice: null,
+      fetch: undefined, search: undefined, browser: undefined, memory: undefined, context: undefined, embedding: undefined, knowledgeSettings:undefined,
       approvals: [], inputs: [], error: { code: 'BACKEND_DISCONNECTED', message: 'Backend disconnected. Restart to restore the saved transcript; active work is not resumed.' } }
     this.lostActivityObservation()
     for (const { commandId, resolve } of this.pending.values()) resolve({ schemaVersion: 1, commandId,
@@ -358,6 +387,10 @@ export class DesktopApplicationClient {
       commandId, completed: false, error: { code: 'OUTCOME_UNKNOWN', message: 'Connection lost; memory outcome is unknown. No retry.',
         outcomeUnknown: true, retryable: false } })
     this.memoryPending.clear()
+    for (const {resolve,timer} of this.storagePending.values()) {
+      clearTimeout(timer);resolve({success:false,error:{code:'STORAGE_OUTCOME_UNKNOWN'}})
+    }
+    this.storagePending.clear()
     this.changed()
   }
   command(kind: string, payload: Record<string, unknown>, commandId = `cmd_${randomUUID()}`): Promise<CommandReceipt> {
@@ -420,7 +453,40 @@ export class DesktopApplicationClient {
       this.transmit({id,type:'knowledge_command',command,hostKnowledgeProof:this.approvalProof!(command)})
     })
   }
+  storage(name:string,args:Record<string,unknown>):Promise<StorageResult<any>> {
+    if (!['report','move','delete','detach_project','delete_project','delete_all','export','source_report','source_move','source_delete','source_export','source_preview'].includes(name) ||
+        this.workspaceBusy() || !this.view.status.ready || !this.view.sessionId || !this.approvalProof || this.view.recovering)
+      return Promise.resolve({success:false,error:{code:'PROJECT_BUSY'}})
+    return new Promise(resolve=>{
+      const id=this.id()
+      const timer=setTimeout(()=>{
+        if(!this.storagePending.delete(id))return
+        this.retiredStorage.add(id)
+        if(this.retiredStorage.size>128)this.retiredStorage.delete(this.retiredStorage.values().next().value!)
+        resolve({success:false,error:{code:'STORAGE_OUTCOME_UNKNOWN'}})
+        this.refresh()
+      },30_000)
+      timer.unref?.()
+      this.storagePending.set(id,{resolve,timer})
+      const command={schemaVersion:1,kind:'StorageControl',commandId:`cmd_${randomUUID()}`,
+        sessionId:this.view.sessionId,name,arguments:args,expectedRevision:this.view.stateRevision}
+      this.transmit({id,type:'storage_command',command,hostStorageProof:this.approvalProof!(command)})
+    })
+  }
   receive(frame: Record<string, any>) {
+    if (this.retiredStorage.has(frame.id) && ['storage_result','error'].includes(frame.type)) return
+    if (this.storagePending.has(frame.id) && ['storage_result','error'].includes(frame.type)) {
+      const pending=this.storagePending.get(frame.id)!
+      this.storagePending.delete(frame.id);clearTimeout(pending.timer)
+      if(Number.isSafeInteger(frame.stateRevision) && frame.stateRevision>=this.view.stateRevision) {
+        this.view={...this.view,stateRevision:frame.stateRevision,...(frame.data?.knowledge?{knowledge:frame.data.knowledge}:{})}
+        this.changed()
+      }
+      pending.resolve(frame.type==='storage_result' && frame.success ? {success:true,data:frame.data} :
+        {success:false,error:frame.error||{code:frame.code||'STORAGE_FAILED'}})
+      if(frame.type==='storage_result')this.refresh()
+      return
+    }
     if (this.download.receive(frame)) return
     if (['error', 'readiness'].includes(frame.type) && this.retiredReadiness.has(frame.id)) return
     const modelTerminal = this.modelRequests.get(frame.id)
@@ -449,7 +515,7 @@ export class DesktopApplicationClient {
       this.modelConfirmationTimer = null
       this.resetReadiness()
       this.view = { ...this.view, sessionId: frame.sessionId, recovering: true,
-        fetch: undefined, search: undefined, browser: undefined, memory: undefined, context: undefined, memoryNotice: null,
+        fetch: undefined, search: undefined, browser: undefined, memory: undefined, context: undefined, embedding: undefined,
         status: { ...this.view.status, connected: true, ready: false, tools: frame.tools || [] },
         resumable: frame.resumable || null, ragProgress: '', ragResult: null, error: null }
       this.refresh()
@@ -466,11 +532,12 @@ export class DesktopApplicationClient {
           typeof data.observedAt === 'string' && Number.isFinite(Date.parse(data.observedAt)) &&
           Array.isArray(data.installedModels) && (!data.ready || data.reason === null)) {
         this.view = { ...this.view, readiness: { ...data,
-          installedModels: data.installedModels.filter(item => item && typeof item.name === 'string' && item.name),
+          installedModels: data.installedModels.filter(item => item && typeof item.name === 'string' && item.name).map(item=>({name:item.name,size:item.size,kind:['llm','embedding'].includes(item.kind||'')?item.kind:'unknown',contextLength:typeof item.contextLength==='number'&&Number.isSafeInteger(item.contextLength)&&item.contextLength>0?item.contextLength:null})),
           requiredAction: ['SELECT_MODEL', 'CONFIGURE_PROVIDER'].includes(data.requiredAction || '') ? data.requiredAction : null } }
         const downloaded = this.download.state?.model
         const downloadedTag = downloaded?.includes(':') ? downloaded : downloaded + ':latest'
         this.download.confirmReadiness(data.installedModels.some(item => item?.name === downloadedTag))
+        this.refresh()
       } else {
         this.download.confirmReadiness(false)
         this.view = { ...this.view, readiness: { ...uncheckedReadiness('READINESS_CHECK_FAILED'),
@@ -512,6 +579,11 @@ export class DesktopApplicationClient {
       this.knowledgePending.delete(frame.id)
       this.refresh()
     } else if (frame.type === 'memory_result' && this.memoryPending.has(frame.id)) {
+      // The next inspection may be issued before the asynchronous snapshot arrives.
+      // Advance only the authenticated receipt revision; never retain memory content.
+      if(Number.isSafeInteger(frame.data?.stateRevision)&&frame.data.stateRevision>=this.view.stateRevision){
+        this.view={...this.view,stateRevision:frame.data.stateRevision};this.changed()
+      }
       this.memoryPending.get(frame.id)!.resolve(frame.data as MemoryControlResult)
       this.memoryPending.delete(frame.id)
       // No MEMORY payload stored in the chat view, transcript or recall cache.
@@ -618,6 +690,11 @@ export class DesktopApplicationClient {
       previousRuntime[key as keyof RuntimeIdentity] !== this.runtimeIdentity![key as keyof RuntimeIdentity])
     if (runtimeChanged) this.invalidateReadiness()
     const settings = settingsProjection(state.services)
+    const failureRuntimeMatches = lastTurn?.modelRuntime?.providerId === state.modelRuntime.providerId &&
+      lastTurn.modelRuntime?.modelId === state.modelRuntime.modelId &&
+      lastTurn.modelRuntime?.providerRevision === state.modelRuntime.providerRevision
+    const obsoleteProviderFailure = !!lastTurn?.modelRuntime && !failureRuntimeMatches &&
+      ['OLLAMA_CONNECTION_FAILED', 'OLLAMA_CONNECT_TIMEOUT', 'OLLAMA_RESPONSE_TIMEOUT', 'OLLAMA_MODEL_UNAVAILABLE'].includes(lastTurn.errorCode || '')
     this.view = { ...this.view, sequence: state.lastSequence, stateRevision: state.stateRevision, recovering: false,
       workspace: state.workspace, activeTurnId: active?.turnId || null, messages,
       toolActivities,
@@ -628,18 +705,35 @@ export class DesktopApplicationClient {
         model: state.modelRuntime.modelId, provider: state.modelRuntime.providerId },
       approvals: state.services.interactions?.approvals || [], inputs: state.services.interactions?.inputs || [],
       rag: state.services.rag,
-      fetch: undefined, search: undefined, browser: undefined, memory: undefined, context: undefined,
+      fetch: undefined, search: undefined, browser: undefined, memory: undefined, context: undefined, embedding: undefined,
       ...settings,
       knowledge: state.services.knowledge,
       knowledgeOperations: (state.services.operations || []).filter(op => op.service === 'knowledge'),
-      memoryNotice: settings.memory?.allowRemoteMemoryInjection
-        ? 'Remote memory injection is enabled by host configuration. Selected memories may leave this host.' : null,
       ragProgress: state.services.operations?.find(op => op.service === 'rag' &&
         ['running', 'requested'].includes(op.status))?.phase || '',
       ragResult: lastRetrieval?.result || this.view.ragResult,
       fileRevision: state.services.filesystem?.revision ?? this.view.fileRevision,
-      error: lastTurn?.status === 'failed' ? { code: lastTurn.errorCode || 'TURN_FAILED', message: 'Turn failed.', turnId: lastTurn.turnId } : this.view.error,
+      error: obsoleteProviderFailure ? (this.view.error?.turnId === lastTurn?.turnId ? null : this.view.error)
+        : lastTurn?.status === 'failed' ? { code: lastTurn.errorCode || 'TURN_FAILED', message: 'Turn failed.', turnId: lastTurn.turnId } : this.view.error,
       ...(messages.length ? { resumable: null } : {}),
+    }
+    if (lastTurn?.status === 'failed' && state.modelRuntime.providerId === 'ollama' &&
+        ['OLLAMA_CONNECTION_FAILED', 'OLLAMA_CONNECT_TIMEOUT', 'OLLAMA_MODEL_UNAVAILABLE', 'OllamaRequestError', 'OllamaStreamError'].includes(lastTurn.errorCode || '') &&
+        failureRuntimeMatches) {
+      const failure = state.sessionId + ':' + lastTurn.turnId
+      if (!this.providerFailures.has(failure)) {
+        this.providerFailures.add(failure)
+        if (this.providerFailures.size > 64) this.providerFailures.delete(this.providerFailures.values().next().value!)
+        this.invalidateReadiness()
+        const reason = lastTurn.errorCode === 'OLLAMA_CONNECTION_FAILED' ? 'OLLAMA_UNAVAILABLE'
+          : lastTurn.errorCode === 'OLLAMA_CONNECT_TIMEOUT' ? 'OLLAMA_CONNECTION_TIMEOUT'
+          : lastTurn.errorCode === 'OLLAMA_MODEL_UNAVAILABLE' ? 'MODEL_NOT_INSTALLED' : 'CHECKING'
+        this.view = { ...this.view, readiness: { ...this.view.readiness, reason,
+          requiredAction: reason === 'MODEL_NOT_INSTALLED' ? 'SELECT_MODEL' : null } }
+        // Revalidate once after a terminal inference failure; never resend the Turn.
+        // A real connection failure remains actionable while the periodic probe runs.
+        if (reason === 'CHECKING') this.refreshReadiness(true)
+      }
     }
     if (this.workspaceRequest?.acknowledged && state.sessionId === this.workspaceRequest.sessionId) {
       const normalize = (value:string) => process.platform === 'win32' ? value.replace(/\//g,'\\').toLowerCase() : value

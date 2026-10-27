@@ -17,14 +17,14 @@ function setup(auth=true) {
   return {client,frames}
 }
 
-test('picker path comes from main dialog, signed exact SESSION import; no optimistic Turn',async()=>{
+test('picker path comes from main dialog, signed persistent WORKSPACE import; no optimistic Turn',async()=>{
   const c=setup()
   const result=pickKnowledge(c.client,async()=>({canceled:false,filePaths:['/synthetic/selected ñ.txt']}))
   await new Promise(resolve=>setImmediate(resolve))
   const f=c.frames.at(-1)
   assert.equal(f.type,'knowledge_command')
   assert.equal(f.command.kind,'KnowledgeControl')
-  assert.deepEqual(f.command.arguments,{path:'/synthetic/selected ñ.txt',scope:'SESSION'})
+  assert.deepEqual(f.command.arguments,{path:'/synthetic/selected ñ.txt',scope:'WORKSPACE'})
   assert.equal(f.hostKnowledgeProof,signApproval('ab'.repeat(32),f.command))
   assert.equal(f.command.expectedRevision,1)
   assert.deepEqual(c.client.view.messages,[])
@@ -88,6 +88,8 @@ test('main frame is validated; raw pipe blocked; preview is not used for ingesti
   assert.ok(main.includes("data.type === 'knowledge_command'"))
   assert.ok(main.includes('event.senderFrame === mainWindow.webContents.mainFrame'))
   const renderer=fs.readFileSync(path.join(root,'src/App.tsx'),'utf8')
-  assert.ok(renderer.includes('knowledgePick()') && renderer.includes('attachmentRefs'))
+  const promptSources=fs.readFileSync(path.join(root,'src/use_prompt_sources.ts'),'utf8')
+  assert.ok(renderer.includes('promptSources.acquire()') && renderer.includes('attachmentRefs'))
+  assert.ok(promptSources.includes('window.api.sourcesPick()')&&promptSources.includes('window.api.sourcesDrop(files)'))
   assert.ok(!renderer.includes('sqlite') && !renderer.includes('ExtractedDocument') && !renderer.includes('KnowledgeStore'))
 })

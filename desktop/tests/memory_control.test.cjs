@@ -83,7 +83,9 @@ test('normal explicit write has no redundant dialog; sensitive consent requires 
   const args = { text: 'Synthetic health datum', consentSensitive: true }
   assert.equal((await memoryControl(client, 'memory_remember', args, 'sensitive', dialog)).completed, true)
   assert.equal(dialogs.length, 1)
-  assert.deepEqual(dialogs[0], { name: 'memory_remember', workspace: '/w', write: true })
+  const {validate,...shown}=dialogs[0]
+  assert.deepEqual(shown, { name: 'memory_remember', workspace: '/w', write: true })
+  assert.equal(validate(),true)
   assert.ok(!JSON.stringify(dialogs).includes(args.text))
   assert.equal(calls[1][2], 'sensitive')
 })
@@ -95,7 +97,8 @@ test('sensitive reveal/export cancellation never dispatches; consent is not reus
   const dialog = async () => ({ response: count++ === 0 ? 1 : 0 })
   const args = { includeSensitive: true }
   assert.equal((await memoryControl(client, 'memory_export', args, 'first', dialog)).completed, true)
-  assert.equal((await memoryControl(client, 'memory_export', args, 'second', dialog)).error.code, 'MEMORY_SENSITIVE_DENIED')
+  const canceled=await memoryControl(client, 'memory_export', args, 'second', dialog)
+  assert.equal(canceled.canceled,true);assert.equal(canceled.error,undefined)
   assert.equal(count, 2)
   assert.equal(sent, 1)
 })
@@ -127,4 +130,62 @@ test('renderer cannot inject a raw memory frame; preload exposes only a shared h
   assert.match(main, /ipcMain.handle\('memory-command'/)
   assert.match(main, /validApplicationSender\(event\)/)
   assert.match(preload, /memoryCommand:[\s\S]*ipcRenderer.invoke\('memory-command'/)
+})
+
+const {createMemoryEditControls}=require('../electron/memory_control.cjs')
+function editFixture(){
+ const calls=[],dialogs=[],client={view:{sessionId:'session',workspace:'alpha',stateRevision:1,status:{ready:true}},memory:async(name,args)=>{calls.push([name,args]);return {completed:true}}}
+ let accept=true
+ const editor=createMemoryEditControls(client,async request=>{dialogs.push(request.kind);assert.equal(request.validate(),true);return {confirmed:accept}})
+ return {client,calls,dialogs,editor,deny(){accept=false}}
+}
+const editRow=(patch={})=>({memoryId:'one',revision:3,text:'Synthetic preference',kind:'PREFERENCE',scope:'WORKSPACE',sensitive:false,...patch})
+test('Classification confirmation is bound to record revision, target value and workspace and consumed once',async()=>{
+ const h=editFixture(),choice={memoryId:'one',revision:3,sensitive:true}
+ const result=await h.editor.confirm(choice);assert.equal(result.completed,true);assert.deepEqual(h.dialogs,['memory-classify-sensitive']);assert.equal(h.calls.length,0)
+ const token=result.data.token
+ assert.equal((await h.editor.edit({records:[editRow({revision:4,sensitive:true,consentToken:token})]})).completed,false)
+ assert.equal((await h.editor.edit({records:[editRow({sensitive:true,consentToken:token})]})).completed,true)
+ assert.equal(h.calls[0][1].records[0].consentSensitive,true);assert.equal(h.calls[0][1].records[0].consentToken,undefined)
+ assert.equal((await h.editor.edit({records:[editRow({sensitive:true,consentToken:token})]})).completed,false)
+ assert.deepEqual(h.dialogs,['memory-classify-sensitive'],'save does not repeat confirmed classification')
+ const next=await h.editor.confirm(choice);h.client.view.workspace='beta'
+ assert.equal((await h.editor.edit({records:[editRow({sensitive:true,consentToken:next.data.token})]})).completed,false)
+})
+test('Unmarking needs its own modal; unrelated sensitive consent cannot authorize an unmarked row',async()=>{
+ const h=editFixture()
+ const choice=await h.editor.confirm({memoryId:'one',revision:3,sensitive:false})
+ assert.equal(h.dialogs[0],'memory-classify-normal')
+ await h.editor.edit({records:[editRow({consentToken:choice.data.token})]})
+ assert.equal(h.calls[0][1].records[0].consentSensitive,true)
+ await h.editor.edit({records:[editRow(),editRow({memoryId:'two',sensitive:true})]})
+ assert.equal(h.dialogs.at(-1),'memory-write-sensitive')
+ assert.equal(h.calls[1][1].records[0].consentSensitive,false)
+ assert.equal(h.calls[1][1].records[1].consentSensitive,true)
+ h.deny();const count=h.calls.length
+ assert.equal((await h.editor.confirm({memoryId:'one',revision:3,sensitive:true})).canceled,true)
+ assert.equal((await h.editor.edit({records:[editRow({sensitive:true})]})).canceled,true)
+ assert.equal(h.calls.length,count)
+})
+
+test('Completed write revision is available to the immediate follow-up read without retaining memory content',async()=>{
+ const c=setup(),pending=c.client.memory('memory_edit',{records:[]}),frame=c.sent.at(-1)
+ c.client.receive({type:'memory_result',id:frame.id,data:{schemaVersion:1,completed:true,stateRevision:12,data:{records:[{canonicalText:'Private fixture'}]}}})
+ await pending
+ const reading=c.client.memory('memory_list',{})
+ const readFrame=c.sent.filter(frame=>frame.type==='memory_command').at(-1)
+ assert.equal(readFrame.command.expectedRevision,12);assert.ok(!JSON.stringify(c.client.view).includes('Private fixture'))
+ c.client.receive({type:'memory_result',id:readFrame.id,data:{schemaVersion:1,completed:true,stateRevision:13,data:{records:[]}}});await reading
+})
+
+test('Batch deletion requires its own Nova confirmation; canceled, forged and stale requests never dispatch',async()=>{
+ const h=editFixture(),args={records:[{memoryId:'one',revision:3},{memoryId:'two',revision:2}]}
+ h.deny();assert.equal((await h.editor.remove(args)).canceled,true);assert.equal(h.calls.length,0);assert.equal(h.dialogs.at(-1),'memory-delete-records')
+ const allow=editFixture();assert.equal((await allow.editor.remove(args)).completed,true)
+ assert.deepEqual(allow.calls,[['memory_delete',args]])
+ assert.equal((await allow.editor.remove({records:[{memoryId:'one',revision:3,subjectId:'forged'}]})).completed,false)
+ assert.equal((await allow.editor.remove({records:[args.records[0],args.records[0]]})).completed,false)
+ const client={view:{sessionId:'owned',workspace:'alpha',stateRevision:1,status:{ready:true}},memory:async()=>{throw Error('must not dispatch')}}
+ const stale=createMemoryEditControls(client,async()=>{client.view.workspace='beta';return {confirmed:true}})
+ assert.equal((await stale.remove(args)).error.code,'REVISION_CONFLICT')
 })

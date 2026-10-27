@@ -1,3 +1,4 @@
+import { NovaIcon } from './NovaIcon'
 import { useState, useEffect } from 'react'
 import { useI18n, type TranslationKey } from '../i18n'
 import { fileBasename, projectErrorKey, projectPreviewMatches } from '../project_presentation'
@@ -26,7 +27,7 @@ export function FileViewer({ filePath, rootDir, refreshKey, onClose }: Props) {
   return <section className="file-viewer" aria-label={t('projectPreviewTitle')}>
     <div className="file-viewer-header"><div className="file-viewer-path" title={filePath}>
       <span className="file-viewer-dir">{dir}</span><span className="file-viewer-name">{basename}</span>
-    </div><button className="file-viewer-close" onClick={onClose} title={t('closePreview')} aria-label={t('closePreview')}>×</button></div>
+    </div><button className="file-viewer-close nova-dismiss-button" onClick={onClose} title={t('closePreview')} aria-label={t('closePreview')}><NovaIcon name="close" size={16}/></button></div>
     <div className="file-viewer-content">
       {loading && <div className="file-viewer-status" role="status">{t('projectPreviewLoading')}</div>}
       {!loading && error && <div className="file-viewer-status" role="alert">{t(error)}</div>}
@@ -34,7 +35,7 @@ export function FileViewer({ filePath, rootDir, refreshKey, onClose }: Props) {
     </div>
   </section>
 }
-function FileContent({ content }: { content: string }) {
+export function FileContent({ content }: { content: string }) {
   const lines = content.split('\n')
   return <div className="file-viewer-lines">{lines.map((line, index) => <div key={index} className="file-viewer-line">
     <span className="file-viewer-ln" aria-hidden="true">{index + 1}</span><span className="file-viewer-code">{line || '\n'}</span>

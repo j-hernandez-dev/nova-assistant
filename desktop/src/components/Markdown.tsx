@@ -23,12 +23,16 @@ function InlineRun({ runs }: { runs: Inline[] }) {
           case 'code':
             return <code key={i} className="md-inline-code">{run.text}</code>
           case 'bold':
-            return <strong key={i} className="md-bold">{run.text}</strong>
+            return <strong key={i} className="md-bold"><InlineRun runs={run.children} /></strong>
+          case 'italic':
+            return <em key={i}><InlineRun runs={run.children} /></em>
+          case 'strike':
+            return <del key={i}><InlineRun runs={run.children} /></del>
           case 'link':
             return (
               <a key={i} className="md-link" href={run.href}
                  onClick={openLink(run.href)} title={run.href}>
-                {run.text}
+                <InlineRun runs={run.children} />
               </a>
             )
           default:
@@ -42,7 +46,7 @@ function InlineRun({ runs }: { runs: Inline[] }) {
 function BlockView({ block, streaming = false }: { block: Block; streaming?: boolean }) {
   switch (block.kind) {
     case 'heading': {
-      const level = Math.min(block.level, 4)
+      const level = Math.min(block.level, 6)
       return (
         <div className={`md-heading md-h${level}`}>
           <InlineRun runs={block.inline} />{streaming && <StreamingCursor />}
@@ -53,7 +57,7 @@ function BlockView({ block, streaming = false }: { block: Block; streaming?: boo
       return (
         <div className="md-code">
           {block.lang && <div className="md-code-lang">{block.lang}</div>}
-          <pre className="md-code-pre">{block.text}{streaming && <StreamingCursor />}</pre>
+          <pre className="md-code-pre"><code>{block.text}{streaming && <StreamingCursor />}</code></pre>
         </div>
       )
     case 'list':

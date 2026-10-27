@@ -13,6 +13,9 @@ CONFIG_FILENAME = 'fetch-preference.json'
 
 
 def load_fetch_enabled(state_dir) -> bool:
+    from local_cli.web_config import has_web_settings, load_web_settings
+    if has_web_settings(state_dir):
+        return load_web_settings(state_dir)['fetchEnabled']
     """Fetch is enabled on a fresh installation; an explicit saved off wins."""
     path = Path(state_dir).expanduser() / CONFIG_FILENAME
     try:
@@ -38,6 +41,10 @@ def load_fetch_enabled(state_dir) -> bool:
 def save_fetch_enabled(state_dir, enabled: bool) -> None:
     if type(enabled) is not bool:
         raise ValueError('Fetch enabled must be true or false.')
+    from local_cli.web_config import has_web_settings, update_web_settings
+    if has_web_settings(state_dir):
+        update_web_settings(state_dir, fetchEnabled=enabled)
+        return
     root = Path(state_dir).expanduser()
     temporary = None
     try:

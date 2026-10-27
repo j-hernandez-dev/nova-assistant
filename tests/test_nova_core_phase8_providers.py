@@ -15,7 +15,6 @@ from local_cli.application.session import AgentSessionCoordinator
 from local_cli.core.contracts import EventKind, new_command_id
 from local_cli.core.models import ModelRuntimeSnapshot
 from local_cli.providers.base import ProviderConnectionError
-from local_cli.providers.claude_provider import ClaudeProvider
 from local_cli.providers.llama_server_provider import LlamaServerProvider
 from local_cli.harness import AgentEvent
 from local_cli.tools.agent_tool import AgentTool
@@ -62,7 +61,7 @@ def change(coordinator, session_id, kind=CommandKind.CHANGE_MODEL, payload=None,
         kind=kind, session_id=session_id, payload=payload or {"modelId": "new"}, **kwargs))
 
 
-@pytest.mark.parametrize("method,value", [("change_model", "new"), ("change_provider", "claude")])
+@pytest.mark.parametrize("method,value", [("change_model", "new"), ("change_provider", "llama-server")])
 def test_manager_rejects_active_turn_before_factory_or_network(method, value):
     factory = Mock(side_effect=AssertionError("must not create a provider"))
     provider = Provider()
@@ -93,8 +92,8 @@ def test_snapshots_are_deeply_immutable_and_do_not_follow_later_revision():
     list(pinned.chat_stream("old", []))
 
 
-@pytest.mark.parametrize("name", ["ollama", "claude", "llama-server"])
-def test_all_three_provider_adapters_have_atomic_manager_transition(name):
+@pytest.mark.parametrize("name", ["ollama", "llama-server"])
+def test_supported_provider_adapters_have_atomic_manager_transition(name):
     state = manager()
     current = state.change_provider(name, model="new")
     assert current.name == name and current.snapshot.model_id == "new"
@@ -102,7 +101,7 @@ def test_all_three_provider_adapters_have_atomic_manager_transition(name):
     assert current.snapshot.tool_support == "AVAILABLE"
     assert current.snapshot.thinking_support == "UNAVAILABLE"
     assert current.snapshot.model_context_window == 8192
-    assert current.snapshot.health == ("UNKNOWN" if name == "claude" else "AVAILABLE")
+    assert current.snapshot.health == "AVAILABLE"
     assert current.fresh()._provider is not current._provider
 
 
@@ -144,31 +143,20 @@ def test_failed_provider_does_not_fall_back_to_another_provider():
     state = manager(provider_factory=Mock(side_effect=ValueError("secret")))
     original = state.snapshot()
     with pytest.raises(ProviderTransitionError) as error:
-        state.change_provider("claude")
+        state.change_provider("llama-server")
     assert error.value.code == "PROVIDER_CONFIGURATION_FAILED"
     assert state.snapshot() is original
 
 
 def test_provider_selection_uses_validated_catalog_and_explicit_model_wins():
-    provider = Provider("claude")
+    provider = Provider("llama-server")
     provider.list_models = lambda: [{"name": "cloud"}]
     state = manager(provider_factory=lambda _name: provider)
     with pytest.raises(ProviderTransitionError):
-        state.change_provider("claude", model="old")
-    assert state.change_provider("claude").snapshot.model_id == "cloud"
+        state.change_provider("llama-server", model="old")
+    assert state.change_provider("llama-server").snapshot.model_id == "cloud"
 
 
-def test_old_claude_snapshot_keeps_credential_endpoint_and_options(monkeypatch):
-    original = ClaudeProvider(api_key="private-old", base_url="https://host.invalid",
-                              timeout=33, stream_timeout=44, default_max_tokens=512)
-    clone = provider_clone_factory(original)
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "private-new")
-    new = clone()
-    assert new._api_key == "private-old" and new._base_url == original._base_url
-    assert new._timeout == 33 and new._stream_timeout == 44 and new._default_max_tokens == 512
-    state = manager(original)
-    assert "private" not in json.dumps(state.snapshot().snapshot.to_dict())
-    assert "private" not in repr(state.snapshot())
 
 
 def test_endpoint_in_public_snapshot_strips_credentials_query_and_fragment():
@@ -178,7 +166,7 @@ def test_endpoint_in_public_snapshot_strips_credentials_query_and_fragment():
 
 
 def test_bound_non_ollama_rejects_silent_ollama_options():
-    state = manager(Provider("claude"))
+    state = manager(Provider("llama-server"))
     with pytest.raises(ProviderTransitionError) as error:
         list(state.snapshot().chat_stream("old", [], options={"num_ctx": 8192}))
     assert error.value.code == "UNSUPPORTED_INFERENCE_OPTION"
@@ -188,7 +176,7 @@ def test_bound_non_ollama_rejects_silent_ollama_options():
 
 @pytest.mark.parametrize("kind,payload", [
     (CommandKind.CHANGE_MODEL, {"modelId": "new"}),
-    (CommandKind.CHANGE_PROVIDER, {"providerId": "claude", "modelId": "new"}),
+    (CommandKind.CHANGE_PROVIDER, {"providerId": "llama-server", "modelId": "new"}),
 ])
 def test_application_rejects_during_generation_without_cancel_or_mutation(tmp_path, kind, payload):
     entered, release = Event(), Event()
@@ -253,7 +241,7 @@ def test_agent_tool_dynamic_source_avoids_stale_template(tmp_path):
             return agent.agent_id
     runner = Runner()
     state = manager()
-    tool = AgentTool(runner, Provider("claude"), "stale", [], cwd=tmp_path)
+    tool = AgentTool(runner, Provider("llama-server"), "stale", [], cwd=tmp_path)
     tool.bind_model_runtime(state.snapshot)
     tool.execute(description="first task", prompt="task", run_in_background=True)
     state.change_provider("llama-server", model="new")
@@ -306,7 +294,7 @@ def test_background_agents_keep_old_snapshot_and_new_agents_use_new_revision(tmp
     main = Provider(steps=[call, "done"])
     state = manager(main, clone_factory=lambda _provider: Child)
     runner = SubAgentRunner(max_workers=2)
-    agent = AgentTool(runner, Provider("claude"), "stale", [], cwd=tmp_path)
+    agent = AgentTool(runner, Provider("llama-server"), "stale", [], cwd=tmp_path)
     coordinator = AgentSessionCoordinator(provider=main, model="old", provider_manager=state,
         tool_factory=lambda _cwd: [agent], event_config=EventBufferConfig(128, 128, 8))
     session_id = start(coordinator, tmp_path).session_id
@@ -377,7 +365,7 @@ def test_provider_change_does_not_resolve_or_cancel_pending_interaction(tmp_path
             break
         time.sleep(0.005)
     assert len(pending) == 1
-    rejected = change(coordinator, session_id, CommandKind.CHANGE_PROVIDER, {"providerId": "claude"})
+    rejected = change(coordinator, session_id, CommandKind.CHANGE_PROVIDER, {"providerId": "llama-server"})
     assert rejected.error.code == "CONFLICT_ACTIVE_TURN" and gate.pending() == pending
     if tool_name == "ask_user":
         payload = {"inputRequestId": pending[0].input_request_id, "response": "yes"}

@@ -1,7 +1,8 @@
 """Optional local Ollama document adapter, independent of MEMORY spaces.
 
-Discovery is explicit host idle work. Queries never discover, start, load,
-download or keep a model resident. PS + post-revision proof bind vectors to the
+Discovery is explicit host idle work. The default adapter never loads a cold
+model; enabled desktop Knowledge may explicitly allow local cold inference.
+No path downloads a model. PS + post-revision proof bind vectors to the
 expected space. No ambient proxy/cookies/auth/redirects or cloud endpoint.
 """
 import hashlib
@@ -10,6 +11,7 @@ import json
 from time import perf_counter
 from urllib.parse import urlsplit
 import urllib.request
+import urllib.error
 
 from local_cli.core.knowledge import KnowledgeError, KnowledgeErrorCode, _require
 from local_cli.core.knowledge_chunking import CHUNK_PROFILE
@@ -24,7 +26,7 @@ class _NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 class LocalDocumentEmbeddings:
-    def __init__(self, endpoint, model, *, preprocessing_profile='document-raw-v1', transport=None):
+    def __init__(self, endpoint, model, *, preprocessing_profile='document-raw-v1', transport=None, settings=None, allow_cold=False):
         try:
             parsed = urlsplit(endpoint)
             local = parsed.hostname == 'localhost' or ipaddress.ip_address(parsed.hostname).is_loopback
@@ -36,6 +38,7 @@ class LocalDocumentEmbeddings:
             raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_UNAVAILABLE) from None
         self._selection = endpoint.rstrip('/'), model, preprocessing_profile
         self._transport, self._space = transport, None
+        self.settings, self.allow_cold = settings, allow_cold
         self._opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect())
 
     @property
@@ -58,6 +61,11 @@ class LocalDocumentEmbeddings:
                     result = json.loads(raw)
             if not isinstance(result, dict) or perf_counter() >= deadline: raise ValueError()
             return result
+        except urllib.error.HTTPError as exc:
+            detail = exc.read(4096).decode('utf-8', errors='replace').casefold()
+            if any(term in detail for term in ('context length', 'input length', 'too long', 'context window')):
+                raise KnowledgeError(KnowledgeErrorCode.EMBEDDING_CONTEXT_EXCEEDED) from None
+            raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_UNAVAILABLE) from None
         except (OSError, ValueError, TypeError):
             raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_UNAVAILABLE) from None
 
@@ -81,11 +89,16 @@ class LocalDocumentEmbeddings:
                 raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_UNAVAILABLE)
             family = str(shown.get('details', {}).get('family', '')).casefold()
             qwen = 'qwen' in family or 'qwen' in self._selection[1].casefold()
+            if self.settings is not None:
+                self._selection = (*self._selection[:2], 'qwen-document-query-v1' if qwen else 'document-raw-v1')
             if qwen != (self._selection[2] == 'qwen-document-query-v1'):
                 raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_SPACE_MISMATCH)
             if self._model('/api/tags', deadline)['digest'] != installed['digest']:
                 raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_SPACE_MISMATCH)
-            self._space = DocumentEmbeddingSpace('ollama-local:'+hashlib.sha256(self._selection[0].encode()).hexdigest(),
+            context = self.settings.snapshot().get('selectedTokens') if self.settings else None
+            identity = self._selection[0] + ('|context:'+str(context) if self.settings else '')
+            self._context = context
+            self._space = DocumentEmbeddingSpace('ollama-local:'+hashlib.sha256(identity.encode()).hexdigest(),
                 self._selection[1], installed['digest'], dimensions.pop(), self._selection[2], CHUNK_PROFILE)
             return self._space
         except Exception:
@@ -95,15 +108,29 @@ class LocalDocumentEmbeddings:
     def _embed(self, texts, expected, *, query):
         if self.space != expected: raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_SPACE_MISMATCH)
         _require(isinstance(texts, tuple) and 0 < len(texts) <= 16 and all(isinstance(t, str) and '\x00' not in t for t in texts))
-        deadline = perf_counter()+(.5 if query else 10)
+        deadline = perf_counter()+(30 if query and self.allow_cold else .5 if query else 60 if self.allow_cold else 10)
         try:
             # Fresh residency/revision check: a cold model is never loaded here.
-            if self._model('/api/ps', deadline)['digest'] != expected.revision:
+            if not self.allow_cold and self._model('/api/ps', deadline)['digest'] != expected.revision:
                 raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_SPACE_MISMATCH)
             inputs = texts
             if query and expected.preprocessing_profile == 'qwen-document-query-v1':
                 inputs = tuple('Instruct: '+DOCUMENT_QUERY_INSTRUCTION+'\nQuery: '+t for t in texts)
-            response = self._request('/api/embed', {'model': expected.model, 'input': list(inputs), 'truncate': False}, deadline)
+            options = {}
+            if self.settings is not None:
+                state = self.settings.snapshot()
+                if state['selectedModel'] != expected.model or state['selectedTokens'] != self._context or state['errorCode']:
+                    raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_SPACE_MISMATCH)
+                options = {'options': self.settings.runtime_options(expected.model)}
+            ledger = getattr(self.settings, 'usage', None)
+            request_id = ledger.begin(expected.model) if ledger else None
+            try:
+                response = self._request('/api/embed', {'model': expected.model, 'input': list(inputs), 'truncate': False, **options}, deadline)
+            except BaseException:
+                if ledger: ledger.finish(request_id, {}, 'failed')
+                raise
+            else:
+                if ledger: ledger.finish(request_id, {**response, 'eval_count':0}, 'completed')
             if self._model('/api/tags', deadline)['digest'] != expected.revision:
                 raise KnowledgeError(KnowledgeErrorCode.SEMANTIC_SPACE_MISMATCH)
             values = response.get('embeddings', ())

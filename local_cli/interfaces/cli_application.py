@@ -267,8 +267,6 @@ class CliApplicationClient:
         elif event.kind is EventKind.HARNESS_INTERVENTION:
             rule = event.payload.get("rule")
             if rule == 'memory_recall':
-                if event.payload.get('remoteMemoryInjection'):
-                    self._write_error('Selected memories will be sent to the configured remote provider (host opt-in).\n')
                 if event.payload.get('errorCode'):
                     mode=event.payload.get('retrievalMode','none')
                     continuing=f'with {mode} recall' if mode!='none' else 'without recall'

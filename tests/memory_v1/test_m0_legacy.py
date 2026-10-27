@@ -9,7 +9,7 @@ def test_current_persistence_and_scope_limitations_are_reproducible(tmp_path):
     report = characterize_persistence(tmp_path)
     assert report['autosave_restored_messages'] == 400
     assert report['manual_restored_messages'] == 450
-    assert report['legacy_slug_collision_observed']
+    assert not report['legacy_slug_collision_observed']
     assert report['snapshot_and_flight_recorder_survive_clear']
 
 

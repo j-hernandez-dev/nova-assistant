@@ -88,7 +88,9 @@ def test_promoted_k4_chunks_rebind_block_spans_and_never_reuse_vectors(tmp_path)
         first=svc.store.read_prepared(imported.source.current_revision_id,svc.access)
         second=svc.store.read_prepared(promoted.source.current_revision_id,svc.access)
         assert first.chunks[0].text==second.chunks[0].text
-        assert first.chunks[0].block_spans!=second.chunks[0].block_spans
+        assert promoted.source.source_id == imported.source.source_id
+        assert promoted.source.current_revision_id == imported.source.current_revision_id
+        assert first.chunks[0].block_spans == second.chunks[0].block_spans
         assert second.chunks[0].block_spans[0].block_id==second.document.blocks[0].block_id
         assert not svc.store._connection.execute('SELECT 1 FROM semantic_vectors').fetchone()
     finally:svc.close()

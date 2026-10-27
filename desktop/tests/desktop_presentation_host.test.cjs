@@ -5,25 +5,40 @@ const os = require('node:os')
 const path = require('node:path')
 const { createDesktopPreferencesStore } = require('../electron/desktop_preferences.cjs')
 const { DESKTOP_UPDATES_ENABLED, disabledDesktopUpdate, editingActionForInput } = require('../electron/desktop_host_policy.cjs')
+const appearanceDefaults = {colorScheme:'system',lightTheme:'nova',darkTheme:'nova',interfaceFont:'system',codeFont:'system',showStartupScreen:true,startupMotion:true,mascotMotion:true,mascotAppearance:'2d'}
 
 function ownedDirectory(t) {
   const directory = fs.mkdtempSync(path.join(process.env.NOVA_DESKTOP_TEST_TMP || os.tmpdir(), 'nova-desktop-preferences-test-'))
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }))
   return directory
 }
+test('The host persists 3D, migrates old profiles to 2D and preserves a chosen design when an older writer omits it',t=>{
+  const directory=ownedDirectory(t),filename=path.join(directory,'desktop-preferences.json')
+  fs.writeFileSync(filename,JSON.stringify({schemaVersion:1,locale:'es',mascotMotion:false}))
+  const store=createDesktopPreferencesStore(directory)
+  assert.equal(store.get().mascotAppearance,'2d');assert.equal(store.get().mascotMotion,false)
+  assert.equal(store.setAppearance({...appearanceDefaults,mascotAppearance:'3d'}).success,true)
+  assert.equal(createDesktopPreferencesStore(directory).get().mascotAppearance,'3d')
+  const previous={...appearanceDefaults,mascotMotion:false};delete previous.mascotAppearance
+  assert.equal(store.setAppearance(previous).success,true);assert.equal(store.get().mascotAppearance,'3d')
+  const before=fs.readFileSync(filename,'utf8')
+  assert.equal(store.setAppearance({...appearanceDefaults,mascotAppearance:'invalid'}).success,false)
+  assert.equal(fs.readFileSync(filename,'utf8'),before)
+  assert.equal(store.setAppearance(appearanceDefaults).success,true);assert.equal(store.get().mascotAppearance,'2d')
+})
 
 test('Desktop defaults to Spanish, persists presentation preferences and isolates returned objects', t => {
   const directory = ownedDirectory(t)
   const store = createDesktopPreferencesStore(directory)
-  assert.deepEqual(store.get(), { schemaVersion: 1, locale: 'es', reduceMotion: false, showStartupScreen: true })
+  assert.deepEqual(store.get(), { schemaVersion: 1, locale: 'es', language:'system',autoSwitchView:false,transitionsEnabled:true,showFiles:true,collapsibleSourceContext:false,zoomPercent:100,...appearanceDefaults })
   const copy = store.get()
   copy.locale = 'en'
   assert.equal(store.get().locale, 'es')
-  assert.deepEqual(store.setLocale('en'), { success: true, preferences: { schemaVersion: 1, locale: 'en', reduceMotion: false, showStartupScreen: true } })
+  assert.deepEqual(store.setLocale('en'), { success: true, preferences: { schemaVersion: 1, locale: 'en', language:'en',autoSwitchView:false,transitionsEnabled:true,showFiles:true,collapsibleSourceContext:false,zoomPercent:100,...appearanceDefaults } })
   assert.equal(createDesktopPreferencesStore(directory).get().locale, 'en')
   assert.deepEqual(fs.readdirSync(directory), ['desktop-preferences.json'])
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(directory, 'desktop-preferences.json'), 'utf8')),
-    { schemaVersion: 1, locale: 'en', reduceMotion: false, showStartupScreen: true })
+    { schemaVersion: 1, locale: 'en', language:'en',autoSwitchView:false,transitionsEnabled:true,showFiles:true,collapsibleSourceContext:false,zoomPercent:100,...appearanceDefaults })
   assert.equal(store.setLocale('es').success, true)
   assert.equal(createDesktopPreferencesStore(directory).get().locale, 'es')
 })
@@ -82,7 +97,9 @@ test('Presentation IPC validates the main-frame sender and never reaches Applica
   const source = fs.readFileSync(path.join(__dirname, '../electron/main.ts'), 'utf8')
   const handlers = source.slice(source.indexOf("ipcMain.handle('get-desktop-preferences'"),
     source.indexOf("ipcMain.on('send-to-python'"))
-  assert.equal((handlers.match(/if \(!validApplicationSender\(event\)\)/g) || []).length, 2)
+  assert.equal((handlers.match(/if \(!validApplicationSender\(event\)\)/g) || []).length, 4)
+  assert.match(handlers, /desktopPreferences\.setShortcuts\(value\)/)
+  assert.match(handlers, /!validApplicationSender\(event\) \|\| typeof active !== 'boolean'/)
   assert.match(handlers, /desktopPreferences\.get\(\)/)
   assert.match(handlers, /desktopPreferences\.setLocale\(locale\)/)
   assert.doesNotMatch(handlers, /sendToPython|applicationClient\.command|signApproval/)
@@ -94,7 +111,7 @@ test('Old locale-only profiles retain their language and gain safe appearance de
   const before = JSON.stringify({ schemaVersion: 1, locale: 'en' })
   fs.writeFileSync(filename, before)
   const store = createDesktopPreferencesStore(directory)
-  assert.deepEqual(store.get(), { schemaVersion: 1, locale: 'en', reduceMotion: false, showStartupScreen: true })
+  assert.deepEqual(store.get(), { schemaVersion: 1, locale: 'en', language:'en',autoSwitchView:false,transitionsEnabled:true,showFiles:true,collapsibleSourceContext:false,zoomPercent:100,...appearanceDefaults })
   assert.equal(fs.readFileSync(filename, 'utf8'), before)
 })
 test('Appearance survives restart and locale saves; saving appearance also preserves language', t => {
@@ -102,7 +119,7 @@ test('Appearance survives restart and locale saves; saving appearance also prese
   assert.equal(store.setAppearance({ reduceMotion: true, showStartupScreen: false }).success, true)
   assert.equal(store.setLocale('en').success, true)
   const reloaded = createDesktopPreferencesStore(directory)
-  assert.deepEqual(reloaded.get(), { schemaVersion: 1, locale: 'en', reduceMotion: true, showStartupScreen: false })
+  assert.deepEqual(reloaded.get(), { schemaVersion: 1, locale: 'en', language:'en',autoSwitchView:false,transitionsEnabled:true,showFiles:true,collapsibleSourceContext:false,zoomPercent:100,...appearanceDefaults,startupMotion:false,mascotMotion:false,showStartupScreen:false })
   assert.equal(reloaded.setAppearance({ reduceMotion: false, showStartupScreen: true }).success, true)
   assert.equal(createDesktopPreferencesStore(directory).get().locale, 'en')
 })
@@ -114,7 +131,7 @@ test('Invalid appearance requests cannot overwrite saved settings or inject runt
     { ...valid, locale: 'en' }, { reduceMotion: true }, { ...valid, autoApprove: true }]) {
     assert.equal(store.setAppearance(value).error.code, 'INVALID_DESKTOP_APPEARANCE')
     assert.deepEqual(createDesktopPreferencesStore(directory).get(), store.get())
-    assert.equal(store.get().reduceMotion, true); assert.equal(store.get().showStartupScreen, false)
+    assert.equal(store.get().startupMotion, false); assert.equal(store.get().mascotMotion, false); assert.equal(store.get().showStartupScreen, false)
   }
 })
 test('Failed appearance persistence retains the effective settings and leaves unrelated files untouched', t => {
@@ -126,8 +143,12 @@ test('Failed appearance persistence retains the effective settings and leaves un
 })
 test('Appearance and initial presentation IPC accept only the main frame and do not touch the backend', () => {
   const source = fs.readFileSync(path.join(__dirname, '../electron/main.ts'), 'utf8')
-  const handlers = source.slice(source.indexOf("ipcMain.on('get-desktop-startup-preferences'"), source.indexOf("ipcMain.handle('get-desktop-preferences'"))
-  assert.match(handlers, /event.returnValue = validApplicationSender\(event\) \? desktopPreferences.get\(\) : null/)
+  const handlers = ["ipcMain.on('get-desktop-startup-preferences'","ipcMain.handle('set-desktop-appearance'"].map(marker=>{
+    const start=source.indexOf(marker),end=source.indexOf('\nipcMain.',start+1)
+    assert.ok(start>=0&&end>start)
+    return source.slice(start,end)
+  }).join('\n')
+  assert.match(handlers, /event.returnValue = validApplicationSender\(event\)\s*\? \{ \.\.\.desktopPreferences.get\(\), systemDark: nativeTheme.shouldUseDarkColors, windowVisible: mainWindow\?\.isVisible\(\) === true \} : null/)
   assert.match(handlers, /if \(!validApplicationSender\(event\)\)/)
   assert.match(handlers, /desktopPreferences.setAppearance\(value\)/)
   assert.doesNotMatch(handlers, /sendToPython|applicationClient|signApproval/)

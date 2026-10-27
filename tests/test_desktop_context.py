@@ -13,10 +13,10 @@ from tests.test_nova_core_phase9_integration import capabilities
 
 
 def setup_app(tmp_path, **kwargs):
-    provider = CapacityProvider()
+    provider = CapacityProvider(model_limit=262144, provider_limit=262144)
     app = AgentSessionCoordinator(provider=provider, model='old', provider_manager=state_for(provider),
         tool_factory=lambda _: [], prompt_factory=lambda *_: 'Synthetic safety instructions.',
-        context_policy=ContextPolicy(resource_limit=65536), capability_factory=capabilities, **kwargs)
+        context_policy=ContextPolicy(resource_limit=262144), capability_factory=capabilities, **kwargs)
     session = start(app, tmp_path).session_id
     return app, session, provider
 
@@ -27,7 +27,7 @@ def change(app, session, tokens, **kwargs):
 
 
 def test_context_setter_accepts_only_exact_supported_numeric_payloads():
-    for value in (True, False, -1, 1, 8193, 131072, '64K', None, [], {}):
+    for value in (True, False, -1, 1, 8193, 524288, 262145, '64K', None, [], {}):
         with pytest.raises(ValueError):
             ApplicationCommand(new_command_id(), CommandKind.SET_CONTEXT_WINDOW,
                 session_id='synthetic', payload={'requestedTokens': value})
@@ -39,7 +39,7 @@ def test_context_setter_accepts_only_exact_supported_numeric_payloads():
 def test_preset_persists_across_fresh_store_and_corruption_preserves_default(tmp_path, monkeypatch):
     store = DesktopContextPreferences(tmp_path)
     assert store.load(8192) == 8192
-    for value in (0, 4096, 8192, 16384, 32768, 65536):
+    for value in (0, 4096, 8192, 16384, 32768, 65536, 131072, 262144):
         store.save(value)
         assert DesktopContextPreferences(tmp_path).load() == value
     old = store.path.read_bytes()
@@ -48,29 +48,30 @@ def test_preset_persists_across_fresh_store_and_corruption_preserves_default(tmp
         store.save(4096)
     assert store.path.read_bytes() == old
     assert not list(tmp_path.glob('.desktop-context-*.tmp'))
-    for invalid in ('{}', '{"schemaVersion":1,"requestedTokens":true}', '{"schemaVersion":1,"requestedTokens":131072}', 'invalid', ' ' * 4097):
+    for invalid in ('{}', '{"schemaVersion":1,"requestedTokens":true}', '{"schemaVersion":1,"requestedTokens":524288}', 'invalid', ' ' * 4097):
         store.path.write_text(invalid)
         assert store.load(16384) == 16384
 
 
-def test_change_reaches_next_inference_preserves_transcript_and_is_idempotent(tmp_path):
+@pytest.mark.parametrize('tokens', [65536, 131072, 262144])
+def test_change_reaches_next_inference_preserves_transcript_and_is_idempotent(tmp_path, tokens):
     store = DesktopContextPreferences(tmp_path / 'settings')
     app, session, provider = setup_app(tmp_path, context_selection_save=store.save)
     first = submit(app, session, 'Synthetic first turn')
     assert app.wait_for_turn(first.created_ids['turnId'], 5)
     before = deepcopy(snapshot(app, session).transcript)
     command = ApplicationCommand(new_command_id(), CommandKind.SET_CONTEXT_WINDOW,
-        session_id=session, payload={'requestedTokens': 65536}, expected_revision=snapshot(app, session).state_revision)
+        session_id=session, payload={'requestedTokens': tokens}, expected_revision=snapshot(app, session).state_revision)
     receipt = app.handle(command)
     assert receipt.accepted and app.handle(command) == receipt
     assert snapshot(app, session).transcript == before
-    assert snapshot(app, session).services['context'] == {'requestedTokens': 65536, 'selectedTokens': 65536, 'errorCode': None}
+    assert snapshot(app, session).services['context'] == {'requestedTokens': tokens, 'selectedTokens': tokens, 'errorCode': None}
     second = submit(app, session, 'Synthetic second turn')
     assert app.wait_for_turn(second.created_ids['turnId'], 5)
-    assert provider.requests[-1][1]['options']['num_ctx'] == 65536
-    assert store.load() == 65536
+    assert provider.requests[-1][1]['options']['num_ctx'] == tokens
+    assert store.load() == tokens
     fresh, fresh_session, _ = setup_app(tmp_path, context_selection=DesktopContextPreferences(tmp_path / 'settings').load())
-    assert snapshot(fresh, fresh_session).services['context']['requestedTokens'] == 65536
+    assert snapshot(fresh, fresh_session).services['context']['requestedTokens'] == tokens
     assert change(app, session, 0).accepted
     assert snapshot(app, session).services['context']['requestedTokens'] == 0
     assert snapshot(app, session).services['context']['selectedTokens'] == 32768

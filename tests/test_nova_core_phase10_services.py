@@ -230,6 +230,9 @@ def test_cli_and_server_use_identical_service_available_query_disable(tmp_path, 
 
 
 def test_server_rag_failure_nonfatal_and_retrieval_budget_shared(tmp_path, monkeypatch):
+    # Isolate the legacy RAG adapter; normal Nova composition replaces it with
+    # Knowledge/EM. Current Knowledge retrieval is covered in test_knowledge_settings.
+    monkeypatch.setattr("local_cli.bootstrap_server.knowledge_factory", lambda *a, **k: None)
     class Recording(Provider):
         def __init__(self):
             super().__init__()

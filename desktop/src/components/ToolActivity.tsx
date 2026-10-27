@@ -1,6 +1,6 @@
 import type { ToolActivity as Activity } from '../types'
 import { useI18n } from '../i18n'
-import { activityExplanation, activityPresentation, activityToolVisual } from '../activity_presentation'
+import { activityExplanation, activityPresentation, activityStatusText, activityToolVisual, isTerminalActivity } from '../activity_presentation'
 import { NovaIcon } from './NovaIcon'
 import { actionTitle, type TurnAction } from '../turn_activity'
 
@@ -21,8 +21,10 @@ export function ActionDetails({ action, awaitingPermission = false, compact = fa
   const hasStreams = !!(activity?.stdout || activity?.stderr)
   const visual = activityToolVisual(action.name)
   const title = actionTitle(action, t, awaitingPermission)
+  const label = presentation ? activityStatusText(presentation, t) : ''
   const status = !presentation ? t('activityUnverified') : presentation.tone === 'warning'
-    || (awaitingPermission && activity?.status === 'pending') ? t(presentation.key) : ''
+    || (awaitingPermission && activity?.status === 'pending')
+    || (activity && isTerminalActivity(activity) && !['pending', 'running'].includes(activity.status)) ? label : ''
   const command = typeof action.args.command === 'string' ? action.args.command : null
   return <details className={`nova-tool-activity nova-action-row nova-activity-${presentation?.tone || 'neutral'}${compact ? ' nova-activity-compact' : ''}`}
     data-operation-id={activity?.operationId} data-tool-call-id={activity?.toolCallId}>
@@ -34,7 +36,7 @@ export function ActionDetails({ action, awaitingPermission = false, compact = fa
     </summary>
     <div className="nova-activity-body">
       <div className="nova-action-detail-heading"><span className="nova-action-detail-label"><NovaIcon name={visual.icon} size={14} />{t(visual.heading)}</span>
-        {presentation && <span className={presentation.running ? 'nova-working-text' : undefined}>{t(presentation.key)}</span>}</div>
+        {presentation && <span className={presentation.running ? 'nova-working-text' : undefined}>{label}</span>}</div>
       <pre className="nova-action-invocation">{command ? `$ ${command}` : JSON.stringify(action.args, null, 2)}</pre>
       {explanation && <p className="nova-activity-explanation">{t(explanation)}</p>}
       {hasStreams ? <>
@@ -51,6 +53,9 @@ export function ActionDetails({ action, awaitingPermission = false, compact = fa
           <dt>{t('activityReceipt')}</dt><dd>{activity.status} / {activity.operationStatus} / {activity.effectState}</dd>
           {activity.errorCode && <><dt>{t('activityErrorCode')}</dt><dd>{activity.errorCode}</dd></>}
           {activity.exitCode != null && <><dt>{t('activityExitCode')}</dt><dd>{activity.exitCode}</dd></>}
+          {isTerminalActivity(activity) && activity.effectState === 'unknown' && <>
+            <dt>{t('activityEffectsVerification')}</dt><dd>{t('activityEffectsNotVerified')}</dd>
+          </>}
           {activity.cwd && <><dt>{t('activityWorkingDirectory')}</dt><dd>{activity.cwd}</dd></>}
         </dl>
         {command && <><span>{t('activityArguments')}</span><pre>{JSON.stringify(activity.arguments, null, 2)}</pre></>}

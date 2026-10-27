@@ -60,6 +60,11 @@ def _cost(counter, payload):
 
 
 class KnowledgeAdmission:
+    guard_text = KNOWLEDGE_GUARD
+    stop_after_clipping = True
+
+    def excerpt_limit(self, counter, selected, candidate, limit):
+        return limit
     def __init__(self, turn_id, service, redactor):
         self.turn_id, self.service, self.redactor = turn_id, service, redactor
         self.capsule = KnowledgeCapsule.empty(turn_id)
@@ -113,7 +118,7 @@ class KnowledgeAdmission:
                 if exc.code!='CONTEXT_BUDGET_EXCEEDED': raise
                 manager.prepare(working,tools)
             return
-        self.guard = dict(role='system', content=KNOWLEDGE_GUARD,_context_knowledge_guard=True)
+        self.guard = dict(role='system', content=self.guard_text,_context_knowledge_guard=True)
         working.insert(0, self.guard)
         try:
             prepared = manager.prepare(working, tools)
@@ -132,17 +137,18 @@ class KnowledgeAdmission:
                 candidate.chunk.locator_start, self.redactor.text(src.display_name), self.redactor.text(src.origin))
             text = self.redactor.text(candidate.chunk.text)
             if not text.strip(): continue
+            candidate_limit = self.excerpt_limit(counter, selected, candidate, limit)
             def excerpt(n):
                 return KnowledgeEvidence('K'+str(len(selected)+1), target, text[:n], n < len(text))
             low, high = 0, len(text)
             while low < high:
                 mid = (low+high+1)//2
-                if _cost(counter, message((*selected, excerpt(mid)), self.sources)) <= limit:
+                if _cost(counter, message((*selected, excerpt(mid)), self.sources)) <= candidate_limit:
                     low = mid
                 else: high = mid-1
             # Never publish an ID for an empty/whitespace-only excerpt.
             if low and text[:low].strip(): selected.append(excerpt(low))
-            if low < len(text): break
+            if low < len(text) and self.stop_after_clipping: break
         self.pending = tuple(selected)
         if not selected:
             working.remove(self.guard); self.guard = None
@@ -194,7 +200,7 @@ class KnowledgeAdmission:
         self._remove(working)
         sources = tuple(s for s in self.capsule.source_registry if any(e.target.source_id==s.source_id for e in evidence))
         if evidence:
-            self.guard = dict(role='system',content=KNOWLEDGE_GUARD,_context_knowledge_guard=True)
+            self.guard = dict(role='system',content=self.guard_text,_context_knowledge_guard=True)
             self.payload = message(evidence,sources)
             working.insert(0,self.guard); working.insert(1,self.payload)
         self.capsule = KnowledgeCapsule(self.turn_id,evidence,sources,CitationRegistry(self.turn_id,evidence),

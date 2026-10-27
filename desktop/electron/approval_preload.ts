@@ -1,6 +1,7 @@
 // This preload belongs only to the host-created fixed approval document. It
 // exposes no API to its document or to the principal application renderer.
 import { ipcRenderer } from 'electron'
+import { applySurfacePresentation } from '../shared/surface_presentation'
 
 if (process.isMainFrame) window.addEventListener('DOMContentLoaded', async () => {
   const element = (id: string) => document.getElementById(id)!
@@ -28,6 +29,8 @@ if (process.isMainFrame) window.addEventListener('DOMContentLoaded', async () =>
   try {
     const binding = await ipcRenderer.invoke('approval-surface-ready')
     if (!binding?.accepted || typeof binding.nonce !== 'string') return
+    applySurfacePresentation(document, binding.presentation)
+    ipcRenderer.on('approval-surface-appearance', (_event, value) => applySurfacePresentation(document, value))
     localize(binding.locale)
     element('tool').textContent = String(binding.request.name)
     element('cwd').textContent = String(binding.request.cwd)

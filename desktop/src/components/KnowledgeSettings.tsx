@@ -1,146 +1,59 @@
-import { useEffect, useRef, useState } from 'react'
-import type { DesktopSessionView, CommandReceipt } from '../../shared/application'
-import { useI18n } from '../i18n'
-import { useSettingsAction, SettingsActionFeedback } from '../settings_actions'
-import { settingStateKey, settingErrorKey } from '../settings_services_locale'
+import {useEffect,useId,useRef,useState} from 'react'
+import type {DesktopSessionView,KnowledgePreferences} from '../../shared/application'
+import {useI18n} from '../i18n'
+import {useSettingsAction} from '../settings_actions'
 
-type Props = {
-  view: DesktopSessionView | null
-  selectedSources: string[]
-  onSelectedSources: (ids: string[]) => void
-}
+const defaults:KnowledgePreferences={lexicalRecall:true,semanticRecall:false,autoIndex:true,autoRebuild:true}
+const values=(state:KnowledgePreferences):KnowledgePreferences=>({lexicalRecall:state.lexicalRecall,semanticRecall:state.semanticRecall,autoIndex:state.autoIndex,autoRebuild:state.autoRebuild})
+const matches=(a:KnowledgePreferences,b:KnowledgePreferences)=>Object.keys(defaults).every(key=>a[key as keyof KnowledgePreferences]===b[key as keyof KnowledgePreferences])
 
-/** Existing Knowledge and RAG controls. All acquisition, consent and effects stay in the host. */
-export function KnowledgeSettings({ view, selectedSources, onSelectedSources }: Props) {
-  const { t } = useI18n()
-  const scope = `${view?.sessionId || ''}:${view?.workspace || ''}`
-  const action = useSettingsAction(scope)
-  const ragAction = useSettingsAction(scope)
-  const cancelAction = useSettingsAction(scope)
-  const [sourceUrl, setSourceUrl] = useState('')
-  const [ragQuery, setRagQuery] = useState('')
-  const [ragEnabled, setRagEnabled] = useState(view?.rag.enabled || false)
-  const [ragSubmitted,setRagSubmitted]=useState<boolean|null>(null)
-  const selectedRef = useRef(selectedSources)
-  selectedRef.current = selectedSources
-  const previousRagEnabled = useRef(view?.rag.enabled || false)
-  const knowledge = view?.knowledge
-  const ready = !!view?.status.ready && !view.recovering && !view.gap
-  const streaming = !!view?.activeTurnId
-  const closing = !!knowledge?.closing
-  const busy = action.busy || cancelAction.busy
-  const mutationDisabled = !ready || streaming || closing || busy
-  const attachments = knowledge?.attachmentRefs || []
-  const operations = view?.knowledgeOperations || []
-  const rag = view?.rag
-  const ragWaiting=!!ragAction.result?.accepted&&ragSubmitted!==null&&rag?.enabled!==ragSubmitted
-
-  useEffect(() => {
-    const effective = view?.rag.enabled || false
-    setRagEnabled(draft => draft === previousRagEnabled.current ? effective : draft)
-    previousRagEnabled.current = effective
-  }, [view?.rag.enabled])
-  useEffect(() => { setRagEnabled(view?.rag.enabled || false); setRagQuery(''); setSourceUrl('') }, [scope])
-
-  const command = (name: string, args: Record<string, unknown>) => {
-    void action.run(() => window.api.knowledgeCommand(name, args))
+export function KnowledgeSettings({view,locked=false}:{view:DesktopSessionView|null;locked?:boolean}){
+  const {t}=useI18n(),id=useId(),state=view?.knowledgeSettings
+  const action=useSettingsAction('knowledge:'+view?.sessionId+':'+view?.workspace)
+  const [pending,setPending]=useState<KnowledgePreferences|null>(null),sending=useRef(false)
+  const confirmed=!!state&&!!pending&&matches(state,pending)
+  useEffect(()=>{if(confirmed)setPending(null)},[confirmed])
+  const waiting=!!action.result&&!!pending&&!confirmed
+  const disabled=locked||!state||!view?.status.ready||!view.status.connected||!!view.recovering||!!view.gap||
+    !!view.activeTurnId||!!view.activeGenerationId||!!view.approvals.length||!!view.inputs.length||!!view.memory?.maintenanceBusy||
+    !!view.knowledge?.closing||!!view.knowledgeOperations?.some(op=>['running','requested','pending'].includes(op.status))||action.busy||waiting
+  async function save(patch:Partial<KnowledgePreferences>,reset=false){
+    if(disabled||sending.current||!state)return
+    sending.current=true
+    const next=reset?defaults:{...values(state),...patch}
+    setPending(next)
+    try{const result=await action.run(()=>window.api.applicationCommand(reset?'ResetKnowledgeSettings':'SetKnowledgeSettings',reset?{}:next));if(!result)setPending(null)}
+    finally{sending.current=false}
   }
-  const deleteSource = async (sourceId: string) => {
-    const receipt = await action.run(() => window.api.knowledgeCommand('source_delete', { sourceId }))
-    // The receipt confirms acceptance, not completion. Host snapshots report the real operation outcome.
-    if (receipt?.accepted) onSelectedSources(selectedRef.current.filter(id => id !== sourceId))
-  }
-  const selectSource = (sourceId: string, checked: boolean) => {
-    const next = checked ? [...new Set([...selectedSources, sourceId])] : selectedSources.filter(id => id !== sourceId)
-    onSelectedSources(next)
-  }
-  const run = (request: () => Promise<CommandReceipt>) => { void action.run(request) }
-
-  return <>
-    <section className="settings-section" aria-label={t('sources')}>
-      <h3 className="settings-section-title">{t('sources')}</h3>
-      <p className="settings-hint">{t('settingsSourceHint')}</p>
-      {!knowledge?.hostAcquisition ? <p role="status">{t('settingsSourceUnavailable')}</p> : <>
-        <div className="settings-control-actions">
-          <button className="settings-check-btn" disabled={mutationDisabled} onClick={() => run(() => window.api.knowledgePick())}>{t('attach')}</button>
-          <button className="settings-check-btn" disabled={!ready || closing || busy} onClick={() => command('source_list', {})}>{t('listSources')}</button>
-          <button className="settings-check-btn" disabled={!ready || closing || busy} onClick={() => command('source_status', {})}>{t('capacityStatus')}</button>
-        </div>
-        <form className="settings-control-form" onSubmit={event => { event.preventDefault(); if (!mutationDisabled && sourceUrl.trim()) command('source_import_url', { url: sourceUrl.trim(), scope: 'WORKSPACE' }) }}>
-          <label htmlFor="nova-settings-source-url">{t('sourceUrl')}</label>
-          <input id="nova-settings-source-url" value={sourceUrl} disabled={busy} onChange={event => setSourceUrl(event.target.value)} placeholder={t('publicSnapshot')} />
-          <button className="settings-check-btn" disabled={mutationDisabled || !sourceUrl.trim()}>{t('importUrl')}</button>
-        </form>
-        <SettingsActionFeedback action={action} />
-        {knowledge.capacity?.usage.map(usage => <div className="settings-capacity" key={usage.scope}>
-          <div><span>{t(usage.scope === 'WORKSPACE' ? 'settingsScopeWorkspace' : usage.scope === 'SESSION' ? 'knowledgeScopeSession' : 'knowledgeScopeOther')}</span>
-            <span>{t(settingStateKey(usage.state))}</span></div>
-          <p>{usage.bytes} / {usage.byteLimit} bytes · {usage.sources} {t('sources')}</p>
-          <details><summary>{t('diagnosticDetails')}</summary><code>{usage.scope}: {usage.state}</code></details>
-        </div>)}
-        {!knowledge.extraction && <p className="settings-hint">{t('extractionUnavailable')}</p>}
-        <h4 className="settings-section-title">{t('settingsSelectedSources')} ({selectedSources.length})</h4>
-        {attachments.length === 0 && <p className="settings-hint">{t('knowledgeNoAttachments')}</p>}
-        {attachments.map(ref => <article className="settings-source-card" key={ref.attachmentId}>
-          <label className="settings-toggle-row"><input type="checkbox" checked={selectedSources.includes(ref.sourceId)}
-            disabled={busy || closing} onChange={event => selectSource(ref.sourceId, event.target.checked)} />
-            <span>{ref.displayName}</span></label>
-          <p className="settings-hint">{t(settingStateKey(ref.state))}</p>
-          <div className="settings-control-actions">
-            <button className="settings-check-btn" disabled={mutationDisabled} onClick={() => command('source_promote', { sourceId: ref.sourceId })}>{t('keepWorkspace')}</button>
-            <button className="settings-check-btn" disabled={!ready || closing || busy} onClick={() => command('source_detail', { sourceId: ref.sourceId })}>{t('detail')}</button>
-            <button className="settings-check-btn" disabled={mutationDisabled} onClick={() => run(() => window.api.knowledgeRefresh(ref.sourceId))}>{t('refreshFile')}</button>
-            <button className="settings-check-btn" disabled={mutationDisabled || !sourceUrl.trim()} onClick={() => command('source_refresh_url', { sourceId: ref.sourceId, url: sourceUrl.trim() })}>{t('refreshUrl')}</button>
-            <button className="settings-check-btn" disabled={mutationDisabled} onClick={() => run(() => window.api.knowledgeExport(ref.sourceId))}>{t('exportSource')}</button>
-            <button className="settings-check-btn" disabled={mutationDisabled} onClick={() => command('source_remote', { sourceId: ref.sourceId, allowed: true })}>{t('settingsSourceRemote')}</button>
-            <button className="settings-check-btn" disabled={mutationDisabled} onClick={() => command('source_remote', { sourceId: ref.sourceId, allowed: false })}>{t('settingsSourceLocal')}</button>
-            <button className="settings-check-btn" disabled={mutationDisabled} onClick={() => void deleteSource(ref.sourceId)}>{t('deleteSource')}</button>
-          </div>
-          <details><summary>{t('diagnosticDetails')}</summary><code>{ref.state} · {ref.sourceId} · {ref.revisionId || t('settingsUnknown')}</code></details>
-        </article>)}
-      </>}
-    </section>
-    {operations.length > 0 && <section className="settings-section" aria-label={t('knowledgeOperations')}>
-      <h3 className="settings-section-title">{t('knowledgeOperations')}</h3>
-      {operations.map(operation => <article className="settings-source-operation" key={operation.operationId}>
-        <p role="status">{t(settingStateKey(operation.status))}</p>
-        {operation.result?.error && <p role="alert">{t(settingErrorKey(operation.result.error.code))}</p>}
-        <details><summary>{t('diagnosticDetails')}</summary><code>{operation.phase} · {operation.status} · {operation.operationId}
-          {operation.result?.error?.code ? ` · ${operation.result.error.code}` : ''}</code>
-          {operation.result?.data && <pre>{JSON.stringify(operation.result.data, null, 2)}</pre>}
-        </details>
-        {operation.status === 'running' && <button className="settings-check-btn" disabled={!ready || cancelAction.busy}
-          onClick={() => void cancelAction.run(() => window.api.knowledgeCommand('source_cancel', { operationId: operation.operationId }))}>{t('cancelImport')}</button>}
-      </article>)}
-      <SettingsActionFeedback action={cancelAction} />
-    </section>}
-    <section className="settings-section" data-testid="rag-panel">
-      <h3 className="settings-section-title">{t('projectRetrieval')}</h3>
-      <p className="settings-hint">{t('settingsRagHint')} {t('settingsSessionOnly')}</p>
-      <label className="settings-toggle-row"><input type="checkbox" checked={ragEnabled}
-        disabled={!rag || !ready || streaming || ragAction.busy || ragWaiting || !!view?.ragProgress} onChange={event => setRagEnabled(event.target.checked)} />{t('enableProjectRetrieval')}</label>
-      <div className="settings-control-actions">
-        <button className="settings-check-btn" disabled={!rag || !ready || streaming || ragAction.busy || ragWaiting || !!view?.ragProgress || ragEnabled === rag.enabled}
-          onClick={() => { if(ragAction.busy||ragWaiting)return;setRagSubmitted(ragEnabled);void ragAction.run(() => window.api.applicationCommand('SetRAGEnabled', { enabled: ragEnabled })) }}>{t('settingsRagStart')}</button>
-        <button className="settings-check-btn" disabled={!rag || ragAction.busy || ragWaiting || ragEnabled === rag.enabled}
-          onClick={() => setRagEnabled(rag?.enabled || false)}>{t('settingsServiceCancel')}</button>
-      </div>
-      <p role="status">{t('settingsEffective')}: {t(rag ? rag.enabled ? 'settingsOn' : 'settingsOff' : 'settingsUnknown')} · {t(settingStateKey(rag?.availability))}</p>
-      {view?.ragProgress && <p role="status">{t('knowledgeIndexing')}</p>}
-      {rag?.error && <p role="alert">{t('settingsRagUnavailable')}</p>}
-      <SettingsActionFeedback action={ragAction} />
-      <form className="settings-control-form" onSubmit={event => { event.preventDefault(); if (rag?.enabled && ragQuery.trim() && !ragAction.busy && ready && !streaming && !view?.ragProgress) void ragAction.run(() => window.api.applicationCommand('QueryRAG', { query: ragQuery.trim() })) }}>
-        <label htmlFor="nova-settings-rag-query">{t('projectQuery')}</label>
-        <input id="nova-settings-rag-query" value={ragQuery} onChange={event => setRagQuery(event.target.value)} disabled={ragAction.busy} />
-        <button className="settings-check-btn" disabled={!rag?.enabled || !ready || streaming || !!view?.ragProgress || ragAction.busy || !ragQuery.trim()}>{t('queryProject')}</button>
-      </form>
-      {view?.ragResult?.matches?.map((match, index) => <article className="settings-source-card" key={index}>
-        <strong>{typeof match.file_path === 'string' ? match.file_path : ''}</strong>
-        <p>{typeof match.content === 'string' ? match.content : ''}</p>
-      </article>)}
-      <details><summary>{t('diagnosticDetails')}</summary><code>{rag?.availability || 'UNKNOWN'}{rag?.error?.code ? ` · ${rag.error.code}` : ''}</code>
-        {view?.ragProgress && <pre>{view.ragProgress}</pre>}
-      </details>
-    </section>
-  </>
+  const toggle=(field:keyof KnowledgePreferences,label:string,hint:string,requiresEM=false)=><input id={id+'-'+field}
+    type="checkbox" role="switch" className="nova-switch" data-knowledge-setting={field} aria-label={label} aria-describedby={hint}
+    checked={state?.[field]??defaults[field]} disabled={disabled||(requiresEM&&!state?.semanticAvailable)}
+    onChange={event=>void save({[field]:event.target.checked})}/>
+  const row=(field:keyof KnowledgePreferences,label:'knowledgeLexical'|'knowledgeSemantic'|'knowledgeAutoIndex'|'knowledgeAutoRebuild',
+    hint:'knowledgeLexicalHint'|'knowledgeSemanticHint'|'knowledgeAutoIndexHint'|'knowledgeAutoRebuildHint',requiresEM=false)=><div className="nova-preference-row">
+    <div><span className="nova-setting-label">{t(label)}</span><p id={id+'-'+field+'-hint'}>{t(hint)}{requiresEM?' '+t('knowledgeEmbeddingRequired'):''}</p></div>
+    {toggle(field,t(label),id+'-'+field+'-hint',requiresEM)}</div>
+  const error=action.errorCode||state?.errorCode
+  const errorKey=error==='KNOWLEDGE_EMBEDDING_REQUIRED'?'knowledgeEmbeddingRequired':error==='KNOWLEDGE_EMBEDDING_CONTEXT_EXCEEDED'?'knowledgeContextExceeded':
+    error==='REVISION_CONFLICT'?'memoryStale':['PROJECT_BUSY','CONFLICT_ACTIVE_OPERATION'].includes(error||'')?'memoryBusy':'knowledgeOperationFailed'
+  return <div className="nova-knowledge-settings" aria-busy={action.busy||waiting}>
+    <div className="nova-settings-introduction nova-section-introduction"><div><h2>{t('settingsKnowledge')}</h2><p>{t('settingsKnowledgeHint')}</p></div>
+      <button className="nova-settings-reset" type="button" disabled={disabled} onClick={()=>void save({},true)}>{t('settingsReset')}</button></div>
+    <p className="settings-feedback">{t('knowledgeExplicitHint')}</p>
+    <section className="nova-preferences-group" aria-labelledby={id+'-recall'}><h3 id={id+'-recall'}>{t('knowledgeRecovery')}</h3>
+      <div className="nova-settings-card nova-preferences-list">
+        {row('lexicalRecall','knowledgeLexical','knowledgeLexicalHint')}
+        {row('semanticRecall','knowledgeSemantic','knowledgeSemanticHint',true)}
+      </div></section>
+    <section className="nova-preferences-group" aria-labelledby={id+'-index'}><h3 id={id+'-index'}>{t('knowledgeIndex')}</h3>
+      <div className="nova-settings-card nova-preferences-list">
+        {row('autoIndex','knowledgeAutoIndex','knowledgeAutoIndexHint',true)}
+        {row('autoRebuild','knowledgeAutoRebuild','knowledgeAutoRebuildHint',true)}
+      </div></section>
+    {action.unconfirmed?<p className="nova-settings-error" role="status">{t('settingsServiceUnknown')}</p>:
+      error?<div className="nova-settings-error" role="alert"><p>{t(errorKey)}</p><details><summary>{t('diagnosticDetails')}</summary><code>{error}</code></details></div>:
+      action.busy||waiting?<p className="settings-feedback" role="status">{t('settingsSaving')}</p>:
+      action.result?<p className="settings-feedback" role="status">{t('settingsSaved')}</p>:null}
+    {state?.indexing&&state.indexedSources<state.totalSources&&<p className="settings-feedback" role="status">{t('knowledgeIndexProgress')} {state.indexedSources}/{state.totalSources}</p>}
+  </div>
 }

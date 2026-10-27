@@ -14,9 +14,7 @@ from unittest.mock import MagicMock, patch
 from local_cli.agent import run_agent
 from local_cli.cli import build_parser
 from local_cli.git_capability import detect_git_capability
-from local_cli.providers.claude_provider import ClaudeProvider
 from local_cli.providers.llama_server_provider import LlamaServerProvider
-from local_cli.providers.message_converter import messages_to_claude
 from local_cli.providers.ollama_provider import OllamaProvider
 from local_cli.shell_executor import ShellDescriptor
 from local_cli.tools import create_tools
@@ -114,18 +112,16 @@ def capture_server_and_provider():
     sent = []
     with patch("local_cli.server._send", side_effect=sent.append):
         server._handle_chat(7, "go")
-    system, claude_messages = messages_to_claude(server._messages)
     tool_formats = {
         provider.name: provider.format_tools([_EchoTool()])
         for provider in (
-            OllamaProvider(), ClaudeProvider(api_key="fixture"),
+            OllamaProvider(),
             LlamaServerProvider(),
         )
     }
     return {
         "jsonl_events": sent,
         "transcript": server._messages,
-        "claude_conversion": {"system": system, "messages": claude_messages},
         "provider_tool_formats": tool_formats,
     }
 
@@ -206,8 +202,10 @@ class TestPhase0Characterization(unittest.TestCase):
         # Application tests); retain the original ordered golden independently.
         memory_events = [event for event in actual['jsonl_events']
             if event.get('type') == 'harness' and event.get('event') == 'memory_recall']
-        self.assertEqual(len(memory_events), 1)
-        self.assertEqual(memory_events[0], {'id':7, 'type':'harness', 'event':'memory_recall', 'data':{}})
+        # Local-only recall now stops before constructing a memory service for
+        # this unverified destination. Never revive remote recall for a golden.
+        self.assertEqual(memory_events, [])
+        self.assertFalse(any(m.get('_context_kind') == 'memory' for m in actual['transcript']))
         # K5 adds a documentary admission observation, not a new legacy tool
         # frame. Validate it explicitly before comparing the immutable golden.
         knowledge_events = [event for event in actual['jsonl_events']
@@ -217,9 +215,10 @@ class TestPhase0Characterization(unittest.TestCase):
         actual["jsonl_events"] = [event for event in actual["jsonl_events"]
             if not (event.get("type") == "harness"
                     and event.get("event") in ("context_budget", "memory_recall", "knowledge_recall"))]
-        self.assertEqual(
-            actual, self.expected["server_and_provider"]
-        )
+        expected = json.loads(json.dumps(self.expected["server_and_provider"]))
+        expected.pop("claude_conversion", None)
+        expected["provider_tool_formats"].pop("claude", None)
+        self.assertEqual(actual, expected)
 
     def test_approval_denial_acceptance_and_missing_git(self):
         self.assertEqual(

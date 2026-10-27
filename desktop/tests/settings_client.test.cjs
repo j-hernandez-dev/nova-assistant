@@ -7,14 +7,14 @@ function services() {
   return {
     rag: { enabled: false, availability: 'DISABLED' },
     fetch: { enabled: true, available: true },
-    search: { backend: 'browser', engine: 'bing', available: true, adapter: 'WEBVIEW2',
+    search: { enabled: true, backend: 'browser', engine: 'bing', available: true, adapter: 'WEBVIEW2',
       runtimeCheckedOnUse: true, unavailableReason: null, serverRequired: false, networkIsolation: 'NOT_PROVIDED' },
-    browser: { selected: 'webview2', available: true, adapter: 'WEBVIEW2', runtimeCheckedOnUse: true,
+    browser: { enabled: true, selected: 'webview2', available: true, adapter: 'WEBVIEW2', runtimeCheckedOnUse: true,
       unavailableReason: null, networkIsolation: 'NOT_PROVIDED', controlClass: 'HOST_UNISOLATED',
       controlState: 'agentActive', sessionState: 'notStarted', hasPage: false, lastErrorCode: null,
       choices: ['webview2', 'chrome', 'edge'].map(browser => ({browser, available: browser !== 'chrome',
         installed: browser !== 'chrome', adapter: browser.toUpperCase(), reason: browser === 'chrome' ? 'BROWSER_NOT_INSTALLED' : null})) },
-    memory: { lexicalRecall: true, semantic: false, autoCapture: false, captureMode: 'off', allowRemoteMemoryInjection: false },
+    memory: { lexicalRecall: true, semantic: false, autoCapture: false, captureMode: 'off' },
     interactions: { approvals: [], inputs: [] },
   }
 }
@@ -40,6 +40,58 @@ function receipt(c, request, accepted, error) {
     commandId:request.command.commandId,accepted,createdIds:{},error:error || null}})
 }
 const domains = ['fetch', 'search', 'browser', 'memory']
+
+test('Knowledge preferences use exact persistent commands and sanitized authoritative snapshots',async()=>{
+ const preferences={lexicalRecall:true,semanticRecall:false,autoIndex:true,autoRebuild:true}
+ const confirmed={...preferences,semanticAvailable:true,indexing:false,indexedSources:1,totalSources:1,errorCode:null}
+ const c=setup(state({services:{...services(),knowledgeSettings:{...confirmed,privateContent:'discard'}}}))
+ assert.deepEqual(c.client.view.knowledgeSettings,confirmed)
+ for(const invalid of [{...preferences,extra:true},{...preferences,autoIndex:'true'},{lexicalRecall:true}]){
+  assert.equal((await c.client.command('SetKnowledgeSettings',invalid)).accepted,false)
+ }
+ const pending=c.client.command('SetKnowledgeSettings',{...preferences,semanticRecall:true}),request=c.sent.at(-1)
+ assert.equal(request.command.expectedRevision,4)
+ receipt(c,request,true);assert.equal((await pending).accepted,true)
+ assert.equal(c.client.view.knowledgeSettings.semanticRecall,false)
+ replySnapshot(c,state({stateRevision:5,services:{...services(),knowledgeSettings:{...confirmed,semanticRecall:true}}}))
+ assert.equal(c.client.view.knowledgeSettings.semanticRecall,true)
+ const reset=c.client.command('ResetKnowledgeSettings',{}),frame=c.sent.at(-1);receipt(c,frame,true);await reset
+ assert.deepEqual(frame.command.payload,{})
+ c.client.disconnected();assert.equal(c.client.view.knowledgeSettings,undefined)
+})
+
+test('EM settings are exact, revision-bound and effective only from a confirmed snapshot',async()=>{
+  const embedding={modelId:'em:small',selectedModel:'em:small',requestedTokens:0,enabledModels:['em:small'],connected:true,selectedTokens:512,contextLimit:512,errorCode:null}
+  const original={...services(),embedding:{...embedding,privatePrompt:'never publish'}}
+  const c=setup(state({services:original}))
+  assert.deepEqual(c.client.view.embedding,embedding)
+  for(const payload of [{modelId:'em:small',requestedTokens:65536,enabledModels:['em:small']},
+    {modelId:'',requestedTokens:0,enabledModels:[],enableMemory:true},
+    {modelId:'',requestedTokens:0,enabledModels:[false]}]){
+    assert.equal((await c.client.command('SetEmbeddingSettings',payload)).error.code,'INVALID_APPLICATION_COMMAND')
+  }
+  const payload={modelId:'',requestedTokens:0,enabledModels:[]}
+  const pending=c.client.command('SetEmbeddingSettings',payload),request=c.sent.at(-1)
+  assert.equal(request.command.expectedRevision,4)
+  receipt(c,request,true);assert.equal((await pending).accepted,true)
+  assert.deepEqual(c.client.view.embedding,embedding)
+  replySnapshot(c,state({stateRevision:5,lastSequence:5,services:{...services(),embedding:{...embedding,...payload,selectedModel:'',selectedTokens:null,contextLimit:null}}}))
+  assert.deepEqual(c.client.view.embedding.enabledModels,[])
+  assert.deepEqual(c.client.view.memory,services().memory)
+  c.client.disconnected();assert.equal(c.client.view.embedding,undefined)
+})
+
+test('EM Reset is an explicit atomic command and does not mean disabling all models',async()=>{
+  const c=setup()
+  assert.equal((await c.client.command('ResetEmbeddingSettings',{enabledModels:[]})).accepted,false)
+  const pending=c.client.command('ResetEmbeddingSettings',{}),request=c.sent.at(-1)
+  assert.equal(request.command.kind,'ResetEmbeddingSettings')
+  assert.equal(request.command.expectedRevision,4)
+  assert.deepEqual(request.command.payload,{})
+  receipt(c,request,true)
+  assert.equal((await pending).accepted,true)
+  c.client.disconnected()
+})
 
 test('settings have no effective value before an authoritative snapshot', () => {
   const sent = []
@@ -78,10 +130,9 @@ test('malformed or absent service snapshots never become invented defaults', () 
   s.fetch.enabled = 'false'
   s.search.engine = 'unsupported'
   s.browser.networkIsolation = 'PUBLIC_ONLY'
-  s.memory.allowRemoteMemoryInjection = 'true'
+  s.memory.autoCapture = 'true'
   const c = setup(state({services:s}))
   for (const key of domains) assert.equal(c.client.view[key], undefined)
-  assert.equal(c.client.view.memoryNotice, null)
   c.client.refresh(); replySnapshot(c,state({stateRevision:5,lastSequence:5,services:{rag:s.rag}}))
   for (const key of domains) assert.equal(c.client.view[key], undefined)
   c.client.disconnected()
@@ -90,6 +141,9 @@ test('malformed or absent service snapshots never become invented defaults', () 
 test('service setters validate exact schemas and cannot become arbitrary commands or Memory controls', async () => {
   const c = setup()
   const invalid = [
+    ['SetWebSettings', {fetchEnabled:true,searchEnabled:true,browserEnabled:true,engine:'google'}],
+    ['SetWebSettings', {fetchEnabled:true,searchEnabled:'true',browserEnabled:true,engine:'google',browser:'webview2'}],
+    ['SetWebSettings', {fetchEnabled:true,searchEnabled:true,browserEnabled:true,engine:'google',browser:'webview2',approve:true}],
     ['SetFetchEnabled', {enabled:'true'}], ['SetFetchEnabled',{enabled:true,allowAll:true}],
     ['SetFetchEnabled',{}], ['SetFetchEnabled',null], ['SetSearchEngine',{engine:'searxng'}],
     ['SetSearchEngine',{engine:'bing',endpoint:'https://private.invalid'}], ['SetBrowser',{browser:'firefox'}],
@@ -138,6 +192,19 @@ test('a failed save preserves the old snapshot in every domain', async () => {
   assert.deepEqual(domains.map(key => c.client.view[key]),before)
   replySnapshot(c,state({stateRevision:5,lastSequence:5}))
   assert.deepEqual(domains.map(key => c.client.view[key]),before)
+  c.client.disconnected()
+})
+
+test('the atomic Web setting stays revision-bound and updates all three permissions only from a confirmed snapshot',async()=>{
+  const c=setup(),payload={fetchEnabled:false,searchEnabled:false,browserEnabled:false,engine:'google',browser:'webview2'}
+  const pending=c.client.command('SetWebSettings',payload,'owned-web-setting'),request=c.sent.at(-1)
+  assert.deepEqual(request.command.payload,payload);assert.equal(request.command.expectedRevision,4)
+  receipt(c,request,true);assert.equal((await pending).accepted,true)
+  assert.equal(c.client.view.search.enabled,true)
+  const updated=services();updated.fetch.enabled=false;updated.search.enabled=false;updated.search.engine='google';updated.browser.enabled=false
+  replySnapshot(c,state({stateRevision:5,lastSequence:5,services:updated}))
+  assert.equal(c.client.view.fetch.enabled,false);assert.equal(c.client.view.search.enabled,false);assert.equal(c.client.view.browser.enabled,false)
+  assert.equal(c.sent.some(frame=>frame.command?.kind==='ResolveApproval'),false)
   c.client.disconnected()
 })
 

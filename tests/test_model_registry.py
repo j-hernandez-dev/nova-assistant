@@ -62,7 +62,7 @@ class TestRegistryEntry(unittest.TestCase):
     def test_inequality(self) -> None:
         """Entries with different values are not equal."""
         e1 = RegistryEntry(provider="ollama", model="qwen3:8b", priority=1)
-        e2 = RegistryEntry(provider="claude", model="qwen3:8b", priority=1)
+        e2 = RegistryEntry(provider="llama-server", model="qwen3:8b", priority=1)
         self.assertNotEqual(e1, e2)
 
 
@@ -78,11 +78,11 @@ class TestModelRegistryInit(unittest.TestCase):
     def test_custom_defaults(self) -> None:
         """Registry accepts custom default provider and model."""
         registry = ModelRegistry(
-            default_provider="claude",
-            default_model="claude-sonnet-4-5",
+            default_provider="llama-server",
+            default_model="local-planner:7b",
         )
-        self.assertEqual(registry.default_provider, "claude")
-        self.assertEqual(registry.default_model, "claude-sonnet-4-5")
+        self.assertEqual(registry.default_provider, "llama-server")
+        self.assertEqual(registry.default_model, "local-planner:7b")
 
     def test_empty_routes(self) -> None:
         """A new registry has no routes."""
@@ -103,10 +103,10 @@ class TestGetDefault(unittest.TestCase):
     def test_returns_configured_defaults(self) -> None:
         """get_default returns the configured default pair."""
         registry = ModelRegistry(
-            default_provider="claude",
-            default_model="claude-haiku-4-5",
+            default_provider="llama-server",
+            default_model="local-small:3b",
         )
-        self.assertEqual(registry.get_default(), ("claude", "claude-haiku-4-5"))
+        self.assertEqual(registry.get_default(), ("llama-server", "local-small:3b"))
 
 
 class TestGetModelForTask(unittest.TestCase):
@@ -122,7 +122,7 @@ class TestGetModelForTask(unittest.TestCase):
         """Returns the entry with priority=1 (highest)."""
         registry = ModelRegistry()
         registry.update_task_route(
-            TaskType.CODE_GENERATION, "claude", "claude-sonnet-4-5", priority=2
+            TaskType.CODE_GENERATION, "llama-server", "local-planner:7b", priority=2
         )
         registry.update_task_route(
             TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=1
@@ -137,14 +137,14 @@ class TestGetModelForTask(unittest.TestCase):
             TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=1
         )
         registry.update_task_route(
-            TaskType.PLANNING, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.PLANNING, "llama-server", "local-planner:7b", priority=1
         )
 
         code_result = registry.get_model_for_task(TaskType.CODE_GENERATION)
         plan_result = registry.get_model_for_task(TaskType.PLANNING)
 
         self.assertEqual(code_result, ("ollama", "qwen3:8b"))
-        self.assertEqual(plan_result, ("claude", "claude-sonnet-4-5"))
+        self.assertEqual(plan_result, ("llama-server", "local-planner:7b"))
 
     def test_unmapped_task_falls_back(self) -> None:
         """A task type with no mapping falls back to default."""
@@ -164,7 +164,7 @@ class TestGetModelsForTask(unittest.TestCase):
         """Returns all entries sorted by priority."""
         registry = ModelRegistry()
         registry.update_task_route(
-            TaskType.CODE_GENERATION, "claude", "claude-sonnet-4-5", priority=2
+            TaskType.CODE_GENERATION, "llama-server", "local-planner:7b", priority=2
         )
         registry.update_task_route(
             TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=1
@@ -173,7 +173,7 @@ class TestGetModelsForTask(unittest.TestCase):
         result = registry.get_models_for_task(TaskType.CODE_GENERATION)
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0], ("ollama", "qwen3:8b"))
-        self.assertEqual(result[1], ("claude", "claude-sonnet-4-5"))
+        self.assertEqual(result[1], ("llama-server", "local-planner:7b"))
 
     def test_fallback_to_default_list(self) -> None:
         """Returns a list with just the default when no mapping exists."""
@@ -201,15 +201,15 @@ class TestUpdateTaskRoute(unittest.TestCase):
             TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=1
         )
         registry.update_task_route(
-            TaskType.CODE_GENERATION, "claude", "claude-sonnet-4-5", priority=2
+            TaskType.CODE_GENERATION, "llama-server", "local-planner:7b", priority=2
         )
-        # Update ollama priority to 3 (lower than claude's 2).
+        # Update ollama priority to 3 (lower than llama-server's 2).
         registry.update_task_route(
             TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=3
         )
 
         result = registry.get_model_for_task(TaskType.CODE_GENERATION)
-        self.assertEqual(result, ("claude", "claude-sonnet-4-5"))
+        self.assertEqual(result, ("llama-server", "local-planner:7b"))
 
     def test_multiple_entries_sorted(self) -> None:
         """Multiple entries for one task type are sorted by priority."""
@@ -218,16 +218,16 @@ class TestUpdateTaskRoute(unittest.TestCase):
             TaskType.REVIEW, "ollama", "qwen3:8b", priority=3
         )
         registry.update_task_route(
-            TaskType.REVIEW, "claude", "claude-haiku-4-5", priority=1
+            TaskType.REVIEW, "llama-server", "local-small:3b", priority=1
         )
         registry.update_task_route(
-            TaskType.REVIEW, "claude", "claude-sonnet-4-5", priority=2
+            TaskType.REVIEW, "llama-server", "local-planner:7b", priority=2
         )
 
         models = registry.get_models_for_task(TaskType.REVIEW)
         self.assertEqual(len(models), 3)
-        self.assertEqual(models[0], ("claude", "claude-haiku-4-5"))
-        self.assertEqual(models[1], ("claude", "claude-sonnet-4-5"))
+        self.assertEqual(models[0], ("llama-server", "local-small:3b"))
+        self.assertEqual(models[1], ("llama-server", "local-planner:7b"))
         self.assertEqual(models[2], ("ollama", "qwen3:8b"))
 
     def test_invalid_provider_raises(self) -> None:
@@ -325,7 +325,7 @@ class TestRemoveTaskRoute(unittest.TestCase):
             TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=1
         )
         registry.update_task_route(
-            TaskType.CODE_GENERATION, "claude", "claude-sonnet-4-5", priority=2
+            TaskType.CODE_GENERATION, "llama-server", "local-planner:7b", priority=2
         )
         registry.remove_task_route(
             TaskType.CODE_GENERATION, "ollama", "qwen3:8b"
@@ -333,7 +333,7 @@ class TestRemoveTaskRoute(unittest.TestCase):
 
         models = registry.get_models_for_task(TaskType.CODE_GENERATION)
         self.assertEqual(len(models), 1)
-        self.assertEqual(models[0], ("claude", "claude-sonnet-4-5"))
+        self.assertEqual(models[0], ("llama-server", "local-planner:7b"))
 
 
 class TestListRoutes(unittest.TestCase):
@@ -373,7 +373,7 @@ class TestListRoutes(unittest.TestCase):
             TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=1
         )
         registry.update_task_route(
-            TaskType.PLANNING, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.PLANNING, "llama-server", "local-planner:7b", priority=1
         )
         routes = registry.list_routes()
         self.assertEqual(len(routes), 2)
@@ -418,7 +418,7 @@ class TestSaveRegistry(unittest.TestCase):
                 TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=1
             )
             registry.update_task_route(
-                TaskType.PLANNING, "claude", "claude-sonnet-4-5", priority=1
+                TaskType.PLANNING, "llama-server", "local-planner:7b", priority=1
             )
             registry.save(path)
 
@@ -475,10 +475,10 @@ class TestLoadRegistry(unittest.TestCase):
             "task_routing": {
                 "code_generation": [
                     {"provider": "ollama", "model": "qwen3:8b", "priority": 1},
-                    {"provider": "claude", "model": "claude-sonnet-4-5", "priority": 2},
+                    {"provider": "llama-server", "model": "local-planner:7b", "priority": 2},
                 ],
                 "planning": [
-                    {"provider": "claude", "model": "claude-sonnet-4-5", "priority": 1},
+                    {"provider": "llama-server", "model": "local-planner:7b", "priority": 1},
                     {"provider": "ollama", "model": "qwen3:8b", "priority": 2},
                 ],
             },
@@ -496,12 +496,12 @@ class TestLoadRegistry(unittest.TestCase):
             self.assertEqual(code_result, ("ollama", "qwen3:8b"))
 
             plan_result = registry.get_model_for_task(TaskType.PLANNING)
-            self.assertEqual(plan_result, ("claude", "claude-sonnet-4-5"))
+            self.assertEqual(plan_result, ("llama-server", "local-planner:7b"))
 
             # Verify priority ordering.
             code_models = registry.get_models_for_task(TaskType.CODE_GENERATION)
             self.assertEqual(code_models[0], ("ollama", "qwen3:8b"))
-            self.assertEqual(code_models[1], ("claude", "claude-sonnet-4-5"))
+            self.assertEqual(code_models[1], ("llama-server", "local-planner:7b"))
         finally:
             os.unlink(path)
 
@@ -697,9 +697,9 @@ class TestLoadRegistry(unittest.TestCase):
             "default_model": "qwen3:8b",
             "task_routing": {
                 "code_generation": [
-                    {"provider": "claude", "model": "claude-sonnet-4-5", "priority": 3},
+                    {"provider": "llama-server", "model": "local-planner:7b", "priority": 3},
                     {"provider": "ollama", "model": "qwen3:8b", "priority": 1},
-                    {"provider": "claude", "model": "claude-haiku-4-5", "priority": 2},
+                    {"provider": "llama-server", "model": "local-small:3b", "priority": 2},
                 ],
             },
         }
@@ -713,8 +713,8 @@ class TestLoadRegistry(unittest.TestCase):
             registry = ModelRegistry.load(path)
             models = registry.get_models_for_task(TaskType.CODE_GENERATION)
             self.assertEqual(models[0], ("ollama", "qwen3:8b"))
-            self.assertEqual(models[1], ("claude", "claude-haiku-4-5"))
-            self.assertEqual(models[2], ("claude", "claude-sonnet-4-5"))
+            self.assertEqual(models[1], ("llama-server", "local-small:3b"))
+            self.assertEqual(models[2], ("llama-server", "local-planner:7b"))
         finally:
             os.unlink(path)
 
@@ -728,20 +728,20 @@ class TestSaveLoadRoundTrip(unittest.TestCase):
             path = os.path.join(tmpdir, "registry.json")
 
             original = ModelRegistry(
-                default_provider="claude",
-                default_model="claude-sonnet-4-5",
+                default_provider="llama-server",
+                default_model="local-planner:7b",
             )
             original.update_task_route(
                 TaskType.CODE_GENERATION, "ollama", "qwen3:8b", priority=1
             )
             original.update_task_route(
-                TaskType.CODE_GENERATION, "claude", "claude-sonnet-4-5", priority=2
+                TaskType.CODE_GENERATION, "llama-server", "local-planner:7b", priority=2
             )
             original.update_task_route(
-                TaskType.PLANNING, "claude", "claude-sonnet-4-5", priority=1
+                TaskType.PLANNING, "llama-server", "local-planner:7b", priority=1
             )
             original.update_task_route(
-                TaskType.REVIEW, "claude", "claude-haiku-4-5", priority=1
+                TaskType.REVIEW, "llama-server", "local-small:3b", priority=1
             )
             original.update_task_route(
                 TaskType.DOCUMENTATION, "ollama", "qwen3:8b", priority=1
@@ -753,8 +753,8 @@ class TestSaveLoadRoundTrip(unittest.TestCase):
 
             loaded = ModelRegistry.load(path)
 
-            self.assertEqual(loaded.default_provider, "claude")
-            self.assertEqual(loaded.default_model, "claude-sonnet-4-5")
+            self.assertEqual(loaded.default_provider, "llama-server")
+            self.assertEqual(loaded.default_model, "local-planner:7b")
             self.assertEqual(loaded.list_routes(), original.list_routes())
 
     def test_round_trip_empty_registry(self) -> None:
@@ -799,14 +799,14 @@ class TestRegistrySpecFormat(unittest.TestCase):
             "task_routing": {
                 "code_generation": [
                     {"provider": "ollama", "model": "qwen3:8b", "priority": 1},
-                    {"provider": "claude", "model": "claude-sonnet-4-5", "priority": 2},
+                    {"provider": "llama-server", "model": "local-planner:7b", "priority": 2},
                 ],
                 "planning": [
-                    {"provider": "claude", "model": "claude-sonnet-4-5", "priority": 1},
+                    {"provider": "llama-server", "model": "local-planner:7b", "priority": 1},
                     {"provider": "ollama", "model": "qwen3:8b", "priority": 2},
                 ],
                 "review": [
-                    {"provider": "claude", "model": "claude-haiku-4-5", "priority": 1},
+                    {"provider": "llama-server", "model": "local-small:3b", "priority": 1},
                 ],
                 "documentation": [
                     {"provider": "ollama", "model": "qwen3:8b", "priority": 1},
@@ -832,11 +832,11 @@ class TestRegistrySpecFormat(unittest.TestCase):
             )
             self.assertEqual(
                 registry.get_model_for_task(TaskType.PLANNING),
-                ("claude", "claude-sonnet-4-5"),
+                ("llama-server", "local-planner:7b"),
             )
             self.assertEqual(
                 registry.get_model_for_task(TaskType.REVIEW),
-                ("claude", "claude-haiku-4-5"),
+                ("llama-server", "local-small:3b"),
             )
             self.assertEqual(
                 registry.get_model_for_task(TaskType.DOCUMENTATION),
@@ -857,9 +857,12 @@ class TestValidProviders(unittest.TestCase):
         """ollama is a valid provider."""
         self.assertIn("ollama", _VALID_PROVIDERS)
 
-    def test_valid_providers_include_claude(self) -> None:
-        """claude is a valid provider."""
-        self.assertIn("claude", _VALID_PROVIDERS)
+    def test_valid_providers_include_llama_server(self) -> None:
+        """llama-server is a valid provider."""
+        self.assertIn("llama-server", _VALID_PROVIDERS)
+        self.assertEqual(_VALID_PROVIDERS, frozenset({"ollama", "llama-server"}))
+        with self.assertRaises(ValueError):
+            ModelRegistry().update_task_route(TaskType.GENERAL, "claude", "retired")
 
     def test_valid_providers_is_frozenset(self) -> None:
         """_VALID_PROVIDERS is immutable."""
@@ -873,8 +876,8 @@ class TestModelNameValidation(unittest.TestCase):
         """Valid model names are accepted in update_task_route."""
         valid_names = [
             "qwen3:8b",
-            "claude-sonnet-4-5",
-            "claude-haiku-4-5",
+            "local-planner:7b",
+            "local-small:3b",
             "all-minilm",
             "library/model:latest",
             "phi4-mini",
@@ -917,11 +920,11 @@ class TestRuntimeUpdates(unittest.TestCase):
         )
 
         registry.update_task_route(
-            TaskType.CODE_GENERATION, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.CODE_GENERATION, "llama-server", "local-planner:7b", priority=1
         )
         self.assertEqual(
             registry.get_model_for_task(TaskType.CODE_GENERATION),
-            ("claude", "claude-sonnet-4-5"),
+            ("llama-server", "local-planner:7b"),
         )
 
     def test_update_priority_changes_result(self) -> None:
@@ -931,7 +934,7 @@ class TestRuntimeUpdates(unittest.TestCase):
             TaskType.GENERAL, "ollama", "qwen3:8b", priority=1
         )
         registry.update_task_route(
-            TaskType.GENERAL, "claude", "claude-sonnet-4-5", priority=2
+            TaskType.GENERAL, "llama-server", "local-planner:7b", priority=2
         )
         self.assertEqual(
             registry.get_model_for_task(TaskType.GENERAL),
@@ -943,21 +946,21 @@ class TestRuntimeUpdates(unittest.TestCase):
             TaskType.GENERAL, "ollama", "qwen3:8b", priority=2
         )
         registry.update_task_route(
-            TaskType.GENERAL, "claude", "claude-sonnet-4-5", priority=1
+            TaskType.GENERAL, "llama-server", "local-planner:7b", priority=1
         )
         self.assertEqual(
             registry.get_model_for_task(TaskType.GENERAL),
-            ("claude", "claude-sonnet-4-5"),
+            ("llama-server", "local-planner:7b"),
         )
 
     def test_remove_then_fallback(self) -> None:
         """After removing all routes, task falls back to default."""
         registry = ModelRegistry()
         registry.update_task_route(
-            TaskType.REVIEW, "claude", "claude-haiku-4-5", priority=1
+            TaskType.REVIEW, "llama-server", "local-small:3b", priority=1
         )
         registry.remove_task_route(
-            TaskType.REVIEW, "claude", "claude-haiku-4-5"
+            TaskType.REVIEW, "llama-server", "local-small:3b"
         )
         self.assertEqual(
             registry.get_model_for_task(TaskType.REVIEW),

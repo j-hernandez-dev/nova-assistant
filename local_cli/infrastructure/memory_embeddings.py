@@ -17,6 +17,8 @@ from threading import Lock
 from time import perf_counter as monotonic
 from urllib.parse import urlsplit
 import urllib.request
+import urllib.error
+import socket
 
 from local_cli.core.memory import EmbeddingSpace, MemoryError, MemoryErrorCode
 from local_cli.infrastructure.memory_semantic import FORMAT
@@ -59,7 +61,7 @@ class _AdmittedQuery:
 
 
 class LocalOllamaEmbeddings:
-    def __init__(self, endpoint, model, *, timeout_ms=600, record_timeout_ms=30000, transport=None):
+    def __init__(self, endpoint, model, *, timeout_ms=600, record_timeout_ms=30000, transport=None, settings=None,allow_cold=False):
         try:
             parsed = urlsplit(endpoint)
             local = parsed.hostname == 'localhost' or ipaddress.ip_address(parsed.hostname).is_loopback
@@ -74,6 +76,9 @@ class LocalOllamaEmbeddings:
         except (ValueError,TypeError):
             raise MemoryError(MemoryErrorCode.EMBEDDING_UNAVAILABLE) from None
         self.model, self.timeout_ms, self._space = model, timeout_ms, None
+        self.settings = settings
+        self.allow_cold = allow_cold is True
+        self._context_tokens = 0
         self._query_instruction = None
         self._metadata = None
         self._metadata_lock, self._query_lock = Lock(), Lock()
@@ -101,7 +106,23 @@ class LocalOllamaEmbeddings:
                     if len(raw)>2*1024*1024:
                         raise ValueError()
                     result=json.loads(raw)
+            except urllib.error.HTTPError as exc:
+                try:
+                    detail = str(json.loads(exc.read(4096)).get('error', '')).lower()
+                except (ValueError, OSError):
+                    detail = ''
+                code = ('EMBEDDING_CONTEXT_LIMIT_EXCEEDED' if any(t in detail for t in
+                    ('context length', 'context window', 'exceed_context_size', 'input too long')) else
+                    'EMBEDDING_MEMORY_INSUFFICIENT' if any(t in detail for t in ('out of memory', 'not enough memory', 'requires more system memory')) else
+                    'EMBEDDING_REQUEST_FAILED')
+                if self.settings: self.settings.report_error(code)
+                raise MemoryError(MemoryErrorCode.EMBEDDING_CONTEXT_LIMIT if code == 'EMBEDDING_CONTEXT_LIMIT_EXCEEDED'
+                    else MemoryErrorCode.EMBEDDING_UNAVAILABLE) from None
+            except (socket.timeout, TimeoutError):
+                if self.settings: self.settings.report_error('EMBEDDING_TIMEOUT')
+                raise MemoryError(MemoryErrorCode.RETRIEVAL_TIMEOUT) from None
             except (OSError,ValueError):
+                if self.settings: self.settings.report_error('EMBEDDING_CONNECTION_FAILED')
                 raise MemoryError(MemoryErrorCode.EMBEDDING_UNAVAILABLE) from None
         if monotonic()>deadline:
             raise MemoryError(MemoryErrorCode.RETRIEVAL_TIMEOUT)
@@ -110,6 +131,16 @@ class LocalOllamaEmbeddings:
         return result
 
     def _selection(self):
+        if self.settings is not None:
+            state = self.settings.snapshot()
+            model, tokens = state['selectedModel'], state['selectedTokens'] or 0
+            if not model:
+                raise MemoryError(MemoryErrorCode.EMBEDDING_UNAVAILABLE)
+            if state['requestedTokens'] and state['contextLimit'] and state['requestedTokens'] > state['contextLimit']:
+                raise MemoryError(MemoryErrorCode.EMBEDDING_CONTEXT_LIMIT)
+            if (self.model, self._context_tokens) != (model, tokens):
+                self._invalidate('embedding_settings_changed')
+                self.model, self._context_tokens = model, tokens
         try:
             parsed=urlsplit(self.endpoint)
             local=parsed.hostname=='localhost' or ipaddress.ip_address(parsed.hostname).is_loopback
@@ -120,7 +151,7 @@ class LocalOllamaEmbeddings:
         except (ValueError,TypeError):
             self._invalidate('invalid_selection')
             raise MemoryError(MemoryErrorCode.EMBEDDING_UNAVAILABLE) from None
-        return self.endpoint,self.model
+        return (self.endpoint,self.model,self._context_tokens) if self.settings is not None else (self.endpoint,self.model)
 
     def _invalidate(self, reason):
         with self._metadata_lock:
@@ -174,7 +205,7 @@ class LocalOllamaEmbeddings:
     def _discover(self, deadline, selection):
         tag=self._installed(deadline)
         ps=self._request('/api/ps',deadline).get('models',[])
-        if not any(isinstance(r,dict) and r.get('digest')==tag['digest'] for r in ps):
+        if not self.allow_cold and not any(isinstance(r,dict) and r.get('digest')==tag['digest'] for r in ps):
             raise MemoryError(MemoryErrorCode.EMBEDDING_UNAVAILABLE)  # No cold load on admission.
         with self._metadata_lock: metadata=self._metadata
         if metadata is not None and (metadata.selection!=selection or
@@ -197,6 +228,8 @@ class LocalOllamaEmbeddings:
             instruction = (QWEN_MEMORY_QUERY_INSTRUCTION if
                 isinstance(basename,str) and basename.casefold()=='qwen3-embedding' else None)
             identity=['ollama',tag['name'],tag['digest'],dimension,'l2',FORMAT]
+            if self._context_tokens:
+                identity.extend(['context', self._context_tokens])
             if instruction is not None:
                 identity.extend(['qwen-memory-query-document-v1',instruction])
             key=json.dumps(identity)
@@ -241,7 +274,7 @@ class LocalOllamaEmbeddings:
                     self._invalidate('expected_space_mismatch')
                     raise MemoryError(MemoryErrorCode.EMBEDDING_SPACE_MISMATCH)
                 ps=self._request('/api/ps',deadline).get('models',[])
-                if not any(isinstance(r,dict) and r.get('digest')==space.model_revision for r in ps):
+                if not self.allow_cold and not any(isinstance(r,dict) and r.get('digest')==space.model_revision for r in ps):
                     aliases={space.model_id,self.model,self.model+':latest'}
                     changed=any(isinstance(r,dict) and (r.get('name') in aliases or r.get('model') in aliases)
                         for r in ps)
@@ -291,7 +324,18 @@ class LocalOllamaEmbeddings:
         space=metadata.space
         if query and metadata.query_instruction is not None:
             texts=['Instruct: '+metadata.query_instruction+'\nQuery: '+text for text in texts]
-        response=self._request('/api/embed',deadline,{'model':space.model_id,'input':texts,'truncate':False})
+        options = self.settings.runtime_options(space.model_id) if self.settings is not None else {}
+        ledger = self.settings.usage if self.settings is not None else None
+        identity = ledger.begin(space.model_id) if ledger else None
+        try:
+            response=self._request('/api/embed',deadline,{'model':space.model_id,'input':texts,'truncate':False,
+                **({'options': options} if options else {})})
+        except BaseException:
+            if ledger: ledger.finish(identity, {}, 'failed')
+            raise
+        else:
+            if ledger: ledger.finish(identity, {**response, 'eval_count': 0}, 'completed')
+            if self.settings: self.settings.report_error(None)
         # Detect ordinary alias/revision switches; never reinterpret the old space.
         if (self._installed(deadline)['digest']!=space.model_revision or
                 self._selection()!=metadata.selection):

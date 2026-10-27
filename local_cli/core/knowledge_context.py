@@ -45,7 +45,9 @@ class CitationRegistry:
 
     def __post_init__(self):
         _text(self.turn_id)
-        _require(isinstance(self.entries, tuple) and len(self.entries) <= 10)
+        # Initial capsules remain capped at ten excerpts. Explicit source reads
+        # may add bounded, same-Turn tool evidence with distinct citation IDs.
+        _require(isinstance(self.entries, tuple) and len(self.entries) <= 256)
         _require(all(isinstance(e, KnowledgeEvidence) for e in self.entries))
         _require(len({e.citation_id for e in self.entries}) == len(self.entries))
 
@@ -74,7 +76,7 @@ class KnowledgeCapsule:
         _require(isinstance(self.citation_registry, CitationRegistry) and
                  self.citation_registry.turn_id == self.turn_id and self.citation_registry.entries == self.evidence)
         _require(type(self.token_cost) is int and self.token_cost >= 0)
-        _require(self.retrieval_mode in ('NONE', 'lexical', 'hybrid'))
+        _require(self.retrieval_mode in ('NONE', 'lexical', 'semantic', 'hybrid', 'explicit'))
         _require(bool(self.evidence) == (self.retrieval_mode != 'NONE'))
         sources = {s.source_id: s for s in self.source_registry}
         _require(len(sources) == len(self.source_registry))

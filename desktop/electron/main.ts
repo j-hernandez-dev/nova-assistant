@@ -1,4 +1,8 @@
-import { app, BrowserWindow, dialog, ipcMain, shell, safeStorage, Menu, clipboard } from 'electron'
+import { installConsolePipeGuard } from './console_pipes.cjs'
+import { resolvePythonRuntime } from './python_runtime.cjs'
+import { prepareChromiumCaches } from './chromium_cache.cjs'
+import { applyPendingStorageDeletions, createStorageHost } from './storage_host.cjs'
+import { app, BrowserWindow, dialog, ipcMain, shell, Menu, clipboard, nativeTheme, powerMonitor } from 'electron'
 import { spawn, execFile, ChildProcess } from 'child_process'
 import http from 'node:http'
 import https from 'node:https'
@@ -8,11 +12,20 @@ import os from 'node:os'
 import path from 'path'
 import { copyPublicMessage } from './message_copy'
 import { DesktopApplicationClient } from './application_client'
-import { memoryControl } from './memory_control.cjs'
+import { createRendererRecovery } from './renderer_recovery'
+import { memoryControl, createMemoryEditControls } from './memory_control.cjs'
+import { createMemoryFileControls } from './memory_files.cjs'
+import { createSourceImporter } from './source_import.cjs'
 import { pickKnowledge, knowledgeControl,hostSelection,remoteKnowledge } from './knowledge_control.cjs'
 import { signApproval, validFrame } from './approval_host.cjs'
 import { createApprovalSurfaceController } from './approval_surface.cjs'
 import { createDesktopPreferencesStore } from './desktop_preferences.cjs'
+import { createModelVisibilityStore } from './desktop_model_visibility.cjs'
+import { createModelUsageClient } from './model_usage.cjs'
+import { usageQuery, usageRanges, type UsageRange } from '../shared/model_usage'
+import { createDesktopFontService } from './desktop_fonts.cjs'
+import { resolveTheme } from '../shared/desktop_theme'
+import { appearancePresentation } from '../shared/desktop_appearance'
 import { createDesktopModelPreferencesStore } from './desktop_model_preferences.cjs'
 import { createConversationPreferencesStore } from './conversation_preferences.cjs'
 import { createConfirmationSurface } from './confirmation_surface.cjs'
@@ -20,37 +33,61 @@ import { createQuestionSurface } from './question_surface.cjs'
 import { createProjectChatClient } from './project_chats.cjs'
 import { createProjectsHost } from './projects_host.cjs'
 import { DESKTOP_UPDATES_ENABLED, disabledDesktopUpdate, editingActionForInput } from './desktop_host_policy.cjs'
-import { memoryDialogOptions, forwardingDialogOptions, pickerDialogOptions, oauthPage } from './desktop_host_locale.cjs'
+import {createDesktopMenu} from './desktop_menu.cjs'
+import {createDesktopView} from './desktop_view.cjs'
+import { forwardingDialogOptions, pickerDialogOptions } from './desktop_host_locale.cjs'
 
-// Keep the user profile independent of the legacy package name. Set both paths
-// before ready so Chromium caches/cookies also use the Nova profile.
+installConsolePipeGuard()
+
+// Keep the profile stable, including cookies/localStorage. Only disposable
+// caches are regenerated, before Chromium can open them.
 const desktopDataPath = path.join(app.getPath('appData'), 'nova-desktop')
 fs.mkdirSync(desktopDataPath, { recursive: true })
 app.setPath('userData', desktopDataPath)
 app.setPath('sessionData', desktopDataPath)
-const desktopPreferences = createDesktopPreferencesStore(desktopDataPath)
+if (!app.requestSingleInstanceLock()) app.exit(0)
+const storageLocations = {profileDir:desktopDataPath}
+const storageCleanup = applyPendingStorageDeletions(storageLocations)
+for (const failure of storageCleanup.failed) console.warn(`[storage] ${failure.id}: ${failure.code}`)
+const chromiumCaches = prepareChromiumCaches(desktopDataPath)
+if (chromiumCaches.rotated.length) console.info(`[cache] Regenerated ${chromiumCaches.rotated.length} disposable Chromium caches.`)
+if (chromiumCaches.failures.length) {
+  // A locked/unwritable cache must not prevent opening the UI. Keep GPU
+  // acceleration; bypass persistent HTTP/shader caches for this launch only.
+  app.commandLine.appendSwitch('disable-http-cache')
+  app.commandLine.appendSwitch('disable-gpu-shader-disk-cache')
+  for (const failure of chromiumCaches.failures) console.warn(`[cache] ${failure.name}: ${failure.code}; using memory caches.`)
+}
+const desktopPreferences = createDesktopPreferencesStore(desktopDataPath, () =>
+  app.isReady() ? (app.getPreferredSystemLanguages()[0] || app.getLocale()) : Intl.DateTimeFormat().resolvedOptions().locale)
+const desktopFonts = createDesktopFontService()
+const modelVisibility = createModelVisibilityStore(desktopDataPath)
 const desktopModelPreferences = createDesktopModelPreferencesStore(desktopDataPath)
 const conversationPreferences = createConversationPreferencesStore(desktopDataPath)
 
 // Read the real version from package.json (via Electron) instead of
 // hardcoding — a stale hardcode was shown in the UI for several releases.
 const APP_VERSION = app.getVersion()
-const GITHUB_REPO = 'lutelute/local-cli'
-
-// Claude auth credential storage path.
-const CLAUDE_AUTH_PATH = path.join(
-  process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config'),
-  'nova',
-  'claude-auth.json',
-)
+const GITHUB_REPO = 'j-hernandez-dev/nova-assistant'
 
 let mainWindow: BrowserWindow | null = null
+const desktopView=createDesktopView({getWindow:()=>mainWindow,getPercent:()=>desktopPreferences.get().zoomPercent,
+  savePercent:percent=>desktopPreferences.setZoomPercent(percent),onChange:()=>syncDesktopAppearance()})
+app.on('second-instance', () => {
+  if (!mainWindow || mainWindow.isDestroyed()) return
+  if (mainWindow.isMinimized()) mainWindow.restore()
+  mainWindow.show()
+  mainWindow.focus()
+})
+let rendererRecovery: ReturnType<typeof createRendererRecovery> | null = null
+let quitting = false
+let systemSuspended = false
+let shortcutCapture = false
 let pythonProcess: ChildProcess | null = null
 let lineBuffer = ''
 let rendererReady = false
 let requestedHistoryVisible = false
 let lastReadyMessage: object | null = null
-let storedApiKey: string | null = null
 let restartWorkspace: string | null = null
 let restartReady: Record<string, any> | null = null
 let restoreAfterRestart = false
@@ -83,12 +120,19 @@ const applicationClient = new DesktopApplicationClient(sendToPython, view => {
 }, command => signApproval(approvalHostKey, command))
 approvalSurface = createApprovalSurfaceController({ BrowserWindow, ipcMain, client: applicationClient,
   getParent: () => mainWindow, getLocale: () => desktopPreferences.get().locale,
+  getAppearance: () => desktopPreferences.get(), getSystemDark: () => nativeTheme.shouldUseDarkColors,
+  getPresentation: () => appearancePresentation(desktopPreferences.get(), nativeTheme.shouldUseDarkColors),
   preloadPath: path.join(__dirname, 'approval_preload.js') })
+const modelUsageClient = createModelUsageClient({send:sendToPython})
 const projectChatClient = createProjectChatClient({send:sendToPython,getView:()=>applicationClient.view})
 confirmationSurface = createConfirmationSurface({BrowserWindow,ipcMain,getParent:()=>mainWindow,
-  getLocale:()=>desktopPreferences.get().locale,preloadPath:path.join(__dirname,'confirmation_preload.js')})
+  getLocale:()=>desktopPreferences.get().locale,getAppearance:()=>desktopPreferences.get(),getSystemDark:()=>nativeTheme.shouldUseDarkColors,
+  getPresentation:()=>appearancePresentation(desktopPreferences.get(),nativeTheme.shouldUseDarkColors),
+  preloadPath:path.join(__dirname,'confirmation_preload.js')})
 questionSurface = createQuestionSurface({BrowserWindow, ipcMain, client: applicationClient, getParent: () => mainWindow,
   getLocale: () => desktopPreferences.get().locale, preloadPath: path.join(__dirname, 'question_preload.js'),
+  getAppearance: () => desktopPreferences.get(), getSystemDark: () => nativeTheme.shouldUseDarkColors,
+  getPresentation: () => appearancePresentation(desktopPreferences.get(), nativeTheme.shouldUseDarkColors),
   canOpen: () => !confirmationSurface?.isPending() && !chatMutation && !applicationClient.view.approvals.length })
 applicationClient.setConversationPreferences(conversationPreferences)
 applicationClient.setConfirmedModelObserver(runtime => {
@@ -96,7 +140,7 @@ applicationClient.setConfirmedModelObserver(runtime => {
   applicationClient.setModelPreferenceError(result.success ? null : 'MODEL_PREFERENCE_SAVE_FAILED')
 })
 // Recheck only host readiness. This monitor never retries a user operation.
-const readinessMonitor = setInterval(() => applicationClient.refreshReadiness(), 15_000)
+const readinessMonitor = setInterval(() => { if (!systemSuspended) applicationClient.refreshReadiness() }, 15_000)
 readinessMonitor.unref()
 
 function syncHistoryVisibility() {
@@ -109,260 +153,6 @@ function clearHistoryVisibility() {
   applicationClient.setHistoryVisible(false)
 }
 
-// ---------------------------------------------------------------------------
-// Claude credential storage (encrypted with safeStorage when available)
-// ---------------------------------------------------------------------------
-
-type ClaudeAuth = {
-  method: 'api_key' | 'subscription'
-  key: string // encrypted (base64) or plain
-  encrypted: boolean
-}
-
-function loadClaudeAuth(): ClaudeAuth | null {
-  try {
-    if (!fs.existsSync(CLAUDE_AUTH_PATH)) return null
-    const raw = fs.readFileSync(CLAUDE_AUTH_PATH, 'utf-8')
-    const data = JSON.parse(raw) as ClaudeAuth
-    if (data.encrypted && safeStorage.isEncryptionAvailable()) {
-      data.key = safeStorage.decryptString(Buffer.from(data.key, 'base64'))
-    }
-    return data
-  } catch {
-    return null
-  }
-}
-
-function saveClaudeAuth(method: 'api_key' | 'subscription', key: string): void {
-  const dir = path.dirname(CLAUDE_AUTH_PATH)
-  fs.mkdirSync(dir, { recursive: true })
-
-  let storedKey = key
-  let encrypted = false
-  if (safeStorage.isEncryptionAvailable()) {
-    storedKey = safeStorage.encryptString(key).toString('base64')
-    encrypted = true
-  }
-  fs.writeFileSync(
-    CLAUDE_AUTH_PATH,
-    JSON.stringify({ method, key: storedKey, encrypted } as ClaudeAuth),
-    { mode: 0o600 },
-  )
-}
-
-function deleteClaudeAuth(): void {
-  try { fs.unlinkSync(CLAUDE_AUTH_PATH) } catch { /* ignore */ }
-  storedApiKey = null
-}
-
-function initClaudeAuth(): void {
-  // Load stored credentials and set env var for Python.
-  const auth = loadClaudeAuth()
-  if (auth?.key) {
-    storedApiKey = auth.key
-    process.env.ANTHROPIC_API_KEY = auth.key
-  }
-}
-
-/** Validate an API key by making a lightweight request to the Anthropic API. */
-function validateApiKey(key: string): Promise<{ valid: boolean; error?: string }> {
-  return new Promise((resolve) => {
-    const body = JSON.stringify({
-      model: 'claude-haiku-4-5',
-      max_tokens: 1,
-      messages: [{ role: 'user', content: 'hi' }],
-    })
-    const req = https.request(
-      'https://api.anthropic.com/v1/messages',
-      {
-        method: 'POST',
-        headers: {
-          'x-api-key': key,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-        },
-        timeout: 15000,
-      },
-      (res) => {
-        let data = ''
-        res.on('data', (c) => { data += c })
-        res.on('end', () => {
-          if (res.statusCode === 200) {
-            resolve({ valid: true })
-          } else if (res.statusCode === 401) {
-            resolve({ valid: false, error: 'AUTH_INVALID_KEY' })
-          } else {
-            // 429 (rate limit) or other errors — key format is valid.
-            resolve({ valid: true })
-          }
-        })
-      },
-    )
-    req.on('error', () => resolve({ valid: false, error: 'AUTH_NETWORK_FAILED' }))
-    req.on('timeout', () => { req.destroy(); resolve({ valid: false, error: 'AUTH_TIMEOUT' }) })
-    req.write(body)
-    req.end()
-  })
-}
-
-// ---------------------------------------------------------------------------
-// OAuth flow for Claude subscription
-// ---------------------------------------------------------------------------
-
-function startOAuthFlow(): Promise<{ success: boolean; error?: string }> {
-  return new Promise((resolve) => {
-    // Start a local HTTP server to receive the OAuth callback.
-    const state = crypto.randomBytes(16).toString('hex')
-    let resolved = false
-
-    const server = http.createServer((req, res) => {
-      const url = new URL(req.url || '/', `http://localhost`)
-      if (url.pathname !== '/callback') {
-        res.writeHead(404)
-        res.end()
-        return
-      }
-
-      const code = url.searchParams.get('code')
-      const returnedState = url.searchParams.get('state')
-      const error = url.searchParams.get('error')
-
-      if (error) {
-        res.writeHead(200, { 'Content-Type': 'text/html' })
-        res.end(oauthPage(desktopPreferences.get().locale, 'failed'))
-        if (!resolved) {
-          resolved = true
-          server.close()
-          resolve({ success: false, error: 'AUTH_OAUTH_FAILED' })
-        }
-        return
-      }
-
-      if (!code || returnedState !== state) {
-        res.writeHead(400, { 'Content-Type': 'text/html' })
-        res.end(oauthPage(desktopPreferences.get().locale, 'invalid'))
-        return
-      }
-
-      res.writeHead(200, { 'Content-Type': 'text/html' })
-      res.end(oauthPage(desktopPreferences.get().locale, 'success'))
-
-      if (!resolved) {
-        resolved = true
-        server.close()
-
-        // Exchange the auth code for a session key.
-        exchangeOAuthCode(code).then((result) => {
-          if (result.apiKey) {
-            try { saveClaudeAuth('subscription', result.apiKey) }
-            catch { resolve({ success: false, error: 'AUTH_SAVE_FAILED' }); return }
-            storedApiKey = result.apiKey
-            process.env.ANTHROPIC_API_KEY = result.apiKey
-            // Notify Python backend.
-            sendToPython({ type: 'set_api_key', api_key: result.apiKey })
-            resolve({ success: true })
-          } else {
-            resolve({ success: false, error: result.error || 'AUTH_OAUTH_FAILED' })
-          }
-        })
-      }
-    })
-
-    // Listen on a random available port.
-    server.listen(0, '127.0.0.1', () => {
-      const addr = server.address()
-      if (!addr || typeof addr === 'string') {
-        resolve({ success: false, error: 'AUTH_CALLBACK_FAILED' })
-        return
-      }
-      const port = addr.port
-      const redirectUri = `http://127.0.0.1:${port}/callback`
-      const authUrl = `https://console.anthropic.com/oauth/authorize?response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&client_id=local-cli`
-
-      shell.openExternal(authUrl)
-
-      // Timeout after 5 minutes.
-      setTimeout(() => {
-        if (!resolved) {
-          resolved = true
-          server.close()
-          resolve({ success: false, error: 'AUTH_TIMEOUT' })
-        }
-      }, 300_000)
-    })
-
-    server.on('error', () => {
-      if (!resolved) {
-        resolved = true
-        resolve({ success: false, error: 'AUTH_CALLBACK_FAILED' })
-      }
-    })
-  })
-}
-
-function exchangeOAuthCode(code: string): Promise<{ apiKey?: string; error?: string }> {
-  return new Promise((resolve) => {
-    const body = JSON.stringify({ code, grant_type: 'authorization_code', client_id: 'local-cli' })
-    const req = https.request(
-      'https://console.anthropic.com/oauth/token',
-      {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        timeout: 15000,
-      },
-      (res) => {
-        let data = ''
-        res.on('data', (c) => { data += c })
-        res.on('end', () => {
-          try {
-            const json = JSON.parse(data)
-            if (json.access_token) {
-              resolve({ apiKey: json.access_token })
-            } else {
-              resolve({ error: 'AUTH_OAUTH_FAILED' })
-            }
-          } catch {
-            resolve({ error: 'AUTH_INVALID_RESPONSE' })
-          }
-        })
-      },
-    )
-    req.on('error', () => resolve({ error: 'AUTH_NETWORK_FAILED' }))
-    req.on('timeout', () => { req.destroy(); resolve({ error: 'AUTH_TIMEOUT' }) })
-    req.write(body)
-    req.end()
-  })
-}
-
-// ---------------------------------------------------------------------------
-
-function findPython(): string {
-  if (process.platform === 'win32') return 'python'
-
-  // GUI apps may get a minimal PATH. Check common paths for Python 3.10+.
-  const candidates: string[] = process.platform === 'darwin'
-    ? [
-        '/opt/homebrew/bin/python3',   // macOS ARM Homebrew
-        '/usr/local/bin/python3',      // macOS Intel Homebrew
-        'python3',
-      ]
-    : [
-        '/usr/bin/python3',            // Linux system Python
-        '/usr/local/bin/python3',      // Linux manual install
-        'python3',
-      ]
-  for (const candidate of candidates) {
-    try {
-      const { execFileSync } = require('child_process')
-      execFileSync(candidate, ['--version'], { stdio: 'ignore' })
-      return candidate
-    } catch {
-      // Not found, try next.
-    }
-  }
-  return 'python3'
-}
-
 function findProjectRoot(): string {
   // In dev mode: __dirname is desktop/dist-electron, so ../../ is project root.
   // In packaged app: local_cli/ and pyproject.toml are in Resources/ via extraResources.
@@ -373,21 +163,19 @@ function findProjectRoot(): string {
 }
 
 function startPythonServer() {
-  const pythonCmd = findPython()
   const projectRoot = findProjectRoot()
+  const runtime = resolvePythonRuntime(projectRoot)
+  const pythonCmd = runtime.executable
   if (!restartWorkspace) restartWorkspace = projectsHost?.preferredPath() || path.join(projectRoot, 'workspace')
 
   console.log(`Starting Python server: ${pythonCmd} -m local_cli --server`)
   console.log(`Working directory: ${projectRoot}`)
 
   const env: Record<string, string> = desktopModelPreferences.childEnvironment({
-    ...process.env as Record<string, string>, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8',
+    ...runtime.env, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8',
   })
   approvalHostKey = crypto.randomBytes(32).toString('hex')
   env.NOVA_APPROVAL_HOST_KEY = approvalHostKey
-  if (storedApiKey) {
-    env.ANTHROPIC_API_KEY = storedApiKey
-  }
 
   lineBuffer = ''
   lastReadyMessage = null
@@ -445,6 +233,7 @@ function startPythonServer() {
           }
           restartReady = null
         }
+        if (modelUsageClient.receive(msg)) continue
         if (projectChatClient.receive(msg)) {
           if (msg.type === 'clear_project_chat' && msg.success) applicationClient.refresh()
           continue
@@ -473,18 +262,18 @@ function startPythonServer() {
   child.on('error', () => {
     if (pythonProcess !== child) return
     pythonProcess = null
-    projectChatClient.disconnected()
+    projectChatClient.disconnected(); modelUsageClient.disconnected()
     applicationClient.disconnected()
   })
   child.stdin?.on('error', () => {
     if (pythonProcess === child) applicationClient.disconnected()
   })
-  child.on('exit', (code) => {
+  child.on('exit', (code, signal) => {
     if (pythonProcess !== child) return
-    console.log(`Python process exited with code ${code}`)
+    if (!quitting) console.log(`Python process exited ${signal ? `after ${signal}` : `with code ${code}`}`)
     mainWindow?.webContents.send('python-exit', code)
     pythonProcess = null
-    projectChatClient.disconnected()
+    projectChatClient.disconnected(); modelUsageClient.disconnected()
     applicationClient.disconnected()
   })
 }
@@ -522,12 +311,26 @@ function bootstrapProject(selectedPath:string):Promise<{success:boolean;error?:{
   })
 }
 
+// Bounded diagnostics contain lifecycle events only, never conversation content.
+function reportRendererRecovery(event: string) {
+  console.warn('[Nova window]', event)
+  try {
+    const file = path.join(desktopDataPath, 'desktop-recovery.log')
+    if (fs.existsSync(file) && fs.statSync(file).size > 65_536) {
+      fs.writeFileSync(file, fs.readFileSync(file).subarray(-32_768))
+    }
+    fs.appendFileSync(file, `${new Date().toISOString()} ${event}\n`)
+  } catch { /* Diagnostics must not prevent recovery. */ }
+}
+
 function createWindow() {
+  desktopMenu.setReady(false)
+  const theme = resolveTheme(desktopPreferences.get(), nativeTheme.shouldUseDarkColors)
   mainWindow = new BrowserWindow({
     title: 'Nova',
     icon: path.join(__dirname, process.env.VITE_DEV_SERVER_URL ? '../public' : '../dist',
       process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
-    backgroundColor: '#090c12',
+    backgroundColor: theme.colors['--bg'],
     show: false,
     width: 1000,
     height: 700,
@@ -535,15 +338,21 @@ function createWindow() {
     minHeight: 400,
     ...(process.platform === 'darwin'
       ? { titleBarStyle: 'hiddenInset' as const, trafficLightPosition: { x: 16, y: 16 } }
-      : {}),
+      : { titleBarStyle: 'hidden' as const,
+          titleBarOverlay: { color: theme.colors['--nova-titlebar-bg'], symbolColor: theme.colors['--nova-titlebar-text'], height: Math.round(44*desktopView.getPercent()/100) } }),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
+      zoomFactor:desktopView.getPercent()/100,
       additionalArguments: [`--nova-desktop-locale=${desktopPreferences.get().locale}`],
     },
   })
   const window = mainWindow
+  desktopView.attach(window)
+  window.on('show', () => {
+    if (!window.webContents.isDestroyed() && !window.webContents.isCrashed()) window.webContents.send('desktop-window-shown')
+  })
   window.once('ready-to-show', () => { if (!window.isDestroyed()) window.show() })
   mainWindow.setMenu(null)
   mainWindow.webContents.on('page-title-updated', event => {
@@ -551,37 +360,123 @@ function createWindow() {
     mainWindow?.setTitle('Nova')
   })
   mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (shortcutCapture) return
     const action = editingActionForInput(input, process.platform)
     if (!action || !mainWindow) return
     event.preventDefault()
     mainWindow.webContents[action]()
   })
 
-  // In dev mode, load from Vite dev server.
-  if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
-  } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'))
+  let replacingRenderer = false, closing = false
+  const loadRenderer = () => {
+    if (quitting || closing || window.isDestroyed() || window.webContents.isDestroyed()) return
+    const loading = process.env.VITE_DEV_SERVER_URL
+      ? window.loadURL(process.env.VITE_DEV_SERVER_URL)
+      : window.loadFile(path.join(__dirname, '../dist/index.html'))
+    void loading.catch(() => reportRendererRecovery('renderer-load-failed'))
   }
+  const recovery = createRendererRecovery({
+    available: () => !quitting && !closing && !window.isDestroyed() && !window.webContents.isDestroyed(),
+    visible: () => window.isVisible() && !window.isMinimized(),
+    repaint: () => window.webContents.invalidate(),
+    probe: nonce => window.webContents.send('desktop-renderer-probe', nonce),
+    reload: replaceProcess => {
+      // Wait for the old process to exit before navigating. A reload issued while
+      // its renderer is still blocked can be lost on Windows/Electron 33.
+      if (replaceProcess && !window.webContents.isCrashed()) {
+        replacingRenderer = true
+        window.webContents.forcefullyCrashRenderer()
+        return
+      }
+      loadRenderer()
+    },
+    refresh: () => {
+      applicationClient.refresh()
+      applicationClient.refreshReadiness()
+      syncDesktopAppearance()
+    },
+    offerRetry: async () => {
+      const en = desktopPreferences.get().locale === 'en'
+      const result = await dialog.showMessageBox(window, {
+        type: 'warning', title: 'Nova',
+        message: en ? 'The Nova interface could not be restored.' : 'No se pudo recuperar la interfaz de Nova.',
+        detail: en ? 'Reload the window to try again. The conversation process will keep running.'
+          : 'Recarga la ventana para volver a intentarlo. El proceso de la conversación seguirá funcionando.',
+        buttons: en ? ['Reload window', 'Cancel'] : ['Recargar ventana', 'Cancelar'],
+        defaultId: 0, cancelId: 1, noLink: true,
+      })
+      return result.response === 0
+    },
+    report: reportRendererRecovery,
+  })
+  rendererRecovery = recovery
+  const onSuspend = () => { systemSuspended = true; recovery.suspend() }
+  const onResume = () => { systemSuspended = false; recovery.resume() }
+  const onChildGone = (_event: Electron.Event, details: Electron.Details) => {
+    if (details.type !== 'GPU' || details.reason === 'clean-exit') return
+    reportRendererRecovery(`gpu-process-gone:${details.reason}`)
+    recovery.suspect()
+  }
+  powerMonitor.on('suspend', onSuspend)
+  powerMonitor.on('resume', onResume)
+  app.on('child-process-gone', onChildGone)
 
+  window.on('close', () => { closing = true; recovery.dispose() })
   mainWindow.on('closed', () => {
+    recovery.dispose()
+    powerMonitor.removeListener('suspend', onSuspend)
+    powerMonitor.removeListener('resume', onResume)
+    app.removeListener('child-process-gone', onChildGone)
+    if (rendererRecovery === recovery) rendererRecovery = null
+    shortcutCapture = false
     approvalSurface?.invalidate()
     questionSurface?.invalidate()
     rendererReady = false
     clearHistoryVisibility()
     mainWindow = null
   })
-  mainWindow.on('hide', () => applicationClient.setHistoryVisible(false))
-  mainWindow.on('minimize', () => applicationClient.setHistoryVisible(false))
-  mainWindow.on('show', () => { syncHistoryVisibility(); questionSurface?.sync() })
-  mainWindow.on('restore', () => { syncHistoryVisibility(); questionSurface?.sync() })
-  mainWindow.on('focus', () => { applicationClient.refreshReadiness(); questionSurface?.sync() })
-  mainWindow.webContents.on('did-start-loading', () => { rendererReady = false; clearHistoryVisibility() })
+  mainWindow.on('blur', () => { shortcutCapture = false })
+  mainWindow.on('hide', () => { shortcutCapture = false; applicationClient.setHistoryVisible(false); recovery.hidden() })
+  mainWindow.on('minimize', () => { applicationClient.setHistoryVisible(false); recovery.hidden() })
+  mainWindow.on('show', () => { syncHistoryVisibility(); questionSurface?.sync(); recovery.visible() })
+  mainWindow.on('restore', () => { syncHistoryVisibility(); questionSurface?.sync(); recovery.visible() })
+  mainWindow.on('focus', () => { if (!systemSuspended) applicationClient.refreshReadiness(); questionSurface?.sync(); recovery.visible() })
+  mainWindow.on('unresponsive', () => { reportRendererRecovery('renderer-unresponsive'); recovery.suspect() })
+  mainWindow.webContents.on('did-start-loading', () => { desktopMenu.setReady(false); shortcutCapture = false; rendererReady = false; clearHistoryVisibility(); recovery.loading() })
   mainWindow.webContents.on('destroyed', clearHistoryVisibility)
-  mainWindow.webContents.on('render-process-gone', () => { rendererReady = false; clearHistoryVisibility() })
+  mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    rendererReady = false; clearHistoryVisibility()
+    reportRendererRecovery(`render-process-gone:${details.reason}`)
+    if (replacingRenderer) {
+      replacingRenderer = false
+      setImmediate(loadRenderer)
+      return
+    }
+    recovery.gone()
+  })
+  // Attach lifecycle handlers before the first navigation, including in dev mode.
+  loadRenderer()
   approvalSurface?.sync()
   questionSurface?.sync()
 }
+
+function syncDesktopAppearance() {
+  const preferences = desktopPreferences.get(), systemDark = nativeTheme.shouldUseDarkColors
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    const theme = resolveTheme(preferences, systemDark)
+    mainWindow.setBackgroundColor(theme.colors['--bg'])
+    if (process.platform !== 'darwin') mainWindow.setTitleBarOverlay({
+      color: theme.colors['--nova-titlebar-bg'], symbolColor: theme.colors['--nova-titlebar-text'], height: Math.round(44*desktopView.getPercent()/100),
+    })
+    if (rendererReady && !mainWindow.webContents.isDestroyed() && !mainWindow.webContents.isCrashed()) {
+      mainWindow.webContents.send('desktop-appearance-changed', { preferences, systemDark })
+    }
+  }
+  approvalSurface?.updateAppearance(preferences, systemDark)
+  confirmationSurface?.updateAppearance(preferences, systemDark)
+  questionSurface?.updateAppearance(preferences, systemDark)
+}
+nativeTheme.on('updated', syncDesktopAppearance)
 
 // IPC handlers.
 function validApplicationSender(event: Electron.IpcMainEvent | Electron.IpcMainInvokeEvent) {
@@ -589,19 +484,70 @@ function validApplicationSender(event: Electron.IpcMainEvent | Electron.IpcMainI
     event.senderFrame === mainWindow.webContents.mainFrame
 }
 
+function canAddProjectFromMenu(){
+  return !quitting&&!systemSuspended&&!!projectsHost&&!projectsHost.isChanging()&&!applicationClient.workspaceBusy()&&
+    !applicationClient.modelDownloadBusy()&&!confirmationSurface?.isPending()&&!chatMutation&&!memoryFiles.isBusy()&&!memoryEditor.isBusy()&&!storageHost.isBusy()&&!sourceImportBusy
+}
+const desktopMenu=createDesktopMenu({Menu,getWindow:()=>mainWindow,getLocale:()=>desktopPreferences.get().locale,quit:()=>app.quit(),view:desktopView,
+  canAddProject:canAddProjectFromMenu,newProject:async()=>{
+    try{const result=await performProjectAction('add');if(!result.success&&result.error)projectsHost?.setError(result.error.code)}
+    catch{projectsHost?.setError('PROJECT_ACTION_FAILED')}
+  }})
+ipcMain.on('desktop-menu-ready',(event,ready:unknown)=>{if(validApplicationSender(event))desktopMenu.setReady(ready===true)})
+ipcMain.handle('open-desktop-menu',(event,position:unknown)=>validApplicationSender(event)?desktopMenu.open(position):{opened:false})
+
 // A memory-only snapshot lets preload apply presentation before the first paint, including reloads.
 ipcMain.on('get-desktop-startup-preferences', event => {
-  event.returnValue = validApplicationSender(event) ? desktopPreferences.get() : null
+  event.returnValue = validApplicationSender(event)
+    ? { ...desktopPreferences.get(), systemDark: nativeTheme.shouldUseDarkColors, windowVisible: mainWindow?.isVisible() === true } : null
 })
 ipcMain.handle('set-desktop-appearance', (event, value: unknown) => {
   if (!validApplicationSender(event)) return { success: false,
     error: { code: 'DESKTOP_UNTRUSTED_SENDER', message: 'Desktop preferences are unavailable.' } }
-  return desktopPreferences.setAppearance(value)
+  const result = desktopPreferences.setAppearance(value)
+  if (result.success) syncDesktopAppearance()
+  return result
+})
+ipcMain.handle('get-model-visibility', event => validApplicationSender(event)
+  ? modelVisibility.get() : {hiddenModels:[]})
+ipcMain.handle('set-model-visibility', (event, value:unknown) => {
+  if (!validApplicationSender(event)) return {success:false,error:{code:'INVALID_DESKTOP_SENDER'}}
+  const result=modelVisibility.set(value)
+  if(result.success) mainWindow?.webContents.send('model-visibility-changed',result.preferences)
+  return result
+})
+ipcMain.handle('get-model-usage', (event, range:unknown, kind:unknown='llm') => {
+  if(!validApplicationSender(event)||!usageRanges.includes(range as UsageRange)||!['llm','embedding'].includes(kind as string)) return {success:false,error:{code:'INVALID_USAGE_RANGE'}}
+  if(!applicationClient.view.status.ready) return {success:false,error:{code:'USAGE_UNAVAILABLE'}}
+  return modelUsageClient.request(usageQuery(range as UsageRange),kind as "llm"|"embedding")
+})
+
+ipcMain.handle('get-desktop-fonts', event => {
+  if (!validApplicationSender(event)) return { success: false,
+    error: { code: 'DESKTOP_UNTRUSTED_SENDER', message: 'Desktop fonts are unavailable.' } }
+  return desktopFonts.get()
 })
 ipcMain.handle('get-desktop-preferences', event => {
   if (!validApplicationSender(event)) return { success: false,
     error: { code: 'DESKTOP_UNTRUSTED_SENDER', message: 'Desktop preferences are unavailable.' } }
   return desktopPreferences.get()
+})
+ipcMain.handle('set-desktop-shortcuts', (event, value: unknown) => {
+  if (!validApplicationSender(event)) return { success: false,
+    error: { code: 'DESKTOP_UNTRUSTED_SENDER', message: 'Desktop preferences are unavailable.' } }
+  return desktopPreferences.setShortcuts(value)
+})
+ipcMain.handle('set-desktop-general', (event, value: unknown) => {
+  if (!validApplicationSender(event)) return { success: false,
+    error: { code: 'DESKTOP_UNTRUSTED_SENDER', message: 'Desktop preferences are unavailable.' } }
+  const result = desktopPreferences.setGeneral(value)
+  if (result.success) { approvalSurface?.updateLocale(); confirmationSurface?.updateLocale(); questionSurface?.updateLocale() }
+  return result
+})
+ipcMain.handle('set-shortcut-capture', (event, active: unknown) => {
+  if (!validApplicationSender(event) || typeof active !== 'boolean') return { success: false }
+  shortcutCapture = active
+  return { success: true }
 })
 ipcMain.handle('set-desktop-locale', (event, locale: unknown) => {
   if (!validApplicationSender(event)) return { success: false,
@@ -618,7 +564,8 @@ ipcMain.handle('set-history-visible', (event, visible: unknown) => {
 })
 
 ipcMain.on('send-to-python', (event, data) => {
-  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'set_cwd' || ['project_chats','clear_project_chat','command','chat'].includes(data.type) || data.type === 'memory_command' || data.type === 'knowledge_command' || data.type === 'confirm_response' ||
+  if(((memoryFiles.isBusy()||memoryEditor.isBusy())||storageHost.isBusy())&&['application_command','command','chat','set_cwd','pull_model','delete_model'].includes(data?.type))return
+  if (!validApplicationSender(event) || !validFrame(data) || data.type === 'set_cwd' || ['project_chats','clear_project_chat','command','chat','storage_command'].includes(data.type) || data.type === 'memory_command' || data.type === 'knowledge_command' || data.type === 'confirm_response' ||
       (projectsHost?.isChanging() && ['chat','command','application_command'].includes(data.type)) ||
       (data.type === 'application_command' && ['ResolveApproval','ResolveUserInput','ExecuteCommand'].includes(data.command?.kind)) ||
       ((confirmationSurface?.isPending() || chatMutation) && data.type === 'application_command')) return
@@ -630,23 +577,110 @@ ipcMain.on('send-to-python', (event, data) => {
   applicationClient.trackModelRequest(data)
   sendToPython(data)
 })
+const memoryFiles=createMemoryFileControls({
+  client:applicationClient,projects:()=>projectsHost?.state(),getLocale:()=>desktopPreferences.get().locale,
+  isBlocked:()=>!!projectsHost?.isChanging()||chatMutation||memoryEditor.isBusy(),
+  confirm:(request:any)=>confirmationSurface?.request(request)||Promise.resolve({confirmed:false,canceled:true}),
+  pickOpen:(options:any)=>dialog.showOpenDialog(mainWindow!,options),
+  pickSave:(options:any)=>dialog.showSaveDialog(mainWindow!,options),
+  isProtected:(filename:string)=>{
+    const normalized=(p:string)=>process.platform==='win32'?path.resolve(p).toLowerCase():path.resolve(p)
+    const candidate=normalized(path.join(fs.realpathSync(path.dirname(filename)),path.basename(filename)))
+    return [app.getPath('userData'),process.env.LOCAL_CLI_STATE_DIR||path.join(os.homedir(),'.local','state','nova')]
+      .some(root=>candidate===normalized(root)||candidate.startsWith(normalized(root)+path.sep))
+  },
+})
+async function restartForStorage() {
+  if (quitting) return
+  const child=pythonProcess
+  if(child && child.exitCode===null && child.signalCode===null) {
+    await new Promise<void>(resolve=>{
+      const timer=setTimeout(resolve,5_000)
+      child.once('exit',()=>{clearTimeout(timer);resolve()})
+      child.kill()
+    })
+  }
+  if(process.env.VITE_DEV_SERVER_URL) {
+    app.once('will-quit',()=>app.exit(75))
+  } else app.relaunch()
+  app.quit()
+}
+let sourceImportBusy=false
+const storageHost=createStorageHost({...storageLocations,client:applicationClient,
+  externalBusy:()=>sourceImportBusy,
+  getProjects:()=>projectsHost?.state()||{folders:[]},
+  confirm:request=>confirmationSurface?.request(request)||Promise.resolve({confirmed:false,canceled:true}),
+  openPath:target=>shell.openPath(target),restart:restartForStorage,
+  pickSave:({name})=>dialog.showSaveDialog(mainWindow!,{title:desktopPreferences.get().locale==='es'?'Descargar archivo':'Download file',defaultPath:path.join(app.getPath('downloads'),name),buttonLabel:desktopPreferences.get().locale==='es'?'Guardar':'Save',properties:['showOverwriteConfirmation','createDirectory']}),
+  isBlocked:()=>quitting||systemSuspended||(memoryFiles.isBusy()||memoryEditor.isBusy())||chatMutation||!!projectsHost?.isChanging(),
+})
+const storageSender=(event:Electron.IpcMainInvokeEvent)=>validApplicationSender(event)&&!confirmationSurface?.isPending()&&!chatMutation&&!(memoryFiles.isBusy()||memoryEditor.isBusy())
+const invalidStorage=()=>({success:false,error:{code:'STORAGE_UNTRUSTED_INPUT'}})
+ipcMain.handle('storage-overview',event=>storageSender(event)?storageHost.overview({refresh:true}):invalidStorage())
+ipcMain.handle('storage-files',(event,projectPath:unknown)=>storageSender(event)&&(projectPath===null||typeof projectPath==='string')?storageHost.files(projectPath):invalidStorage())
+ipcMain.handle('storage-move',(event,ids:unknown,projectPath:unknown)=>storageSender(event)&&Array.isArray(ids)&&ids.every(id=>typeof id==='string')&&(projectPath===null||typeof projectPath==='string')?storageHost.move(ids,projectPath):invalidStorage())
+ipcMain.handle('storage-delete-files',(event,ids:unknown)=>storageSender(event)&&Array.isArray(ids)&&ids.every(id=>typeof id==='string')?storageHost.deleteFiles(ids):invalidStorage())
+ipcMain.handle('storage-download',(event,ids:unknown)=>storageSender(event)&&Array.isArray(ids)&&ids.every(id=>typeof id==='string')?storageHost.download(ids):invalidStorage())
+ipcMain.handle('storage-open-folder',(event,id:unknown)=>storageSender(event)&&typeof id==='string'?storageHost.openFolder(id):invalidStorage())
+ipcMain.handle('storage-delete-folder',(event,id:unknown)=>storageSender(event)&&typeof id==='string'?storageHost.deleteFolder(id):invalidStorage())
+ipcMain.handle('storage-restart',event=>storageSender(event)?storageHost.restart():invalidStorage())
+ipcMain.handle('sources-list',event=>storageSender(event)?storageHost.sources():invalidStorage())
+ipcMain.handle('source-preview',(event,id:unknown)=>storageSender(event)&&typeof id==='string'?storageHost.sourcePreview(id):invalidStorage())
+ipcMain.handle('sources-move',(event,ids:unknown,target:unknown)=>storageSender(event)&&Array.isArray(ids)&&ids.every(id=>typeof id==='string')&&(target===null||typeof target==='string')?storageHost.move(ids,target,true):invalidStorage())
+ipcMain.handle('sources-delete',(event,ids:unknown)=>storageSender(event)&&Array.isArray(ids)&&ids.every(id=>typeof id==='string')?storageHost.deleteFiles(ids,true):invalidStorage())
+ipcMain.handle('sources-download',(event,ids:unknown)=>storageSender(event)&&Array.isArray(ids)&&ids.every(id=>typeof id==='string')?storageHost.download(ids,true):invalidStorage())
+
+ipcMain.handle('memory-transfer',(event,kind:unknown,includeSensitive:unknown)=>{
+  if(!validApplicationSender(event)||!mainWindow||confirmationSurface?.isPending()||storageHost.isBusy()||memoryEditor.isBusy())return {schemaVersion:1,commandId:'',completed:false,error:{code:'MEMORY_UNTRUSTED_INPUT',message:'Memory action is unavailable.'}}
+  return memoryFiles.transfer(kind,includeSensitive)
+})
+ipcMain.handle('memory-project-access',(event,projectPath:unknown,enabled:unknown)=>{
+  if(!validApplicationSender(event)||!mainWindow||confirmationSurface?.isPending()||storageHost.isBusy()||memoryEditor.isBusy())return {schemaVersion:1,commandId:'',completed:false,error:{code:'MEMORY_UNTRUSTED_INPUT',message:'Memory action is unavailable.'}}
+  return memoryFiles.projectAccess(projectPath,enabled)
+})
+const memoryEditor=createMemoryEditControls(applicationClient,async request=>{
+  const result=await confirmationSurface?.request({kind:request.kind,fileCount:request.fileCount,path:request.workspace||'',validate:request.validate})
+  return {confirmed:result?.confirmed===true}
+})
+ipcMain.handle('memory-edit-sensitivity',(event,choice:unknown)=>{
+  if(!validApplicationSender(event)||(memoryFiles.isBusy()||memoryEditor.isBusy())||storageHost.isBusy()||confirmationSurface?.isPending()||projectsHost?.isChanging()||chatMutation||applicationClient.modelDownloadBusy())
+    return {schemaVersion:1,commandId:'',completed:false,error:{code:'MEMORY_HOST_ACTION_REQUIRED'}}
+  return memoryEditor.confirm(choice)
+})
 ipcMain.handle('memory-command', async (event, name: string, args: Record<string, unknown>, commandId?: string) => {
+  if((memoryFiles.isBusy()||memoryEditor.isBusy())||storageHost.isBusy()||confirmationSurface?.isPending()||projectsHost?.isChanging()||chatMutation||['memory_import','memory_export_all','memory_project_access'].includes(name))
+    return {schemaVersion:1,commandId:commandId||'',completed:false,error:{code:'MEMORY_HOST_ACTION_REQUIRED',message:'Use the host Memory controls.'}}
   if (!validApplicationSender(event) || typeof name !== 'string' || !validFrame(args)) {
     return { schemaVersion: 1, commandId: commandId || '', completed: false,
       error: { code: 'MEMORY_UNTRUSTED_INPUT', message: 'Invalid memory action.' } }
   }
   if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:commandId || '',completed:false,error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
-  return memoryControl(applicationClient, name, args, commandId, (request: { name: string; workspace: string | null; write: boolean }) =>
-    dialog.showMessageBox(mainWindow!, memoryDialogOptions(desktopPreferences.get().locale, request)))
+  if(name==='memory_delete')return memoryEditor.remove(args,commandId)
+  if(name==='memory_edit')return memoryEditor.edit(args,commandId)
+  return memoryControl(applicationClient, name, args, commandId, async request => {
+    const decision=await confirmationSurface?.request({kind:request.write?'memory-write-sensitive':'memory-reveal-sensitive',
+      path:request.workspace||'',validate:request.validate})
+    return {response:decision?.confirmed?1:0}
+  })
 })
 
+const sourceImporter=createSourceImporter(applicationClient,{
+  pick:()=>dialog.showOpenDialog(mainWindow!,{...pickerDialogOptions(desktopPreferences.get().locale,'document'),properties:['openFile','multiSelections']}),
+  isBlocked:()=>!mainWindow||quitting||systemSuspended||storageHost.isBusy()||!!confirmationSurface?.isPending()||memoryFiles.isBusy()||memoryEditor.isBusy()||!!projectsHost?.isChanging()||chatMutation,
+  onBusy:value=>{sourceImportBusy=value},
+})
+ipcMain.handle('sources-pick',event=>validApplicationSender(event)?sourceImporter.pick():Promise.resolve({completed:false,imported:0,error:{code:'SOURCE_NOT_AUTHORIZED'}}))
+ipcMain.handle('sources-drop',(event,paths:unknown)=>validApplicationSender(event)?sourceImporter.drop(paths):Promise.resolve({completed:false,imported:0,error:{code:'SOURCE_NOT_AUTHORIZED'}}))
+
 ipcMain.handle('knowledge-pick', async event => {
+  if(storageHost.isBusy()||confirmationSurface?.isPending())return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'PROJECT_BUSY'}}
   if (!validApplicationSender(event) || !mainWindow) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},
     error:{code:'SOURCE_NOT_AUTHORIZED',message:'Main-frame host picker required.'}}
   if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
   return pickKnowledge(applicationClient, () => dialog.showOpenDialog(mainWindow!,pickerDialogOptions(desktopPreferences.get().locale,'document')))
 })
 ipcMain.handle('knowledge-command', async (event,name:string,args:Record<string,unknown>,commandId?:string) => {
+  if(storageHost.isBusy()||confirmationSurface?.isPending())return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'PROJECT_BUSY'}}
   if (!validApplicationSender(event) || !validFrame(args)) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},
     error:{code:'SOURCE_NOT_AUTHORIZED',message:'Invalid source control.'}}
   if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
@@ -655,11 +689,13 @@ ipcMain.handle('knowledge-command', async (event,name:string,args:Record<string,
   return knowledgeControl(applicationClient,name,args,commandId)
 })
 ipcMain.handle('knowledge-refresh',async(event,sourceId:string)=>{
+  if(storageHost.isBusy()||confirmationSurface?.isPending())return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'PROJECT_BUSY'}}
   if(!validApplicationSender(event)||!mainWindow||typeof sourceId!=='string')return {accepted:false,error:{code:'SOURCE_NOT_AUTHORIZED'}}
   if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
   return hostSelection(applicationClient,'source_refresh',sourceId,()=>dialog.showOpenDialog(mainWindow!,pickerDialogOptions(desktopPreferences.get().locale,'refresh')))
 })
 ipcMain.handle('knowledge-export',async(event,sourceId:string)=>{
+  if(storageHost.isBusy()||confirmationSurface?.isPending())return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'PROJECT_BUSY'}}
   if(!validApplicationSender(event)||!mainWindow||typeof sourceId!=='string')return {accepted:false,error:{code:'SOURCE_NOT_AUTHORIZED'}}
   if (applicationClient.modelDownloadBusy()) return {schemaVersion:1,commandId:'',accepted:false,createdIds:{},error:{code:'MODEL_DOWNLOAD_BUSY',message:'Wait for the model download.'}}
   return hostSelection(applicationClient,'source_export',sourceId,()=>dialog.showSaveDialog(mainWindow!,pickerDialogOptions(desktopPreferences.get().locale,'export')))
@@ -677,7 +713,7 @@ ipcMain.handle('application-command', async (event, kind: string, payload: Recor
   if (kind === 'ExecuteCommand' && ['clear','clear_history'].includes(payload.name as string)) {
     return {schemaVersion:1,commandId:commandId || '',accepted:false,createdIds:{},error:{code:'CHAT_CONFIRMATION_REQUIRED',message:'Use the host chat confirmation.'}}
   }
-  if ((confirmationSurface?.isPending() || chatMutation) && !['CancelTurn','CancelOperation','StopGeneration'].includes(kind)) {
+  if ((confirmationSurface?.isPending() || sourceImportBusy || chatMutation || (memoryFiles.isBusy()||memoryEditor.isBusy()) || storageHost.isBusy()) && !['CancelTurn','CancelOperation','StopGeneration'].includes(kind)) {
     return {schemaVersion:1,commandId:commandId || '',accepted:false,createdIds:{},error:{code:'PROJECT_BUSY',message:'Finish the current confirmation first.'}}
   }
   if (kind === 'ResolveUserInput') {
@@ -688,7 +724,7 @@ ipcMain.handle('application-command', async (event, kind: string, payload: Recor
     return { schemaVersion: 1, commandId: commandId || '', accepted: false, createdIds: {},
       error: { code: 'APPROVAL_HOST_ONLY', message: 'Use the trusted approval surface to decide.' } }
   }
-  if (projectsHost?.isChanging() && ['SubmitUserInput','ExecuteCommand','ChangeProvider','ChangeModel','SetFetchEnabled','SetSearchEngine','SetBrowser','SetContextWindow'].includes(kind)) {
+  if (projectsHost?.isChanging() && ['SubmitUserInput','ExecuteCommand','ChangeProvider','ChangeModel','ResetEmbeddingSettings', 'SetEmbeddingSettings', 'SetWebSettings','SetFetchEnabled','SetSearchEngine','SetBrowser','SetContextWindow'].includes(kind)) {
     return {schemaVersion:1,commandId:commandId || '',accepted:false,createdIds:{},
       error:{code:'PROJECT_BUSY',message:'Wait for the selected project to be confirmed.'}}
   }
@@ -726,12 +762,17 @@ ipcMain.handle('restart-backend', event => {
 ipcMain.on('renderer-ready', event => {
   if (!validApplicationSender(event)) return
   rendererReady = true
+  rendererRecovery?.ready()
   syncHistoryVisibility()
   mainWindow?.webContents.send('session-view', applicationClient.view)
   applicationClient.refresh()
   if (lastReadyMessage) {
     mainWindow?.webContents.send('python-message', lastReadyMessage)
   }
+})
+
+ipcMain.on('desktop-renderer-alive', (event, nonce: unknown) => {
+  if (validApplicationSender(event)) rendererRecovery?.alive(nonce)
 })
 
 ipcMain.handle('get-projects', event => validApplicationSender(event) && projectsHost
@@ -756,7 +797,7 @@ ipcMain.handle('get-project-chats',event=>applicationClient.modelDownloadBusy()
   : {success:false,error:{code:'PROJECT_CHAT_UNAVAILABLE'}})
 ipcMain.handle('clear-project-chat',async(event,selectedPath?:unknown)=>{
   if (applicationClient.modelDownloadBusy()) return {success:false,error:{code:'MODEL_DOWNLOAD_BUSY'}}
-  if(!validApplicationSender(event)||!projectsHost || confirmationSurface?.isPending() || chatMutation ||
+  if(!validApplicationSender(event)||!projectsHost || confirmationSurface?.isPending() || chatMutation || (memoryFiles.isBusy()||memoryEditor.isBusy()) || storageHost.isBusy() ||
     (selectedPath!==undefined && typeof selectedPath!=='string'))return {success:false,error:{code:'PROJECT_BUSY'}}
   if(typeof selectedPath==='string' && !projectsHost.state().folders.some(folder=>folder.path===selectedPath))
     return {success:false,error:{code:'PROJECT_NOT_REGISTERED'}}
@@ -769,19 +810,29 @@ ipcMain.handle('clear-project-chat',async(event,selectedPath?:unknown)=>{
     return {success:receipt.accepted,error:receipt.error}
   }finally{chatMutation=false}
 })
-ipcMain.handle('project-action', async (event, action: unknown, selectedPath?:unknown) => {
-  if (!validApplicationSender(event) || !projectsHost) return {success:false,error:{code:'PROJECT_UNAVAILABLE'}}
+async function performProjectAction(action:unknown,selectedPath?:unknown){
+  if (!projectsHost) return {success:false,error:{code:'PROJECT_UNAVAILABLE'}}
   if (applicationClient.modelDownloadBusy()) return {success:false,state:projectsHost.state(),error:{code:'MODEL_DOWNLOAD_BUSY'}}
-  if (confirmationSurface?.isPending() || chatMutation) return {success:false,state:projectsHost.state(),error:{code:'PROJECT_BUSY'}}
+  if (confirmationSurface?.isPending() || sourceImportBusy || chatMutation || (memoryFiles.isBusy()||memoryEditor.isBusy()) || storageHost.isBusy()) return {success:false,state:projectsHost.state(),error:{code:'PROJECT_BUSY'}}
+  let removeAttachments=false
   if (action === 'remove') {
     const folder = projectsHost.state().folders.find(folder=>folder.path===selectedPath)
     if (!folder) return {success:false,state:projectsHost.state(),error:{code:'PROJECT_NOT_REGISTERED'}}
     if (folder.isDefault) return {success:false,state:projectsHost.state(),error:{code:'PROJECT_DEFAULT_REQUIRED'}}
     const decision=await confirmChatAction('remove-project',folder.path)
     if (!decision.confirmed) return {success:false,canceled:true,state:projectsHost.state()}
+    removeAttachments=decision.deleteAssociatedFiles===true
   }
-  return projectsHost.action(action, selectedPath)
-})
+  const result=await projectsHost.action(action, selectedPath)
+  if(result.success && action==='remove' && typeof selectedPath==='string') {
+    const detached=await storageHost.detachProject(selectedPath,removeAttachments)
+    if(!detached.success)return {...result,success:false,error:detached.error||{code:'STORAGE_FAILED'}}
+    storageHost.invalidate()
+  }
+  return result
+}
+ipcMain.handle('project-action', (event,action:unknown,selectedPath?:unknown)=>validApplicationSender(event)
+  ? performProjectAction(action,selectedPath) : {success:false,error:{code:'PROJECT_UNAVAILABLE'}})
 ipcMain.handle('list-directory', (event, dirPath: unknown, offset:unknown = 0) => validApplicationSender(event) && projectsHost
   ? projectsHost.listDirectory(dirPath, offset) : {success:false,error:{code:'PROJECT_UNAVAILABLE'}})
 ipcMain.handle('read-file', (event, filePath: unknown) => validApplicationSender(event) && projectsHost
@@ -791,42 +842,6 @@ ipcMain.handle('open-directory-dialog', () => ({canceled:true,filePaths:[]}))
 
 ipcMain.handle('get-home-dir', () => {
   return os.homedir()
-})
-
-ipcMain.handle('has-claude-access', () => {
-  return !!process.env.ANTHROPIC_API_KEY || !!storedApiKey
-})
-
-ipcMain.handle('get-claude-auth', () => {
-  const auth = loadClaudeAuth()
-  if (!auth) return { method: null, keyHint: null, authenticated: false }
-  const hint = auth.key ? auth.key.slice(0, 10) + '...' + auth.key.slice(-4) : null
-  return { method: auth.method, keyHint: hint, authenticated: true }
-})
-
-ipcMain.handle('save-claude-key', async (_event, key: string) => {
-  const validation = await validateApiKey(key)
-  if (!validation.valid) {
-    return { success: false, error: validation.error }
-  }
-  try { saveClaudeAuth('api_key', key) }
-  catch { return { success: false, error: 'AUTH_SAVE_FAILED' } }
-  storedApiKey = key
-  process.env.ANTHROPIC_API_KEY = key
-  // Notify Python backend about the new key.
-  sendToPython({ type: 'set_api_key', api_key: key })
-  const hint = key.slice(0, 10) + '...' + key.slice(-4)
-  return { success: true, keyHint: hint }
-})
-
-ipcMain.handle('delete-claude-auth', () => {
-  deleteClaudeAuth()
-  delete process.env.ANTHROPIC_API_KEY
-  return { success: true }
-})
-
-ipcMain.handle('start-claude-oauth', async () => {
-  return await startOAuthFlow()
 })
 
 ipcMain.handle('get-app-version', () => APP_VERSION)
@@ -1060,7 +1075,6 @@ function fetchJson(url: string): Promise<any> {
 
 app.whenReady().then(async () => {
   Menu.setApplicationMenu(null)
-  initClaudeAuth()
   const defaultWorkspace = path.join(findProjectRoot(), 'workspace')
   let defaultAccessible = true
   try { fs.mkdirSync(defaultWorkspace, {recursive:true}); fs.accessSync(defaultWorkspace,fs.constants.R_OK|fs.constants.W_OK) }
@@ -1072,6 +1086,8 @@ app.whenReady().then(async () => {
       bootstrapWorkspace:bootstrapProject,
       clearChat:selectedPath=>projectChatClient.clear(selectedPath),
       publish:state=>{ if (rendererReady && mainWindow && !mainWindow.webContents.isDestroyed()) mainWindow.webContents.send('projects-state',state) }})
+    try { fs.accessSync(projectsHost.defaultPath,fs.constants.R_OK|fs.constants.W_OK); defaultAccessible = fs.statSync(projectsHost.defaultPath).isDirectory() }
+    catch { defaultAccessible = false }
     if (!defaultAccessible) projectsHost.setError('PROJECT_DEFAULT_UNAVAILABLE')
   } catch { console.error('PROJECT_DEFAULT_UNAVAILABLE') }
   if (!projectsHost) { createWindow(); return }
@@ -1157,9 +1173,12 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', () => {
+  quitting = true
+  desktopMenu.dispose()
+  rendererRecovery?.dispose()
   confirmationSurface?.dispose()
   questionSurface?.dispose()
-  projectChatClient.disconnected()
+  projectChatClient.disconnected(); modelUsageClient.disconnected()
   approvalSurface?.dispose()
   clearInterval(readinessMonitor)
   pythonProcess?.kill()

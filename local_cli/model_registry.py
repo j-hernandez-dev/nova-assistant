@@ -16,7 +16,7 @@ from local_cli.security import validate_model_name
 _MAX_REGISTRY_SIZE = 64 * 1024
 
 # Valid provider names.
-_VALID_PROVIDERS = frozenset({"ollama", "claude"})
+_VALID_PROVIDERS = frozenset({"ollama", "llama-server"})
 
 
 class TaskType(enum.Enum):
@@ -34,7 +34,7 @@ class RegistryEntry:
     """A single model+provider routing entry.
 
     Attributes:
-        provider: Provider name (e.g. ``"ollama"`` or ``"claude"``).
+        provider: Provider name (e.g. ``"ollama"``).
         model: Model name (e.g. ``"qwen3:8b"``).
         priority: Priority ordering (1 = highest priority, used first).
     """

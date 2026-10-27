@@ -56,11 +56,14 @@ def test_readiness_compatible_local_model_and_optional_services_do_not_gate_chat
     result = app.get_readiness(session_id)
     assert result == {"schemaVersion": 1, "sessionId": session_id, "providerId": "ollama",
         "modelId": "local:chat", "providerRevision": 1, "ready": True, "reason": None,
-        "observedAt": result["observedAt"], "installedModels": [{"name": "local:chat", "size": 1024}],
+        "observedAt": result["observedAt"], "installedModels": [{"name": "local:chat", "size": 1024, "kind":"llm", "contextLength":8192}],
         "requiredAction": None}
     assert datetime.fromisoformat(result["observedAt"]).utcoffset() is not None
     after = app.get_snapshot(session_id)
-    assert manager.snapshot() is original
+    assert manager.snapshot().snapshot.model_id == original.snapshot.model_id
+    assert manager.snapshot().snapshot.provider_revision == original.snapshot.provider_revision
+    assert manager.snapshot().snapshot.model_context_window == 8192
+    assert original.snapshot.model_context_window is None
     assert after.state_revision == before.state_revision
     assert after.transcript == before.transcript and after.turns == ()
     assert not after.services["rag"]["enabled"]
@@ -103,7 +106,9 @@ def test_completion_only_model_is_ready_without_inference_or_tool_authority(tmp_
     before = app.get_snapshot(session_id)
     assert app.get_readiness(session_id)["ready"] is True
     after = app.get_snapshot(session_id)
-    assert manager.snapshot() is original and original.snapshot.tool_support == "UNKNOWN"
+    assert original.snapshot.tool_support == "UNKNOWN"
+    assert manager.snapshot().snapshot.tool_support == "UNAVAILABLE"
+    assert manager.snapshot().snapshot.provider_revision == original.snapshot.provider_revision
     assert before.turns == after.turns == ()
     assert before.state_revision == after.state_revision
     assert after.services["interactions"]["approvals"] == []
@@ -128,7 +133,8 @@ def test_readiness_during_inflight_preserves_pinned_runtime_and_never_touches_au
     assert not runtime.policy.mock_calls and not runtime._approval_gate.mock_calls and not runtime._issuer.mock_calls
     runtime.policy, runtime._approval_gate, runtime._issuer = original_policy, original_approval, original_issuer
     assert result["ready"]
-    assert manager.snapshot() is pinned
+    assert manager.snapshot().snapshot.provider_revision == pinned.snapshot.provider_revision
+    assert manager.snapshot().snapshot.model_context_window == 8192
     assert pinned.snapshot.provider_revision == 1
     assert pinned.snapshot.health == "UNKNOWN"
     manager.end_turn("owned-inflight-turn")
@@ -214,3 +220,71 @@ def test_readiness_observation_does_not_select_model_or_start_turn(tmp_path):
     assert after.model == before.model == "not-installed"
     assert after.state_revision == before.state_revision
     assert after.turns == () and after.services["interactions"]["approvals"] == []
+
+
+def test_validated_model_metadata_is_reused_by_consecutive_sends(tmp_path):
+    from tests.test_nova_core_phase4_session import submit
+    from tests.test_nova_core_phase9_integration import capabilities
+    provider = ReadinessProvider()
+    provider.chat_stream = lambda *_args, **_kwargs: iter([{"message": {"content": "ready"}, "done": True}])
+    app, session_id, _, manager = application(tmp_path, provider)
+    app._capability_factory = capabilities
+    assert app.get_readiness(session_id)["ready"]
+    before = (provider.list_calls, len(provider.info_calls))
+    provider.before_info = lambda: pytest.fail("Foreground send must reuse the prior validation")
+    for content in ("first", "second"):
+        receipt = submit(app, session_id, content)
+        assert receipt.accepted and app.wait_for_turn(receipt.created_ids["turnId"], 3)
+        turn = app.get_snapshot(session_id).turns[-1]
+        assert turn["status"] == "completed"
+        assert turn["modelRuntime"]["modelContextWindow"] == 8192
+    assert (provider.list_calls, len(provider.info_calls)) == before
+
+
+def test_slow_background_probe_does_not_block_foreground_send(tmp_path):
+    from tests.test_nova_core_phase4_session import submit
+    from tests.test_nova_core_phase9_integration import capabilities
+    from time import monotonic
+    provider = ReadinessProvider()
+    provider.chat_stream = lambda *_args, **_kwargs: iter([{"message": {"content": "ready"}, "done": True}])
+    app, session_id, _, _ = application(tmp_path, provider)
+    app._capability_factory = capabilities
+    assert app.get_readiness(session_id)["ready"]
+    entered, release = Event(), Event()
+    def blocked_info():
+        entered.set()
+        assert release.wait(5)
+    provider.before_info = blocked_info
+    thread = Thread(target=lambda: app.get_readiness(session_id), daemon=True)
+    thread.start()
+    try:
+        assert entered.wait(2)
+        began = monotonic()
+        receipt = submit(app, session_id, "Send while metadata is being checked")
+        assert receipt.accepted and monotonic() - began < 1
+        assert app.wait_for_turn(receipt.created_ids["turnId"], 2)
+        assert app.get_snapshot(session_id).turns[-1]["status"] == "completed"
+    finally:
+        release.set()
+        thread.join(3)
+
+
+def test_inference_failure_invalidates_only_its_cached_runtime_and_recheck_restores_it(tmp_path):
+    app, session_id, provider, manager = application(tmp_path)
+    assert app.get_readiness(session_id)["ready"]
+    pinned = manager.begin_turn("failure")
+    before = (provider.list_calls, len(provider.info_calls))
+    manager.invalidate_observation(pinned, "OLLAMA_RESPONSE_TIMEOUT")
+    assert manager.snapshot().snapshot.health == "AVAILABLE"
+    manager.invalidate_observation(pinned, "OLLAMA_CONNECTION_FAILED")
+    assert manager.snapshot().snapshot.health == "UNAVAILABLE"
+    assert pinned.snapshot.health == "AVAILABLE"
+    assert (provider.list_calls, len(provider.info_calls)) == before
+    manager.end_turn("failure")
+    assert app.get_readiness(session_id)["ready"]
+    assert manager.snapshot().snapshot.health == "AVAILABLE"
+    provider.models += [{"name": "other:chat", "size": 1}]
+    manager.change_model("other:chat")
+    manager.invalidate_observation(pinned, "OLLAMA_CONNECTION_FAILED")
+    assert manager.snapshot().snapshot.model_id == "other:chat"
+    assert manager.snapshot().snapshot.health == "AVAILABLE"

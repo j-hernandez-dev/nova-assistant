@@ -18,6 +18,9 @@ def build_knowledge_service(*, state_dir, workspace, workspace_id, session_id,
     try:
         service = KnowledgeService(store, workspace=Path(workspace),
             access=KnowledgeAccess(workspace_id, session_id), event_sink=event_sink)
+        from local_cli.infrastructure.knowledge_storage import workspace_identity
+        if workspace_id == workspace_identity(workspace):
+            store.register_storage_workspace(workspace, workspace_id)
         service.recover()
         from local_cli.application.knowledge_retrieval import DocumentRetriever
         service.retriever = DocumentRetriever(store)
@@ -29,8 +32,11 @@ def build_knowledge_service(*, state_dir, workspace, workspace_id, session_id,
 
 _DEFAULT_PREPARE = object()
 
-def knowledge_factory(state_dir, *, prepare=_DEFAULT_PREPARE, limits=KnowledgeLimits()):
+def knowledge_factory(state_dir, *, prepare=_DEFAULT_PREPARE, limits=KnowledgeLimits(), preferences=None,
+                      embedding_settings=None, embedding_endpoint='http://127.0.0.1:11434'):
     state = Path(state_dir).expanduser().absolute()
+    from local_cli.knowledge_preferences import KnowledgePreferences
+    preferences = preferences or KnowledgePreferences(state)
     def create(workspace, session_id, event_sink):
         from local_cli.infrastructure.knowledge_acquisition import LocalHostFileAcquisition
         # Host-assigned opaque workspace identity; never a renderer argument.
@@ -50,9 +56,16 @@ def knowledge_factory(state_dir, *, prepare=_DEFAULT_PREPARE, limits=KnowledgeLi
         else:
             service.extractor = None
             service.url_extractor = None
+        from local_cli.application.knowledge_indexing import KnowledgeIndexing
+        service.indexing = KnowledgeIndexing(service, preferences, embedding_settings, embedding_endpoint,
+            notify=lambda current: getattr(create, 'on_change', lambda unused: None)(current))
+        service.indexing.refresh()
         atexit.register(service.store.close)
+        atexit.register(service.indexing.close)
         return service
     create.extraction_available = prepare is _DEFAULT_PREPARE
     create.retrieval_available = prepare is _DEFAULT_PREPARE
     create.context_available = prepare is _DEFAULT_PREPARE
+    create.preferences = preferences
+    create.replaces_legacy_rag = embedding_settings is not None
     return create

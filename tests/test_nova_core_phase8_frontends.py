@@ -20,7 +20,7 @@ from tests.test_nova_core_phase7_server_legacy import _server_stub
     ("_handle_switch_model", ("new",)),
     ("_handle_command", ("/model new",)),
     ("_handle_switch_provider", ("claude",)),
-    ("_handle_claude_logout", ()),
+    ("_handle_switch_provider", ("llama-server",)),
 ])
 def test_server_change_handlers_reject_active_turn_without_side_effects(monkeypatch, method, args):
     import os
@@ -116,6 +116,27 @@ def test_cli_and_orchestrator_share_one_manager(tmp_path, capsys):
         assert state.snapshot().name == "llama-server" and config.model == "new"
     finally:
         state.end_turn("turn-1")
+
+
+def test_retired_logout_frame_cannot_mutate_provider_or_credentials(monkeypatch):
+    import os
+    from local_cli.server import JsonLineServer
+    monkeypatch.setattr("local_cli.updater.check_for_updates", lambda: (False, "fixture"))
+    server, sent = _server_stub(monkeypatch)
+    monkeypatch.setenv('ANTHROPIC_API_KEY', 'synthetic-retired-provider-key')
+    before = server._application.get_snapshot(server._app_adapter.session_id)
+    assert not hasattr(JsonLineServer, '_handle_claude_logout')
+    frame = {'id': 47, 'type': 'claude_logout'}
+    assert server._app_adapter.handle(frame) is False  # Outer reader owns unknown frames.
+    monkeypatch.setattr('local_cli.server.sys.stdin', iter([json.dumps(frame)]))
+    server.run()
+    rejected = next(message for message in sent if message.get('id') == 47)
+    assert rejected['type'] == 'error'
+    after = server._application.get_snapshot(server._app_adapter.session_id)
+    assert after.model_runtime == before.model_runtime
+    assert after.transcript == before.transcript
+    assert os.environ['ANTHROPIC_API_KEY'] == 'synthetic-retired-provider-key'
+    server._app_adapter.close()
 
 
 def test_jsonl_invalid_model_or_command_does_not_break_reader(monkeypatch):

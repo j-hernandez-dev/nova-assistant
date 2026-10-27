@@ -195,3 +195,58 @@ def test_cancel_during_overload_backoff_never_starts_another_request():
     result = _stream_with_retry(provider, 'synthetic:9b', [], {}, emit,
         retry_on_overload=True, tracker=None, should_stop=stop.is_set)
     assert provider.calls == 1 and result['message']['content'] == ''
+
+
+@pytest.mark.parametrize("mode", ["headers", "line"])
+def test_connected_response_timeout_closes_request_without_claiming_disconnection(endpoint, monkeypatch, mode):
+    from local_cli.ollama_client import OllamaResponseTimeout
+    monkeypatch.setattr("local_cli.ollama_client._FIRST_RESPONSE_TIMEOUT", 0.15)
+    monkeypatch.setattr("local_cli.ollama_client._RESPONSE_IDLE_TIMEOUT", 0.15)
+    with pytest.raises(OllamaResponseTimeout) as failure:
+        list(endpoint["client"].chat_stream_cancellable("synthetic:9b",
+             [{"role": "user", "content": mode}], should_stop=lambda: False))
+    assert failure.value.code == "OLLAMA_RESPONSE_TIMEOUT"
+    assert endpoint["closed"].wait(1)
+    assert len(endpoint["requests"]) == 1
+
+
+def test_no_connection_is_distinct_from_a_connected_model_timeout():
+    import socket
+    from local_cli.ollama_client import OllamaConnectionError
+    with socket.socket() as reserved:
+        reserved.bind(("127.0.0.1", 0))
+        port = reserved.getsockname()[1]
+    client = OllamaClient(f"http://127.0.0.1:{port}")
+    with pytest.raises(OllamaConnectionError) as failure:
+        list(client.chat_stream_cancellable("synthetic:9b", [], should_stop=lambda: False))
+    assert failure.value.code == "OLLAMA_CONNECTION_FAILED"
+
+
+def test_response_deadline_ignores_empty_chunks_and_tracks_real_progress(monkeypatch):
+    from local_cli.providers.stream_control import ResponseDeadline
+    now = [10.0]
+    monkeypatch.setattr("local_cli.providers.stream_control.time.monotonic", lambda: now[0])
+    deadline = ResponseDeadline(180, 120)
+    assert not deadline.expired()
+    deadline.connected()
+    now[0] += 179
+    assert not deadline.expired()
+    deadline.progress()
+    now[0] += 119
+    assert not deadline.expired()
+    now[0] += 2
+    assert deadline.expired()
+
+
+def test_http_missing_model_has_a_specific_error_without_retry(endpoint, monkeypatch):
+    import io
+    import urllib.error
+    from local_cli.ollama_client import OllamaRequestError
+    def missing(*_args, **_kwargs):
+        raise urllib.error.HTTPError("http://localhost/api/chat", 404, "Not Found", {},
+            io.BytesIO(b'{"error":"model synthetic:9b not found"}'))
+    monkeypatch.setattr("local_cli.ollama_client.open_stream", missing)
+    with pytest.raises(OllamaRequestError) as failure:
+        list(endpoint["client"].chat_stream_cancellable("synthetic:9b", [], should_stop=lambda: False))
+    assert failure.value.code == "OLLAMA_MODEL_UNAVAILABLE"
+    assert endpoint["requests"] == []

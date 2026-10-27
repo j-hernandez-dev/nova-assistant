@@ -1,0 +1,1449 @@
+/* Shared typography defaults are available before user font preferences load. */
+:root {
+  --font: system-ui, sans-serif;
+  --font-code: ui-monospace, monospace;
+  --nova-switch-on-track: color-mix(in srgb, var(--accent) 45%, var(--panel));
+  --nova-switch-on-border: color-mix(in srgb, var(--accent) 80%, var(--panel));
+  --nova-switch-on-thumb: color-mix(in srgb, var(--accent) 45%, white);
+}
+:root[data-nova-scheme="light"] { color-scheme: light; }
+:root[data-nova-scheme="dark"] { color-scheme: dark; }
+html, body { background: var(--nova-titlebar-bg, #0a0a0a); color: var(--text); font-family: var(--font); }
+body, button, input, select, textarea { font-family: var(--font); }
+pre, code, .file-viewer-code, .file-viewer-ln, .tool-detail, .tool-output-pre { font-family: var(--font-code); }
+.nova-window-titlebar { background: var(--nova-titlebar-bg, #0a0a0a); }
+.nova-window-mark { color: var(--nova-titlebar-text, #e2e5ef); }
+:root[data-nova-mascot-motion="false"] .nova-orbit,
+:root[data-nova-mascot-motion="false"] .nova-orbit * { animation: none !important; }
+
+@scope (:root[data-nova-scheme]:not([data-nova-theme="nova"][data-nova-scheme="dark"])) {
+  /* Semantic color bridge for existing desktop surfaces. Nova dark retains its original colors. Layout, focus behavior and transitions stay in component styles. */
+  body {
+  background: var(--bg);
+  color: var(--text);
+  }
+  .titlebar {
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border);
+  }
+  .titlebar-text {
+  color: var(--text-muted);
+  }
+  .titlebar-dev {
+  color: var(--yellow);
+  border: 1px solid var(--yellow);
+  }
+  .statusbar {
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border);
+  }
+  .status-item {
+  color: var(--text-dim);
+  }
+  .status-dot.on { background: var(--green);
+  }
+  .status-dot.off { background: var(--red);
+  }
+  .status-dot.wait { background: var(--yellow);
+  }
+  .model-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  outline: none;
+  }
+  .model-select:hover { border-color: var(--accent);
+  }
+  .model-hover-card {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--nova-shadow) 40%, transparent);
+  }
+  .model-hover-name {
+  color: var(--accent);
+  }
+  .model-hover-desc {
+  color: var(--text);
+  }
+  .model-hover-hint {
+  color: var(--text-muted);
+  }
+  .status-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  }
+  .status-btn:hover {
+  border-color: var(--text-dim);
+  color: var(--text);
+  }
+  .status-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  }
+  .update-bar {
+  background: color-mix(in srgb, var(--cyan) 8%, transparent);
+  border-bottom: 1px solid var(--border);
+  }
+  .update-bar-text {
+  color: var(--accent);
+  }
+  .update-bar-btn {
+  background: var(--accent);
+  border: none;
+  color: var(--bg);
+  }
+  .update-bar-dismiss {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  }
+  .update-bar-dismiss:hover {
+  color: var(--text-dim);
+  border-color: var(--text-dim);
+  }
+  .update-bar-progress {
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  }
+  .update-bar-fill {
+  background: var(--accent);
+  }
+  .msg-marker.user { color: var(--accent);
+  }
+  .msg-marker.agent { color: var(--purple);
+  }
+  .msg-marker.system { color: var(--yellow);
+  }
+  ::selection {
+  background: color-mix(in srgb, var(--cyan) 25%, transparent);
+  }
+  .msg-body.user { color: var(--text);
+  }
+  .msg-body.agent { color: var(--text);
+  }
+  .msg-body.system { color: var(--yellow);
+  }
+  .msg-body.error { color: var(--red);
+  }
+  .cursor {
+  background: var(--text);
+  }
+  .thinking-dot {
+  background: var(--purple);
+  }
+  .thinking-label {
+  color: var(--text-muted);
+  }
+  .md-h1 { border-bottom: 1px solid var(--border);
+  }
+  .md-h4, .md-h5, .md-h6 { color: var(--text-muted);
+  }
+  .md-inline-code {
+  background: color-mix(in srgb, var(--bg-hover) 15%, transparent);
+  border: 1px solid var(--border);
+  }
+  .md-link { color: var(--accent);
+  }
+  .md-code {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  }
+  .md-code-lang {
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  }
+  .md-table th,
+.md-table td {
+  border: 1px solid var(--border);
+  }
+  .md-table th { background: color-mix(in srgb, var(--bg-hover) 8%, transparent);
+  }
+  .confirm-bar {
+  border: 1px solid var(--red);
+  border-left: 3px solid var(--red);
+  }
+  .confirm-label {
+  color: var(--red);
+  }
+  .confirm-command {
+  color: var(--text);
+  }
+  .confirm-approve,
+.confirm-deny {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  }
+  .confirm-approve { border-color: var(--red); color: var(--red);
+  }
+  .confirm-approve:hover { background: var(--red); color: var(--bg);
+  }
+  .confirm-deny:hover { border-color: var(--text-muted);
+  }
+  .resume-bar {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  }
+  .resume-text {
+  color: var(--text-muted);
+  }
+  .resume-btn,
+.resume-dismiss {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  }
+  .resume-btn {
+  border-color: var(--accent);
+  color: var(--accent);
+  }
+  .resume-btn:hover { background: var(--accent); color: var(--bg);
+  }
+  .resume-dismiss:hover { border-color: var(--text-muted);
+  }
+  .harness-chip {
+  border: 1px solid var(--purple);
+  color: var(--purple);
+  }
+  .tool {
+  border-left: 2px solid var(--border);
+  }
+  .tool.tool-cat-read { border-left-color: var(--accent);
+  }
+  .tool.tool-cat-write { border-left-color: var(--orange);
+  }
+  .tool.tool-cat-search { border-left-color: var(--cyan);
+  }
+  .tool.tool-cat-run { border-left-color: var(--green);
+  }
+  .tool.tool-cat-agent { border-left-color: var(--purple);
+  }
+  .tool.tool-cat-ask { border-left-color: var(--yellow);
+  }
+  .tool.tool-cat-fetch { border-left-color: var(--accent);
+  }
+  .tool.tool-cat-default { border-left-color: var(--text-muted);
+  }
+  .tool-cat-read .tool-label { color: var(--accent);
+  }
+  .tool-cat-write .tool-label { color: var(--orange);
+  }
+  .tool-cat-search .tool-label { color: var(--cyan);
+  }
+  .tool-cat-run .tool-label { color: var(--green);
+  }
+  .tool-cat-agent .tool-label { color: var(--purple);
+  }
+  .tool-cat-ask .tool-label { color: var(--yellow);
+  }
+  .tool-cat-fetch .tool-label { color: var(--accent);
+  }
+  .tool-cat-default .tool-label { color: var(--text-dim);
+  }
+  .tool-detail {
+  color: var(--text-dim);
+  }
+  .tool-spinner {
+  border: 1.5px solid var(--yellow);
+  border-top-color: transparent;
+  }
+  .tool-check {
+  color: var(--green);
+  }
+  .tool-status {
+  color: var(--yellow);
+  }
+  .tool-done {
+  color: var(--text-muted);
+  }
+  .tool-output {
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--bg-input) 50%, transparent);
+  }
+  .tool-toggle {
+  color: var(--text-muted);
+  }
+  .tool-toggle:hover { color: var(--text-dim);
+  }
+  .tool-copy {
+  color: var(--text-muted);
+  }
+  .tool-copy:hover {
+  color: var(--accent);
+  }
+  .input-marker {
+  color: var(--accent);
+  }
+  .input-field {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  outline: none;
+  }
+  .input-field::placeholder { color: var(--text-muted);
+  }
+  .stop-btn {
+  background: none;
+  border: 1px solid var(--red);
+  color: var(--red);
+  }
+  .stop-btn:hover {
+  background: color-mix(in srgb, var(--red) 10%, transparent);
+  }
+  .welcome {
+  color: var(--text-muted);
+  }
+  .banner-art {
+  color: var(--accent);
+  }
+  .banner-version {
+  color: var(--green);
+  }
+  .banner-desc {
+  color: var(--text-muted);
+  }
+  .model-info-block {
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--cyan) 5%, transparent);
+  }
+  .model-info-name {
+  color: var(--accent);
+  }
+  .model-info-desc {
+  color: var(--text-muted);
+  }
+  .welcome-hint {
+  color: var(--text-muted);
+  }
+  .overlay {
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+  }
+  .picker {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  }
+  .picker-header {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  }
+  .picker-header-sub {
+  color: var(--text-muted);
+  }
+  .picker-search {
+  border-bottom: 1px solid var(--border);
+  }
+  .picker-search input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  outline: none;
+  }
+  .picker-search input:focus { border-color: var(--accent);
+  }
+  .picker-tabs {
+  border-bottom: 1px solid var(--border);
+  }
+  .picker-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  }
+  .picker-tab:hover { color: var(--text-dim);
+  }
+  .picker-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  }
+  .pull-bar {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-bottom: 1px solid var(--border);
+  }
+  .pull-bar-text { color: var(--yellow);
+  }
+  .pull-bar-progress { color: var(--text-dim);
+  }
+  .pull-bar-gauge {
+  background: var(--border);
+  }
+  .pull-bar-gauge-fill {
+  background: var(--yellow);
+  }
+  .picker-category {
+  color: var(--text-muted);
+  background: var(--bg-alt);
+  }
+  .picker-model {
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  }
+  .picker-model.installed:hover { background: var(--bg-hover);
+  }
+  .picker-model.current { background: color-mix(in srgb, var(--cyan) 5%, transparent);
+  }
+  .picker-model-name {
+  color: var(--text);
+  }
+  .picker-model-params {
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  }
+  .picker-model-desc {
+  color: var(--text-dim);
+  }
+  .picker-model:hover .picker-model-desc {
+  color: var(--text);
+  }
+  .picker-model.installed .picker-model-desc {
+  color: var(--text);
+  }
+  .picker-model-size {
+  color: var(--text-muted);
+  }
+  .current-badge {
+  color: var(--green);
+  border: 1px solid var(--green);
+  }
+  .pulling-badge {
+  color: var(--yellow);
+  border: 1px solid var(--yellow);
+  }
+  .picker-action {
+  background: none;
+  }
+  .picker-action.use {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  }
+  .picker-action.use:hover { background: color-mix(in srgb, var(--cyan) 10%, transparent);
+  }
+  .picker-action.download {
+  color: var(--green);
+  border: 1px solid var(--green);
+  }
+  .picker-action.download:hover { background: color-mix(in srgb, var(--green) 10%, transparent);
+  }
+  .picker-action.del {
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  }
+  .picker-action.del:hover { color: var(--red); border-color: var(--red);
+  }
+  .picker-action.del.confirm {
+  color: var(--red);
+  border-color: var(--red);
+  }
+  .picker-empty {
+  color: var(--text-muted);
+  }
+  .picker-system-info {
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-secondary);
+  }
+  .picker-recommend-star {
+  color: var(--yellow);
+  }
+  .picker-model-tag {
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--cyan) 30%, transparent);
+  }
+  .picker-model-pulls {
+  color: var(--yellow);
+  }
+  .picker-model-sizes {
+  color: var(--text-muted);
+  }
+  .picker-model-date {
+  color: var(--text-muted);
+  }
+  .picker-model-strength {
+  color: var(--purple);
+  background: color-mix(in srgb, var(--purple) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--purple) 20%, transparent);
+  }
+  .picker-ease {
+  color: var(--yellow);
+  }
+  .picker-update-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  }
+  .picker-update-btn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+  }
+  .picker-update-btn.updating {
+  color: var(--yellow);
+  border-color: var(--yellow);
+  }
+  .cloud-badge {
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  }
+  .file-viewer-header {
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border);
+  }
+  .file-viewer-dir {
+  color: var(--text-muted);
+  }
+  .file-viewer-name {
+  color: var(--text);
+  }
+  .file-viewer-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  }
+  .file-viewer-close:hover {
+  color: var(--text);
+  }
+  .file-viewer-status {
+  color: var(--text-muted);
+  }
+  .file-viewer-line:hover {
+  background: var(--bg-hover);
+  }
+  .file-viewer-ln {
+  color: var(--text-muted);
+  }
+  .explorer-pane {
+  border-right: 1px solid var(--border);
+  }
+  .explorer-pane.collapsed {
+  border-right: none;
+  }
+  .viewer-pane {
+  border-left: 1px solid var(--border);
+  }
+  .explorer {
+  background: var(--bg-alt);
+  }
+  .explorer-header {
+  border-bottom: 1px solid var(--border);
+  }
+  .explorer-title {
+  color: var(--text-muted);
+  }
+  .explorer-open-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  }
+  .explorer-open-btn:hover {
+  background: color-mix(in srgb, var(--cyan) 10%, transparent);
+  border-color: var(--accent);
+  }
+  .explorer-open-btn-small {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  }
+  .explorer-open-btn-small:hover {
+  color: var(--text);
+  }
+  .explorer-hint {
+  color: var(--text-muted);
+  }
+  .explorer-path-bar {
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  }
+  .explorer-path-bar:hover {
+  color: var(--accent);
+  background: var(--bg-hover);
+  }
+  .explorer-node:hover {
+  background: var(--bg-hover);
+  }
+  .explorer-node.dir {
+  color: var(--text);
+  }
+  .explorer-node.file {
+  color: var(--text-dim);
+  }
+  .explorer-arrow {
+  color: var(--text-muted);
+  }
+  .explorer-symlink-badge {
+  color: var(--text-muted);
+  }
+  .explorer-loading {
+  color: var(--text-muted);
+  }
+  .explorer-error {
+  color: var(--red);
+  }
+  .explorer-empty-dir {
+  color: var(--text-muted);
+  }
+  .explorer-show-more {
+  color: var(--accent);
+  }
+  .provider-check {
+  color: var(--accent);
+  }
+  .provider-confirm-text {
+  color: var(--text-dim);
+  }
+  .provider-confirm-btn {
+  background: none;
+  border: 1px solid var(--border);
+  }
+  .provider-confirm-btn.yes {
+  color: var(--accent);
+  border-color: var(--accent);
+  }
+  .provider-confirm-btn.yes:hover {
+  background: color-mix(in srgb, var(--cyan) 10%, transparent);
+  }
+  .provider-confirm-btn.no {
+  color: var(--text-muted);
+  }
+  .provider-confirm-btn.no:hover {
+  color: var(--text-dim);
+  border-color: var(--text-dim);
+  }
+  .settings-panel {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  }
+  .settings-header {
+  border-bottom: 1px solid var(--border);
+  }
+  .settings-title {
+  color: var(--text);
+  }
+  .settings-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  }
+  .settings-close:hover { color: var(--text);
+  }
+  .settings-section {
+  border-bottom: 1px solid var(--border);
+  }
+  .settings-section:last-child { border-bottom: none;
+  }
+  .settings-section-title {
+  color: var(--text-muted);
+  }
+  .settings-label {
+  color: var(--text-dim);
+  }
+  .settings-value {
+  color: var(--text);
+  }
+  .settings-checking {
+  color: var(--yellow);
+  }
+  .settings-up-to-date {
+  color: var(--green);
+  }
+  .settings-update-new {
+  color: var(--accent);
+  }
+  .settings-update-btn {
+  background: var(--accent);
+  border: none;
+  color: var(--bg);
+  }
+  .settings-update-link {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  }
+  .settings-update-link:hover { color: var(--text-dim);
+  }
+  .settings-check-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  }
+  .settings-check-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  }
+  .settings-progress-label {
+  color: var(--accent);
+  }
+  .settings-progress-bar {
+  background: var(--bg-input);
+  }
+  .settings-progress-fill {
+  background: var(--accent);
+  }
+  .settings-progress-pct {
+  color: var(--text-muted);
+  }
+  .settings-error {
+  color: var(--red, var(--red));
+  }
+  .settings-cli-result {
+  color: var(--green);
+  }
+  .settings-hint {
+  color: var(--text-muted);
+  }
+  .settings-shortcut {
+  color: var(--text-dim);
+  }
+  .settings-shortcut kbd {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  }
+  .provider-login-badge {
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  }
+@media (max-width: 768px) {
+    .explorer-pane {
+    border-right: none;
+    }
+}
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible,
+[role="button"]:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--accent);
+  }
+.nova-app {
+  background: radial-gradient(ellipse at 54% -20%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 55%), var(--bg);
+  }
+.nova-rail {
+  background: linear-gradient(110deg, color-mix(in srgb, var(--panel) 84%, transparent), color-mix(in srgb, var(--bg-input) 95%, transparent));
+  border-right: 1px solid color-mix(in srgb, var(--border) 52.2%, transparent);
+  }
+.nova-brand, .nova-nav-button, .nova-icon-button,
+.nova-attach-button, .nova-send-button {
+  color: var(--text);
+  }
+.nova-brand {
+  border: 1px solid transparent;
+  background: transparent;
+  }
+.nova-nav-button {
+  border: 1px solid transparent;
+  background: transparent;
+  }
+.nova-brand:hover, .nova-nav-button:hover {
+  background: color-mix(in srgb, var(--text) 3.5%, transparent);
+  color: var(--text);
+  }
+.nova-nav-button.active, .nova-nav-button[aria-pressed="true"],
+.nova-brand.active, .nova-brand[aria-pressed="true"] {
+  color: var(--accent);
+  background: radial-gradient(ellipse at 0 50%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 80%);
+  }
+.nova-nav-button.active::before, .nova-nav-button[aria-pressed="true"]::before {
+  background: var(--accent);
+  box-shadow: 0 0 13px color-mix(in srgb, var(--accent) 65%, transparent);
+  }
+.nova-rail-spacer + .nova-nav-button::after {
+  background: color-mix(in srgb, var(--bg-hover) 12%, transparent);
+  }
+.nova-main {
+  background: radial-gradient(ellipse at 51% -17%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 49%);
+  }
+.nova-status-pill {
+  border: 1px solid color-mix(in srgb, var(--border) 53.3%, transparent);
+  background: linear-gradient(130deg, color-mix(in srgb, var(--bg-input) 40%, transparent), color-mix(in srgb, var(--bg) 70%, transparent));
+  color: var(--text);
+  }
+.nova-status-pill .status-dot {
+  background: var(--bg-hover);
+  }
+.nova-status-pill .status-dot.on {
+  background: var(--accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+.nova-status-pill .status-dot.wait { background: var(--bg-hover);
+  }
+.nova-status-pill .status-dot.off { background: var(--bg-hover);
+  }
+.nova-icon-button {
+  border: 1px solid color-mix(in srgb, var(--border) 53.3%, transparent);
+  background: linear-gradient(130deg, color-mix(in srgb, var(--bg-input) 40%, transparent), color-mix(in srgb, var(--bg) 70%, transparent));
+  }
+.nova-icon-button:hover, .nova-attach-button:hover, .nova-send-button:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 5.5%, transparent);
+  }
+.nova-unread-badge {
+  border: 2px solid var(--border);
+  background: var(--accent);
+  color: var(--nova-accent-foreground);
+  }
+.nova-home-caption {
+  color: var(--text-dim);
+  }
+.nova-home > .resume-bar {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-input) 95%, transparent);
+  }
+.nova-history-title {
+  color: var(--text);
+  }
+.nova-conversation:focus-visible { outline: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+.nova-message-meta {
+  color: var(--text-muted);
+  }
+.nova-message-bubble {
+  border: 1px solid color-mix(in srgb, var(--border) 48%, transparent);
+  background: linear-gradient(115deg, color-mix(in srgb, var(--panel) 87%, transparent), color-mix(in srgb, var(--panel) 80%, transparent));
+  }
+.nova-message-user .nova-message-bubble {
+  background: linear-gradient(115deg, color-mix(in srgb, var(--panel) 94%, transparent), color-mix(in srgb, var(--panel) 91%, transparent));
+  }
+.nova-message-system .nova-message-bubble {
+  background: color-mix(in srgb, var(--panel) 65%, transparent);
+  border-color: color-mix(in srgb, var(--red) 10%, transparent);
+  }
+.nova-message-assistant .tool-check { color: var(--text-muted);
+  }
+.nova-tool-activity {
+  border: 1px solid color-mix(in srgb, var(--border) 55.5%, transparent);
+  background: color-mix(in srgb, var(--bg-input) 94%, transparent);
+  color: var(--text-dim);
+  }
+.nova-activity-summary:focus-visible, .nova-activity-diagnostics > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  }
+.nova-activity-title { color: var(--text);
+  }
+.nova-activity-dot { background: var(--bg-hover);
+  }
+.nova-activity-status { color: var(--text-muted);
+  }
+.nova-activity-active .nova-activity-status { color: var(--accent);
+  }
+.nova-activity-warning .nova-activity-status { color: var(--accent);
+  }
+.nova-activity-expand { color: var(--text-muted);
+  }
+.nova-activity-body { border-top: 1px solid color-mix(in srgb, var(--border) 50.5%, transparent);
+  }
+.nova-activity-explanation, .nova-activity-empty { color: var(--text-dim);
+  }
+.nova-activity-empty { color: var(--text-muted);
+  }
+.nova-activity-output > span { color: var(--text-muted);
+  }
+.nova-activity-output pre, .nova-activity-diagnostics pre {
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  color: var(--text-dim);
+  }
+.nova-activity-diagnostics { color: var(--text-muted);
+  }
+.nova-activity-diagnostics dt { color: var(--text-muted);
+  }
+.nova-activity-diagnostics dd { color: var(--text-dim);
+  }
+.nova-permission-pending { color: var(--text-dim);
+  }
+.nova-permission-pending button { border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); background: color-mix(in srgb, var(--panel) 80%, transparent); color: var(--accent);
+  }
+.nova-permission-error { color: var(--red);
+  }
+.nova-message-terminal-note {
+  color: var(--text-muted);
+  }
+.nova-history-notice {
+  color: var(--text-dim);
+  }
+.nova-composer {
+  border: 1px solid color-mix(in srgb, var(--border) 58.2%, transparent);
+  background: linear-gradient(115deg, color-mix(in srgb, var(--panel) 95%, transparent), color-mix(in srgb, var(--panel) 76%, transparent) 52%, color-mix(in srgb, var(--bg-input) 96%, transparent));
+  box-shadow: 0 12px 35px color-mix(in srgb, var(--nova-shadow) 22%, transparent), inset 0 1px color-mix(in srgb, var(--nova-shadow) 2.5%, transparent);
+  }
+.nova-composer:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+.nova-attach-button, .nova-send-button {
+  border: 1px solid color-mix(in srgb, var(--border) 52.7%, transparent);
+  background: linear-gradient(145deg, var(--panel), var(--bg-input));
+  }
+.nova-input {
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  }
+.nova-input:focus-visible { outline: none;
+  }
+.nova-input::placeholder { color: var(--text-dim);
+  }
+.nova-input:disabled { color: var(--text-muted);
+  }
+.nova-model-button {
+  border: 1px solid color-mix(in srgb, var(--border) 54.4%, transparent);
+  color: var(--text);
+  background: color-mix(in srgb, var(--panel) 47%, transparent);
+  }
+.nova-model-button svg { color: var(--text-dim);
+  }
+.nova-model-button:hover { border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+.nova-model-select {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  }
+.nova-model-select option { background: var(--bg-input); color: var(--text);
+  }
+.nova-model-select:focus-visible { outline: none;
+  }
+.nova-model-button:has(.nova-model-select:focus-visible) {
+  outline: 2px solid var(--accent);
+  }
+.nova-secondary-tools {
+  color: var(--text-muted);
+  }
+.nova-settings-tools .nova-secondary-tools > summary { color: var(--text);
+  }
+.nova-secondary-tools button, .nova-toolbar button,
+.nova-language-switch, .nova-legacy-controls button {
+  border: 1px solid color-mix(in srgb, var(--border) 56%, transparent);
+  background: color-mix(in srgb, var(--panel) 80%, transparent);
+  color: var(--text-dim);
+  }
+.nova-secondary-tools button:hover, .nova-toolbar button:hover,
+.nova-language-switch:hover, .nova-legacy-controls button:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  }
+.nova-project-pane {
+  border-right: 1px solid color-mix(in srgb, var(--border) 54.9%, transparent);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--bg-input) 97%, transparent), color-mix(in srgb, var(--bg) 94%, transparent));
+  }
+.nova-project-pane .explorer { background: transparent;
+  }
+.nova-project-pane .explorer-title {
+  color: var(--text);
+  }
+.nova-project-pane .explorer-icon { color: var(--accent);
+  }
+.nova-legacy-controls {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-input) 98%, transparent);
+  color: var(--text-dim);
+  }
+.nova-legacy-controls input:not([type="checkbox"]) {
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text);
+  }
+.nova-composer-area .confirm-bar {
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--bg-input) 98%, transparent);
+  color: var(--text);
+  }
+.nova-composer-area .confirm-label { color: var(--accent);
+  }
+.nova-composer-area .confirm-command { color: var(--text-dim);
+  }
+.nova-composer-area .confirm-approve {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  color: var(--accent);
+  }
+.nova-composer-area .confirm-approve:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  }
+.nova-readiness-notice {
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  background: linear-gradient(115deg, color-mix(in srgb, var(--bg-input) 90%, transparent), color-mix(in srgb, var(--bg-input) 96%, transparent));
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--nova-shadow) 13%, transparent);
+  }
+.nova-readiness-copy strong { color: var(--accent);
+  }
+.nova-readiness-copy p { color: var(--text-dim);
+  }
+.nova-readiness-actions button {
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  background: color-mix(in srgb, var(--accent) 5.5%, transparent);
+  color: var(--accent);
+  }
+.nova-readiness-actions button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 11%, transparent);
+  }
+.nova-readiness-configuration {
+  border-top: 1px solid color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--text-dim);
+  }
+.nova-model-selection-notice {
+  color: var(--text-dim);
+  background: color-mix(in srgb, var(--accent) 4.5%, transparent);
+  border-bottom: 1px solid var(--border);
+  }
+.nova-model-selection-notice[role="alert"] { color: var(--red);
+  }
+.nova-modal-backdrop {
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  }
+.nova-modal-backdrop .picker-search input {
+  border-color: var(--border);
+  }
+.nova-modal-backdrop .picker-tab.active { border-bottom-color: var(--accent);
+  }
+.nova-modal-backdrop .picker-model-desc { color: var(--text-dim);
+  }
+.nova-app .viewer-pane { background: var(--bg-input);
+  }
+.nova-app .tool-output, .nova-app .md-code { background: color-mix(in srgb, var(--bg) 80%, transparent);
+  }
+@media (max-width: 760px) {
+    .nova-project-pane {
+    box-shadow: 18px 0 45px color-mix(in srgb, var(--nova-shadow) 50%, transparent);
+    }
+}
+.nova-projects .explorer-header { border-bottom: 0;
+  }
+.project-add-button { border: 1px solid var(--border); color: var(--text); background: color-mix(in srgb, var(--panel) 55%, transparent);
+  }
+.project-add-button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent);
+  }
+.project-card { border: 1px solid transparent; background: color-mix(in srgb, var(--panel) 35%, transparent);
+  }
+.project-card.selected { border-color: color-mix(in srgb, var(--accent) 55%, transparent); background: linear-gradient(115deg, color-mix(in srgb, var(--accent) 23%, transparent), color-mix(in srgb, var(--panel) 60%, transparent)); box-shadow: inset 0 0 14px color-mix(in srgb, var(--accent) 4%, transparent);
+  }
+.project-select-button { background: none; border: 0; color: var(--text);
+  }
+.project-card:not(.selected) .project-select-button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 5.5%, transparent);
+  }
+.project-card-heading > svg { color: var(--accent);
+  }
+.project-card-path { color: var(--text-muted);
+  }
+.project-default-label { color: var(--text-muted);
+  }
+.project-options-button { background: transparent; border: 0; color: var(--text-dim);
+  }
+.project-options-button:focus-visible { outline: 2px solid var(--accent);
+  }
+.project-options-button:hover:not(:disabled), .project-options-button[aria-expanded="true"] { background: color-mix(in srgb, var(--accent) 9%, transparent); color: var(--accent);
+  }
+.project-context-menu { background: color-mix(in srgb, var(--bg-input) 99%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); box-shadow: 0 12px 32px color-mix(in srgb, var(--nova-shadow) 60%, transparent);
+  }
+.project-context-menu button { color: var(--text); border: none; background: none;
+  }
+.project-context-menu button:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent);
+  }
+.project-context-menu button:disabled { color: var(--text-muted);
+  }
+.project-action-error { border: 1px solid color-mix(in srgb, var(--red) 30%, transparent); background: color-mix(in srgb, var(--red) 25%, transparent); color: var(--text-dim);
+  }
+.nova-projects .explorer-tree { border-top: 1px solid color-mix(in srgb, var(--border) 51.6%, transparent);
+  }
+.nova-projects button.explorer-node { border: none; background: transparent;
+  }
+.nova-projects button.explorer-node:hover:not(:disabled) { background: var(--bg-hover);
+  }
+.nova-projects button.explorer-show-more { border: none; background: none;
+  }
+.project-list-limit { color: var(--text-muted);
+  }
+@media (max-width: 1000px) {
+    .nova-app .viewer-pane {
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    box-shadow: 0 16px 45px color-mix(in srgb, var(--nova-shadow) 50%, transparent);
+    }
+}
+@media (max-width: 768px) {
+    .nova-project-pane {
+    border-right: 1px solid color-mix(in srgb, var(--border) 54.9%, transparent);
+    box-shadow: 18px 0 45px color-mix(in srgb, var(--nova-shadow) 50%, transparent);
+    }
+}
+.nova-modal-backdrop .picker.picker-wide.nova-model-dialog {
+  border-color: color-mix(in srgb, var(--accent) 42%, transparent);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--panel) 93.3%, transparent) 0%, color-mix(in srgb, var(--bg-input) 98%, transparent) 28%, color-mix(in srgb, var(--bg-input) 98%, transparent) 100%);
+  box-shadow: 0 32px 100px color-mix(in srgb, var(--nova-shadow) 66.7%, transparent), inset 0 1px 0 color-mix(in srgb, var(--accent) 7.1%, transparent), 0 0 50px color-mix(in srgb, var(--accent) 3.9%, transparent);
+  }
+.nova-model-dialog .picker-header { border-color: color-mix(in srgb, var(--border) 48%, transparent);
+  }
+.nova-model-dialog .picker-update-btn { color: var(--text-dim); border: 1px solid color-mix(in srgb, var(--border) 55.1%, transparent); background: color-mix(in srgb, var(--panel) 40%, transparent);
+  }
+.nova-model-dialog .picker-update-btn:hover:not(:disabled) { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50.2%, transparent);
+  }
+.nova-model-dialog .picker-search { border: 0;
+  }
+.nova-model-dialog .picker-search > svg { color: var(--text-dim);
+  }
+.nova-model-dialog .picker-search input { background: color-mix(in srgb, var(--bg-input) 50.2%, transparent); color: var(--text); border-color: color-mix(in srgb, var(--border) 57.1%, transparent);
+  }
+.nova-model-dialog .picker-search input:focus { border-color: color-mix(in srgb, var(--accent) 60%, transparent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 4.7%, transparent);
+  }
+.nova-model-dialog .picker-search input::placeholder { color: var(--text-dim);
+  }
+.nova-model-dialog .picker-refresh { border: 0; background: transparent; color: var(--text-dim);
+  }
+.nova-model-dialog .picker-refresh:hover:not(:disabled) { color: var(--accent); background: color-mix(in srgb, var(--text) 3.5%, transparent);
+  }
+.nova-model-dialog .picker-tabs { border-color: color-mix(in srgb, var(--border) 51%, transparent);
+  }
+.nova-model-dialog .picker-tab.active { color: var(--accent);
+  }
+.nova-model-dialog .picker-category { background: color-mix(in srgb, var(--bg-input) 96.1%, transparent); color: var(--text-dim);
+  }
+.nova-model-dialog .picker-model { border-color: color-mix(in srgb, var(--border) 49.1%, transparent);
+  }
+.nova-model-dialog .picker-model.current { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 3.9%, transparent) 12%, color-mix(in srgb, var(--accent) 2%, transparent) 64%, transparent);
+  }
+.nova-model-dialog .picker-model-params { background: color-mix(in srgb, var(--bg-input) 25.1%, transparent); border-color: color-mix(in srgb, var(--border) 59.9%, transparent); color: var(--text-dim);
+  }
+.nova-model-dialog .picker-model-date { color: var(--text-muted);
+  }
+.nova-model-dialog .picker-model-id { color: var(--text-muted);
+  }
+.nova-model-dialog .picker-model-desc { color: var(--text-dim);
+  }
+.nova-model-dialog .picker-model-meta { color: var(--text-dim);
+  }
+.nova-model-dialog .picker-model-strength { border: 1px solid color-mix(in srgb, var(--purple) 31.8%, transparent); color: var(--purple); background: color-mix(in srgb, var(--bg-hover) 10.6%, transparent);
+  }
+.nova-model-dialog .picker-model-tag { color: var(--cyan); border-color: color-mix(in srgb, var(--border) 59.9%, transparent);
+  }
+.nova-model-dialog .picker-ease { color: var(--accent);
+  }
+.nova-model-dialog .picker-model-size { color: var(--text-dim);
+  }
+.nova-model-dialog .picker-action.download { background: color-mix(in srgb, var(--green) 10.2%, transparent); border-color: color-mix(in srgb, var(--green) 50.2%, transparent); color: var(--green);
+  }
+.nova-model-dialog .picker-action.download:hover:not(:disabled) { background: color-mix(in srgb, var(--green) 12.5%, transparent);
+  }
+.nova-model-dialog .picker-action.use:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 8.6%, transparent);
+  }
+.nova-model-dialog .picker-action.del { color: var(--text-dim);
+  }
+.nova-model-dialog .picker-action.del.confirm { color: var(--red); background: color-mix(in srgb, var(--red) 13.3%, transparent);
+  }
+.nova-model-dialog button:focus-visible { outline: 2px solid var(--accent);
+  }
+.nova-model-dialog .current-badge { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 34.9%, transparent);
+  }
+.nova-model-dialog .cloud-badge { color: var(--text-dim); border: 1px solid color-mix(in srgb, var(--border) 57.1%, transparent);
+  }
+.nova-model-dialog .picker-system-info { background: color-mix(in srgb, var(--accent) 3.1%, transparent); border-color: color-mix(in srgb, var(--border) 51%, transparent);
+  }
+.nova-model-dialog .picker-system-info span + span::before { color: var(--text-muted);
+  }
+.nova-model-dialog .picker-inline-status { color: var(--text-dim);
+  }
+.nova-model-dialog .picker-footer { border-top: 1px solid color-mix(in srgb, var(--border) 51%, transparent); color: var(--text-muted); background: color-mix(in srgb, var(--bg-input) 45.1%, transparent);
+  }
+.nova-model-dialog .nova-model-selection-notice { border: 1px solid color-mix(in srgb, var(--accent) 30.2%, transparent); color: var(--accent); background: color-mix(in srgb, var(--accent) 7.1%, transparent);
+  }
+.nova-model-dialog .nova-model-selection-notice.model-error { border-color: color-mix(in srgb, var(--red) 31.4%, transparent); color: var(--red); background: color-mix(in srgb, var(--red) 7.1%, transparent);
+  }
+.nova-model-dialog .picker-load-error { color: var(--red);
+  }
+.nova-model-dialog .pull-bar { background: color-mix(in srgb, var(--accent) 8.2%, transparent);
+  }
+.nova-model-dialog .picker-progress-detail { color: var(--text-dim);
+  }
+.nova-turn-time { border: 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 52.2%, transparent); background: transparent; color: var(--text-muted);
+  }
+.nova-action-chain { color: var(--text-muted);
+  }
+.nova-chain-warning { color: var(--accent);
+  }
+.nova-action-icon { color: var(--text-muted);
+  }
+.nova-action-row.nova-tool-activity { border: 0; background: transparent;
+  }
+.nova-action-row > .nova-activity-summary { color: var(--text-muted);
+  }
+.nova-action-row .nova-activity-title { color: inherit;
+  }
+.nova-action-row > summary .nova-activity-status { color: var(--accent);
+  }
+.nova-action-row > .nova-activity-body { border: 1px solid color-mix(in srgb, var(--border) 56%, transparent); background: color-mix(in srgb, var(--bg-input) 92%, transparent);
+  }
+.nova-action-detail-heading { color: var(--text-muted);
+  }
+.nova-action-invocation { color: var(--text-dim);
+  }
+.nova-action-row .nova-activity-output pre { background: transparent;
+  }
+.nova-thinking-line { color: var(--text-muted);
+  }
+.nova-turn-time:focus-visible, .nova-chain-summary:focus-visible { outline: 2px solid var(--accent);
+  }
+.nova-turn-compact { background: color-mix(in srgb, var(--bg-input) 86%, transparent);
+  }
+.nova-message-footer {
+  color: var(--text-muted);
+  }
+.nova-message-copy { border: 0; background: transparent; color: var(--text-muted);
+  }
+.nova-message-copy:hover { background: color-mix(in srgb, var(--bg-hover) 10%, transparent); color: var(--text);
+  }
+.nova-message-footer[data-copy-state="copied"] .nova-message-copy { color: var(--text-dim);
+  }
+.nova-history-day { color: var(--text-muted);
+  }
+.nova-prompt-sent { color: var(--text);
+  }
+.nova-model-listbox { border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); background: linear-gradient(145deg, var(--panel), var(--bg-input)); box-shadow: 0 16px 50px color-mix(in srgb, var(--nova-shadow) 60%, transparent), inset 0 1px 0 color-mix(in srgb, var(--nova-shadow) 2.4%, transparent); color: var(--text);
+  }
+.nova-model-option.active { background: color-mix(in srgb, var(--accent) 9.4%, transparent); color: var(--accent);
+  }
+.nova-model-option.selected { color: var(--accent); background: color-mix(in srgb, var(--accent) 12.5%, transparent);
+  }
+.nova-model-option.selected.active { background: color-mix(in srgb, var(--accent) 20%, transparent);
+  }
+.nova-download-heading strong { color: var(--accent);
+  }
+.nova-download-heading strong span { color: var(--accent);
+  }
+.nova-download-percent { color: var(--text-dim);
+  }
+.nova-download-track { background: var(--panel);
+  }
+.nova-download-track > div { background: var(--accent);
+  }
+.nova-download-detail, .nova-download-hint { color: var(--text-dim);
+  }
+.nova-download-hint { color: var(--text-dimmer, var(--text-muted));
+  }
+:is(.nova-shortcuts-search, .nova-model-dialog) input[type="search"]::-webkit-search-cancel-button {
+  background-color: var(--bg-hover);
+  }
+:is(.nova-shortcuts-search, .nova-model-dialog) input[type="search"]::-webkit-search-cancel-button:hover { background-color: var(--accent);
+  }
+button.nova-dismiss-button { color: var(--text-dim); background: transparent; border: 1px solid transparent;
+  }
+button.nova-dismiss-button:is(:hover, :focus-visible):not(:disabled) { color: var(--accent); background: color-mix(in srgb, var(--text) 3.1%, transparent); border-color: color-mix(in srgb, var(--border) 49.3%, transparent);
+  }
+button.nova-dismiss-button:focus-visible { outline: 2px solid var(--accent);
+  }
+.nova-modal-backdrop .nova-settings-dialog {
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+  color: var(--text);
+  background: radial-gradient(ellipse at 25% 0, color-mix(in srgb, var(--accent) 11%, transparent), transparent 60%), var(--bg-input);
+  box-shadow: 0 24px 100px color-mix(in srgb, var(--nova-shadow) 60%, transparent), 0 0 35px color-mix(in srgb, var(--accent) 5.1%, transparent);
+  }
+.nova-settings-header { border-bottom: 1px solid color-mix(in srgb, var(--border) 48%, transparent);
+  }
+.nova-settings-eyebrow { color: var(--accent);
+  }
+.nova-settings-close { border: 1px solid transparent; background: transparent; color: var(--text-dim);
+  }
+.nova-settings-nav { border-right: 1px solid color-mix(in srgb, var(--border) 47.4%, transparent); background: color-mix(in srgb, var(--bg) 18%, transparent);
+  }
+.nova-settings-nav button { border: 1px solid transparent; color: var(--text-dim); background: transparent;
+  }
+.nova-settings-nav button:hover { color: var(--text); background: color-mix(in srgb, var(--text) 1.6%, transparent);
+  }
+.nova-settings-nav button[aria-current="page"] { color: var(--accent); background: linear-gradient(110deg, color-mix(in srgb, var(--accent) 12.5%, transparent), color-mix(in srgb, var(--accent) 3.5%, transparent)); border-color: color-mix(in srgb, var(--accent) 17.3%, transparent);
+  }
+.nova-settings-nav button[aria-current="page"] svg { filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 16.9%, transparent));
+  }
+.nova-settings-introduction p { color: var(--text-dim);
+  }
+.nova-settings-card { border: 1px solid color-mix(in srgb, var(--border) 48.2%, transparent); background: color-mix(in srgb, var(--panel) 34.9%, transparent);
+  }
+.nova-settings-card h3 { color: var(--text);
+  }
+.nova-settings-row label { color: var(--text);
+  }
+.nova-settings-row p { color: var(--text-dim);
+  }
+.nova-settings-dialog select, .nova-settings-dialog input:not([type="checkbox"]), .nova-settings-dialog textarea { color: var(--text); border: 1px solid var(--border); background: var(--bg-input);
+  }
+.nova-settings-dialog :is(button, select, input, textarea):focus-visible { outline: 2px solid var(--accent);
+  }
+.nova-settings-apply-note { color: var(--text-muted); border-top: 1px solid color-mix(in srgb, var(--border) 46.9%, transparent);
+  }
+.nova-settings-primary { border: 1px solid var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 14.5%, transparent);
+  }
+.nova-settings-primary:not(:disabled):hover { background: color-mix(in srgb, var(--accent) 23.5%, transparent);
+  }
+.nova-settings-secondary { border: 1px solid color-mix(in srgb, var(--border) 49.1%, transparent); color: var(--text-dim); background: color-mix(in srgb, var(--text) 1.2%, transparent);
+  }
+.nova-settings-secondary:not(:disabled):hover { background: color-mix(in srgb, var(--text) 3.1%, transparent);
+  }
+.nova-settings-success { color: var(--green);
+  }
+.nova-settings-error { color: var(--accent);
+  }
+.nova-settings-pending { color: var(--text-dim);
+  }
+.nova-settings-version { color: var(--text-dim);
+  }
+.nova-settings-version strong { color: var(--accent);
+  }
+.nova-settings-empty { border: 1px dashed color-mix(in srgb, var(--border) 50%, transparent); color: var(--text-muted);
+  }
+.nova-settings-dialog .settings-section { border: 1px solid color-mix(in srgb, var(--border) 48.2%, transparent); background: color-mix(in srgb, var(--panel) 34.9%, transparent);
+  }
+.nova-settings-dialog .settings-section-title { color: var(--text);
+  }
+.nova-settings-dialog .settings-hint { color: var(--text-dim);
+  }
+.nova-settings-dialog .settings-label { color: var(--text-dim);
+  }
+.nova-settings-dialog .settings-value { color: var(--text-dim);
+  }
+.nova-settings-dialog .settings-check-btn, .nova-settings-dialog .settings-update-btn { border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); background: color-mix(in srgb, var(--accent) 9.4%, transparent);
+  }
+.nova-settings-dialog .settings-control-form label { color: var(--text);
+  }
+.nova-settings-dialog .settings-source-card, .nova-settings-dialog .settings-source-operation, .nova-settings-dialog .settings-memory-record { border: 1px solid color-mix(in srgb, var(--border) 48.9%, transparent);
+  }
+.nova-settings-dialog .settings-toggle-row input { accent-color: var(--accent);
+  }
+.nova-settings-dialog .settings-observed-row, .nova-settings-dialog .settings-capacity > div { border-bottom: 1px solid color-mix(in srgb, var(--border) 46.7%, transparent);
+  }
+.nova-settings-dialog .settings-observed-row > span { color: var(--text-dim);
+  }
+.nova-settings-dialog .settings-feedback { color: var(--accent);
+  }
+.nova-settings-dialog .settings-feedback.error { color: var(--red);
+  }
+.nova-settings-dialog details { color: var(--text-dim);
+  }
+.nova-settings-dialog details > pre, .nova-settings-dialog details > code { background: color-mix(in srgb, var(--bg) 60%, transparent);
+  }
+.nova-settings-dialog .settings-capacity { color: var(--text-dim);
+  }
+.nova-settings-dialog .nova-memory-records .nova-settings-card > label { color: var(--text-dim);
+  }
+.nova-settings-dialog .nova-memory-records form > label:not(.settings-toggle-row) { color: var(--text-dim);
+  }
+.nova-settings-dialog .nova-memory-records button { border: 1px solid color-mix(in srgb, var(--accent) 25.1%, transparent); color: var(--accent); background: color-mix(in srgb, var(--accent) 9.4%, transparent);
+  }
+.nova-settings-dialog .nova-memory-records .settings-memory-detail { border-top: 1px solid color-mix(in srgb, var(--border) 48.5%, transparent);
+  }
+.nova-settings-dialog .nova-memory-records small { color: var(--text-dim);
+  }
+.nova-settings-dialog .nova-memory-records .nova-settings-row { border-bottom: 1px solid color-mix(in srgb, var(--border) 46.7%, transparent);
+  }
+.nova-context-heading > .nova-setting-label { color: var(--text);
+  }
+.nova-context-heading > output { background: color-mix(in srgb, var(--accent) 14.1%, transparent); color: var(--accent);
+  }
+.nova-settings-dialog input.nova-context-slider[type="range"] { border: 0; background: linear-gradient(to right, var(--accent) 0 var(--context-fill), var(--bg-hover) var(--context-fill) 100%);
+  }
+.nova-context-slider::-webkit-slider-thumb { border: 2px solid var(--accent); background: var(--bg-input);
+  }
+.nova-context-ticks > button { border: 0; background: transparent; color: var(--text-dim);
+  }
+.nova-context-ticks > button[aria-pressed="true"] { color: var(--accent);
+  }
+.nova-context-ticks > button:not(:disabled):hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 5.1%, transparent);
+  }
+.nova-chat-open { border: 0; background: transparent; color: var(--text);
+  }
+.nova-chat-open span { color: var(--text-dim);
+  }
+.nova-chat-open:focus-visible { outline: 2px solid var(--accent);
+  }
+.nova-appearance-row + .nova-appearance-row { border-top: 1px solid color-mix(in srgb, var(--border) 47.4%, transparent);
+  }
+.nova-settings-dialog input.nova-switch[role="switch"] { border: 1px solid var(--border); background: var(--panel);
+  }
+.nova-settings-dialog input.nova-switch[role="switch"]::before { background: var(--bg-hover);
+  }
+.nova-settings-dialog input.nova-switch[role="switch"]:checked { border-color: var(--accent); background: var(--accent);
+  }
+.nova-settings-dialog input.nova-switch[role="switch"]:checked::before { background: var(--accent);
+  }
+.nova-shortcuts-search { border: 1px solid color-mix(in srgb, var(--border) 50.6%, transparent); background: var(--bg-input); color: var(--text-dim);
+  }
+.nova-shortcuts-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 9.4%, transparent);
+  }
+.nova-settings-dialog .nova-shortcuts-search input[type="search"] { border: 0; outline: none; box-shadow: none; background: transparent; color: var(--text);
+  }
+.nova-shortcuts-search input::placeholder { color: var(--text-dim);
+  }
+.nova-shortcuts-instructions { color: var(--text-muted);
+  }
+.nova-shortcut-group > h3 { color: var(--text);
+  }
+.nova-shortcut-row + .nova-shortcut-row { border-top: 1px solid color-mix(in srgb, var(--border) 47.8%, transparent);
+  }
+.nova-shortcut-copy .nova-setting-label { color: var(--text);
+  }
+.nova-shortcut-copy p { color: var(--text-dim);
+  }
+.nova-shortcut-binding { border: 1px solid color-mix(in srgb, var(--border) 48.5%, transparent); background: color-mix(in srgb, var(--text) 2%, transparent); color: var(--text);
+  }
+.nova-shortcut-binding:hover:not(:disabled) { background: color-mix(in srgb, var(--text) 4.3%, transparent); border-color: color-mix(in srgb, var(--border) 52.8%, transparent);
+  }
+.nova-shortcut-binding[data-recording] { color: var(--accent); background: color-mix(in srgb, var(--accent) 12.9%, transparent); border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 7.1%, transparent);
+  }
+.nova-shortcut-unassigned { color: var(--text-dim);
+  }
+.nova-shortcut-remove { border: 0; color: var(--text-muted); background: transparent;
+  }
+.nova-shortcut-binding:focus-visible, .nova-shortcut-remove:focus-visible { outline: 2px solid var(--accent);
+  }
+.nova-preferences-group > h3 {color:var(--text);
+  }
+.nova-preference-row + .nova-preference-row { border-top:1px solid color-mix(in srgb, var(--border) 47.8%, transparent);
+  }
+.nova-preference-row .nova-setting-label {color:var(--text);
+  }
+.nova-preference-row p {color:var(--text-dim);
+  }
+.nova-settings-select > button[role="combobox"] {border:1px solid var(--border);background:var(--bg-input);color:var(--text);
+  }
+.nova-settings-select > button > svg {color:var(--text-dim);
+  }
+.nova-settings-select > button:hover:not(:disabled), .nova-settings-select > button[aria-expanded="true"] { border-color:var(--accent);
+  }
+.nova-settings-listbox small {color:var(--text-dim);
+  }
+/* Explicit surfaces retain their visual role in every light/dark palette. */
+.nova-app { background: radial-gradient(ellipse at 54% -20%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 55%), var(--bg); }
+.nova-main { background: radial-gradient(ellipse at 51% -17%, color-mix(in srgb, var(--accent) 5%, transparent), transparent 49%); }
+.nova-rail { background: linear-gradient(110deg, var(--panel), var(--bg)); border-color: var(--border); }
+.nova-project-pane, .nova-app .viewer-pane { background: var(--panel); border-color: var(--border); }
+.nova-modal-backdrop { background: color-mix(in srgb, var(--nova-overlay) 48%, transparent); }
+.nova-modal-backdrop .nova-settings-dialog,
+.nova-modal-backdrop .picker.picker-wide.nova-model-dialog { color:var(--text); background: radial-gradient(ellipse at 25% 0, color-mix(in srgb, var(--accent) 5%, transparent), transparent 60%), var(--panel); border-color: color-mix(in srgb, var(--accent) 42%, var(--border)); }
+.nova-model-listbox, .project-context-menu { background: var(--panel-raised); color: var(--text); color-scheme: inherit; border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.nova-settings-card, .nova-settings-dialog .settings-section { background: color-mix(in srgb, var(--panel-raised) 50%, var(--panel)); border-color: var(--border); }
+.nova-settings-nav { background: color-mix(in srgb, var(--bg) 45%, transparent); border-color: var(--border); }
+.nova-settings-nav button[aria-current="page"] { background: color-mix(in srgb, var(--accent) 10%, transparent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); color: var(--accent); }
+.nova-message-bubble { color: var(--text); background: var(--bubble-assistant); border-color: color-mix(in srgb, var(--border) 55%, transparent); }
+.nova-message-user .nova-message-bubble { background: var(--bubble-user); }
+.nova-composer { background: linear-gradient(115deg, var(--panel-raised), var(--panel)); border-color: var(--border); }
+.nova-composer:focus-within { border-color: var(--accent); }
+:is(.nova-attach-button,.nova-send-button,.nova-model-button,.nova-icon-button,.nova-status-pill) { background: var(--panel); color: var(--text); border-color:var(--border); }
+.nova-input::placeholder, .nova-model-button svg { color:var(--text-muted); }
+.nova-app :is(.md-code,.tool-output), :is(.nova-activity-output pre,.nova-activity-diagnostics pre) { background:var(--code-bg); color:var(--text); }
+.nova-app .md-inline-code { background: color-mix(in srgb, var(--text) 7%, transparent); color: var(--text); }
+.nova-model-dialog .picker-category { background:var(--panel); color:var(--text-muted); }
+.nova-settings-dialog input.nova-switch[role="switch"] { background:var(--bg-hover); border-color:var(--text-muted); }
+.nova-settings-dialog input.nova-switch[role="switch"]::before { background:var(--text-dim); }
+.nova-settings-dialog input.nova-switch[role="switch"]:checked { background:var(--accent); border-color:var(--accent); }
+.nova-settings-dialog input.nova-switch[role="switch"]:checked::before { background:var(--nova-accent-foreground); }
+.nova-model-dialog .picker-action.download { color:var(--green); border-color:var(--green); background:color-mix(in srgb,var(--green) 5%,transparent); }
+.nova-model-dialog .picker-model-strength { color:var(--purple); border-color:color-mix(in srgb,var(--purple) 35%,transparent); background:color-mix(in srgb,var(--purple) 7%,transparent); }
+.nova-settings-dialog :is(button, select, input, textarea):focus-visible { outline-color:var(--accent); }
+:is(.nova-shortcuts-search,.nova-model-dialog) input[type="search"]::-webkit-search-cancel-button { background-color:var(--text-muted); }
+:is(.nova-shortcuts-search,.nova-model-dialog) input[type="search"]::-webkit-search-cancel-button:hover { background-color:var(--accent); }
+button.nova-dismiss-button:is(:hover,:focus-visible):not(:disabled) { color:var(--accent); background:color-mix(in srgb,var(--accent) 7%,transparent); border-color:color-mix(in srgb,var(--accent) 15%,transparent); }
+.nova-unread-badge { background:var(--accent); color:var(--nova-accent-foreground); border-color:var(--bg); }
+body { background:var(--nova-titlebar-bg); }
+}
+:root[data-nova-scheme="light"] .nova-orbit { opacity:.86; }
+@keyframes nova-send-acknowledged { 0% { border-color: color-mix(in srgb,var(--accent) 60%,transparent); box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 10%,transparent); } 100% { border-color:var(--border); box-shadow:0 0 0 0 transparent; } }
+
+/* Shared enabled switches retain a muted track and a light thumb in every palette. */
+:root[data-nova-theme="nova"][data-nova-scheme="dark"] {
+  --nova-switch-on-track: #8a641d;
+  --nova-switch-on-border: #d3a13d;
+  --nova-switch-on-thumb: #ffe0a0;
+}
+.nova-settings-dialog input.nova-switch[role="switch"]:checked {
+  background: var(--nova-switch-on-track);
+  border-color: var(--nova-switch-on-border);
+}
+.nova-settings-dialog input.nova-switch[role="switch"]:checked::before {
+  background: var(--nova-switch-on-thumb);
+}

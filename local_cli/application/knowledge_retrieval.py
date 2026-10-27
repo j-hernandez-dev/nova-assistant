@@ -32,12 +32,15 @@ def fuse(lexical, semantic):
 
 
 class DocumentRetriever:
-    def __init__(self, store: DocumentRetrievalPort, *, backend=None, space=None, semantic_enabled=False):
-        _require(isinstance(store, DocumentRetrievalPort) and type(semantic_enabled) is bool)
+    def __init__(self, store: DocumentRetrievalPort, *, backend=None, space=None, semantic_enabled=False, lexical_enabled=True, semantic_budget_limit=.5):
+        _require(isinstance(store, DocumentRetrievalPort) and type(semantic_enabled) is bool and type(lexical_enabled) is bool)
         if backend is not None:
             _require(isinstance(backend, DocumentEmbeddingPort) and isinstance(space, DocumentEmbeddingSpace))
         self.store, self.backend, self.space = store, backend, space
         self.semantic_enabled = semantic_enabled
+        self.lexical_enabled = lexical_enabled
+        _require(type(semantic_budget_limit) in (int,float) and 0 < semantic_budget_limit <= 30)
+        self.semantic_budget_limit = semantic_budget_limit
         self._busy = Lock()
         self._worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix='nova-document-semantic')
 
@@ -47,8 +50,8 @@ class DocumentRetriever:
     def busy(self): return self._busy.locked()
 
     def retrieve(self, query, access, filters=DocumentRetrievalFilter(), *, semantic_budget=.5):
-        _require(type(semantic_budget) in (int,float) and 0 <= semantic_budget <= .5)
-        lexical = self.store.lexical_candidates(query, access, filters)
+        _require(type(semantic_budget) in (int,float) and 0 <= semantic_budget <= self.semantic_budget_limit)
+        lexical = self.store.lexical_candidates(query, access, filters) if self.lexical_enabled else ()
         state, error, semantic, space_id = 'DISABLED', None, (), None
         if self.semantic_enabled:
             state = 'UNAVAILABLE' if self.backend is None else 'NOT_CERTIFIED'
@@ -82,7 +85,7 @@ class DocumentRetriever:
                     if 'pending' not in locals(): self._busy.release()
         candidates = fuse(lexical, semantic) if semantic else fuse(lexical, ())
         candidates = self.store.validate_candidates(candidates, access, filters)[:FINAL_CAP]
-        mode = 'hybrid' if semantic else 'lexical'
+        mode = ('hybrid' if self.lexical_enabled else 'semantic') if semantic else 'lexical'
         return DocumentRetrievalResult(candidates, mode if candidates else 'NONE', state, error, space_id,
             rank_profile='ki-document-rank-v1/lexical-signals-v4')
 

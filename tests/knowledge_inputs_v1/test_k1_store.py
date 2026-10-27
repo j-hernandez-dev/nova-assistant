@@ -234,7 +234,7 @@ def test_original_origin_not_content_authority(store, tmp_path):
     assert store.read_blob(p.revision.revision_id,ACCESS) == PAYLOAD
 
 
-def test_close_session_and_restart_preserve_only_workspace_sources(tmp_path):
+def test_close_session_and_restart_migrate_and_preserve_local_attachments(tmp_path):
     state = tmp_path / 'private'
     with SQLiteKnowledgeStore(state) as store:
         ws,pw,_ = published(store)
@@ -242,7 +242,8 @@ def test_close_session_and_restart_preserve_only_workspace_sources(tmp_path):
         store.close_session(ACCESS)
     with SQLiteKnowledgeStore(state) as store:
         report = store.recover(OTHER_SESSION)
-        assert report.published == (pw.revision.revision_id,)
+        assert set(report.published) == {pw.revision.revision_id,pt.revision.revision_id}
         assert store.get_source(ws.source_id,OTHER_SESSION) == ws
-        assert len(store.list_sources(OTHER_SESSION)) == 1
-        assert not store.files.path('blobs',pt.revision.revision_id+'.bin').exists()
+        assert store.get_source(transient.source_id,OTHER_SESSION).scope.kind is KnowledgeScopeKind.WORKSPACE
+        assert len(store.list_sources(OTHER_SESSION)) == 2
+        assert store.files.path('blobs',pt.revision.revision_id+'.bin').exists()

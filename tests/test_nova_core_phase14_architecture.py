@@ -77,6 +77,14 @@ def test_public_tools_and_desktop_boundary_remain_compatible():
     assert [t.name for t in create_tools("cli", confirm=lambda _: False)] == expected
     source = (ROOT / "desktop/src/App.tsx").read_text(encoding="utf-8")
     assert "applicationCommand('SubmitUserInput'" in source
-    assert "applicationCommand('ResolveUserInput'" in source
+    # Main React cannot provide user-input consent; the host-owned surface
+    # binds the current request to its exact child frame and one-use nonce.
+    assert "applicationCommand('ResolveUserInput'" not in source
+    host=(ROOT / "desktop/electron/main.ts").read_text(encoding="utf-8")
+    surface=(ROOT / "desktop/electron/question_surface.cjs").read_text(encoding="utf-8")
+    assert "createQuestionSurface" in host
+    assert "event.sender === record.window.webContents" in surface
+    assert "event.senderFrame === record.window.webContents.mainFrame" in surface
+    assert "nonce" in surface and "ResolveUserInput" in surface
     for forbidden in ("StartTurn", "run_agent", "RAGEngine", "setMessages", "setStreaming"):
         assert forbidden not in source

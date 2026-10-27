@@ -54,7 +54,12 @@ def test_desktop_file_preview_stays_read_only_and_tools_keep_public_names(monkey
     host = (root / "desktop/electron/main.ts").read_text(encoding="utf-8")
     assert "ipcMain.handle('list-directory'" in host
     assert "ipcMain.handle('read-file'" in host
-    assert "fs.promises.readFile(filePath, 'utf-8')" in host
+    preview = (root / "desktop/electron/projects_host.cjs").read_text(encoding="utf-8")
+    assert "projectsHost.readFile(filePath)" in host
+    assert "fs.promises.open(candidate, 'r')" in preview
+    assert "current.dev !== stat.dev || current.ino !== stat.ino" in preview
+    assert "await handle.close()" in preview
+    assert "validApplicationSender(event)" in host
     tools = create_tools("server", confirm=lambda _: False)
     assert {t.name for t in tools} == {
         "bash", "read", "write", "edit", "glob", "grep", "web_fetch",

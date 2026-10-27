@@ -43,16 +43,12 @@ def provider_clone_factory(provider):
     or endpoints from a later environment when an older snapshot spawns a worker.
     """
     from local_cli.providers.ollama_provider import OllamaProvider
-    from local_cli.providers.claude_provider import ClaudeProvider
     from local_cli.providers.llama_server_provider import LlamaServerProvider
     if isinstance(provider, OllamaProvider):
         endpoint = provider.client.base_url
-        return lambda: OllamaProvider(base_url=endpoint)
-    if isinstance(provider, ClaudeProvider):
-        params = dict(api_key=provider._api_key, base_url=provider._base_url,
-                      default_max_tokens=provider._default_max_tokens,
-                      timeout=provider._timeout, stream_timeout=provider._stream_timeout)
-        return lambda: ClaudeProvider(**params)
+        recorder = getattr(provider.client, 'usage_recorder', None)
+        from local_cli.ollama_client import OllamaClient
+        return lambda: OllamaProvider(client=OllamaClient(base_url=endpoint, usage_recorder=recorder))
     if isinstance(provider, LlamaServerProvider):
         endpoint = provider._base_url
         return lambda: LlamaServerProvider(base_url=endpoint)
@@ -224,7 +220,7 @@ class BoundModelRuntime:
             requested = options.get("num_predict")
             options["num_predict"] = min(requested, prepared.budget.output_reserve) if type(requested) is int and requested > 0 else prepared.budget.output_reserve
             kwargs["options"] = options
-        elif self.name in ("claude", "llama-server"):
+        elif self.name == "llama-server":
             kwargs["max_tokens"] = min(kwargs.get("max_tokens") or prepared.budget.output_reserve,
                                        prepared.budget.output_reserve)
         return prepared
@@ -238,12 +234,14 @@ LLMProvider.register(BoundModelRuntime)
 class ProviderManager:
     """One provider/model/revision per session. OD-04: reject, never queue."""
 
-    SUPPORTED = ("ollama", "claude", "llama-server")
+    SUPPORTED = ("ollama", "llama-server")
 
     def __init__(self, provider, model: str, *,
                  provider_factory: Callable[[str], Any] | None = None,
                  clone_factory: Callable[[Any], Callable[[], Any] | None] = provider_clone_factory):
         self._lock = RLock()
+        from local_cli.model_inventory import ModelInventory
+        self._inventory = ModelInventory()
         self._factory = provider_factory
         self._clone_factory = clone_factory
         self._active_turn = None
@@ -270,6 +268,22 @@ class ProviderManager:
                 current._kwargs({})  # Never silently accept unsupported options.
             self._active_turn = turn_id
             return current
+
+    def invalidate_observation(self, bound, code):
+        """Invalidate health for the exact failed runtime without network IO."""
+        if code not in ("OLLAMA_CONNECTION_FAILED", "OLLAMA_CONNECT_TIMEOUT", "OLLAMA_MODEL_UNAVAILABLE",
+                        "OllamaRequestError", "OllamaStreamError"):
+            return
+        with self._lock:
+            current = self._current
+            if (current._provider is not bound._provider or
+                    current.snapshot.provider_id != bound.snapshot.provider_id or
+                    current.snapshot.model_id != bound.snapshot.model_id or
+                    current.snapshot.provider_revision != bound.snapshot.provider_revision):
+                return
+            self._current = replace(current, snapshot=replace(current.snapshot,
+                health="UNAVAILABLE" if code == "OLLAMA_CONNECTION_FAILED" else "UNKNOWN",
+                capability_source="probe_failed"))
 
     def end_turn(self, turn_id):
         with self._lock:
@@ -305,7 +319,15 @@ class ProviderManager:
             raise ProviderTransitionError("PROVIDER_UNAVAILABLE", "Provider is unreachable") from exc
         except Exception as exc:
             raise ProviderTransitionError("PROVIDER_VALIDATION_FAILED", "Could not validate provider/model") from exc
+        return ProviderManager._observed_info(provider, model, revision, models, info)
+
+    @staticmethod
+    def _observed_info(provider, model, revision, models, info):
+        """Materialize already fetched metadata; never perform provider IO."""
+        name = provider.name
         caps = info.get("capabilities")
+        if isinstance(caps, list) and 'embedding' in caps and not any(c in caps for c in ('completion', 'tools')):
+            raise ProviderTransitionError('MODEL_NOT_CHAT_CAPABLE', 'Select a language model for chat.', 'MODEL')
         def support(cap):
             return ("AVAILABLE" if cap in caps else "UNAVAILABLE") if isinstance(caps, list) else "UNKNOWN"
         raw_model_info = info.get("model_info", {})
@@ -325,8 +347,8 @@ class ProviderManager:
         digest = digest if isinstance(digest, str) and digest.strip() else None
         return ModelRuntimeSnapshot(
             name, model, revision, endpoint=_endpoint(provider),
-            health="UNKNOWN" if name == "claude" else "AVAILABLE",
-            capability_source="adapter_catalog" if name == "claude" else "provider_model_info",
+            health="AVAILABLE",
+            capability_source="provider_model_info",
             model_context_window=min(contexts) if contexts else None,
             model_revision=digest,
             provider_context_window=info.get("provider_context_window"),
@@ -379,8 +401,7 @@ class ProviderManager:
     def refresh_status(self):
         """Refresh observations, not identity; in-flight views stay immutable.
 
-        Claude's static catalog is configuration evidence, not an authenticated
-        health probe. Unknown facts remain explicit rather than being invented.
+        Unknown facts remain explicit rather than being invented.
         """
         with self._lock:
             current = self._current
@@ -408,14 +429,25 @@ class ProviderManager:
                   "ready": False, "reason": None, "observedAt": "",
                   "installedModels": [], "requiredAction": None}
 
+        observed = None
+        inventory_models, known_info = None, {}
+
         def finish(reason=None, action=None):
-            latest = self.snapshot()
-            if (latest.snapshot.provider_id != identity.provider_id
-                    or latest.snapshot.model_id != identity.model_id
-                    or latest.snapshot.provider_revision != identity.provider_revision
-                    or latest._provider is not current._provider):
-                reason, action = "READINESS_STALE", None
-                result["installedModels"] = []
+            # Cache successful facts for future Turns, keeping the identity and
+            # already pinned in-flight runtimes unchanged. Late probes cannot
+            # overwrite a selection committed while provider IO was pending.
+            if inventory_models is not None:
+                result['installedModels'] = self._inventory.read(current._provider, inventory_models, known_info)
+            with self._lock:
+                latest = self._current
+                if (latest._provider is not current._provider or
+                        latest.snapshot.provider_id != identity.provider_id or
+                        latest.snapshot.provider_revision != identity.provider_revision or
+                        latest.snapshot.model_id != identity.model_id):
+                    reason, action = "READINESS_STALE", None
+                    result["installedModels"] = []
+                elif reason is None and observed is not None:
+                    self._current = replace(latest, snapshot=observed)
             result.update(ready=reason is None, reason=reason, requiredAction=action,
                           observedAt=datetime.now(timezone.utc).isoformat())
             return result
@@ -436,6 +468,7 @@ class ProviderManager:
                     return finish("MODEL_VALIDATION_FAILED", "SELECT_MODEL")
                 installed.append({"name": model["name"], "size": size})
             result["installedModels"] = installed
+            inventory_models = models
             if not installed:
                 return finish("NO_MODELS_INSTALLED", "SELECT_MODEL")
             if not identity.model_id.strip():
@@ -450,8 +483,11 @@ class ProviderManager:
                     or any(not isinstance(capability, str) for capability in info["capabilities"])):
                 return finish("MODEL_VALIDATION_FAILED", "SELECT_MODEL")
             capabilities = info["capabilities"]
+            known_info.update({m["name"]: info for m in installed if m["name"] == identity.model_id or m["name"].split(":")[0] == identity.model_id})
             if "completion" not in capabilities and "tools" not in capabilities:
                 return finish("MODEL_NOT_CHAT_CAPABLE", "SELECT_MODEL")
+            observed = self._observed_info(current._provider, identity.model_id,
+                identity.provider_revision, models, info)
             # Native tool calling is optional: the existing agent also supports
             # completion models through its text tool-call compatibility path.
         except ProviderConnectionError:
@@ -460,6 +496,12 @@ class ProviderManager:
             # Private endpoint/provider exception text is never projected.
             return finish("MODEL_VALIDATION_FAILED", "SELECT_MODEL")
         return finish()
+
+    def model_inventory(self, models=None):
+        current = self.snapshot()
+        if current.name != 'ollama':
+            return []
+        return self._inventory.read(current._provider, models)
 
     def list_models(self):
         try:

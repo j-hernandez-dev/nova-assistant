@@ -8,45 +8,61 @@
     <title>Nova</title>
     <!-- Critical startup presentation paints independently of the renderer bundle. -->
     <style>
-      html, body { margin: 0; width: 100%; height: 100%; background: #090c12; }
-      #root[inert] { visibility: hidden; }
-      .nova-startup { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; overflow: auto; box-sizing: border-box; padding: 28px; color: #e9ecf4; background: radial-gradient(ellipse at 50% 43%, #20242e55, transparent 52%), #090c12; font-family: 'Segoe UI', system-ui, sans-serif; text-align: center; }
-      .nova-startup-content { display: flex; flex-direction: column; align-items: center; max-width: 440px; }
-      .nova-startup { opacity: 1; transition: opacity 280ms ease-out; }
+      :root { --nova-titlebar-height: env(titlebar-area-height, 44px); --nova-window-inset: 8px; --nova-window-radius: 14px; }
+      html, body { margin: 0; width: 100%; height: 100%; background: var(--nova-titlebar-bg, #0a0a0a); }
+      .nova-window-titlebar { position: fixed; inset: 0 0 auto; display: flex; align-items: center; height: var(--nova-titlebar-height); background: var(--nova-titlebar-bg, #0a0a0a); -webkit-app-region: drag; user-select: none; -webkit-user-select: none; }
+      .nova-window-mark { position: relative; display: flex; align-items: center; justify-content: center; flex: 0 0 36px; width: 36px; height: 36px; max-height: calc(100% - 8px); margin-left: calc(var(--nova-window-inset) + 15px); color: var(--nova-titlebar-text, #e2e5ef); border: 0; border-radius: 10px; padding: 0; background: transparent; cursor: pointer; -webkit-app-region: no-drag; }
+      .nova-window-mark:disabled { opacity: .45; cursor: default; }
+      .nova-window-mark:hover:not(:disabled), .nova-window-mark[aria-expanded="true"] { background: var(--bg-hover, #1b1e26); }
+      .nova-window-mark:focus-visible { outline: 2px solid var(--accent, #ffc347); outline-offset: 1px; }
+      .nova-window-mark svg { position: relative; display: block; width: 24px; height: 24px; flex-shrink: 0; }
+      html[data-nova-platform="darwin"] .nova-window-mark { margin-left: 98px; }
+      #root { position: fixed; inset: var(--nova-titlebar-height) var(--nova-window-inset) var(--nova-window-inset); height: auto; overflow: hidden; box-sizing: border-box; border: 1px solid var(--nova-frame-border, #ffffff0b); border-radius: var(--nova-window-radius); background: var(--bg, #090c12); }
+      @media (max-width: 760px) { .nova-window-mark { margin-left: calc(var(--nova-window-inset) + 13px); } html[data-nova-platform="darwin"] .nova-window-mark { margin-left: 96px; } }
+      /* Startup hides unrevealed content. Modal input blocking keeps the app visible. */
+      #root[inert][aria-hidden="true"] { visibility: hidden; }
+      #root[data-startup-revealing] { transition: opacity 360ms ease-out; }
+      #root[data-startup-entering] { opacity: 0; }
+      .nova-startup { position: fixed; inset: var(--nova-titlebar-height) var(--nova-window-inset) var(--nova-window-inset); border: 1px solid var(--nova-frame-border, #ffffff0b); border-radius: var(--nova-window-radius); z-index: 2147483000; display: grid; place-items: center; overflow: auto; box-sizing: border-box; padding: 28px; color: var(--text, #e9ecf4); background: radial-gradient(ellipse at 50% 43%, color-mix(in srgb, var(--text-muted, #838c9e) 7%, transparent), transparent 52%), var(--bg, #090c12); font-family: var(--font, system-ui, sans-serif); text-align: center; }
+      .nova-startup-content { position: relative; display: grid; place-items: center; max-width: 440px; }
+      .nova-startup { opacity: 1; transition: opacity 360ms ease-out; }
       .nova-startup[data-leaving] { opacity: 0; pointer-events: none; }
-      .nova-startup-mark { display: block; flex-shrink: 0; width: clamp(148px, 22vw, 210px); height: auto; overflow: visible; margin-bottom: 23px; }
+      .nova-startup-mark { display: block; width: clamp(148px, 22vw, 210px); height: auto; overflow: visible; margin: 0; }
       .nova-startup-star { animation: nova-star-shine 2.8s ease-in-out infinite; transform-origin: center; }
-      .nova-startup-streak { animation: nova-orbit-travel 3.2s linear infinite; filter: drop-shadow(0 0 9px #e5efff); }
-      .nova-startup h1 { margin: 0 0 22px; font-size: 21px; line-height: 1.2; font-weight: 500; letter-spacing: .3em; padding-left: .3em; color: #f2f4fa; }
-      .nova-startup-message { margin: 0; font-size: 14px; line-height: 1.6; color: #d0d5df; }
-      .nova-startup-hint { margin: 8px 0 0; font-size: 12px; line-height: 1.65; color: #838c9e; }
-      .nova-startup-action { margin-top: 24px; padding: 9px 17px; border: 1px solid #5e6678; border-radius: 9px; background: #ffffff08; color: #e9ecf4; font: inherit; font-size: 12px; cursor: pointer; }
+      .nova-startup-streak { animation: nova-orbit-travel 3.2s linear infinite; filter: drop-shadow(0 0 9px var(--nova-emblem-glow, #e5efff)); }
+      .nova-startup-message, .nova-startup-hint { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+      .nova-startup-action { position: absolute; inset: 0; padding: 0; margin: 0; border: 0; border-radius: 50%; background: transparent; color: transparent; font-size: 0; cursor: pointer; }
       .nova-startup-action[hidden] { display: none; }
-      .nova-startup-action:hover { background: #ffffff10; border-color: #b2bdcf; }
-      .nova-startup-action:focus-visible { outline: 2px solid #ffc347; outline-offset: 4px; }
-      @keyframes nova-star-shine { 0%, 100% { opacity: .85; filter: brightness(1) drop-shadow(0 0 5px #e2eaff22); } 50% { opacity: 1; filter: brightness(1.18) drop-shadow(0 0 24px #e2eaff99); } }
+      .nova-startup-action:focus-visible { outline: 2px solid var(--accent, #ffc347); outline-offset: 4px; }
+      @keyframes nova-star-shine { 0%, 100% { opacity: .85; filter: brightness(1) drop-shadow(0 0 5px color-mix(in srgb, var(--nova-emblem-glow, #e2eaff) 13%, transparent)); } 50% { opacity: 1; filter: brightness(1.18) drop-shadow(0 0 24px color-mix(in srgb, var(--nova-emblem-glow, #e2eaff) 60%, transparent)); } }
       @keyframes nova-orbit-travel { to { stroke-dashoffset: -1000; } }
-      :root[data-nova-reduce-motion="true"] .nova-startup { transition: none; }
-      :root[data-nova-reduce-motion="true"] .nova-startup-star,
-      :root[data-nova-reduce-motion="true"] .nova-startup-streak { animation: none; }
+      :root[data-nova-transitions="false"] .nova-startup,
+      :root[data-nova-transitions="false"] #root[data-startup-revealing] { transition: none; }
+      :root[data-nova-startup-motion="false"] .nova-startup-star,
+      :root[data-nova-startup-motion="false"] .nova-startup-streak { animation: none; }
       :root[data-nova-show-startup="false"] .nova-startup:not([data-startup-recovery]) { display: none; }
-      @media (prefers-reduced-motion: reduce) { .nova-startup { transition: none; } .nova-startup-star, .nova-startup-streak { animation: none; } }
-      @media (max-height: 470px) { .nova-startup-mark { width: 120px; margin-bottom: 12px; } .nova-startup h1 { margin-bottom: 12px; font-size: 18px; } }
+      @media (prefers-reduced-motion: reduce) { .nova-startup, #root[data-startup-revealing] { transition: none; } .nova-startup-star, .nova-startup-streak { animation: none; } }
+      @media (max-height: 470px) { .nova-startup-mark { width: 120px; } }
     </style>
   </head>
   <body>
+    <header class="nova-window-titlebar" aria-label="Nova">
+      <button id="nova-window-menu" class="nova-window-mark" type="button" aria-label="Menú de Nova" aria-haspopup="menu" aria-expanded="false" disabled>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+      </button>
+    </header>
     <div id="nova-startup" class="nova-startup" aria-label="Nova" aria-busy="true">
       <div class="nova-startup-content">
         <svg class="nova-startup-mark" viewBox="150 180 1000 850" fill="none" aria-hidden="true" focusable="false">
           <defs>
             <linearGradient id="nova-startup-metal" x1="500" y1="330" x2="760" y2="880" gradientUnits="userSpaceOnUse">
-              <stop stop-color="white" /><stop offset=".48" stop-color="#f5f6f9" /><stop offset=".73" stop-color="#b5bac4" /><stop offset="1" stop-color="#f9fafc" />
+              <stop stop-color="var(--nova-emblem-bright, white)" /><stop offset=".48" stop-color="var(--nova-emblem-mid, #f5f6f9)" /><stop offset=".73" stop-color="var(--nova-emblem-shade, #b5bac4)" /><stop offset="1" stop-color="var(--nova-emblem-bright, #f9fafc)" />
             </linearGradient>
             <linearGradient id="nova-startup-orbit" x1="146" y1="584" x2="1146" y2="584" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#f5f6fa" /><stop offset=".35" stop-color="#c6cbd5" /><stop offset=".7" stop-color="#fafbff" /><stop offset="1" stop-color="white" />
+              <stop stop-color="var(--nova-emblem-bright, #f5f6fa)" /><stop offset=".35" stop-color="var(--nova-emblem-shade, #c6cbd5)" /><stop offset=".7" stop-color="var(--nova-emblem-mid, #fafbff)" /><stop offset="1" stop-color="var(--nova-emblem-bright, white)" />
             </linearGradient>
             <linearGradient id="nova-startup-trail" x1="146" y1="584" x2="1146" y2="584" gradientUnits="userSpaceOnUse">
-              <stop stop-color="#d4e1ff" stop-opacity="0" /><stop offset=".6" stop-color="#e5efff" stop-opacity=".45" /><stop offset="1" stop-color="white" />
+              <stop stop-color="var(--nova-emblem-glow, #d4e1ff)" stop-opacity="0" /><stop offset=".6" stop-color="var(--nova-emblem-glow, #e5efff)" stop-opacity=".45" /><stop offset="1" stop-color="var(--nova-emblem-bright, white)" />
             </linearGradient>
           </defs>
           <!-- Transparent vector emblem: rear orbit, luminous star, foreground orbit. -->
@@ -59,7 +75,6 @@
           <ellipse class="nova-startup-streak" cx="646" cy="584" rx="500" ry="145" transform="rotate(-28 646 584)"
             pathLength="1000" stroke="url(#nova-startup-trail)" stroke-width="12" stroke-linecap="round" stroke-dasharray="190 810" />
         </svg>
-        <h1>Nova</h1>
         <p id="nova-startup-message" class="nova-startup-message" role="status" aria-live="polite">Iniciando Nova…</p>
         <p id="nova-startup-hint" class="nova-startup-hint">Preparando tu espacio de trabajo.</p>
         <button id="nova-startup-action" class="nova-startup-action" type="button" hidden>Reintentar</button>

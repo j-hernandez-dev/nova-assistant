@@ -166,17 +166,20 @@ class SubAgent:
         network_service=None,
         redactor=None,
         security_audit=None,
-        fetch_enabled=True,
+        fetch_enabled=True, search_enabled=True, browser_enabled=True,
     ) -> None:
         if type(fetch_enabled) is not bool:
             raise ValueError('Fetch enabled must be true or false')
         self._fetch_enabled = fetch_enabled
+        self._search_enabled, self._browser_enabled = search_enabled, browser_enabled
         self._provider = provider
         from local_cli.core.models import ModelRuntimeSnapshot
         snapshot = getattr(provider, "snapshot", None)
         self.model_snapshot = snapshot if isinstance(snapshot, ModelRuntimeSnapshot) else None
         self._model = model
-        self._source_tools = [tool for tool in tools if fetch_enabled or tool.name != 'web_fetch']
+        from local_cli.application.web_permissions import permitted_web_tools
+        self._source_tools = permitted_web_tools(tools, fetch_enabled=fetch_enabled,
+            search_enabled=search_enabled, browser_enabled=browser_enabled)
         self._tools = list(self._source_tools)
         self._prompt = prompt
         self._description = description or "sub-agent task"
@@ -313,6 +316,7 @@ class SubAgent:
                               network_service=self._network_service,
                               redactor=self._redactor, security_audit=self._security_audit,
                                fetch_enabled=self._fetch_enabled,
+                               search_enabled=self._search_enabled, browser_enabled=self._browser_enabled,
                               turn_effect_constraints=getattr(self,'_turn_effect_constraints',None))
         sub_session_id = new_session_id()
         capability = RuntimeCapabilitySnapshot(

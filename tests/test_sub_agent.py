@@ -1939,15 +1939,19 @@ class TestOrchestratorCreateFreshProvider(unittest.TestCase):
         )
 
     def test_explicit_provider_name(self) -> None:
-        """create_fresh_provider('claude') creates a Claude provider."""
+        """An explicit supported local adapter receives its configured endpoint."""
         config = _make_config()
         orch = Orchestrator(config)
 
         with patch("local_cli.providers.get_provider") as mock_get:
             mock_get.return_value = MagicMock(spec=LLMProvider)
-            orch.create_fresh_provider("claude")
+            orch.create_fresh_provider("llama-server")
 
-        mock_get.assert_called_once_with("claude")
+        mock_get.assert_called_once_with("llama-server", base_url=config.llama_server_url)
+        with patch("local_cli.providers.get_provider") as rejected:
+            with self.assertRaises(ValueError):
+                orch.create_fresh_provider("claude")
+            rejected.assert_not_called()
 
     def test_unknown_provider_raises(self) -> None:
         """create_fresh_provider() raises ValueError for unknown provider."""
@@ -3050,10 +3054,16 @@ class TestOllama503RetryWithBackoff(unittest.TestCase):
         provider = _make_mock_provider()
 
         call_count = 0
+        clock = [0.0]
+        attempts_at = []
+        def advance(seconds):
+            clock[0] += seconds
+        mock_sleep.side_effect = advance
 
         def fail_then_succeed(*args: Any, **kwargs: Any):
             nonlocal call_count
             call_count += 1
+            attempts_at.append(clock[0])
             if call_count <= 3:
                 raise ProviderRequestError("HTTP 503")
             return iter(_make_chunks(["Eventually ok"]))
@@ -3067,18 +3077,16 @@ class TestOllama503RetryWithBackoff(unittest.TestCase):
             prompt="task",
             timeout=60.0,
         )
-        result = agent.run()
+        with patch("local_cli.agent.time.monotonic", side_effect=lambda: clock[0]):
+            result = agent.run()
 
         self.assertEqual(result.status, "success")
-        # Verify exponential backoff delays: 1s, 2s, 4s.
-        sleep_calls = mock_sleep.call_args_list
-        # First call: delay = _RETRY_BASE_DELAY * 2^0 = 1.0
-        # Second call: delay = _RETRY_BASE_DELAY * 2^1 = 2.0
-        # Third call: delay = _RETRY_BASE_DELAY * 2^2 = 4.0
-        delays = [c[0][0] for c in sleep_calls]
-        self.assertIn(_RETRY_BASE_DELAY * 1, delays)
-        self.assertIn(_RETRY_BASE_DELAY * 2, delays)
-        self.assertIn(_RETRY_BASE_DELAY * 4, delays)
+        # Cancellation-aware polling splits sleeps into <=50ms pieces. Check
+        # actual inference-attempt timestamps, so 1/2/4s remain enforced.
+        self.assertEqual(call_count, 4)
+        self.assertEqual([round(value, 6) for value in attempts_at], [0.0, 1.0, 3.0, 7.0])
+        self.assertAlmostEqual(sum(c.args[0] for c in mock_sleep.call_args_list), 7.0)
+        self.assertTrue(all(0 <= c.args[0] <= .05 for c in mock_sleep.call_args_list))
 
     def test_provider_stream_error_not_retried(self) -> None:
         """ProviderStreamError (mid-stream) is NOT retried, treated as error."""

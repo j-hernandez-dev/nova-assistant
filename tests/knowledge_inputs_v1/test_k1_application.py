@@ -115,8 +115,11 @@ def test_k1_dependency_and_scope_boundaries_no_parser_retrieval_ui_memory_or_aut
         tree=ast.parse((root/file).read_text(encoding='utf-8'))
         imports=[n.module for n in ast.walk(tree) if isinstance(n,ast.ImportFrom) and n.module]
         imports += [a.name for n in ast.walk(tree) if isinstance(n,ast.Import) for a in n.names]
-        assert not any(x.startswith(('local_cli.core.memory','local_cli.application.memory','local_cli.rag',
-            'local_cli.knowledge','local_cli.interfaces','local_cli.tools','local_cli.agent','ollama','electron')) for x in imports)
+        forbidden=('local_cli.core.memory','local_cli.application.memory','local_cli.rag',
+            'local_cli.knowledge','local_cli.interfaces','local_cli.tools','local_cli.agent','ollama','electron')
+        # Namespace boundaries: knowledge_preferences is not the retired
+        # local_cli.knowledge engine; agent_port is not the agent executor.
+        assert not any(x == prefix or x.startswith(prefix+'.') for x in imports for prefix in forbidden)
         if '/core/' in file:
             assert not any(x.startswith(('sqlite3','local_cli.infrastructure','local_cli.application')) for x in imports)
         calls=[n.func.id for n in ast.walk(tree) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name)]

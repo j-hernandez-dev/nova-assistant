@@ -10,10 +10,42 @@ const {conversationGroups,collectActions,elapsedSeconds,groupElapsedSeconds,form
 const {attachActivities}=require('../electron/activity_projection.ts')
 const {ConversationTurn}=require('../src/components/ConversationTurn.tsx')
 const {translate}=require('../src/i18n.tsx')
+const {MessageBlock}=require('../src/components/MessageBlock.tsx')
 const render=props=>renderToStaticMarkup(React.createElement(ConversationTurn,props))
-const receipt=(changes={})=>({operationId:'op1',toolCallId:'c1',turnId:'t1',messageId:'m1',name:'bash',arguments:{command:'echo hello'},cwd:'fixture',status:'completed',operationStatus:'completed',effectState:'none',output:'hello',stdout:'',stderr:'',outputSequence:1,outputTruncated:false,...changes})
+const receipt=(changes={})=>({operationId:'op1',toolCallId:'c1',turnId:'t1',messageId:'m1',name:'bash',arguments:{command:'echo hello'},cwd:'fixture',status:'completed',operationStatus:'completed',effectState:'none',exitCode:0,output:'hello',stdout:'',stderr:'',outputSequence:1,outputTruncated:false,...changes})
 const turn={turnId:'t1',status:'completed',transcriptStart:0,transcriptEnd:3,userMessage:{id:'u1',sourceIndex:0,createdAt:'2026-10-17T10:00:00Z'},displayMessages:[{id:'m1',sourceIndex:1,createdAt:'2026-10-17T10:00:01Z',completedAt:'2026-10-17T10:00:03Z'},{id:'m2',sourceIndex:2,completedAt:'2026-10-17T10:00:57Z'}]}
 const rows=[{id:'u1',sourceIndex:0,role:'user',content:'hazlo'},{id:'m1',sourceIndex:1,role:'assistant',content:'Voy a comprobarlo.'},{id:'m2',sourceIndex:2,role:'assistant',content:'Respuesta final.'}]
+
+test('selected documentary input reports actual complete, partial and unavailable states with ES/EN labels',()=>{
+ const html=renderToStaticMarkup(React.createElement(MessageBlock,{message:{id:'u',role:'user',content:'Explica las fuentes',sourceContext:[
+  {sourceId:'one',displayName:'Guide.txt',status:'complete'},
+  {sourceId:'two',displayName:'Book.pdf',status:'partial',admittedChunks:2},
+  {sourceId:'three',displayName:'Missing.txt',status:'unavailable',errorCode:'STALE_SOURCE'}]}}))
+ assert.match(html,/Texto preparado incluido completo/);assert.match(html,/Fragmentos incluidos/)
+ assert.match(html,/No disponible para este mensaje/);assert.match(html,/STALE_SOURCE/)
+ assert.match(html,/<div class="nova-source-context" aria-label="Contexto de las fuentes">/)
+ assert.doesNotMatch(html,/<details class="nova-source-context(?:\s|")/)
+ for(const locale of ['es','en'])for(const key of ['sourceContext','sourceContextComplete','sourceContextPartial','sourceContextUnavailable']){
+  assert.notEqual(translate(locale,key),key)
+ }
+ const {activityToolLabel,activityToolVisual}=require('../src/activity_presentation.ts')
+ assert.equal(activityToolLabel('source_read',true),'readingSourceTool')
+ assert.equal(activityToolVisual('source_read').icon,'file-read')
+})
+
+test('References show readable source locations and keep revision IDs and JSON out of the interface',()=>{
+ const {sourceReferenceLocation}=require('../src/source_reference.ts')
+ for(const [locale,expected]of [['es',['Línea 1','Líneas 2–5','Página 3','Párrafo 4','Campo /name','Raíz del documento','Bloque 2','Resultado 1']],['en',['Line 1','Lines 2–5','Page 3','Paragraph 4','Field /name','Document root','Block 2','Result 1']]]){
+  const cases=[['TEXT_LINES',{lineStart:1,lineEnd:1}],['TEXT_LINES',{lineStart:2,lineEnd:5}],['PDF_PAGE',{page:3}],['DOCX_PARAGRAPH',{paragraph:4}],['JSON_POINTER',{pointer:'/name'}],['JSON_POINTER',{pointer:''}],['WEB_BLOCK',{url:'https://example.com',block:'2'}],['SEARCH_RESULT',{url:'https://example.com',rank:1}]]
+  assert.deepEqual(cases.map(([kind,coordinates])=>sourceReferenceLocation({kind,coordinates},key=>translate(locale,key))),expected)
+ }
+ const citations={schemaVersion:1,turnId:'turn',structuralOnly:true,valid:[{citationId:'K1',sourceId:'private-source-id',revisionId:'private-revision-id',displayLabel:'Guide <script>.txt',originDisplay:'host-selected-local',locator:{kind:'TEXT_LINES',coordinates:{lineStart:1,lineEnd:1}}}],invalid:['K99']}
+ const html=renderToStaticMarkup(React.createElement(MessageBlock,{message:{id:'answer',role:'assistant',content:'Respuesta sin modificar. [K1]',knowledgeCitations:citations}}))
+ assert.match(html,/Referencias/);assert.match(html,/Línea 1/);assert.match(html,/Guide &lt;script&gt;.txt/)
+ assert.match(html,/Respuesta sin modificar/);assert.match(html,/\[K99\]/)
+ assert.doesNotMatch(html,/private-source-id|private-revision-id|lineStart|schemaVersion|Detalles de fuente y revisión|sin garantía de respaldo/)
+ assert.doesNotMatch(html,/<pre>|<script>/)
+})
 function group(activity=receipt(),rawTurn=turn){return conversationGroups(attachActivities(rows,[activity],[rawTurn]),[activity])[0]}
 
 test('host turn identity and observed times survive snapshot/reload without duplicate actions',()=>{
@@ -55,7 +87,7 @@ test('pending approval and UNKNOWN never become execution or confirmed success',
  const html=render({group:group(receipt({status:'pending',operationStatus:'requested'}),activeTurn),activeTurnId:'t1',approvalToolCallIds:['c1']})
  assert.match(html,/Esperando permiso/);assert.doesNotMatch(html,/Ejecutando echo/)
  const unknown=render({group:group(receipt({status:'outcome_unknown',operationStatus:'outcome_unknown',effectState:'unknown'}))})
- assert.match(unknown,/No se pudo confirmar el resultado/);assert.match(unknown,/Revisar resultado/)
+ assert.match(unknown,/No se pudo confirmar la finalización/);assert.match(unknown,/Revisar resultado/)
  assert.doesNotMatch(unknown,/Ejecución confirmada|Ejecutando echo/)
 })
 test('legacy tool output is inspectable but never treated as a typed receipt',()=>{

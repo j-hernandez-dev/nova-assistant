@@ -4,15 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "local-cli"
-version = "0.12.6"
-description = "Local-first, offline-capable AI coding agent CLI tool powered by Ollama"
+version = "0.13.0"
+description = "Nova: local AI assistant for projects, sources and memories"
 requires-python = ">=3.10"
 license = {text = "MIT"}
-dependencies = ["pypdf==6.19.0"]
+dependencies = ["pypdf==6.19.0", "numpy>=1.24"]
+
+[project.urls]
+Homepage = "https://github.com/j-hernandez-dev/nova-assistant"
+Repository = "https://github.com/j-hernandez-dev/nova-assistant"
 
 [project.optional-dependencies]
 browser = ["playwright==1.64.0"]
-# Optional MEMORY vector capability, never a requirement of SECURITY/chat.
+# Compatibility extra; NumPy is included for the Memory settings feature.
 memory-semantic = ["numpy>=1.24"]
 
 [project.scripts]

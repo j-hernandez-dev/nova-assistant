@@ -42,7 +42,7 @@ def delegated_snapshot(service,parent_snapshot,*,workspace,task,at):
     selected=[]
     for admitted in parent_snapshot.records[:8]:
         r=service.store.get(admitted.memory_id,scope)
-        if r is None or r.revision!=admitted.revision or not r.eligible(scope,at=at):continue
+        if r is None or r.revision!=admitted.revision or not r.eligible(scope,at=at,allow_sensitive=service.allow_sensitive(workspace)):continue
         if not words.intersection(w.casefold() for w in re.findall(r'[^\W_]+',r.canonical_text)):continue
         selected.append(r)
     records=tuple(selected[:4])
@@ -55,7 +55,7 @@ def current_snapshot(service,snapshot,*,workspace,at):
     selected=[]
     for original in snapshot.records[:8]:
         r=service.store.get(original.memory_id,scope)
-        if r is not None and r.revision==original.revision and r.eligible(scope,at=at):selected.append(original)
+        if r is not None and r.revision==original.revision and r.eligible(scope,at=at,allow_sensitive=service.allow_sensitive(workspace)):selected.append(original)
     from dataclasses import replace
     records=tuple(selected)
     return replace(snapshot,records=records,capsule=MemoryCapsule.render(records,service.redactor))

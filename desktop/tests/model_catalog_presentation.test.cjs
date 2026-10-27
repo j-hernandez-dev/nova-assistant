@@ -27,7 +27,9 @@ test('Catalog filters all existing metadata without mutating or dropping unknown
   const before=JSON.stringify(models)
   assert.deepEqual(presentation.filterCatalog(models,' TOOLS ',null),[models[0]])
   assert.deepEqual(presentation.filterCatalog(models,'coder','Future category'),[models[1]])
-  assert.deepEqual(presentation.catalogCategories(['General'],models),['General','Future category'])
+  assert.deepEqual(presentation.catalogSections.map(section=>section.id),['all','installed','recommend'])
+  assert.equal(presentation.modelCategoryKey('Japanese'),null)
+  assert.equal(presentation.modelCategoryKey('日本語'),null)
   assert.equal(presentation.modelCategoryKey('Future category'),null)
   assert.equal(presentation.modelCategoryKey('constructor'),null)
   assert.equal(presentation.modelErrorKey('toString'),'actionFailed')
@@ -67,7 +69,7 @@ test('Cloud-only results do not download; pending mutations disable other model 
   assert.ok(pending.includes('disabled=""'))
 })
 test('Model actions and host error messages have distinct ES and EN product text',()=>{
-  for(const code of ['MODEL_CATALOG_FAILED','MODEL_SEARCH_FAILED','MODEL_RECOMMEND_FAILED','MODEL_DOWNLOAD_FAILED',
+  for(const code of ['MODEL_CATALOG_FAILED','MODEL_RECOMMEND_FAILED','MODEL_DOWNLOAD_FAILED',
     'MODEL_DELETE_FAILED','MODEL_SYNC_FAILED','MODEL_OPERATION_UNCONFIRMED']){
     const key=presentation.modelErrorKey(code)
     assert.notEqual(key,'actionFailed')

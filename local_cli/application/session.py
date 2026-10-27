@@ -6,6 +6,8 @@ characterized against run_agent. Phase-7 interactions are owned here.
 
 from __future__ import annotations
 
+from local_cli.application.web_permissions import permitted_web_tools
+
 from copy import deepcopy
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone, timedelta
@@ -215,15 +217,26 @@ class AgentSessionCoordinator:
         security_audit_port: Any = None,
         memory_factory: Any = None,
         knowledge_factory: Any = None,
-        allow_remote_memory_injection: bool = False,
         memory_capture_mode: str = 'off',
+        memory_preferences: Any = None,
         memory_extractor_factory: Any = None,
+        search_enabled: bool = True, browser_enabled: bool = True,
+        web_engine: str = 'google', web_browser: str = 'webview2',
+        web_settings_save: Callable[[dict], None] | None = None,
         fetch_enabled: bool = True,
         fetch_enabled_save: Callable[[bool], None] | None = None,
         context_selection_save: Callable[[int], None] | None = None,
+        embedding_settings=None,
     ) -> None:
         if type(fetch_enabled) is not bool:
             raise ValueError('Fetch enabled must be true or false')
+        if type(search_enabled) is not bool or type(browser_enabled) is not bool:
+            raise ValueError('Web permissions must be boolean')
+        self._search_enabled, self._browser_enabled = search_enabled, browser_enabled
+        if web_engine not in ('google', 'bing', 'duckduckgo') or web_browser not in ('webview2', 'chrome', 'edge'):
+            raise ValueError('Invalid web selection')
+        self._web_engine, self._web_browser = web_engine, web_browser
+        self._web_settings_save = web_settings_save
         self._fetch_enabled = fetch_enabled
         self._fetch_enabled_save = fetch_enabled_save
         if runtime is not None and run_agent_fn is not None:
@@ -250,6 +263,7 @@ class AgentSessionCoordinator:
         self._network_service = network_service
         self._context_selection, self._context_policy = context_selection, context_policy
         self._context_selection_save = context_selection_save
+        self._embedding_settings = embedding_settings
         self._capability_factory = capability_factory
         self._persistence_factory, self._rag_factory = persistence_factory, rag_factory
         self._initial_messages_factory = initial_messages_factory
@@ -280,9 +294,8 @@ class AgentSessionCoordinator:
         self._memory_factory, self._memory = memory_factory, None
         from local_cli.application.knowledge_host import KnowledgeHostControls
         self._knowledge = KnowledgeHostControls(self, knowledge_factory)
-        if type(allow_remote_memory_injection) is not bool:
-            raise ValueError('remote memory injection requires an explicit boolean')
-        self._allow_remote_memory_injection = allow_remote_memory_injection
+        self._knowledge_preferences = getattr(knowledge_factory, 'preferences', None)
+        if self._knowledge_preferences is not None: knowledge_factory.on_change = self._knowledge_index_changed
         self._memory_actors = {}
         self._browser_actors = {}
         self._browser_control_result = {}
@@ -290,6 +303,10 @@ class AgentSessionCoordinator:
         if memory_capture_mode not in ('off','propose_only','low_risk'):
             raise ValueError('Invalid memory capture mode')
         self._memory_capture_mode=memory_capture_mode
+        self._memory_preferences=memory_preferences
+        if memory_preferences is not None:
+            value=memory_preferences.snapshot()
+            self._memory_capture_mode=value['captureMode'] if value['autoCapture'] else 'off'
         self._memory_extractor_factory=memory_extractor_factory
         self._memory_worker=None
 
@@ -346,6 +363,12 @@ class AgentSessionCoordinator:
                 receipt = self._persistence_command(command)
             elif command.kind is CommandKind.SET_CONTEXT_WINDOW:
                 receipt = self._set_context_window(command)
+            elif command.kind in (CommandKind.SET_EMBEDDING_SETTINGS, CommandKind.RESET_EMBEDDING_SETTINGS):
+                receipt = self._set_embedding_settings(command)
+            elif command.kind in (CommandKind.SET_KNOWLEDGE_SETTINGS, CommandKind.RESET_KNOWLEDGE_SETTINGS):
+                receipt = self._set_knowledge_settings(command)
+            elif command.kind is CommandKind.SET_WEB_SETTINGS:
+                receipt = self._set_web_settings(command)
             elif command.kind is CommandKind.SET_FETCH_ENABLED:
                 receipt = self._set_fetch_enabled(command)
             elif command.kind is CommandKind.SET_SEARCH_ENGINE:
@@ -460,7 +483,66 @@ class AgentSessionCoordinator:
         except (OSError, ValueError):
             return self._reject(command, 'BROWSER_CONTROL_FAILED', 'The Browser control operation could not complete.')
 
+    def _permitted_tools(self, tools):
+        return permitted_web_tools(tools, fetch_enabled=self._fetch_enabled,
+            search_enabled=self._search_enabled, browser_enabled=self._browser_enabled)
+
+    def _set_web_settings(self, command, patch=None):
+        session = self._active_session(command)
+        if session is None:
+            return self._reject(command, 'INVALID_SESSION', 'No matching active AgentSession')
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, 'REVISION_CONFLICT', 'Session revision changed')
+        if (any(not turn.done.is_set() for turn in session.turns)
+                or any(not agent.done.is_set() for agent in session.agent_operations.values())):
+            return self._reject(command, 'CONFLICT_ACTIVE_OPERATION', 'Web settings cannot change during active execution.')
+        from local_cli.tools.browser_tools import BrowserTool
+        from local_cli.tools.browser_search_tool import BrowserSearchTool
+        from local_cli.application.browser import BrowserUnavailable
+        from local_cli.core.browser_search import BrowserSearchSettings
+        from local_cli.web_config import validate_web_settings
+        search = next((tool for tool in session.installed_tools if isinstance(tool, BrowserSearchTool)), None)
+        browser = next((tool for tool in session.installed_tools if isinstance(tool, BrowserTool)), None)
+        current = dict(fetchEnabled=self._fetch_enabled, searchEnabled=self._search_enabled,
+            browserEnabled=self._browser_enabled, engine=search.settings.engine if search else self._web_engine,
+            browser=browser.selection.selected if browser else self._web_browser)
+        candidate = validate_web_settings({**current, **patch} if patch is not None else dict(command.payload))
+        if candidate == current:
+            return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
+        tools = permitted_web_tools(session.installed_tools, fetch_enabled=candidate['fetchEnabled'],
+            search_enabled=candidate['searchEnabled'], browser_enabled=candidate['browserEnabled'])
+        try:
+            # The default remains selectable even on hosts without WebView2;
+            # capability discovery and execution still report its unavailability.
+            if browser and candidate['browser'] != current['browser'] and candidate['browser'] != 'webview2':
+                browser.selection.validate(candidate['browser'])
+            prompt = self.redactor.text(self._prompt_factory(tools, session.workspace))
+            if candidate['browser'] != current['browser'] or (current['browserEnabled'] and not candidate['browserEnabled']):
+                session.tool_runtime.release_browser()
+            if self._web_settings_save is not None:
+                self._web_settings_save(candidate)
+        except BrowserUnavailable as exc:
+            return self._reject(command, exc.code, exc.message)
+        except (OSError, ValueError):
+            return self._reject(command, 'WEB_CONFIGURATION_FAILED', 'Could not save web settings. The previous settings are unchanged.')
+        # Publish only after the single preference file commits. No tool runs here.
+        if search: search.settings = BrowserSearchSettings(candidate['engine'], endpoint=search.settings.endpoint)
+        if browser: browser.selection.selected = candidate['browser']
+        self._web_engine, self._web_browser = candidate['engine'], candidate['browser']
+        session.tool_runtime.set_web_permissions(fetch_enabled=candidate['fetchEnabled'],
+            search_enabled=candidate['searchEnabled'], browser_enabled=candidate['browserEnabled'])
+        self._fetch_enabled, self._search_enabled, self._browser_enabled = (
+            candidate['fetchEnabled'], candidate['searchEnabled'], candidate['browserEnabled'])
+        session.tools = tools
+        for messages in (session.transcript, session.base_transcript):
+            if messages and messages[0].get('role') == 'system':
+                messages[0] = {**messages[0], 'content': prompt}
+        session.state_revision += 1
+        return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
+
     def _set_browser(self, command: ApplicationCommand) -> CommandReceipt:
+        if self._web_settings_save is not None:
+            return self._set_web_settings(command, {'browser': command.payload['browser']})
         session = self._active_session(command)
         if session is None:
             return self._reject(command, 'INVALID_SESSION', 'No matching active AgentSession')
@@ -488,6 +570,8 @@ class AgentSessionCoordinator:
         return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
 
     def _set_search_engine(self, command: ApplicationCommand) -> CommandReceipt:
+        if self._web_settings_save is not None:
+            return self._set_web_settings(command, {'engine': command.payload['engine']})
         session = self._active_session(command)
         if session is None:
             return self._reject(command, 'INVALID_SESSION', 'No matching active AgentSession')
@@ -505,6 +589,86 @@ class AgentSessionCoordinator:
         except (ValueError, OSError):
             return self._reject(command, 'SEARCH_CONFIGURATION_FAILED', 'Could not save the search engine. The previous setting is unchanged.')
         session.state_revision += 1
+        return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
+
+    def _set_embedding_settings(self, command):
+        session = self._active_session(command)
+        if session is None:
+            return self._reject(command, 'INVALID_SESSION', 'No matching active AgentSession')
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, 'REVISION_CONFLICT', 'Session revision changed')
+        if (any(not t.done.is_set() for t in session.turns)
+                or any(not a.done.is_set() for a in session.agent_operations.values())
+                or any(getattr(o, 'status', '') in ('running', 'pending') for o in self._service_operations.values())):
+            return self._reject(command, 'CONFLICT_ACTIVE_OPERATION', 'Wait for active execution to finish.')
+        if self._embedding_settings is None:
+            return self._reject(command, 'EMBEDDING_SETTINGS_UNAVAILABLE', 'Embedding settings are unavailable.')
+        from local_cli.embedding_settings import EmbeddingSettingsError
+        try:
+            if command.kind is CommandKind.RESET_EMBEDDING_SETTINGS:
+                self._embedding_settings.reset()
+            else:
+                self._embedding_settings.update(dict(command.payload))
+        except EmbeddingSettingsError as exc:
+            return self._reject(command, exc.code, 'Embedding setting was not applied. The previous settings remain active.')
+        session.state_revision += 1
+        self._refresh_knowledge_index()
+        return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
+
+    def _knowledge_settings_snapshot(self):
+        if self._knowledge_preferences is None: return None
+        em = self._embedding_settings.snapshot() if self._embedding_settings else {}
+        value = self._knowledge_preferences.snapshot()
+        available = bool(em.get('connected') and em.get('selectedModel') and not em.get('errorCode'))
+        index = getattr(self._knowledge.service, 'indexing', None)
+        return dict(value, semanticAvailable=available,
+            **(index.snapshot() if index else dict(indexing=False, indexedSources=0, totalSources=0, errorCode=None)))
+
+    def _refresh_knowledge_index(self):
+        if self._knowledge_preferences is None or self._knowledge.closing: return
+        if self._knowledge.service is None:
+            state = self._knowledge_settings_snapshot()
+            if not state['semanticAvailable'] or self._session is None: return
+            try:
+                self._knowledge.service = self._knowledge.factory(self._session.workspace,
+                    str(self._session.session_id), lambda kind, payload: None)
+                return
+            except Exception:
+                return
+        index = getattr(self._knowledge.service, 'indexing', None)
+        if index: index.refresh()
+
+    def _knowledge_index_changed(self, service):
+        with self._lock:
+            session = self._session
+            if session is None or self._knowledge.closing or self._knowledge.service is not service: return
+            if self._events is not None:
+                # Index progress carries no source text, vectors or origin paths.
+                self._events.publish(EventKind.OPERATION_PROGRESS,
+                    dict(service='knowledge-index', **service.indexing.snapshot()),
+                    state_revision=session.state_revision)
+
+    def _set_knowledge_settings(self, command):
+        session = self._active_session(command)
+        if session is None: return self._reject(command, 'INVALID_SESSION', 'No matching active AgentSession')
+        if command.expected_revision is not None and command.expected_revision != session.state_revision:
+            return self._reject(command, 'REVISION_CONFLICT', 'Session revision changed')
+        if (any(not turn.done.is_set() for turn in session.turns)
+                or any(not task.done.is_set() for task in session.agent_operations.values())
+                or any(not op.done.is_set() for op in self._service_operations.values())):
+            return self._reject(command, 'CONFLICT_ACTIVE_OPERATION', 'Wait for active execution to finish.')
+        if self._knowledge_preferences is None:
+            return self._reject(command, 'KNOWLEDGE_UNAVAILABLE', 'Knowledge settings are unavailable.')
+        from local_cli.knowledge_preferences import DEFAULTS
+        value = dict(DEFAULTS if command.kind is CommandKind.RESET_KNOWLEDGE_SETTINGS else command.payload)
+        current = self._knowledge_settings_snapshot()
+        if command.kind is not CommandKind.RESET_KNOWLEDGE_SETTINGS and not current['semanticAvailable'] and any(value[key] and not current[key] for key in ('semanticRecall','autoIndex','autoRebuild')):
+            return self._reject(command, 'KNOWLEDGE_EMBEDDING_REQUIRED', 'An enabled embedding model is required.')
+        try: self._knowledge_preferences.update(value)
+        except (OSError, ValueError):
+            return self._reject(command, 'KNOWLEDGE_SETTINGS_SAVE_FAILED', 'Previous Knowledge settings remain active.')
+        session.state_revision += 1
+        self._refresh_knowledge_index()
         return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
 
     def _set_context_window(self, command: ApplicationCommand) -> CommandReceipt:
@@ -539,6 +703,8 @@ class AgentSessionCoordinator:
         return CommandReceipt(command.command_id, True, session.session_id, session.state_revision)
 
     def _set_fetch_enabled(self, command: ApplicationCommand) -> CommandReceipt:
+        if self._web_settings_save is not None:
+            return self._set_web_settings(command, {'fetchEnabled': command.payload['enabled']})
         session = self._active_session(command)
         if session is None:
             return self._reject(command, 'INVALID_SESSION', 'No matching active AgentSession')
@@ -549,8 +715,8 @@ class AgentSessionCoordinator:
             return self._reject(command, 'CONFLICT_ACTIVE_OPERATION',
                                 'Fetch settings cannot change during active execution.')
         enabled = command.payload['enabled']
-        tools = [tool for tool in session.installed_tools
-                 if enabled or tool.name != 'web_fetch']
+        tools = permitted_web_tools(session.installed_tools, fetch_enabled=enabled,
+            search_enabled=self._search_enabled, browser_enabled=self._browser_enabled)
         try:
             prompt = self.redactor.text(self._prompt_factory(tools, session.workspace))
             if self._fetch_enabled_save is not None:
@@ -586,9 +752,8 @@ class AgentSessionCoordinator:
             return self._reject(command, "INVALID_WORKSPACE",
                                 "workspace must be an existing directory")
         try:
-            installed_tools = list(self._tool_factory(workspace))
-            tools = [tool for tool in installed_tools
-                     if self._fetch_enabled or tool.name != 'web_fetch']
+            installed_tools = self._source_tools(list(self._tool_factory(workspace)))
+            tools = self._permitted_tools(installed_tools)
             prompt = self._prompt_factory(tools, workspace)
             registry = ToolRegistry(installed_tools)
             environment = dict(next(
@@ -611,7 +776,7 @@ class AgentSessionCoordinator:
                 initial_messages[0].get("role") != "system"):
             return self._reject(command, "SESSION_SETUP_FAILED",
                                 "Could not initialize the AgentSession")
-        if not self._fetch_enabled:
+        if not all((self._fetch_enabled, self._search_enabled, self._browser_enabled)):
             initial_messages[0] = {**initial_messages[0], 'content': prompt}
         initial_messages = self.redactor.messages(initial_messages)
         session = AgentSession(
@@ -692,6 +857,7 @@ class AgentSessionCoordinator:
             environment_selector=self._environment_selector,
             security_audit=self.security_audit,
             fetch_enabled=self._fetch_enabled,
+            search_enabled=self._search_enabled, browser_enabled=self._browser_enabled,
             policy=policy,
         )
         try:
@@ -700,6 +866,26 @@ class AgentSessionCoordinator:
             runtime.close()
             raise
         return runtime
+
+    def _source_tools(self, tools):
+        if not getattr(self._knowledge.factory, 'context_available', False):
+            return tools
+        from local_cli.tools.source_read_tool import SourceReadTool
+        return [tool for tool in tools if tool.name != 'source_read'] + [SourceReadTool(self._read_turn_source)]
+
+    def _read_turn_source(self, context, **arguments):
+        from local_cli.application.selected_sources import SelectedSourceAdmission
+        from local_cli.core.knowledge import KnowledgeError, KnowledgeErrorCode
+        with self._lock:
+            session = self._session
+            turn = next((t for t in session.turns if t.turn_id == context.turn_id), None) if session else None
+            if (session is None or session.session_id != context.session_id or context.agent_id is not None
+                    or turn is None or turn.done.is_set() or turn.cancellation.is_cancel_requested()
+                    or not isinstance(turn.knowledge_admission, SelectedSourceAdmission)):
+                raise KnowledgeError(KnowledgeErrorCode.SOURCE_NOT_AUTHORIZED)
+            admission = turn.knowledge_admission
+        admission.service._check(context)
+        return admission.read(**arguments)
 
     def _start_turn(self, command: ApplicationCommand) -> CommandReceipt:
         session = self._session
@@ -729,8 +915,8 @@ class AgentSessionCoordinator:
         turn.attachment_refs = refs
         if self._memory_capture_mode!='off':
             turn.memory_capture=(session.workspace,self.redactor.text(command.payload['content']),datetime.now(timezone.utc))
-        if self.provider_manager.snapshot().name in ProviderManager.SUPPORTED:
-            self.provider_manager.refresh_status()
+        # Startup/model selection and background readiness own provider observations.
+        # A foreground send pins those facts without another tags/show round trip.
         turn.model_runtime = self.provider_manager.begin_turn(
             turn.turn_id,
             inference_options=(self._inference_options_factory()
@@ -861,7 +1047,7 @@ class AgentSessionCoordinator:
                             job=jobs[0]
                             runtime=self.provider_manager.snapshot().snapshot
                             if not local_memory_destination(runtime):
-                                raise MemoryError(MemoryErrorCode.REMOTE_INJECTION_DENIED)
+                                raise MemoryError(MemoryErrorCode.EXTRACTION_UNAVAILABLE)
                         if job['state']!='READY':
                             if not self._memory_extractor_factory:
                                 raise MemoryError(MemoryErrorCode.EXTRACTION_UNAVAILABLE)
@@ -922,6 +1108,8 @@ class AgentSessionCoordinator:
                 # A new Turn may have completed before cancellation returned.
                 # Resume only known cancelled computation, never failed effects.
                 with self._lock:
+                    if self._session is session and self._memory is not None:
+                        self._memory.refresh_settings(session.workspace)
                     if (status is OperationStatus.CANCELLED and operation.progress.get('resumeAfterTurn')
                             and self._session is session and not any(not t.done.is_set() for t in session.turns)):
                         self._queue_memory(session,session.turns[-1],capture=False)
@@ -1093,13 +1281,12 @@ class AgentSessionCoordinator:
             if not workspace.is_absolute() or not workspace.is_dir():
                 raise ValueError("workspace must be an absolute directory")
             workspace = workspace.resolve()
-            installed_tools = list(self._tool_factory(workspace) if installed_tools is None
-                                   else installed_tools)
-            tools = [tool for tool in installed_tools
-                     if self._fetch_enabled or tool.name != 'web_fetch']
+            installed_tools = self._source_tools(list(self._tool_factory(workspace) if installed_tools is None
+                                   else installed_tools))
+            tools = self._permitted_tools(installed_tools)
             previous_runtime = session.tool_runtime
             next_base = self.redactor.messages(base_messages)
-            if not self._fetch_enabled:
+            if not all((self._fetch_enabled, self._search_enabled, self._browser_enabled)):
                 prompt = self.redactor.text(self._prompt_factory(tools, workspace))
                 if next_base and next_base[0].get('role') == 'system':
                     next_base[0] = {**next_base[0], 'content': prompt}
@@ -1131,7 +1318,7 @@ class AgentSessionCoordinator:
             previous_runtime._issuer.cancel_session(session.session_id)
             previous_runtime.close()
             session.base_transcript = next_base
-            if not self._fetch_enabled:
+            if not all((self._fetch_enabled, self._search_enabled, self._browser_enabled)):
                 if session.transcript and session.transcript[0].get('role') == 'system':
                     session.transcript[0] = {**session.transcript[0], 'content': prompt}
             self._persistence = persistence
@@ -1430,8 +1617,7 @@ class AgentSessionCoordinator:
                 any(not isinstance(i,str) or i not in available for i in selection) or len(selection)!=len(set(selection))):
             return self._reject(command,'SOURCE_NOT_AUTHORIZED','Only parent-admitted evidence can be delegated')
         try:
-            tools = [tool for tool in self._sub_agent_tool_factory(session.workspace)
-                     if self._fetch_enabled or tool.name != 'web_fetch']
+            tools = self._permitted_tools(self._sub_agent_tool_factory(session.workspace))
             bound = bind_context(self.provider_manager.snapshot(), workspace=session.workspace,
                 tools=tools, requested=self._context_selection,
                 policy=self._context_policy, capability_factory=self._capability_factory)
@@ -1458,7 +1644,8 @@ class AgentSessionCoordinator:
                 process_service=session.tool_runtime._process_service,
                 network_service=session.tool_runtime._network_service,
                 redactor=self.redactor, security_audit=self.security_audit,
-                fetch_enabled=self._fetch_enabled)
+                fetch_enabled=self._fetch_enabled,
+                search_enabled=self._search_enabled, browser_enabled=self._browser_enabled)
             child._knowledge_selection=selection
         except SecurityAuditError:
             return self._reject(command, 'SECURITY_AUDIT_PRE_EFFECT_FAILED', 'Audit unavailable; sub-agent not started')
@@ -1494,6 +1681,8 @@ class AgentSessionCoordinator:
     def _run_turn(self, session: AgentSession, turn: Turn) -> None:
         working: _WorkingMessages | None = None
         active_generation: GenerationId | None = None
+        tools_fallback_pending = False
+        generation_output_observed = False
         # Raw append identity maps to presentation only. No IDs/timestamps are
         # inserted in the model's working messages or persisted transcript.
         display_bindings: dict[int, dict[str, Any]] = {}
@@ -1520,15 +1709,30 @@ class AgentSessionCoordinator:
                          for tool in session.tools]
 
         def emit_legacy(event: AgentEvent) -> None:
-            nonlocal active_generation
+            nonlocal active_generation, tools_fallback_pending, generation_output_observed
             with self._lock:
                 previous_generation = active_generation
+                # Unsupported native tools change the request format before any
+                # model output. That adaptation continues the same response;
+                # it is not a failed public reply followed by a new reply.
+                reuse_generation = (event.kind == "llm_start"
+                    and active_generation is not None and tools_fallback_pending
+                    and not generation_output_observed)
                 if event.kind == "llm_start":
-                    if active_generation is not None:
-                        self._finish_display(turn, "failed", active_generation)
-                    active_generation = new_generation_id()
-                    turn.active_generation = active_generation
-                    turn.stop_generation_requested = False
+                    tools_fallback_pending = False
+                    if not reuse_generation:
+                        if active_generation is not None:
+                            self._finish_display(turn, "failed", active_generation)
+                        active_generation = new_generation_id()
+                        turn.active_generation = active_generation
+                        turn.stop_generation_requested = False
+                        generation_output_observed = False
+                elif event.kind == "tools_fallback":
+                    tools_fallback_pending = active_generation is not None
+                elif event.kind in display_streams and event.data.get('text'):
+                    # Observe before redaction buffering: partial output must
+                    # never be erased or reclassified as a pre-output attempt.
+                    generation_output_observed = True
                 data = self.redactor.value(event.data)
                 if event.kind in display_streams:
                     data['text'] = display_streams[event.kind].feed(event.data.get('text', ''))
@@ -1545,7 +1749,8 @@ class AgentSessionCoordinator:
                                     state_revision=session.state_revision, turn_id=turn.turn_id,
                                     generation_id=active_generation)
                 event = AgentEvent(event.kind, data)
-                self._observe_display(turn, event)
+                if not reuse_generation:
+                    self._observe_display(turn, event)
                 stream = self._events
                 def publish(*args: Any, **kwargs: Any) -> None:
                     if stream is not None:
@@ -1553,7 +1758,7 @@ class AgentSessionCoordinator:
                 cause = CausationId(turn.command_id)
                 common = dict(state_revision=session.state_revision,
                               turn_id=turn.turn_id, causation_id=cause)
-                if event.kind == "llm_start":
+                if event.kind == "llm_start" and not reuse_generation:
                     if previous_generation is not None:
                         publish(EventKind.GENERATION_FAILED,
                                        {"status": "failed", "reason": "incomplete"},
@@ -1633,8 +1838,12 @@ class AgentSessionCoordinator:
                             if isinstance(m, dict) and m.get("role") in ("assistant", "tool")])))
             # Persisted provenance is not a user assertion/provider field. Old
             # Turn citation IDs must never authorize references in a new Turn.
-            working = _WorkingMessages([{k:v for k,v in m.items() if k not in ('attachmentRefs','knowledgeCitations')}
-                                        for m in session.transcript], on_append=checkpoint)
+            inference_history = [{k:v for k,v in m.items() if k not in ('attachmentRefs','knowledgeCitations','sourceContext')}
+                                 for m in session.transcript]
+            for item in inference_history:
+                if item.get('role') == 'tool' and (item.get('tool_name') or item.get('name')) == 'source_read':
+                    item['content'] = 'Previous-Turn source read omitted. Reselect the source to read its current prepared copy.'
+            working = _WorkingMessages(inference_history, on_append=checkpoint)
             private_remote = (getattr(self._knowledge.factory,'context_available',False) and
                 not local_memory_destination(turn.model_runtime.snapshot))
             if private_remote:
@@ -1650,7 +1859,7 @@ class AgentSessionCoordinator:
                 if (isinstance(plan,dict) and plan.get('role') in ('user','system')
                         and isinstance(plan.get('content'),str)):
                     working.insert(len(working)-1,self.redactor.value(plan))
-            if self._rag.status()["enabled"]:
+            if self._rag.status()["enabled"] and not getattr(self._knowledge.factory, 'replaces_legacy_rag', False):
                 rag_op = ServiceOperation(new_operation_id(), turn.command_id,
                     token=turn.cancellation.child(), turn_id=turn.turn_id)
                 with self._lock:
@@ -1685,24 +1894,21 @@ class AgentSessionCoordinator:
                 capability_factory=self._capability_factory)
             turn.capabilities = turn.model_runtime._context.capabilities
             self._stage_knowledge(session, turn, working)
-            if self._memory_factory is not None and not turn.cancellation.is_cancel_requested():
-                remote = not local_memory_destination(turn.model_runtime.snapshot)
-                if remote and not self._allow_remote_memory_injection:
-                    recalled = TurnMemorySnapshot(error_code='MEMORY_REMOTE_INJECTION_DENIED', remote=True)
-                else:
-                    try:
-                        with self._lock:
-                            if self._memory is None:
-                                self._memory = self._memory_factory(session.workspace, self.redactor)
-                        recalled = MemoryRetriever(self._memory).retrieve(session.transcript[-1]['content'],
-                            workspace=session.workspace, at=datetime.now(timezone.utc),
-                            semantic_allowed=not (self._memory_worker and not self._memory_worker.done.is_set()))
-                        recalled = replace(recalled, remote=remote)
-                    except Exception as exc:
-                        # Optional recall failure is observable, never a failed
-                        # write turned into success, and never an implicit retry.
-                        recalled = TurnMemorySnapshot(error_code=exc.code if isinstance(exc, MemoryError)
-                            else 'MEMORY_UNAVAILABLE', remote=remote)
+            if (self._memory_factory is not None and local_memory_destination(turn.model_runtime.snapshot)
+                    and not turn.cancellation.is_cancel_requested()):
+                try:
+                    with self._lock:
+                        if self._memory is None:
+                            self._memory = self._memory_factory(session.workspace, self.redactor)
+                        self._memory.refresh_settings(session.workspace)
+                    recalled = MemoryRetriever(self._memory).retrieve(session.transcript[-1]['content'],
+                        workspace=session.workspace, at=datetime.now(timezone.utc),
+                        semantic_allowed=not (self._memory_worker and not self._memory_worker.done.is_set()))
+                except Exception as exc:
+                    # Optional recall failure is observable, never a failed
+                    # write turned into success, and never an implicit retry.
+                    recalled = TurnMemorySnapshot(error_code=exc.code if isinstance(exc, MemoryError)
+                        else 'MEMORY_UNAVAILABLE')
                 if turn.cancellation.is_cancel_requested():
                     recalled = TurnMemorySnapshot(error_code='MEMORY_RETRIEVAL_CANCELLED')
                 # RAG and MEMORY are distinct stores, but one payload budget.
@@ -1719,6 +1925,7 @@ class AgentSessionCoordinator:
             if turn.knowledge_admission is not None:
                 turn.knowledge_admission.freeze(working,turn.model_runtime._context.manager,
                     turn.model_runtime.format_tools(session.tools))
+                self._record_source_context(session, turn)
                 emit_legacy(AgentEvent('knowledge_recall',turn.knowledge_admission.metadata()))
             with self._lock:
                 session.capabilities = turn.capabilities
@@ -1733,6 +1940,8 @@ class AgentSessionCoordinator:
                                      or turn.stop_generation_requested),
             )
         except BaseException as exc:
+            if turn.attachment_refs:
+                self._record_source_context(session, turn, error=getattr(exc, 'code', 'SOURCE_INPUT_UNAVAILABLE'))
             outcome = TurnOutcome(TurnStatus.FAILED,
                                   error_code=getattr(exc, "code", type(exc).__name__))
         # Cancellation is a request, not evidence that background children
@@ -1800,6 +2009,8 @@ class AgentSessionCoordinator:
             self._finish_display(turn, turn.status.value)
             turn.transcript_end = len(session.transcript)
             turn.error_code = self.redactor.text(outcome.error_code)
+            if outcome.status is TurnStatus.FAILED:
+                self.provider_manager.invalidate_observation(turn.model_runtime, outcome.error_code)
             turn.terminal_count += 1
             session.state_revision += 1
             if self._persistence is not None:
@@ -1836,7 +2047,9 @@ class AgentSessionCoordinator:
                 # Existing managed corpus only: no path acquisition, legacy
                 # rebuild, MemoryStore write, auto-index or embedding discovery.
                 self._knowledge.service = self._knowledge.factory(session.workspace,str(session.session_id),lambda k,p:None)
-            admission = KnowledgeAdmission(str(turn.turn_id),self._knowledge.service,self.redactor)
+            from local_cli.application.selected_sources import SelectedSourceAdmission
+            admission_type = SelectedSourceAdmission if turn.attachment_refs else KnowledgeAdmission
+            admission = admission_type(str(turn.turn_id),self._knowledge.service,self.redactor)
             turn.knowledge_admission = admission
             admission.retrieve(session.transcript[-1]['content'],context=context,refs=turn.attachment_refs,
                 local_destination=local_memory_destination(turn.model_runtime.snapshot))
@@ -1852,7 +2065,23 @@ class AgentSessionCoordinator:
                 turn.knowledge_admission._remove(working)
                 turn.knowledge_admission.pending=()
                 turn.knowledge_admission.error_code=response['error']['code']
+            if turn.attachment_refs:
+                self._record_source_context(session, turn, error=response['error']['code'])
+                self._finish_service_operation(session,operation,status,response)
+                raise
         self._finish_service_operation(session,operation,status,response)
+
+    def _record_source_context(self, session, turn, error=None):
+        if not turn.attachment_refs: return
+        from local_cli.application.selected_sources import SelectedSourceAdmission
+        admission = turn.knowledge_admission
+        rows = (admission.metadata()['selectedSources'] if isinstance(admission, SelectedSourceAdmission) else
+            [dict(sourceId=r.source_id, revisionId=r.revision_id, displayName=r.display_name,
+                status='unavailable', errorCode=error or 'SOURCE_CONTENT_UNAVAILABLE') for r in turn.attachment_refs])
+        if error:
+            rows = [dict(row, status='unavailable', errorCode=error) for row in rows]
+        with self._lock:
+            session.transcript[turn.transcript_start]['sourceContext'] = self.redactor.value(rows)
 
     def _revalidate_knowledge(self,session,turn,working):
         admission = turn.knowledge_admission
@@ -1860,15 +2089,21 @@ class AgentSessionCoordinator:
         manager = turn.model_runtime._context.manager
         try:
             admission.revalidate(working,manager)
+            self._record_source_context(session, turn)
             # Tool continuity/current input retain precedence in later rounds,
             # too. An optional static guard must not make them impossible.
             manager.prepare(working,turn.model_runtime.format_tools(session.tools))
-        except Exception:
+        except Exception as exc:
             from local_cli.core.knowledge_context import KnowledgeCapsule
             admission._remove(working)
             admission.capsule = KnowledgeCapsule.empty(str(turn.turn_id))
             admission.error_code = 'STALE_SOURCE'
             manager.invalidate_cache()
+            if turn.attachment_refs:
+                # Required user-selected input cannot silently disappear while
+                # inference continues as if the source had been delivered.
+                self._record_source_context(session, turn, error=getattr(exc, 'code', 'SOURCE_CONTENT_UNAVAILABLE'))
+                raise
 
     @staticmethod
     def _citation_message(turn, message):
@@ -1876,7 +2111,7 @@ class AgentSessionCoordinator:
         result.pop('knowledgeCitations',None)  # Never trust a provider-supplied receipt.
         if result.get('role') == 'assistant':
             from local_cli.core.knowledge_context import CitationRegistry
-            registry = (turn.knowledge_admission.capsule.citation_registry if turn.knowledge_admission
+            registry = (getattr(turn.knowledge_admission, 'citation_registry', turn.knowledge_admission.capsule.citation_registry) if turn.knowledge_admission
                         else CitationRegistry(str(turn.turn_id)))
             report = registry.validate(result.get('content') or '',turn_id=str(turn.turn_id))
             if report['valid'] or report['invalid']: result['knowledgeCitations'] = report
@@ -2210,12 +2445,11 @@ class AgentSessionCoordinator:
                 sub_agent.bind_knowledge_delegate(child_knowledge_source(turn.knowledge_admission,
                     local_destination=bool(sub_agent.model_snapshot and local_memory_destination(sub_agent.model_snapshot)),
                     selected_ids=getattr(sub_agent,'_knowledge_selection',None)))
-            if self._memory is not None and turn.memory_snapshot is not None:
+            if (self._memory is not None and turn.memory_snapshot is not None
+                    and sub_agent.model_snapshot and local_memory_destination(sub_agent.model_snapshot)):
                 from local_cli.application.memory_children import child_memory_source
-                remote=not local_memory_destination(sub_agent.model_snapshot) if sub_agent.model_snapshot else True
-                if not remote or self._allow_remote_memory_injection:
-                    sub_agent.bind_memory_delegate(child_memory_source(self._memory,turn.memory_snapshot,
-                        session.workspace,sub_agent._prompt))
+                sub_agent.bind_memory_delegate(child_memory_source(self._memory,turn.memory_snapshot,
+                    session.workspace,sub_agent._prompt))
             if self.security_audit is not None:
                 self.security_audit.agent(context, operation_id, sub_agent.agent_id, started=True)
                 from types import SimpleNamespace
@@ -2357,6 +2591,10 @@ class AgentSessionCoordinator:
             if (result["providerId"], result["modelId"], result["providerRevision"]) != (
                     runtime.provider_id, runtime.model_id, runtime.provider_revision):
                 result.update(ready=False, reason="READINESS_STALE", requiredAction=None, installedModels=[])
+            if self._embedding_settings is not None:
+                self._embedding_settings.observe(result['installedModels'], result.get('reason') not in
+                    ('OLLAMA_UNAVAILABLE', 'READINESS_STALE', 'PROVIDER_UNVERIFIED'))
+                self._refresh_knowledge_index()
             return self.redactor.value({**result, "sessionId": str(session.session_id)})
 
     def register_memory_actor(self, kind, verify):
@@ -2374,6 +2612,10 @@ class AgentSessionCoordinator:
     def execute_knowledge(self, command, *, actor=None):
         return self._knowledge.execute(command, actor)
 
+    def execute_storage(self, command, *, actor=None):
+        from local_cli.application.storage import execute_storage
+        return execute_storage(self._knowledge, command, actor)
+
     def close_knowledge(self):
         self._knowledge.close()
 
@@ -2383,6 +2625,17 @@ class AgentSessionCoordinator:
             service = self._session.tool_runtime._browser_service
             if service is not None:
                 return service.close()
+
+    def _memory_settings_snapshot(self):
+        em=self._embedding_settings.snapshot() if self._embedding_settings else None
+        available=bool(em and em['connected'] and em['selectedModel'] and em['selectedModel'] in em['enabledModels'])
+        value=self._memory_preferences.snapshot() if self._memory_preferences else None
+        return {'lexicalRecall':bool(self._memory_factory) and (value['lexicalRecall'] if value else True),
+            'semantic':value['semanticRecall'] if value else bool(self._memory and self._memory.semantic and self._memory.semantic.available),
+            'semanticAvailable':available,'autoCapture':value['autoCapture'] if value else self._memory_capture_mode!='off',
+            'captureMode':value['captureMode'] if value else self._memory_capture_mode,
+            'sensitiveProjects':value['sensitiveProjects'] if value else [],
+            'maintenanceBusy':bool(self._memory_worker and not self._memory_worker.done.is_set())}
 
     def execute_memory(self, command, *, actor=None):
         """Explicit synchronous Application controls, with Core operation terminal.
@@ -2431,6 +2684,8 @@ class AgentSessionCoordinator:
                 return rejected('CONFLICT_ACTIVE_OPERATION')
             if self._memory_factory is None:
                 return rejected('MEMORY_UNAVAILABLE')
+            if command.name in MEMORY_WRITES and self._memory_worker and not self._memory_worker.done.is_set():
+                return rejected('CONFLICT_ACTIVE_OPERATION')
             operation=ServiceOperation(new_operation_id(),command.command_id,service='memory')
             self._service_operations[operation.operation_id]=operation
             context=SimpleNamespace(session_id=session.session_id,operation_id=operation.operation_id,
@@ -2446,17 +2701,43 @@ class AgentSessionCoordinator:
                     audit.record(invocation,AuditKind.POLICY,dict(decision='EXPLICIT_USER_CONTROL',
                         actor=registered[0]),origin='application')
                     audit.before_effect(invocation,origin='application')
-                if self._memory is None:
-                    self._memory=self._memory_factory(session.workspace,self.redactor)
-                data=self._memory.execute(command.name,command.arguments,workspace=str(session.workspace),
-                    session_id=str(session.session_id),operation_id=str(operation.operation_id),explicit_user_action=True)
-                if command.name in ('memory_forget','memory_correct'):
-                    old_id=command.arguments.get('memoryId')
+                if command.name in ('memory_configure','memory_reset_settings','memory_project_access'):
+                    if self._memory_preferences is None:raise MemoryError(MemoryErrorCode.UNAVAILABLE)
+                    args=dict(command.arguments)
+                    if command.name=='memory_configure':
+                        if (args.get('semanticRecall') is True and not self._memory_preferences.snapshot()['semanticRecall']
+                                and not self._memory_settings_snapshot()['semanticAvailable']):
+                            raise MemoryError(MemoryErrorCode.EMBEDDING_REQUIRED)
+                        data=self._memory_preferences.update(args)
+                    elif command.name=='memory_project_access':
+                        if set(args)!={'projectPath','enabled'}:raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+                        data=self._memory_preferences.set_sensitive(args['projectPath'],args['enabled'])
+                    else:
+                        if args:raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+                        data=self._memory_preferences.reset()
+                    self._memory_capture_mode=data['captureMode'] if data['autoCapture'] else 'off'
+                    if self._memory:self._memory.refresh_settings(session.workspace)
+                else:
+                    if self._memory is None:self._memory=self._memory_factory(session.workspace,self.redactor)
+                    self._memory.refresh_settings(session.workspace)
+                    if command.name=='memory_import':
+                        from local_cli.application.memory_transfer import import_memories
+                        if set(command.arguments)!={'backup'}:raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+                        data=import_memories(self._memory,command.arguments['backup'],session.workspace)
+                    elif command.name=='memory_export_all':
+                        from local_cli.application.memory_transfer import export_memories
+                        if set(command.arguments)!={'includeSensitive'}:raise MemoryError(MemoryErrorCode.UNTRUSTED_INPUT)
+                        data=export_memories(self._memory,command.arguments['includeSensitive'])
+                    else:
+                        data=self._memory.execute(command.name,command.arguments,workspace=str(session.workspace),
+                            session_id=str(session.session_id),operation_id=str(operation.operation_id),explicit_user_action=True)
+                if command.name in ('memory_forget','memory_correct','memory_edit','memory_delete'):
+                    old_ids={row['memoryId'] for row in command.arguments['records']} if command.name in ('memory_edit','memory_delete') else {command.arguments.get('memoryId')}
                     from local_cli.application.memory_recall import MemoryCapsule
                     for previous_turn in session.turns:
                         snapshot=previous_turn.memory_snapshot
-                        if snapshot and any(r.memory_id==old_id for r in snapshot.records):
-                            kept=tuple(r for r in snapshot.records if r.memory_id!=old_id)
+                        if snapshot and any(r.memory_id in old_ids for r in snapshot.records):
+                            kept=tuple(r for r in snapshot.records if r.memory_id not in old_ids)
                             previous_turn.memory_snapshot=replace(snapshot,records=kept,
                                 capsule=MemoryCapsule.render(kept,self.redactor),tokens=0 if not kept else snapshot.tokens)
                         if previous_turn.model_runtime and previous_turn.model_runtime._context:
@@ -2468,6 +2749,9 @@ class AgentSessionCoordinator:
                 unknown=bool(getattr(exc,'outcome_unknown',False))
                 status=OperationStatus.OUTCOME_UNKNOWN if unknown else OperationStatus.FAILED
                 response=rejected(exc.code,unknown)
+                response['operationId']=operation.operation_id
+            except (ValueError,OSError):
+                response=rejected('MEMORY_WRITE_FAILED' if command.name in MEMORY_WRITES else 'MEMORY_UNTRUSTED_INPUT')
                 response['operationId']=operation.operation_id
             except Exception:
                 # A foreign adapter may fail after an effect. No automatic retry
@@ -2534,6 +2818,24 @@ class AgentSessionCoordinator:
         return context_settings(self._context_selection, self._context_policy,
                                 self.provider_manager.snapshot().snapshot)
 
+    def _web_browser_state(self, session):
+        state = next((t.selection.state() for t in session.installed_tools if hasattr(t, 'selection')), None)
+        if state is None:
+            state = dict(selected=self._web_browser, available=False, unavailableReason='BROWSER_NOT_INSTALLED',
+                adapter=self._web_browser.upper(), runtimeCheckedOnUse=True, networkIsolation='NOT_PROVIDED',
+                controlClass='HOST_UNISOLATED', choices=[dict(browser=name, adapter=name.upper(), available=False,
+                    installed=False, reason='BROWSER_NOT_INSTALLED') for name in ('webview2','chrome','edge')])
+        runtime_state = session.tool_runtime._browser_service.public_state() if session.tool_runtime._browser_service else {'controlState':'agentActive'}
+        return {**state, **runtime_state, 'enabled':self._browser_enabled,
+                'available':self._browser_enabled and state['available'], 'lastControlResult':self._browser_control_result}
+
+    def _web_search_state(self, session):
+        state = next((t.state() for t in session.installed_tools if t.name == 'web_search' and hasattr(t, 'state')), None)
+        if state is None:
+            state = dict(backend='browser', engine=self._web_engine, available=False, adapter=self._web_browser.upper(),
+                runtimeCheckedOnUse=True, unavailableReason='BROWSER_SEARCH_NOT_INSTALLED', serverRequired=False, networkIsolation='NOT_PROVIDED')
+        return {**state, 'enabled':self._search_enabled, 'available':self._search_enabled and state['available']}
+
     def _snapshot_unlocked(self, session_id: SessionId | None) -> SessionSnapshot:
         session = self._session
         if session is None or session.session_id != session_id:
@@ -2546,20 +2848,14 @@ class AgentSessionCoordinator:
             model_runtime=self.provider_manager.snapshot().snapshot.to_dict(),
             capabilities=session.capabilities.to_dict() if session.capabilities else {},
             services={"context": self._context_settings(), "rag": self._rag.status(),
-                      "browser": {**next((t.selection.state() for t in session.installed_tools
-                          if hasattr(t, 'selection')), {'available': False, 'reason': 'BROWSER_NOT_INSTALLED'}),
-                          **(session.tool_runtime._browser_service.public_state() if session.tool_runtime._browser_service is not None else {'controlState': 'agentActive'}),
-                          'lastControlResult': self._browser_control_result},
-                      "search": next((t.state() for t in session.installed_tools
-                          if t.name == 'web_search' and hasattr(t, 'state')),
-                          {'available': False, 'reason': 'BROWSER_SEARCH_NOT_INSTALLED'}),
+                      **({'embedding': self._embedding_settings.snapshot()} if self._embedding_settings else {}),
+                      "browser": self._web_browser_state(session),
+                      "search": self._web_search_state(session),
                       "fetch": {"enabled": self._fetch_enabled,
                           "available": self._fetch_enabled and 'web_fetch' in session.tool_runtime.registry.names},
                       "knowledge": self._knowledge.snapshot(),
-                      "memory": {"lexicalRecall": self._memory_factory is not None,
-                          "semantic": bool(self._memory and self._memory.semantic and self._memory.semantic.available),
-                          "autoCapture": self._memory_capture_mode!='off', "captureMode":self._memory_capture_mode,
-                          "allowRemoteMemoryInjection": self._allow_remote_memory_injection},
+                      **({'knowledgeSettings': self._knowledge_settings_snapshot()} if self._knowledge_preferences is not None else {}),
+                      "memory": self._memory_settings_snapshot(),
                       **({'securityAudit': self.security_audit.health()} if self.security_audit is not None else {}),
                       "filesystem": {"revision": session.filesystem_revision},
                       "conversationPresentation": [{"sourceIndex": index, **dates}

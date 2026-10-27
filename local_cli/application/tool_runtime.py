@@ -125,9 +125,12 @@ class ToolRuntime:
                  network_service: NetworkFetchService | None = None,
                  redactor=None, environment_service=None, environment_selector=None,
                  security_audit=None, turn_effect_constraints=None,
-                 fetch_enabled=True) -> None:
+                 fetch_enabled=True, search_enabled=True, browser_enabled=True) -> None:
         if type(fetch_enabled) is not bool:
             raise ValueError('Fetch enabled must be true or false')
+        if type(search_enabled) is not bool or type(browser_enabled) is not bool:
+            raise ValueError('Web permissions must be boolean')
+        self.search_enabled, self.browser_enabled = search_enabled, browser_enabled
         self.fetch_enabled = fetch_enabled
         self.registry = registry
         self._publish = publish or (lambda _event: None)
@@ -253,10 +256,25 @@ class ToolRuntime:
         """Host setting only. A model tool call cannot change availability."""
         if type(enabled) is not bool:
             raise ValueError('Fetch enabled must be true or false')
+        self.set_web_permissions(fetch_enabled=enabled, search_enabled=self.search_enabled,
+                                 browser_enabled=self.browser_enabled)
+
+    def set_web_permissions(self, *, fetch_enabled, search_enabled, browser_enabled):
+        if any(type(value) is not bool for value in (fetch_enabled, search_enabled, browser_enabled)):
+            raise ValueError('Web permissions must be boolean')
         with self._lock:
-            if self.fetch_enabled != enabled:
-                self.fetch_enabled = enabled
+            if (self.fetch_enabled, self.search_enabled, self.browser_enabled) != (fetch_enabled, search_enabled, browser_enabled):
+                self.fetch_enabled, self.search_enabled, self.browser_enabled = fetch_enabled, search_enabled, browser_enabled
                 self.update_policy_revision(self.policy.revision + 1)
+
+    def _web_permission_error(self, name):
+        from local_cli.application.web_permissions import web_permission_error
+        return web_permission_error(name, fetch_enabled=self.fetch_enabled,
+            search_enabled=self.search_enabled, browser_enabled=self.browser_enabled)
+
+    def _check_web_permission(self, name):
+        code = self._web_permission_error(name)
+        if code: raise PolicyInputError(code)
 
     def delegation_for(self, context: ExecutionContext) -> CapabilityGrant:
         """Host StartSubAgent command delegates its installed ceiling, never adds it."""
@@ -355,8 +373,7 @@ class ToolRuntime:
 
     def _request(self, invocation, lifetime, filesystem_plan=None, external=False, *, audit_denial=False):
         ctx, tool = invocation.context, self.registry.tool(invocation.name)
-        if invocation.name == 'web_fetch' and not self.fetch_enabled:
-            raise PolicyInputError('FETCH_DISABLED')
+        self._check_web_permission(invocation.name)
         if self._security_workspace is not None and ctx.workspace != self._security_workspace:
             raise PolicyInputError('REQUEST_MISMATCH')
         if self._security_session_id is not None and ctx.session_id != self._security_session_id:
@@ -486,6 +503,7 @@ class ToolRuntime:
         from local_cli.tools.browser_tools import BrowserTool
         if self._browser_service is not None and self._browser_service.human_phase != 'agentActive': return False
         tool = self.registry.tool(name)
+        if self._web_permission_error(name): return False
         if isinstance(tool, BrowserTool):
             if name == 'browser_close' and self._browser_service is not None:
                 return self._browser_service.model_available(name)
@@ -724,6 +742,7 @@ class ToolRuntime:
                        grant: CapabilityGrant | None = None,
                        filesystem_plan=None, validate_launch=None, fetch_capture=None) -> ToolResult:
         context = invocation.context
+        self._check_web_permission(name)
         if context.cancellation_token.is_cancel_requested():
             return self._error(ToolStatus.CANCELLED,
                                "Error: tool cancelled before execution.")
@@ -773,8 +792,7 @@ class ToolRuntime:
                 raise NetworkError('NETWORK_BROKER_UNAVAILABLE')
             def network_guard():
                 try:
-                    if name == 'web_fetch' and not self.fetch_enabled:
-                        raise PolicyInputError('FETCH_DISABLED')
+                    self._check_web_permission(name)
                     validate_launch()
                 except (PolicyInputError, SecurityError) as exc:
                     code = exc.code.value if isinstance(exc, SecurityError) else exc.code
@@ -784,7 +802,7 @@ class ToolRuntime:
                     parent=self._parent_grant, validate_dispatch=network_guard)
             return self._network_service.execute(invocation, grant, self._issuer,
                 parent=self._parent_grant, validate_dispatch=network_guard, capture=fetch_capture)
-        if tool.cacheable:
+        if tool.cacheable and getattr(tool, 'cache_results', True):
             cached = self._cache.get(name, args)
             if cached is not None:
                 return ToolResult(ToolStatus.COMPLETED, EffectState.NONE,
@@ -824,7 +842,9 @@ class ToolRuntime:
                 if not isinstance(result, ToolResult):
                     raise TypeError("execute_result must return ToolResult")
             else:
-                if name == "agent" and callable(
+                if name == 'source_read' and callable(getattr(tool, 'execute_with_context', None)):
+                    text = tool.execute_with_context(context=context, **args)
+                elif name == "agent" and callable(
                         contextual := getattr(tool, "execute_with_context", None)):
                     text = contextual(
                         context=context,
@@ -840,6 +860,7 @@ class ToolRuntime:
                         security_audit=self._security_audit,
                         turn_effect_constraints=self._effects_for(context),
                         fetch_enabled=self.fetch_enabled,
+                        search_enabled=self.search_enabled, browser_enabled=self.browser_enabled,
                         **args,
                     )
                 else:
@@ -864,7 +885,7 @@ class ToolRuntime:
                                 else EffectState.UNKNOWN,
                                 error=type(exc).__name__, legacy_text=text)
         result = replace(result, metadata={**result.metadata, "cached": False})
-        if tool.cacheable and result.status is ToolStatus.COMPLETED:
+        if tool.cacheable and getattr(tool, 'cache_results', True) and result.status is ToolStatus.COMPLETED:
             file_path = args.get("file_path")
             absolute = (str((context.cwd / file_path).resolve())
                         if isinstance(file_path, str) else None)

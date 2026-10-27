@@ -1,106 +1,90 @@
-import { useState, useRef, useEffect, useId, type KeyboardEvent, type ReactNode } from 'react'
+import { useState, useRef, useEffect, useId, type ReactNode } from 'react'
 import { ModalHost } from './ModalHost'
-import { useI18n, type TranslationKey } from '../i18n'
+import { NovaIcon } from './NovaIcon'
+import { useI18n } from '../i18n'
+import type {PublicModelLibrary} from '../public_model_library'
+import type {RecommendationStatus} from '../model_operations'
+import {PublicLibraryView} from './PublicModelLibrary'
 import { modelLibraryText } from '../model_catalog_locale'
-import { catalogCategories, easeRating, filterCatalog, installedModelName, installedVariants,
+import { catalogSections, type CatalogSection, easeRating, filterCatalog, installedModelName, installedVariants,
   modelCategoryKey, modelContext, modelErrorKey, pullPercent } from '../model_catalog_presentation'
 
 export type CatalogModel = {
   name: string; display: string; category: string; params: string; size_gb: number
   description: string; tags: string[]; installed: boolean; context_length?: number
   release_date?: string; strengths?: string[]; ease_of_use?: number
+  kind?: 'llm'|'embedding'; cloud_only?:boolean; family?:boolean; sizes?:string[]
 }
 export type Recommendation = {
   name: string; display: string; size_gb: number; reason: string; rank: number; installed: boolean
+  family?:string;kind?:'llm'|'embedding';description?:string;tags?:string[];size_label?:string;
+  context_length?:number;estimated_memory_gb?:number;gpu_fit?:boolean
 }
 export type SystemInfo = { ram_gb: number | null; chip: string; gpu: string; os: string; arch: string }
-export type SearchResult = {
-  name: string; description: string; pulls: number; pulls_display: string
-  tags: string[]; sizes: string[]; installed: boolean; cloud_only: boolean
-}
 type Props = {
+  library?:PublicModelLibrary;embeddingCurrent?:string;embeddingModels?:string[];onSelectEmbedding?:(name:string)=>void
   open?: boolean
-  catalog: { categories: string[]; models: CatalogModel[] } | null; searchResults: SearchResult[]; current: string
+  catalog: { categories: string[]; models: CatalogModel[] } | null; current: string
   onSelect: (model: string) => void; onPull: (model: string) => void; onDelete: (model: string) => void
-  onSearch: (query: string, sort: string, capability: string) => void; onUpdate: () => void; onClose: () => void
-  pulling: string | null; pullProgress: string; searching: boolean; updating: boolean
+  onUpdate: () => void; onClose: () => void
+  pulling: string | null; pullProgress: string; updating: boolean
   recommendations: Recommendation[] | null; systemInfo: SystemInfo | null; onRequestRecommend: () => void
   selectionError?: boolean; selectionPending?: boolean; actionsDisabled?: boolean; installedModels?: string[]
-  catalogLoading?: boolean; recommending?: boolean; catalogError?: string | null; searchError?: string | null
+  catalogLoading?: boolean; recommending?: boolean; catalogError?: string | null
   recommendError?: string | null; operationError?: string | null; operationUnconfirmed?: boolean
+  recommendationStatus?:RecommendationStatus|null
   operationNotice?: {kind: 'downloaded' | 'deleted' | 'synced'; model?: string} | null
   deleting?: string | null; onRefreshCatalog?: () => void
 }
-type View = 'recommend' | 'catalog' | 'discover'
-const views: Array<[View, TranslationKey]> = [['recommend','forYou'],['catalog','catalog'],['discover','discover']]
 
-export function ModelPicker({catalog, searchResults, current, onSelect, onPull, onDelete, onSearch, onUpdate,
-  onClose, open = true, pulling, pullProgress, searching, updating, recommendations, systemInfo, onRequestRecommend,
+export function ModelPicker({catalog, current, onSelect, onPull, onDelete, onUpdate,
+  onClose, open = true, pulling, pullProgress, updating, recommendations, systemInfo, onRequestRecommend,
   selectionError = false, selectionPending = false, actionsDisabled = false, installedModels,
-  catalogLoading = false, recommending = false, catalogError, searchError, recommendError,
-  operationError, operationUnconfirmed = false, operationNotice, deleting = null, onRefreshCatalog}: Props) {
+  catalogLoading = false, recommending = false, catalogError, recommendError,
+  operationError, operationUnconfirmed = false, operationNotice, deleting = null, onRefreshCatalog,
+  library,embeddingCurrent,embeddingModels,onSelectEmbedding,recommendationStatus}: Props) {
   const {t,locale} = useI18n()
-  const id = useId()
-  const [view, setView] = useState<View>('catalog')
+  const numberFormat=new Intl.NumberFormat(locale,{maximumFractionDigits:2})
+  const titleId = useId()
   const [filter, setFilter] = useState('')
-  const [category, setCategory] = useState<string | null>(null)
-  const [query, setQuery] = useState('')
-  const [sort, setSort] = useState('popular')
-  const [capability, setCapability] = useState('')
-  const [installedOnly, setInstalledOnly] = useState(false)
-  const didSearch = useRef(false)
-  const tabs = useRef<Array<HTMLButtonElement | null>>([])
+  const [section, setSection] = useState<CatalogSection>('all')
   const input = useRef<HTMLInputElement>(null)
   const locked = selectionPending || actionsDisabled
   const mutationLocked = locked || !!pulling || !!deleting || operationUnconfirmed
   const installed = installedModels ? [...new Set(installedModels)] : undefined
   const percent = pullPercent(pullProgress)
-  const categories = catalog ? catalogCategories(catalog.categories, catalog.models) : []
-  const filtered = catalog ? filterCatalog(catalog.models, filter, category)
-    .filter(model => !installedOnly || !!installedModelName(model.name, installed)) : []
+  const recommended = section === 'recommend'
+  const publicView = section === 'all' && !!library
+  const filtered = filterCatalog(catalog?.models || [], filter, null)
+    .filter(model => section !== 'installed' || !!installedModelName(model.name, installed))
   const shownCategories = [...new Set(filtered.map(model => model.category))]
+  const query = filter.trim().toLocaleLowerCase()
+  const suggestions = recommendations?.filter(model => !query || [model.name,model.display,model.description||'',...(model.tags||[]),modelLibraryText(model.reason,locale)]
+    .some(value => value.toLocaleLowerCase().includes(query)))
   const categoryLabel = (value: string) => {const key = modelCategoryKey(value); return key ? t(key) : value}
-  useEffect(() => {
-    if (view !== 'discover' || didSearch.current || actionsDisabled) return
-    didSearch.current = true
-    onSearch('', 'popular', '')
-  }, [view, actionsDisabled, onSearch])
-  function changeView(next: View, keyboard = false) {
-    setView(next)
-    if (next === 'recommend' && recommendations === null && !recommending) onRequestRecommend()
-    if (keyboard) tabs.current[views.findIndex(([value]) => value === next)]?.focus()
+  function selectSection(next: CatalogSection) {
+    setSection(next)
+    if (next === 'recommend' && recommendations === null && !recommending && !actionsDisabled) onRequestRecommend()
   }
-  function tabKey(event: KeyboardEvent<HTMLButtonElement>, index: number) {
-    let target: number | null = null
-    if (event.key === 'ArrowRight') target = (index + 1) % views.length
-    if (event.key === 'ArrowLeft') target = (index + views.length - 1) % views.length
-    if (event.key === 'Home') target = 0
-    if (event.key === 'End') target = views.length - 1
-    if (target !== null) {event.preventDefault(); changeView(views[target][0], true)}
-  }
-  function showInstalled(name: string) {setView('catalog');setCategory(null);setInstalledOnly(true);setFilter(name);input.current?.focus()}
-  function actions(name: string, cloudOnly = false, canDelete = false) {
-    return <ModelActions name={name} current={current} exact={installedModelName(name,installed)}
-      ambiguous={installedVariants(name,installed).length > 1} cloudOnly={cloudOnly} disabled={locked}
+  function showInstalled(name: string) {setSection('installed');setFilter(name);input.current?.focus()}
+  function actions(name: string, canDelete = true, kind?:'llm'|'embedding') {
+    const embedding=kind==='embedding'||embeddingModels?.includes(name)
+    return <ModelActions name={name} current={embedding?embeddingCurrent||'':current} exact={installedModelName(name,installed)}
+      ambiguous={installedVariants(name,installed).length > 1} cloudOnly={false} disabled={locked}
       mutationLocked={mutationLocked} deleting={deleting === name} pulling={pulling === name} canDelete={canDelete}
-      onSelect={onSelect} onPull={onPull} onDelete={onDelete} onViewInstalled={() => showInstalled(name)}/>
+      onSelect={embedding?onSelectEmbedding||(()=>{}):onSelect} onPull={onPull} onDelete={onDelete} onViewInstalled={() => showInstalled(name)}/>
   }
-  const error = view === 'catalog' ? catalogError : view === 'discover' ? searchError : recommendError
-  return <ModalHost open={open} onClose={onClose} label={t('modelsTitle')} className="picker picker-wide nova-model-dialog">
-    <header className="picker-header">
-      <div className="picker-view-tabs" role="tablist" aria-label={t('modelTabs')}>
-        {views.map(([name,label],index) => <button key={name} ref={element => {tabs.current[index] = element}}
-          role="tab" id={`${id}-${name}-tab`} aria-selected={view === name} aria-controls={`${id}-panel`}
-          tabIndex={view === name ? 0 : -1} className={`picker-view-tab ${view === name ? 'active' : ''}`}
-          onKeyDown={event => tabKey(event,index)} onClick={() => changeView(name)}>{t(label)}</button>)}
-      </div>
+  const error = recommended ? recommendError : catalogError
+  return <ModalHost open={open} onClose={onClose} labelledBy={titleId} className="picker picker-wide nova-model-dialog nova-surface-dialog">
+    <header className="picker-header nova-model-header nova-surface-header">
+      <div className="nova-model-title"><span className="nova-settings-eyebrow">Nova</span><h1 id={titleId}>{t('modelsTitle')}</h1></div>
       <div className="picker-header-sub">
-        <span className="picker-installed-count">{installed ? `${installed.length} ${t('installed')}` : t('modelInventoryUnknown')}</span>
+        <span className="picker-installed-count">{installed ? installed.length+' '+t('installed') : t('modelInventoryUnknown')}</span>
         <button className="picker-update-btn" disabled={updating || actionsDisabled} onClick={onUpdate} title={t('syncModels')}>
           <ModelIcon kind="sync" spin={updating}/><span>{t(updating ? 'syncing' : 'sync')}</span>
         </button>
       </div>
-      <button className="settings-close picker-close" onClick={onClose} aria-label={t('modelClose')}><ModelIcon kind="close"/></button>
+      <button className="picker-close nova-dismiss-button" onClick={onClose} aria-label={t('modelClose')}><NovaIcon name="close" size={20}/></button>
     </header>
     {selectionError && <div className="nova-model-selection-notice" role="alert">{t('modelChangeFailed')}</div>}
     {selectionPending && <div className="nova-model-selection-notice" role="status">{t('modelChanging')}</div>}
@@ -111,93 +95,80 @@ export function ModelPicker({catalog, searchResults, current, onSelect, onPull, 
     </div>}
     {pulling && !operationUnconfirmed && <section className="pull-bar" aria-label={t('downloading')} aria-live="polite">
       <div className="pull-bar-top"><span className="pull-bar-text">{t('downloading')} <strong>{pulling}</strong></span>
-        <span className="pull-bar-progress">{percent === null ? '' : `${percent}%`}</span></div>
-      <div className="pull-bar-gauge" role="progressbar" aria-label={`${t('downloading')} ${pulling}`}
+        <span className="pull-bar-progress">{percent === null ? '' : percent+'%'}</span></div>
+      <div className="pull-bar-gauge" role="progressbar" aria-label={t('downloading')+' '+pulling}
         aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent ?? undefined}>
-        <div className={`pull-bar-gauge-fill ${percent === null ? 'indeterminate' : ''}`} style={percent !== null ? {width:`${percent}%`} : undefined}/>
+        <div className={'pull-bar-gauge-fill'+(percent === null ? ' indeterminate' : '')} style={percent !== null ? {width:percent+'%'} : undefined}/>
       </div>
       {pullProgress && <span className="picker-progress-detail">{pullProgress}</span>}
     </section>}
-    <section className="picker-panel" role="tabpanel" id={`${id}-panel`} aria-labelledby={`${id}-${view}-tab`}>
-      {view === 'catalog' && <>
-        <div className="picker-search"><ModelIcon kind="search"/><input ref={input} type="search" placeholder={t('filterModels')}
-          aria-label={t('filterModels')} value={filter} onChange={event => setFilter(event.target.value)}/>
-          {onRefreshCatalog && <button className="picker-refresh" onClick={onRefreshCatalog} disabled={catalogLoading || actionsDisabled}
-            aria-label={t('modelRefresh')} title={t('modelRefresh')}><ModelIcon kind="sync" spin={catalogLoading}/></button>}</div>
-        <div className="picker-tabs" role="group" aria-label={t('modelCategories')}>
-          <button className={`picker-tab ${!category && !installedOnly ? 'active' : ''}`} aria-pressed={!category && !installedOnly}
-            onClick={() => {setCategory(null);setInstalledOnly(false)}}>{t('all')}</button>
-          <button className={`picker-tab ${installedOnly ? 'active' : ''}`} aria-pressed={installedOnly}
-            onClick={() => {setCategory(null);setInstalledOnly(true)}}>{t('modelInstalledCategory')}</button>
-          {categories.filter(name => name !== 'Installed').map(name => <button key={name} className={`picker-tab ${category === name ? 'active' : ''}`}
-            aria-pressed={category === name} onClick={() => {setCategory(name);setInstalledOnly(false)}}>{categoryLabel(name)}</button>)}
-        </div>
-        <div className="picker-list" aria-busy={catalogLoading}>
-          {error && <ModelError code={error} onRetry={onRefreshCatalog} disabled={actionsDisabled}/>}
-          {!catalog && !error ? <Empty>{t('loadingModels')}</Empty> : shownCategories.map(name => <section key={name} aria-label={categoryLabel(name)}>
-            <h3 className="picker-category">{categoryLabel(name)}</h3>
-            {filtered.filter(model => model.category === name).map(model => <ModelRow key={model.name} name={model.name}
-              display={model.display} description={modelLibraryText(model.description,locale)} selected={installedModelName(model.name,installed) === current}
-              metadata={<><Meta value={model.params}/><Meta value={modelContext(model.context_length) ? `${modelContext(model.context_length)} ctx` : ''}/>
-                {model.release_date && <span className="picker-model-date">{model.release_date}</span>}</>}
-              extras={<>{model.strengths?.map(value => <span className="picker-model-strength" key={value}>{modelLibraryText(value,locale)}</span>)}
-                {easeRating(model.ease_of_use) && <span className="picker-ease" title={`${t('modelRatingSource')}: ${model.ease_of_use}/5`}
-                  aria-label={`${t('modelRatingSource')}: ${model.ease_of_use}/5`}>{'★'.repeat(model.ease_of_use!)}{'☆'.repeat(5-model.ease_of_use!)}</span>}</>}
-              size={model.size_gb} actions={actions(model.name,false,true)}/>)}</section>)}
-          {catalog && filtered.length === 0 && !error && <Empty>{t('noModelMatches')}</Empty>}
-        </div>
-        <footer className="picker-footer"><span>{filtered.length} {t('modelFilterCount')}</span><span>{t('modelCatalogNotice')}</span></footer>
-      </>}
-      {view === 'discover' && <>
-        <form className="picker-search" onSubmit={event => {event.preventDefault();if(!actionsDisabled && !searching)onSearch(query,sort,capability)}}>
-          <ModelIcon kind="search"/><input type="search" placeholder={t('searchModels')} aria-label={t('searchModels')}
-            value={query} onChange={event => setQuery(event.target.value)}/>
-          <button className="picker-action use" disabled={searching || actionsDisabled} type="submit">{t('modelSearchSubmit')}</button>
-        </form>
-        <div className="picker-discover-filters"><div className="picker-tabs" role="group" aria-label={t('modelSort')}>
-          {(['popular','hot','newest'] as const).map(value => <button key={value} className={`picker-tab ${sort === value ? 'active' : ''}`}
-            aria-pressed={sort === value} disabled={actionsDisabled} onClick={() => {setSort(value);onSearch(query,value,capability)}}>{t(value)}</button>)}
-        </div><div className="picker-tabs" role="group" aria-label={t('modelCapabilities')}>
-          {([['','all'],['tools','tools'],['code','code'],['vision','vision'],['thinking','reasoning']] as const).map(([value,label]) =>
-            <button key={value} className={`picker-tab ${capability === value ? 'active' : ''}`} aria-pressed={capability === value}
-              disabled={actionsDisabled} onClick={() => {setCapability(value);onSearch(query,sort,value)}}>{t(label)}</button>)}
-        </div></div>
-        <div className="picker-list" aria-busy={searching}>
-          {searching && <div className="picker-inline-status" role="status">{t('searching')}</div>}
-          {error && <ModelError code={error} disabled={actionsDisabled || searching} onRetry={() => onSearch(query,sort,capability)}/>}
-          {searchResults.map(model => <ModelRow key={model.name} name={model.name} display={model.name}
-            description={model.description} selected={installedModelName(model.name,installed) === current}
-            metadata={model.tags.map(tag => <span key={tag} className="picker-model-tag">{tag}</span>)}
-            extras={<>{model.pulls_display && <span className="picker-model-pulls">{model.pulls_display} {t('downloads')}</span>}
-              {model.sizes.length > 0 && <span>{model.sizes.join(' · ')}</span>}</>} actions={actions(model.name,model.cloud_only)}/>)}
-          {!searching && !error && searchResults.length === 0 && <Empty>{t('noSearchResults')}</Empty>}
-        </div><footer className="picker-footer">{t('modelLibraryNotice')}</footer>
-      </>}
-      {view === 'recommend' && <>
-        {systemInfo && <div className="picker-system-info" aria-label={t('modelDetectedHardware')}>
-          <span>{systemInfo.chip || systemInfo.os || t('modelMetadataUnknown')}</span>
-          <span>{typeof systemInfo.ram_gb === 'number' ? `${systemInfo.ram_gb} GB RAM` : t('ramUnknown')}</span>
-          {systemInfo.gpu && <span>{systemInfo.gpu}</span>}</div>}
-        <div className="picker-list" aria-busy={recommending}>
-          {error && <ModelError code={error} disabled={actionsDisabled || recommending} onRetry={onRequestRecommend}/>}
-          {!recommendations && !error ? <Empty>{t('detectingSystem')}</Empty> : recommendations?.map(model => <ModelRow key={model.name}
-            name={model.name} display={model.display} description={modelLibraryText(model.reason,locale)} size={model.size_gb}
-            selected={installedModelName(model.name,installed) === current} actions={actions(model.name)}/>)}
-          {recommendations?.length === 0 && !error && <Empty>{t('systemUnknown')}</Empty>}
-        </div><footer className="picker-footer">{t('modelHardwareNotice')}</footer>
-      </>}
+    <section className="picker-panel" aria-label={t('catalog')}>
+      <form className="picker-search" onSubmit={event=>{event.preventDefault();if(publicView)library!.search({...library!.state.filters,query:filter},true);input.current?.focus()}}><ModelIcon kind="search"/><input ref={input} type="search" placeholder={t('filterModels')}
+        aria-label={t('filterModels')} value={filter} onChange={event => setFilter(event.target.value)}/>
+        <button type="submit" className="nova-search-submit" aria-label={t('modelSearchSubmit')} title={t('modelSearchSubmit')}><NovaIcon name="forward" size={18}/></button>
+        {(recommended || onRefreshCatalog) && <button type="button" className="picker-refresh nova-search-refresh" onClick={publicView?()=>library!.search({...library!.state.filters,query:filter},true):recommended ? onRequestRecommend : onRefreshCatalog}
+          disabled={publicView?updating:actionsDisabled || (recommended ? recommending : catalogLoading)} aria-label={t(publicView?'libraryRefresh':'modelRefresh')} title={t(publicView?'libraryRefresh':'modelRefresh')}>
+          <ModelIcon kind="sync" spin={recommended ? recommending : catalogLoading}/></button>}</form>
+      <div className="picker-tabs" role="group" aria-label={t('modelCategories')}>
+        {catalogSections.map(({id,label}) => <button key={id} className={'picker-tab'+(section === id ? ' active' : '')}
+          data-model-section={id} aria-pressed={section === id} onClick={() => selectSection(id)}>{t(label)}</button>)}
+      </div>
+      {recommended && systemInfo && <div className="picker-system-info" aria-label={t('modelDetectedHardware')}>
+        <span>{systemInfo.chip || systemInfo.os || t('modelMetadataUnknown')}</span>
+        <span>{typeof systemInfo.ram_gb === 'number' ? systemInfo.ram_gb+' GB RAM' : t('ramUnknown')}</span>
+        {systemInfo.gpu && <span>{systemInfo.gpu}</span>}</div>}
+      {recommended&&recommendationStatus&&<div className="picker-recommendation-state" role="status">
+        {recommending&&<span>{t(recommendationStatus.phase==='catalog'?'recommendationReadingCatalog':'recommendationCheckingVariants')}
+          {recommendationStatus.phase==='variants'?` ${recommendationStatus.scanned} / ${recommendationStatus.total}`:''}</span>}
+        {recommendationStatus.budget_gb>0&&<span>{t('recommendationMemoryBudget')}: {numberFormat.format(recommendationStatus.budget_gb)} GB</span>}
+        {recommendationStatus.offline&&<span>{t('libraryOffline')}</span>}
+        {recommendationStatus.stale&&<span>{t('libraryStale')}</span>}
+        {recommendationStatus.unavailable>0&&<span>{t('recommendationUnchecked')}: {recommendationStatus.unavailable}</span>}
+      </div>}
+      {publicView ? <PublicLibraryView library={library!} query={filter} current={current} embeddingCurrent={embeddingCurrent} installed={installed}
+        locked={locked} mutationLocked={mutationLocked} pulling={pulling} deleting={deleting}
+        onSelect={onSelect} onSelectEmbedding={onSelectEmbedding} onPull={onPull} onDelete={onDelete}/>
+        : <><div className="picker-list" aria-busy={recommended ? recommending : catalogLoading}>
+        {error && <ModelError code={error} onRetry={recommended ? onRequestRecommend : onRefreshCatalog}
+          disabled={actionsDisabled || (recommended ? recommending : catalogLoading)}/>}
+        {recommended ? <>
+          {(!recommendations||recommending&&!suggestions?.length) && !error ? <Empty>{t('detectingSystem')}</Empty> : suggestions?.map(model => <ModelRow key={model.name}
+            name={model.name} display={model.display} description={model.reason==='MEMORY_FIT'?model.description||'':modelLibraryText(model.reason,locale)} size={model.size_gb} sizeLabel={model.size_label}
+            metadata={model.kind&&<><Meta value={t(model.kind==='embedding'?'libraryEmbedding':'libraryLLM')}/>
+              <Meta value={modelContext(model.context_length)?modelContext(model.context_length)+' ctx':''}/></>}
+            extras={model.reason==='MEMORY_FIT'&&<span>{t('recommendationMemoryEstimate')}: {numberFormat.format(model.estimated_memory_gb??0)} GB
+              {model.gpu_fit?' · '+t('recommendationGpuFit'):''}</span>}
+            selected={installedModelName(model.name,installed) === (model.kind==='embedding'?embeddingCurrent||'':current)} actions={actions(model.name,true,model.kind)}/>)}
+          {suggestions?.length === 0 && !error && !recommending && <Empty>{t(recommendations?.length?'noModelMatches':recommendationStatus?.phase==='memory_unknown'?'recommendationMemoryUnknown':recommendationStatus?.unavailable?'recommendationPartialEmpty':'recommendationNoFit')}</Empty>}
+        </> : <>
+          {!catalog && !error ? <Empty>{t('loadingModels')}</Empty> : section === 'installed' && !installed
+            ? <Empty>{t('modelInventoryUnknown')}</Empty> : shownCategories.map(name => <section key={name} aria-label={categoryLabel(name)}>
+              <h3 className="picker-category">{categoryLabel(name)}</h3>
+              {filtered.filter(model => model.category === name).map(model => <ModelRow key={model.name} name={model.name}
+                display={model.display} description={modelLibraryText(model.description,locale)} selected={installedModelName(model.name,installed) === current}
+                metadata={<><Meta value={model.params}/><Meta value={modelContext(model.context_length) ? modelContext(model.context_length)+' ctx' : ''}/>
+                  {model.release_date && <span className="picker-model-date">{model.release_date}</span>}</>}
+                extras={<>{model.strengths?.map(value => <span className="picker-model-strength" key={value}>{modelLibraryText(value,locale)}</span>)}
+                  {easeRating(model.ease_of_use) && <span className="picker-ease" title={t('modelRatingSource')+': '+model.ease_of_use+'/5'}
+                    aria-label={t('modelRatingSource')+': '+model.ease_of_use+'/5'}>{'★'.repeat(model.ease_of_use!)}{'☆'.repeat(5-model.ease_of_use!)}</span>}</>}
+                size={model.size_gb} actions={actions(model.name)}/>)}</section>)}
+          {catalog && filtered.length === 0 && !error && (section !== 'installed' || installed) && <Empty>{t('noModelMatches')}</Empty>}
+        </>}
+      </div>
+      <footer className="picker-footer"><span>{recommended ? (suggestions?.length ?? 0) : filtered.length} {t('modelFilterCount')}</span>
+        <span>{t(recommended ? 'recommendationHardwareNotice' : 'modelCatalogNotice')}</span></footer></>}
     </section>
   </ModalHost>
 }
 
-export function ModelRow({name,display,description,metadata,extras,size,actions,selected}: {
-  name:string;display:string;description:string;metadata?:ReactNode;extras?:ReactNode;size?:number;actions:ReactNode;selected:boolean
+export function ModelRow({name,display,description,metadata,extras,size,sizeLabel,actions,selected}: {
+  name:string;display:string;description:string;metadata?:ReactNode;extras?:ReactNode;size?:number;sizeLabel?:string;actions:ReactNode;selected:boolean
 }) {
   return <article className={`picker-model ${selected ? 'current' : ''}`} aria-label={display || name}>
     <div className="picker-model-main"><div className="picker-model-name"><strong>{display || name}</strong>{metadata}</div>
       {display !== name && <div className="picker-model-id">{name}</div>}
       <p className="picker-model-desc">{description}</p><div className="picker-model-meta">{extras}</div></div>
-    <div className="picker-model-right">{typeof size === 'number' && Number.isFinite(size) && size > 0 && <span className="picker-model-size">≈ {size} GB</span>}{actions}</div>
+    <div className="picker-model-right">{sizeLabel?<span className="picker-model-size">{sizeLabel}</span>:typeof size === 'number' && Number.isFinite(size) && size > 0 && <span className="picker-model-size">≈ {size} GB</span>}{actions}</div>
   </article>
 }
 export function ModelActions({name,current,exact,ambiguous,cloudOnly,disabled,mutationLocked,pulling,deleting,canDelete,
@@ -212,17 +183,17 @@ export function ModelActions({name,current,exact,ambiguous,cloudOnly,disabled,mu
   useEffect(()=>{setConfirm(false)},[exact,name])
   if(deleting)return <span className="picker-badge pulling-badge">{t('modelDeleting')}…</span>
   if(pulling)return <span className="picker-badge pulling-badge">{t('pulling')}</span>
+  if(cloudOnly)return <span className="picker-badge cloud-badge">{t('modelCloudOnly')}</span>
   if(exact === current)return <span className="picker-badge current-badge"><ModelIcon kind="check"/>{t('active')}</span>
   if(ambiguous)return <button className="picker-action use" disabled={disabled} onClick={onViewInstalled}>{t('modelViewInstalled')}</button>
   if(exact)return <div className="picker-model-actions">
     <button className="picker-action use" disabled={disabled || mutationLocked} aria-label={`${t('modelSelectAction')} ${exact}`} onClick={()=>onSelect(exact)}>{t('useModel')}</button>
-    {canDelete && <button className={`picker-action del ${confirm ? 'confirm' : ''}`} disabled={mutationLocked}
+    {canDelete && <button className="nova-settings-danger" data-confirming={confirm||undefined} disabled={mutationLocked}
       aria-label={`${t(confirm ? 'confirmDelete' : 'modelDeleteAction')} ${exact}`} onClick={()=>{
         if(confirm){setConfirm(false);if(timer.current)clearTimeout(timer.current);onDelete(exact)}
         else{setConfirm(true);timer.current=setTimeout(()=>setConfirm(false),4000)}
       }}>{t(confirm ? 'confirmDelete' : 'deleteModel')}</button>}
   </div>
-  if(cloudOnly)return <span className="picker-badge cloud-badge">{t('modelCloudOnly')}</span>
   return <button className="picker-action download" disabled={mutationLocked} aria-label={`${t('modelDownloadAction')} ${name}`}
     onClick={()=>onPull(name)}><ModelIcon kind="download"/>{t('download')}</button>
 }

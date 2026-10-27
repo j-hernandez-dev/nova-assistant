@@ -34,6 +34,8 @@ jobs:
         with:
           python-version: '3.14'
       - run: python -m pip install -e . pytest pytest-subtests
+      - name: Check source release metadata
+        run: python -B ci/release_check.py
       - name: Require complete contract classification
         run: python -B ci/contract_inventory.py
       - name: Core positive current regression

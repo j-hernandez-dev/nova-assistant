@@ -22,6 +22,7 @@ from local_cli.knowledge import KnowledgeStore
 from local_cli.model_presets import SUPPORTS_THINKING, get_model_family, get_model_preset
 from local_cli.model_manager import ModelManager
 from local_cli.ollama_client import OllamaClient
+from local_cli.usage_ledger import UsageLedger
 from local_cli.plan_manager import PlanManager
 from local_cli.providers import LLMProvider
 from local_cli.providers.ollama_provider import OllamaProvider
@@ -48,10 +49,14 @@ def configure_server(self, *, send, human_timeout):
     self._cwd = Path.cwd().resolve()
     self._environment = get_sanitized_env()
     self._config = Config()
+    self._usage_ledger = UsageLedger()
+    self._embedding_usage_ledger = UsageLedger(kind="embedding")
     try:
         self._client = OllamaClient(base_url=self._config.ollama_host)
     except ValueError:
         self._client = OllamaClient()
+
+    self._client.usage_recorder = self._usage_ledger
 
     # Wrap the client in a provider for normalized chat operations.
     # Keep self._client for Ollama-specific ops (pull, delete, catalog, search).
@@ -72,7 +77,7 @@ def configure_server(self, *, send, human_timeout):
         environment=self._environment,
     )
 
-    # 007: Sub-agent support — inject AgentTool into tools list.
+    # 007: Sub-agent support â€” inject AgentTool into tools list.
     self._sub_agent_runner: SubAgentRunner | None = None
     try:
         self._sub_agent_runner = SubAgentRunner()
@@ -194,6 +199,9 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
     self._tools = passive_web_tools(self._tools,self._config)
     from local_cli.desktop_context_preferences import DesktopContextPreferences
     desktop_context = DesktopContextPreferences(self._config.state_dir)
+    from local_cli.embedding_settings import EmbeddingSettings, EmbeddingPreferences
+    self._embedding_settings = EmbeddingSettings(EmbeddingPreferences(self._config.state_dir),
+        inventory=self._provider_manager.model_inventory, usage=getattr(self, '_embedding_usage_ledger', None))
 
     def inference_options() -> dict[str, Any]:
         if self._provider.name != "ollama":
@@ -213,17 +221,32 @@ def create_server_application(self, *, send, human_timeout=180.0, run_agent_fn=N
             result["keep_alive"] = self._config.keep_alive
         return result
 
+    # Observe once during backend startup; foreground sends reuse this metadata.
+    if (self._provider_manager.snapshot().name in self._provider_manager.SUPPORTED and
+            self._provider_manager.snapshot().snapshot.capability_source == "unprobed"):
+        self._provider_manager.refresh_status()
+
+    from local_cli.web_config import load_web_settings, save_web_settings
+    web_settings = load_web_settings(self._config.state_dir)
+    from local_cli.memory_preferences import MemoryPreferences
+    memory_preferences=MemoryPreferences(self._config.state_dir)
     self._application = AgentSessionCoordinator(
-        fetch_enabled=load_fetch_enabled(self._config.state_dir),
+        fetch_enabled=web_settings['fetchEnabled'],
+        search_enabled=web_settings['searchEnabled'], browser_enabled=web_settings['browserEnabled'],
+        web_engine=web_settings['engine'], web_browser=web_settings['browser'],
+        web_settings_save=lambda value: save_web_settings(self._config.state_dir, value),
         fetch_enabled_save=lambda enabled: save_fetch_enabled(self._config.state_dir, enabled),
-        knowledge_factory=knowledge_factory(self._config.state_dir),
-        memory_factory=memory_factory(self._config.state_dir,
+        knowledge_factory=knowledge_factory(self._config.state_dir, embedding_settings=self._embedding_settings,
+            embedding_endpoint=getattr(self._config, 'memory_embedding_endpoint', 'http://127.0.0.1:11434')),
+        embedding_settings=self._embedding_settings,
+        memory_preferences=memory_preferences,
+        memory_factory=memory_factory(self._config.state_dir,preferences=memory_preferences,
+            embedding_settings=self._embedding_settings,
             embedding_model=getattr(self._config,'memory_embedding_model',''),
             embedding_endpoint=getattr(self._config,'memory_embedding_endpoint','http://127.0.0.1:11434'),
             capture_mode=getattr(self._config,'memory_auto_capture','off')),
         memory_capture_mode=getattr(self._config,'memory_auto_capture','off'),
         memory_extractor_factory=memory_extractor_factory,
-        allow_remote_memory_injection=getattr(self._config, 'allow_remote_memory_injection', False),
         security_audit_port=create_security_audit(self._cwd),
         provider=self._provider, model=self._config.model,
         provider_manager=self._provider_manager,

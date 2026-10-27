@@ -57,7 +57,7 @@ def test_search_uses_browser_policy_grant_without_http_or_fetch_opt_in(tmp_path)
         assert not any(c.permission.name == 'network.fetch' for c in grant.request.capabilities)
         assert rt._network_service is None
         assert rt.execute(inv) is result and len(adapter.calls) == 1
-        assert 'bing.com/search?' in grant.request.network_intent['destination']
+        assert 'google.com/search?' in grant.request.network_intent['destination']
     finally: rt.close()
 
 
@@ -107,12 +107,12 @@ def test_results_are_bounded_deduplicated_and_never_article_receipts():
 def test_preference_defaults_without_migration_and_changes_only_explicitly(tmp_path):
     from local_cli.browser_search_config import load_settings, save_settings, FILENAME
     from local_cli.bootstrap_passive_web import passive_web_tools
-    assert load_settings(tmp_path / 'missing').engine == 'bing'
+    assert load_settings(tmp_path / 'missing').engine == 'google'
     assert not (tmp_path / 'missing').exists()
     legacy = tmp_path / 'old-config'; legacy.write_text('web_search_endpoint=private')
     tool = BrowserSearchTool()
     tools = passive_web_tools([tool], SimpleNamespace(state_dir=tmp_path, web_search_enabled=True, web_search_endpoint='https://old/'))
-    assert tools == [tool] and tool.settings.engine == 'bing'
+    assert tools == [tool] and tool.settings.engine == 'google'
     tool.set_engine('google')
     assert load_settings(tmp_path).engine == 'google'
     assert legacy.read_text() == 'web_search_endpoint=private'

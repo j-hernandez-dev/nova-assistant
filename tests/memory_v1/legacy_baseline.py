@@ -51,7 +51,10 @@ def characterize_persistence(root):
     collision_a = persistence(a, state)
     collision_a.save([{'role': 'user', 'content': 'Synthetic source workspace A'}])
     collision_b = persistence(b, state)
-    assert collision_b.load()[0]['content'] == 'Synthetic source workspace A'
+    assert collision_b.load() == []
+    collision_b.save([{'role':'user','content':'Synthetic source workspace B'}])
+    assert collision_a.load()[0]['content'] == 'Synthetic source workspace A'
+    assert collision_b.load()[0]['content'] == 'Synthetic source workspace B'
     cross_manual = persistence(root / 'Other', state).restore(
         workspace=root / 'Other', snapshot_key=key)
     assert cross_manual == rows
@@ -72,7 +75,7 @@ def characterize_persistence(root):
         'manual_restored_messages': len(rows), 'autosave_bytes': autosave_bytes,
         'manual_snapshot_bytes': snapshot_bytes, 'save_ms': round(save_ms, 3),
         'load_ms': round(load_ms, 3), 'restart_roundtrip': True,
-        'legacy_slug_collision_observed': True, 'manual_cross_workspace_restore_observed': True,
+        'legacy_slug_collision_observed': False, 'manual_cross_workspace_restore_observed': True,
         'repeat_count_preserved': 12, 'contradiction_preserved': True,
         'clear_removes_autosave_only': True, 'snapshot_and_flight_recorder_survive_clear': True,
         'memory_subject_identity': 'ABSENT', 'memory_correction_delete_policy': 'ABSENT'}

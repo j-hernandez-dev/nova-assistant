@@ -129,7 +129,8 @@ def test_r2_session_separation_with_one_live_owner(tmp_path):
         target = fixture.retrieve('target', 'SESSION_CEDAR_71')
         foreign = fixture.retrieve('foreign', 'SESSION_CEDAR_71')
         assert [c['source_id'] for c in peer] == [source.source_id]
-        assert target == []
+        assert source.scope.kind is KnowledgeScopeKind.WORKSPACE
+        assert target == peer  # Local attachments now persist for the project, not the session.
         assert foreign == []
         assert len(fixture.visible('peer')) == 1  # Still live; no close/recovery removed it.
         save(tmp_path, dict(peer=peer, target=target, foreign=foreign,
